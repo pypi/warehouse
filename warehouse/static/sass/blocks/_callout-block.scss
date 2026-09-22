@@ -2,6 +2,7 @@
 
 @use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
@@ -19,6 +20,8 @@
   // Dismissable
     - Add data attributes to connect to JS script
     - Add ARIA labels to close button
+    - Add data-dismissable-setting="global" to persist across whole site
+      - Without "global" the dismissal persists for specific pages only
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
     <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="Close">
@@ -65,7 +68,8 @@
   }
 
   &__heading {
-    @include typography.h3;
+    font-size: fonts.$base-font-size;
+    font-weight: fonts.$bold-font-weight;
 
     details & {
       padding: 15px;
@@ -159,12 +163,8 @@
   &--warning {
     border-color: colors.$warning-color;
 
-    > :not(.modal, .button) {
+    .callout-block__heading i {
       color: colors.$warning-color;
-
-      a:not(.button) {
-        @include link-utilities.warning-underlined-link;
-      }
     }
 
     &::before {

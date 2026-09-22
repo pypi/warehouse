@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import http
 import json
+import uuid
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pretend
 import pytest
@@ -34,7 +36,9 @@ from warehouse.oidc.views import (
 )
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging import services
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
@@ -96,7 +100,7 @@ def test_mint_token_from_oidc_not_enabled(token, service_name, request):
     )
 
     response = views.mint_token_from_oidc(request)
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -140,7 +144,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -179,7 +183,7 @@ def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -212,7 +216,7 @@ def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
         pretend.call("jwt.decode raised generic error: oops")
     ]
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -245,7 +249,7 @@ def test_mint_token_from_oidc_unknown_issuer(metrics):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -329,7 +333,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -365,7 +369,7 @@ def test_mint_token_trusted_publisher_lookup_fails():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -409,7 +413,7 @@ def test_mint_token_duplicate_token():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -443,7 +447,7 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
     resp = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
     )
-    assert db_request.response.status_code == 422
+    assert db_request.response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp == {
         "message": "Token request failed",
         "errors": [
@@ -603,6 +607,72 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
             publisher_specifier=str(publisher),
         ),
     ]
+
+
+@pytest.mark.parametrize(
+    ("resets_in", "expected_description"),
+    [
+        (
+            timedelta(seconds=600),
+            "this organization has created too many new projects recently. "
+            "Try again in 600 seconds",
+        ),
+        (
+            None,
+            "this organization has created too many new projects recently",
+        ),
+    ],
+    ids=["with-reset-hint", "without-reset-hint"],
+)
+@pytest.mark.parametrize(
+    "limiter_method",
+    ["test", "hit"],
+    ids=["rejected-before-writing", "rejected-after-writing"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
+    monkeypatch, db_request, mocker, resets_in, expected_description, limiter_method
+):
+    """`hit` rejects after the project is in the session; committing would leave
+    an org-owned project whose pending publisher was never reified."""
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+
+    PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    monkeypatch.setattr(
+        views,
+        "_ratelimiters",
+        lambda r: {"user.oidc": ratelimiter, "ip.oidc": ratelimiter},
+    )
+
+    org_limiter = DummyRateLimiter()
+    mocker.patch.object(org_limiter, limiter_method, return_value=False)
+    mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+    project_service = db_request.find_service(IProjectService)
+    project_service.ratelimiters["project.create.organization"] = org_limiter
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [{"code": "rate-limited", "description": expected_description}],
+    }
+    assert db_request.tm.isDoomed()
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -1115,6 +1185,167 @@ def test_should_send_environment_warning_email(
     assert should_send_environment_warning_email(publisher, claims) == should_send
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"token": None},
+        {"token": 123},
+        {"token": [123]},
+        {},
+    ],
+)
+def test_burn_oidc_issued_token_invalid_payload(metrics, payload):
+    request = pretend.stub(
+        body=json.dumps(payload),
+        response=pretend.stub(status=None),
+        metrics=metrics,
+    )
+
+    response = views.burn_oidc_issued_token(request)
+
+    assert request.response.status == http.HTTPStatus.ACCEPTED
+    assert response == {"message": "Accepted", "errors": []}
+    assert request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_payload"],
+        ),
+    ]
+
+
+def test_burn_oidc_issued_token_invalid_macaroon(metrics):
+    macaroon_service = pretend.stub(
+        verify_signature_only=pretend.call_recorder(
+            pretend.raiser(views.InvalidMacaroonError)
+        )
+    )
+
+    def find_service(iface, **kw):
+        return {
+            IMacaroonService: macaroon_service,
+        }[iface]
+
+    request = pretend.stub(
+        body=json.dumps({"token": "invalid-macaroon"}),
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
+    )
+
+    response = views.burn_oidc_issued_token(request)
+
+    assert request.response.status == http.HTTPStatus.ACCEPTED
+    assert response == {"message": "Accepted", "errors": []}
+    assert request.find_service.calls == [
+        pretend.call(IMacaroonService, context=None),
+    ]
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("invalid-macaroon")
+    ]
+    assert request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_macaroon"],
+        ),
+    ]
+
+
+def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
+    macaroon = pretend.stub(
+        id=uuid.uuid4(),
+        oidc_publisher=None,
+        user=pretend.stub(username="fakeuser"),
+    )
+    macaroon_service = pretend.stub(
+        verify_signature_only=pretend.call_recorder(lambda token: macaroon),
+        delete_macaroon=pretend.call_recorder(lambda macaroon_id: None),
+    )
+    capture_message = pretend.call_recorder(lambda message: None)
+    monkeypatch.setattr(views.sentry_sdk, "capture_message", capture_message)
+
+    def find_service(iface, **kw):
+        return {
+            IMacaroonService: macaroon_service,
+        }[iface]
+
+    request = pretend.stub(
+        body=json.dumps({"token": "user-macaroon"}),
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
+    )
+
+    response = views.burn_oidc_issued_token(request)
+
+    assert request.response.status == http.HTTPStatus.ACCEPTED
+    assert response == {"message": "Accepted", "errors": []}
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("user-macaroon")
+    ]
+    assert macaroon_service.delete_macaroon.calls == []
+    assert capture_message.calls == [
+        pretend.call("Tried to burn an API token corresponding to a user: 'fakeuser'")
+    ]
+    assert request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:not_oidc_publisher"],
+        ),
+    ]
+
+
+def test_burn_oidc_issued_token_success(metrics):
+    projects = [pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))]
+    publisher = pretend.stub(publisher_name="GitHub", projects=projects)
+    macaroon_id = uuid.uuid4()
+    macaroon = pretend.stub(
+        id=macaroon_id,
+        oidc_publisher=publisher,
+    )
+    macaroon_service = pretend.stub(
+        verify_signature_only=pretend.call_recorder(lambda token: macaroon),
+        delete_macaroon=pretend.call_recorder(lambda macaroon_id: None),
+    )
+
+    def find_service(iface, **kw):
+        return {
+            IMacaroonService: macaroon_service,
+        }[iface]
+
+    request = pretend.stub(
+        body=json.dumps({"token": "oidc-macaroon"}),
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
+    )
+
+    response = views.burn_oidc_issued_token(request)
+
+    assert request.response.status == http.HTTPStatus.ACCEPTED
+    assert response == {"message": "Accepted", "errors": []}
+    assert request.find_service.calls == [
+        pretend.call(IMacaroonService, context=None),
+    ]
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("oidc-macaroon")
+    ]
+    assert macaroon_service.delete_macaroon.calls == [pretend.call(str(macaroon_id))]
+    assert request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:success", "publisher_name:GitHub"],
+        ),
+    ]
+
+    assert macaroon.oidc_publisher.projects[0].record_event.calls == [
+        pretend.call(
+            tag=EventTag.Project.ShortLivedAPITokenRevoked,
+            request=request,
+            additional={},
+        )
+    ]
+
+
 def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request):
     """
     Verify that the JTI is atomically claimed before the macaroon is minted,
@@ -1225,5 +1456,5 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
         "https://token.actions.githubusercontent.com",
         db_request,
     )
-    assert "422" in str(db_request.response.status)
+    assert str(http.HTTPStatus.UNPROCESSABLE_ENTITY) in str(db_request.response.status)
     assert response2["errors"][0]["code"] == "invalid-reuse-token"

@@ -2,6 +2,7 @@
 
 @use "sass:color";
 @use "sass:list";
+@use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/z-index";
 @use "../tools/link-utilities";
@@ -59,6 +60,12 @@
     text-decoration: none;
   }
 
+  &__trigger-label {
+    @media only screen and (max-width: breakpoints.$mobile) {
+      display: none;
+    }
+  }
+
   &__content {
     position: absolute;
     right: 0;
@@ -68,6 +75,12 @@
     border: 1px solid colors.$border-color;
     border-bottom: 0; // Each link has a bottom border, so we don't need one here
     display: none;
+  }
+
+  // Long lists (e.g. the language picker) shouldn't run off-screen.
+  &__content--languages {
+    max-height: 70vh;
+    overflow-y: auto;
   }
 
   &__link,

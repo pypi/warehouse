@@ -1,29 +1,23 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 <div class="sponsors">
-  <p class="sponsors__title">Supported by</p>
-  <div class="sponsors__divider"></div>
-  {% for sponsor in request.sponsors | sort(attribute='name') %}
-    {# Short-circuit if we don't have an image for them #}
-    {% if sponsor.white_logo_url %}
-      {# Check if they belong in the footer #}
-      {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor"
-           target="_blank"
-           rel="noopener"
-           href="{{ sponsor.link_url }}">
-          {{ sponsor.white_logo_img|camoify|safe }}
-          <span class="sponsors__name">{{ sponsor.name }}</span>
-          <span class="sponsors__service">
-            {# If they're an infra sponsor, we should have a service for them,
-          otherwise they're a PSF sponsor #}
-            {% if sponsor.infra_sponsor %}
-              {{ sponsor.service }}
-            {% elif sponsor.footer %}
-              PSF Sponsor
-            {% endif %}
-          </span>
-        </a>
-      {% endif %}
-    {% endif %}
+  {# Render every footer sponsor in a single compact row (no per-tier
+     stacking), preserving tier priority order. #}
+  {% for group in request.sponsors["footer"] %}
+    {% for sponsor in group.sponsors %}
+      <a class="sponsors__sponsor"
+         target="_blank"
+         rel="noopener"
+         href="{{ sponsor.link_url }}">
+        <span class="sponsors__image">{{ sponsor.color_logo_img|camoify|safe }}</span>
+        <span class="sponsors__name">{{ sponsor.name }}</span>
+        <span class="sponsors__description">
+          {%- if sponsor.infra_sponsor -%}
+            {{ sponsor.service }}
+          {%- elif group.tier -%}
+            {{ group.tier }} sponsor
+          {%- endif -%}
+        </span>
+      </a>
+    {% endfor %}
   {% endfor %}
 </div>

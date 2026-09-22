@@ -25,38 +25,33 @@
 {%- endmacro %}
 {% macro main_navigation_logged_out(next_url=none) -%}
   {% set login_url = request.route_path('accounts.login', _query={'next': next_url}) if next_url else request.route_path('accounts.login') %}
-  <div id="user-indicator"
-       class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet"
+  <div class="site-menu">
+    <nav class="site-menu site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.route_path('help') }}" class="site-menu__link">{% trans %}Help{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.user_docs_url('/') }}" class="horizontal-menu__link">{% trans %}Docs{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('sponsors') }}"
-             class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ login_url }}" class="site-menu__link">{% trans %}Log in{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ login_url }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
-        </li>
-        <li class="horizontal-menu__item">
+        <li class="site-menu__item">
           <a href="{{ request.route_path('accounts.register') }}"
-             class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a>
+             class="site-menu__link">{% trans %}Register{% endtrans %}</a>
         </li>
       </ul>
     </nav>
-    <nav class="dropdown dropdown--on-menu hidden show-on-tablet"
+    <nav class="dropdown dropdown--on-menu site-menu--dropdown site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <button type="button"
-              class="horizontal-menu__link dropdown__trigger"
+              class="site-menu__link dropdown__trigger"
               aria-haspopup="true"
               aria-expanded="false"
               aria-label="{% trans %}View menu{% endtrans %}">
-        {# djlint:off #}{% trans %}Menu{% endtrans %}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
       <ul class="dropdown__content"
           aria-hidden="true"
@@ -68,9 +63,6 @@
           <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li>
-          <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
-        </li>
-        <li>
           <a class="dropdown__link" href="{{ login_url }}">{% trans %}Log in{% endtrans %}</a>
         </li>
         <li>
@@ -79,6 +71,7 @@
         </li>
       </ul>
     </nav>
+    {% include "warehouse:templates/includes/language-dropdown.html" %}
   </div>
 {%- endmacro %}
 {% macro trademarks(long=False) -%}
@@ -361,196 +354,185 @@
   {% endblock content %}
 </main>
 <footer class="footer">
-  <div class="footer__logo">
-    <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}"
-         alt=""
-         class="-js-white-cube">
+  <div class="footer__inner">
+    <div class="footer__left">
+      <a class="footer__logo" href="{{ request.route_path('index') }}">
+        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}"
+             alt=""
+             class="-js-white-cube">
+        <span>PyPI</span>
+      </a>
+      <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
+      {% if request.registry.settings.get("statuspage.url") %}
+        <p class="footer__status">
+          <span class="footer__status-dot" aria-hidden="true"></span>
+          <a href="https://status.python.org/"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
+        </p>
+      {% endif %}
+      <div class="footer__donate">
+        <a class="button button--small" href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+      </div>
+    </div>
+    <div class="footer__right">
+      <div class="footer__menu">
+        <h2>{% trans %}Help{% endtrans %}</h2>
+        <nav aria-label="{% trans %}Help navigation{% endtrans %}">
+          <ul>
+            <li>
+              <a href="https://packaging.python.org/tutorials/installing-packages/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Installing packages{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://packaging.python.org/tutorials/packaging-projects/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Uploading packages{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://packaging.python.org/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}User guide{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://www.python.org/dev/peps/pep-0541/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Project name retention{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('help') }}">{% trans %}FAQs{% endtrans %}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__menu">
+        <h2>{% trans %}About PyPI{% endtrans %}</h2>
+        <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
+          <ul>
+            <li>
+              <a href="https://blog.pypi.org"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}PyPI Blog{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://dtdg.co/pypi"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('trademarks') }}">{% trans %}Logos & trademarks{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__menu">
+        <h2>{% trans %}Contributing to PyPI{% endtrans %}</h2>
+        <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
+          <ul>
+            <li>
+              <a href="{{ request.route_path('help') }}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://github.com/pypi/warehouse"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://hosted.weblate.org/projects/pypa/warehouse/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsor PyPI{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://github.com/pypi/warehouse/graphs/contributors"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Development credits{% endtrans %}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__menu">
+        <h2>{% trans %}Using PyPI{% endtrans %}</h2>
+        <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
+          <ul>
+            <li>
+              <a href="https://policies.python.org/pypi.org/Terms-of-Service/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Terms of Service{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://policies.python.org/python.org/code-of-conduct/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Code of conduct{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://policies.python.org/pypi.org/Privacy-Notice/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Privacy Notice{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="https://policies.python.org/pypi.org/Acceptable-Use-Policy/"
+                 title="{% trans %}External link{% endtrans %}"
+                 target="_blank"
+                 rel="noopener">{% trans %}Acceptable Use Policy{% endtrans %}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
   </div>
-  <div class="footer__menus">
-    <div class="footer__menu">
-      <h2>{% trans %}Help{% endtrans %}</h2>
-      <nav aria-label="{% trans %}Help navigation{% endtrans %}">
-        <ul>
-          <li>
-            <a href="https://packaging.python.org/tutorials/installing-packages/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Installing packages{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://packaging.python.org/tutorials/packaging-projects/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Uploading packages{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://packaging.python.org/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}User guide{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://www.python.org/dev/peps/pep-0541/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Project name retention{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('help') }}">{% trans %}FAQs{% endtrans %}</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div class="footer__menu">
-      <h2>{% trans %}About PyPI{% endtrans %}</h2>
-      <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
-        <ul>
-          <li>
-            <a href="https://blog.pypi.org"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}PyPI Blog{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://dtdg.co/pypi"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('trademarks') }}">{% trans %}Logos & trademarks{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div class="footer__menu">
-      <h2>{% trans %}Contributing to PyPI{% endtrans %}</h2>
-      <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
-        <ul>
-          <li>
-            <a href="{{ request.route_path('help') }}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://github.com/pypi/warehouse"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://hosted.weblate.org/projects/pypa/warehouse/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsor PyPI{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://github.com/pypi/warehouse/graphs/contributors"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Development credits{% endtrans %}</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div class="footer__menu">
-      <h2>{% trans %}Using PyPI{% endtrans %}</h2>
-      <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
-        <ul>
-          <li>
-            <a href="https://policies.python.org/pypi.org/Terms-of-Service/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Terms of Service{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://policies.python.org/python.org/code-of-conduct/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Code of conduct{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://policies.python.org/pypi.org/Privacy-Notice/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Privacy Notice{% endtrans %}</a>
-          </li>
-          <li>
-            <a href="https://policies.python.org/pypi.org/Acceptable-Use-Policy/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Acceptable Use Policy{% endtrans %}</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+  <div class="footer__switch-viewport hide-on-desktop">
+    <button type="button"
+            class="button button--small button--switch-to-desktop hidden"
+            data-viewport-toggle-target="switchToDesktop"
+            data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
-  <hr class="footer__divider">
-  <div class="footer__text">
-    {% if request.registry.settings.get("statuspage.url") %}
-      <p>
-        {% trans %}Status: {% endtrans %}<a href="https://status.python.org/"
-   title="{% trans %}External link{% endtrans %}"
-   target="_blank"
-   rel="noopener">
-        <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
-    </p>
-  {% endif %}
-  <p>
-    {% trans %}Developed and maintained by the Python community, for the Python community.{% endtrans %}
-    <br>
-    <a href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
-  </p>
-  <p>
-    {{ trademarks() }}
-    <br>
-  </p>
-  <p>
-    © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
+</footer>
+{% include "warehouse:templates/includes/sponsors-footer.html" %}
+<div class="legal-footer">
+  <ul>
+    <li>{{ trademarks() }}</li>
+    <li>
+      © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
     title="{% trans %}External link{% endtrans %}"
     target="_blank"
     rel="noopener">Python Software Foundation</a>
-    <br>
-    <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
-  </p>
-  {% if source_commit and source_commit != "null" %}
-    <p>
-      {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
-    </p>
-  {% endif %}
+    </li>
+    <li>
+      <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+    </li>
+    {% if source_commit and source_commit != "null" %}
+      <li>
+        {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+      </li>
+    {% endif %}
+  </ul>
 </div>
-<div class="centered hide-on-desktop">
-  <button type="button"
-          class="button button--switch-to-desktop hidden"
-          data-viewport-toggle-target="switchToDesktop"
-          data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
-</div>
-</footer>
-<div class="language-switcher">
-  <form action="{{ request.route_path('locale') }}">
-    <ul>
-      {% for identifier, locale in KNOWN_LOCALES.items() %}
-        <li>
-          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
-                  name="locale_id"
-                  value="{{ identifier }}"
-                  type="submit">{{ locale.display_name }}</button>
-        </li>
-      {% endfor %}
-    </ul>
-  </form>
-</div>
-{% include "warehouse:templates/includes/sponsors-footer.html" %}
 {% endblock body %}
 </body>
 </html>

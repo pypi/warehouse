@@ -1,13 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pypi_attestations
 import pytest
 
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from webob.multidict import MultiDict
 
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 from warehouse.packaging import views
+from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import LifecycleStatus
 
 from ...common.db.accounts import UserFactory
@@ -22,19 +26,32 @@ from ...common.db.packaging import (
 
 
 class TestProjectDetail:
-    def test_normalizing_redirects(self, db_request):
+    @pytest.fixture
+    def release_detail(self, mocker):
+        """Patch the inner view that ``project_detail`` delegates to."""
+        return mocker.patch.object(
+            views,
+            "release_detail",
+            autospec=True,
+            return_value=mocker.sentinel.response,
+        )
+
+    def test_normalizing_redirects(self, db_request, mocker):
         project = ProjectFactory.create()
 
         db_request.matchdict = {"name": project.name.swapcase()}
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/",
         )
 
         resp = views.project_detail(project, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
-        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
+        current_route_path.assert_called_once_with(name=project.name)
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
@@ -42,7 +59,7 @@ class TestProjectDetail:
         with pytest.raises(HTTPNotFound):
             views.project_detail(project, db_request)
 
-    def test_calls_release_detail(self, monkeypatch, db_request):
+    def test_calls_release_detail(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         ReleaseFactory.create(project=project, version="1.0")
@@ -50,16 +67,12 @@ class TestProjectDetail:
 
         release = ReleaseFactory.create(project=project, version="3.0")
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_with_prereleases(self, monkeypatch, db_request):
+    def test_with_prereleases(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         ReleaseFactory.create(project=project, version="1.0")
@@ -68,16 +81,12 @@ class TestProjectDetail:
 
         release = ReleaseFactory.create(project=project, version="3.0")
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_only_prereleases(self, monkeypatch, db_request):
+    def test_only_prereleases(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         ReleaseFactory.create(project=project, version="1.0.dev0")
@@ -85,45 +94,33 @@ class TestProjectDetail:
 
         release = ReleaseFactory.create(project=project, version="3.0.dev0")
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_prefers_non_yanked_release(self, monkeypatch, db_request):
+    def test_prefers_non_yanked_release(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         ReleaseFactory.create(project=project, version="2.0", yanked=True)
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_only_yanked_release(self, monkeypatch, db_request):
+    def test_only_yanked_release(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         release = ReleaseFactory.create(project=project, version="1.0", yanked=True)
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_prefers_non_quarantined_release(self, monkeypatch, db_request):
+    def test_prefers_non_quarantined_release(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         ReleaseFactory.create(
@@ -133,16 +130,12 @@ class TestProjectDetail:
         )
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
-    def test_only_quarantined_release(self, monkeypatch, db_request):
+    def test_only_quarantined_release(self, db_request, release_detail):
         project = ProjectFactory.create()
 
         release = ReleaseFactory.create(
@@ -151,50 +144,50 @@ class TestProjectDetail:
             lifecycle_status=LifecycleStatus.QuarantineEnter,
         )
 
-        response = pretend.stub()
-        release_detail = pretend.call_recorder(lambda ctx, request: response)
-        monkeypatch.setattr(views, "release_detail", release_detail)
-
         resp = views.project_detail(project, db_request)
 
-        assert resp is response
-        assert release_detail.calls == [pretend.call(release, db_request)]
+        assert resp is release_detail.return_value
+        release_detail.assert_called_once_with(release, db_request)
 
 
 class TestReleaseDetail:
-    def test_normalizing_name_redirects(self, db_request):
+    def test_normalizing_name_redirects(self, db_request, mocker):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
         db_request.matchdict = {"name": project.name.swapcase()}
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/3.0/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/3.0/",
         )
 
         resp = views.release_detail(release, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name)
-        ]
+        current_route_path.assert_called_once_with(name=release.project.name)
 
-    def test_normalizing_version_redirects(self, db_request):
+    def test_normalizing_version_redirects(self, db_request, mocker):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
         db_request.matchdict = {"name": project.name, "version": "3.0.0.0.0"}
-        db_request.current_route_path = pretend.call_recorder(
-            lambda **kw: "/project/the-redirect/3.0/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/3.0/",
         )
 
         resp = views.release_detail(release, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name, version=release.version)
-        ]
+        current_route_path.assert_called_once_with(
+            name=release.project.name, version=release.version
+        )
 
     def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
@@ -253,21 +246,23 @@ class TestReleaseDetail:
                     r.created,
                     r.is_prerelease,
                     r.yanked,
+                    r.yanked_date,
                     r.yanked_reason,
                     r.lifecycle_status,
+                    r.lifecycle_status_changed,
                 )
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
             "PEP740AttestationViewer": views.PEP740AttestationViewer,
-            "wheel_filters_all": {"interpreters": [], "abis": [], "platforms": []},
-            "wheel_filters_params": {
-                "filename": "",
-                "interpreters": "",
-                "abis": "",
-                "platforms": "",
+            "wheel_filters_all": {
+                "interpreter": {},
+                "abi": {},
+                "platform": {},
+                "other": {},
             },
+            "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -293,9 +288,24 @@ class TestReleaseDetail:
 
         assert result["files"] == sorted_files
         assert [file.wheel_filters for file in result["files"]] == [
-            {"interpreters": ["cp310"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp39"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp27"], "abis": ["none"], "platforms": ["any"]},
+            {
+                "interpreter": {"cp310": "CPython 3.10"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
+            {
+                "interpreter": {"cp39": "CPython 3.9"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
+            {
+                "interpreter": {"cp27": "CPython 2.7"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
         ]
 
     def test_license_from_classifier(self, db_request):
@@ -416,6 +426,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "public"
+        assert viewer.run_invocation_uri == (
+            "https://github.com/pypa/sampleproject/actions/runs/11713038981/attempts/1"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://github.com/pypa/sampleproject/tree/"
@@ -466,6 +479,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "private"
+        assert viewer.run_invocation_uri == (
+            "https://gitlab.com/pep740-example/sampleproject/-/jobs/8486974559"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://gitlab.com/pep740-example/sampleproject/-/tree/"
@@ -478,10 +494,8 @@ class TestPEP740AttestationViewer:
 
     def test_unknown_publisher(self, github_attestation):
         viewer = views.PEP740AttestationViewer(
-            publisher=pretend.stub(
-                kind="Unknown",
-            ),
-            attestation=pretend.stub(certificate_claims={}),
+            publisher=types.SimpleNamespace(kind="Unknown"),
+            attestation=types.SimpleNamespace(certificate_claims={}),
         )
 
         assert viewer.workflow_filename == ""
@@ -493,74 +507,66 @@ class TestPEP740AttestationViewer:
 
 class TestProjectSubmitMalwareObservation:
     def test_get_render_form(self, pyramid_request):
-        project = pretend.stub()
-        form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        project = ProjectFactory.build()
 
-        result = views.submit_malware_observation(
-            project, pyramid_request, _form_class=form_class
-        )
+        # DummyRequest defaults these to plain dicts, aliased to each other;
+        # WTForms needs a multidict
+        pyramid_request.GET = MultiDict({"summary": "Bad stuff in here"})
+        pyramid_request.POST = MultiDict()
 
-        assert result == {"project": project, "form": form_obj}
-        assert form_class.calls == [pretend.call(pyramid_request.POST)]
+        result = views.submit_malware_observation(project, pyramid_request)
+
+        assert result["project"] is project
+        assert isinstance(result["form"], SubmitMalwareObservationForm)
+        # the rendered form is fed from GET, which is what prefills it
+        assert result["form"].summary.data == "Bad stuff in here"
 
     def test_post_invalid_form(self, pyramid_request):
-        project = pretend.stub()
-        form_obj = pretend.stub()
-        form_obj.validate = pretend.call_recorder(lambda: False)
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        project = ProjectFactory.build()
 
         pyramid_request.method = "POST"
+        pyramid_request.GET = MultiDict()
+        pyramid_request.POST = MultiDict({"inspector_link": "", "summary": ""})
 
-        result = views.submit_malware_observation(
-            project, pyramid_request, _form_class=form_class
-        )
+        result = views.submit_malware_observation(project, pyramid_request)
 
-        assert result == {"project": project, "form": form_obj}
-        assert form_obj.validate.calls == [pretend.call()]
+        assert result["project"] is project
+        assert result["form"].errors
 
-    def test_post_valid_form(self, db_request):
+    def test_post_valid_form(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        form_obj = pretend.stub()
-        form_obj.inspector_link = pretend.stub(
-            data=f"https://inspector.pypi.io/project/{project.name}/"
-        )
-        form_obj.summary = pretend.stub(data="Bad stuff in here")
-        form_obj.validate = pretend.call_recorder(lambda: True)
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         db_request.method = "POST"
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/project/{project.name}/"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        db_request.GET = MultiDict()
+        db_request.POST = MultiDict(
+            {
+                "inspector_link": f"https://inspector.pypi.io/project/{project.name}/",
+                "summary": "Bad stuff in here",
+            }
         )
         db_request.user = user
-
-        result = views.submit_malware_observation(
-            project, db_request, _form_class=form_class
+        route_path = mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/project/{project.name}/",
         )
+
+        result = views.submit_malware_observation(project, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == f"/project/{project.name}/"
-        assert form_obj.validate.calls == [pretend.call()]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Your report has been recorded. Thank you for your help.",
-                queue="success",
-            )
+        assert db_request.session.peek_flash("success") == [
+            "Your report has been recorded. Thank you for your help."
         ]
-        assert db_request.route_path.calls == [
-            pretend.call("packaging.project", name=project.name)
-        ]
+        route_path.assert_called_once_with("packaging.project", name=project.name)
         assert len(project.observations) == 1
 
 
 class TestEditProjectButton:
-    def test_edit_project_button_returns_project(self):
-        project = pretend.stub()
-        assert views.edit_project_button(project, pretend.stub()) == {
+    def test_edit_project_button_returns_project(self, mocker):
+        project = ProjectFactory.build()
+        assert views.edit_project_button(project, mocker.sentinel.request) == {
             "project": project
         }

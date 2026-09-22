@@ -7,7 +7,7 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy.dialects import postgresql
 
-from warehouse.admin.views import observations as views
+from warehouse.admin.views import helpers, observations as views
 from warehouse.observations.models import ObservationKind
 
 from ....common.db.accounts import UserFactory, UserObservationFactory
@@ -20,133 +20,134 @@ from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ProjectObservationFactory,
+    ReleaseObservationFactory,
 )
 
 
-def _datatables_params(
-    *,
-    draw=1,
-    start=0,
-    length=25,
-    search="",
-    sort_col_idx=0,
-    sort_dir="desc",
-    kind=None,
-):
-    """Build the query-string dict that DataTables 1.10+ sends server-side."""
-    params = {
-        "draw": str(draw),
-        "start": str(start),
-        "length": str(length),
-        "search[value]": search,
-        "search[regex]": "false",
-        "order[0][column]": str(sort_col_idx),
-        "order[0][dir]": sort_dir,
-    }
-    # Column layout must match the JS in warehouse.js
-    column_names = ["created", "kind", "related_name", "summary", "observer"]
-    for i, name in enumerate(column_names):
-        params[f"columns[{i}][data]"] = name
-        params[f"columns[{i}][name]"] = name
-        params[f"columns[{i}][searchable]"] = "true"
-        params[f"columns[{i}][orderable]"] = "true"
-        params[f"columns[{i}][search][value]"] = (
-            kind if (kind is not None and name == "kind") else ""
-        )
+def _tabulator_params(*, page=None, size=None, sort=None, filters=None):
+    """Build the query-string dict Tabulator sends in remote mode."""
+    params = {}
+    if page is not None:
+        params["page"] = str(page)
+    if size is not None:
+        params["size"] = str(size)
+    if sort is not None:
+        params["sort[0][field]"] = sort[0]
+        params["sort[0][dir]"] = sort[1]
+    for i, (field, value) in enumerate((filters or {}).items()):
+        params[f"filter[{i}][field]"] = field
+        params[f"filter[{i}][type]"] = "like"
+        params[f"filter[{i}][value]"] = value
     return params
 
 
-class TestParseDataTablesParams:
+def _parse(params):
+    """Run the shared parser with this view's allowlists."""
+    return helpers.parse_tabulator_params(
+        params,
+        sortable_fields=views._SORTABLE_FIELDS,
+        default_sort_field="created",
+        filter_fields=views._FILTER_FIELDS,
+    )
+
+
+class TestParseTabulatorParams:
     def test_defaults(self):
-        parsed = views._parse_datatables_params(_datatables_params())
-        assert parsed.draw == 1
-        assert parsed.start == 0
-        assert parsed.length == 25
-        assert parsed.search_value == ""
-        assert parsed.sort_column == "created"
+        parsed = _parse({})
+        assert parsed.page == 1
+        assert parsed.size == 25
+        assert parsed.sort_field == "created"
         assert parsed.sort_dir == "desc"
-        assert parsed.kind_filter is None
+        assert parsed.filters == {}
 
     @pytest.mark.parametrize(
         ("raw", "expected"),
-        [(1000, 100), (-1, 100), (0, 1), (25, 25), (100, 100), (101, 100)],
+        [(-5, 1), (0, 1), (25, 25), (100, 100), (1000, 100)],
     )
-    def test_length_clamping(self, raw, expected):
-        parsed = views._parse_datatables_params(_datatables_params(length=raw))
-        assert parsed.length == expected
+    def test_size_clamping(self, raw, expected):
+        parsed = _parse(_tabulator_params(size=raw))
+        assert parsed.size == expected
+
+    def test_page_clamped_to_one(self):
+        parsed = _parse(_tabulator_params(page=-3))
+        assert parsed.page == 1
 
     @pytest.mark.parametrize(
         "overrides",
         [
-            pytest.param({"draw": "nope"}, id="bad_draw"),
-            pytest.param({"start": "nope"}, id="bad_start"),
-            pytest.param({"length": "nope"}, id="bad_length"),
-            pytest.param({"order[0][column]": "nope"}, id="bad_order_column"),
-            pytest.param({"order[0][dir]": "sideways"}, id="bad_order_dir"),
-            pytest.param({"search[value]": "x" * 501}, id="oversized_search"),
+            pytest.param({"page": "nope"}, id="bad_page"),
+            pytest.param({"size": "nope"}, id="bad_size"),
+            pytest.param({"page": "999999"}, id="page_too_deep"),
+            pytest.param(
+                {"sort[0][field]": "kind", "sort[0][dir]": "sideways"},
+                id="bad_sort_dir",
+            ),
+            pytest.param(
+                {"filter[0][field]": "summary", "filter[0][value]": "x" * 501},
+                id="oversized_filter",
+            ),
         ],
     )
     def test_malformed_input_raises(self, overrides):
         with pytest.raises(HTTPBadRequest):
-            views._parse_datatables_params(_datatables_params() | overrides)
+            _parse(_tabulator_params() | overrides)
 
-    def test_unknown_sort_column_falls_back_to_default(self):
-        """The summary column exists in the layout but isn't in _SORTABLE_COLUMNS."""
-        parsed = views._parse_datatables_params(
-            _datatables_params(sort_col_idx=3, sort_dir="asc")
-        )
-        assert parsed.sort_column == "created"
+    def test_sort_params(self):
+        parsed = _parse(_tabulator_params(sort=("kind", "asc")))
+        assert parsed.sort_field == "kind"
         assert parsed.sort_dir == "asc"
 
-    def test_unknown_column_name_is_ignored(self):
-        """A column whose name isn't in the allowlist falls back to default sort."""
-        params = _datatables_params(sort_col_idx=2) | {
-            "columns[2][name]": "not_a_real_column"
-        }
-        parsed = views._parse_datatables_params(params)
-        assert parsed.sort_column == "created"
+    @pytest.mark.parametrize("field", ["summary", "related", "nonsense"])
+    def test_unsortable_field_falls_back_to_default(self, field):
+        parsed = _parse(_tabulator_params(sort=(field, "asc")))
+        assert parsed.sort_field == "created"
+        assert parsed.sort_dir == "desc"
 
     @pytest.mark.parametrize(
         ("raw_kind", "expected"),
         [
-            pytest.param("is_malware", "is_malware", id="known_kind_accepted"),
-            pytest.param("not_a_real_kind", None, id="unknown_kind_ignored"),
-            pytest.param("", None, id="empty_kind_is_none"),
+            pytest.param("is_malware", "is_malware", id="known_kind"),
+            # The parser allowlists field names, not values; an unrecognized
+            # kind is rejected by the view's own `_parse_params`.
+            pytest.param("not_a_real_kind", "not_a_real_kind", id="unknown_kind"),
+            pytest.param("", None, id="empty_kind_is_dropped"),
         ],
     )
     def test_kind_filter(self, raw_kind, expected):
-        parsed = views._parse_datatables_params(_datatables_params(kind=raw_kind))
-        assert parsed.kind_filter == expected
+        parsed = _parse(
+            _tabulator_params(filters={"kind": raw_kind} if raw_kind else None)
+        )
+        assert parsed.filters.get("kind") == expected
 
-    def test_no_order_param_uses_default_sort(self):
-        """
-        When DataTables doesn't send order[0][column] at all, we keep the
-        baseline "created DESC" without attempting to parse order[0][dir].
-        """
-        params = _datatables_params()
-        params.pop("order[0][column]")
-        params.pop("order[0][dir]")
-        parsed = views._parse_datatables_params(params)
-        assert parsed.sort_column == "created"
-        assert parsed.sort_dir == "desc"
+    def test_summary_filter(self):
+        parsed = _parse(_tabulator_params(filters={"summary": "needle"}))
+        assert parsed.filters == {"summary": "needle"}
 
-    def test_column_list_without_kind_column(self):
+    def test_unknown_filter_field_is_ignored(self):
+        parsed = _parse(_tabulator_params(filters={"nonsense": "value"}))
+        assert parsed.filters == {}
+
+    def test_empty_filter_value_is_ignored(self):
+        params = {"filter[0][field]": "kind", "filter[0][value]": ""}
+        parsed = _parse(params)
+        assert parsed.filters == {}
+
+
+class TestParseParams:
+    """The view's own layer on top of the shared parser."""
+
+    def test_accepts_a_known_kind(self, db_request):
+        db_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        assert views._parse_params(db_request).filters == {"kind": "is_malware"}
+
+    def test_rejects_an_unknown_kind(self, db_request):
         """
-        If the client omits the "kind" column entirely we should stop
-        at the first missing index and leave kind_filter unset.
+        Letting it through would scan every observation table to return
+        nothing, reporting the typo as an empty table.
         """
-        params = _datatables_params()
-        for i in (1, 2, 3, 4):
-            for key in (
-                f"columns[{i}][data]",
-                f"columns[{i}][name]",
-                f"columns[{i}][searchable]",
-                f"columns[{i}][orderable]",
-                f"columns[{i}][search][value]",
-            ):
-                params.pop(key, None)
-        parsed = views._parse_datatables_params(params)
-        assert parsed.kind_filter is None
+        db_request.GET.update(_tabulator_params(filters={"kind": "not_a_kind"}))
+        with pytest.raises(HTTPBadRequest):
+            views._parse_params(db_request)
 
 
 def _compile(stmt):
@@ -158,26 +159,23 @@ def _compile(stmt):
     )
 
 
-def _parsed(**overrides) -> views._DataTablesParams:
-    """Build a _DataTablesParams with defaults that match the HTML-shell values."""
+def _parsed(**overrides) -> helpers.TabulatorParams:
+    """Build a _TabulatorParams with defaults that match the HTML-shell values."""
     fields: dict[str, object] = {
-        "draw": 1,
-        "start": 0,
-        "length": 25,
-        "search_value": "",
-        "sort_column": "created",
+        "page": 1,
+        "size": 25,
+        "sort_field": "created",
         "sort_dir": "desc",
-        "kind_filter": None,
+        "filters": {},
     }
     fields.update(overrides)
-    return views._DataTablesParams(**fields)  # type: ignore[arg-type]
+    return helpers.TabulatorParams(**fields)  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize("kind", list(ObservationKind))
 def test_every_kind_is_mapped(kind):
-    """The kind dropdown offers every ObservationKind, so a missing entry in
-    either mapping is a 500 or a dead link the moment an admin selects it."""
-    assert kind.value[0] in views._KIND_TO_MODEL
+    """The kind dropdown offers every ObservationKind, so a missing entry is a
+    dead link the moment an admin selects it."""
     assert kind.value[0] in views._KIND_TO_ADMIN_ROUTE
 
 
@@ -186,25 +184,45 @@ class TestBuildObservationsQuery:
     # AbstractConcreteBase-aggregated column) is resolvable in compile-only tests.
     pytestmark = pytest.mark.usefixtures("db_request")
 
-    def test_kind_filter_targets_concrete_table(self):
+    def test_kind_filter_keeps_the_polymorphic_union(self):
+        """The admin release page offers every kind, so an "Is Malware" report
+        can sit in release_observations as readily as in project_observations.
+        Narrowing to one table would drop the other from a filtered page."""
         compiled = _compile(
-            views._build_observations_query(_parsed(kind_filter="is_malware"))
+            views._build_observations_query(_parsed(filters={"kind": "is_malware"}))
         )
-        assert "project_observations" in compiled
-        assert "UNION ALL" not in compiled
+        assert "release_observations" in compiled
+        assert "UNION ALL" in compiled
 
     def test_no_kind_filter_uses_polymorphic_union(self):
         compiled = _compile(views._build_observations_query(_parsed()))
         assert "UNION ALL" in compiled
 
-    def test_search_filter_applies_ilike_to_summary_and_related_name(self):
+    def test_search_filter_matches_summary_and_related_name(self):
         compiled = _compile(
             views._build_observations_query(
-                _parsed(search_value="malicious", kind_filter="is_malware")
+                _parsed(filters={"summary": "malicious", "kind": "is_malware"})
             )
         )
-        assert "%malicious%" in compiled
-        assert compiled.lower().count("ilike") == 2
+        assert "malicious" in compiled
+        assert compiled.lower().count("like") == 2
+
+    def test_search_filter_escapes_like_wildcards(self):
+        """A literal % in a summary search is not a wildcard."""
+        compiled = _compile(
+            views._build_observations_query(_parsed(filters={"summary": "100%"}))
+        )
+        assert "100/%" in compiled
+        assert "ESCAPE" in compiled.upper()
+
+    def test_page_query_breaks_ties_on_id(self):
+        """
+        Neither sortable column is unique, and paging is LIMIT/OFFSET over
+        separate statements, so a tied group has to order the same way twice.
+        """
+        compiled = _compile(views._build_observations_query(_parsed()))
+        order_by = compiled.upper().rsplit("ORDER BY", 1)[1]
+        assert "ID DESC" in order_by
 
     @pytest.mark.parametrize(
         ("sort_dir", "expect_desc_keyword"),
@@ -214,21 +232,27 @@ class TestBuildObservationsQuery:
         # ASC is the SQL default and SQLAlchemy omits it; only "desc" adds DESC.
         compiled = _compile(
             views._build_observations_query(
-                _parsed(sort_column="kind", sort_dir=sort_dir)
+                _parsed(sort_field="kind", sort_dir=sort_dir)
             )
         )
         assert "ORDER BY" in compiled.upper()
         assert (" DESC" in compiled.upper()) is expect_desc_keyword
 
+    def test_fetches_one_extra_row(self):
+        compiled = _compile(views._build_observations_query(_parsed(page=2, size=10)))
+        assert "LIMIT 11" in compiled
+        assert "OFFSET 10" in compiled
 
-class TestRenderDatatablesPayload:
+
+class TestRenderTabulatorPayload:
     def test_empty_database(self, route_request):
-        route_request.params = _datatables_params()
-        payload = views._render_datatables_payload(route_request)
-        assert payload["draw"] == 1
-        assert payload["recordsFiltered"] == 0
-        assert payload["data"] == []
-        assert "recordsTotal" in payload
+        payload = views._render_tabulator_payload(route_request)
+        assert payload == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
+        }
 
     def test_returns_rows(self, route_request):
         observer = ObserverFactory.create()
@@ -242,10 +266,10 @@ class TestRenderDatatablesPayload:
             summary="malicious install hook",
         )
 
-        route_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
 
-        assert payload["recordsFiltered"] == 1
+        assert payload["total"] == 1
         assert len(payload["data"]) == 1
         row = payload["data"][0]
         assert row["kind"] == "is_malware"
@@ -258,25 +282,36 @@ class TestRenderDatatablesPayload:
     def test_pagination(self, route_request):
         ProjectObservationFactory.create_batch(30, kind="is_malware")
 
-        route_request.params = _datatables_params(
-            kind="is_malware", start=10, length=10
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=2, size=10)
         )
-        payload = views._render_datatables_payload(route_request)
+        payload = views._render_tabulator_payload(route_request)
 
-        assert payload["recordsFiltered"] == 30
         assert len(payload["data"]) == 10
 
     def test_kind_filter_narrows_results(self, route_request):
         ProjectObservationFactory.create_batch(3, kind="is_malware")
         ProjectObservationFactory.create_batch(2, kind="is_spam")
 
-        route_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
 
-        assert payload["recordsFiltered"] == 3
+        assert payload["total"] == 3
         assert all(r["kind"] == "is_malware" for r in payload["data"])
 
-    def test_global_search_matches_summary(self, route_request):
+    def test_kind_filter_keeps_observations_on_releases(self, route_request):
+        """Admins record observations on releases as well as on projects, and
+        the unfiltered list shows both. Picking a kind must not quietly drop
+        one of them."""
+        ProjectObservationFactory.create(kind="is_malware")
+        ReleaseObservationFactory.create(kind="is_malware")
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 2
+
+    def test_summary_filter_matches_summary(self, route_request):
         observer = ObserverFactory.create()
         ProjectObservationFactory.create(
             kind="is_malware", observer=observer, summary="extremely distinctive phrase"
@@ -285,12 +320,12 @@ class TestRenderDatatablesPayload:
             3, kind="is_malware", observer=observer, summary="boring"
         )
 
-        route_request.params = _datatables_params(
-            kind="is_malware", search="distinctive"
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware", "summary": "distinctive"})
         )
-        payload = views._render_datatables_payload(route_request)
+        payload = views._render_tabulator_payload(route_request)
 
-        assert payload["recordsFiltered"] == 1
+        assert payload["total"] == 1
         assert "distinctive" in payload["data"][0]["summary"]
 
     def test_related_link_none_when_related_deleted(self, route_request):
@@ -302,8 +337,8 @@ class TestRenderDatatablesPayload:
             related_name="Project(id=None, name='deleted-pkg')",
         )
 
-        route_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
         assert payload["data"][0]["related"] == "deleted-pkg"
@@ -312,8 +347,8 @@ class TestRenderDatatablesPayload:
         observer = ObserverFactory.create()  # Observer with no parent User
         ProjectObservationFactory.create(kind="is_malware", observer=observer)
 
-        route_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"][0]["observer"] == ""
         assert payload["data"][0]["observer_link"] is None
@@ -328,8 +363,8 @@ class TestRenderDatatablesPayload:
             related=target_user,
         )
 
-        route_request.params = _datatables_params(kind="account_abuse")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "account_abuse"}))
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"][0]["related_link"] == "/admin/users/compromised-acct/"
 
@@ -342,8 +377,10 @@ class TestRenderDatatablesPayload:
             related=org_app,
         )
 
-        route_request.params = _datatables_params(kind="information_request")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "information_request"})
+        )
+        payload = views._render_tabulator_payload(route_request)
 
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
@@ -357,8 +394,8 @@ class TestRenderDatatablesPayload:
             related=org_app,
         )
 
-        route_request.params = _datatables_params(kind="admin_note")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "admin_note"}))
+        payload = views._render_tabulator_payload(route_request)
 
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
@@ -377,8 +414,8 @@ class TestRenderDatatablesPayload:
             related_name="mangled-repr-without-name",
         )
 
-        route_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
         assert payload["data"][0]["related"] == "mangled-repr-without-name"
@@ -397,60 +434,74 @@ class TestRenderDatatablesPayload:
             related_name="not-a-parseable-repr",
         )
 
-        route_request.params = _datatables_params(kind="account_abuse")
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(_tabulator_params(filters={"kind": "account_abuse"}))
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
 
-    def test_filtered_count_when_page_past_end(self, route_request):
-        """
-        Seed 3 matching rows, request a page whose offset lands past the end.
-        `_count_filtered` runs through the kind-filter branch.
-        """
-        observer = ObserverFactory.create()
+    def test_filtered_pagination_is_rolling(self, route_request):
+        """With filters active there is no count, only a next-page probe."""
         ProjectObservationFactory.create_batch(
-            3, kind="is_malware", observer=observer, summary="needle phrase"
+            3, kind="is_malware", summary="needle phrase"
         )
 
-        route_request.params = _datatables_params(kind="is_malware", start=10, length=5)
-        payload = views._render_datatables_payload(route_request)
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, size=2)
+        )
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["last_page"] == 2
+        assert payload["total"] is None
+        assert payload["total_estimate"] is None
+
+    def test_filtered_final_page_reports_exact_total(self, route_request):
+        ProjectObservationFactory.create_batch(3, kind="is_malware")
+        ProjectObservationFactory.create_batch(2, kind="is_spam")
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 3
+        assert payload["total_estimate"] is None
+
+    def test_unfiltered_last_page_uses_estimate(self, route_request):
+        ProjectObservationFactory.create_batch(10, kind="is_malware")
+
+        route_request.GET.update(_tabulator_params(size=2))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["total"] is None
+        assert payload["total_estimate"] is not None
+
+    def test_last_page_capped_at_max_offset(self, route_request, monkeypatch):
+        monkeypatch.setattr(helpers, "TABULATOR_MAX_OFFSET", 4)
+        ProjectObservationFactory.create_batch(5, kind="is_malware")
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=2, size=2)
+        )
+
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["last_page"] == 2
+
+    def test_page_past_the_end_invents_no_total(self, route_request):
+        """
+        Everything skipped is an offset, not a count of rows that exist, so a
+        page starting past the data cannot report it as the total.
+        """
+        ProjectObservationFactory.create_batch(3, kind="is_malware")
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=5, size=5)
+        )
+
+        payload = views._render_tabulator_payload(route_request)
 
         assert payload["data"] == []
-        assert payload["recordsFiltered"] == 3
-
-    def test_filtered_count_with_search_when_page_past_end(self, route_request):
-        """
-        Same as `test_filtered_count_when_page_past_end`, with a search value set,
-        exercising the `ILIKE` branch of `_count_filtered`.
-        """
-        observer = ObserverFactory.create()
-        ProjectObservationFactory.create_batch(
-            2, kind="is_malware", observer=observer, summary="needle phrase"
-        )
-
-        route_request.params = _datatables_params(
-            kind="is_malware", search="needle", start=10, length=5
-        )
-        payload = views._render_datatables_payload(route_request)
-
-        assert payload["data"] == []
-        assert payload["recordsFiltered"] == 2
-
-    def test_filtered_count_without_kind_filter(self, route_request):
-        """
-        No `kind` filter but a search value: `_count_filtered` takes the
-        polymorphic path (base = Observation, no kind predicate).
-        """
-        observer = ObserverFactory.create()
-        ProjectObservationFactory.create(
-            kind="is_malware", observer=observer, summary="needle phrase"
-        )
-
-        route_request.params = _datatables_params(search="needle", start=10, length=5)
-        payload = views._render_datatables_payload(route_request)
-
-        assert payload["data"] == []
-        assert payload["recordsFiltered"] == 1
+        assert payload["total"] is None
+        assert payload["total_estimate"] is None
 
     def test_observer_resolution_is_batched(self, route_request, query_recorder):
         observer_a = ObserverFactory.create()
@@ -460,12 +511,11 @@ class TestRenderDatatablesPayload:
         for observer in (observer_a, observer_b, observer_a, observer_b):
             ProjectObservationFactory.create(kind="is_malware", observer=observer)
 
-        route_request.params = _datatables_params(kind="is_malware")
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
         with query_recorder:
-            views._render_datatables_payload(route_request)
-        # Expected queries:
-        # total estimate + main windowed query + observer resolution = 3.
-        # Regression sentinel for N+1s on observer or related.
+            views._render_tabulator_payload(route_request)
+        # Expected queries: statement timeout + main paginated query +
+        # observer resolution = 3. Regression sentinel for N+1s.
         assert len(query_recorder.queries) == 3
 
 
@@ -475,12 +525,11 @@ class TestObservationsListViews:
         assert result == {"observation_kinds": list(ObservationKind)}
 
     def test_json_view_returns_payload(self, route_request):
-        route_request.params = _datatables_params()
         result = views.observations_list_json(route_request)
         assert set(result.keys()) == {
-            "draw",
-            "recordsTotal",
-            "recordsFiltered",
+            "last_page",
+            "total",
+            "total_estimate",
             "data",
         }
 

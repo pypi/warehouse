@@ -4,6 +4,8 @@ import datetime
 
 from urllib.parse import urljoin
 
+import humanize
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
@@ -82,6 +84,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.http import is_safe_url
@@ -856,14 +859,44 @@ class ManageOrganizationProjectsViews:
                     self.request.user,
                     request=self.request,
                     creator_is_owner=False,
-                    ratelimited=False,
+                    ratelimited=True,
+                    organization_id=self.organization.id,
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            except RateLimiterException as exc:
+                self.request.tm.doom()
+                self.request.response.status = 429
+                if exc.resets_in is None:
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again later."
+                        )
+                    )
+                else:
+                    self.request.response.retry_after = exc.resets_in.total_seconds()
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again in ${time}.",
+                            mapping={
+                                "time": humanize.naturaldelta(
+                                    exc.resets_in.total_seconds()
+                                )
+                            },
+                        )
+                    )
+                return default_response
 
-        # Add project to organization, record events, and notify owners.
-        add_organization_project_and_notify(self.request, self.organization, project)
+        # create_project already linked a new project; only link an existing one.
+        add_organization_project_and_notify(
+            self.request,
+            self.organization,
+            project,
+            link=form.add_existing_project.data,
+        )
 
         # Display notification message.
         self.request.session.flash(
@@ -926,8 +959,13 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check if organization is in good standing (allow invitations over seat limit)
-        if not organization.is_in_good_standing():
+        is_billing_manager_invite = (
+            role_name == OrganizationRoleType.BillingManager.value
+        )
+
+        if not organization.is_in_good_standing() and not (
+            is_billing_manager_invite and organization.is_awaiting_initial_billing
+        ):
             request.session.flash(
                 request._(
                     "Cannot invite new member. Organization is not in good standing."
@@ -1006,7 +1044,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="GET",
     permission=Permissions.OrganizationsRead,
@@ -1018,7 +1056,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="POST",
     permission=Permissions.OrganizationsManage,
@@ -1030,11 +1068,14 @@ def manage_organization_roles(
 ):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
+    awaiting_initial_billing = organization.is_awaiting_initial_billing
+
     form = _form_class(
         request.POST,
         orgtype=organization.orgtype,
         organization_service=organization_service,
         user_service=user_service,
+        allow_billing_manager_only=awaiting_initial_billing,
     )
 
     if request.method == "POST" and form.validate():
@@ -1061,6 +1102,10 @@ def manage_organization_roles(
         "invitations": invitations,
         "form": form,
         "is_sole_owner": is_sole_owner,
+        "awaiting_initial_billing": awaiting_initial_billing,
+        "role_choices": ChangeOrganizationRoleForm(
+            orgtype=organization.orgtype
+        ).role_name.choices,
     }
 
 
@@ -1068,7 +1113,7 @@ def manage_organization_roles(
     route_name="manage.organization.resend_invite",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1115,7 +1160,7 @@ def resend_organization_invitation(organization, request):
     route_name="manage.organization.revoke_invite",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1211,7 +1256,7 @@ def revoke_organization_invitation(organization, request):
     route_name="manage.organization.change_role",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1287,7 +1332,7 @@ def change_organization_role(
     route_name="manage.organization.delete_role",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsRoleRemove,
     has_translations=True,
@@ -1478,6 +1523,7 @@ def remove_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
         # Display notification message.
         request.session.flash(
@@ -1618,6 +1664,7 @@ def transfer_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
 
         # Mark Organization as dirty, so purges will happen
@@ -1785,7 +1832,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+            self.request.db.flush()  # ast-grep-ignore: db-flush -- To get the new ID
         except UniqueViolation:
             # Double-post protection. The failed INSERT leaves the transaction
             # in an aborted state, so roll back before redirecting -- otherwise
