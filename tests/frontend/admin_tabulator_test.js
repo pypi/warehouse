@@ -73,6 +73,22 @@ describe("declarative admin tables", () => {
     expect(table.options.paginationSizeSelector).toEqual([25, 50, 100]);
   });
 
+  it("gives numeric column options their real types", async () => {
+    const table = await render(`
+      <table data-tabulator tabulator-layout="fitColumns" tabulator-responsiveLayout="collapse">
+        <thead><tr>
+          <th tabulator-widthGrow="3" tabulator-responsive="0">Name</th><th>Role</th>
+        </tr></thead>
+        <tbody><tr><td>pkg</td><td>Owner</td></tr></tbody>
+      </table>`);
+    const [handle, name] = table.getColumns();
+    expect(name.getDefinition().widthGrow).toBe(3);
+    // A string "0" is truthy, so Tabulator would still fold the column.
+    expect(name.getDefinition().responsive).toBe(0);
+    expect(table.modules.responsiveLayout.columns).not.toContain(name._column);
+    expect(handle.getDefinition().formatter).toBe("responsiveCollapse");
+  });
+
   it("sorts on the text of a cell rather than its markup", async () => {
     // Cell values are markup, so a naive sort compares hrefs.
     const table = await render(`

@@ -83,14 +83,12 @@ Tabulator.extendModule("sort", "sorters", {
 // strings, and Tabulator only ever coerces "true" and "false".
 //
 // Column options stay with Tabulator, since those are consumed later, when
-// the columns are built. They are still strings, so `tabulator-responsive`
-// priorities compare numerically but cannot be a real `0`, the one value
-// that would exclude a column from responsive folding altogether.
+// the columns are built. The numeric ones are given their type below.
 //
-// Unmarked columns default to 1, and columns sharing a priority fold
-// rightmost first, so number every column that should fold before them with
-// a 2 or higher. Marking one `1` says nothing and leaves it to fold by
-// position.
+// Unmarked columns default to a `tabulator-responsive` priority of 1, and
+// columns sharing a priority fold rightmost first, so number every column
+// that should fold before them with a 2 or higher. Marking one `1` says
+// nothing and leaves it to fold by position; `0` never folds.
 const TABLE_OPTIONS = {
   layout: ["layout", String],
   height: ["height", String],
@@ -226,6 +224,23 @@ const COLLAPSE_HANDLE_COLUMN = {
   responsive: 0,
 };
 
+// Column options Tabulator reads off a <th> are strings too, and these are
+// the ones it does arithmetic on: fitColumns adds `widthGrow` shares up, so
+// "3" would concatenate, and a `responsive` of "0" is truthy, so the column
+// would still fold. HtmlTableImport announces its column list before the
+// columns are built from it, which is the moment to give them their type.
+const NUMERIC_COLUMN_OPTIONS = ["widthGrow", "responsive"];
+
+function numberColumnOptions(table) {
+  table.options.columns.forEach((column) => {
+    NUMERIC_COLUMN_OPTIONS.forEach((option) => {
+      if (typeof column[option] === "string") {
+        column[option] = Number(column[option]);
+      }
+    });
+  });
+}
+
 function mountTable(element) {
   const options = tableOptions(element);
 
@@ -277,7 +292,8 @@ function mountTable(element) {
     options.columnDefaults.headerMenu = columnVisibilityMenu;
   }
 
-  new Tabulator(element, options);
+  const table = new Tabulator(element, options);
+  table.on("htmlImported", () => numberColumnOptions(table));
 }
 
 document.querySelectorAll("table[data-tabulator]").forEach(function (element) {
