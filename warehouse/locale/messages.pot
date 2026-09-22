@@ -3284,7 +3284,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:200
-#: warehouse/templates/pages/classifiers.html:47
+#: warehouse/templates/pages/classifiers.html:50
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -4333,7 +4333,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
 #: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:48
+#: warehouse/templates/pages/classifiers.html:51
 msgid "Copy"
 msgstr ""
 
@@ -8690,7 +8690,7 @@ msgid ""
 "in your <code>pyproject.toml</code> instead."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:36
+#: warehouse/templates/pages/classifiers.html:39
 msgid "List of classifiers"
 msgstr ""
 
