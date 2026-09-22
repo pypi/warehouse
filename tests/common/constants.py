@@ -95,7 +95,7 @@ DUMMY_ACTIVESTATE_OIDC_JWT = (
     "N2IxY2ItMmI4ZC00YmU1LTkxY2ItNzU3ZWRiMmVjOTcwIiwiaXNzIjoiaHR0cHM6Ly9w"
     "bGF0Zm9ybS5hY3RpdmVzdGF0ZS5jb20vYXBpL3YxL29hdXRoL29pZGMiLCJuYmYiOjE2"
     "NTA2NjMyNjUsImV4cCI6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.fakesig_acti"
-    "vestate"
+    "vestatc"
 )
 
 """
@@ -203,7 +203,7 @@ DUMMY_GITLAB_SELF_MANAGED_OIDC_JWT = (
     "kNi05MzRlLTY1NWIxOWIxNzhmYyIsImlhdCI6MTc1MDQwNTc5NCwibmJmIjoxNzUwNDA1Nzg5"
     "LCJleHAiOjE3NTA0MDkzOTQsImlzcyI6Imh0dHBzOi8vZ2l0bGFiLmV4YW1wbGUuY29tIiwi"
     "c3ViIjoicHJvamVjdF9wYXRoOmZvby9iYXI6cmVmX3R5cGU6YnJhbmNoOnJlZjptYWluIiwi"
-    "YXVkIjoicHlwaSJ9.fakesig_for_testing_self_managed_gitlab"
+    "YXVkIjoicHlwaSJ9.fakesig_for_testing_self_managed_gitlaY"
 )
 
 """
@@ -227,5 +227,5 @@ DUMMY_GOOGLE_OIDC_JWT = (
     "NvbSIsImF1ZCI6InB5cGkiLCJzdWIiOiIxMTEyNjA2NTAxMjExODUwNzI5MDYiLCJoZCI6"
     "Imdvb2dsZS5jb20iLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJlbWFpbF92ZXJpZm"
     "llZCI6dHJ1ZSwiYXRfaGFzaCI6Il9MTEtLaXZmdmZtZTllb1EzV2NNSWciLCJpYXQiOjE2"
-    "NTAwNTMxODUsImV4cCI6MTY1MDA1Njc4NX0.fakesig_google"
+    "NTAwNTMxODUsImV4cCI6MTY1MDA1Njc4NX0.fakesig_googlQ"
 )
