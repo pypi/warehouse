@@ -8,6 +8,7 @@ import opensearchpy
 from botocore.credentials import Credentials
 from celery.schedules import crontab
 from opensearchpy import RequestsAWSV4SignerAuth
+from sqlalchemy import inspect as sa_inspect
 from urllib3.util import parse_url
 
 from warehouse import db
@@ -33,6 +34,11 @@ def store_projects_for_project_reindex(config, session, flush_context):
     # a Project to reindex for when the session has been committed.
     for obj in session.new | session.dirty:
         if obj.__class__ == Project:
+            # Audit events do not change searchable project content.
+            if obj in session.dirty and sa_inspect(obj).committed_state.keys() == {
+                "events"
+            }:
+                continue
             # Un-index archived/quarantined projects
             if obj.lifecycle_status in [
                 LifecycleStatus.QuarantineEnter,
