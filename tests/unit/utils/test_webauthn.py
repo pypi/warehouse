@@ -81,8 +81,8 @@ def test_verify_registration_response(mocker):
 def test_verify_registration_response_failure():
     with pytest.raises(
         webauthn.RegistrationRejectedError,
-        match=r"^Invalid WebAuthn credential$",
-    ) as exc_info:
+        match="clientDataJSON was malformed",
+    ):
         webauthn.verify_registration_response(
             (
                 b'{"id": "foo", "rawId": "foo", "response": '
@@ -93,10 +93,6 @@ def test_verify_registration_response_failure():
             rp_id="fake_rp_id",
             origin="fake_origin",
         )
-
-    assert isinstance(
-        exc_info.value.__cause__, pywebauthn.helpers.exceptions.WebAuthnException
-    )
 
 
 def test_verify_assertion_response(mocker):

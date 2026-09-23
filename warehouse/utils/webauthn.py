@@ -124,7 +124,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
             require_user_verification=False,
         )
     except WebAuthnException as e:
-        raise RegistrationRejectedError("Invalid WebAuthn credential") from e
+        raise RegistrationRejectedError(str(e))
 
 
 def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):

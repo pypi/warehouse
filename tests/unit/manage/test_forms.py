@@ -616,7 +616,6 @@ class TestProvisionWebAuthnForm:
         )
 
         assert not form.validate()
-        assert form.credential.errors.pop() == "Invalid WebAuthn credential"
 
     def test_verify_label_missing(self):
         user_service = pretend.stub(
