@@ -854,6 +854,7 @@ class _MockRedis:
 
     def __init__(self, cache=None):
         self.cache = cache
+        self.ttls: dict[str, int] = {}
 
         if not self.cache:  # pragma: no cover
             self.cache = {}
@@ -866,6 +867,7 @@ class _MockRedis:
 
     def delete(self, key):
         del self.cache[key]
+        self.ttls.pop(key, None)
 
     def execute(self):
         pass
@@ -873,8 +875,11 @@ class _MockRedis:
     def exists(self, key):
         return key in self.cache
 
-    def expire(self, _key, _seconds):
-        pass
+    def expire(self, key, seconds, nx=False):
+        if nx and key in self.ttls:
+            return False
+        self.ttls[key] = seconds
+        return True
 
     def from_url(self, _url):
         return self

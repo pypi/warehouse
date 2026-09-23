@@ -289,6 +289,32 @@ class TestRedisLru:
             mocker.call("warehouse.lru.cache.hit"),
         ]
 
+    def test_ttl_is_set_once_per_hash(self, mockredis):
+        """A later write leaves the hash's existing TTL alone.
+
+        Redis EXPIRE replaces the current TTL, so refreshing it on every write
+        lets a hash that keeps receiving new keys outlive `expires` for as long
+        as traffic arrives, and `RedisLru` has no `hdel` to reclaim the fields
+        already in it. The `all-classifiers` tag `browse` uses is never purged,
+        so an absolute TTL is the only bound on its size.
+        """
+        redis_lru = RedisLru(mockredis, expires=100)
+
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", None, None)
+        redis_lru.fetch(func_test, [2, 3], {}, "[2,3]", None, 500)
+
+        assert mockredis.ttls["lru:tag:func_test"] == 100
+
+    def test_ttl_is_set_again_after_a_purge(self, mockredis):
+        """Purging drops the hash, so the next write starts a fresh window."""
+        redis_lru = RedisLru(mockredis, expires=100)
+
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", "test", None)
+        redis_lru.purge("test")
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", "test", 500)
+
+        assert mockredis.ttls["lru:test:func_test"] == 500
+
     def test_redis_purge(self, metrics, mockredis, mocker):
         redis_lru = RedisLru(mockredis, metric_reporter=metrics)
 
