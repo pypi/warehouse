@@ -11172,7 +11172,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/security.html:57
-msgid "This security policy was last updated in August 2026."
+msgid "This security policy was last updated in September 2026."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:9
