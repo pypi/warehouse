@@ -187,11 +187,11 @@ def xmlrpc_method(**kwargs):
 #    result depends on a model with no matching purge key leaves it stale for up
 #    to `xmlrpc_cache_expires`.
 #
-# 6. Changing the serializer or the key format invalidates everything, and the
-#    orphans are not self-cleaning: `add` re-`expire`s the whole hash on every
-#    write, and Redis EXPIRE replaces the existing TTL, so a field written in the
-#    old format survives as long as any field in that hash keeps being written.
-#    `RedisLru` has no `hdel`, so only a `purge_tag` or Redis eviction clears it.
+# 6. Changing the serializer or the key format invalidates everything, and
+#    `RedisLru` has no `hdel` to clear the orphans one at a time. They do age
+#    out on their own: `add` sets the hash TTL with `nx`, so the hash is dropped
+#    whole one `xmlrpc_cache_expires` after its first write however much traffic
+#    it sees in between. A `purge_tag` clears it sooner.
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
@@ -212,11 +212,11 @@ xmlrpc_cache_all_projects = functools.partial(
 
 # `browse` keys on classifiers, so it cannot share `all-projects`: every upload
 # purges that tag, and nothing under it survives long enough to be read back.
-# Nothing purges this tag at all, so entries live until the hash's TTL lapses,
-# which under steady traffic can be far longer than `xmlrpc_cache_expires`
-# (limitation 6). The method is deprecated and promises no recency, so that
-# is the trade: stale answers, including for garbage queries, never reach the
-# database.
+# Nothing purges this tag at all, so entries live until the hash's TTL lapses
+# and the whole hash goes with it (limitation 6). The method is deprecated and
+# promises no recency, so that is the trade: stale answers, including for
+# garbage queries, never reach the database, and the absolute TTL caps how many
+# of those a caller can pile up.
 BROWSE_CACHE_TAG = "all-classifiers"
 
 
