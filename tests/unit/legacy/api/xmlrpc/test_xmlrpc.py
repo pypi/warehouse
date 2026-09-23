@@ -3,6 +3,7 @@
 import datetime
 
 import pytest
+import venusian
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid_rpc.xmlrpc import XmlRpcApplicationError
@@ -462,6 +463,30 @@ def test_browse_no_classifiers_returns_nothing(db_request):
     ReleaseFactory.create(_classifiers=[classifier])
 
     assert xmlrpc.browse(db_request, []) == []
+
+
+def test_browse_is_cached_under_its_own_tag(mocker):
+    """`browse` registers on every endpoint with the `all-classifiers` tag.
+
+    Scans the views module the way Pyramid does at startup, so this pins the
+    options `cached_return_view` will see rather than a decorator's internals.
+    """
+    config = mocker.Mock()
+    config.with_package.return_value = config
+    venusian.Scanner(config=config).scan(xmlrpc, categories=["pyramid"])
+
+    registrations = [
+        call.kwargs
+        for call in config.add_xmlrpc_method.call_args_list
+        if call.kwargs["method"] == "browse"
+    ]
+
+    assert len(registrations) == 3
+    for kwargs in registrations:
+        assert kwargs["view"] is xmlrpc.browse
+        assert kwargs["xmlrpc_cache"] is True
+        assert kwargs["xmlrpc_cache_tag"] == xmlrpc.BROWSE_CACHE_TAG
+        assert kwargs["xmlrpc_cache_expires"] == 60 * 60
 
 
 def test_multicall(pyramid_request):

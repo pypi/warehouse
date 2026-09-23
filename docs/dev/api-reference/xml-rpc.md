@@ -114,6 +114,9 @@ Retrieve a list of `[name, version]` of all releases classified with all of
 the given classifiers. `classifiers` must be a list of Trove classifier
 strings.
 
+Responses are cached with no recency guarantee, so a release added or removed
+recently may not be reflected.
+
 ### `package_roles(package_name)`
 
 Retrieve a list of `[role, username]` for a given `package_name`.
