@@ -345,27 +345,39 @@ def user_packages(request, username: StrictStr):
 
 @xmlrpc_method(method="browse")
 def browse(request, classifiers: list[StrictStr]):
-    classifiers_q = (
-        request.db.query(Classifier)
-        .filter(Classifier.classifier.in_(classifiers))
+    if not classifiers:
+        return []
+
+    # `trove_classifiers` is a few hundred rows with a unique index on
+    # `classifier`, so resolving names to ids up front is a sub-millisecond
+    # lookup that keeps the table out of the expensive query below.
+    classifier_ids = request.db.scalars(
+        select(Classifier.id).where(Classifier.classifier.in_(classifiers))
+    ).all()
+
+    # Fewer ids than classifiers means the caller either named something we
+    # don't know or repeated itself. Either way no release can be tagged with
+    # `len(classifiers)` of the ids we found, which is the result the count
+    # below would have produced after doing all the work.
+    if len(classifier_ids) != len(classifiers):
+        return []
+
+    # Releases tagged with every requested classifier, straight out of the
+    # (trove_id, release_id) primary key on `release_classifiers`.
+    matching_releases = (
+        select(ReleaseClassifiers.release_id)
+        .where(ReleaseClassifiers.trove_id.in_(classifier_ids))
+        .group_by(ReleaseClassifiers.release_id)
+        .having(func.count() == len(classifier_ids))
         .subquery()
     )
 
-    release_classifiers_q = (
-        select(ReleaseClassifiers)
-        .where(ReleaseClassifiers.trove_id == classifiers_q.c.id)
-        .alias("rc")
-    )
-
-    releases = (
-        request.db.query(Project.name, Release.version)
-        .join(Release)
-        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
-        .group_by(Project.name, Release.version)
-        .having(func.count() == len(classifiers))
+    releases = request.db.execute(
+        select(Project.name, Release.version)
+        .join(Release, Release.project_id == Project.id)
+        .join(matching_releases, Release.id == matching_releases.c.release_id)
         .order_by(Project.name, Release.version)
-        .all()
-    )
+    ).all()
 
     return [(r.name, r.version) for r in releases]
 
