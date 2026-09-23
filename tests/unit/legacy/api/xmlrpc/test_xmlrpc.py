@@ -3,6 +3,7 @@
 import datetime
 
 import pytest
+import venusian
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid_rpc.xmlrpc import XmlRpcApplicationError
@@ -388,6 +389,104 @@ def test_browse(db_request):
             ],
         )
     ) == {(expected_release.project.name, expected_release.version)}
+
+
+def test_browse_orders_by_project_name_then_version(db_request):
+    """Results come back sorted by project name, then version.
+
+    Names are pinned lowercase so the database collation and Python's sort
+    agree, and the versions pin the sort as lexical rather than numeric:
+    "10.0" sorts before "2.0".
+    """
+    classifier = Classifier(classifier="Environment :: Other Environment")
+    db_request.db.add(classifier)
+
+    for name in ("charlie", "alpha", "bravo"):
+        # The subfactory names the project on the first release; the rest hang
+        # off that same project so the version ordering has something to sort.
+        first = ReleaseFactory.create(
+            project__name=name, version="2.0", _classifiers=[classifier]
+        )
+        for version in ("10.0", "1.0"):
+            ReleaseFactory.create(
+                project=first.project, version=version, _classifiers=[classifier]
+            )
+
+    assert xmlrpc.browse(db_request, ["Environment :: Other Environment"]) == [
+        ("alpha", "1.0"),
+        ("alpha", "10.0"),
+        ("alpha", "2.0"),
+        ("bravo", "1.0"),
+        ("bravo", "10.0"),
+        ("bravo", "2.0"),
+        ("charlie", "1.0"),
+        ("charlie", "10.0"),
+        ("charlie", "2.0"),
+    ]
+
+
+def test_browse_unknown_classifier_returns_nothing(db_request):
+    """An unrecognized classifier can never be satisfied, so nothing matches."""
+    classifier = Classifier(classifier="Environment :: Other Environment")
+    db_request.db.add(classifier)
+    ReleaseFactory.create(_classifiers=[classifier])
+
+    assert (
+        xmlrpc.browse(
+            db_request,
+            ["Environment :: Other Environment", "Environment :: No Such Thing"],
+        )
+        == []
+    )
+
+
+def test_browse_duplicate_classifiers_return_nothing(db_request):
+    """A release is only ever tagged with a classifier once, so a repeated
+    classifier asks for a count no release can reach."""
+    classifier = Classifier(classifier="Environment :: Other Environment")
+    db_request.db.add(classifier)
+    ReleaseFactory.create(_classifiers=[classifier])
+
+    assert (
+        xmlrpc.browse(
+            db_request,
+            ["Environment :: Other Environment", "Environment :: Other Environment"],
+        )
+        == []
+    )
+
+
+def test_browse_no_classifiers_returns_nothing(db_request):
+    """An empty request matches nothing rather than every release."""
+    classifier = Classifier(classifier="Environment :: Other Environment")
+    db_request.db.add(classifier)
+    ReleaseFactory.create(_classifiers=[classifier])
+
+    assert xmlrpc.browse(db_request, []) == []
+
+
+def test_browse_is_cached_under_its_own_tag(mocker):
+    """`browse` registers on every endpoint with the `all-classifiers` tag.
+
+    Scans the views module the way Pyramid does at startup, so this pins the
+    options `cached_return_view` will see rather than a decorator's internals.
+    """
+    config = mocker.Mock()
+    config.with_package.return_value = config
+    venusian.Scanner(config=config).scan(xmlrpc, categories=["pyramid"])
+
+    registrations = [
+        call.kwargs
+        for call in config.add_xmlrpc_method.call_args_list
+        if call.kwargs["method"] == "browse"
+    ]
+
+    assert len(registrations) == 3
+    for kwargs in registrations:
+        assert kwargs["view"] is xmlrpc.browse
+        assert kwargs["xmlrpc_cache"] is True
+        assert kwargs["xmlrpc_cache_tag"] == xmlrpc.BROWSE_CACHE_TAG
+        assert kwargs["xmlrpc_cache_expires"] == 60 * 60
 
 
 def test_multicall(pyramid_request):

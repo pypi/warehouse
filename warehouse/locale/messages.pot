@@ -3284,7 +3284,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:200
-#: warehouse/templates/pages/classifiers.html:42
+#: warehouse/templates/pages/classifiers.html:50
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -4333,7 +4333,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
 #: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:43
+#: warehouse/templates/pages/classifiers.html:51
 msgid "Copy"
 msgstr ""
 
@@ -8675,11 +8675,22 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""
 "To prevent a package from being uploaded to PyPI, use the special "
-"\"Private :: Do Not Upload\" classifier. PyPI will always reject packages"
-" with classifiers beginning with \"Private ::\"."
+"<code>Private :: Do Not Upload</code> classifier. PyPI will always reject"
+" packages with classifiers beginning with <code>Private ::</code>."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:33
+msgid ""
+"Note: As of <a "
+"href=\"https://packaging.python.org/en/latest/specifications/license-"
+"expression/\" target=\"_blank\" rel=\"noopener\">PEP 639</a>, the use of "
+"<code>License</code> Trove classifiers is deprecated. Please use <a "
+"href=\"https://packaging.python.org/en/latest/specifications/license-"
+"expression/\" target=\"_blank\" rel=\"noopener\">license expressions</a> "
+"in your <code>pyproject.toml</code> instead."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:39
 msgid "List of classifiers"
 msgstr ""
 
