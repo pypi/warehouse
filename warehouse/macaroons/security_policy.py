@@ -4,6 +4,7 @@ import base64
 
 from pyramid.authorization import ACLHelper
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.request import RequestLocalCache
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
@@ -43,11 +44,15 @@ def _extract_basic_macaroon(auth):
     return auth.strip()
 
 
+@RequestLocalCache()
 def _extract_http_macaroon(request):
     """
     A helper function for the extraction of HTTP Macaroon from a given request.
     Returns either a None if no macaroon could be found, or the string
     that represents our serialized macaroon.
+
+    Cached per request: both ``identity`` and ``permits`` need the token, and
+    the auth-method metric should count each request once.
     """
     authorization = request.headers.get("Authorization")
     if not authorization:
@@ -61,8 +66,6 @@ def _extract_http_macaroon(request):
     auth_method = auth_method.lower()
 
     metrics = request.find_service(IMetricsService, context=None)
-    # TODO: As this is called in both `identity` and `permits`, we're going to
-    #       end up double counting the metrics.
     metrics.increment("warehouse.macaroon.auth_method", tags=[f"method:{auth_method}"])
 
     if auth_method == "basic":
@@ -132,9 +135,8 @@ class MacaroonSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Re-extract our Macaroon from the request, it sucks to have to do this work
-        # twice, but I believe it is inevitable unless we pass the Macaroon back as
-        # a principal-- which doesn't seem to be the right fit for it.
+        # Cached from ``identity``, so this is the same token that produced the
+        # identity we are now authorizing.
         macaroon = _extract_http_macaroon(request)
 
         # It should not be possible to *not* have a macaroon at this point, because we
