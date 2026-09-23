@@ -371,7 +371,7 @@ Two gates sit on top of the ACL result, and they only ever *downgrade* an
 
 ```mermaid
 flowchart TD
-    A[<code>permits</code>]:::warehouse --> EX[re-extract macaroon from<br/><code>Authorization</code> header]:::warehouse
+    A[<code>permits</code>]:::warehouse --> EX[macaroon from the<br/>per-request cache filled<br/>by <code>identity</code>]:::warehouse
     EX --> ASSERT[assert macaroon is a <code>str</code>]:::warehouse
     ASSERT --> ALLOW{<code>MACAROON</code> allowed<br/>for this permission?}:::warehouse
     ALLOW -->|no| D1[<code>WarehouseDenied</code><br/>'invalid_permission']:::warehouse
