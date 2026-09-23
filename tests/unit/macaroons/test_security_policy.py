@@ -43,6 +43,21 @@ def test_extract_http_macaroon(auth, result, pyramid_request):
     assert security_policy._extract_http_macaroon(pyramid_request) == result
 
 
+def test_extract_http_macaroon_counts_once_per_request(pyramid_request, metrics):
+    """
+    ``identity`` and ``permits`` both extract the token from the same
+    request, but the auth-method metric must count a request once.
+    """
+    pyramid_request.headers["Authorization"] = "token foobar"
+
+    assert security_policy._extract_http_macaroon(pyramid_request) == "foobar"
+    assert security_policy._extract_http_macaroon(pyramid_request) == "foobar"
+
+    metrics.increment.assert_called_once_with(
+        "warehouse.macaroon.auth_method", tags=["method:token"]
+    )
+
+
 @pytest.mark.parametrize(
     ("auth", "result"),
     [
