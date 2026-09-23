@@ -157,7 +157,7 @@ def xmlrpc_method(**kwargs):
     return decorator
 
 
-# Caching wrappers for XML-RPC methods. Both store the view's return value in
+# Caching wrappers for XML-RPC methods. They all store the view's return value in
 # Redis as JSON (see `warehouse.legacy.api.xmlrpc.cache`), so a view is only safe
 # to wrap if its return value survives a `json.dumps()`/`json.loads()` round
 # trip. Known limitations, roughly in order of how likely they are to bite:
@@ -178,20 +178,16 @@ def xmlrpc_method(**kwargs):
 #    `float("inf")` serialize to the non-standard `NaN`/`Infinity` literals,
 #    which round-trip through our own cache but are not valid JSON.
 #
-# 4. Falsy results are never hits. `RedisLru.fetch` is `get(...) or add(...)`,
-#    so a view returning `[]`, `{}`, `0` or `None` re-runs its query on every
-#    request and rewrites the same entry each time.
-#
-# 5. The cache key is the JSON-encoded arguments verbatim while the purge tag is
+# 4. The cache key is the JSON-encoded arguments verbatim while the purge tag is
 #    canonicalized, so `package_roles("Django")` and `package_roles("django")`
 #    occupy separate entries holding identical data. Both are purged together.
 #
-# 6. Invalidation is only as good as the `purge_keys` registered for the models
+# 5. Invalidation is only as good as the `purge_keys` registered for the models
 #    a view reads (see `warehouse.packaging.includeme`). Wrapping a view whose
 #    result depends on a model with no matching purge key leaves it stale for up
 #    to `xmlrpc_cache_expires`.
 #
-# 7. Changing the serializer or the key format invalidates everything, and the
+# 6. Changing the serializer or the key format invalidates everything, and the
 #    orphans are not self-cleaning: `add` re-`expire`s the whole hash on every
 #    write, and Redis EXPIRE replaces the existing TTL, so a field written in the
 #    old format survives as long as any field in that hash keeps being written.
@@ -212,6 +208,16 @@ xmlrpc_cache_all_projects = functools.partial(
     xmlrpc_cache_expires=1 * 60 * 60,  # 1 hours
     xmlrpc_cache_tag="all-projects",
 )
+
+
+# `browse` keys on classifiers, so it cannot share `all-projects`: every upload
+# purges that tag, and nothing under it survives long enough to be read back.
+# Nothing purges this tag at all, so entries live until the hash's TTL lapses,
+# which under steady traffic can be far longer than `xmlrpc_cache_expires`
+# (limitation 6). The method is deprecated and promises no recency, so that
+# is the trade: stale answers, including for garbage queries, never reach the
+# database.
+BROWSE_CACHE_TAG = "all-classifiers"
 
 
 class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
@@ -343,29 +349,46 @@ def user_packages(request, username: StrictStr):
     return [(r.role_name, r.project.name) for r in roles]
 
 
-@xmlrpc_method(method="browse")
+@xmlrpc_method(
+    method="browse",
+    xmlrpc_cache=True,
+    xmlrpc_cache_expires=1 * 60 * 60,  # 1 hour
+    xmlrpc_cache_tag=BROWSE_CACHE_TAG,
+)
 def browse(request, classifiers: list[StrictStr]):
-    classifiers_q = (
-        request.db.query(Classifier)
-        .filter(Classifier.classifier.in_(classifiers))
+    if not classifiers:
+        return []
+
+    # `trove_classifiers` is a few hundred rows with a unique index on
+    # `classifier`, so resolving names to ids up front is a sub-millisecond
+    # lookup that keeps the table out of the expensive query below.
+    classifier_ids = request.db.scalars(
+        select(Classifier.id).where(Classifier.classifier.in_(classifiers))
+    ).all()
+
+    # Fewer ids than classifiers means the caller either named something we
+    # don't know or repeated itself. Either way no release can be tagged with
+    # `len(classifiers)` of the ids we found, which is the result the count
+    # below would have produced after doing all the work.
+    if len(classifier_ids) != len(classifiers):
+        return []
+
+    # Releases tagged with every requested classifier, straight out of the
+    # (trove_id, release_id) primary key on `release_classifiers`.
+    matching_releases = (
+        select(ReleaseClassifiers.release_id)
+        .where(ReleaseClassifiers.trove_id.in_(classifier_ids))
+        .group_by(ReleaseClassifiers.release_id)
+        .having(func.count() == len(classifier_ids))
         .subquery()
     )
 
-    release_classifiers_q = (
-        select(ReleaseClassifiers)
-        .where(ReleaseClassifiers.trove_id == classifiers_q.c.id)
-        .alias("rc")
-    )
-
-    releases = (
-        request.db.query(Project.name, Release.version)
-        .join(Release)
-        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
-        .group_by(Project.name, Release.version)
-        .having(func.count() == len(classifiers))
+    releases = request.db.execute(
+        select(Project.name, Release.version)
+        .join(Release, Release.project_id == Project.id)
+        .join(matching_releases, Release.id == matching_releases.c.release_id)
         .order_by(Project.name, Release.version)
-        .all()
-    )
+    ).all()
 
     return [(r.name, r.version) for r in releases]
 
