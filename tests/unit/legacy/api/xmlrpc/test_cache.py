@@ -13,6 +13,7 @@ from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
 
+from tests.common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
     NullXMLRPCCache,
@@ -571,6 +572,33 @@ class TestPurgeTask:
             "type_3",
             "foo",
         }
+
+    def test_store_purge_keys_skips_audit_only_changes(self, app_config, db_request):
+        """Recording an event on a project does not purge its cached responses."""
+        project = ProjectFactory.create()
+        db_request.db.flush()
+        db_request.db.info.pop("warehouse.legacy.api.xmlrpc.cache.purges", None)
+
+        project.record_event(tag="test:event", request=db_request, additional={})
+        db_request.db.flush()
+
+        purges = db_request.db.info["warehouse.legacy.api.xmlrpc.cache.purges"]
+        assert f"project/{project.normalized_name}" not in purges
+
+    def test_store_purge_keys_new_file_purges_all_projects(self, db_request):
+        """
+        A file added to an existing release marks the release dirty through its
+        `files` collection, and that still purges the serial listing.
+        """
+        release = ReleaseFactory.create()
+        db_request.db.flush()
+        db_request.db.info.pop("warehouse.legacy.api.xmlrpc.cache.purges", None)
+
+        FileFactory.create(release=release)
+        db_request.db.flush()
+
+        purges = db_request.db.info["warehouse.legacy.api.xmlrpc.cache.purges"]
+        assert "all-projects" in purges
 
     def test_execute_purge(self, app_config, mocker):
         service = NullXMLRPCCache("null://", mocker.stub(name="purger"))
