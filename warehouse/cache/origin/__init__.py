@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import contextlib
 import functools
 import operator
 
@@ -9,40 +8,25 @@ from typing import Any, NamedTuple
 
 import structlog
 
-from sqlalchemy import inspect as sa_inspect
-from sqlalchemy.exc import NoInspectionAvailable
-
 from warehouse import db
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
-from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db import (
+    AUDIT_ONLY_ATTRS,
+    changed_attributes,
+    orm_session_from_obj,
+)
 
 logger = structlog.get_logger(__name__)
 
 # Collection-attribute mutations that should NOT trigger a CDN purge for the
-# parent object. Each falls into one of two buckets:
-#
-#   - Audit/admin-only collections whose contents never appear on a cached
-#     response: `events` (HasEvents), `observations` (HasObservations),
-#     `invitations` (project/org role invitations — only rendered on the
-#     private manage UI and admin pages).
-#
-#   - Collections whose child model has its own `cache_keys` registration
-#     that already covers the affected content: `roles`, `releases`, `files`.
-#     When the child is added/removed its own purge fires, so the parent-dirty
-#     purge is either redundant (same keys) or strictly broader (extra keys
-#     like `all-projects` / `org/*` that aren't actually affected by the
-#     child-scoped change).
-_NON_CACHE_RELEVANT_ATTRS = frozenset(
-    {
-        "events",
-        "observations",
-        "invitations",
-        "roles",
-        "releases",
-        "files",
-    }
-)
+# parent object: the audit-only collections, plus collections whose child model
+# has its own `cache_keys` registration that already covers the affected
+# content (`roles`, `releases`, `files`). When the child is added/removed its
+# own purge fires, so the parent-dirty purge is either redundant (same keys) or
+# strictly broader (extra keys like `all-projects` / `org/*` that aren't
+# actually affected by the child-scoped change).
+_NON_CACHE_RELEVANT_ATTRS = AUDIT_ONLY_ATTRS | {"roles", "releases", "files"}
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -55,26 +39,23 @@ def store_purge_keys(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a cache key that we'll want to purge when the session has been committed.
-    for obj in session.new | session.dirty | session.deleted:
+    new, dirty, deleted = session.new, session.dirty, session.deleted
+    for obj in new | dirty | deleted:
         try:
             key_maker = cache_keys[obj.__class__]
         except KeyError:
             continue
 
-        changed = set()
-        if obj in session.dirty:
-            with contextlib.suppress(NoInspectionAvailable):
-                changed = set(sa_inspect(obj).committed_state.keys())
-            # Skip if only non-cache-relevant attributes changed
-            if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
-                continue
+        changed = changed_attributes(obj, dirty)
+        if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
+            continue
 
         keys = list(key_maker(obj).purge)
 
         if keys:
-            if obj in session.new:
+            if obj in new:
                 state = "new"
-            elif obj in session.deleted:
+            elif obj in deleted:
                 state = "deleted"
             else:
                 state = "dirty"
