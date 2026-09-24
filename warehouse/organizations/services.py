@@ -632,6 +632,10 @@ class DatabaseOrganizationService:
         )
 
         # Delete team project roles for teams belonging to the departing org.
+        # Rows carrying `organization_project_id` are now cascaded away by the
+        # database when the association below is deleted; this statement still
+        # covers rows predating that column, and can be dropped once it is
+        # NOT NULL. See https://github.com/pypi/warehouse/issues/19748
         self.db.execute(
             delete(TeamProjectRole).where(
                 TeamProjectRole.project_id == project_id,
@@ -889,10 +893,22 @@ class DatabaseOrganizationService:
         """
         Adds a team project role for the specified team and project
         """
+        team = self.get_team(team_id)
+        organization_project = self.get_organization_project(
+            team.organization_id, project_id
+        )
+
         team_project_role = TeamProjectRole(
             team_id=team_id,
             project_id=project_id,
             role_name=role_name,
+            # Still nullable while the column is being phased in, so a missing
+            # association does not block granting the role. The service-layer
+            # cleanup in `delete_organization_project` remains the safety net
+            # until the column is NOT NULL.
+            organization_project_id=(
+                organization_project.id if organization_project else None
+            ),
         )
 
         self.db.add(team_project_role)

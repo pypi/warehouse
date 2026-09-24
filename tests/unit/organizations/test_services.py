@@ -1125,6 +1125,60 @@ class TestDatabaseOrganizationService:
             .count()
         )
 
+    def test_add_team_project_role_links_organization_project(
+        self, organization_service, db_request
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory.create(organization=organization)
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization, project=project
+        )
+
+        role = organization_service.add_team_project_role(team.id, project.id, "Owner")
+        db_request.db.flush()
+
+        assert role.organization_project_id == organization_project.id
+
+    def test_add_team_project_role_without_organization_project(
+        self, organization_service, db_request
+    ):
+        # The project is not associated with the team's organization, so there
+        # is nothing to link to. Permitted while the column is nullable.
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+
+        role = organization_service.add_team_project_role(team.id, project.id, "Owner")
+        db_request.db.flush()
+
+        assert role.organization_project_id is None
+
+    def test_team_project_role_cascades_with_organization_project(self, db_request):
+        # Deleting the association directly, bypassing the service-layer
+        # cleanup, must still remove the role: the invariant is enforced by
+        # the database, not by application code.
+        organization = OrganizationFactory.create()
+        team = TeamFactory.create(organization=organization)
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization, project=project
+        )
+        role = TeamProjectRoleFactory.create(
+            team=team, project=project, organization_project=organization_project
+        )
+        role_id = role.id
+
+        db_request.db.delete(organization_project)
+        db_request.db.flush()
+
+        # Query rather than `db.get`: the cascade happens in the database, so
+        # the session's identity map would still hand back the stale object.
+        assert not (
+            db_request.db.query(TeamProjectRole)
+            .filter(TeamProjectRole.id == role_id)
+            .count()
+        )
+
     def test_delete_team_project_role(self, organization_service):
         team = TeamFactory.create()
         project = ProjectFactory.create()
