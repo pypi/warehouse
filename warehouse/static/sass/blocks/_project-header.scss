@@ -85,7 +85,7 @@
   }
 }
 
-.banner--quarantined {
+.page-hero--quarantind {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$warning-color, $lightness: -5%);
@@ -101,7 +101,7 @@
   }
 }
 
-.banner--yanked {
+..page-hero--yanked {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$text-color, $lightness: -5%);
