@@ -1,6 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% for banner in banners %}
-  <div class="notification-bar {{ "notification-bar--dismissable" if banner.dismissable else "" }}"
+  <div class="banner {{ "banner--dismissable" if banner.dismissable else "" }}"
        data-controller="notification"
        data-notification-target="notification"
        id="{{ banner.id }}">
