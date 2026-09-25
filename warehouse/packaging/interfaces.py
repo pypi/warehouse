@@ -84,6 +84,7 @@ class IProjectService(Interface):
         request,
         *,
         creator_is_owner=True,
+        ratelimited=True,
         organization_id: UUID | None = None,
     ):
         """
