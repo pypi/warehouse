@@ -85,6 +85,10 @@ class TestAuthMethodsPredicate:
         with pytest.raises(ValueError, match="not a valid AuthenticationMethod"):
             AuthMethodsPredicate({"not-a-real-method"}, None)
 
+    def test_rejects_basic_auth_without_macaroon(self):
+        with pytest.raises(ConfigurationError, match="requires macaroon"):
+            AuthMethodsPredicate({"basic-auth"}, None)
+
 
 class TestAuthMethodsForRoute:
     def test_returns_predicate_val(self):
