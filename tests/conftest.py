@@ -275,6 +275,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
+    dummy_request.matched_route = None
     dummy_request.authentication_method = None
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
