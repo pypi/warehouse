@@ -15,6 +15,7 @@ from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.predicates import auth_methods_for_route
 from warehouse.utils.security_policy import (
     AuthenticationMethod,
     permission_allowed_by_authentication_method,
@@ -87,6 +88,15 @@ class MacaroonSecurityPolicy:
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
         request.authentication_method = AuthenticationMethod.MACAROON
+
+        # A route must be matched
+        if not request.matched_route:
+            return None
+
+        # Honor explicit auth_methods declarations on the route.
+        allowed = auth_methods_for_route(request.matched_route)
+        if allowed is not None and AuthenticationMethod.MACAROON not in allowed:
+            return None
 
         # We need to extract our Macaroon from the request.
         macaroon = _extract_http_macaroon(request)

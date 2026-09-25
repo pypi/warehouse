@@ -292,7 +292,9 @@ header, either as `Basic` with username `__token__`, or as `token`/`bearer`.
 ```mermaid
 flowchart TD
     A[<code>identity</code>]:::warehouse --> VARY[add Vary: <code>Authorization</code><br/>set method = <code>MACAROON</code>]:::warehouse
-    VARY --> EX[extract macaroon from<br/><code>Authorization</code> header]:::warehouse
+    VARY --> AM{no <code>matched_route</code>, or<br/><code>auth_methods</code> set and<br/><code>MACAROON</code> excluded?}:::warehouse
+    AM -->|yes| N0[return <code>None</code>]:::warehouse
+    AM -->|no| EX[extract macaroon from<br/><code>Authorization</code> header<br/>cached per request]:::warehouse
     EX --> HAS{macaroon string<br/>extracted?}:::warehouse
     HAS -->|no| N1[return <code>None</code>]:::warehouse
     HAS -->|yes| FIND[(<code>IMacaroonService.verify_signature_only</code>)]:::service
