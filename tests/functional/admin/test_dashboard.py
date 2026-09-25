@@ -3,17 +3,27 @@ from http import HTTPStatus
 
 
 class TestAdminDashboard:
-    def test_dashboard_renders_stat_cards_via_component(self, webtest, login_admin):
+    def test_dashboard_renders_stat_cards(self, webtest, login_admin):
         login_admin(with_terms_of_service_agreement=True)
 
         resp = webtest.get("/admin/", status=HTTPStatus.OK)
 
-        # The Organizations "Approved" card (always rendered) and its footer link
-        # now come from the stat_card component.
-        assert "small-box bg-gradient-info" in resp.text
-        assert "0 Approved" in resp.text  # empty DB, zero approved orgs
-        assert "small-box-footer" in resp.text
-        assert "View All Reviewable" in resp.text
+        # Empty DB, so zero approved organizations.
+        approved = resp.html.find("h3", string="0 Approved").find_parent(
+            "div", class_="small-box"
+        )
+        assert "bg-gradient-info" in approved["class"]
+        assert approved.find("i", class_="fa-people-group") is not None
+        footer = approved.find("a", class_="small-box-footer")
+        assert footer["href"] == "/admin/organizations/"
+        assert footer.get_text(strip=True) == "View All"
+
+        with_projects = resp.html.find("h3", string="0 With Projects").find_parent(
+            "div", class_="small-box"
+        )
+        assert with_projects.find("a", class_="small-box-footer") is None
+        tooltip = with_projects.find("i", class_="info-icon")
+        assert tooltip["title"] == "Organizations that have at least one project"
 
     def test_dashboard_renders_malware_card_when_reports_exist(
         self, webtest, login_admin, make_malware_report
@@ -28,6 +38,9 @@ class TestAdminDashboard:
 
         resp = webtest.get("/admin/", status=HTTPStatus.OK)
 
-        assert "small-box bg-gradient-warning" in resp.text
-        assert "Open Malware Reports" in resp.text
-        assert "More info" in resp.text
+        card = resp.html.find("h3", string="1").find_parent("div", class_="small-box")
+        assert "bg-gradient-warning" in card["class"]
+        assert card.find("p").get_text(strip=True) == "Open Malware Reports"
+        footer = card.find("a", class_="small-box-footer")
+        assert footer["href"] == "/admin/malware_reports/"
+        assert footer.get_text(strip=True) == "More info"
