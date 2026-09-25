@@ -62,7 +62,7 @@ _illegal_ranges = [
 _illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
 XMLRPC_DEPRECATION_URL = (
-    "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
+    "https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods"
 )
 
 
