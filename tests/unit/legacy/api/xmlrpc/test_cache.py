@@ -296,8 +296,7 @@ class TestRedisLru:
         Redis EXPIRE replaces the current TTL, so refreshing it on every write
         lets a hash that keeps receiving new keys outlive `expires` for as long
         as traffic arrives, and `RedisLru` has no `hdel` to reclaim the fields
-        already in it. The `all-classifiers` tag `browse` uses is never purged,
-        so an absolute TTL is the only bound on its size.
+        already in it.
         """
         redis_lru = RedisLru(mockredis, expires=100)
 
