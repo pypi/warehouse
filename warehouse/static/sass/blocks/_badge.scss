@@ -19,6 +19,7 @@
     - success: Green background
     - warning: Orange background
     - danger: Red background
+    - compact: Tighter padding, no left margin
 */
 
 .badge {
@@ -120,5 +121,10 @@
 
   &--no-uppercase {
     text-transform: none;
+  }
+
+  &--compact {
+    padding: 1px 6px;
+    margin-left: 0;
   }
 }

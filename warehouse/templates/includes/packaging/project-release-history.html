@@ -107,9 +107,26 @@
               {% if provenance_status %}
                 {% set provenance_states = provenance_status.states %}
                 <span class="release__meta-divider" aria-hidden="true"></span>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=provenance_status.counts.total_files %}{{ count }} release file
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i>{% trans count=provenance_status.counts.total_files %}{{ count }} release file
                 {% pluralize %}
                 {{ count }} release files{% endtrans %}</a>
+                <span class="release__meta-divider" aria-hidden="true"></span>
+                {# Same order as project-security.html: these are not mutually exclusive. #}
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security">
+                  {% if 'lost-provenance' in provenance_states %}
+                    <span class="warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>{% trans %}Loss of provenance{% endtrans %}</span>
+                  {% elif 'changed-provenance' in provenance_states %}
+                    <span class="warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>{% trans %}Change of provenance{% endtrans %}</span>
+                  {% elif 'inconsistent-provenance' in provenance_states %}
+                    <span class="warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>{% trans %}Inconsistent provenance{% endtrans %}</span>
+                  {% elif 'partial-provenance' in provenance_states %}
+                    <span class="warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>{% trans %}Incomplete provenance{% endtrans %}</span>
+                  {% elif 'full-provenance' in provenance_states %}
+                    <i class="fa-solid fa-circle-check primary" aria-hidden="true"></i>{% trans %}Full provenance{% endtrans %}
+                  {% elif 'no-provenance' in provenance_states %}
+                    <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>{% trans %}No provenance{% endtrans %}
+                  {% endif %}
+                </a>
               {% endif %}
             </p>
           </div>

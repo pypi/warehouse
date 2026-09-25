@@ -1,0 +1,6 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if file.provenance %}
+  <i class="fa-solid fa-circle-check primary" aria-hidden="true"></i> {% trans %}With provenance{% endtrans %}
+{% else %}
+  <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i> {% trans %}Without provenance{% endtrans %}
+{% endif %}
