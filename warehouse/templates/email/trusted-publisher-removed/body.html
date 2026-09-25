@@ -22,6 +22,17 @@
         <li>Organization: {{ publisher.organization }}</li>
         <li>ActiveState Project name: {{ publisher.activestate_project_name }}</li>
         <li>Actor: {{ publisher.actor }}</li>
+      {% elif publisher.publisher_name == "Buildkite" %}
+        <li>Pipeline URL: {{ publisher.publisher_url() }}</li>
+        <li>Organization: {{ publisher.organization_slug }}</li>
+        <li>Pipeline: {{ publisher.pipeline_slug }}</li>
+        {% if publisher.buildkite_organization_id %}
+          <li>Organization ID: {{ publisher.buildkite_organization_id }}</li>
+        {% endif %}
+        {% if publisher.pipeline_id %}<li>Pipeline ID: {{ publisher.pipeline_id }}</li>{% endif %}
+        {% if publisher.build_branch %}<li>Build branch: {{ publisher.build_branch }}</li>{% endif %}
+        {% if publisher.build_tag %}<li>Build tag: {{ publisher.build_tag }}</li>{% endif %}
+        {% if publisher.step_key %}<li>Step key: {{ publisher.step_key }}</li>{% endif %}
       {% endif %}
     </ul>
   </p>

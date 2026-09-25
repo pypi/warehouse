@@ -603,6 +603,34 @@
           <br>
           <b>Actor:</b> {{ publisher.actor }}
           <br>
+        {% elif publisher.publisher_name == "Buildkite" %}
+          <b>Organization:</b> {{ publisher.organization_slug }}
+          <br>
+          <b>Pipeline:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.pipeline_slug }}</a>
+          <br>
+          <b>Organization ID:</b>
+          {% if publisher.buildkite_organization_id %}
+            {{ publisher.buildkite_organization_id }}
+          {% else %}
+            <i>({% trans %}Not yet pinned{% endtrans %})</i>
+          {% endif %}
+          <br>
+          <b>Pipeline ID:</b>
+          {% if publisher.pipeline_id %}
+            {{ publisher.pipeline_id }}
+          {% else %}
+            <i>({% trans %}Not yet pinned{% endtrans %})</i>
+          {% endif %}
+          <br>
+          {% for label, value in (("Build branch", publisher.build_branch), ("Build tag", publisher.build_tag), ("Step key", publisher.step_key)) %}
+            <b>{{ label }}:</b>
+            {% if value %}
+              {{ value }}
+            {% else %}
+              <i>({% trans %}Any{% endtrans %})</i>
+            {% endif %}
+            <br>
+          {% endfor %}
         {% else %}
           -
         {% endif %}
