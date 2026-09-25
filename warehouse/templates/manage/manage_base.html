@@ -329,10 +329,11 @@
   warning=True,
   custom_warning_text="",
   confirm_string_in_title=True,
-  modifier="--danger")
+  modifier="--danger",
+  wide=False)
   %}
   <div id="{{ slug }}"
-       class="modal"
+       class="modal {{ 'modal--wide' if wide }}"
        data-controller="{% if confirm_string %}confirm {% endif %}modal-close">
     <div class="modal__content" role="dialog">
       <a href="#modal-close"
@@ -476,6 +477,101 @@
     </div>
   </div>
 {% endmacro %}
+{#
+  Acknowledgment checkboxes for the irreversible delete flows.
+
+  Every checkbox name here must appear in the matching tuple in
+  `warehouse/utils/project.py`, which is what the view enforces. The checkboxes
+  only gate the submit button in the browser; the server refuses a POST that
+  omits any of them.
+-#}
+{% macro acknowledgment_checkbox(name) -%}
+  <input class="inline-checkbox"
+         type="checkbox"
+         name="{{ name }}"
+         data-action="input->confirm#check"
+         data-confirm-target="checkbox">
+{%- endmacro %}
+{% macro delete_project_acknowledgments() %}
+  <ul class="no-bullets no-left-margin">
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_delete_releases") }}
+        {% trans %}I understand that I am permanently deleting all releases for this project.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_install_break") }}
+        {% trans %}I understand that my users will no longer be able to install this project.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
+        {% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted versions</a>.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_name_release") }}
+        {% trans %}I understand that I am releasing this project name for use by any other PyPI user.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_no_reregister") }}
+        {% trans href=request.help_url(_anchor="project-name") %}I understand that I may not be able to re-register the project name <a href="{{ href }}" target="_blank" rel="noopener">under some circumstances</a>.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_irreversible") }}
+        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+    <li>
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
+        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+  </ul>
+{% endmacro %}
+{% macro delete_release_acknowledgments(version) %}
+  <ul class="no-bullets no-left-margin">
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_delete_files") }}
+        {% trans release_version=version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_install_break") }}
+        {% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
+        {% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_irreversible") }}
+        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+    <li>
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
+        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+  </ul>
+{% endmacro %}
 {% macro confirm_button(
   title,
   label,
@@ -489,16 +585,15 @@
   confirm_string_in_title=True,
   modifier="--danger",
   tooltip=None,
-  additional_attributes=None)
+  wide=False)
   %}
   {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}"
      class="button button{{ modifier }}"
-     {% if tooltip != None %}title="{{ tooltip }}"{% endif %}
-     {{ additional_attributes or '' }}>
+     {% if tooltip != None %}title="{{ tooltip }}"{% endif %}>
     {{ confirm_button_label if confirm_button_label else title }}
   </a>
-  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, confirm_string_in_title=confirm_string_in_title, modifier=modifier) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, confirm_string_in_title=confirm_string_in_title, modifier=modifier, wide=wide) }}
 {% endmacro %}
 {% macro confirm_password_button(
   title,
