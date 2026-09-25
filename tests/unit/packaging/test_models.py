@@ -140,6 +140,47 @@ def _provenance_history(publisher=None):
     return oldest.project
 
 
+def _late_file_history():
+    """
+    A project with three releases: late files, punctual files, and none.
+
+    Mirrors `_provenance_history`'s shape for `provenance_statuses`, giving
+    `late_file_statuses` a release on every branch its per-release
+    counterpart, `Release.late_file_status`, can take.
+    """
+    project = DBProjectFactory.create()
+    late = DBReleaseFactory.create(project=project, version="1.0", created=_RELEASED_AT)
+    DBFileFactory.create(
+        release=late,
+        filename=f"{project.name}-1.0-0.whl",
+        packagetype="bdist_wheel",
+        upload_time=_RELEASED_AT,
+    )
+    DBFileFactory.create(
+        release=late,
+        filename=f"{project.name}-1.0-1.tar.gz",
+        packagetype="sdist",
+        upload_time=_RELEASED_AT + datetime.timedelta(days=30),
+    )
+    punctual = DBReleaseFactory.create(
+        project=project,
+        version="2.0",
+        created=_RELEASED_AT + datetime.timedelta(days=60),
+    )
+    DBFileFactory.create(
+        release=punctual,
+        filename=f"{project.name}-2.0-0.whl",
+        packagetype="bdist_wheel",
+        upload_time=punctual.created,
+    )
+    DBReleaseFactory.create(
+        project=project,
+        version="3.0",
+        created=_RELEASED_AT + datetime.timedelta(days=90),
+    )  # no files
+    return project
+
+
 class TestRole:
     def test_repr(self, db_request):
         role = DBRoleFactory()
@@ -905,6 +946,53 @@ class TestProject:
         # And each matches the verdict that release's own page would render.
         for release in (no_prov, full, partial, inconsistent, changed, lost):
             assert statuses[release.version].states == release.provenance_status.states
+
+    def test_late_file_statuses_agree_with_each_release(self, db_session):
+        """
+        The batched statuses are the per-release ones, for every release.
+
+        Pinning them to each other is what lets the release history page read
+        the project-wide mapping while a release page reads its own status,
+        without the two drifting apart. The count is asserted first, so that
+        both sides returning nothing cannot satisfy the equality.
+        """
+        project = _late_file_history()
+
+        statuses = project.late_file_statuses
+
+        assert len(statuses) == 2
+        assert statuses == {
+            release.version: release.late_file_status
+            for release in project.releases
+            if release.late_file_status is not None
+        }
+
+    def test_late_file_statuses_costs_one_query_once(self, db_session, query_recorder):
+        """
+        Every release's status comes back in a single query, run only once.
+
+        This is the whole point of the property. The release history page
+        renders one card per release and reads `late_files` off each status,
+        so neither the release count nor the number of reads may cost
+        another query.
+        """
+        project = _late_file_history()
+        db_session.flush()
+        assert project.id is not None  # load the project row before counting
+
+        query_recorder.clear()
+        with query_recorder:
+            statuses = [project.late_file_statuses for _ in range(3)]
+
+        assert len(statuses[0]) == 2
+        assert all(repeat is statuses[0] for repeat in statuses)
+        assert len(query_recorder.queries) == 1, query_recorder.queries
+
+    def test_late_file_statuses_omits_releases_without_files(self, db_session):
+        """A release with no files has no status, the same as on the release."""
+        project = _late_file_history()
+
+        assert set(project.late_file_statuses) == {"1.0", "2.0"}
 
 
 class TestDependency:
