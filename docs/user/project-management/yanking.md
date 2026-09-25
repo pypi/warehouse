@@ -2,6 +2,8 @@
 title: Yanking
 ---
 
+# Yanking
+
 !!! note
 
     PyPI currently only supports yanking of *entire releases*, not individual files.

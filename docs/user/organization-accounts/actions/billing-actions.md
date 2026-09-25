@@ -11,7 +11,7 @@ can be performed an organization account.
 
     All actions assume an authorized user has logged into their account.
 
-#### Change billing details
+## Change billing details
 
 *Actor: Owner, Billing Manager*
 
@@ -24,7 +24,7 @@ can be performed an organization account.
 
 ---
 
-#### Cancel Subscription plan
+## Cancel Subscription plan
 
 *Actor: Owner, Billing Manager*
 
@@ -39,7 +39,7 @@ The subscription will be available until the end of the month
 
 ---
 
-#### Renew Subscription plan
+## Renew Subscription plan
 
 *Actor: Owner, Billing Manager*
 
@@ -52,7 +52,7 @@ The subscription will be available until the end of the month
 
 ---
 
-#### Download invoice/receipt
+## Download invoice/receipt
 
 *Actor: Owner, Billing Manager*
 

@@ -1,55 +1,49 @@
 # Project Metadata
 
-Python packages can include additional metadata to provide more information
-about the project. This document outlines the specific behaviors
-implemented by PyPI to display project metadata and other details. The
-comprehensive list of metadata fields is available in the [Python Packaging
-User Guide].
+PyPI displays three types of project metadata:
 
-[Python Packaging User Guide]: https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata-specifications
+* **PyPI data**: System metadata managed by PyPI
+* **Verified data**: Author-provided metadata that PyPI verified at the time of upload
+* **Unverified data**: Author-provided metadata that PyPI did not verify
 
+This documentation is about **the metadata package authors can provide about a project**, and how that metadata is surfaced on PyPI. The full list of metadata is available in the [Python Packaging User Guide](https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata-specifications).
 
-## Project URLs
+## Project name, version, and summary
+
+The project name, release version, and a one-line summary are shown at the top of every project page.
+
+* **Name**: The project's registered name on PyPI, from the `name` field in `pyproject.toml`. See [Choosing a Project Name](project-management/choosing-a-name.md) for naming rules and availability.
+* **Version**: The version of the release being viewed, from the `version` field.
+* **Summary**: A short, one-line description of the project, set via the `description` field in `pyproject.toml`. Also called the "short description" — see [Project Descriptions](project-management/project-descriptions.md) for how to write one.
+
+<!-- TODO: add screenshot here -->
+
+## Project links
 
 Packages owners can specify various URLs related to their project using
 the [`[project.urls]` table](https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls) in the package's `pyproject.toml`.
 
-PyPI renders these URLs on the project page and splits them into `verified` and
-`unverified` subgroups. They are also available using the [JSON API](./api/json.md).
+PyPI lists all URLs together on the project page, marking those that have been verified at the time of upload. They are also available using the [JSON API](./api/json.md).
 
-### Verified details
+### Verified links
 
-![Verified details](assets/verified_details.png){ loading=lazy }
+PyPI currently supports several ways of verifying project URLs. When a URL is verified, PyPI labels it accordingly:
 
-PyPI currently supports several ways of verifying project URLs. When a URL is verified, PyPI highlights it using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
+<figure markdown="1">
+  ![Verified project link](assets/verified-project-links.png){ loading=lazy }
+  <figcaption markdown="span">A verified project link, together with unverified project links</figcaption>
+</figure>
 
 !!! warning
 
-    A URL being verified only attests that the URL is under control of the
-    PyPI package owner at the time of verification, and does not imply any
-    additional safety about that URL or any other relationship to the project
-    in question.
+    Verification only attests that the PyPI package owner controlled the URL
+    **at the time of upload** — it says nothing about the URL's current safety,
+    ownership, or relationship to the project.
 
-    URL verification occurs when release files are uploaded and is not repeated
-    afterwards. This means the websites that verified URLs point to can change,
-    and the URL will still show up as verified. The verified status only reflects
-    control of the URL **at the time of file upload**, not at any later point.
+    Verification isn't repeated after upload. A URL can change hands, change
+    content, or stop working entirely, and it will still display as verified.
 
-The following subsections specify the different types of URLs that can be verified.
-
-#### Self-links
-
-PyPI considers any URL pointing to that project on PyPI as verified.
-For example, the project page for `pip` will mark all of the
-following as verified:
-
-- `https://pypi.org/project/pip/`
-- `https://pypi.org/p/pip/`
-- `https://pypi.python.org/project/pip`
-- `https://pypi.python.org/p/pip`
-- `https://python.org/pypi/pip`
-
-#### Via Trusted Publishing
+#### Verifying links via Trusted Publishing
 
 [Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the
 publishing workflow for a package is coming from a verified source.
@@ -74,97 +68,157 @@ The URLs that can be verified depend on the Trusted Publisher used:
     - `https://platform.activestate.com/pypa/pip`
     - `https://platform.activestate.com/pypa/pip/*` (all subpaths)
 
-
 [gh-action-tab]: trusted-publishers/creating-a-project-through-oidc.md#github-actions
 [gc-tab]: trusted-publishers/creating-a-project-through-oidc.md#google-cloud
 [active-tab]: trusted-publishers/creating-a-project-through-oidc.md#activestate
 [gitlab-tab]: trusted-publishers/creating-a-project-through-oidc.md#gitlab-cicd
 
+#### PyPI URLs are automatically verified
 
-### Icons
+PyPI considers any URL pointing to that project on PyPI as verified.
+For example, the project page for `pip` will mark all of the
+following as verified:
 
-![Unverified details](assets/unverified_details.png){ loading=lazy }
+- `https://pypi.org/project/pip/`
+- `https://pypi.org/p/pip/`
+- `https://pypi.python.org/project/pip`
+- `https://pypi.python.org/p/pip`
+- `https://python.org/pypi/pip`
 
-While the labels or URLs can be arbitrary, PyPI recognizes the ones from the
-lists below and changes the default icon from
-:fontawesome-solid-square-up-right: to a customized one.
+### Link icons
 
-#### General URL
+While project links can use any label or URL, PyPI will automatically apply a custom icon if the label or domain is recognized.
 
-To display a custom icon, an entry must match one of the pattern. The
-recognition patterns are case-insensitive. Items marked with an asterisk (^*^)
-indicate a prefix. It means that any name starting with the specified pattern
-will be recognized.
+Rules:
 
-| Name             | Icon                                      | Description                 | Aliases                                                                                                |
-|:-----------------|:------------------------------------------|:----------------------------|:-------------------------------------------------------------------------------------------------------|
-| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage    |                                                                                                        |
-| Download         | :fontawesome-solid-cloud:                 | A download link             |                                                                                                        |
-| Changelog        | :fontawesome-solid-scroll:                | Changelog information       | Change log, Changes, News, Whatsnew, What's new, History                                               |
-| Release notes    | :fontawesome-solid-newspaper:             | Curated release information | Releasenotes                                                                                           |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
-| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
-| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
-| Security         | :fontawesome-solid-shield:                | Security policy or vulnerability reporting page | Security Policy, securitypolicy                                                                       |
-| Source           | :fontawesome-solid-code-branch:           | Source code repository      | Source Code, Sourcecode, Repository                                                                    |
+* **The table order is the priority order.** Each rule is evaluated top to bottom, and the first one that matches — whether by label or by domain — wins. For example, a GitHub link labeled "Homepage" gets the house icon, because the Homepage label rule is checked before the GitHub domain rule further down the table.
+* Label matches are case-insensitive and match the whole label, except where marked `*`, which matches a prefix instead.
+* Domain matches include subdomains, except where marked `†`, which match that domain exactly only.
+
+| Name             | Icon                                       | Matches                                                                                                                 |
+|:-----------------|:--------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------|
+| Download         | :fontawesome-solid-cloud:                  | Label: Download                                                                                                           |
+| Homepage         | :fontawesome-solid-house-chimney:          | Label: Home, Homepage, Home Page                                                                                          |
+| Changelog        | :fontawesome-solid-scroll:                 | Label: Changelog, Change log, Changes, News, Whatsnew, What's new, History                                                |
+| Release notes    | :fontawesome-solid-newspaper:              | Label: Releasenotes, Release notes                                                                                        |
+| Documentation^*^ | :fontawesome-solid-book:                   | Label: Docs^*^, Documentation^*^<br>Domain: [Read the Docs] domains (including `rtfd.io`/`rtfd.org`), or any URL starting with `docs.` or `documentation.` |
+| Bug^*^           | :fontawesome-solid-bug:                    | Label: Bug^*^, Issue^*^, Tracker^*^, Report^*^                                                                            |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot:  | Label: Funding^*^, Sponsor^*^, Donation^*^, Donate^*^                                                                     |
+| Security         | :fontawesome-solid-shield:                 | Label: Security, Security Policy, securitypolicy                                                                          |
+| GitHub           | :fontawesome-brands-github:                | Domain: `github.com`, `github.io`                                                                                        |
+| GitLab           | :fontawesome-brands-gitlab:                | Domain: `gitlab.com`                                                                                                     |
+| Codeberg         | :simple-codeberg:                          | Domain: `codeberg.org`, `codeberg.page`                                                                                  |
+| Gitter           | :fontawesome-brands-gitter:                | Domain: `gitter.im`                                                                                                      |
+| Discord^†^       | :fontawesome-brands-discord:               | Domain: `discord.com`, `discordapp.com`, `discord.gg`                                                                    |
+| Telegram         | :fontawesome-brands-telegram:              | Domain: `t.me`, `telegram.me`, `telegram.dog`                                                                            |
+| Matrix^†^        | :simple-matrix:                            | Domain: `matrix.to`                                                                                                      |
+| Google           | :fontawesome-brands-google:                | Domain: `google.com`                                                                                                     |
+| Bitbucket        | :fontawesome-brands-bitbucket:             | Domain: `bitbucket.org`                                                                                                  |
+| Reddit           | :fontawesome-brands-reddit-alien:          | Domain: `reddit.com`                                                                                                     |
+| Slack            | :fontawesome-brands-slack:                 | Label: Slack^*^<br>Domain: `slack.com`                                                                                    |
+| Twitter          | :fontawesome-brands-twitter:               | Domain: `twitter.com`, `x.com`                                                                                           |
+| Bluesky^†^       | :fontawesome-brands-bluesky:               | Label: Bluesky<br>Domain: `bsky.app`                                                                                      |
+| AppVeyor         | :fontawesome-solid-list-check:             | Domain: `ci.appveyor.com`                                                                                                |
+| CircleCI         | :fontawesome-solid-list-check:             | Domain: `circleci.com`                                                                                                   |
+| Codecov          | :fontawesome-solid-list-check:             | Domain: `codecov.io`                                                                                                     |
+| Coveralls        | :fontawesome-solid-list-check:             | Domain: `coveralls.io`                                                                                                   |
+| Travis CI        | :fontawesome-solid-list-check:             | Domain: `travis-ci.com`, `travis-ci.org`                                                                                 |
+| PyPI^†^          | :fontawesome-solid-cube:                   | Domain: `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org`                                                |
+| Python           | :fontawesome-brands-python:                | Domain: `python.org`, `*.python.org`                                                                                     |
+| Youtube          | :fontawesome-brands-youtube:               | Domain: `youtube.com`, `youtu.be`                                                                                        |
+| Mastodon         | :fontawesome-brands-mastodon:              | Label: Mastodon                                                                                                           |
+| Source           | :fontawesome-solid-code-branch:            | Label: Source, Source Code, Sourcecode, Repository                                                                        |
 
 [Read the Docs]: https://about.readthedocs.com/
 
-#### Hosting Platforms
+## Owner, author and maintainer details
 
-An entry URL must point to a domain below to display a custom icon. Custom
-subdomains are also matched. For instance, if `domain.com` is listed, a URL
-ending in `.domain.com` will also match.
+PyPI shows owner, author, and maintainer information in three separate places:
 
-| Service   | Icon                           | Domain                          |
-|:----------|:-------------------------------|:--------------------------------|
-| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`                 |
-| Codeberg  | :simple-codeberg:              | `codeberg.org`, `codeberg.page` |
-| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io`       |
-| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`                    |
-| Google    | :fontawesome-brands-google:    | `google.com`                    |
+### 1. Owner
 
+Shown only for projects owned by a [PyPI Organization](organization-accounts/index.md). This data is taken directly from the organization's PyPI account, and is **not** provided by the package maintainers via `pyproject.toml`.
 
-#### Social Media Platforms
+Projects owned by an individual account don't show an "Owner" section — that account instead appears in [Maintainers](#2-maintainers) below.
 
-To display a custom icon, an entry must either :
+<figure markdown="1">
+  ![Owner metadata on PyPI](assets/owner.png){ loading=lazy }
+  <figcaption markdown="span">Owner metadata in the project sidebar</figcaption>
+</figure>
 
-- have its name match the case-insensitive pattern listed
-- a URL pointing to a listed domain (custom subdomains are supported)
+### 2. Maintainers
 
-| Platform | Icon                              | Name     | Domain                                        |
-|:---------|:----------------------------------|:---------|:----------------------------------------------|
-| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
-| Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
-| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
-| Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
-| Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
-| Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
-| Slack    | :fontawesome-brands-slack:        | Slack^*^ | `slack.com`                                   |
-| Youtube  | :fontawesome-brands-youtube:      |          | `youtube.com`, `youtu.be`                     |
-| Twitter  | :fontawesome-brands-twitter:      |          | `twitter.com`, `x.com`                        |
-| Bluesky  | :fontawesome-brands-bluesky:      | Bluesky  | `bsky.app`                                    |
+This shows every PyPI user account with a role on the project. This data is taken directly from the project's PyPI settings, and is **not** provided by the package maintainers via `pyproject.toml`. When there are more than three users associated with a project, PyPI displays the first three with a "+N more" disclosure to expand the rest.
 
-#### Continuous Integration Services
+<figure markdown="1">
+  ![Maintainer metadata on PyPI](assets/maintainers.png){ loading=lazy }
+  <figcaption markdown="span">Maintainer metadata in the project sidebar</figcaption>
+</figure>
 
-To display a custom icon (:fontawesome-solid-list-check:), an entry URL must
-point to one of the service provider domains listed below. Custom subdomains are
-supported.
+### 3. Credits
 
-| Service   | Domain                           |
-|:----------|:---------------------------------|
-| AppVeyor  | `ci.appveyor.com`                |
-| CircleCI  | `circleci.com`                   |
-| Codecov   | `codecov.io`                     |
-| Coveralls | `coveralls.io`                   |
-| Travis CI | `travis-ci.com`, `travis-ci.org` |
+Packages can specify an author or maintainer (name, email address, or both) in their metadata, using the `authors` and `maintainers` fields in `pyproject.toml`.
 
-#### Python Ecosystem
+By default, this is shown in the "Credits" section of the project page exactly as provided in the package's metadata:
 
-To display a custom icon, an entry URL must point to one of the domain listed
-below.
+<figure markdown="1">
+  ![Project credit on PyPI](assets/unverified-credit.png){ loading=lazy }
+  <figcaption markdown="span">Project credit in the project sidebar</figcaption>
+</figure>
 
-| Name   | Icon                        | Domain                                                            |
-|:-------|:----------------------------|:------------------------------------------------------------------|
-| PyPI   | :fontawesome-solid-cube:    | `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org` |
-| Python | :fontawesome-brands-python: | `python.org`, `*.python.org`                                      |
+If an email address was given, PyPI also cross-references it at upload time against the public, verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as verified:
+
+<figure markdown="1">
+  ![Project credit on PyPI](assets/verified-credit.png){ loading=lazy }
+  <figcaption markdown="span">Project credit in the project sidebar</figcaption>
+</figure>
+
+As with project URLs, this cross-referencing only happens once, at the time a release file is uploaded — it does not repeat afterward.
+
+## Repository statistics
+
+If a release has a [verified](#verifying-links-via-trusted-publishing) GitHub or GitLab repository URL, PyPI shows a "GitHub Statistics" or "GitLab Statistics" panel with live stats for that repository — stars/forks, open issues, and open pull/merge requests.
+
+<figure markdown="1">
+  ![Verified urls](assets/repository-statistics.png){ loading=lazy }
+  <figcaption markdown="span">GitHub repository statistics in the project sidebar</figcaption>
+</figure>
+
+!!! info
+
+    Only the repository URL itself is verified by PyPI, at upload time. The
+    statistics shown (stars, forks, open issues/PRs) are fetched live from
+    GitHub or GitLab and are **not** independently verified by PyPI — they
+    reflect whatever that repository currently reports, and can change at
+    any time after the release was uploaded.
+
+## License
+
+PyPI displays license information in one of two forms, depending on what the release provides:
+
+* **License expression**: If the release specifies the `license` field in `pyproject.toml` as an [SPDX license expression](https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/) (`license-expression` core metadata field), that expression is shown along with a link to the [SPDX license list](https://spdx.org/licenses/). This is the recommended way to declare a project's license.
+* **License**: Otherwise, PyPI falls back to combining any legacy `License` [trove classifiers](#classifiers) with the free-text legacy `license` field (truncated to its first line, or to 100 characters if that's still too long).
+
+If a release provides neither, no License section is shown. **PyPI does not check that the stated license matches the project's actual licensing**.
+
+!!! info
+
+    As of [PEP 639](https://peps.python.org/pep-0639/), `License` trove classifiers are deprecated. New projects should declare their license as an SPDX expression in the `license` field instead — see [license expressions](https://packaging.python.org/en/latest/specifications/license-expression/) in the Python Packaging User Guide.
+
+## Requires Python
+
+If a release specifies the `requires-python` field in `pyproject.toml` (the `Requires-Python` core metadata field), the supported Python version range is shown, e.g. `>=3.9`.
+
+## Provides Extra
+
+If a release declares [optional dependencies](https://packaging.python.org/en/latest/specifications/pyproject-toml/#dependencies-optional-dependencies) (extras) via `[project.optional-dependencies]`, the names of those extras are listed here, e.g. `pip install project[extra-name]`.
+
+## Tags
+
+Packages can specify free-text keywords using the `keywords` field in `pyproject.toml`. PyPI displays these as a list of tags.
+
+## Classifiers
+
+Packages can specify [trove classifiers](https://packaging.python.org/en/latest/specifications/core-metadata/#classifier-multiple-use) — a fixed, structured taxonomy maintained by PyPI — using the `classifiers` field in `pyproject.toml`. PyPI groups classifiers by their top-level category (e.g. `Programming Language`, `License`, `Topic`) and links each one to a search filtered on that classifier. PyPI does not check that the selected classifiers accurately describe the project.
+
+`License` classifiers are also used to build the [License](#license) section when no SPDX license expression is provided. Note that `License` classifiers are deprecated by [PEP 639](https://peps.python.org/pep-0639/) and new ones will not be added to PyPI — see the note in [License](#license).
