@@ -20,7 +20,7 @@
 # Potato Man <crypticgalaxy66@gmail.com>, 2023.
 # wladimir perez <tropaguararia28@gmail.com>, 2023.
 # Rafael Fernández Rodríguez <rafael.fernandez.rgz@gmail.com>, 2024.
-# "Edgar R. M." <edgarrm358@gmail.com>, 2024.
+# "Edgar R. M." <edgarrm358@gmail.com>, 2024, 2026.
 # Phil Black <philosophicalblackhole@gmail.com>, 2025.
 # Desconocido <aylinerangel30@gmail.com>, 2025.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2025.
@@ -30,8 +30,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-01-30 14:28+0000\n"
-"Last-Translator: Rodrigo Ezequiel Roldán <roldanrodrigoezequiel@gmail.com>\n"
+"PO-Revision-Date: 2026-09-21 18:42+0000\n"
+"Last-Translator: \"Edgar R. M.\" <edgarrm358@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -39,7 +39,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -1351,10 +1351,8 @@ msgid "Search PyPI"
 msgstr "Buscar en PyPI"
 
 #: warehouse/templates/base.html:278 warehouse/templates/index.html:35
-#, fuzzy
-#| msgid "Search projects"
 msgid "Type '/' to search projects"
-msgstr "Buscar proyectos"
+msgstr "Escribe '/' para buscar proyectos"
 
 #: warehouse/templates/base.html:289 warehouse/templates/base.html:318
 #: warehouse/templates/error-base-with-search.html:19
@@ -1400,10 +1398,8 @@ msgid "About PyPI navigation"
 msgstr "Navegación por Acerca de PyPI"
 
 #: warehouse/templates/base.html:376
-#, fuzzy
-#| msgid "PyPI home"
 msgid "PyPI Blog"
-msgstr "Página inicial de PyPI"
+msgstr "Blog de PyPI"
 
 #: warehouse/templates/base.html:382
 msgid "Infrastructure dashboard"
@@ -1460,8 +1456,6 @@ msgstr "Navegación por Uso de PyPI"
 
 #: warehouse/templates/base.html:435
 #: warehouse/templates/manage/organization/activate_subscription.html:21
-#, fuzzy
-#| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "Términos de uso"
 
@@ -1474,10 +1468,8 @@ msgid "Code of conduct"
 msgstr "Código de conducta"
 
 #: warehouse/templates/base.html:450
-#, fuzzy
-#| msgid "Privacy policy"
 msgid "Privacy Notice"
-msgstr "Normativa de privacidad"
+msgstr "Aviso de privacidad"
 
 #: warehouse/templates/base.html:456
 msgid "Acceptable Use Policy"
@@ -10874,54 +10866,30 @@ msgstr ""
 "que se encuentra en la configuración de su cuenta."
 
 #: warehouse/templates/pages/help.html:812
-#, fuzzy
-#| msgid ""
-#| "API tokens provide an alternative way to authenticate when uploading "
-#| "packages to PyPI."
 msgid ""
 "API tokens are used to authenticate when <strong>uploading packages</strong> "
 "to PyPI."
 msgstr ""
-"Las fichas de API son un método alternativo de autenticación para cargar "
-"paquetes en PyPI."
+"Los tokens de la API son utilizados para autenticarse cuando se <strong>"
+"cargan paquetes</strong> en PyPI."
 
 #: warehouse/templates/pages/help.html:817
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "          <p>API tokens provide an alternative way (instead of username "
-#| "and password) to authenticate when <strong>uploading packages</strong> to "
-#| "PyPI.</p>\n"
-#| "          <p>You can create a token for an entire PyPI account, in which "
-#| "case, the token will work for all projects associated with that account. "
-#| "Alternatively, you can limit a token's scope to a specific project.</p>\n"
-#| "          <p><strong>We strongly recommend you authenticate with an API "
-#| "token where possible.</strong></p>\n"
-#| "\n"
-#| "        "
 msgid ""
 "You can create a token for an entire PyPI account, in which case, the token "
 "will work for all projects associated with that account. Alternatively, you "
 "can limit a token's scope to a specific project."
 msgstr ""
-"\n"
-"          <p>Las fichas de API son una alternativa de autenticación (en "
-"sustitución de una combinación usuario/contraseña) que utilizar al "
-"<strong>cargar paquetes</strong> en PyPI.</p>\n"
-"          <p>Puede crear una ficha para toda una cuenta de PyPI, en cuyo "
-"caso la ficha funcionará en todos los proyectos asociados con la cuenta. "
-"Como alternativa, puede limitar el margen de actuación de la ficha a un "
-"proyecto determinado.</p>\n"
-"          <p><strong>Recomendamos encarecidamente que se autentique a través "
-"de una ficha de API cuando sea posible.</strong></p>\n"
-"\n"
-"        "
+"Puede crear un token para toda una cuenta de PyPI, en cuyo caso el token "
+"funcionará en todos los proyectos asociados con la cuenta. Como alternativa, "
+"puede limitar el margen de actuación de la ficha a un proyecto determinado."
 
 #: warehouse/templates/pages/help.html:824
 msgid ""
 "When using an API token from a CI provider, we recommend scoping the token "
 "down to the minimum necessary projects."
 msgstr ""
+"Cuando se un token de la API de un proveedor de IC, se recomienda limit el "
+"alcance del token a los proyectos mínimos necesarios."
 
 #: warehouse/templates/pages/help.html:831
 #, python-format
@@ -10996,18 +10964,6 @@ msgstr ""
 "que PyPI muestra."
 
 #: warehouse/templates/pages/help.html:871
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "          <p>PyPI asks you to confirm your password before you want to "
-#| "perform a <i>sensitive action</i>. Sensitive actions include things like "
-#| "adding or removing maintainers, deleting distributions, generating API "
-#| "tokens, and setting up two-factor authentication.</p>\n"
-#| "          <p>You'll only have to re-confirm your password if it's been "
-#| "more than an hour since you last confirmed it.</p>\n"
-#| "          <p><strong>We strongly recommend you only perform such actions "
-#| "on your personal, password-protected computer.</strong></p>\n"
-#| "        "
 msgid ""
 "<p> PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -11017,17 +10973,14 @@ msgid ""
 "p> <p> <strong>We strongly recommend you only perform such actions on your "
 "personal, password-protected computer.</strong> </p>"
 msgstr ""
-"\n"
-"          <p>PyPI le solicita confirmar su contraseña antes de emprender una "
-"<i>acción delicada</i>. Algunas acciones consideradas delicadas son: añadir "
-"o quitar responsables, eliminar distribuciones, generar fichas de API y "
-"configurar la autenticación en dos fases.</p>\n"
-"          <p>Deberá confirmar su contraseña solo si ha transcurrido más de "
-"una hora desde el momento en que la confirmó por última vez.</p>\n"
-"          <p><strong>Aconsejamos encarecidamente que realice estas acciones "
+"<p>PyPI le solicita confirmar su contraseña antes de emprender una <i>acción "
+"delicada</i>. Algunas acciones consideradas delicadas son: añadir o quitar "
+"responsables, eliminar distribuciones, generar fichas de API y configurar la "
+"autenticación en dos fases. </p><p>Deberá confirmar su contraseña solo si ha "
+"transcurrido más de una hora desde el momento en que la confirmó por última "
+"vez.</p><p><strong>Aconsejamos encarecidamente que realice estas acciones "
 "únicamente en su equipo personal y que proteja este con una contraseña.</"
-"strong></p>\n"
-"        "
+"strong></p>"
 
 #: warehouse/templates/pages/help.html:881
 msgid "PyPI does not currently support changing a username."
@@ -11045,20 +10998,16 @@ msgstr ""
 "efecto."
 
 #: warehouse/templates/pages/help.html:887
-#, fuzzy, python-format
-#| msgid ""
-#| "PyPI users and projects can use <a href=\"%(docs)s\">Trusted Publishers</"
-#| "a> to delegate publishing authority for a PyPI package to a trusted third "
-#| "party service, eliminating the need to use API tokens or passwords."
+#, python-format
 msgid ""
 "PyPI users and projects can use <a href=\"%(docs)s\">Trusted Publishers</a> "
 "to delegate publishing authority for a PyPI package to a trusted third party "
 "service, eliminating the need to use API tokens."
 msgstr ""
-"Los usuarios de PyPI y los proyectos pueden usar a los <a "
-"href=\"%(docs)s\">Publicadores Confiables</a> para delegar la autoridad de "
-"publicación para un paquete de PyPI a un servicio confiable de terceros, "
-"eliminando así la necesidad de usar tokens API o contraseñas."
+"Los usuarios de PyPI y los proyectos pueden usar a los <a href=\"%(docs)s\">"
+"Publicadores Confiables</a> para delegar la autoridad de publicación para un "
+"paquete de PyPI a un servicio confiable de terceros, eliminando así la "
+"necesidad de usar tokens de la API."
 
 #: warehouse/templates/pages/help.html:898
 msgid "Yes, including RSS feeds of new packages and new releases."

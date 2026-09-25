@@ -68,13 +68,14 @@
 # 金羿ELS <W-YI_DoctorYI@outlook.com>, 2025.
 # Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>, 2026.
 # B10112 <B10112@outlook.com>, 2026.
+# Michael <sunote@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-08-17 23:06+0000\n"
-"Last-Translator: B10112 <B10112@outlook.com>\n"
+"PO-Revision-Date: 2026-09-25 14:28+0000\n"
+"Last-Translator: Michael <sunote@outlook.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -82,7 +83,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -10508,7 +10509,7 @@ msgstr "PyPI 用户文档"
 
 #: warehouse/templates/pages/help.html:1467
 msgid "Python Packaging User Guide"
-msgstr "Python 包装用户指南"
+msgstr "Python 打包用户指南"
 
 #: warehouse/templates/pages/help.html:1473
 msgid "Python documentation"
