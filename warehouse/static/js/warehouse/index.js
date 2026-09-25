@@ -20,7 +20,7 @@ import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/
 if (navigator.appVersion.includes("MSIE 10")) {
   if (document.getElementById("unsupported-browser") === null) {
     let warning_div = document.createElement("div");
-    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
+    warning_div.innerHTML = "<div id='unsupported-browser' class='banner banner--warning' role='status'><span class='banner__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='banner__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
     document.getElementById("sticky-notifications").appendChild(warning_div);
   }
