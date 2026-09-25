@@ -75,7 +75,7 @@ class TestDataDogMetrics:
 
         assert metrics._datadog is datadog_cls.return_value
         datadog_cls.assert_called_once_with(
-            host="127.0.0.1", port=8125, namespace=None, use_ms=True
+            host="192.0.2.1", port=8125, namespace=None, use_ms=True
         )
 
     def test_create_service_overrides(self, mocker):
