@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-import { gettext, ngettext } from "../utils/messages-access";
+import { gettext, ngettext, hasTranslation } from "../utils/messages-access";
 
 const enumerateTime = (timestampString) => {
   const now = new Date(),
@@ -15,20 +15,43 @@ const enumerateTime = (timestampString) => {
   return time;
 };
 
+// pybabel only extracts string literals, so the message ids are repeated.
 const convertToReadableText = (time) => {
-  let { numDays, numMinutes, numHours } = time;
+  const { numDays, numMinutes, numHours } = time;
 
-  if (numDays >= 1) {
-    return ngettext("Yesterday", "About %1 days ago", numDays, numDays);
+  if (numDays === 1) {
+    return hasTranslation("Yesterday")
+      ? gettext("Yesterday")
+      : null;
+  } else if (numDays > 1) {
+    return hasTranslation("About %1 day ago")
+      ? ngettext("About %1 day ago", "About %1 days ago", numDays, numDays)
+      : null;
   }
 
-  if (numHours > 0) {
-    return ngettext("About an hour ago", "About %1 hours ago", numHours, numHours);
-  } else if (numMinutes > 0) {
-    return ngettext("About a minute ago", "About %1 minutes ago", numMinutes, numMinutes);
-  } else {
-    return gettext("Just now", "another");
+  if (numHours === 1) {
+    return hasTranslation("About an hour ago")
+      ? gettext("About an hour ago")
+      : null;
+  } else if (numHours > 1) {
+    return hasTranslation("About %1 hour ago")
+      ? ngettext("About %1 hour ago", "About %1 hours ago", numHours, numHours)
+      : null;
   }
+
+  if (numMinutes === 1) {
+    return hasTranslation("About a minute ago")
+      ? gettext("About a minute ago")
+      : null;
+  } else if (numMinutes > 1) {
+    return hasTranslation("About %1 minute ago")
+      ? ngettext("About %1 minute ago", "About %1 minutes ago", numMinutes, numMinutes)
+      : null;
+  }
+
+  return hasTranslation("Just now")
+    ? gettext("Just now")
+    : null;
 };
 
 export default () => {
@@ -37,7 +60,10 @@ export default () => {
     const datetime = timeElement.getAttribute("datetime");
     const time = enumerateTime(datetime);
     if (time.isBeforeCutoff) {
-      timeElement.innerText = convertToReadableText(time);
+      const text = convertToReadableText(time);
+      if (text !== null) {
+        timeElement.textContent = text;
+      }
     }
   }
 };
