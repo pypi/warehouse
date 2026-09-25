@@ -24,13 +24,10 @@ from pyramid_rpc.xmlrpc import (
 from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
-from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
-    Release,
-    ReleaseClassifiers,
     Role,
 )
 from warehouse.rate_limiting import IRateLimiter
@@ -210,16 +207,6 @@ xmlrpc_cache_all_projects = functools.partial(
 )
 
 
-# `browse` keys on classifiers, so it cannot share `all-projects`: every upload
-# purges that tag, and nothing under it survives long enough to be read back.
-# Nothing purges this tag at all, so entries live until the hash's TTL lapses
-# and the whole hash goes with it (limitation 6). The method is deprecated and
-# promises no recency, so that is the trade: stale answers, including for
-# garbage queries, never reach the database, and the absolute TTL caps how many
-# of those a caller can pile up.
-BROWSE_CACHE_TAG = "all-classifiers"
-
-
 class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
     # This is the interface for specifying fault code and string for XmlRpcError
     faultCode = -32403  # noqa: N815
@@ -349,50 +336,6 @@ def user_packages(request, username: StrictStr):
     return [(r.role_name, r.project.name) for r in roles]
 
 
-@xmlrpc_method(
-    method="browse",
-    xmlrpc_cache=True,
-    xmlrpc_cache_expires=1 * 60 * 60,  # 1 hour
-    xmlrpc_cache_tag=BROWSE_CACHE_TAG,
-)
-def browse(request, classifiers: list[StrictStr]):
-    if not classifiers:
-        return []
-
-    # `trove_classifiers` is a few hundred rows with a unique index on
-    # `classifier`, so resolving names to ids up front is a sub-millisecond
-    # lookup that keeps the table out of the expensive query below.
-    classifier_ids = request.db.scalars(
-        select(Classifier.id).where(Classifier.classifier.in_(classifiers))
-    ).all()
-
-    # Fewer ids than classifiers means the caller either named something we
-    # don't know or repeated itself. Either way no release can be tagged with
-    # `len(classifiers)` of the ids we found, which is the result the count
-    # below would have produced after doing all the work.
-    if len(classifier_ids) != len(classifiers):
-        return []
-
-    # Releases tagged with every requested classifier, straight out of the
-    # (trove_id, release_id) primary key on `release_classifiers`.
-    matching_releases = (
-        select(ReleaseClassifiers.release_id)
-        .where(ReleaseClassifiers.trove_id.in_(classifier_ids))
-        .group_by(ReleaseClassifiers.release_id)
-        .having(func.count() == len(classifier_ids))
-        .subquery()
-    )
-
-    releases = request.db.execute(
-        select(Project.name, Release.version)
-        .join(Release, Release.project_id == Project.id)
-        .join(matching_releases, Release.id == matching_releases.c.release_id)
-        .order_by(Project.name, Release.version)
-    ).all()
-
-    return [(r.name, r.version) for r in releases]
-
-
 # Synthetic methods
 
 
@@ -414,6 +357,18 @@ def changelog(request, since: StrictInt, with_ids: StrictBool = False):
         ValueError(
             "The changelog method has been deprecated, use changelog_since_serial "
             "instead."
+        )
+    )
+
+
+@xmlrpc_method(method="browse")
+def browse(request, classifiers: list[StrictStr]):
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            "PyPI no longer supports the XMLRPC browse method. "
+            "Use BigQuery instead. "
+            f"See {XMLRPC_DEPRECATION_URL} "
+            "for more information."
         )
     )
 
