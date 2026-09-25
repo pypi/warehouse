@@ -141,6 +141,75 @@
       margin-bottom: 15px;
     }
 
+    .admonition {
+      --admonition-color: #{colors.$accessible-border-color};
+
+      margin: grid.$half-spacing-unit 0 0;
+      padding: 0 0 0 grid.$half-spacing-unit;
+      border-left: 4px solid var(--admonition-color);
+      color: colors.$text-color;
+      font-style: normal;
+
+      &.note {
+        --admonition-color: #{colors.$primary-color};
+      }
+
+      &.tip,
+      &.hint {
+        --admonition-color: #{colors.$success-color};
+      }
+
+      &.important {
+        --admonition-color: #8250df;
+      }
+
+      &.warning,
+      &.attention {
+        --admonition-color: #{colors.$warning-color};
+      }
+
+      &.caution,
+      &.danger,
+      &.error {
+        --admonition-color: #{colors.$danger-color};
+      }
+    }
+
+    .admonition-title {
+      margin-top: 0;
+      padding-bottom: 0;
+      color: var(--admonition-color);
+      font-weight: fonts.$bold-font-weight;
+
+      &::before {
+        display: inline-block;
+        width: 1.5em;
+        font-family: fonts.$fa-font-family;
+        font-weight: 900;
+        content: "\f05a";
+      }
+    }
+
+    .tip > .admonition-title::before,
+    .hint > .admonition-title::before {
+      content: "\f0eb";
+    }
+
+    .important > .admonition-title::before {
+      content: "\f06a";
+    }
+
+    .warning > .admonition-title::before,
+    .attention > .admonition-title::before {
+      content: "\f071";
+    }
+
+    .caution > .admonition-title::before,
+    .danger > .admonition-title::before,
+    .error > .admonition-title::before {
+      content: "\f057";
+    }
+
     blockquote {
       margin: grid.$half-spacing-unit 0 0 grid.$half-spacing-unit;
       border-left: 3px solid colors.$light-grey;
