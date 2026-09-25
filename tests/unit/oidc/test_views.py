@@ -614,8 +614,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     [
         (
             timedelta(seconds=600),
-            "this organization has created too many new projects recently. "
-            "Try again in 600 seconds",
+            (
+                "this organization has created too many new projects recently. "
+                "Try again in 600 seconds"
+            ),
         ),
         (
             None,

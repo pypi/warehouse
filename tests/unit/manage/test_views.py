@@ -309,8 +309,10 @@ class TestManageUnverifiedAccount:
             (
                 True,
                 [],
-                "Cannot change email address on accounts with two-factor "
-                "authentication enabled",
+                (
+                    "Cannot change email address on accounts with two-factor "
+                    "authentication enabled"
+                ),
             ),
             (
                 False,

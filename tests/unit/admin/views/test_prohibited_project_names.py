@@ -656,8 +656,10 @@ class TestUltranormReleaseProjectName:
 
         assert isinstance(result, HTTPSeeOther)
         assert db_request.session.pop_flash("error") == [
-            "'brand-new-project' has no ultranormalization conflict. "
-            "No admin override needed."
+            (
+                "'brand-new-project' has no ultranormalization conflict. "
+                "No admin override needed."
+            )
         ]
 
     def test_no_username(self, db_request):
@@ -691,8 +693,10 @@ class TestUltranormReleaseProjectName:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/admin/projects/myproject/"
         assert db_request.session.pop_flash("success") == [
-            "'myproject' provisioned to 'methodman' "
-            "(ultranorm conflict with 'my-project')."
+            (
+                "'myproject' provisioned to 'methodman' "
+                "(ultranorm conflict with 'my-project')."
+            )
         ]
 
         project = db_request.db.query(Project).filter(Project.name == "myproject").one()

@@ -581,20 +581,25 @@ class TestGitLabPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/baz.yml@fake.yml@notrailingslash'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/"
+                    "baz.yml@fake.yml@notrailingslash'"
+                ),
             ),
             (
                 "gitlab.com/foo/bar//workflows/baz.yml@fake.yml@refs/pulls/6",
                 "somesha",
                 "refs/pulls/6",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@refs/pulls/6', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/baz.yml@fake.yml@refs/pulls/6'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@refs/pulls/6', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/baz.yml@fake.yml@refs/pulls/6'"
+                ),
             ),
             # bad: missing tail or workflow name or otherwise partial
             (
@@ -602,60 +607,72 @@ class TestGitLabPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/baz.yml@'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/baz.yml@'"
+                ),
             ),
             (
                 "gitlab.com/foo/bar//workflows/@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/@'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/@'"
+                ),
             ),
             (
                 "gitlab.com/foo/bar//workflows/",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/'"
+                ),
             ),
             (
                 "baz.yml",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'baz.yml'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'baz.yml'"
+                ),
             ),
             (
                 "gitlab.com/foo/bar//workflows/baz.yml@malicious.yml@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/baz.yml@malicious.yml@'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/baz.yml@malicious.yml@'"
+                ),
             ),
             (
                 "gitlab.com/foo/bar//workflows/baz.yml@@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The ci_config_ref_uri claim does not match, expecting one of "
-                "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
-                "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
-                "got 'gitlab.com/foo/bar//workflows/baz.yml@@'",
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@notrailingslash', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/foo/bar//workflows/baz.yml@@'"
+                ),
             ),
             ("", None, None, False, "The ci_config_ref_uri claim is empty"),
         ],
@@ -791,8 +808,10 @@ class TestGitLabPublisher:
             (
                 PROJECT_NAME,
                 NAMESPACE,
-                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
-                f"{PROJECT_NAME.replace('r', 'R')}/",
+                (
+                    f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
+                    f"{PROJECT_NAME.replace('r', 'R')}/"
+                ),
                 True,
             ),
             (  # Unique domains are not supported

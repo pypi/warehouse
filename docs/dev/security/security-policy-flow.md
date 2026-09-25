@@ -392,8 +392,9 @@ The macaroon path has its own front gate,
 ```python
 PERMISSION_AUTH_METHODS = {
     Permissions.ProjectsUpload: frozenset({MACAROON, BASIC_AUTH}),
-    Permissions.APIEcho: frozenset({MACAROON}),            # legacy API permission, slated for removal
-    Permissions.APIObservationsAdd: frozenset({MACAROON}), # legacy API permission, slated for removal
+    # legacy API permissions, slated for removal
+    Permissions.APIEcho: frozenset({MACAROON}),
+    Permissions.APIObservationsAdd: frozenset({MACAROON}),
 }
 ```
 

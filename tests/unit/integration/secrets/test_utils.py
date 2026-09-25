@@ -63,8 +63,10 @@ def test_invalid_token_leak_request():
         ({}, "Record is missing attribute(s): token, type, url", "format"),
         (
             {"type": "not_found", "token": "a", "url": "b"},
-            "Matcher with code not_found not found. "
-            "Available codes are: failure, pypi_api_token",
+            (
+                "Matcher with code not_found not found. "
+                "Available codes are: failure, pypi_api_token"
+            ),
             "invalid_matcher",
         ),
         (
@@ -487,9 +489,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )
@@ -524,9 +528,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )

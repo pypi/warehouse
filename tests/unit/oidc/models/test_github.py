@@ -532,20 +532,24 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6",
                 "somesha",
                 "refs/pulls/6",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'"
+                ),
             ),
             # bad: missing tail or workflow name or otherwise partial
             (
@@ -553,60 +557,72 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/'"
+                ),
             ),
             (
                 "baz.yml",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'baz.yml'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'baz.yml'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@malicious.yml@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@@'"
+                ),
             ),
             ("", None, None, False, "The job_workflow_ref claim is empty"),
         ],
