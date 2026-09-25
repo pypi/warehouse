@@ -3,13 +3,11 @@
 import datetime
 
 import pytest
-import venusian
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
-from warehouse.packaging.models import Classifier
 from warehouse.rate_limiting import RateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
@@ -17,7 +15,6 @@ from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
-    ReleaseFactory,
     RoleFactory,
 )
 
@@ -335,158 +332,16 @@ def test_changelog(pyramid_request):
     )
 
 
-def test_browse(db_request):
-    classifiers = [
-        Classifier(classifier="Environment :: Other Environment"),
-        Classifier(classifier="Development Status :: 5 - Production/Stable"),
-        Classifier(classifier="Programming Language :: Python"),
-    ]
-    for classifier in classifiers:
-        db_request.db.add(classifier)
+def test_browse(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.browse(pyramid_request, ["Environment :: Other Environment"])
 
-    projects = ProjectFactory.create_batch(3)
-    releases = []
-    for project in projects:
-        releases.extend(
-            ReleaseFactory.create_batch(
-                10, project=project, _classifiers=[classifiers[0]]
-            )
-        )
-
-    releases = sorted(releases, key=lambda x: (x.project.name, x.version))
-
-    expected_release = releases[0]
-    expected_release._classifiers = classifiers
-
-    assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
-        (r.project.name, r.version) for r in releases
-    }
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
-
-
-def test_browse_orders_by_project_name_then_version(db_request):
-    """Results come back sorted by project name, then version.
-
-    Names are pinned lowercase so the database collation and Python's sort
-    agree, and the versions pin the sort as lexical rather than numeric:
-    "10.0" sorts before "2.0".
-    """
-    classifier = Classifier(classifier="Environment :: Other Environment")
-    db_request.db.add(classifier)
-
-    for name in ("charlie", "alpha", "bravo"):
-        # The subfactory names the project on the first release; the rest hang
-        # off that same project so the version ordering has something to sort.
-        first = ReleaseFactory.create(
-            project__name=name, version="2.0", _classifiers=[classifier]
-        )
-        for version in ("10.0", "1.0"):
-            ReleaseFactory.create(
-                project=first.project, version=version, _classifiers=[classifier]
-            )
-
-    assert xmlrpc.browse(db_request, ["Environment :: Other Environment"]) == [
-        ("alpha", "1.0"),
-        ("alpha", "10.0"),
-        ("alpha", "2.0"),
-        ("bravo", "1.0"),
-        ("bravo", "10.0"),
-        ("bravo", "2.0"),
-        ("charlie", "1.0"),
-        ("charlie", "10.0"),
-        ("charlie", "2.0"),
-    ]
-
-
-def test_browse_unknown_classifier_returns_nothing(db_request):
-    """An unrecognized classifier can never be satisfied, so nothing matches."""
-    classifier = Classifier(classifier="Environment :: Other Environment")
-    db_request.db.add(classifier)
-    ReleaseFactory.create(_classifiers=[classifier])
-
-    assert (
-        xmlrpc.browse(
-            db_request,
-            ["Environment :: Other Environment", "Environment :: No Such Thing"],
-        )
-        == []
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC browse method. "
+        "Use BigQuery instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
-
-
-def test_browse_duplicate_classifiers_return_nothing(db_request):
-    """A release is only ever tagged with a classifier once, so a repeated
-    classifier asks for a count no release can reach."""
-    classifier = Classifier(classifier="Environment :: Other Environment")
-    db_request.db.add(classifier)
-    ReleaseFactory.create(_classifiers=[classifier])
-
-    assert (
-        xmlrpc.browse(
-            db_request,
-            ["Environment :: Other Environment", "Environment :: Other Environment"],
-        )
-        == []
-    )
-
-
-def test_browse_no_classifiers_returns_nothing(db_request):
-    """An empty request matches nothing rather than every release."""
-    classifier = Classifier(classifier="Environment :: Other Environment")
-    db_request.db.add(classifier)
-    ReleaseFactory.create(_classifiers=[classifier])
-
-    assert xmlrpc.browse(db_request, []) == []
-
-
-def test_browse_is_cached_under_its_own_tag(mocker):
-    """`browse` registers on every endpoint with the `all-classifiers` tag.
-
-    Scans the views module the way Pyramid does at startup, so this pins the
-    options `cached_return_view` will see rather than a decorator's internals.
-    """
-    config = mocker.Mock()
-    config.with_package.return_value = config
-    venusian.Scanner(config=config).scan(xmlrpc, categories=["pyramid"])
-
-    registrations = [
-        call.kwargs
-        for call in config.add_xmlrpc_method.call_args_list
-        if call.kwargs["method"] == "browse"
-    ]
-
-    assert len(registrations) == 3
-    for kwargs in registrations:
-        assert kwargs["view"] is xmlrpc.browse
-        assert kwargs["xmlrpc_cache"] is True
-        assert kwargs["xmlrpc_cache_tag"] == xmlrpc.BROWSE_CACHE_TAG
-        assert kwargs["xmlrpc_cache_expires"] == 60 * 60
 
 
 def test_multicall(pyramid_request):
