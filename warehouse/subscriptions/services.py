@@ -10,6 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
@@ -58,6 +59,14 @@ class GenericBillingService:
             expand=["customer"],
         )
         return subscription.customer
+
+    def list_subscriptions(self):
+        """
+        Iterate over every Subscription resource from the Billing API
+
+        Need ``status="all"`` to get subs including canceled ones for reconciling.
+        """
+        return self.api.Subscription.list(status="all", limit=100).auto_paging_iter()
 
     def create_customer(self, name, description):
         """
@@ -463,6 +472,36 @@ class StripeSubscriptionService:
         self.db.query(StripeSubscription).filter(
             StripeSubscription.id == id,
         ).update({StripeSubscription.status: status})
+
+    def sync_subscription_status(self, id, status, *, request):
+        """
+        Set a subscription's status, recording the organization event that
+        matches the transition, and return whether the status changed.
+        """
+        status = StripeSubscriptionStatus(status)
+        subscription = self.get_subscription(id)
+        previous_status = subscription.status
+        if previous_status == status:
+            return False
+
+        self.update_subscription_status(id, status)
+        if status == StripeSubscriptionStatus.Canceled:
+            subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionCancel,
+                request=request,
+                additional={"subscription_id": subscription.subscription_id},
+            )
+        else:
+            subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionStatusChange,
+                request=request,
+                additional={
+                    "subscription_id": subscription.subscription_id,
+                    "previous_status": previous_status.value,
+                    "status": status.value,
+                },
+            )
+        return True
 
     def delete_subscription(self, id):
         """
