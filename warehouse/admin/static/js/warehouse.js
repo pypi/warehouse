@@ -251,30 +251,35 @@ if (organizationApplicationTurboModeSwitch !== null) {
 
 const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
 
-if (savedReplyButtons.length > 0) {
-  const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+savedReplyButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    const templateElement = document.getElementById(button.dataset.template);
+    const field = document.getElementById("requestMoreInfoModalMessage");
 
-  if (requestMoreInfoModalMessage) {
-    savedReplyButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const templateId = button.dataset.template;
+    if (templateElement && field) {
+      // `textContent`, so a URL's `&amp;` is not pasted into the reply.
+      field.value = templateElement.textContent
+        .trim()
+        .replace(/\s+/g, " ");
+    }
+  });
+});
 
-        if (templateId) {
-          const templateElement = document.getElementById(templateId);
-
-          if (templateElement) {
-            const templateContent = templateElement.innerHTML;
-            const cleanedContent = templateContent
-              .trim()
-              .replace(/\n/g, " ")
-              .replace(/\s{2,}/g, " ");
-            requestMoreInfoModalMessage.value = cleanedContent;
-          }
-        }
-      });
-    });
+// Focus stays outside the form while a modal is open - on the rail button that opened
+// it, or on the modal shell - so a listener bound to the form never sees the keystroke.
+// `requestSubmit` over `submit` so required fields still validate.
+document.addEventListener("keydown", function(event) {
+  if (!(event.metaKey || event.ctrlKey) || event.key !== "Enter") {
+    return;
   }
-}
+  const focused = event.target instanceof Element ? event.target : null;
+  const form = (focused && focused.closest("form[data-hotkey-submit]")) ||
+    document.querySelector(".modal.show form[data-hotkey-submit]");
+  if (form) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
 
 let editModalForm = document.getElementById("editModalForm");
 if (editModalForm !== null) {
