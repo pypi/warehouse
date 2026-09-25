@@ -78,15 +78,11 @@ def test_verify_registration_response(mocker):
     assert resp == fake_verified_registration
 
 
-def test_verify_registration_response_failure(mocker):
-    mocker.patch.object(
-        pywebauthn,
-        "verify_registration_response",
-        autospec=True,
-        side_effect=pywebauthn.helpers.exceptions.InvalidRegistrationResponse,
-    )
-
-    with pytest.raises(webauthn.RegistrationRejectedError):
+def test_verify_registration_response_failure():
+    with pytest.raises(
+        webauthn.RegistrationRejectedError,
+        match="clientDataJSON was malformed",
+    ):
         webauthn.verify_registration_response(
             (
                 b'{"id": "foo", "rawId": "foo", "response": '
