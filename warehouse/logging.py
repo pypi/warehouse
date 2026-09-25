@@ -63,6 +63,9 @@ class GunicornLogger(gunicorn.glogging.Logger):
                 # Stashed by request_context_tween so access lines join the
                 # app logs emitted during the same request.
                 "request.id": environ.get("warehouse.request_id"),
+                # Stashed by submit_xmlrpc_metrics; the call is in the POST body.
+                "rpc_method": environ.get("warehouse.xmlrpc.method"),
+                "rpc_args": environ.get("warehouse.xmlrpc.args"),
             },
         )
 
