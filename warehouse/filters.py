@@ -11,15 +11,14 @@ import urllib.parse
 
 from email.utils import getaddresses
 
-import html5lib
-import html5lib.serializer
-import html5lib.treewalkers
 import jinja2
+import nh3
 import packaging_legacy.version
 import pytz
 
 from natsort import natsorted
 from pyramid.threadlocal import get_current_request
+from readme_renderer.clean import ALLOWED_ATTRIBUTES, ALLOWED_TAGS
 from urllib3.util import parse_url
 
 from warehouse.utils.http import is_valid_uri
@@ -58,24 +57,32 @@ def _camo_url(request, url):
     return urllib.parse.urljoin(camo_url, path)
 
 
+# readme_renderer's allowlist, so cleaning an already rendered description again
+# changes only the image sources, plus the loading attribute of sponsor logos.
+_CAMOIFY_ATTRIBUTES = {
+    **ALLOWED_ATTRIBUTES,
+    "img": ALLOWED_ATTRIBUTES["img"] | {"loading"},
+}
+
+
 @jinja2.pass_context
 def camoify(ctx, value):
     request = ctx.get("request") or get_current_request()
 
-    # Parse the rendered output and replace any inline images that don't point
-    # to HTTPS with camouflaged images.
-    tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
-    parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
-    dom = parser.parse(value)
-
-    for element in dom.getElementsByTagName("img"):
-        src = element.getAttribute("src")
-        if src:
-            element.setAttribute("src", request.camo_url(src))
-
-    tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-    html_serializer = html5lib.serializer.HTMLSerializer()
-    return "".join(html_serializer.serialize(tree_walker(dom)))
+    # Replace any inline images that don't point to HTTPS with camouflaged images.
+    return nh3.clean(
+        value,
+        tags=ALLOWED_TAGS,
+        attributes=_CAMOIFY_ATTRIBUTES,
+        attribute_filter=lambda tag, attribute, attribute_value: (
+            request.camo_url(attribute_value)
+            if tag == "img" and attribute == "src" and attribute_value
+            else attribute_value
+        ),
+        link_rel="nofollow",
+        url_schemes={"http", "https", "mailto"},
+        set_tag_attribute_values={"input": {"disabled": ""}},
+    )
 
 
 _SI_SYMBOLS = ["k", "M", "G", "T", "P", "E", "Z", "Y"]
