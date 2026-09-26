@@ -5365,6 +5365,7 @@ class TestManageAccountPublishingViews:
             ),
         ],
     )
+    @pytest.mark.parametrize("project_name_whitespace", ["", " \t"])
     def test_add_pending_oidc_publisher(
         self,
         monkeypatch,
@@ -5373,6 +5374,7 @@ class TestManageAccountPublishingViews:
         publisher_name,
         publisher_class,
         post_body,
+        project_name_whitespace,
     ):
         db_request.user = UserFactory()
         db_request.user.record_event = pretend.call_recorder(lambda **kw: None)
@@ -5388,7 +5390,10 @@ class TestManageAccountPublishingViews:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = post_body
+        db_request.POST = post_body.copy()
+        db_request.POST["project_name"] = (
+            f"{project_name_whitespace}some-project-name{project_name_whitespace}"
+        )
         monkeypatch.setattr(
             views.PendingGitHubPublisherForm,
             "_lookup_owner",
