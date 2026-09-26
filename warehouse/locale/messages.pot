@@ -3221,7 +3221,7 @@ msgid "Sponsors"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:10
-#: warehouse/templates/includes/packaging/project-navigation.html:38
+#: warehouse/templates/includes/packaging/project-navigation.html:55
 msgid "Release files"
 msgstr ""
 
@@ -3537,6 +3537,11 @@ msgstr ""
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:37
+msgid "Metadata"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-files.html:9
 #, python-format
 msgid "Release files for %(name)s %(version)s"
@@ -3669,15 +3674,19 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:35
+#: warehouse/templates/includes/packaging/project-navigation.html:34
+msgid "Metadata. Focus will be moved to the metadata panel."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:52
 msgid "Files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:61
+#: warehouse/templates/includes/packaging/project-navigation.html:78
 msgid "Release history. Focus will be moved to the release history panel."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:64
+#: warehouse/templates/includes/packaging/project-navigation.html:81
 #: warehouse/templates/includes/packaging/project-release-history.html:8
 msgid "Release history"
 msgstr ""
