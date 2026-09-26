@@ -14,8 +14,16 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
-from warehouse.admin.views.helpers import ALLOWED_DAYS, parse_days_param
+from warehouse.admin.views.helpers import (
+    ALLOWED_DAYS,
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    execute_bounded,
+    parse_days_param,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
+from warehouse.cache.http import add_vary
 from warehouse.constants import (
     MAX_FILESIZE,
     MAX_PROJECT_SIZE,
@@ -267,6 +275,85 @@ def project_observations_list(project, request):
     )
 
     return {"observations": observations, "project": project}
+
+
+@view_config(
+    route_name="admin.project.activity",
+    renderer="json",
+    accept="application/json",
+    decorator=[add_vary("Accept")],
+    permission=Permissions.AdminProjectsRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def project_activity_json(project, request):
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields={"time", "tag"},
+        default_sort_field="time",
+        filter_fields={"tag"},
+    )
+
+    event = project.Event
+
+    conditions = [
+        getattr(event, field) == value for field, value in params.filters.items()
+    ]
+    sort_field = event.tag if params.sort_field == "tag" else event.time
+
+    if params.sort_dir == "desc":
+        order_by = (sort_field.desc(), event.id.desc())
+    else:
+        order_by = (sort_field.asc(), event.id.asc())
+
+    query = (
+        select(event)
+        .options(joinedload(event.ip_address))
+        .where(event.source_id == project.id, *conditions)
+        .order_by(*order_by)
+        .limit(params.size + 1)
+        .offset(params.offset)
+    )
+
+    rows = execute_bounded(
+        request,
+        query,
+        timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS,
+    )
+
+    page_rows, pagination = tabulator_page(
+        request,
+        rows,
+        params,
+        table_names=[event.__tablename__],
+    )
+
+    data = []
+
+    for row in page_rows:
+        event_row = row[0]
+        data.append(
+            {
+                "id": event_row.id,
+                "tag": event_row.tag,
+                "time": event_row.time.isoformat(),
+                "ip_address": (
+                    str(event_row.ip_address) if event_row.ip_address else ""
+                ),
+                "hashed_ip_address": (
+                    event_row.ip_address.hashed_ip_address
+                    if event_row.ip_address
+                    else ""
+                ),
+                "location_info": str(event_row.location_info),
+                "user_agent_info": event_row.user_agent_info,
+                "additional": event_row.additional,
+            }
+        )
+
+    return {**pagination, "data": data}
 
 
 @view_config(
