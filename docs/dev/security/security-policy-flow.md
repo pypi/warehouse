@@ -197,6 +197,8 @@ config.add_legacy_action_route(
 ```
 
 A token-only API route passes `auth_methods={"macaroon"}` instead.
+Listing `basic-auth` without `macaroon` raises a `ConfigurationError`, since
+the only credential basic-auth lets through is a macaroon.
 
 Each policy consults the predicate during `identity()` and bows out when its
 method is not in the route's allowed set:
@@ -206,6 +208,7 @@ method is not in the route's allowed set:
 | *(no `auth_methods`)* | yes | no (needs explicit opt-in) | yes |
 | `{"basic-auth", "macaroon"}` (forklift upload) | no | yes | yes |
 | `{"macaroon"}` (token-only API) | no | no | yes |
+| `{"api-key"}` (future Maintainer API) | no | no | no |
 
 `auth_methods_for_route` returns `None` when a route carries no predicate, and
 each policy decides its own default for that case. `SessionSecurityPolicy` and
@@ -292,7 +295,9 @@ header, either as `Basic` with username `__token__`, or as `token`/`bearer`.
 ```mermaid
 flowchart TD
     A[<code>identity</code>]:::warehouse --> VARY[add Vary: <code>Authorization</code><br/>set method = <code>MACAROON</code>]:::warehouse
-    VARY --> EX[extract macaroon from<br/><code>Authorization</code> header]:::warehouse
+    VARY --> AM{no <code>matched_route</code>, or<br/><code>auth_methods</code> set and<br/><code>MACAROON</code> excluded?}:::warehouse
+    AM -->|yes| N0[return <code>None</code>]:::warehouse
+    AM -->|no| EX[extract macaroon from<br/><code>Authorization</code> header<br/>cached per request]:::warehouse
     EX --> HAS{macaroon string<br/>extracted?}:::warehouse
     HAS -->|no| N1[return <code>None</code>]:::warehouse
     HAS -->|yes| FIND[(<code>IMacaroonService.verify_signature_only</code>)]:::service
