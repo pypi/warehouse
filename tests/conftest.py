@@ -275,6 +275,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
+    dummy_request.matched_route = None
     dummy_request.authentication_method = None
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
@@ -850,6 +851,7 @@ class _MockRedis:
 
     def __init__(self, cache=None):
         self.cache = cache
+        self.ttls: dict[str, int] = {}
 
         if not self.cache:  # pragma: no cover
             self.cache = {}
@@ -862,6 +864,7 @@ class _MockRedis:
 
     def delete(self, key):
         del self.cache[key]
+        self.ttls.pop(key, None)
 
     def execute(self):
         pass
@@ -869,8 +872,11 @@ class _MockRedis:
     def exists(self, key):
         return key in self.cache
 
-    def expire(self, _key, _seconds):
-        pass
+    def expire(self, key, seconds, nx=False):
+        if nx and key in self.ttls:
+            return False
+        self.ttls[key] = seconds
+        return True
 
     def from_url(self, _url):
         return self

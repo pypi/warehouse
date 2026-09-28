@@ -3284,7 +3284,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:200
-#: warehouse/templates/pages/classifiers.html:42
+#: warehouse/templates/pages/classifiers.html:50
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -3826,17 +3826,18 @@ msgid "Credits"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:8
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
-#: warehouse/templates/includes/packaging/metadata/organization.html:7
-msgid "PyPI data"
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
+#, python-format
+msgid "Data verified by PyPI on&nbsp;%(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:9
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
-#: warehouse/templates/includes/packaging/metadata/organization.html:8
-msgid "Data sourced directly from PyPI's database."
+msgid ""
+"Data provided by the project maintainers, verified at the time the "
+"release was uploaded to PyPI. Confirms that the provided email matches a "
+"verified, public email address on a PyPI user account associated with the"
+" project."
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:16
@@ -3860,12 +3861,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:8
 msgid "GitHub Statistics"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
-#, python-format
-msgid "Data verified by PyPI on&nbsp;%(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
@@ -3918,6 +3913,18 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:3
 msgid "Key dates"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
+#: warehouse/templates/includes/packaging/metadata/organization.html:7
+msgid "PyPI data"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
+#: warehouse/templates/includes/packaging/metadata/organization.html:8
+msgid "Data sourced directly from PyPI's database."
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:30
@@ -4326,7 +4333,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
 #: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:43
+#: warehouse/templates/pages/classifiers.html:51
 msgid "Copy"
 msgstr ""
 
@@ -8668,11 +8675,22 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""
 "To prevent a package from being uploaded to PyPI, use the special "
-"\"Private :: Do Not Upload\" classifier. PyPI will always reject packages"
-" with classifiers beginning with \"Private ::\"."
+"<code>Private :: Do Not Upload</code> classifier. PyPI will always reject"
+" packages with classifiers beginning with <code>Private ::</code>."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:33
+msgid ""
+"Note: As of <a "
+"href=\"https://packaging.python.org/en/latest/specifications/license-"
+"expression/\" target=\"_blank\" rel=\"noopener\">PEP 639</a>, the use of "
+"<code>License</code> Trove classifiers is deprecated. Please use <a "
+"href=\"https://packaging.python.org/en/latest/specifications/license-"
+"expression/\" target=\"_blank\" rel=\"noopener\">license expressions</a> "
+"in your <code>pyproject.toml</code> instead."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:39
 msgid "List of classifiers"
 msgstr ""
 
