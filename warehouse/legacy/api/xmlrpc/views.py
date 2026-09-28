@@ -2,6 +2,7 @@
 
 import datetime
 import functools
+import json
 import re
 import xmlrpc.client
 import xmlrpc.server
@@ -61,6 +62,8 @@ _illegal_ranges = [
 ]
 _illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
+XMLRPC_LOGGED_ARGS_LENGTH = 200
+
 XMLRPC_DEPRECATION_URL = (
     "https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods"
 )
@@ -86,6 +89,12 @@ def submit_xmlrpc_metrics(method=None):
 
     def decorator(f):
         def wrapped(context, request):
+            # The method and its arguments travel in the POST body, so the access
+            # log can't see them. Stash them where GunicornLogger reads them.
+            request.environ["warehouse.xmlrpc.method"] = method
+            request.environ["warehouse.xmlrpc.args"] = json.dumps(
+                request.rpc_args, default=str
+            )[:XMLRPC_LOGGED_ARGS_LENGTH]
             metrics = request.find_service(IMetricsService, context=None)
             metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
             with metrics.timed(

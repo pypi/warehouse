@@ -19,6 +19,36 @@ from .....common.db.packaging import (
 )
 
 
+class TestSubmitXMLRPCMetrics:
+    def test_stashes_call_for_access_log(self, pyramid_request, metrics, mocker):
+        def view(context, request):
+            return "result"
+
+        wrapped = xmlrpc.submit_xmlrpc_metrics(method="browse")(view)
+        pyramid_request.rpc_args = (["Framework :: Django"],)
+
+        assert wrapped(mocker.sentinel.context, pyramid_request) == "result"
+        assert pyramid_request.environ["warehouse.xmlrpc.method"] == "browse"
+        assert (
+            pyramid_request.environ["warehouse.xmlrpc.args"]
+            == '[["Framework :: Django"]]'
+        )
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.call", tags=["rpc_method:browse"]
+        )
+
+    def test_truncates_logged_args(self, pyramid_request, metrics, mocker):
+        wrapped = xmlrpc.submit_xmlrpc_metrics(method="browse")(lambda c, r: None)
+        pyramid_request.rpc_args = (["x" * 500],)
+
+        wrapped(mocker.sentinel.context, pyramid_request)
+
+        assert (
+            len(pyramid_request.environ["warehouse.xmlrpc.args"])
+            == xmlrpc.XMLRPC_LOGGED_ARGS_LENGTH
+        )
+
+
 class TestRateLimiting:
     def test_ratelimiting_pass(
         self, pyramid_services, pyramid_request, metrics, mocker
