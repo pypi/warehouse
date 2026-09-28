@@ -68,7 +68,7 @@ ignore = "H006,T002,T003,T028"
 [tool.inline-snapshot]
 format-command = "ruff format --stdin-filename {filename}"
 
-[tool.mypy]
+[tool.mypy]  # tombi: lint.rules.schema-resolution.disabled = true
 python_version = "3.14"
 warn_unreachable = true
 warn_unused_configs = true
@@ -112,7 +112,7 @@ ignore_missing_imports = true
 # See: https://github.com/jazzband/pip-tools/issues/989
 allow-unsafe = true
 
-[tool.pytest]
+[tool.pytest]  # tombi: lint.rules.schema-resolution.disabled = true
 addopts = [
   "--allow-hosts=localhost,::1,stripe,redis",
   "--disable-socket",
@@ -148,7 +148,7 @@ markers = [
 strict = true
 testpaths = ["tests/"]
 
-[tool.ruff]
+[tool.ruff]  # tombi: lint.rules.schema-resolution.disabled = true
 cache-dir = ".cache/ruff"
 target-version = "py314"
 

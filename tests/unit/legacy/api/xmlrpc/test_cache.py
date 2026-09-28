@@ -13,6 +13,7 @@ from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
 
+from tests.common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
     NullXMLRPCCache,
@@ -289,6 +290,31 @@ class TestRedisLru:
             mocker.call("warehouse.lru.cache.hit"),
         ]
 
+    def test_ttl_is_set_once_per_hash(self, mockredis):
+        """A later write leaves the hash's existing TTL alone.
+
+        Redis EXPIRE replaces the current TTL, so refreshing it on every write
+        lets a hash that keeps receiving new keys outlive `expires` for as long
+        as traffic arrives, and `RedisLru` has no `hdel` to reclaim the fields
+        already in it.
+        """
+        redis_lru = RedisLru(mockredis, expires=100)
+
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", None, None)
+        redis_lru.fetch(func_test, [2, 3], {}, "[2,3]", None, 500)
+
+        assert mockredis.ttls["lru:tag:func_test"] == 100
+
+    def test_ttl_is_set_again_after_a_purge(self, mockredis):
+        """Purging drops the hash, so the next write starts a fresh window."""
+        redis_lru = RedisLru(mockredis, expires=100)
+
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", "test", None)
+        redis_lru.purge("test")
+        redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", "test", 500)
+
+        assert mockredis.ttls["lru:test:func_test"] == 500
+
     def test_redis_purge(self, metrics, mockredis, mocker):
         redis_lru = RedisLru(mockredis, metric_reporter=metrics)
 
@@ -545,6 +571,33 @@ class TestPurgeTask:
             "type_3",
             "foo",
         }
+
+    def test_store_purge_keys_skips_audit_only_changes(self, app_config, db_request):
+        """Recording an event on a project does not purge its cached responses."""
+        project = ProjectFactory.create()
+        db_request.db.flush()
+        db_request.db.info.pop("warehouse.legacy.api.xmlrpc.cache.purges", None)
+
+        project.record_event(tag="test:event", request=db_request, additional={})
+        db_request.db.flush()
+
+        purges = db_request.db.info["warehouse.legacy.api.xmlrpc.cache.purges"]
+        assert f"project/{project.normalized_name}" not in purges
+
+    def test_store_purge_keys_new_file_purges_all_projects(self, db_request):
+        """
+        A file added to an existing release marks the release dirty through its
+        `files` collection, and that still purges the serial listing.
+        """
+        release = ReleaseFactory.create()
+        db_request.db.flush()
+        db_request.db.info.pop("warehouse.legacy.api.xmlrpc.cache.purges", None)
+
+        FileFactory.create(release=release)
+        db_request.db.flush()
+
+        purges = db_request.db.info["warehouse.legacy.api.xmlrpc.cache.purges"]
+        assert "all-projects" in purges
 
     def test_execute_purge(self, app_config, mocker):
         service = NullXMLRPCCache("null://", mocker.stub(name="purger"))

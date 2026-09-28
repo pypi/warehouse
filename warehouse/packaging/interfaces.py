@@ -38,9 +38,9 @@ class IGenericFileStorage(Interface):
         or provide such metadata.
         """
 
-    def get_checksum(path: str):
+    def get_size(path: str) -> int:
         """
-        Return the md5 digest of the file at a given path as a lowercase string.
+        Return the size in bytes of the file at a given path.
         """
 
     def store(path: str, file_path, *, meta=None):

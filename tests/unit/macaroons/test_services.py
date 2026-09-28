@@ -65,23 +65,7 @@ class TestDatabaseMacaroonService:
         assert macaroon.id == dm.id
         assert macaroon.user == user
 
-    def test_find_from_raw(self, user_service, macaroon_service):
-        user = UserFactory.create()
-        serialized, macaroon = macaroon_service.create_macaroon(
-            "fake location",
-            "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
-            user_id=user.id,
-        )
-
-        dm = macaroon_service.find_from_raw(serialized)
-
-        assert isinstance(dm, Macaroon)
-        assert macaroon.id == dm.id
-        assert macaroon.user == user
-        assert macaroon.additional is None
-
-    def test_find_from_raw_oidc(self, macaroon_service):
+    def test_verify_signature_only_oidc(self, macaroon_service):
         publisher = GitHubPublisherFactory.create()
         claims = {"sha": "somesha", "ref": "someref"}
         (
@@ -95,7 +79,7 @@ class TestDatabaseMacaroonService:
             additional=claims,
         )
 
-        dm = macaroon_service.find_from_raw(serialized)
+        dm = macaroon_service.verify_signature_only(serialized)
 
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
@@ -120,9 +104,11 @@ class TestDatabaseMacaroonService:
             "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
         ],
     )
-    def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
+    def test_verify_signature_only_not_found_or_invalid(
+        self, macaroon_service, raw_macaroon
+    ):
         with pytest.raises(services.InvalidMacaroonError):
-            macaroon_service.find_from_raw(raw_macaroon)
+            macaroon_service.verify_signature_only(raw_macaroon)
 
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
@@ -294,14 +280,13 @@ class TestDatabaseMacaroonService:
 
     def test_verify_valid_macaroon(self, mocker, db_request, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, dm = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(user.id))],
             user_id=user.id,
         )
 
-        dm = macaroon_service.find_from_raw(raw_macaroon)
         # Add a database only caveat that has not been embedded into the macaroon
         dm.caveats = [*dm.caveats, caveats.Expiration(expires_at=5, not_before=2)]
 

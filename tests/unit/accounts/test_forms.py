@@ -3,6 +3,8 @@
 import datetime
 import json
 
+from types import SimpleNamespace
+
 import pretend
 import pytest
 import wtforms
@@ -482,6 +484,7 @@ class TestRegistrationForm:
                     "password_confirm": "mysupersecurepassword1!",
                     "email": "foo@bar.com",
                     "g_recaptcha_reponse": "",
+                    "acceptable_use": "y",
                 }
             ),
             user_service=user_service,
@@ -492,6 +495,35 @@ class TestRegistrationForm:
         assert form.user_service is user_service
         assert form.captcha_service is captcha_service
         assert form.validate(), str(form.errors)
+
+    def test_acceptable_use_required_error(self, pyramid_config):
+        """Registration is rejected when the acceptable use terms are unchecked."""
+        form = forms.RegistrationForm(
+            request=SimpleNamespace(),
+            formdata=MultiDict({}),
+            user_service=SimpleNamespace(find_userid_by_email=lambda _: None),
+            captcha_service=SimpleNamespace(enabled=True),
+            breach_service=SimpleNamespace(check_password=lambda pw: False),
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.acceptable_use.errors.pop())
+            == "You must agree to the Terms of Service and Acceptable Use Policy."
+        )
+
+    def test_acceptable_use_unchecked_value_error(self):
+        """A submitted but falsy value is rejected, not only a missing one."""
+        form = forms.RegistrationForm(
+            request=SimpleNamespace(),
+            formdata=MultiDict({"acceptable_use": ""}),
+            user_service=SimpleNamespace(find_userid_by_email=lambda _: None),
+            captcha_service=SimpleNamespace(enabled=True),
+            breach_service=SimpleNamespace(check_password=lambda pw: False),
+        )
+
+        assert not form.validate()
+        assert form.acceptable_use.errors
 
     def test_password_confirm_required_error(self):
         form = forms.RegistrationForm(
@@ -697,6 +729,7 @@ class TestRegistrationForm:
                     "new_password": "mysupersecurepassword1!",
                     "password_confirm": "mysupersecurepassword1!",
                     "email": email,
+                    "acceptable_use": "y",
                 }
             ),
             user_service=user_service,

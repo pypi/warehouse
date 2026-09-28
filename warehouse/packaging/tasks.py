@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import datetime
+import shutil
 import tempfile
 import typing
 
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 import structlog
 
@@ -46,9 +48,11 @@ logger = structlog.get_logger(__name__)
 
 def _copy_file_to_cache(archive_storage, cache_storage, path):
     metadata = archive_storage.get_metadata(path)
-    file_obj = archive_storage.get(path)
-    with tempfile.NamedTemporaryFile() as file_for_cache:
-        file_for_cache.write(file_obj.read())
+    with (
+        contextlib.closing(archive_storage.get(path)) as file_obj,
+        tempfile.NamedTemporaryFile() as file_for_cache,
+    ):
+        shutil.copyfileobj(file_obj, file_for_cache, length=1024 * 1024)
         file_for_cache.flush()
         cache_storage.store(path, file_for_cache.name, meta=metadata)
 
@@ -117,23 +121,23 @@ def check_file_cache_tasks_outstanding(request):
     )
 
 
-class Checksums(NamedTuple):
-    file: Any
-    metadata_file: Any
+class Sizes(NamedTuple):
+    file: int | None
+    metadata_file: int | None
 
 
-def fetch_checksums(storage, file):
+def fetch_sizes(storage, file) -> Sizes:
     try:
-        file_checksum = storage.get_checksum(file.path)
+        file_size = storage.get_size(file.path)
     except FileNotFoundError:
-        file_checksum = None
+        file_size = None
 
     try:
-        file_metadata_checksum = storage.get_checksum(file.metadata_path)
+        metadata_file_size = storage.get_size(file.metadata_path)
     except FileNotFoundError:
-        file_metadata_checksum = None
+        metadata_file_size = None
 
-    return Checksums(file_checksum, file_metadata_checksum)
+    return Sizes(file_size, metadata_file_size)
 
 
 @tasks.task(ignore_results=True, acks_late=True)
@@ -157,65 +161,51 @@ def reconcile_file_storages(request):
 
     for file in files_batch.all():
         logger.info("Checking file", file_id=file.id, path=file.path)
-        archive_checksums = fetch_checksums(archive_storage, file)
-        cache_checksums = fetch_checksums(cache_storage, file)
+        archive_sizes = fetch_sizes(archive_storage, file)
+        cache_sizes = fetch_sizes(cache_storage, file)
 
-        # Note: We don't store md5 digest for METADATA file in our database,
-        # record boolean for if we should expect values.
-        expected_checksums = Checksums(
-            file.md5_digest,
-            bool(file.metadata_file_sha256_digest),
-        )
+        # The archive is the golden copy, but only where it agrees with the
+        # size we recorded when the file was uploaded. Sizes are used rather
+        # than checksums because S3 reports a multipart ETag for anything over
+        # boto3's 8MB threshold, which never equals the file's md5 digest.
+        # See: https://github.com/pypi/warehouse/issues/19704
+        errors = []
 
-        if (
-            (archive_checksums == cache_checksums)
-            and (archive_checksums.file == expected_checksums.file)
-            and (
-                bool(archive_checksums.metadata_file)
-                == expected_checksums.metadata_file
+        if archive_sizes.file != file.size:
+            metrics.increment("warehouse.filestorage.unreconciled", tags=["type:dist"])
+            logger.error(
+                "Unable to reconcile stored file distribution ❌",
+                file_id=file.id,
+                path=file.path,
+                expected_size=file.size,
+                archive_size=archive_sizes.file,
             )
-        ):
-            logger.info("File is all good ✨", file_id=file.id, path=file.path)
-            file.cached = True
+            errors.append(file.path)
+        elif cache_sizes.file != archive_sizes.file:
+            _copy_file_to_cache(archive_storage, cache_storage, file.path)
+            logger.info(
+                "File distribution pulled from archive ⬆️",
+                file_id=file.id,
+                path=file.path,
+            )
+            metrics.increment("warehouse.filestorage.reconciled", tags=["type:dist"])
         else:
-            errors = []
+            logger.info("File distribution is ok ✅", file_id=file.id, path=file.path)
 
-            if (archive_checksums.file != cache_checksums.file) and (
-                archive_checksums.file == expected_checksums.file
-            ):
-                # No worries, a consistent file is in archive but not cache
-                _copy_file_to_cache(archive_storage, cache_storage, file.path)
-                logger.info(
-                    "File distribution pulled from archive ⬆️",
-                    file_id=file.id,
-                    path=file.path,
-                )
+        # We don't store the METADATA file's size, so the archive is the only
+        # authority on what the cache should hold.
+        if file.metadata_file_sha256_digest is not None:
+            if archive_sizes.metadata_file is None:
                 metrics.increment(
-                    "warehouse.filestorage.reconciled", tags=["type:dist"]
-                )
-            elif (
-                archive_checksums.file == cache_checksums.file
-                and archive_checksums.file is not None
-            ):
-                logger.info(
-                    "File distribution is ok ✅", file_id=file.id, path=file.path
-                )
-            else:
-                metrics.increment(
-                    "warehouse.filestorage.unreconciled", tags=["type:dist"]
+                    "warehouse.filestorage.unreconciled", tags=["type:metadata"]
                 )
                 logger.error(
-                    "Unable to reconcile stored file distribution ❌",
+                    "Unable to reconcile stored file METADATA ❌",
                     file_id=file.id,
-                    path=file.path,
+                    path=file.metadata_path,
                 )
-                errors.append(file.path)
-
-            if expected_checksums.metadata_file and (
-                archive_checksums.metadata_file is not None
-                and cache_checksums.metadata_file is None
-            ):
-                # The only file we have is in archive, so use that for cache
+                errors.append(file.metadata_path)
+            elif cache_sizes.metadata_file != archive_sizes.metadata_file:
                 _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
                 logger.info(
                     "File METADATA pulled from archive ⬆️",
@@ -225,26 +215,13 @@ def reconcile_file_storages(request):
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:metadata"]
                 )
-            elif expected_checksums.metadata_file:
-                if archive_checksums.metadata_file == cache_checksums.metadata_file:
-                    logger.info(
-                        "File METADATA is ok ✅",
-                        file_id=file.id,
-                        path=file.metadata_path,
-                    )
-                else:
-                    metrics.increment(
-                        "warehouse.filestorage.unreconciled", tags=["type:metadata"]
-                    )
-                    logger.error(
-                        "Unable to reconcile stored file METADATA ❌",
-                        file_id=file.id,
-                        path=file.metadata_path,
-                    )
-                    errors.append(file.metadata_path)
+            else:
+                logger.info(
+                    "File METADATA is ok ✅", file_id=file.id, path=file.metadata_path
+                )
 
-            if len(errors) == 0:
-                file.cached = True
+        if len(errors) == 0:
+            file.cached = True
 
 
 @tasks.task(ignore_result=True, acks_late=True)
