@@ -293,7 +293,7 @@ def reject_duplicate_post_keys_view(view, info):
     # Passing a collection of strings to permit_duplicate_post_keys will allow
     # those keys to be duplicated. Fail at config time if the parameter is
     # misconfigured.
-    if permit is not None and (
+    if permit and (
         isinstance(permit, str)
         or not isinstance(permit, Collection)
         or not all(isinstance(key, str) for key in permit)
