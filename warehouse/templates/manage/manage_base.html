@@ -572,6 +572,34 @@
     </li>
   </ul>
 {% endmacro %}
+{% macro delete_file_acknowledgments(filename) %}
+  <ul class="no-bullets no-left-margin">
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_install_break") }}
+        {% trans %}I understand that my users will no longer be able to install this file for this release of this project.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
+        {% trans filename=filename, href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href={{ href }} target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}
+      </label>
+    </li>
+    <li class="margin-bottom">
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_irreversible") }}
+        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+    <li>
+      <label>
+        {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
+        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+      </label>
+    </li>
+  </ul>
+{% endmacro %}
 {% macro confirm_button(
   title,
   label,

@@ -96,6 +96,16 @@ DELETE_RELEASE_ACKNOWLEDGMENTS = (
     "acknowledge_admins_cannot_undo",
 )
 
+#: Acknowledgments the user must check to delete a file, named to match the
+#: ``delete_file_acknowledgments()`` macro in ``manage/manage_base.html``.
+#: The functional tests assert the rendered form carries exactly these names.
+DELETE_FILE_ACKNOWLEDGMENTS = (
+    "acknowledge_install_break",
+    "acknowledge_no_reupload",
+    "acknowledge_irreversible",
+    "acknowledge_admins_cannot_undo",
+)
+
 
 def confirm_acknowledgments(
     request,

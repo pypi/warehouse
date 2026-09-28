@@ -179,7 +179,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:976
+#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:977
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -553,125 +553,129 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:414
+#: warehouse/manage/views/__init__.py:415
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:445
+#: warehouse/manage/views/__init__.py:446
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:923
+#: warehouse/manage/views/__init__.py:924
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:925
+#: warehouse/manage/views/__init__.py:926
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1033
+#: warehouse/manage/views/__init__.py:1034
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1135
+#: warehouse/manage/views/__init__.py:1136
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1167
+#: warehouse/manage/views/__init__.py:1168
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1338
-#: warehouse/manage/views/__init__.py:1669
-#: warehouse/manage/views/__init__.py:1792
+#: warehouse/manage/views/__init__.py:1339
+#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1793
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1354
 msgid "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1469
+#: warehouse/manage/views/__init__.py:1470
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1493
-#: warehouse/manage/views/__init__.py:1581
-#: warehouse/manage/views/__init__.py:1685
-#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1494
+#: warehouse/manage/views/__init__.py:1582
+#: warehouse/manage/views/__init__.py:1686
+#: warehouse/manage/views/__init__.py:1801
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1506
+#: warehouse/manage/views/__init__.py:1507
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1594
+#: warehouse/manage/views/__init__.py:1595
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1698
+#: warehouse/manage/views/__init__.py:1699
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1716
+#: warehouse/manage/views/__init__.py:1717
 msgid "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1812
+#: warehouse/manage/views/__init__.py:1813
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1817
+#: warehouse/manage/views/__init__.py:1818
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1965
+#: warehouse/manage/views/__init__.py:1828
+msgid "Could not delete file - acknowledge all of the consequences to continue"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1978
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2072
+#: warehouse/manage/views/__init__.py:2085
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2139
+#: warehouse/manage/views/__init__.py:2152
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2170
+#: warehouse/manage/views/__init__.py:2183
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2183
+#: warehouse/manage/views/__init__.py:2196
 #: warehouse/manage/views/organizations.py:959
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2248
+#: warehouse/manage/views/__init__.py:2261
 #: warehouse/manage/views/organizations.py:1039
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2280
+#: warehouse/manage/views/__init__.py:2293
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2291
+#: warehouse/manage/views/__init__.py:2304
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2324
+#: warehouse/manage/views/__init__.py:2337
 #: warehouse/manage/views/organizations.py:1246
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
@@ -1138,8 +1142,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:51
 #: warehouse/templates/manage/account/webauthn-provision.html:68
 #: warehouse/templates/manage/manage_base.html:210
-#: warehouse/templates/manage/project/release.html:184
-#: warehouse/templates/manage/project/release.html:252
+#: warehouse/templates/manage/project/release.html:155
+#: warehouse/templates/manage/project/release.html:223
 #: warehouse/templates/manage/project/releases.html:157
 #: warehouse/templates/manage/project/releases.html:210
 #: warehouse/templates/pages/classifiers.html:17
@@ -1371,7 +1375,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:296
 #: warehouse/templates/manage/organization/settings.html:302
 #: warehouse/templates/manage/project/documentation.html:13
-#: warehouse/templates/manage/project/release.html:235
+#: warehouse/templates/manage/project/release.html:206
 #: warehouse/templates/manage/project/settings.html:78
 #: warehouse/templates/manage/project/settings.html:123
 #: warehouse/templates/manage/project/settings.html:229
@@ -3181,7 +3185,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:534
 #: warehouse/templates/manage/manage_base.html:341
 #: warehouse/templates/manage/manage_base.html:344
-#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/project/release.html:151
 #: warehouse/templates/manage/project/releases.html:206
 #: warehouse/templates/manage/project/settings.html:63
 #: warehouse/templates/manage/unverified-account.html:186
@@ -3430,7 +3434,7 @@ msgid "Email"
 msgstr ""
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:8
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:148
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
@@ -4513,7 +4517,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:708
+#: warehouse/templates/manage/manage_base.html:736
 #: warehouse/templates/manage/organization/roles.html:275
 #: warehouse/templates/manage/organization/roles.html:279
 #: warehouse/templates/manage/organization/roles.html:290
@@ -5366,13 +5370,13 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:530
 #: warehouse/templates/manage/manage_base.html:564
-#: warehouse/templates/manage/project/release.html:144
+#: warehouse/templates/manage/manage_base.html:592
 msgid "I understand that I will not be able to undo this."
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:536
 #: warehouse/templates/manage/manage_base.html:570
-#: warehouse/templates/manage/project/release.html:151
+#: warehouse/templates/manage/manage_base.html:598
 msgid "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
@@ -5397,52 +5401,66 @@ msgid ""
 "same file names</a>."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:626
+#: warehouse/templates/manage/manage_base.html:580
+msgid ""
+"I understand that my users will no longer be able to install this file "
+"for this release of this project."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:586
+#, python-format
+msgid ""
+"I understand that I will <a href=%(href)s target=\"_blank\" "
+"rel=\"noopener\">not be able to re-upload a file using the same file "
+"name</a> %(filename)s."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:654
 msgid "Trusted Publisher Management"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:630
+#: warehouse/templates/manage/manage_base.html:658
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third "
 "party service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:637
+#: warehouse/templates/manage/manage_base.html:665
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their "
 "release processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:643
+#: warehouse/templates/manage/manage_base.html:671
 #, python-format
 msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:670
-#: warehouse/templates/manage/manage_base.html:681
-#: warehouse/templates/manage/manage_base.html:692
+#: warehouse/templates/manage/manage_base.html:698
+#: warehouse/templates/manage/manage_base.html:709
+#: warehouse/templates/manage/manage_base.html:720
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:713
+#: warehouse/templates/manage/manage_base.html:741
 msgid "Remove trusted publisher"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:716
+#: warehouse/templates/manage/manage_base.html:744
 #, python-format
 msgid ""
 "Removing this %(publisher_name)s trusted publisher will prevent automated"
 " package uploads from this source. You can re-add it later if needed."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:722
+#: warehouse/templates/manage/manage_base.html:750
 msgid "Remove publisher"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:726
+#: warehouse/templates/manage/manage_base.html:754
 #: warehouse/templates/manage/organization/history.html:113
 #: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:27
@@ -5456,7 +5474,7 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:728
+#: warehouse/templates/manage/manage_base.html:756
 #: warehouse/templates/manage/organization/history.html:121
 #: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:46
@@ -5468,24 +5486,24 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:730
+#: warehouse/templates/manage/manage_base.html:758
 msgid "Submitted by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:733
+#: warehouse/templates/manage/manage_base.html:761
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:735
+#: warehouse/templates/manage/manage_base.html:763
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:737
+#: warehouse/templates/manage/manage_base.html:765
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:739
+#: warehouse/templates/manage/manage_base.html:767
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
@@ -6044,7 +6062,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:156
 #: warehouse/templates/manage/project/documentation.html:21
 #: warehouse/templates/manage/project/publishing.html:141
-#: warehouse/templates/manage/project/release.html:160
+#: warehouse/templates/manage/project/release.html:131
 #: warehouse/templates/pages/stats.html:65
 msgid "Project name"
 msgstr ""
@@ -7954,52 +7972,38 @@ msgstr ""
 msgid "Delete file"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:130
-msgid ""
-"I understand that my users will no longer be able to install this file "
-"for this release of this project."
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:137
-#, python-format
-msgid ""
-"I understand that I will <a href=%(href)s target=\"_blank\" "
-"rel=\"noopener\">not be able to re-upload a file using the same file "
-"name</a> %(filename)s."
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/release.html:143
 msgid "Uploading new files"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:145
 msgid "No files found"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:184
+#: warehouse/templates/manage/project/release.html:155
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\""
 " target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:187
+#: warehouse/templates/manage/project/release.html:158
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:161
 msgid ""
 "Yank and delete actions are unavailable while this release is in "
 "quarantine."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:195
-#: warehouse/templates/manage/project/release.html:229
+#: warehouse/templates/manage/project/release.html:166
+#: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:131
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:169
 #, python-format
 msgid ""
 "Yanking will mark this release (and %(count)s file within it) to be "
@@ -8010,25 +8014,25 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:175
 msgid ""
 "Yanking will mark this release to be ignored when installing in most "
 "common scenarios."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:208
+#: warehouse/templates/manage/project/release.html:179
 #, python-format
 msgid ""
 "This release will still be installable for users pinning to this exact "
 "version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:211
+#: warehouse/templates/manage/project/release.html:182
 #, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:217
+#: warehouse/templates/manage/project/release.html:188
 #: warehouse/templates/manage/project/releases.html:134
 #, python-format
 msgid ""
@@ -8037,13 +8041,13 @@ msgid ""
 "<code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:221
+#: warehouse/templates/manage/project/release.html:192
 #: warehouse/templates/manage/project/releases.html:138
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:229
-#: warehouse/templates/manage/project/release.html:261
+#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:232
 #: warehouse/templates/manage/project/releases.html:9
 #: warehouse/templates/manage/project/releases.html:128
 #: warehouse/templates/manage/project/releases.html:146
@@ -8051,31 +8055,31 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:233
-#: warehouse/templates/manage/project/release.html:261
+#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:232
 #: warehouse/templates/manage/project/releases.html:148
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:237
+#: warehouse/templates/manage/project/release.html:208
 #, python-format
 msgid "Deleting will irreversibly delete this release along with %(count)s file."
 msgid_plural "Deleting will irreversibly delete this release along with %(count)s files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:243
+#: warehouse/templates/manage/project/release.html:214
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:246
+#: warehouse/templates/manage/project/release.html:217
 #: warehouse/templates/manage/project/releases.html:151
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
 "with the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:249
+#: warehouse/templates/manage/project/release.html:220
 #: warehouse/templates/manage/project/releases.html:154
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version "
@@ -8083,7 +8087,7 @@ msgid ""
 "or remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:252
+#: warehouse/templates/manage/project/release.html:223
 #: warehouse/templates/manage/project/releases.html:157
 #, python-format
 msgid ""
