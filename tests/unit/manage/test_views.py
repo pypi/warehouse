@@ -56,6 +56,7 @@ from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    DELETE_FILE_ACKNOWLEDGMENTS,
     DELETE_PROJECT_ACKNOWLEDGMENTS,
     DELETE_RELEASE_ACKNOWLEDGMENTS,
 )
@@ -4945,6 +4946,7 @@ class TestManageProjectRelease:
         db_request.POST = {
             "confirm_project_name": release.project.name,
             "file_id": release_file.id,
+            **dict.fromkeys(DELETE_FILE_ACKNOWLEDGMENTS, "on"),
         }
         db_request.method = ("POST",)
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
@@ -5135,6 +5137,35 @@ class TestManageProjectRelease:
                 version=release.version,
             )
         ]
+
+    def test_delete_project_release_file_no_acknowledgments(self, db_request, mocker):
+        """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
+        release = ReleaseFactory.create()
+        release_file = FileFactory.create(release=release)
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": str(release_file.id),
+        }
+        db_request.route_path = mocker.Mock(return_value="/the-redirect")
+        flash = mocker.spy(db_request.session, "flash")
+
+        view = views.ManageProjectRelease(release, db_request)
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            view.delete_project_release_file()
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        flash.assert_called_once_with(
+            "Could not delete file - acknowledge all of the consequences to continue",
+            queue="error",
+        )
+        db_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
 
 
 class TestManageProjectRoles:

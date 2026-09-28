@@ -110,6 +110,7 @@ from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    DELETE_FILE_ACKNOWLEDGMENTS,
     DELETE_PROJECT_ACKNOWLEDGMENTS,
     DELETE_RELEASE_ACKNOWLEDGMENTS,
     archive_project,
@@ -1813,6 +1814,15 @@ class ManageProjectRelease:
                     f"{self.release.project.name!r}"
                 )
             )
+
+        confirm_acknowledgments(
+            self.request,
+            "manage.project.release",
+            DELETE_FILE_ACKNOWLEDGMENTS,
+            error_message="Could not delete file",
+            project_name=self.release.project.name,
+            version=self.release.version,
+        )
 
         self.request.db.add(
             JournalEntry(
