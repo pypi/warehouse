@@ -20,6 +20,7 @@ from warehouse.macaroons.services import InvalidMacaroonError
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.predicates import AuthMethodsPredicate
 
 from ...common.db.accounts import UserFactory
 from ...common.db.macaroons import MacaroonFactory
@@ -90,8 +91,19 @@ class TestMacaroonSecurityPolicy:
         assert policy.forget(mocker.sentinel.request) == []
         assert policy.remember(mocker.sentinel.request, mocker.sentinel.userid) == []
 
-    def test_identity_no_http_macaroon(self, pyramid_request, mocker):
+    @pytest.mark.parametrize(
+        "predicates",
+        [
+            pytest.param([], id="no auth_methods declared"),
+            pytest.param(
+                [AuthMethodsPredicate({"basic-auth", "macaroon"}, None)],
+                id="auth_methods includes macaroon",
+            ),
+        ],
+    )
+    def test_identity_no_http_macaroon(self, pyramid_request, mocker, predicates):
         policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=predicates)
 
         add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
         extract_http_macaroon = mocker.patch.object(
@@ -105,8 +117,39 @@ class TestMacaroonSecurityPolicy:
         add_vary_cb.assert_called_once_with("Authorization")
         add_response_callback.assert_called_once_with(add_vary_cb.spy_return)
 
+    @pytest.mark.parametrize(
+        "matched_route",
+        [
+            pytest.param(None, id="no matched route"),
+            pytest.param(
+                types.SimpleNamespace(
+                    predicates=[AuthMethodsPredicate({"api-key"}, None)]
+                ),
+                id="auth_methods excludes macaroon",
+            ),
+        ],
+    )
+    def test_identity_skips_macaroon(self, pyramid_request, mocker, matched_route):
+        """
+        Without a matched route, or on a route whose ``auth_methods`` leaves out
+        ``macaroon``, the token is never extracted and no identity results.
+        """
+        policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = matched_route
+
+        add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
+        extract_http_macaroon = mocker.spy(security_policy, "_extract_http_macaroon")
+        add_response_callback = mocker.spy(pyramid_request, "add_response_callback")
+
+        assert policy.identity(pyramid_request) is None
+        extract_http_macaroon.assert_not_called()
+
+        add_vary_cb.assert_called_once_with("Authorization")
+        add_response_callback.assert_called_once_with(add_vary_cb.spy_return)
+
     def test_identity_invalid_macaroon(self, pyramid_request, macaroon_service, mocker):
         policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=[])
 
         add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
         extract_http_macaroon = mocker.patch.object(
@@ -140,6 +183,7 @@ class TestMacaroonSecurityPolicy:
         never issued, resolves to no identity at all.
         """
         policy = security_policy.MacaroonSecurityPolicy()
+        db_request.matched_route = types.SimpleNamespace(predicates=[])
 
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
@@ -167,6 +211,7 @@ class TestMacaroonSecurityPolicy:
         self, pyramid_request, macaroon_service, user_service, mocker
     ):
         policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=[])
 
         add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
         extract_http_macaroon = mocker.patch.object(
@@ -211,6 +256,7 @@ class TestMacaroonSecurityPolicy:
         self, pyramid_request, macaroon_service, user_service, mocker
     ):
         policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=[])
 
         add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
         extract_http_macaroon = mocker.patch.object(
@@ -253,6 +299,7 @@ class TestMacaroonSecurityPolicy:
 
     def test_identity_oidc_publisher(self, pyramid_request, macaroon_service, mocker):
         policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=[])
 
         add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
         extract_http_macaroon = mocker.patch.object(
