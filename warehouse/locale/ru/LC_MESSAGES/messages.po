@@ -32,7 +32,7 @@
 # Eugene Evstafev <chigwel@gmail.com>, 2024.
 # Nikita <nikdissv.github.forever@gmail.com>, 2024.
 # SERGEY <qwertyinm42@gmail.com>, 2024.
-# OIS <mistresssilvara@hotmail.com>, 2024.
+# OIS <mistresssilvara@hotmail.com>, 2024, 2026.
 # gfbdrgn <erfvvgtyhbnjhyuu@wireconnected.com>, 2025.
 # Lol Cool <zhilin.makar0009@gmail.com>, 2025.
 # Maksym Aniriew <lenyayt008@gmail.com>, 2025.
@@ -43,8 +43,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-09-13 10:52+0000\n"
-"Last-Translator: asu <grationz720@gmail.com>\n"
+"PO-Revision-Date: 2026-09-27 20:15+0000\n"
+"Last-Translator: OIS <mistresssilvara@hotmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -4101,10 +4101,9 @@ msgid "GitLab"
 msgstr "GitLab"
 
 #: warehouse/templates/manage/account.html:531
-#, fuzzy, python-format
-#| msgid "Remove %(user)s from this organization"
+#, python-format
 msgid "Remove %(service)s association"
-msgstr "Удалить %(user)s из этой организации"
+msgstr "Удалить ассоциацию с %(service)s"
 
 #: warehouse/templates/manage/account.html:532
 #: warehouse/templates/manage/manage_base.html:69
@@ -4126,10 +4125,9 @@ msgid "Remove"
 msgstr "Удалить"
 
 #: warehouse/templates/manage/account.html:557
-#, fuzzy, python-format
-#| msgid "Remove %(user)s from this organization"
+#, python-format
 msgid "Remove %(service)s association?"
-msgstr "Удалить %(user)s из этой организации"
+msgstr "Удалить ассоциацию с %(service)s?"
 
 #: warehouse/templates/manage/account.html:560
 #, python-format
@@ -5226,7 +5224,6 @@ msgstr ""
 "Необходима дополнительная информация для обработки этой просьбы Организации"
 
 #: warehouse/templates/manage/organizations.html:165
-#, fuzzy
 msgid "More Information Needed"
 msgstr "Требуется больше информации"
 
@@ -5276,10 +5273,8 @@ msgid "For example"
 msgstr "Например"
 
 #: warehouse/templates/manage/organizations.html:234
-#, fuzzy
-#| msgid "Organization display name"
 msgid "Organization Display Name"
-msgstr "Отображаемое Имя Организации"
+msgstr "Отображаемое имя организации"
 
 #: warehouse/templates/manage/organization/settings.html:39
 #: warehouse/templates/manage/organizations.html:239
@@ -5298,10 +5293,8 @@ msgid "URL for your business, product, or project"
 msgstr "URL-адрес вашего бизнеса, продукта или проекта"
 
 #: warehouse/templates/manage/organizations.html:276
-#, fuzzy
-#| msgid "Organization description"
 msgid "Organization Description"
-msgstr "Описание Организации"
+msgstr "Описание организации"
 
 #: warehouse/templates/manage/organization/settings.html:91
 #: warehouse/templates/manage/organizations.html:281
@@ -5315,12 +5308,11 @@ msgid "️Organization Membership Size"
 msgstr "️Размер членства в организации"
 
 #: warehouse/templates/manage/organizations.html:309
-#, fuzzy
 msgid ""
 "Estimated number of PyPI Users you anticipate joining this Organization. "
 "<b>Not</b> the number of people in your organization."
 msgstr ""
-"Предполагаемое количество пользователей PyPI, которых вы ожидаете "
+"Предполагаемое количество пользователей PyPI, которые собираются "
 "присоединиться к этой организации. <b>Не</b> количество людей в вашей "
 "организации."
 
@@ -5344,10 +5336,8 @@ msgstr ""
 "Organizations."
 
 #: warehouse/templates/manage/organizations.html:344
-#, fuzzy
-#| msgid "️Organization type"
 msgid "️Organization Type"
-msgstr "Тип Организации"
+msgstr "Тип организации"
 
 #: warehouse/templates/manage/organization/settings.html:127
 #: warehouse/templates/manage/organizations.html:355
@@ -5492,10 +5482,8 @@ msgstr ""
 "hidden=\"true\"></i> проверенный</span> адрес электронной почты."
 
 #: warehouse/templates/manage/unverified-account.html:268
-#, fuzzy
-#| msgid "Remove this email address"
 msgid "Entered the wrong email address?"
-msgstr "Удалить этот адрес электронной почты"
+msgstr "Указан неверный адрес электронной почты?"
 
 #: warehouse/templates/manage/unverified-account.html:270
 msgid ""
@@ -5834,9 +5822,6 @@ msgstr "моя-организация"
 
 #: warehouse/templates/manage/account/publishing.html:360
 #: warehouse/templates/manage/project/publishing.html:291
-#, fuzzy
-#| msgid ""
-#| "The GitHub organization name or GitHub username that owns the repository"
 msgid "The ActiveState organization name that owns the project"
 msgstr "Имя организации ActiveState, которой принадлежит проект"
 
@@ -6376,10 +6361,8 @@ msgid "Organization request for %(org_name)s"
 msgstr "Тип организации: %(org_type)s"
 
 #: warehouse/templates/manage/organization/application.html:17
-#, fuzzy
-#| msgid "Request Submitted"
 msgid "Request status"
-msgstr "Запрос подан"
+msgstr "Состояние запроса"
 
 #: warehouse/templates/manage/organization/application.html:22
 #, fuzzy
@@ -6388,7 +6371,6 @@ msgid "This organization request has been declined"
 msgstr "Этот запрос организации был отклонён"
 
 #: warehouse/templates/manage/organization/application.html:24
-#, fuzzy
 msgid "More information needed"
 msgstr "Требуется больше информации"
 
@@ -6397,8 +6379,6 @@ msgid "Please provide more information below"
 msgstr "Пожалуйста, укажите больше информации ниже"
 
 #: warehouse/templates/manage/organization/application.html:28
-#, fuzzy
-#| msgid "Request Submitted"
 msgid "Request submitted"
 msgstr "Запрос подан"
 
@@ -6413,8 +6393,6 @@ msgid "Organization display name"
 msgstr "Отображаемое имя организации"
 
 #: warehouse/templates/manage/organization/application.html:47
-#, fuzzy
-#| msgid "Organization description"
 msgid "️Organization description"
 msgstr "Описание организации"
 
@@ -6434,10 +6412,8 @@ msgid "️Anticipated usage"
 msgstr "Ожидаемое использование"
 
 #: warehouse/templates/manage/organization/application.html:63
-#, fuzzy
-#| msgid "Submitted %(submitted)s"
 msgid "Date submitted"
-msgstr "Представлено %(submitted)s"
+msgstr "Дата подачи"
 
 #: warehouse/templates/manage/organization/application.html:76
 msgid "️PyPI Staff"
@@ -6445,8 +6421,6 @@ msgstr "Сотрудники PyPi"
 
 #: warehouse/templates/manage/organization/application.html:84
 #: warehouse/templates/manage/organization/application.html:96
-#, fuzzy
-#| msgid "️Your Response"
 msgid "️Your response"
 msgstr "️Ваш ответ"
 
@@ -6827,10 +6801,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/publishing.html:331
-#, fuzzy
-#| msgid "ActiveState organization not found"
 msgid "ActiveState Organization"
-msgstr "Организация ActiveState не найдена"
+msgstr "Организация ActiveState"
 
 #: warehouse/templates/manage/organization/publishing.html:395
 msgid ""
@@ -7223,8 +7195,6 @@ msgid "Change organization account name"
 msgstr "Изменение имени учетной записи организации"
 
 #: warehouse/templates/manage/organization/settings.html:221
-#, fuzzy
-#| msgid "This organization is not active"
 msgid "Renaming organizations is not currently supported."
 msgstr "Переименование организаций в настоящее время не поддерживается."
 
@@ -8201,8 +8171,7 @@ msgstr "Размер проекта:"
 
 #: warehouse/templates/manage/project/settings.html:18
 #: warehouse/templates/manage/project/settings.html:25
-#, fuzzy, python-format
-#| msgid "<a href=\"%(help_url)s\"> (request an increase) </a>"
+#, python-format
 msgid "<a href=\"%(help_url)s\">(request an increase)</a>"
 msgstr "<a href=\"%(help_url)s\"> (запросить увеличение) </a>"
 
@@ -8900,12 +8869,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:487
-#, fuzzy
-#| msgid ""
-#| "Enter a search query, or select a filter from the list of classifiers."
 msgid "Enable javascript to be able to filter the list of wheel files."
-msgstr ""
-"Введите поисковый запрос или выберите фильтр из списка классификаторов."
+msgstr "Для фильтрации Wheel-файлов требуется включить JavaScript."
 
 #: warehouse/templates/packaging/detail.html:491
 msgid "Copy a direct link to the current filters"
@@ -11821,14 +11786,12 @@ msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Проекты, связанные с «графикой» с лицензиями, одобренными OSI"
 
 #: warehouse/templates/search/results.html:141
-#, fuzzy, python-format
-#| msgid "<strong>%(count_display)s</strong> project"
-#| msgid_plural "<strong>%(count_display)s</strong> projects"
+#, python-format
 msgid "<strong>%(count_display)s</strong> project&nbsp;"
 msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
-msgstr[0] "<strong>%(count_display)s</strong> проект"
-msgstr[1] "<strong>%(count_display)s</strong> проекта"
-msgstr[2] "<strong>%(count_display)s</strong> проектов"
+msgstr[0] "<strong>%(count_display)s</strong> проект&nbsp;"
+msgstr[1] "<strong>%(count_display)s</strong> проекта&nbsp;"
+msgstr[2] "<strong>%(count_display)s</strong> проектов&nbsp;"
 
 #: warehouse/templates/search/results.html:147
 #, python-format

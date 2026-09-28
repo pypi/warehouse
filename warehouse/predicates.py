@@ -35,6 +35,14 @@ class AuthMethodsPredicate:
 
     def __init__(self, val, config):
         self.val = frozenset(AuthenticationMethod(m) for m in val)
+        # BasicAuthSecurityPolicy only exists to reject values for username
+        # other than __token__; the __token__ it lets through is authenticated
+        # by MacaroonSecurityPolicy.
+        if (
+            AuthenticationMethod.BASIC_AUTH in self.val
+            and AuthenticationMethod.MACAROON not in self.val
+        ):
+            raise ConfigurationError("auth_methods with basic-auth requires macaroon")
 
     def text(self):
         return f"auth_methods = {sorted(m.value for m in self.val)}"
