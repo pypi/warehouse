@@ -967,10 +967,6 @@ types-gunicorn==26.2.0.20260827 \
     --hash=sha256:7655ebe28dfaa349773a3804f2d3bc29770ce8fc261e931ff09bbeb95fb2be68 \
     --hash=sha256:906501fe3ecbe70a4ee883613ce187644cab5cc62c66d77e0a99e56164c0b445
     # via -r requirements/lint.in
-types-html5lib==1.1.11.20260518 \
-    --hash=sha256:4f33c087cb1119d65c4c80eca4323c2b501f9eaf8af9616b8b732ed4d8eae8fa \
-    --hash=sha256:9baa7912224ebb37027c5ccb7e3768e43ea47b1dfdd977e7ddc4b0a4a550584d
-    # via -r requirements/lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
@@ -1019,10 +1015,6 @@ types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
     # via -r requirements/lint.in
-types-webencodings==0.5.0.20260408 \
-    --hash=sha256:19a2afe5c22d9b1e880b49ff823c7b531f473a390fe47ac903c0bdb5cd677dd9 \
-    --hash=sha256:28c596619f367e43eee393d85f63e8d2fdb6874c654a8d441c37f8afe29c6d0d
-    # via types-html5lib
 types-webob==1.8.11.20260827 \
     --hash=sha256:11f34c64d2076013abd327c9a1d62e0a4f2ae07c59ceeec27a7e978f49d89f29 \
     --hash=sha256:bf64dd5fc0a8f96372614f7c7f064ef436a0ee32cb0b7b3e66682a15a0c65364
