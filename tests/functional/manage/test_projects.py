@@ -3,9 +3,15 @@
 from http import HTTPStatus
 
 from tests.common.db.accounts import UserFactory
-from tests.common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+from tests.common.db.packaging import (
+    FileFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+)
 from warehouse.packaging.models import LifecycleStatus, Project
 from warehouse.utils.project import (
+    DELETE_FILE_ACKNOWLEDGMENTS,
     DELETE_PROJECT_ACKNOWLEDGMENTS,
     DELETE_RELEASE_ACKNOWLEDGMENTS,
 )
@@ -173,3 +179,33 @@ class TestManageProjects:
             for field in delete_form.fields
             if field and field.startswith("acknowledge_")
         } == set(DELETE_RELEASE_ACKNOWLEDGMENTS)
+
+    def test_release_page_delete_file_form_includes_acknowledgments(
+        self, webtest, login_user
+    ):
+        """The file delete modal on the release detail page submits what the
+        view requires."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        project = ProjectFactory.create(name="filedetail")
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        release = ReleaseFactory.create(project=project, version="1.2.3")
+        FileFactory.create(release=release, packagetype="bdist_wheel")
+        login_user(user)
+
+        release_page = webtest.get(
+            f"/manage/project/{project.normalized_name}/release/{release.version}/",
+            status=HTTPStatus.OK,
+        )
+        delete_form = next(
+            form for form in release_page.forms.values() if "file_id" in form.fields
+        )
+
+        assert {
+            field
+            for field in delete_form.fields
+            if field and field.startswith("acknowledge_")
+        } == set(DELETE_FILE_ACKNOWLEDGMENTS)
