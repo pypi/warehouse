@@ -9,6 +9,7 @@ import json
 import re
 import urllib.parse
 
+from email.header import decode_header, make_header
 from email.utils import getaddresses
 
 import jinja2
@@ -172,6 +173,22 @@ def parse_isoformat(datestring):
     return datetime.datetime.fromisoformat(datestring)
 
 
+def decode_mime_header(value: str | None) -> str | None:
+    """
+    Decode RFC 2047 encoded-words in metadata header values.
+
+    Package metadata occasionally stores Author / Author-email display names as
+    MIME encoded-words (e.g. ``=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=``).
+    Render those as human-readable Unicode in the UI.
+    """
+    if not value or "=?" not in value:
+        return value
+    try:
+        return str(make_header(decode_header(value)))
+    except (LookupError, UnicodeError, ValueError):
+        return value
+
+
 def format_email(metadata_email: str) -> tuple[str, str]:
     """
     Return the name and email address from a metadata RFC-822 string.
@@ -179,7 +196,8 @@ def format_email(metadata_email: str) -> tuple[str, str]:
     TODO: Support more than one email address, per RFC-822.
     """
     emails = []
-    for name, email in getaddresses([metadata_email]):
+    for raw_name, email in getaddresses([metadata_email]):
+        name = decode_mime_header(raw_name) or ""
         if "@" not in email:
             return name, ""
         emails.append((name, email))

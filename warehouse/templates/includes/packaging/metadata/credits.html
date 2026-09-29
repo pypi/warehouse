@@ -18,13 +18,13 @@
                 {% trans %}Author:{% endtrans %}
               {% endif %}
             </strong>
-            <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author|decode_mime_header or release.author_email|format_email|first }}</a>
           </p>
         {% endif %}
         {% if release.maintainer_email and release.maintainer_email_verified and release.maintainer_email != release.author_email %}
           <p>
             <strong>{% trans %}Maintainer:{% endtrans %}</strong>
-            <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer|decode_mime_header or release.maintainer_email|format_email|first }}</a>
           </p>
         {% endif %}
       </div>
@@ -42,7 +42,7 @@
                 {% trans %}Author:{% endtrans %}
               {% endif %}
             </strong>
-            <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author|decode_mime_header or release.author_email|format_email|first }}</a>
           </p>
         {% elif release.author and not release.author_email %}
           <p>
@@ -52,17 +52,17 @@
               {% else %}
                 {% trans %}Author:{% endtrans %}
               {% endif %}
-            </strong> {{ release.author }}
+            </strong> {{ release.author|decode_mime_header }}
           </p>
         {% endif %}
         {% if release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email %}
           <p>
             <strong>{% trans %}Maintainer:{% endtrans %}</strong>
-            <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer|decode_mime_header or release.maintainer_email|format_email|first }}</a>
           </p>
         {% elif release.maintainer and not release.maintainer_email and release.maintainer != release.author %}
           <p>
-            <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
+            <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer|decode_mime_header }}
           </p>
         {% endif %}
       </div>

@@ -758,6 +758,7 @@ def configure(settings=None):
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
     filters.setdefault("natsort", "natsort:natsorted")
     filters.setdefault("format_email", "warehouse.filters:format_email")
+    filters.setdefault("decode_mime_header", "warehouse.filters:decode_mime_header")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )

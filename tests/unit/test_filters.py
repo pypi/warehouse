@@ -282,12 +282,40 @@ def test_is_recent_none():
         ("not-an-email-address", "", ""),
         ("foo@bar.com", "", "foo@bar.com"),
         ('"Foo Bar" <foo@bar.com>', "Foo Bar", "foo@bar.com"),
+        (
+            "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?= <tiangolo@gmail.com>",
+            "Sebastián Ramírez",
+            "tiangolo@gmail.com",
+        ),
+        (
+            "=?utf-8?b?U2ViYXN0acOhbiBSYW3DrXJleg==?= <tiangolo@gmail.com>",
+            "Sebastián Ramírez",
+            "tiangolo@gmail.com",
+        ),
     ],
 )
 def test_format_email(meta_email, expected_name, expected_email):
     name, email = filters.format_email(meta_email)
     assert name == expected_name
     assert email == expected_email
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (None, None),
+        ("", ""),
+        ("plain name", "plain name"),
+        (
+            "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=",
+            "Sebastián Ramírez",
+        ),
+        # Underscores in Q-encoding are spaces; leave non-encoded text alone.
+        ("already decoded Sebastián", "already decoded Sebastián"),
+    ],
+)
+def test_decode_mime_header(inp, expected):
+    assert filters.decode_mime_header(inp) == expected
 
 
 @pytest.mark.parametrize(
