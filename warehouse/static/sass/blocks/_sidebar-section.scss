@@ -259,6 +259,16 @@
       display: inline-block;
       white-space: nowrap;
     }
+
+    .badge {
+      display: inline-block;
+      margin-top: 0.8em;
+      margin-left: 0;
+
+      & ~ .badge {
+        margin-top: 2px;
+      }
+    }
   }
 
   // Classifiers

@@ -108,12 +108,6 @@ package.
 Retrieve a list of `[role, package_name]` for a given `user`.
 Role is either `Maintainer` or `Owner`.
 
-### `browse(classifiers)`
-
-Retrieve a list of `[name, version]` of all releases classified with all of
-the given classifiers. `classifiers` must be a list of Trove classifier
-strings.
-
 ### `package_roles(package_name)`
 
 Retrieve a list of `[role, username]` for a given `package_name`.
@@ -126,6 +120,11 @@ integrations.
 !!! danger "Permanently disabled"
     The following methods are permanently disabled. Calling one raises an
     error.
+
+### `browse(classifiers)`
+
+Removed. Use [BigQuery Datasets](https://docs.pypi.org/api/bigquery/) to query
+releases by classifier.
 
 ### `changelog(since, with_ids=False)`
 

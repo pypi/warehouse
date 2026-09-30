@@ -432,6 +432,26 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
 
+    def test_verify_signature_only_attenuated(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        A macaroon attenuated by someone else resolves to the macaroon we issued,
+        even when the added caveat would fail full verification.
+        """
+        raw_macaroon, db_macaroon = user_macaroon
+        m = services.deserialize_raw_macaroon(raw_macaroon)
+        m.add_first_party_caveat(
+            caveats.serialize(caveats.Expiration(expires_at=10, not_before=0))
+        )
+
+        assert (
+            macaroon_service.verify_signature_only(f"pypi-{m.serialize()}")
+            == db_macaroon
+        )
+
     def test_verify_signature_only_nonexistent(
         self,
         user_macaroon,

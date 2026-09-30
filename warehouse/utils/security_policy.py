@@ -23,8 +23,8 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
-    # Placeholder for the dedicated API auth surface that will replace
-    # danger-api's macaroon abuse. No policy implements it yet.
+    # Placeholder for the Maintainer API, the key-authenticated surface kept
+    # distinct from Upload API Tokens (macaroons). No policy implements it yet.
     API_KEY = "api-key"
 
 
@@ -32,14 +32,14 @@ class AuthenticationMethod(enum.Enum):
 # this table defaults to SESSION-only (browser flows).
 #
 # MACAROON should long-term only grant ProjectsUpload. The APIEcho and
-# APIObservationsAdd entries are migration debt from danger-api and go away
-# when the new API auth surface ships. Don't add new MACAROON entries here;
-# new API endpoints get a new AuthenticationMethod instead.
+# APIObservationsAdd entries are transitional and go away once the Maintainer
+# API takes over those endpoints. Don't add new MACAROON entries here; new API
+# endpoints authenticate with API_KEY instead.
 PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
     Permissions.ProjectsUpload: frozenset(
         {AuthenticationMethod.MACAROON, AuthenticationMethod.BASIC_AUTH}
     ),
-    # Migration debt: move to the new API auth surface, then delete.
+    # Transitional: move to the Maintainer API, then delete.
     Permissions.APIEcho: frozenset({AuthenticationMethod.MACAROON}),
     Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
 }

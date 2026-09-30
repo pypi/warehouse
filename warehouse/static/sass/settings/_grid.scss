@@ -9,8 +9,9 @@ $narrow-container:   940px;
 $spacing-unit:       30px;
 
 // Declare our own spacing unit variable since we recalculate it so often
-$half-spacing-unit:  math.div($spacing-unit, 2);
-$quarter-spacing-unit: math.div($spacing-unit, 4);
+$quarter-spacing-unit:       math.div($spacing-unit, 4);
+$half-spacing-unit:          math.div($spacing-unit, 2);
+$three-quarter-spacing-unit: math.div($spacing-unit * 3, 4);
 
 // Set the number of columns in the grid
 $grid-columns: 12;
