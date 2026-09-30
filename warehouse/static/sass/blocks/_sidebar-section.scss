@@ -32,7 +32,7 @@
 
 .sidebar-section {
   margin-bottom: grid.$spacing-unit;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 
   &__title {
     font-size: 1.1rem;
@@ -220,9 +220,7 @@
     }
 
     span {
-      overflow-wrap: break-word;
-      word-wrap:break-word;
-      word-break: break-word;
+      overflow-wrap: anywhere;
       hyphens: none;
     }
   }
