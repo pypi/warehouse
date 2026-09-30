@@ -70,7 +70,7 @@
     "image-minimizer-webpack-plugin": "^5.0.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
-    "jest-fetch-mock": "^3.0.3",
+    "jest-fetch-mock": "^4.2.0",
     "mini-css-extract-plugin": "^2.7.2",
     "postcss-loader": "^8.1.1",
     "rtlcss": "^4.0.0",
