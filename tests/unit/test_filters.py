@@ -307,11 +307,11 @@ def test_format_email(meta_email, expected_name, expected_email):
         ("", ""),
         ("plain name", "plain name"),
         (
-            "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=",
-            "Sebastián Ramírez",
+            "=?utf-8?q?Jos=C3=A9_Mu=C3=B1oz?=",
+            "José Muñoz",
         ),
         # Underscores in Q-encoding are spaces; leave non-encoded text alone.
-        ("already decoded Sebastián", "already decoded Sebastián"),
+        ("already decoded José", "already decoded José"),
     ],
 )
 def test_decode_mime_header(inp, expected):
