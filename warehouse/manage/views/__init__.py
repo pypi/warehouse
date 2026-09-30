@@ -664,6 +664,11 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
+
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -798,6 +803,15 @@ class ProvisionWebAuthnViews:
         renderer="json",
     )
     def validate_webauthn_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return {
+                "fail": {
+                    "errors": [
+                        "Confirm your recovery codes before adding a security device"
+                    ]
+                }
+            }
+
         form = ProvisionWebAuthnForm(
             self.request.POST,
             user_service=self.user_service,
