@@ -608,6 +608,7 @@ def manage_two_factor(request):
     permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
@@ -758,6 +759,7 @@ class ProvisionTOTPViews:
     permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionWebAuthnViews:
     def __init__(self, request):
@@ -842,7 +844,6 @@ class ProvisionWebAuthnViews:
         request_method="POST",
         request_param=DeleteWebAuthnForm.__params__,
         route_name="manage.account.webauthn-provision.delete",
-        require_reauth=True,
     )
     def delete_webauthn(self):
         if len(self.request.user.webauthn) == 0:

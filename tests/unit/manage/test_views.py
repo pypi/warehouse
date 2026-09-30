@@ -2097,16 +2097,20 @@ class TestProvisionWebAuthn:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
 
-    def test_delete_webauthn_requires_reauth(self, app_config):
-        """Removing a security device requires a recent password confirmation."""
-        (view,) = [
-            intr
-            for intr in app_config.registry.introspector.get_category("views")
-            if intr["introspectable"]["route_name"]
-            == "manage.account.webauthn-provision.delete"
-        ]
 
-        assert view["introspectable"]["require_reauth"] is True
+@pytest.mark.parametrize(
+    "view_class", [views.ProvisionTOTPViews, views.ProvisionWebAuthnViews]
+)
+def test_two_factor_provisioning_views_require_reauth(app_config, view_class):
+    """Adding or removing a 2FA method requires a recent password confirmation."""
+    class_views = [
+        intr["introspectable"]
+        for intr in app_config.registry.introspector.get_category("views")
+        if intr["introspectable"]["callable"] is view_class
+    ]
+
+    assert class_views
+    assert all(view.get("require_reauth") is True for view in class_views)
 
 
 class TestProvisionRecoveryCodes:
