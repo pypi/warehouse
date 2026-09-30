@@ -9,6 +9,7 @@ import json
 import re
 import urllib.parse
 
+from email.errors import MessageError
 from email.header import decode_header, make_header
 from email.utils import getaddresses
 
@@ -173,6 +174,13 @@ def parse_isoformat(datestring):
     return datetime.datetime.fromisoformat(datestring)
 
 
+_MIME_ENCODED_WORDS = re.compile(
+    r"=\?[^?]+\?[bq]\?.*?\?="
+    r"(?:[ \t\r\n]*=\?[^?]+\?[bq]\?.*?\?=)*",
+    re.IGNORECASE,
+)
+
+
 def decode_mime_header(value: str | None) -> str | None:
     """
     Decode RFC 2047 encoded-words in metadata header values.
@@ -181,11 +189,14 @@ def decode_mime_header(value: str | None) -> str | None:
     MIME encoded-words (e.g. ``=?utf-8?q?Jos=C3=A9_Mu=C3=B1oz?=``).
     Render those as human-readable Unicode in the UI.
     """
-    if not value or "=?" not in value:
+    if not value or len(value) > 4096 or "=?" not in value:
         return value
     try:
-        return str(make_header(decode_header(value)))
-    except (LookupError, UnicodeError, ValueError):
+        # Decode only encoded-word groups so surrounding Unicode stays intact.
+        return _MIME_ENCODED_WORDS.sub(
+            lambda match: str(make_header(decode_header(match.group()))), value
+        )
+    except MessageError, LookupError, UnicodeError, ValueError:
         return value
 
 

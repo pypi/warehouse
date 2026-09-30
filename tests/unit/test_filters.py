@@ -312,6 +312,12 @@ def test_format_email(meta_email, expected_name, expected_email):
         ),
         # Underscores in Q-encoding are spaces; leave non-encoded text alone.
         ("already decoded José", "already decoded José"),
+        # Surrounding Unicode must not be corrupted into \uXXXX escapes.
+        ("\u0396 =?utf-8?q?x?=", "\u0396 x"),
+        # Malformed Base64 encoded-word: HeaderParseError / MessageError → passthrough.
+        ("=?utf-8?b?A?=", "=?utf-8?b?A?="),
+        # Overlong values skip decoding (quadratic decode_header guard).
+        ("=?" + ("a" * 4100), "=?" + ("a" * 4100)),
     ],
 )
 def test_decode_mime_header(inp, expected):
