@@ -11,7 +11,7 @@ celery-redbeat
 certifi
 click
 cryptography>=50.0.1
-datadog>=0.53.0
+datadog>=0.54.0
 disposable-email-domains
 dnspython
 email-validator
