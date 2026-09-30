@@ -178,7 +178,7 @@ def decode_mime_header(value: str | None) -> str | None:
     Decode RFC 2047 encoded-words in metadata header values.
 
     Package metadata occasionally stores Author / Author-email display names as
-    MIME encoded-words (e.g. ``=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=``).
+    MIME encoded-words (e.g. ``=?utf-8?q?Jos=C3=A9_Mu=C3=B1oz?=``).
     Render those as human-readable Unicode in the UI.
     """
     if not value or "=?" not in value:
