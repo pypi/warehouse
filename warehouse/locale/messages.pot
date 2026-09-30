@@ -5410,7 +5410,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:586
 #, python-format
 msgid ""
-"I understand that I will <a href=%(href)s target=\"_blank\" "
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">not be able to re-upload a file using the same file "
 "name</a> %(filename)s."
 msgstr ""

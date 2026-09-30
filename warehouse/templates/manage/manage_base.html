@@ -486,116 +486,116 @@
   omits any of them.
 -#}
 {% macro acknowledgment_checkbox(name) -%}
-  <input class="inline-checkbox"
+  <input class="checkbox-list__input"
          type="checkbox"
          name="{{ name }}"
          data-action="input->confirm#check"
          data-confirm-target="checkbox">
 {%- endmacro %}
 {% macro delete_project_acknowledgments() %}
-  <ul class="no-bullets no-left-margin">
-    <li class="margin-bottom">
-      <label>
+  <ul class="checkbox-list">
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_delete_releases") }}
-        {% trans %}I understand that I am permanently deleting all releases for this project.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that I am permanently deleting all releases for this project.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_install_break") }}
-        {% trans %}I understand that my users will no longer be able to install this project.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that my users will no longer be able to install this project.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
-        {% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted versions</a>.{% endtrans %}
+        <span class="checkbox-list__text">{% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted versions</a>.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_name_release") }}
-        {% trans %}I understand that I am releasing this project name for use by any other PyPI user.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that I am releasing this project name for use by any other PyPI user.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_no_reregister") }}
-        {% trans href=request.help_url(_anchor="project-name") %}I understand that I may not be able to re-register the project name <a href="{{ href }}" target="_blank" rel="noopener">under some circumstances</a>.{% endtrans %}
+        <span class="checkbox-list__text">{% trans href=request.help_url(_anchor="project-name") %}I understand that I may not be able to re-register the project name <a href="{{ href }}" target="_blank" rel="noopener">under some circumstances</a>.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_irreversible") }}
-        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that I will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
-    <li>
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
-        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
   </ul>
 {% endmacro %}
 {% macro delete_release_acknowledgments(version) %}
-  <ul class="no-bullets no-left-margin">
-    <li class="margin-bottom">
-      <label>
+  <ul class="checkbox-list">
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_delete_files") }}
-        {% trans release_version=version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}
+        <span class="checkbox-list__text">{% trans release_version=version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_install_break") }}
-        {% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
-        {% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}
+        <span class="checkbox-list__text">{% trans href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_irreversible") }}
-        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that I will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
-    <li>
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
-        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
   </ul>
 {% endmacro %}
 {% macro delete_file_acknowledgments(filename) %}
-  <ul class="no-bullets no-left-margin">
-    <li class="margin-bottom">
-      <label>
+  <ul class="checkbox-list">
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_install_break") }}
-        {% trans %}I understand that my users will no longer be able to install this file for this release of this project.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that my users will no longer be able to install this file for this release of this project.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_no_reupload") }}
-        {% trans filename=filename, href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href={{ href }} target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}
+        <span class="checkbox-list__text">{% trans filename=filename, href=request.help_url(_anchor="file-name-reuse") %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}</span>
       </label>
     </li>
-    <li class="margin-bottom">
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_irreversible") }}
-        {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that I will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
-    <li>
-      <label>
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
         {{ acknowledgment_checkbox("acknowledge_admins_cannot_undo") }}
-        {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+        <span class="checkbox-list__text">{% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}</span>
       </label>
     </li>
   </ul>
