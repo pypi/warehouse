@@ -114,12 +114,10 @@
                       <i class="fa fa-trash-alt" aria-hidden="true"></i>
                       {% trans %}Delete{% endtrans %}
                     </a>
-                    {% set extra_fields %}
-                      <input name="file_id" type="hidden" value="{{ file.id }}">
-                    {% endset %}
                     {% set extra_description %}
+                      <input name="file_id" type="hidden" value="{{ file.id }}">
                       <p>
-                        <strong>{% trans %}Filename:{% endtrans %}</strong> {{ file.filename }}
+                        <strong>{% trans %}Filename:{% endtrans %}</strong> <code>{{ file.filename }}</code>
                       </p>
                       {{ delete_file_acknowledgments(file.filename) }}
                     {% endset %}
@@ -128,7 +126,7 @@
               </ul>
             </nav>
             {% if release.lifecycle_status != "quarantine-enter" %}
-              {{ confirm_modal(title, gettext("Project name") , "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, wide=True) }}
+              {{ confirm_modal(title, gettext("Project name") , "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, wide=True) }}
             {% endif %}
           </td>
         </tr>
