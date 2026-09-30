@@ -79,7 +79,7 @@ Advanced users may wish to inspect their token by decoding it with base64, and c
 
 ## Two-factor authentication (2FA)
 
-As of early 2024, 2FA is mandatory for all accounts that maintain any project or organization on PyPI. See [Two-factor authentication](two-factor-authentication.md) for more information.
+As of early 2024, 2FA is mandatory for all accounts. See [Two-factor authentication](two-factor-authentication.md) for more information.
 
 ## Changing your PyPI username
 
@@ -88,7 +88,7 @@ PyPI does not currently support changing your username directly.
 However, you can achieve the same result by following these steps:
 
 1. Create a new PyPI account with your desired username  
-2. Add the new account as a maintainer to all the projects owned by your old account  
+2. Add the new account as an owner to all the projects owned by your old account  
 3. Once you have confirmed the new account has the correct permissions, you can delete the old account
 
 For more information see [Managing project collaborators](../project-management/managing-collaborators.md).
