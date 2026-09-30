@@ -21,7 +21,7 @@
       "^tabulator-tables$": "<rootDir>/node_modules/tabulator-tables/dist/js/tabulator_esm.js"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!tabulator-tables/)"
+      "/node_modules/(?!(tabulator-tables|debounce)/)"
     ],
     "transform": {
       "\\.m?[jt]sx?$": "babel-jest"
@@ -39,7 +39,7 @@
     "@zxcvbn-ts/language-en": "^4.1.1",
     "admin-lte": "^3.2.0",
     "date-fns": "^4.1.0",
-    "debounce": "^1.2.1",
+    "debounce": "^3.0.0",
     "jquery": "^3.7.0",
     "normalize.css": "^8.0.1",
     "stimulus-autocomplete": "^3.1.0",
