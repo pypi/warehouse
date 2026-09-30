@@ -448,6 +448,7 @@ class TestOrganizationDetail:
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
+        db_request.user = UserFactory.create(username="admin-user")
         db_request.POST = MultiDict(
             {
                 "display_name": "New Name",
@@ -493,6 +494,7 @@ class TestOrganizationDetail:
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
+        db_request.user = UserFactory.create(username="admin-user")
         db_request.POST = MultiDict(
             {
                 "display_name": "New Name",
@@ -616,6 +618,171 @@ class TestOrganizationDetail:
         assert result["roles"] == []
         assert result["role_forms"] == {}
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
+
+
+class TestOrganizationDetailTypeChange:
+    def _create_org(self, orgtype):
+        return OrganizationFactory.create(
+            display_name="Example",
+            link_url="https://www.example.com/",
+            description="Example description",
+            orgtype=orgtype,
+        )
+
+    def _post(self, db_request, mocker, organization, orgtype):
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "display_name": "Example",
+                "link_url": "https://www.example.com/",
+                "description": "Example description",
+                "orgtype": orgtype.value,
+            }
+        )
+        db_request.route_path = mocker.Mock(
+            return_value=f"/admin/organizations/{organization.id}/"
+        )
+        db_request.session = mocker.Mock()
+        db_request.user = UserFactory.create(username="admin-user")
+        return views.organization_detail(db_request)
+
+    def test_company_to_community_cancels_subscriptions(self, db_request, mocker):
+        organization = self._create_org(OrganizationType.Company)
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        result = self._post(
+            db_request, mocker, organization, OrganizationType.Community
+        )
+
+        assert isinstance(result, HTTPSeeOther)
+        assert organization.orgtype == OrganizationType.Community
+        cancel.assert_called_once_with(subscription.subscription_id)
+
+        cancel_events = [
+            e
+            for e in organization.events
+            if e.tag == "organization:subscription:cancel"
+        ]
+        assert len(cancel_events) == 1
+        assert cancel_events[0].additional["subscription_id"] == (
+            subscription.subscription_id
+        )
+        assert cancel_events[0].additional["at_period_end"] is True
+        assert cancel_events[0].additional["canceled_by"] == "admin-user"
+
+        type_events = [
+            e for e in organization.events if e.tag == "admin:organization:type_change"
+        ]
+        assert len(type_events) == 1
+        assert type_events[0].additional["previous_type"] == "Company"
+        assert type_events[0].additional["new_type"] == "Community"
+        assert type_events[0].additional["changed_by"] == "admin-user"
+
+        assert db_request.session.flash.call_args_list == [
+            mocker.call(
+                f"1 subscription(s) for {organization.name!r} set to cancel",
+                queue="success",
+            ),
+            mocker.call(
+                f"Organization {organization.name!r} updated successfully",
+                queue="success",
+            ),
+        ]
+
+    def test_company_to_community_skips_restricted_subscription(
+        self, db_request, mocker
+    ):
+        organization = self._create_org(OrganizationType.Company)
+        active = StripeSubscriptionFactory.create()
+        restricted = StripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=active
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=restricted
+        )
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        self._post(db_request, mocker, organization, OrganizationType.Community)
+
+        cancel.assert_called_once_with(active.subscription_id)
+        cancel_events = [
+            e
+            for e in organization.events
+            if e.tag == "organization:subscription:cancel"
+        ]
+        assert len(cancel_events) == 1
+        assert cancel_events[0].additional["subscription_id"] == (
+            active.subscription_id
+        )
+
+    def test_company_to_community_without_subscriptions(self, db_request, mocker):
+        organization = self._create_org(OrganizationType.Company)
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        self._post(db_request, mocker, organization, OrganizationType.Community)
+
+        cancel.assert_not_called()
+        assert [
+            e
+            for e in organization.events
+            if e.tag == "organization:subscription:cancel"
+        ] == []
+        assert (
+            len(
+                [
+                    e
+                    for e in organization.events
+                    if e.tag == "admin:organization:type_change"
+                ]
+            )
+            == 1
+        )
+        db_request.session.flash.assert_called_once_with(
+            f"Organization {organization.name!r} updated successfully",
+            queue="success",
+        )
+
+    def test_community_to_company_does_not_cancel(self, db_request, mocker):
+        organization = self._create_org(OrganizationType.Community)
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        self._post(db_request, mocker, organization, OrganizationType.Company)
+
+        assert organization.orgtype == OrganizationType.Company
+        cancel.assert_not_called()
+        assert [
+            e
+            for e in organization.events
+            if e.tag
+            in (
+                "organization:subscription:cancel",
+                "admin:organization:type_change",
+            )
+        ] == []
 
 
 class TestCancelOrganizationSubscription:

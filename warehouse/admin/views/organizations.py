@@ -348,7 +348,48 @@ def organization_detail(request):
     )
 
     if request.method == "POST" and form.validate():
+        previous_type = organization.orgtype
         form.populate_obj(organization)
+
+        # Downgrading Company -> Community: stop billing for the old plan
+        if (
+            previous_type == OrganizationType.Company
+            and organization.orgtype == OrganizationType.Community
+        ):
+            canceled_count = 0
+            for subscription in organization.subscriptions:
+                if subscription.is_restricted:
+                    continue
+                billing_service.cancel_subscription_at_period_end(
+                    subscription.subscription_id
+                )
+                organization.record_event(
+                    tag=EventTag.Organization.SubscriptionCancel,
+                    request=request,
+                    additional={
+                        "subscription_id": subscription.subscription_id,
+                        "at_period_end": True,
+                        "canceled_by": request.user.username,
+                    },
+                )
+                canceled_count += 1
+
+            organization.record_event(
+                tag=EventTag.Organization.OrganizationTypeChange,
+                request=request,
+                additional={
+                    "previous_type": OrganizationType.Company.value,
+                    "new_type": OrganizationType.Community.value,
+                    "changed_by": request.user.username,
+                },
+            )
+
+            if canceled_count:
+                request.session.flash(
+                    f"{canceled_count} subscription(s) for {organization.name!r} "
+                    "set to cancel",
+                    queue="success",
+                )
 
         # Update Stripe customer if organization has one
         if organization.customer is not None:
