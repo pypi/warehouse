@@ -5,7 +5,7 @@ title: Troubleshooting
 # Troubleshooting
 
 ## How can I restore a deleted project, release or file?
-Deletion of a project, release or file on PyPI is permanent and irreversible, without exception. Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user. Deleted files [cannot be re-uploaded](../publishing/troubleshooting.md#why-am-i-getting-a-filename-or-contents-already-exists-error). Deleted projects, releases or files cannot be restored by PyPI administrators. 
+Deletion of a project, release or file on PyPI is permanent and irreversible, without exception. Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user. Deleted files [cannot be re-uploaded](../publishing/troubleshooting.md#why-am-i-getting-a-filename-or-contents-already-exists-or-filename-has-been-previously-used-error). Deleted projects, releases or files cannot be restored by PyPI administrators. 
 
 Instead of deleting projects, we recommend project owners [archive projects instead](archiving-projects.md).
 

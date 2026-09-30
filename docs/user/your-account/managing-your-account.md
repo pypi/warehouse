@@ -49,33 +49,13 @@ PyPI asks you to confirm your password before performing a *sensitive action*. S
 * Generating API tokens  
 * Setting up two-factor authentication
 
-You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.
+You'll only have to re-confirm your password if it's been more than 30 minutes since you last confirmed it.
 
 **We strongly recommend you only perform such actions on your personal, password-protected computer.**
 
 ## API tokens for authentication
 
-API tokens are used to authenticate when **uploading packages** to PyPI.
-
-You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.
-
-When using an API token from a CI provider, we recommend scoping the token down to the minimum necessary projects.
-
-**If you are publishing to PyPI from a CI provider that supports [Trusted Publishing](../trusted-publishers/index.md), we strongly recommend using Trusted Publishing instead.**
-
-To make an API token:
-
-* [Verify your email address](#email-address-verification) (check your [account settings](https://pypi.org/manage/account/))  
-* In your [account settings](https://pypi.org/manage/account/), go to the API tokens section and select "Add API token"
-
-To use an API token:
-
-* Set your username to `__token__`  
-* Set your password to the token value, including the `pypi-` prefix
-
-Where you edit or add these values will depend on your individual use case. For example, some users may need to edit [their `.pypirc` file](https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account), while others may need to update their CI configuration file (e.g. [`.travis.yml` if you are using Travis](https://docs.travis-ci.com/user/deployment/pypi/)).
-
-Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.
+API tokens can be used to authenticate when **uploading packages** to PyPI. See [Using an API token](../publishing/publishing-to-pypi.md#using-an-api-token) for more information.
 
 ## Two-factor authentication (2FA)
 

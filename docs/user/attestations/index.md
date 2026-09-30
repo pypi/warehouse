@@ -43,7 +43,7 @@ Publisher identities:
 * [GitHub Actions]
 * [GitLab CI/CD]
 * [Google Cloud]
-* [ActveState]
+* [ActiveState]
 
 [in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 
