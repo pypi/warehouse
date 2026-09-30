@@ -283,14 +283,14 @@ def test_is_recent_none():
         ("foo@bar.com", "", "foo@bar.com"),
         ('"Foo Bar" <foo@bar.com>', "Foo Bar", "foo@bar.com"),
         (
-            "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?= <tiangolo@gmail.com>",
-            "Sebastián Ramírez",
-            "tiangolo@gmail.com",
+            "=?utf-8?q?Jos=C3=A9_Mu=C3=B1oz?= <jose@example.com>",
+            "José Muñoz",
+            "jose@example.com",
         ),
         (
-            "=?utf-8?b?U2ViYXN0acOhbiBSYW3DrXJleg==?= <tiangolo@gmail.com>",
-            "Sebastián Ramírez",
-            "tiangolo@gmail.com",
+            "=?utf-8?b?Sm9zw6kgTXXDsW96?= <jose@example.com>",
+            "José Muñoz",
+            "jose@example.com",
         ),
     ],
 )
