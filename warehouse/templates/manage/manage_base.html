@@ -365,7 +365,7 @@
             </div>
           {% endif %}
           {{ extra_description if extra_description else '' }}
-          <div class="form-group">{{ extra_fields if extra_fields else '' }}</div>
+          {% if extra_fields %}<div class="form-group">{{ extra_fields }}</div>{% endif %}
           {% if confirm_string %}
             <p>
               {% if confirm_name == 'username' %}
