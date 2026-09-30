@@ -43,6 +43,11 @@ class UploadForm(wtforms.Form):
         ],
     )
 
+    # The organization that owns the project. A brand new project is created in
+    # it, and an existing project must already belong to it. The given name is
+    # resolved and normalized after the project lookup and permission checks.
+    organization = wtforms.StringField(validators=[wtforms.validators.Optional()])
+
     # File metadata
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
