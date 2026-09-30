@@ -842,6 +842,7 @@ class ProvisionWebAuthnViews:
         request_method="POST",
         request_param=DeleteWebAuthnForm.__params__,
         route_name="manage.account.webauthn-provision.delete",
+        require_reauth=True,
     )
     def delete_webauthn(self):
         if len(self.request.user.webauthn) == 0:

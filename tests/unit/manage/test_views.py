@@ -2097,6 +2097,17 @@ class TestProvisionWebAuthn:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
 
+    def test_delete_webauthn_requires_reauth(self, app_config):
+        """Removing a security device requires a recent password confirmation."""
+        (view,) = [
+            intr
+            for intr in app_config.registry.introspector.get_category("views")
+            if intr["introspectable"]["route_name"]
+            == "manage.account.webauthn-provision.delete"
+        ]
+
+        assert view["introspectable"]["require_reauth"] is True
+
 
 class TestProvisionRecoveryCodes:
     def test_recovery_codes_generate(self, monkeypatch):
