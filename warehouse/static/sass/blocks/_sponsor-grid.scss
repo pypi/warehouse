@@ -69,7 +69,7 @@
 @supports (display: grid) {
   .sponsor-grid {
     display: grid;
-    grid-gap: grid.$spacing-unit;
+    gap: grid.$spacing-unit;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 
     @media screen and (max-width: breakpoints.$mobile) {
