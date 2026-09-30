@@ -11,7 +11,7 @@ celery-redbeat
 certifi
 click
 cryptography>=50.0.1
-datadog>=0.53.0
+datadog>=0.54.0
 disposable-email-domains
 dnspython
 email-validator
@@ -54,7 +54,7 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-PyJWT[crypto]>=2.14.0
+PyJWT[crypto]>=2.15.1
 readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0
