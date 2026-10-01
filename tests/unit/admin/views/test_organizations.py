@@ -447,7 +447,7 @@ class TestOrganizationDetail:
         db_request.POST = MultiDict(
             {
                 "display_name": "New Name",
-                "link_url": "https://new-url.com",
+                "link_url": " https://new-url.com ",
                 "description": "New description",
                 "orgtype": "Community",
             }
