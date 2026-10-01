@@ -211,7 +211,7 @@ msgstr "ຢືນຢັນຕົວຕົນແລ້ວ"
 msgid "Successful WebAuthn assertion"
 msgstr "ການຢືນຢັນ WebAuthn ສຳເລັດແລ້ວ"
 
-#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:957
+#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:973
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ຍອມຮັບລະຫັດກູ້ຄືນແລ້ວ. ລະຫັດທີ່ໃຫ້ມານີ້ຈະບໍ່ສາມາດນຳມາໃຊ້ໄດ້ອີກ."
 
@@ -619,29 +619,29 @@ msgstr "ອັບເດດລາຍລະອຽດບັນຊີແລ້ວ"
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ເພີ່ມອີເມວ ${email_address} ແລ້ວ - ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຫາລິ້ງຢືນຢັນ"
 
-#: warehouse/manage/views/__init__.py:904
+#: warehouse/manage/views/__init__.py:920
 msgid "Recovery codes already generated"
 msgstr "ສ້າງລະຫັດກູ້ຄືນແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:906
+#: warehouse/manage/views/__init__.py:922
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "ການສ້າງລະຫັດກູ້ຄືນໃໝ່ຈະເຮັດໃຫ້ລະຫັດເດີມທີ່ມີຢູ່ໃຊ້ການບໍ່ໄດ້."
 
-#: warehouse/manage/views/__init__.py:1014
+#: warehouse/manage/views/__init__.py:1030
 msgid "Verify your email to create an API token."
 msgstr "ກະລຸນາຢືນຢັນອີເມວຂອງທ່ານເພື່ອສ້າງໂທເຄັນ API."
 
-#: warehouse/manage/views/__init__.py:1116
+#: warehouse/manage/views/__init__.py:1132
 msgid "API Token does not exist."
 msgstr "ບໍ່ມີໂທເຄັນ API ນີ້."
 
-#: warehouse/manage/views/__init__.py:1148
+#: warehouse/manage/views/__init__.py:1164
 msgid "Invalid credentials. Try again"
 msgstr "ຂໍ້ມູນປະຈຳຕົວບໍ່ຖືກຕ້ອງ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/manage/views/__init__.py:1319
-#: warehouse/manage/views/__init__.py:1641
-#: warehouse/manage/views/__init__.py:1752
+#: warehouse/manage/views/__init__.py:1335
+#: warehouse/manage/views/__init__.py:1657
+#: warehouse/manage/views/__init__.py:1768
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -649,53 +649,53 @@ msgstr ""
 "ການລຶບໂຄງການຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/manage/views/__init__.py:1441
+#: warehouse/manage/views/__init__.py:1457
 msgid "This release is in quarantine and cannot be modified."
 msgstr "ລຸ້ນນີ້ຖືກກັກບໍລິເວນ (quarantine) ແລະ ບໍ່ສາມາດແກ້ໄຂໄດ້."
 
-#: warehouse/manage/views/__init__.py:1465
-#: warehouse/manage/views/__init__.py:1553
-#: warehouse/manage/views/__init__.py:1657
-#: warehouse/manage/views/__init__.py:1760
+#: warehouse/manage/views/__init__.py:1481
+#: warehouse/manage/views/__init__.py:1569
+#: warehouse/manage/views/__init__.py:1673
+#: warehouse/manage/views/__init__.py:1776
 msgid "Confirm the request"
 msgstr "ຢືນຢັນຄຳຮ້ອງຂໍ"
 
-#: warehouse/manage/views/__init__.py:1478
+#: warehouse/manage/views/__init__.py:1494
 msgid "Could not yank release - "
 msgstr "ບໍ່ສາມາດຖອນການເຜີຍແຜ່ (yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1566
+#: warehouse/manage/views/__init__.py:1582
 msgid "Could not un-yank release - "
 msgstr "ບໍ່ສາມາດຍົກເລີກການຖອນ (un-yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1686
 msgid "Could not delete release - "
 msgstr "ບໍ່ສາມາດລຶບລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1772
+#: warehouse/manage/views/__init__.py:1788
 msgid "Could not find file"
 msgstr "ບໍ່ພົບໄຟລ໌"
 
-#: warehouse/manage/views/__init__.py:1777
+#: warehouse/manage/views/__init__.py:1793
 msgid "Could not delete file - "
 msgstr "ບໍ່ສາມາດລຶບໄຟລ໌ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1925
+#: warehouse/manage/views/__init__.py:1941
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "ທີມ '${team_name}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2032
+#: warehouse/manage/views/__init__.py:2048
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "ຜູ້ໃຊ້ '${username}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2099
+#: warehouse/manage/views/__init__.py:2115
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ ${username} ເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2130
+#: warehouse/manage/views/__init__.py:2146
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -704,28 +704,28 @@ msgstr ""
 "ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
 "ສຳລັບໂຄງການໄດ້"
 
-#: warehouse/manage/views/__init__.py:2143
+#: warehouse/manage/views/__init__.py:2159
 #: warehouse/manage/views/organizations.py:955
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "ຜູ້ໃຊ້ '${username}' ມີຄຳເຊີນທີ່ຍັງບໍ່ທັນໝົດອາຍຸຢູ່ແລ້ວ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/manage/views/__init__.py:2208
+#: warehouse/manage/views/__init__.py:2224
 #: warehouse/manage/views/organizations.py:1035
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "ສົ່ງຄຳເຊີນໄປໃຫ້ '${username}' ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2240
+#: warehouse/manage/views/__init__.py:2256
 msgid "Could not find role invitation."
 msgstr "ບໍ່ພົບຄຳເຊີນຮັບບົດບາດ."
 
-#: warehouse/manage/views/__init__.py:2251
+#: warehouse/manage/views/__init__.py:2267
 msgid "Invitation already expired."
 msgstr "ຄຳເຊີນໝົດອາຍຸແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2300
 #: warehouse/manage/views/organizations.py:1242
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
@@ -3483,7 +3483,7 @@ msgid "Sponsors"
 msgstr "ຜູ້ສະໜັບສະໜູນ"
 
 #: warehouse/templates/includes/file-details.html:10
-#: warehouse/templates/includes/packaging/project-navigation.html:38
+#: warehouse/templates/includes/packaging/project-navigation.html:55
 #, fuzzy
 #| msgid "Releases"
 msgid "Release files"
@@ -3823,6 +3823,11 @@ msgstr "ສະມາຊິກ"
 msgid "The author of this package has not provided a project description"
 msgstr "ຜູ້ຂຽນແພັກເກດນີ້ຍັງບໍ່ໄດ້ໃຫ້ຄຳອະທິບາຍໂປຣເຈັກ"
 
+#: warehouse/templates/includes/packaging/project-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:37
+msgid "Metadata"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-files.html:9
 #, fuzzy, python-format
 #| msgid "Releases for %(project_name)s"
@@ -3971,15 +3976,21 @@ msgstr "ຄຳອະທິບາຍໂປຣເຈັກ. ຈຸດໂຟກັ�
 msgid "Description"
 msgstr "ຄຳອະທິບາຍ"
 
-#: warehouse/templates/includes/packaging/project-navigation.html:35
+#: warehouse/templates/includes/packaging/project-navigation.html:34
+#, fuzzy
+#| msgid "Release history. Focus will be moved to the release history panel."
+msgid "Metadata. Focus will be moved to the metadata panel."
+msgstr "ປະຫວັດການປ່ອຍລຸ້ນ. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ແຖບປະຫວັດການປ່ອຍລຸ້ນ."
+
+#: warehouse/templates/includes/packaging/project-navigation.html:52
 msgid "Files. Focus will be moved to the project files."
 msgstr "ໄຟລ໌. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ໄຟລ໌ຂອງໂປຣເຈັກ."
 
-#: warehouse/templates/includes/packaging/project-navigation.html:61
+#: warehouse/templates/includes/packaging/project-navigation.html:78
 msgid "Release history. Focus will be moved to the release history panel."
 msgstr "ປະຫວັດການປ່ອຍລຸ້ນ. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ແຖບປະຫວັດການປ່ອຍລຸ້ນ."
 
-#: warehouse/templates/includes/packaging/project-navigation.html:64
+#: warehouse/templates/includes/packaging/project-navigation.html:81
 #: warehouse/templates/includes/packaging/project-release-history.html:8
 msgid "Release history"
 msgstr "ປະຫວັດການປ່ອຍລຸ້ນ"
