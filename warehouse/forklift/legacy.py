@@ -3,12 +3,14 @@ import datetime
 import hashlib
 import hmac
 import os.path
+import posixpath
 import re
 import tarfile
 import tempfile
 import zipfile
 import zlib
 
+from collections.abc import Iterable
 from contextlib import ExitStack, nullcontext
 
 import packaging.requirements
@@ -233,6 +235,9 @@ def _is_valid_dist_file(
                             "File does not use a supported compression type",
                         )
 
+                if (alias := _non_canonical_member_path(zfp.namelist())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
+
                 if filename.endswith(".zip"):
                     top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
@@ -319,6 +324,8 @@ def _is_valid_dist_file(
                             "See https://docs.pypi.org/archives for more information"
                         ),
                     )
+                if (alias := _non_canonical_member_path(tar.getnames())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -433,6 +440,21 @@ def _commonpath(values):
     if not values:
         return ""
     return os.path.commonpath(values)
+
+
+def _non_canonical_member_path(names: Iterable[str]) -> str | None:
+    """
+    Return the first archive member path that an installer would normalize to
+    a different path, or ``None`` if every path is already canonical.
+
+    pip maps wheel members through ``PurePosixPath`` and tar extraction
+    normalizes too, so ``x.dist-info/./METADATA`` lands on ``METADATA`` and
+    replaces the entry Warehouse validated.
+    """
+    for name in names:
+        if name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+            return name
+    return None
 
 
 def _validate_artifact_dependencies(

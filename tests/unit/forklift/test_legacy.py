@@ -656,6 +656,64 @@ class TestFileValidation:
             None,
         )
 
+    @pytest.mark.parametrize(
+        "alias",
+        [
+            pytest.param("test-1.0.dist-info/./METADATA", id="dot"),
+            pytest.param(
+                "test-1.0.dist-info/../test-1.0.dist-info/METADATA", id="dotdot"
+            ),
+            pytest.param("test-1.0.dist-info//METADATA", id="double-slash"),
+            pytest.param("/test-1.0.dist-info/METADATA", id="absolute"),
+        ],
+    )
+    def test_wheel_non_canonical_member_path(self, tmpdir, alias):
+        """
+        Installers normalize member paths, so an alias of METADATA would
+        replace the entry Warehouse validated.
+        """
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("test-1.0.dist-info/METADATA", b"clean")
+            zfp.writestr(alias, b"evil")
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            False,
+            f"Archive member path is not normalized: {alias!r}",
+        )
+
+    def test_wheel_directory_member_is_canonical(self, tmpdir):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/", b"")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
+
+    def test_tarball_non_canonical_member_path(self, tmpdir):
+        """
+        Extraction normalizes member paths, so ``package/./PKG-INFO`` would
+        overwrite the PKG-INFO Warehouse validated.
+        """
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/./PKG-INFO")
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+            False,
+            "Archive member path is not normalized: 'package/./PKG-INFO'",
+        )
+
     def test_tarfile_zipfile_polyglot(self, tmpdir):
         tar_buf = io.BytesIO()
         zip_buf = io.BytesIO()
