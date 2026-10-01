@@ -94,6 +94,36 @@ def parse(
     return metadata
 
 
+def _direct_dependency_errors(
+    field: str, req_strs: typing.Iterable[str]
+) -> list[InvalidMetadata]:
+    """
+    Validate the requirement strings of a *-Dist field: each must parse, and
+    none may be a direct reference (PEP 440 ``name @ url``).
+    """
+    errors: list[InvalidMetadata] = []
+    for req_str in req_strs:
+        try:
+            req = Requirement(req_str)
+        except InvalidRequirement as exc:
+            errors.append(
+                InvalidMetadata(
+                    _RAW_TO_EMAIL_MAPPING.get(field, field),
+                    f"{req_str!r} is invalid: {exc}",
+                )
+            )
+        else:
+            # NOTE: This part should not be lifted to packaging.metadata
+            if req.url is not None:
+                errors.append(
+                    InvalidMetadata(
+                        _RAW_TO_EMAIL_MAPPING.get(field, field),
+                        f"Can't have direct dependency: {req_str!r}",
+                    )
+                )
+    return errors
+
+
 def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # Add our own custom validations on top of the standard validations from
     # packaging.metadata.
@@ -224,26 +254,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # TODO: This probably should be pulled up into packaging.metadata.
     for field in ("provides_dist", "obsoletes_dist"):
         if (value := getattr(metadata, field)) is not None:
-            for req_str in value:
-                try:
-                    req = Requirement(req_str)
-                except InvalidRequirement as exc:
-                    errors.append(
-                        InvalidMetadata(
-                            _RAW_TO_EMAIL_MAPPING.get(field, field),
-                            f"{req_str!r} is invalid: {exc}",
-                        )
-                    )
-                else:
-                    # Validate that an URL isn't being listed.
-                    # NOTE: This part should not be lifted to packaging.metadata
-                    if req.url is not None:
-                        errors.append(
-                            InvalidMetadata(
-                                _RAW_TO_EMAIL_MAPPING.get(field, field),
-                                f"Can't have direct dependency: {req_str!r}",
-                            )
-                        )
+            errors.extend(_direct_dependency_errors(field, value))
 
     # Ensure that the *-Dist fields are not referencing any direct dependencies.
     # NOTE: Because packaging.metadata doesn't parse Provides-Dist and Obsoletes-Dist
