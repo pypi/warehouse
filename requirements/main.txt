@@ -1994,9 +1994,9 @@ python-slugify==9.1.1 \
     --hash=sha256:6db0d9480b22a8867e2dbd725e0eea28e7893ee1dc00bdae467b345ad0eafafb \
     --hash=sha256:db48547ed6d43072af59c86c3bc80bfc3c6f4e88c130c99de11775d721a574b8
     # via -r requirements/main.in
-pytz==2026.3.post1 \
-    --hash=sha256:2211d3fcf9a797d3405cac96ac7f61d80e6a644f72a3309607282fe8a2010c5d \
-    --hash=sha256:dd95840dd199baea12d9cc096a1d452caa6596a1c1e4b5f3dbd1541855d5e815
+pytz==2026.4 \
+    --hash=sha256:464303645bafafd72418898368b2429458f709cf1eb6a15372fbcc396b64da63 \
+    --hash=sha256:9d514388fbc89ca0833203464272ac485b8828568ab73532f5020f17e892a0ff
     # via -r requirements/main.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
