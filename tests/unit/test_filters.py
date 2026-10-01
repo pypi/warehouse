@@ -318,6 +318,13 @@ def test_format_email(meta_email, expected_name, expected_email):
         ("=?utf-8?b?A?=", "=?utf-8?b?A?="),
         # Overlong values skip decoding (quadratic decode_header guard).
         ("=?" + ("a" * 4100), "=?" + ("a" * 4100)),
+        # utf-7 unpaired surrogates must not escape (WebOb UTF-8 encode).
+        ("=?utf-7?q?+2AA-?=", "=?utf-7?q?+2AA-?="),
+        # Adjacent encoded-words are one match group; any unsafe decode keeps the original.
+        (
+            "=?utf-8?q?Jos=C3=A9?= =?utf-7?q?+2AA-?=",
+            "=?utf-8?q?Jos=C3=A9?= =?utf-7?q?+2AA-?=",
+        ),
     ],
 )
 def test_decode_mime_header(inp, expected):

@@ -181,6 +181,18 @@ _MIME_ENCODED_WORDS = re.compile(
 )
 
 
+def _decode_mime_match(match: re.Match[str]) -> str:
+    """Decode one RFC 2047 encoded-word group, or leave it unchanged if unsafe."""
+    encoded = match.group()
+    try:
+        decoded = str(make_header(decode_header(encoded)))
+        # utf-7 (and similar) can yield unpaired surrogates that break WebOb.
+        decoded.encode("utf-8")
+        return decoded
+    except (MessageError, LookupError, UnicodeError, ValueError):
+        return encoded
+
+
 def decode_mime_header(value: str | None) -> str | None:
     """
     Decode RFC 2047 encoded-words in metadata header values.
@@ -193,10 +205,8 @@ def decode_mime_header(value: str | None) -> str | None:
         return value
     try:
         # Decode only encoded-word groups so surrounding Unicode stays intact.
-        return _MIME_ENCODED_WORDS.sub(
-            lambda match: str(make_header(decode_header(match.group()))), value
-        )
-    except MessageError, LookupError, UnicodeError, ValueError:
+        return _MIME_ENCODED_WORDS.sub(_decode_mime_match, value)
+    except (MessageError, LookupError, UnicodeError, ValueError):
         return value
 
 
