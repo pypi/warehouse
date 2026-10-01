@@ -1142,8 +1142,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:51
 #: warehouse/templates/manage/account/webauthn-provision.html:68
 #: warehouse/templates/manage/manage_base.html:210
-#: warehouse/templates/manage/project/release.html:155
-#: warehouse/templates/manage/project/release.html:223
+#: warehouse/templates/manage/project/release.html:153
+#: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
 #: warehouse/templates/manage/project/releases.html:210
 #: warehouse/templates/pages/classifiers.html:17
@@ -1375,7 +1375,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:296
 #: warehouse/templates/manage/organization/settings.html:302
 #: warehouse/templates/manage/project/documentation.html:13
-#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/release.html:204
 #: warehouse/templates/manage/project/settings.html:78
 #: warehouse/templates/manage/project/settings.html:123
 #: warehouse/templates/manage/project/settings.html:229
@@ -3185,7 +3185,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:534
 #: warehouse/templates/manage/manage_base.html:341
 #: warehouse/templates/manage/manage_base.html:344
-#: warehouse/templates/manage/project/release.html:151
+#: warehouse/templates/manage/project/release.html:149
 #: warehouse/templates/manage/project/releases.html:206
 #: warehouse/templates/manage/project/settings.html:63
 #: warehouse/templates/manage/unverified-account.html:186
@@ -3434,7 +3434,7 @@ msgid "Email"
 msgstr ""
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:8
-#: warehouse/templates/manage/project/release.html:148
+#: warehouse/templates/manage/project/release.html:146
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
@@ -6062,7 +6062,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:156
 #: warehouse/templates/manage/project/documentation.html:21
 #: warehouse/templates/manage/project/publishing.html:141
-#: warehouse/templates/manage/project/release.html:131
+#: warehouse/templates/manage/project/release.html:129
 #: warehouse/templates/pages/stats.html:65
 msgid "Project name"
 msgstr ""
@@ -7631,7 +7631,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/history.html:77
 #: warehouse/templates/manage/project/history.html:108
-#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:120
 msgid "Filename:"
 msgstr ""
 
@@ -7972,38 +7972,38 @@ msgstr ""
 msgid "Delete file"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/release.html:141
 msgid "Uploading new files"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:145
+#: warehouse/templates/manage/project/release.html:143
 msgid "No files found"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:155
+#: warehouse/templates/manage/project/release.html:153
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\""
 " target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:158
+#: warehouse/templates/manage/project/release.html:156
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:161
+#: warehouse/templates/manage/project/release.html:159
 msgid ""
 "Yank and delete actions are unavailable while this release is in "
 "quarantine."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:166
-#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:164
+#: warehouse/templates/manage/project/release.html:198
 #: warehouse/templates/manage/project/releases.html:131
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:169
+#: warehouse/templates/manage/project/release.html:167
 #, python-format
 msgid ""
 "Yanking will mark this release (and %(count)s file within it) to be "
@@ -8014,25 +8014,25 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:173
 msgid ""
 "Yanking will mark this release to be ignored when installing in most "
 "common scenarios."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:179
+#: warehouse/templates/manage/project/release.html:177
 #, python-format
 msgid ""
 "This release will still be installable for users pinning to this exact "
 "version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:182
+#: warehouse/templates/manage/project/release.html:180
 #, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:188
+#: warehouse/templates/manage/project/release.html:186
 #: warehouse/templates/manage/project/releases.html:134
 #, python-format
 msgid ""
@@ -8041,13 +8041,13 @@ msgid ""
 "<code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:192
+#: warehouse/templates/manage/project/release.html:190
 #: warehouse/templates/manage/project/releases.html:138
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:200
-#: warehouse/templates/manage/project/release.html:232
+#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:230
 #: warehouse/templates/manage/project/releases.html:9
 #: warehouse/templates/manage/project/releases.html:128
 #: warehouse/templates/manage/project/releases.html:146
@@ -8055,31 +8055,31 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:204
-#: warehouse/templates/manage/project/release.html:232
+#: warehouse/templates/manage/project/release.html:202
+#: warehouse/templates/manage/project/release.html:230
 #: warehouse/templates/manage/project/releases.html:148
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:208
+#: warehouse/templates/manage/project/release.html:206
 #, python-format
 msgid "Deleting will irreversibly delete this release along with %(count)s file."
 msgid_plural "Deleting will irreversibly delete this release along with %(count)s files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:214
+#: warehouse/templates/manage/project/release.html:212
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:217
+#: warehouse/templates/manage/project/release.html:215
 #: warehouse/templates/manage/project/releases.html:151
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
 "with the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:220
+#: warehouse/templates/manage/project/release.html:218
 #: warehouse/templates/manage/project/releases.html:154
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version "
@@ -8087,7 +8087,7 @@ msgid ""
 "or remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:223
+#: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
 #, python-format
 msgid ""
