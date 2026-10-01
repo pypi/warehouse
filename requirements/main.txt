@@ -619,9 +619,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.266 \
-    --hash=sha256:0adb0e417b620eb33276dc87c7aba9250996e989b60499c4bd198be81a9d26d1 \
-    --hash=sha256:f6d0e27fc8ce8e9593cc11a81f384f66a2ce76924b9508a75dfec2fce9c4bcb5
+disposable-email-domains==0.0.267 \
+    --hash=sha256:272f663de4907cd970b94dc75275e6c5c866f1da397355a12842d57aa2fd2d6e \
+    --hash=sha256:278fcba9e26151adb9a54ca1554ee5229cd765c3b538ceb7cbb67e26dc72f563
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -1994,9 +1994,9 @@ python-slugify==9.1.1 \
     --hash=sha256:6db0d9480b22a8867e2dbd725e0eea28e7893ee1dc00bdae467b345ad0eafafb \
     --hash=sha256:db48547ed6d43072af59c86c3bc80bfc3c6f4e88c130c99de11775d721a574b8
     # via -r requirements/main.in
-pytz==2026.3.post1 \
-    --hash=sha256:2211d3fcf9a797d3405cac96ac7f61d80e6a644f72a3309607282fe8a2010c5d \
-    --hash=sha256:dd95840dd199baea12d9cc096a1d452caa6596a1c1e4b5f3dbd1541855d5e815
+pytz==2026.4 \
+    --hash=sha256:464303645bafafd72418898368b2429458f709cf1eb6a15372fbcc396b64da63 \
+    --hash=sha256:9d514388fbc89ca0833203464272ac485b8828568ab73532f5020f17e892a0ff
     # via -r requirements/main.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
