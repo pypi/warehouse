@@ -433,6 +433,30 @@ def _commonpath(values):
     return os.path.commonpath(values)
 
 
+def _validate_artifact_dependencies(
+    request: Request, filetype: str, description: str, content: bytes
+) -> None:
+    """
+    Reject an artifact whose own metadata file declares a direct dependency.
+
+    ``description`` names the artifact and file for the error message, e.g.
+    ``"Wheel 'foo.whl' has invalid METADATA"``.
+    """
+    try:
+        metadata.validate_artifact_dependencies(content)
+    except metadata.InvalidMetadata as error:
+        request.metrics.increment(
+            "warehouse.upload.failed",
+            tags=["reason:invalid-artifact-metadata", f"filetype:{filetype}"],
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"{description}: {error}. "
+            "See https://packaging.python.org/specifications/core-metadata "
+            "for more information.",
+        )
+
+
 def _ensure_user_can_upload(request: Request) -> None:
     """Enforce per-user upload prerequisites: a verified primary email and 2FA.
 
@@ -568,7 +592,9 @@ def file_upload(request):
 
     # Get a validated Metadata object from the form data.
     # TODO: We should eventually extract this data out of the artifact and use that,
-    #       but for now we'll continue to use the form data.
+    #       but for now we'll continue to use the form data. Until then, only the
+    #       artifact's dependency fields are checked, further down.
+    #       See: https://github.com/pypi/warehouse/issues/8090
     try:
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
@@ -1262,15 +1288,25 @@ def file_upload(request):
 
             filename = os.path.basename(temporary_filename)
 
+            # Already validated as a tarfile containing PKG-INFO by
+            # _is_valid_dist_file above.
+            tar = upload_archive
+            assert isinstance(tar, tarfile.TarFile)
+            top_level = _commonpath(tar.getnames())
+
+            pkg_info = tar.extractfile(os.path.join(top_level, "PKG-INFO"))
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Source distribution '{filename}' has invalid PKG-INFO",
+                pkg_info.read() if pkg_info is not None else b"",
+            )
+
             if meta.license_files:
                 """
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                tar = upload_archive
-                assert isinstance(tar, tarfile.TarFile)
-                top_level = _commonpath(tar.getnames())
-                # Already validated as a tarfile by _is_valid_dist_file above
                 for license_file in meta.license_files:
                     target_file = os.path.join(top_level, license_file)
                     try:
@@ -1468,6 +1504,12 @@ def file_upload(request):
                     f"Wheel '{filename}' does not contain the required "
                     f"METADATA file: {metadata_filename}",
                 )
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Wheel '{filename}' has invalid METADATA",
+                wheel_metadata_contents,
+            )
             try:
                 with open(temporary_filename + ".metadata", "wb") as fp:
                     fp.write(wheel_metadata_contents)

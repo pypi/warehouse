@@ -324,6 +324,63 @@ class TestValidation:
         _assert_invalid_metadata(excinfo.value, "dynamic")
 
 
+class TestValidateArtifactDependencies:
+    @pytest.mark.parametrize(
+        "content",
+        [
+            b"",
+            b"Fake metadata",
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            b'Requires-Dist: foo>=1.0 ; extra == "dev"\nProvides-Dist: bar\n',
+        ],
+    )
+    def test_valid(self, content):
+        metadata.validate_artifact_dependencies(content)
+
+    @pytest.mark.parametrize(
+        ("header", "field"),
+        [
+            ("Requires-Dist", "requires-dist"),
+            ("Provides-Dist", "provides-dist"),
+            ("Obsoletes-Dist", "obsoletes-dist"),
+        ],
+    )
+    def test_invalid_direct_dependency(self, header, field):
+        content = (
+            "Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            f'{header}: foo @ https://example.com/foo-1.0.tar.gz ; extra == "dev"\n'
+        ).encode()
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == field
+
+    def test_invalid_requirement(self):
+        """An unparsable requirement is rejected, matching the form path."""
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            b"Requires-Dist: not a requirement !!\n"
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+        assert "is invalid" in str(excinfo.value)
+
+    def test_undecodable_field_fails_closed(self):
+        """
+        One non-UTF-8 byte makes parse_email set the whole field aside as
+        unparsed; that must not read as "no dependencies".
+        """
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            b"Requires-Dist: evil @ https://example.com/e.tar.gz\n"
+            b'Requires-Dist: ok ; platform_release == "\xff"\n'
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+        assert "could not be parsed" in str(excinfo.value)
+
+
 class TestFromFormData:
     def test_valid(self):
         data = MultiDict(

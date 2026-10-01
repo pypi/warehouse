@@ -4240,6 +4240,129 @@ class TestFileUpload:
             "400 Wheel .* does not contain the required METADATA file: .*", resp.status
         )
 
+    @pytest.mark.parametrize("filetype", ["bdist_wheel", "sdist"])
+    def test_upload_fails_with_direct_dependency_in_artifact_metadata(
+        self, pyramid_config, db_request, filetype
+    ):
+        """
+        The form omits the direct dependency that the artifact's own metadata
+        file (METADATA or PKG-INFO) declares.
+        """
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        project_name = project.normalized_name.replace("-", "_")
+        version = "1.0"
+        artifact_metadata = dedent(
+            f"""\
+            Metadata-Version: 2.4
+            Name: {project.name}
+            Version: {version}
+            Provides-Extra: dev
+            Requires-Dist: evil @ https://example.com/e.tar.gz ; extra == "dev"
+            """,
+        ).encode()
+
+        temp_f = io.BytesIO()
+        if filetype == "bdist_wheel":
+            filename = f"{project_name}-{version}-py3-none-any.whl"
+            dist_info = f"{project_name}-{version}.dist-info"
+            with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+                zfp.writestr(f"{dist_info}/METADATA", artifact_metadata)
+                zfp.writestr(f"{dist_info}/WHEEL", "Wheel-Version: 1.0\n")
+                zfp.writestr(
+                    f"{dist_info}/RECORD",
+                    f"{dist_info}/METADATA,\n{dist_info}/WHEEL,\n{dist_info}/RECORD,\n",
+                )
+            expected = f"400 Wheel '{filename}' has invalid METADATA"
+        else:
+            filename = f"{project_name}-{version}.tar.gz"
+            with tarfile.open(fileobj=temp_f, mode="w:gz") as tar:
+                tar.add("/dev/null", arcname=f"{project_name}-{version}/setup.py")
+                info = tarfile.TarInfo(f"{project_name}-{version}/PKG-INFO")
+                info.size = len(artifact_metadata)
+                tar.addfile(info, io.BytesIO(artifact_metadata))
+            expected = f"400 Source distribution '{filename}' has invalid PKG-INFO"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "filetype": filetype,
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status.startswith(
+            f"{expected}: Can't have direct dependency: "
+            "'evil @ https://example.com/e.tar.gz ; extra == \"dev\"'. "
+        )
+        assert not db_request.db.query(File).count()
+
+    def test_upload_succeeds_when_sdist_pkg_info_is_a_directory(
+        self, pyramid_config, db_request, storage_service
+    ):
+        """
+        _is_valid_dist_file only checks that a PKG-INFO member exists, so a
+        directory by that name reaches the dependency check with no content.
+        """
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        project_name = project.normalized_name.replace("-", "_")
+        filename = f"{project_name}-1.0.tar.gz"
+        temp_f = io.BytesIO()
+        with tarfile.open(fileobj=temp_f, mode="w:gz") as tar:
+            tar.add("/dev/null", arcname=f"{project_name}-1.0/setup.py")
+            info = tarfile.TarInfo(f"{project_name}-1.0/PKG-INFO")
+            info.type = tarfile.DIRTYPE
+            tar.addfile(info)
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert db_request.db.query(File).filter_by(filename=filename).one()
+
     def test_upload_updates_existing_project_name(
         self, pyramid_config, db_request, storage_service
     ):
