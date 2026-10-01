@@ -81,6 +81,8 @@ from warehouse.utils.wheel import (
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
+# Upper bound on an sdist's PKG-INFO, which is read into memory to validate it.
+MAX_PKG_INFO_SIZE = 10 * ONE_MIB
 
 # If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
@@ -451,7 +453,7 @@ def _validate_artifact_dependencies(
         )
         raise _exc_with_message(
             HTTPBadRequest,
-            f"{description}: {error}. "
+            f"{description} ({error.field}): {error}. "
             "See https://packaging.python.org/specifications/core-metadata "
             "for more information.",
         )
@@ -1288,18 +1290,38 @@ def file_upload(request):
 
             filename = os.path.basename(temporary_filename)
 
-            # Already validated as a tarfile containing PKG-INFO by
-            # _is_valid_dist_file above.
+            # _is_valid_dist_file above checked that this is a tarfile with a
+            # member named PKG-INFO, but not what kind of member it is.
             tar = upload_archive
             assert isinstance(tar, tarfile.TarFile)
             top_level = _commonpath(tar.getnames())
-
-            pkg_info = tar.extractfile(os.path.join(top_level, "PKG-INFO"))
+            pkg_info_name = os.path.join(top_level, "PKG-INFO")
+            pkg_info_member = tar.getmember(pkg_info_name)
+            if not pkg_info_member.isfile() or pkg_info_member.size > MAX_PKG_INFO_SIZE:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-pkg-info",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Source distribution '{filename}' has invalid PKG-INFO: "
+                    f"{pkg_info_name} must be a regular file no larger than "
+                    f"{MAX_PKG_INFO_SIZE // ONE_MIB} MiB.",
+                )
+            # Reading a member re-inflates the stream from wherever the
+            # validation scan left it, so time it like getnames above.
+            with request.metrics.timed("warehouse.upload.tarfile.read_pkg_info"):
+                pkg_info = tar.extractfile(pkg_info_member)
+                assert pkg_info is not None  # isfile() above guarantees this
+                pkg_info_content = pkg_info.read()
             _validate_artifact_dependencies(
                 request,
                 form.filetype.data,
                 f"Source distribution '{filename}' has invalid PKG-INFO",
-                pkg_info.read() if pkg_info is not None else b"",
+                pkg_info_content,
             )
 
             if meta.license_files:

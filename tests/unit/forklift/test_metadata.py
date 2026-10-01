@@ -354,16 +354,42 @@ class TestValidateArtifactDependencies:
             metadata.validate_artifact_dependencies(content)
         assert excinfo.value.field == field
 
-    def test_invalid_requirement(self):
-        """An unparsable requirement is rejected, matching the form path."""
+    def test_unknown_header_does_not_mask_direct_dependency(self):
+        """
+        parse_email, unlike Metadata.from_email, still yields the dependency
+        fields when the file also carries a header it does not recognize.
+        """
         content = (
-            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
-            b"Requires-Dist: not a requirement !!\n"
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\nX-Custom: 1\n"
+            b"Requires-Dist: evil @ https://example.com/e.tar.gz\n"
         )
         with pytest.raises(metadata.InvalidMetadata) as excinfo:
             metadata.validate_artifact_dependencies(content)
         assert excinfo.value.field == "requires-dist"
-        assert "is invalid" in str(excinfo.value)
+
+    @pytest.mark.parametrize(
+        "req_str",
+        [
+            "not a requirement !!",
+            # Deep marker nesting overflows the requirement parser's recursion.
+            "foo ; " + "(" * 2000 + 'os_name == "a"' + ")" * 2000,
+        ],
+    )
+    def test_invalid_requirement(self, req_str):
+        """
+        An unparsable requirement is rejected, matching the form path, with a
+        single-line reason.
+        """
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            + f"Requires-Dist: {req_str}\n".encode()
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+        message = str(excinfo.value)
+        assert "is invalid: " in message
+        assert "\n" not in message
 
     def test_undecodable_field_fails_closed(self):
         """

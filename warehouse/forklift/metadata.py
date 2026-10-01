@@ -105,24 +105,23 @@ def _direct_dependency_errors(
     Validate the requirement strings of a *-Dist field: each must parse, and
     none may be a direct reference (PEP 440 ``name @ url``).
     """
+    header = _RAW_TO_EMAIL_MAPPING[field]
     errors: list[InvalidMetadata] = []
     for req_str in req_strs:
         try:
             req = Requirement(req_str)
-        except InvalidRequirement as exc:
-            errors.append(
-                InvalidMetadata(
-                    _RAW_TO_EMAIL_MAPPING.get(field, field),
-                    f"{req_str!r} is invalid: {exc}",
-                )
-            )
+        # A deeply nested marker overflows the parser's recursion; that is as
+        # invalid as a syntax error. Keep only the first line of the parser
+        # message, the rest is caret art that does not survive a status line.
+        except (InvalidRequirement, RecursionError) as exc:
+            reason = str(exc).partition("\n")[0]
+            errors.append(InvalidMetadata(header, f"{req_str!r} is invalid: {reason}"))
         else:
             # NOTE: This part should not be lifted to packaging.metadata
             if req.url is not None:
                 errors.append(
                     InvalidMetadata(
-                        _RAW_TO_EMAIL_MAPPING.get(field, field),
-                        f"Can't have direct dependency: {req_str!r}",
+                        header, f"Can't have direct dependency: {req_str!r}"
                     )
                 )
     return errors
