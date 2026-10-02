@@ -28,10 +28,9 @@ from warehouse.organizations.constants import (
 )
 from warehouse.organizations.models import OrganizationApplication
 
-_extractor = TLDExtract(suffix_list_urls=())
+_extractor = TLDExtract(suffix_list_urls=(), include_psl_private_domains=True)
 
-# Hosts that are public suffixes, so domain matching can't be used to affiliate
-# to an org.
+# Shared website hosts whose domains do not identify the applicant's organization.
 UNVERIFIABLE_URL_HOSTS = {
     "bitbucket.org",
     "codeberg.org",
@@ -73,7 +72,7 @@ _STATUS_ORDER = {
 
 
 def _host(value: str) -> str | None:
-    r"""Resolve and punycode a host.
+    r"""Normalize and punycode a host.
 
     `https://acme.example\@safe.example` therefore reads as `acme.example`.
     """
@@ -92,9 +91,13 @@ class _Link:
         extracted = _extractor(self.host or "")
         self.registered_domain = extracted.top_domain_under_public_suffix or None
         self.domain_label = extracted.domain
-        # `github.io` and `readthedocs.io` are themselves public suffixes, so a match
-        # can land on either component depending on the host.
-        parts = {extracted.top_domain_under_public_suffix, extracted.suffix}
+        # The private PSL section also contains registries (e.g. uk.com), not
+        # just shared hosts. Use it for domain boundaries, not proof of hosting.
+        parts = {
+            self.host,
+            extracted.top_domain_under_public_suffix,
+            extracted.suffix,
+        }
         self.unverifiable = bool(parts & UNVERIFIABLE_URL_HOSTS)
         self.github = bool(parts & GITHUB_HOSTS)
 
@@ -136,7 +139,7 @@ def _domain_match_check(link: _Link, user: User) -> Check:
     if link.unverifiable:
         return check(
             CheckStatus.Unknown,
-            f"{link.registered_domain} is a shared host, so an address there does "
+            f"{link.host} is a shared host, so an address there does "
             "not show affiliation. Verify another way.",
         )
 
@@ -187,8 +190,7 @@ def _url_shape_check(link: _Link) -> Check | None:
         "url_shape_codehost",
         label,
         CheckStatus.Warn,
-        f"URL is on {link.host}, a code or package host, not the organization's "
-        "own domain.",
+        f"URL is on {link.host}, a shared host, not the organization's own domain.",
     )
 
 
