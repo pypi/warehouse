@@ -692,6 +692,50 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             if counts.total_files
         }
 
+    @cached_property
+    def late_file_statuses(self) -> dict[str, LateFileStatus]:
+        """
+        Every release's late-file status, keyed by version.
+
+        The release history page needs a status per release. Reading
+        `Release.late_file_status` in a loop costs one query for each one;
+        this takes one, grouping the project's files by the release they
+        belong to.
+
+        A release with no files is absent from the mapping, matching
+        `Release.late_file_status` returning `None`. Read it with `.get()`:
+        a project can hold a release whose files have all been removed.
+
+        Cached for the life of the `Project`, so a caller holding one across
+        a commit sees the statuses as they were when it first asked. That
+        suits a request, which reads them once and renders; a long-lived
+        task wanting fresh counts should ask a `Release` instead.
+        """
+        rows = (
+            orm_session_from_obj(self)
+            .execute(
+                select(
+                    Release.version, Release.created, File.filename, File.upload_time
+                )
+                .select_from(Release)
+                .outerjoin(File, File.release_id == Release.id)
+                .where(Release.project_id == self.id)
+            )
+            .all()
+        )
+        grouped: dict[str, tuple[datetime.datetime, list[Row]]] = {}
+        for row in rows:
+            if row.version not in grouped:
+                grouped[row.version] = (row.created, [])
+            if row.filename is not None:
+                grouped[row.version][1].append(row)
+
+        return {
+            version: status
+            for version, (created, files) in grouped.items()
+            if (status := late_file_status_from_files(created, files)) is not None
+        }
+
     @property
     def latest_version(self):
         session = orm_session_from_obj(self)

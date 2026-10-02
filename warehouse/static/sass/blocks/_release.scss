@@ -136,11 +136,12 @@
     font-size: 1.25rem;
     font-weight: fonts.$bold-font-weight;
 
-    a {
+    a:not(.badge) {
       @include link-utilities.link-without-underline;
     }
 
-    .badge {
+    // Target only the "This release" badge, which is a span (and not the 'file added late' badge, which is an anchor)
+    span.badge {
       display: none;
 
       @media screen and (max-width: breakpoints.$tablet) {
