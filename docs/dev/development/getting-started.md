@@ -382,8 +382,9 @@ Password: <the password you set for the totp storage>
 Open **Organizations → Applications** in `/admin/`. Superusers, support staff,
 and moderators can view applications; taking review actions requires a superuser
 or support account.
-Review checks are advisory; known shared hosting domains require another way to
-verify affiliation. Domain comparisons distinguish separate registrations under
+Review checks are advisory; recognized code and package hosting domains require
+another way to verify affiliation. The host list is not exhaustive.
+Domain comparisons distinguish separate registrations under
 private suffixes such as `uk.com`. **Ask about this** opens a saved reply for
 review before sending.
 The action buttons show their keyboard shortcuts. In a review modal,

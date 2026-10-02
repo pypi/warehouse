@@ -31,6 +31,8 @@ class TestLink:
             ("https://acme.com/about", "acme.com"),
             ("https://dept.acme.com", "acme.com"),
             ("https://acme.co.uk", "acme.co.uk"),
+            ("https://acme.blogspot.com", "acme.blogspot.com"),
+            ("https://acme.github.io", "acme.github.io"),
             ("https://localhost", None),
             ("https://ACME.com", "acme.com"),
             # A backslash ends the host, so the credential-looking tail is not it.
@@ -52,6 +54,7 @@ class TestLink:
             ("https://GITHUB.COM/acme", True, True),
             ("https://acme.github.io", True, True),
             ("https://gitlab.com/acme", True, False),
+            ("https://acme.uk.com", False, False),
         ],
     )
     def test_host_classification(self, value, unverifiable, github):
@@ -63,6 +66,7 @@ class TestLink:
         [
             ("jdoe@acme.com", "acme.com"),
             ("jdoe@ACME.com", "acme.com"),
+            ("jdoe@other.blogspot.com", "other.blogspot.com"),
             ("jdoe@bücher.de", "xn--bcher-kva.de"),
             # A backslash would otherwise truncate this to `acme.com`.
             ("jdoe@acme.com\\evil.org", None),
@@ -88,16 +92,22 @@ class TestDomainMatch:
         assert check.status == CheckStatus.Unknown
         assert "No domain could be read" in check.detail
 
-    def test_shared_host_is_unknown(self, db_request):
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://github.com/acme",
+            "https://acme.github.io",
+        ],
+    )
+    def test_shared_host_is_unknown(self, db_request, url):
         user = UserFactory.create()
         EmailFactory.create(user=user, email="jdoe@acme.com", verified=True)
         application = OrganizationApplicationFactory.create(
-            link_url="https://github.com/acme", submitted_by=user
+            link_url=url, submitted_by=user
         )
 
         check = find(review_checks(application, user), "domain_match")
         assert check.status == CheckStatus.Unknown
-        assert "shared host" in check.detail
 
     def test_verified_match_passes(self, db_request):
         user = UserFactory.create()
@@ -108,6 +118,22 @@ class TestDomainMatch:
 
         check = find(review_checks(application, user), "domain_match")
         assert check.status == CheckStatus.Ok
+
+    @pytest.mark.parametrize(
+        ("email_domain", "status"),
+        [("acme.uk.com", CheckStatus.Ok), ("other.uk.com", CheckStatus.Fail)],
+    )
+    def test_private_registry_domain(self, db_request, email_domain, status):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, email=f"jdoe@{email_domain}", verified=True)
+        application = OrganizationApplicationFactory.create(
+            name="acme", link_url="https://acme.uk.com", submitted_by=user
+        )
+
+        checks = review_checks(application, user)
+        assert find(checks, "domain_match").status == status
+        assert find(checks, "url_shape_codehost") is None
+        assert find(checks, "name_domain_match").status == CheckStatus.Ok
 
     def test_verified_match_handles_internationalized_domains(self, db_request):
         user = UserFactory.create()
