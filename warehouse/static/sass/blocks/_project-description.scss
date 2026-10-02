@@ -153,8 +153,7 @@
       color: colors.$text-color;
       font-style: normal;
 
-      &.note,
-      &.admonition-see-also {
+      &.note {
         --admonition-color: #{colors.$primary-color};
       }
 
