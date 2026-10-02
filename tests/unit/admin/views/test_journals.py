@@ -131,13 +131,17 @@ class TestBuildJournalsQuery:
             (("name", "asc"), "journals.name ASC, journals.id DESC"),
             (
                 ("submitted_by", "desc"),
-                "journals.submitted_by DESC,"
-                " journals.submitted_date ASC, journals.id ASC",
+                (
+                    "journals.submitted_by DESC,"
+                    " journals.submitted_date ASC, journals.id ASC"
+                ),
             ),
             (
                 ("submitted_by", "asc"),
-                "journals.submitted_by ASC,"
-                " journals.submitted_date DESC, journals.id DESC",
+                (
+                    "journals.submitted_by ASC,"
+                    " journals.submitted_date DESC, journals.id DESC"
+                ),
             ),
         ],
     )
