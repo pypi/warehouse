@@ -113,7 +113,7 @@ def _build_order_by(params: TabulatorParams) -> tuple[ColumnElement[Any], ...]:
     return (JournalEntry.submitted_date.asc(), JournalEntry.id.asc())
 
 
-def _build_journals_query(params: TabulatorParams) -> Select[Any]:
+def _build_journals_query(params: TabulatorParams) -> Select[*tuple[Any, ...]]:
     """Build the page SELECT, fetching one extra row to detect a next page."""
     conditions = [
         _FILTER_BUILDERS[field](value) for field, value in params.filters.items()

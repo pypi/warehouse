@@ -22,7 +22,7 @@ from uuid import UUID
 
 from packaging.utils import canonicalize_name
 from pyramid.request import Request
-from sqlalchemy import Row, Select, desc, func, select
+from sqlalchemy import NotNullable, Row, Select, desc, func, select
 from sqlalchemy.orm import (
     InstrumentedAttribute,
     Session,
@@ -310,9 +310,7 @@ def _wrap(rows: list[dict]) -> dict:
     return {"count": len(rows), "rows": rows}
 
 
-def _capped_total(
-    db: Session, rows: Sized, count: Select[tuple[int]]
-) -> tuple[int, bool]:
+def _capped_total(db: Session, rows: Sized, count: Select[int]) -> tuple[int, bool]:
     """
     A capped fetch's true total, and whether the cap dropped rows.
 
@@ -327,7 +325,7 @@ def _capped_total(
 
 # One uploaded release, as selected by `_membership_sections`:
 # project_id, version, created, uploaded_via.
-_UploadRow = Row[tuple[UUID, str, datetime.datetime, str | None]]
+_UploadRow = Row[UUID, str, datetime.datetime, str | None]
 
 
 def _release_ref(release: _UploadRow) -> dict:
@@ -510,7 +508,7 @@ def _membership_sections(user: User, db: Session) -> dict:
     # being a large document and start being a bind-parameter error.
     own_journaled = (
         select(
-            JournalEntry.name,
+            NotNullable(JournalEntry.name),
             func.max(JournalEntry.submitted_date).label("last_journaled"),
         )
         .where(
@@ -831,7 +829,7 @@ def _timeline_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
     )
     truncated: dict[str, bool] = dict.fromkeys(counts, False)
 
-    def _mark(kind: str, rows: Sized, count: Select[tuple[int]]) -> None:
+    def _mark(kind: str, rows: Sized, count: Select[int]) -> None:
         """Record a source's true total and whether the cap dropped rows."""
         counts[kind], truncated[kind] = _capped_total(db, rows, count)
 
