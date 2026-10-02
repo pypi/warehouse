@@ -3265,6 +3265,47 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    @pytest.mark.parametrize(
+        ("method", "post"),
+        [("GET", {}), ("POST", {}), ("POST", {"decline": "Decline"})],
+    )
+    def test_verify_organization_role_submitter_deleted(
+        self, db_request, token_service, method, post
+    ):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        invitation = OrganizationInvitationFactory.create(
+            organization=organization, user=user, token="RANDOM_KEY"
+        )
+
+        db_request.user = user
+        db_request.method = method
+        db_request.POST.update(post)
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": "Member",
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+
+        result = views.verify_organization_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        assert db_request.db.get(OrganizationInvitation, invitation.id) == invitation
+        assert (
+            db_request.db.query(OrganizationRole)
+            .filter_by(organization=organization, user=user)
+            .one_or_none()
+            is None
+        )
+
     def test_verify_organization_role_declined(
         self, db_request, token_service, monkeypatch
     ):
@@ -3650,6 +3691,56 @@ class TestVerifyProjectRole:
             )
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
+    @pytest.mark.parametrize(
+        ("method", "post"),
+        [("GET", {}), ("POST", {}), ("POST", {"decline": "Decline"})],
+    )
+    def test_verify_project_role_submitter_deleted(
+        self, db_request, user_service, token_service, method, post
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        invitation = RoleInvitationFactory.create(
+            user=user, project=project, token="RANDOM_KEY"
+        )
+
+        db_request.user = user
+        db_request.method = method
+        db_request.POST.update(post)
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+        user_service.get_user = pretend.call_recorder(
+            lambda user_id: user if user_id == user.id else None
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+
+        result = views.verify_project_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        assert db_request.db.get(RoleInvitation, invitation.id) == invitation
+        assert (
+            db_request.db.query(Role)
+            .filter_by(project=project, user=user)
+            .one_or_none()
+            is None
+        )
 
     def test_verify_project_role_declined(
         self, db_request, user_service, token_service
