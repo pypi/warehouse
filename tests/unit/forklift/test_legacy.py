@@ -43,6 +43,8 @@ from warehouse.metrics import IMetricsService
 from warehouse.metrics.services import NullMetrics
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -5713,6 +5715,340 @@ class TestFileUpload:
             ("example", "1.0", "new release", user),
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
+
+    @staticmethod
+    def _prepare_organization_upload(
+        pyramid_config,
+        db_request,
+        identity,
+        *,
+        organization,
+        project_service=None,
+        storage_service=None,
+        organization_service=None,
+        permissive=True,
+    ):
+        """Prepare an upload of example-1.0 that names `organization`."""
+        pyramid_config.testing_securitypolicy(identity=identity, permissive=permissive)
+        db_request.user = (
+            None if isinstance(identity, PublisherTokenContext) else identity
+        )
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "organization": organization,
+                "content": _content_field(
+                    filename="example-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IOrganizationService: organization_service,
+            IProjectService: project_service,
+        }.get(svc)
+
+    def test_upload_succeeds_creates_project_in_organization(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        organization_service,
+        project_service,
+        storage_service,
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="Example-Org")
+        OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Owner
+        )
+        notify = mock.Mock()
+        monkeypatch.setattr(legacy, "add_organization_project_and_notify", notify)
+
+        # The organization name is resolved the same way the web UI does it, so it
+        # doesn't need to match the canonical spelling exactly.
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example_org",
+            project_service=project_service,
+            storage_service=storage_service,
+            organization_service=organization_service,
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+
+        # The project belongs to the organization, and the uploader has no role.
+        assert project.organization == organization
+        assert db_request.db.query(Role).filter(Role.project == project).count() == 0
+
+        # The link was made by `create_project()`, so the helper must not link again.
+        assert notify.call_args_list == [
+            mock.call(db_request, organization, project, link=False)
+        ]
+
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            ("example", None, "create", user),
+            ("example", "1.0", "new release", user),
+            ("example", "1.0", "add source file example-1.0.tar.gz", user),
+        ]
+
+    @pytest.mark.parametrize("organization", [None, ""])
+    def test_upload_without_organization_creates_user_owned_project(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        project_service,
+        storage_service,
+        organization,
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        notify = mock.Mock()
+        monkeypatch.setattr(legacy, "add_organization_project_and_notify", notify)
+
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization=organization,
+            project_service=project_service,
+            storage_service=storage_service,
+        )
+        if organization is None:
+            del db_request.POST["organization"]
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+        assert project.organization is None
+        role = db_request.db.query(Role).filter(Role.project == project).one()
+        assert (role.user, role.role_name) == (user, "Owner")
+        assert notify.call_args_list == []
+
+    def test_upload_fails_creating_project_in_unknown_organization(
+        self, pyramid_config, db_request, organization_service, project_service
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="no-such-org",
+            project_service=project_service,
+            organization_service=organization_service,
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == "400 Organization 'no-such-org' does not exist."
+        assert db_request.db.query(Project).count() == 0
+        assert db_request.metrics.increment.call_args_list[-1] == mock.call(
+            "warehouse.upload.failed", tags=["reason:organization-not-found"]
+        )
+
+    @pytest.mark.parametrize(
+        "role_name",
+        [
+            None,
+            OrganizationRoleType.Manager,
+            OrganizationRoleType.Member,
+            OrganizationRoleType.BillingManager,
+        ],
+    )
+    def test_upload_fails_creating_project_in_organization_without_ownership(
+        self,
+        pyramid_config,
+        db_request,
+        organization_service,
+        project_service,
+        role_name,
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="example-org")
+        if role_name is not None:
+            OrganizationRoleFactory.create(
+                organization=organization, user=user, role_name=role_name
+            )
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example-org",
+            project_service=project_service,
+            organization_service=organization_service,
+        )
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == (
+            f"403 The user {user.username!r} isn't allowed to create projects in "
+            "organization 'example-org'. Only organization owners can create new "
+            "projects when uploading."
+        )
+        assert db_request.db.query(Project).count() == 0
+
+    def test_upload_fails_creating_project_in_inactive_organization(
+        self, pyramid_config, db_request, organization_service, project_service
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="example-org", is_active=False)
+        OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Owner
+        )
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example-org",
+            project_service=project_service,
+            organization_service=organization_service,
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == (
+            "400 Organization 'example-org' is inactive. "
+            "This may be due to inactive billing for Company Organizations, "
+            "or administrator intervention for Community Organizations. "
+            "Please contact support+orgs@pypi.org."
+        )
+        assert db_request.db.query(Project).count() == 0
+
+    def test_upload_succeeds_for_project_in_named_organization(
+        self, pyramid_config, db_request, organization_service, storage_service
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="Example-Org")
+        project = ProjectFactory.create(name="example")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        RoleFactory.create(user=user, project=project)
+
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example_org",
+            storage_service=storage_service,
+            organization_service=organization_service,
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert project.organization == organization
+        assert len(project.releases) == 1
+
+    @pytest.mark.parametrize("in_other_organization", [True, False])
+    @pytest.mark.parametrize("trusted_publisher", [True, False])
+    def test_upload_fails_for_project_not_in_named_organization(
+        self,
+        pyramid_config,
+        db_request,
+        organization_service,
+        in_other_organization,
+        trusted_publisher,
+    ):
+        OrganizationFactory.create(name="example-org")
+        project = ProjectFactory.create(name="example")
+        if in_other_organization:
+            OrganizationProjectFactory.create(project=project)
+
+        if trusted_publisher:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            identity = PublisherTokenContext(publisher, SignedClaims({"sha": "sha"}))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
+        else:
+            identity = UserFactory.create(with_verified_primary_email=True)
+            RoleFactory.create(user=identity, project=project)
+
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            identity,
+            organization="example-org",
+            organization_service=organization_service,
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == (
+            "400 Project 'example' is not owned by organization 'example-org'."
+        )
+        assert db_request.metrics.increment.call_args_list[-1] == mock.call(
+            "warehouse.upload.failed", tags=["reason:organization-mismatch"]
+        )
+        assert project.releases == []
+
+    def test_upload_fails_for_existing_project_with_unknown_organization(
+        self, pyramid_config, db_request, organization_service
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        project = ProjectFactory.create(name="example")
+        RoleFactory.create(user=user, project=project)
+
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="no-such-org",
+            organization_service=organization_service,
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == "400 Organization 'no-such-org' does not exist."
+
+    def test_upload_without_permission_fails_before_organization_check(
+        self, pyramid_config, db_request, organization_service
+    ):
+        # A caller without upload permission must get the permission error, not
+        # a mismatch error that would reveal the project's organization.
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationFactory.create(name="example-org")
+        OrganizationProjectFactory.create(project=ProjectFactory.create(name="example"))
+
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example-org",
+            organization_service=organization_service,
+            permissive=False,
+        )
+        db_request.help_url = mock.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden):
+            legacy.file_upload(db_request)
+
+        assert db_request.metrics.increment.call_args_list[-1] == mock.call(
+            "warehouse.upload.failed", tags=["reason:permission-denied"]
+        )
 
     def test_upload_succeeds_with_gpg_signature_field(
         self, pyramid_config, db_request, project_service, storage_service
