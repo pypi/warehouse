@@ -1521,6 +1521,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                has_burned_recovery_codes=True,
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -1583,6 +1584,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                has_burned_recovery_codes=True,
                 has_primary_verified_email=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
@@ -1618,7 +1620,9 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(
+                has_burned_recovery_codes=True, has_primary_verified_email=False
+            ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
@@ -1633,6 +1637,25 @@ class TestProvisionTOTP:
                 "Verify your email to modify two factor authentication", queue="error"
             )
         ]
+
+    def test_validate_totp_provision_without_burned_recovery_codes(
+        self, db_request, mocker
+    ):
+        """Enrolling TOTP requires recovery codes to be confirmed first."""
+        user = UserFactory.create(with_verified_primary_email=True)
+        totp_secret = user.totp_secret
+        db_request.user = user
+        db_request.route_path = mocker.Mock(return_value="/burn/")
+        db_request.POST = MultiDict({"totp_value": "123456"})
+
+        result = views.ProvisionTOTPViews(db_request).validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/burn/"
+        db_request.route_path.assert_called_once_with(
+            "manage.account.recovery-codes.burn"
+        )
+        assert user.totp_secret == totp_secret
 
     def test_delete_totp(self, monkeypatch, db_request):
         user_service = pretend.stub(
@@ -1878,6 +1901,7 @@ class TestProvisionWebAuthn:
             user=pretend.stub(
                 id=1234,
                 webauthn=None,
+                has_burned_recovery_codes=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             session=pretend.stub(
@@ -1946,7 +1970,7 @@ class TestProvisionWebAuthn:
         )
         request = pretend.stub(
             POST={},
-            user=pretend.stub(id=1234, webauthn=None),
+            user=pretend.stub(id=1234, webauthn=None, has_burned_recovery_codes=True),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
                 clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
@@ -1975,6 +1999,24 @@ class TestProvisionWebAuthn:
         assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
         assert user_service.add_webauthn.calls == []
         assert result == {"fail": {"errors": ["Not a real error"]}}
+
+    def test_validate_webauthn_provision_without_burned_recovery_codes(
+        self, db_request
+    ):
+        """Enrolling a security device requires recovery codes to be confirmed first."""
+        user = UserFactory.create()
+        db_request.user = user
+
+        result = views.ProvisionWebAuthnViews(db_request).validate_webauthn_provision()
+
+        assert result == {
+            "fail": {
+                "errors": [
+                    "Confirm your recovery codes before adding a security device"
+                ]
+            }
+        }
+        assert user.webauthn == []
 
     def test_delete_webauthn(self, monkeypatch):
         user_service = pretend.stub()
@@ -2098,6 +2140,21 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
+
+
+@pytest.mark.parametrize(
+    "view_class", [views.ProvisionTOTPViews, views.ProvisionWebAuthnViews]
+)
+def test_two_factor_provisioning_views_require_reauth(app_config, view_class):
+    """Adding or removing a 2FA method requires a recent password confirmation."""
+    class_views = [
+        intr["introspectable"]
+        for intr in app_config.registry.introspector.get_category("views")
+        if intr["introspectable"]["callable"] is view_class
+    ]
+
+    assert class_views
+    assert all(view.get("require_reauth") is True for view in class_views)
 
 
 class TestProvisionRecoveryCodes:
