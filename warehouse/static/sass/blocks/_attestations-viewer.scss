@@ -72,6 +72,8 @@
   }
 
   &__sidebar {
+    display: flex;
+    flex-direction: column;
     flex: 0 0 250px;
     max-width: 100%;
     min-height: 300px;
@@ -110,7 +112,13 @@
   }
 
   &__sidebar-content {
-    max-height: 480px;
+    // A definite flex-basis (rather than auto) keeps a long file list from
+    // dictating the sidebar's height when the content panel is short. But
+    // when the content panel is taller than 480px, align-items: stretch
+    // still stretches the sidebar to match it, and flex-grow lets this fill
+    // that extra space instead of stopping at 480.
+    flex: 1 1 480px;
+    min-height: 0;
     overflow-y: auto;
 
     @media screen and (max-width: breakpoints.$tablet) {
