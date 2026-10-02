@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 import wtforms
 
@@ -16,9 +15,9 @@ from ....common.db.packaging import (
 
 
 class TestPendingGitLabPublisherForm:
-    def test_validate(self, project_service):
-        route_url = pretend.stub()
-        user = pretend.stub()
+    def test_validate(self, mocker, project_service):
+        route_url = mocker.sentinel.route_url
+        user = mocker.sentinel.user
 
         data = MultiDict(
             {
@@ -44,9 +43,10 @@ class TestPendingGitLabPublisherForm:
         assert form.validate()
 
     def test_validate_project_name_already_in_use_owner(
-        self, pyramid_config, project_service
+        self, mocker, pyramid_config, project_service
     ):
-        route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+        route_url = mocker.stub(name="route_url")
+        route_url.return_value = "my_url"
 
         user = UserFactory.create()
         project = ProjectFactory.create(name="some-project")
@@ -59,24 +59,27 @@ class TestPendingGitLabPublisherForm:
             issuer_url_choices=["https://gitlab.com"],
         )
 
-        field = pretend.stub(data="some-project")
+        form.project_name.data = "some-project"
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_project_name(field)
+            form.validate_project_name(form.project_name)
 
         # The project settings URL is only shown in the error message if
         # the user is the owner of the project
-        assert route_url.calls == [
-            pretend.call(
-                "manage.project.settings.publishing",
-                project_name="some-project",
-                _query={"issuer_url": "https://gitlab.com", "provider": {"gitlab"}},
-            )
-        ]
+        route_url.assert_called_once_with(
+            "manage.project.settings.publishing",
+            project_name="some-project",
+            _query={
+                "project_name": "some-project",
+                "issuer_url": "https://gitlab.com",
+                "provider": {"gitlab"},
+            },
+        )
 
     def test_validate_project_name_already_in_use_not_owner(
-        self, pyramid_config, project_service
+        self, mocker, pyramid_config, project_service
     ):
-        route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+        route_url = mocker.stub(name="route_url")
+        route_url.return_value = "my_url"
 
         user = UserFactory.create()
         ProjectFactory.create(name="some-project")
@@ -87,11 +90,11 @@ class TestPendingGitLabPublisherForm:
             user=user,
         )
 
-        field = pretend.stub(data="some-project")
+        form.project_name.data = "some-project"
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_project_name(field)
+            form.validate_project_name(form.project_name)
 
-        assert route_url.calls == []
+        route_url.assert_not_called()
 
 
 class TestGitLabPublisherForm:
@@ -222,10 +225,10 @@ class TestGitLabPublisherForm:
     )
     def test_validate_workflow_filepath(self, workflow_filepath):
         form = gitlab.GitLabPublisherForm()
-        field = pretend.stub(data=workflow_filepath)
+        form.workflow_filepath.data = workflow_filepath
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_workflow_filepath(field)
+            form.validate_workflow_filepath(form.workflow_filepath)
 
     @pytest.mark.parametrize(
         ("data", "expected"),

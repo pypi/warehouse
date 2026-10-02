@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
-
 from warehouse.admin.views import core as views
 
 from ....common.db.organizations import (
@@ -15,7 +13,7 @@ from ....common.db.packaging import ProjectObservationFactory
 
 
 class TestDashboard:
-    def test_dashboard(self, db_request):
+    def test_dashboard(self, db_request, mocker):
         company_orgs = OrganizationFactory.create_batch(7, orgtype="Company")
         community_orgs = OrganizationFactory.create_batch(11, orgtype="Community")
         OrganizationApplicationFactory.create_batch(5, orgtype="Company")
@@ -45,8 +43,9 @@ class TestDashboard:
         for organization in company_orgs[:3]:
             OrganizationStripeSubscriptionFactory.create(organization=organization)
 
-        db_request.user = pretend.stub()
-        db_request.has_permission = pretend.call_recorder(lambda perm: False)
+        has_permission = mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=False
+        )
 
         assert views.dashboard(db_request) == {
             "malware_reports_count": None,
@@ -58,19 +57,18 @@ class TestDashboard:
             "orgs_with_multiple_members": {"Total": 10, "Community": 6, "Company": 4},
         }
 
-        assert db_request.has_permission.calls == [
-            pretend.call(views.Permissions.AdminObservationsRead),
-        ]
+        has_permission.assert_called_once_with(views.Permissions.AdminObservationsRead)
 
-    def test_dashboard_with_permission_and_observation(self, db_request):
+    def test_dashboard_with_permission_and_observation(self, db_request, mocker):
         """Test that the dashboard view returns the correct data when the user has the
         required permission and there are multiple Observations in the database."""
         ProjectObservationFactory.create(kind="is_malware")
         ProjectObservationFactory.create(kind="is_malware", actions={"foo": "bar"})
         ProjectObservationFactory.create(kind="is_malware", related=None)
         ProjectObservationFactory.create(kind="something_else")
-        db_request.user = pretend.stub()
-        db_request.has_permission = pretend.call_recorder(lambda perm: True)
+        has_permission = mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=True
+        )
 
         assert views.dashboard(db_request) == {
             "malware_reports_count": 1,
@@ -81,6 +79,4 @@ class TestDashboard:
             "orgs_with_projects": {"Total": 0},
             "orgs_with_multiple_members": {"Total": 0},
         }
-        assert db_request.has_permission.calls == [
-            pretend.call(views.Permissions.AdminObservationsRead),
-        ]
+        has_permission.assert_called_once_with(views.Permissions.AdminObservationsRead)

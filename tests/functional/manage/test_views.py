@@ -132,7 +132,7 @@ class TestManageOrganizations:
                 "name": "psf",
                 "display_name": "Python Software Foundation",
                 "orgtype": "Community",
-                "link_url": "https://www.python.org/psf/",
+                "link_url": " https://www.python.org/psf/ ",
                 "description": (
                     "To promote, protect, and advance the Python programming "
                     "language, and to support and facilitate the growth of a "
@@ -163,6 +163,6 @@ class TestManageOrganizations:
             organization_application.orgtype
             == OrganizationType[db_request.POST["orgtype"]]
         )
-        assert organization_application.link_url == db_request.POST["link_url"]
+        assert organization_application.link_url == "https://www.python.org/psf/"
         assert organization_application.description == db_request.POST["description"]
         assert organization_application.submitted_by == user

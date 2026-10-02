@@ -1,36 +1,36 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import psycopg
 import pytest
 
 from tests.common.db.oidc import PendingGitHubPublisherFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
+from warehouse.oidc.services import OIDCPublisherService
 
 
-def test_check_claim_binary():
+def test_check_claim_binary(mocker):
     wrapped = _core.check_claim_binary(str.__eq__)
 
-    assert wrapped("foo", "bar", pretend.stub()) is False
-    assert wrapped("foo", "foo", pretend.stub()) is True
+    assert wrapped("foo", "bar", mocker.sentinel.all_signed_claims) is False
+    assert wrapped("foo", "foo", mocker.sentinel.all_signed_claims) is True
 
 
-def test_check_claim_invariant():
+def test_check_claim_invariant(mocker):
     wrapped = _core.check_claim_invariant(True)
-    assert wrapped(True, True, pretend.stub()) is True
-    assert wrapped(False, True, pretend.stub()) is False
+    assert wrapped(True, True, mocker.sentinel.all_signed_claims) is True
+    assert wrapped(False, True, mocker.sentinel.all_signed_claims) is False
 
     wrapped = _core.check_claim_invariant(False)
-    assert wrapped(False, False, pretend.stub()) is True
-    assert wrapped(True, False, pretend.stub()) is False
+    assert wrapped(False, False, mocker.sentinel.all_signed_claims) is True
+    assert wrapped(True, False, mocker.sentinel.all_signed_claims) is False
 
     identity = object()
     wrapped = _core.check_claim_invariant(identity)
-    assert wrapped(object(), object(), pretend.stub()) is False
-    assert wrapped(identity, object(), pretend.stub()) is False
-    assert wrapped(object(), identity, pretend.stub()) is False
-    assert wrapped(identity, identity, pretend.stub()) is True
+    assert wrapped(object(), object(), mocker.sentinel.all_signed_claims) is False
+    assert wrapped(identity, object(), mocker.sentinel.all_signed_claims) is False
+    assert wrapped(object(), identity, mocker.sentinel.all_signed_claims) is False
+    assert wrapped(identity, identity, mocker.sentinel.all_signed_claims) is True
 
 
 class TestPendingOIDCPublisher:
@@ -48,9 +48,11 @@ class TestPendingOIDCPublisher:
 
 
 class TestOIDCPublisher:
-    def test_lookup_by_claims_raises(self):
+    def test_lookup_by_claims_raises(self, mocker):
         with pytest.raises(NotImplementedError):
-            _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub())
+            _core.OIDCPublisher.lookup_by_claims(
+                mocker.sentinel.session, mocker.sentinel.signed_claims
+            )
 
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
@@ -59,14 +61,15 @@ class TestOIDCPublisher:
             publisher.check_claims_existence(signed_claims={})
         assert str(e.value) == "No required verifiable claims"
 
-    def test_check_claims_existence_with_prefixed_claims(self, monkeypatch):
+    def test_check_claims_existence_with_prefixed_claims(self, mocker):
         class TestPrefixedPublisher(_core.OIDCPublisher):
             __abstract__ = True
-            __required_verifiable_claims__ = {"required_claim": pretend.stub()}
+            __required_verifiable_claims__ = {
+                "required_claim": mocker.stub(name="required_claim_check")
+            }
             __unchecked_prefixed_claims__ = {"custom_"}
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
 
         signed_claims = {
             "required_claim": "value",
@@ -74,7 +77,7 @@ class TestOIDCPublisher:
             "custom_123": "baz",
         }
         TestPrefixedPublisher.check_claims_existence(signed_claims)
-        assert sentry_sdk.capture_message.calls == []
+        sentry_sdk.capture_message.assert_not_called()
 
     def test_attestation_identity(self):
         publisher = _core.OIDCPublisher(projects=[])
@@ -169,7 +172,7 @@ class TestOIDCPublisher:
             ),
         ],
     )
-    def test_verify_url(self, monkeypatch, url, publisher_url, expected):
+    def test_verify_url(self, url, publisher_url, expected):
         class TestPublisher(_core.OIDCPublisher):
             __abstract__ = True
 
@@ -181,34 +184,32 @@ class TestOIDCPublisher:
         assert publisher.verify_url(url) == expected
 
 
-def test_check_existing_jti():
-    publisher = pretend.stub(
-        jwt_identifier_exists=pretend.call_recorder(lambda s: False),
-    )
+def test_check_existing_jti(mocker):
+    service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    service.jwt_identifier_exists.return_value = False
 
     assert _core.check_existing_jti(
-        pretend.stub(),
+        mocker.sentinel.ground_truth,
         "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-        pretend.stub(),
-        publisher_service=publisher,
+        mocker.sentinel.all_signed_claims,
+        publisher_service=service,
     )
 
 
-def test_check_existing_jti_fails(metrics):
-    publisher = pretend.stub(
-        jwt_identifier_exists=pretend.call_recorder(lambda s: True),
-        metrics=metrics,
-        publisher="fakepublisher",
-    )
+def test_check_existing_jti_fails(mocker, metrics):
+    service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    service.jwt_identifier_exists.return_value = True
+    service.metrics = metrics
+    service.publisher = "fakepublisher"
+
     with pytest.raises(errors.ReusedTokenError):
-        assert _core.check_existing_jti(
-            pretend.stub(),
+        _core.check_existing_jti(
+            mocker.sentinel.ground_truth,
             "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-            pretend.stub(),
-            publisher_service=publisher,
+            mocker.sentinel.all_signed_claims,
+            publisher_service=service,
         )
 
-    assert (
-        pretend.call("warehouse.oidc.reused_token", tags=["publisher:fakepublisher"])
-        in metrics.increment.calls
+    metrics.increment.assert_called_once_with(
+        "warehouse.oidc.reused_token", tags=["publisher:fakepublisher"]
     )
