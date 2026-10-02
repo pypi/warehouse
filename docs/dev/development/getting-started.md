@@ -379,8 +379,7 @@ Password: <the password you set for the totp storage>
 
 ### Reviewing organization applications
 
-Open **Organizations → Applications** in `/admin/`. Superusers, support staff,
-and moderators can view applications; taking review actions requires a superuser
+Open **Organizations → Applications** in `/admin/`. Superusers, support staff, can view applications; taking review actions requires a superuser
 or support account.
 Review checks are advisory; recognized code and package hosting domains require
 another way to verify affiliation. The host list is not exhaustive.
