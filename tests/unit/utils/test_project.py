@@ -19,6 +19,7 @@ from warehouse.utils.project import (
     PROJECT_NAME_RE,
     clear_project_quarantine,
     clear_release_quarantine,
+    confirm_acknowledgments,
     confirm_project,
     destroy_docs,
     quarantine_project,
@@ -111,6 +112,49 @@ def test_confirm_custom_fail_route_params(pyramid_request, mocker):
         )
     assert err.value.location == "/the-redirect"
     route_path.assert_called_once_with("fail_route", observation_id="obs-1")
+
+
+def test_confirm_acknowledgments(pyramid_request, mocker):
+    """Every acknowledgment checked passes through without a redirect."""
+    pyramid_request.POST = {"ack_one": "on", "ack_two": "on"}
+    route_path = mocker.patch.object(pyramid_request, "route_path", autospec=True)
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    confirm_acknowledgments(
+        pyramid_request,
+        "fail_route",
+        ("ack_one", "ack_two"),
+        error_message="Could not delete project",
+        project_name="foobar",
+    )
+
+    route_path.assert_not_called()
+    flash.assert_not_called()
+
+
+def test_confirm_acknowledgments_missing(pyramid_request, mocker):
+    """An unchecked box is absent from the POST body, so the action is refused."""
+    pyramid_request.POST = {"ack_one": "on"}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+    )
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    with pytest.raises(HTTPSeeOther) as err:
+        confirm_acknowledgments(
+            pyramid_request,
+            "fail_route",
+            ("ack_one", "ack_two"),
+            error_message="Could not delete project",
+            project_name="foobar",
+        )
+    assert err.value.location == "/the-redirect"
+
+    route_path.assert_called_once_with("fail_route", project_name="foobar")
+    flash.assert_called_once_with(
+        "Could not delete project - acknowledge all of the consequences to continue",
+        queue="error",
+    )
 
 
 @pytest.mark.parametrize("flash", [True, False])
