@@ -1001,6 +1001,44 @@ class TestCreateOrganizationApplicationForm:
         assert "Null bytes are not allowed." in form.name.errors
         assert organization_service.find_organizationid.calls == []
 
+    def test_validate_link_url_accepts_verified_email_for_company_domain(self):
+        user = pretend.stub(
+            emails=[pretend.stub(email="bar@example.com", verified=True)]
+        )
+        form = forms.CreateOrganizationApplicationForm(
+            MultiDict({"orgtype": "Company"}),
+            organization_service=pretend.stub(),
+            user=user,
+        )
+
+        form.validate_link_url(pretend.stub(data="https://www.example.com/about"))
+
+    @pytest.mark.parametrize(
+        ("email", "verified"),
+        [("bar@example.com", False), ("bar@other.example", True)],
+    )
+    def test_validate_link_url_requires_verified_email_for_company_domain(
+        self, email, verified
+    ):
+        user = pretend.stub(emails=[pretend.stub(email=email, verified=verified)])
+        form = forms.CreateOrganizationApplicationForm(
+            MultiDict({"orgtype": "Company"}),
+            organization_service=pretend.stub(),
+            user=user,
+        )
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_link_url(pretend.stub(data="https://example.com"))
+
+    def test_validate_link_url_skips_community_organizations(self):
+        form = forms.CreateOrganizationApplicationForm(
+            MultiDict({"orgtype": "Community"}),
+            organization_service=pretend.stub(),
+            user=pretend.stub(emails=[]),
+        )
+
+        form.validate_link_url(pretend.stub(data="https://example.com"))
+
 
 class TestSaveOrganizationNameForm:
     def test_save(self, pyramid_request):
