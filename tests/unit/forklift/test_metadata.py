@@ -126,6 +126,28 @@ class TestValidation:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, field_name)
 
+    @pytest.mark.parametrize(
+        "field_name", ["author", "author_email", "maintainer", "maintainer_email"]
+    )
+    @pytest.mark.parametrize("from_file", [False, True])
+    def test_encoded_credits_are_rejected(self, field_name, from_file):
+        value = "=?utf-8?q?Jos=C3=A9?="
+        if field_name.endswith("_email"):
+            value += " <jose@example.com>"
+        header = field_name.replace("_", "-")
+        content = (
+            f"Metadata-Version: 2.1\nName: spam\nVersion: 2.0\n{header}: {value}\n"
+        ).encode()
+        data = MultiDict(
+            metadata_version="2.1", name="spam", version="2.0", **{field_name: value}
+        )
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(
+                content if from_file else None,
+                form_data=None if from_file else data,
+            )
+        _assert_invalid_metadata(excinfo.value, header)
+
     @pytest.mark.parametrize("field_name", ["author_email", "maintainer_email"])
     def test_valid_emails(self, field_name):
         data = MultiDict(
