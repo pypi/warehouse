@@ -130,6 +130,18 @@ class TestMockStripeBillingService:
         assert customer is not None
         assert customer["id"]
 
+    def test_list_subscriptions(self, billing_service, mocker):
+        # status="all" is required: the list endpoint omits canceled
+        # subscriptions by default, and those are what reconciliation looks for.
+        list_subscriptions = mocker.patch.object(
+            billing_service.api.Subscription, "list"
+        )
+
+        billing_service.list_subscriptions()
+
+        list_subscriptions.assert_called_once_with(status="all", limit=100)
+        list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
+
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
 
