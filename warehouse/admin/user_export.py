@@ -325,7 +325,7 @@ def _capped_total(db: Session, rows: Sized, count: Select[int]) -> tuple[int, bo
 
 # One uploaded release, as selected by `_membership_sections`:
 # project_id, version, created, uploaded_via.
-_UploadRow = Row[UUID, str, datetime.datetime, str | None]
+type _UploadRow = Row[UUID, str, datetime.datetime, str | None]
 
 
 def _release_ref(release: _UploadRow) -> dict:
