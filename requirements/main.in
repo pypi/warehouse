@@ -11,7 +11,7 @@ celery-redbeat
 certifi
 click
 cryptography>=50.0.1
-datadog>=0.53.0
+datadog>=0.54.0
 disposable-email-domains
 dnspython
 email-validator
@@ -20,7 +20,6 @@ github-reserved-names>=2026.6.1
 google-cloud-bigquery
 google-cloud-storage
 hiredis
-html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
@@ -38,7 +37,7 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-platformdirs>=4.11.8
+platformdirs>=4.11.12
 premailer
 psycopg[binary]
 pydantic
@@ -55,9 +54,7 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-# TODO: 2.14 rejects noncanonical signatures in our dummy OIDC JWTs.
-# Upgrade with corrected fixtures in its own PR; this also defers security fixes.
-PyJWT[crypto]>=2.13.0,<2.14
+PyJWT[crypto]>=2.15.1
 readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0

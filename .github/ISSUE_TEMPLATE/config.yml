@@ -1,17 +1,19 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Python Infrastructure Status Page
+    url: https://status.python.org/
+    about: Check here first for ongoing outages or incidents affecting PyPI.
+  - name: PyPI Support
+    url: https://github.com/pypi/support/issues/new/choose
+    about: >-
+      Account recovery, 2FA, network or connection problems, limit increases,
+      organizations, and name retention requests.
+  - name: PyPI User Documentation
+    url: https://docs.pypi.org/
+    about: Official PyPI documentation. Please check here before opening an issue.
+  - name: PyPI Developer Documentation
+    url: https://warehouse.pypa.io/
+    about: Documentation for developers working on PyPI.
   - name: "(Maintainers Only) Blank issue"
     url: https://github.com/pypi/warehouse/issues/new
     about: For maintainers only.
-  - name: PyPI User Documentation
-    url: https://docs.pypi.org/
-    about: Official PyPI documentation - please check here before opening an issue.
-  - name: PyPI Developer Documentation
-    url: https://warehouse.pypa.io/
-    about: Official PyPI documentation for developers working on PyPI
-  - name: Account Recovery / Assistance
-    url: https://github.com/pypi/support/issues/new?template=account-recovery.yml
-    about: Request assitance with account recovery (Lost access, MFA keys)
-  - name: General Support
-    url: https://github.com/pypi/support/
-    about: Ask for support through the official queue (PEP 541, account recovery, namesquatting)
