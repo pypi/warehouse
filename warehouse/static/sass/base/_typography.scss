@@ -195,9 +195,8 @@ figure:last-child {
 hr {
   margin: (grid.$spacing-unit * 1.5) 0;
   border: 0;
-  height: 2px;
-  background: colors.$border-color;
-  background-image: linear-gradient(to right, colors.$border-color, colors.$white);
+  height: 1px;
+  background: colors.$base-grey;
 }
 
 // Pre-formatted text

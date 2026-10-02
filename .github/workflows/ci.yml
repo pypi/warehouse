@@ -64,6 +64,8 @@ jobs:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+        # Put tombi's schema cache somewhere actions/cache can reach it.
+        TOMBI_CACHE_HOME: .cache/tombi
     permissions:
       id-token: write
     services:
@@ -97,6 +99,22 @@ jobs:
           path: |
               .cache/mypy
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+      - name: Cache tombi schemas
+        if: ${{ (matrix.name == 'Lint') }}
+        id: tombi-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+              .cache/tombi
+          key: ${{ runner.os }}-tombi-${{ hashFiles('requirements/lint.txt') }}
+      # `tombi lint --offline` reads the schemas the bundled pyproject schema
+      # refers to from this cache and never reaches for the network. Fetch them
+      # once on a miss; a schemastore outage here costs us the subschema
+      # validation for that run rather than the whole job.
+      - name: Warm tombi schema cache
+        if: ${{ (matrix.name == 'Lint') && (steps.tombi-cache.outputs.cache-hit != 'true') }}
+        continue-on-error: true
+        run: tombi lint pyproject.toml
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
 

@@ -35,6 +35,14 @@ table.dataTable {
   text-overflow: clip;
 }
 
+/* Tabulator keeps the table's `table` class on its root, so AdminLTE's
+   `.table td` padding and border also land on the plain <table> it builds
+   for the columns folded under a row on narrow screens. */
+.tabulator.table .tabulator-responsive-collapse td {
+  padding: 0.25rem 0.5rem;
+  border-top: 0;
+}
+
 .preserve-line-breaks {
   white-space: pre-line;
 }

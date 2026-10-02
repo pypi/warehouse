@@ -1832,7 +1832,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+            self.request.db.flush()  # ast-grep-ignore: db-flush -- To get the new ID
         except UniqueViolation:
             # Double-post protection. The failed INSERT leaves the transaction
             # in an aborted state, so roll back before redirecting -- otherwise

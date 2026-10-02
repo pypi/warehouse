@@ -263,7 +263,7 @@ def mint_token(
             reified_publisher = oidc_service.reify_pending_publisher(
                 pending_publisher, new_project
             )
-            request.db.flush()  # reified_publisher.id  # ast-grep-ignore: db-flush
+            request.db.flush()  # ast-grep-ignore: db-flush -- reified_publisher.id
             new_project.record_event(
                 tag=EventTag.Project.OIDCPublisherAdded,
                 request=request,

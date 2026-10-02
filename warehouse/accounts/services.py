@@ -304,7 +304,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
-        self.db.flush()  # generate user.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate user.id
 
         return user
 
@@ -343,7 +343,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
-        self.db.flush()  # generate email.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate email.id
 
         if ratelimit:
             self.ratelimiters["email.add"].hit(self.remote_addr)
@@ -646,7 +646,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
-        self.db.flush()  # generate webauthn.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate webauthn.id
 
         return webauthn
 
@@ -807,7 +807,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
-            request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
+            request.db.flush()  # ast-grep-ignore: db-flush -- generaten token id
             user.record_event(
                 tag=EventTag.Account.LoginNewDevice,
                 request=request,
@@ -933,7 +933,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
-            self.db.flush()  # generate the id  # ast-grep-ignore: db-flush
+            self.db.flush()  # ast-grep-ignore: db-flush -- generate the id
         except UniqueViolation:
             self.db.rollback()
             raise ValueError(
