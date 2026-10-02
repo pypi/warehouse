@@ -76,8 +76,7 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id", "oidc_provider_id", "project_id"),
     )
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-oidc',
@@ -85,8 +84,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():

@@ -85,9 +85,9 @@ const transformAssertion = (assertion) => {
 };
 
 const transformCredentialOptions = (credentialOptions) => {
-  let {challenge, user} = credentialOptions;
+  let {user} = credentialOptions;
   user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
-  challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
+  const challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
 
   const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
 

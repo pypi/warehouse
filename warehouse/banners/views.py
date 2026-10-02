@@ -21,7 +21,7 @@ def list_banner_messages(request):
     else:
         today = datetime.date.today()
         query = request.db.query(Banner).filter(
-            (Banner.active == True) & (Banner.end >= today)  # noqa
+            (Banner.active == True) & (Banner.end >= today)  # noqa: E712
         )
 
     return {"banners": query.all()}

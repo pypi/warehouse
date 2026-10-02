@@ -79,15 +79,14 @@ def api_projects_observations(project: Project, request: Request) -> dict:
     # One case of needing more complex validation that OpenAPI does not yet support.
     # Here we express a dependency between fields, but the validity of the inspector_url
     # is handled by the OpenAPI schema.
-    if kind == ObservationKind.IsMalware:
-        if "inspector_url" not in data:
-            raise HTTPBadRequest(
-                json={
-                    "error": "missing required fields",
-                    "missing": ["inspector_url"],
-                    "project": project.name,
-                },
-            )
+    if kind == ObservationKind.IsMalware and "inspector_url" not in data:
+        raise HTTPBadRequest(
+            json={
+                "error": "missing required fields",
+                "missing": ["inspector_url"],
+                "project": project.name,
+            },
+        )
 
     # Manually add an origin field to the observation for tracking
     data["origin"] = "api"

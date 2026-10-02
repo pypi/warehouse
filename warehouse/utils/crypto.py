@@ -16,8 +16,8 @@ from itsdangerous import (
 __all__ = [
     "BadData",
     "BadSignature",
-    "Signer",
     "SignatureExpired",
+    "Signer",
     "TimestampSigner",
     "URLSafeTimedSerializer",
     "random_token",

@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from urllib3.util import parse_url
 
-import warehouse.utils.otp as otp
+from warehouse.utils import otp
 
 
 def test_generate_totp_secret():

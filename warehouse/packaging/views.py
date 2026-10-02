@@ -1,12 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import cast
+import pypi_attestations
 
 from natsort import natsorted
 from pypi_attestations import (
     Attestation,
-    GitHubPublisher,
-    GitLabPublisher,
     Publisher,
     TransparencyLogEntry,
 )
@@ -15,16 +13,24 @@ from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
-from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.utils import wheel
 
 
 class PEP740AttestationViewer:
-
     def __init__(self, publisher: Publisher, attestation: Attestation):
         self.publisher = publisher
         self.attestation = attestation
@@ -35,10 +41,10 @@ class PEP740AttestationViewer:
 
         Reference can either be a hash or a named revision.
         """
-        match self.publisher.kind:
-            case "GitHub":
+        match self.publisher:
+            case pypi_attestations.GitHubPublisher():
                 return f"{base_url}/tree/{reference}"
-            case "GitLab":
+            case pypi_attestations.GitLabPublisher():
                 reference = reference.removeprefix("refs/heads/")
                 return f"{base_url}/-/tree/{reference}"
             case _:
@@ -80,13 +86,7 @@ class PEP740AttestationViewer:
     @property
     def workflow_filename(self) -> str:
         """The filename of the workflow configuration."""
-        match self.publisher.kind:
-            case "GitHub":
-                return cast(GitHubPublisher, self.publisher).workflow
-            case "GitLab":
-                return cast(GitLabPublisher, self.publisher).workflow_filepath
-            case _:
-                return ""
+        return publisher_workflow(self.publisher) or ""
 
     @property
     def workflow_url(self) -> str:
@@ -142,6 +142,11 @@ class PEP740AttestationViewer:
         return self.claims.get("1.3.6.1.4.1.57264.1.22", "")
 
     @property
+    def run_invocation_uri(self) -> str:
+        """Run Invocation URI — link to the specific build or publish run."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.21", "")
+
+    @property
     def permalink_with_digest(self) -> str:
         """Construct a permalink using the source digest."""
         return self._format_url(self.source, self.source_digest)
@@ -158,7 +163,8 @@ class PEP740AttestationViewer:
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -172,6 +178,9 @@ def project_detail(project, request):
             request.db.query(Release)
             .filter(Release.project == project)
             .order_by(
+                Release.lifecycle_status.is_not_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
                 Release.yanked,
                 Release.is_prerelease.nullslast(),
                 Release._pypi_ordering.desc(),
@@ -191,7 +200,8 @@ def project_detail(project, request):
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -268,31 +278,26 @@ def release_detail(release, request):
     )
 
     # Collect all the available bdist details to enable building filters.
-    wheel_filters_all = wheel.filenames_to_filters([bdist.filename for bdist in bdists])
+    wheel_filters_all = wheel.filenames_to_grouped_labels(
+        [bdist.filename for bdist in bdists]
+    )
 
-    # Get the querystring to load any pre-set parameters
-    wheel_filters_params = {
-        "filename": request.params.get("filename", ""),
-        "interpreters": request.params.get("interpreters", ""),
-        "abis": request.params.get("abis", ""),
-        "platforms": request.params.get("platforms", ""),
-    }
+    all_files = sdists + bdists
 
     return {
         "project": project,
         "release": release,
         "description": description_html,
-        "files": sdists + bdists,
+        "files": all_files,
         "sdists": sdists,
         "bdists": bdists,
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
-        # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
         "wheel_filters_all": wheel_filters_all,
-        "wheel_filters_params": wheel_filters_params,
+        "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
     }
 
 

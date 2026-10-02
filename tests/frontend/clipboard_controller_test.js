@@ -33,6 +33,7 @@ const clipboardContent = `
 describe("ClipboardController", () => {
   beforeEach(() => {
     document.body.innerHTML = clipboardContent;
+    window.plausible = jest.fn();
     const application = Application.start();
     application.register("clipboard", ClipboardController);
   });
@@ -53,6 +54,24 @@ describe("ClipboardController", () => {
 
       // Check that the tooltip text was reset
       expect(button.dataset.clipboardTooltipValue).toEqual("Copy to clipboard");
+    });
+
+    it("tracks the configured plausible event", () => {
+      document.querySelector("[data-controller='clipboard']")
+        .dataset.clipboardPlausibleEventValue = "Copy Project Install Command";
+      const button = document.querySelector(".copy-tooltip");
+
+      button.click();
+
+      expect(window.plausible).toHaveBeenCalledWith("Copy Project Install Command");
+    });
+
+    it("does not track when there is no configured plausible event", () => {
+      const button = document.querySelector(".copy-tooltip");
+
+      button.click();
+
+      expect(window.plausible).not.toHaveBeenCalled();
     });
   });
 });

@@ -70,16 +70,14 @@ class TestConsoleHelpDeskService:
 
         captured = capsys.readouterr()
 
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Observation created
             request_json:
             {'email': 'foo@example.com',
              'message': 'Hello, World!',
              'name': 'Foo Bar',
              'subject': 'Test'}
-            """
-        )
+            """)
         assert captured.out == expected
 
 
@@ -249,13 +247,11 @@ class TestConsoleAdminNotificationService:
 
         captured = capsys.readouterr()
 
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Webhook notification sent
             payload:
             {'text': 'Hello, World!'}
-            """
-        )
+            """)
         assert captured.out == expected
 
 

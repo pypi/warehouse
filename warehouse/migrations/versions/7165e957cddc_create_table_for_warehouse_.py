@@ -24,26 +24,22 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     # Insert our initial flags.
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO warehouse_admin_flag(id, description, enabled)
         VALUES (
             'disallow-new-user-registration',
             'Disallow ALL new User registrations',
             FALSE
         )
-    """
-    )
-    op.execute(
-        """
+    """)
+    op.execute("""
         INSERT INTO warehouse_admin_flag(id, description, enabled)
         VALUES (
             'disallow-new-project-registration',
             'Disallow ALL new Project registrations',
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():

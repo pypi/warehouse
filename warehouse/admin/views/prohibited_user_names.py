@@ -27,7 +27,7 @@ def prohibited_usernames(request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     prohibited_user_names_query = request.db.query(ProhibitedUserName).order_by(
-        ProhibitedUserName.created.desc()
+        ProhibitedUserName.created.desc(), ProhibitedUserName.id.desc()
     )
 
     if q:

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -30,7 +30,7 @@ class TestParseDaysParam:
     )
     def test_parse_days_param(self, db_request, params, expected):
         db_request.params = params
-        assert views._parse_days_param(db_request) == expected
+        assert views.parse_days_param(db_request) == expected
 
     @pytest.mark.parametrize(
         ("params", "expected"),
@@ -44,7 +44,7 @@ class TestParseDaysParam:
     def test_parse_days_param_with_detail_allowed(self, db_request, params, expected):
         """Test parsing days with ALLOWED_DAYS_DETAIL (includes 0 for lifetime)."""
         db_request.params = params
-        result = views._parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
+        result = views.parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
         assert result == expected
 
 
@@ -100,7 +100,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -127,7 +127,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -153,7 +153,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         # 3 true positives
         for _ in range(3):
             ProjectObservationFactory.create(
@@ -332,7 +332,7 @@ class TestObserverDetail:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # True positive (removed)
         ProjectObservationFactory.create(
@@ -377,7 +377,7 @@ class TestObserverDetail:
 
 
 class TestAggregateWeeklyTimeSeries:
-    def test_time_series_empty(self, db_request):
+    def test_time_series_empty(self):
         """Test time series with no observations."""
         result = views._aggregate_weekly_time_series([])
 
@@ -466,7 +466,7 @@ class TestGetObserverDetailStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create one of each type
         ProjectObservationFactory.create(

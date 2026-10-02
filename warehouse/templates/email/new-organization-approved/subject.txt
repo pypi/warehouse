@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created{% endtrans %}{% endblock %}
+{% block subject %}{% if organization_type == 'Company' %}{% trans organization_name=organization_name %}[Action Required] Your new organization named '{{ organization_name }}' has been approved and created{% endtrans %}{% else %}{% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created{% endtrans %}{% endif %}{% endblock %}

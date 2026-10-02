@@ -104,7 +104,7 @@ class Service:
         self.class_name = "h-captcha"
 
     @classmethod
-    def create_service(cls, context, request) -> "Service":
+    def create_service(cls, context, request) -> Service:
         return cls(
             request=request,
             script_src_url="https://js.hcaptcha.com/1/api.js",
@@ -157,7 +157,7 @@ class Service:
             data = resp.json()
         except ValueError as e:
             raise UnexpectedError(
-                f'Unexpected data in response body: {str(resp.content, "utf-8")}'
+                f"Unexpected data in response body: {str(resp.content, 'utf-8')}"
             ) from e
 
         if "success" not in data:

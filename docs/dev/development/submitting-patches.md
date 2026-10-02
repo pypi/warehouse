@@ -18,10 +18,11 @@ directions on the [security page](../security/index.md).
 
 ## Code
 
-When in doubt, refer to [the Black Code Style](https://github.com/psf/black#the-black-code-style) for Python code formatting. You
-can reformat your code according to this code style by running `make reformat`
-against it. You can check if your code meets all our automated requirements by
-running `make lint` against it.
+When in doubt, refer to [the Black Code Style](https://github.com/psf/black#the-black-code-style)
+with the [known ruff deviations](https://docs.astral.sh/ruff/formatter/#style-guide) for
+Python code formatting. You can reformat your code according to this code style by
+running `make reformat` against it. You can check if your code meets all our automated
+requirements by running `make lint` against it.
 
 [Write comments as complete sentences.](https://nedbatchelder.com/blog/201401/comments_should_be_sentences.html)
 

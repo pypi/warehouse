@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
+from datetime import UTC, datetime
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
@@ -37,11 +36,11 @@ class TestIpAddressList:
         )
         assert result["q"] is None
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            ip_views.ip_address_list(request)
+            ip_views.ip_address_list(pyramid_request)
 
 
 class TestIpAddressDetail:
@@ -92,19 +91,17 @@ class TestBanIpAddress:
         with pytest.raises(HTTPBadRequest):
             ip_views.ban_ip(db_request)
 
-    def test_ban_ip_address_already_banned(self, db_request):
+    def test_ban_ip_address_already_banned(self, db_request, mocker):
         ip_address = IpAddressFactory.create(
             is_banned=True,
             ban_reason=BanReason.ADMINISTRATIVE,
-            ban_date=datetime.utcnow(),
+            ban_date=datetime.now(UTC),
         )
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
-        db_request.route_path = pretend.stub(
-            __call__=(
-                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
-            )
+        db_request.route_path = lambda *args, **kwargs: (
+            f"/admin/ip-addresses/{ip_address.ip_address}"
         )
-        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+        mocker.spy(db_request.session, "flash")
 
         resp = ip_views.ban_ip(db_request)
 
@@ -113,22 +110,17 @@ class TestBanIpAddress:
         assert ip_address.is_banned
         assert ip_address.ban_reason == BanReason.ADMINISTRATIVE
         assert ip_address.ban_date is not None
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"IP address {ip_address.ip_address} is already banned.",
-                queue="warning",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"IP address {ip_address.ip_address} is already banned.", queue="warning"
+        )
 
-    def test_ban_ip_address_banned(self, db_request):
+    def test_ban_ip_address_banned(self, db_request, mocker):
         ip_address = IpAddressFactory.create(is_banned=False)
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
-        db_request.route_path = pretend.stub(
-            __call__=(
-                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
-            )
+        db_request.route_path = lambda *args, **kwargs: (
+            f"/admin/ip-addresses/{ip_address.ip_address}"
         )
-        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+        mocker.spy(db_request.session, "flash")
 
         resp = ip_views.ban_ip(db_request)
 
@@ -152,15 +144,13 @@ class TestUnbanIpAddress:
         with pytest.raises(HTTPBadRequest):
             ip_views.unban_ip(db_request)
 
-    def test_unban_ip_address_already_unbanned(self, db_request):
+    def test_unban_ip_address_already_unbanned(self, db_request, mocker):
         ip_address = IpAddressFactory.create(is_banned=False)
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
-        db_request.route_path = pretend.stub(
-            __call__=(
-                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
-            )
+        db_request.route_path = lambda *args, **kwargs: (
+            f"/admin/ip-addresses/{ip_address.ip_address}"
         )
-        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+        mocker.spy(db_request.session, "flash")
 
         resp = ip_views.unban_ip(db_request)
 
@@ -169,26 +159,21 @@ class TestUnbanIpAddress:
         assert not ip_address.is_banned
         assert ip_address.ban_reason is None
         assert ip_address.ban_date is None
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"IP address {ip_address.ip_address} is not banned.",
-                queue="warning",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"IP address {ip_address.ip_address} is not banned.", queue="warning"
+        )
 
-    def test_unban_ip_address_unbanned(self, db_request):
+    def test_unban_ip_address_unbanned(self, db_request, mocker):
         ip_address = IpAddressFactory.create(
             is_banned=True,
             ban_reason=BanReason.ADMINISTRATIVE,
-            ban_date=datetime.utcnow(),
+            ban_date=datetime.now(UTC),
         )
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
-        db_request.route_path = pretend.stub(
-            __call__=(
-                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
-            )
+        db_request.route_path = lambda *args, **kwargs: (
+            f"/admin/ip-addresses/{ip_address.ip_address}"
         )
-        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+        mocker.spy(db_request.session, "flash")
 
         resp = ip_views.unban_ip(db_request)
 

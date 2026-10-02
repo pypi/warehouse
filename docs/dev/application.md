@@ -71,7 +71,7 @@ The top-level directory of the Warehouse repo contains files including:
 - `requirements.txt` for the Warehouse virtual environment
 - `Dockerfile`: creates the Docker containers that Warehouse runs in
 - `docker-compose.yml` file configures Docker Compose
-- `setup.cfg` for test configuration
+- `pyproject.toml` for tool configuration
 - `Makefile`: commands to spin up Docker Compose and the Docker
   containers, run the linter and other tests, etc.
 - files associated with Warehouse's front end, e.g.,

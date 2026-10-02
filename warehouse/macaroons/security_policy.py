@@ -4,18 +4,23 @@ import base64
 
 from pyramid.authorization import ACLHelper
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.request import RequestLocalCache
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.utils import UserContext
-from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.utils.security_policy import AuthenticationMethod, principals_for
+from warehouse.predicates import auth_methods_for_route
+from warehouse.utils.security_policy import (
+    AuthenticationMethod,
+    permission_allowed_by_authentication_method,
+    principals_for,
+)
 
 
 def _extract_basic_macaroon(auth):
@@ -37,16 +42,18 @@ def _extract_basic_macaroon(auth):
         return None
 
     # Strip leading/trailing whitespace characters from the macaroon
-    auth = auth.strip()
-
-    return auth
+    return auth.strip()
 
 
+@RequestLocalCache()
 def _extract_http_macaroon(request):
     """
     A helper function for the extraction of HTTP Macaroon from a given request.
     Returns either a None if no macaroon could be found, or the string
     that represents our serialized macaroon.
+
+    Cached per request: both ``identity`` and ``permits`` need the token, and
+    the auth-method metric should count each request once.
     """
     authorization = request.headers.get("Authorization")
     if not authorization:
@@ -60,13 +67,11 @@ def _extract_http_macaroon(request):
     auth_method = auth_method.lower()
 
     metrics = request.find_service(IMetricsService, context=None)
-    # TODO: As this is called in both `identity` and `permits`, we're going to
-    #       end up double counting the metrics.
     metrics.increment("warehouse.macaroon.auth_method", tags=[f"method:{auth_method}"])
 
     if auth_method == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method in ["token", "bearer"]:
+    if auth_method in ["token", "bearer"]:
         return auth
 
     return None
@@ -84,6 +89,15 @@ class MacaroonSecurityPolicy:
         request.add_response_callback(add_vary_callback("Authorization"))
         request.authentication_method = AuthenticationMethod.MACAROON
 
+        # A route must be matched
+        if not request.matched_route:
+            return None
+
+        # Honor explicit auth_methods declarations on the route.
+        allowed = auth_methods_for_route(request.matched_route)
+        if allowed is not None and AuthenticationMethod.MACAROON not in allowed:
+            return None
+
         # We need to extract our Macaroon from the request.
         macaroon = _extract_http_macaroon(request)
         if macaroon is None:
@@ -94,7 +108,7 @@ class MacaroonSecurityPolicy:
         macaroon_service = request.find_service(IMacaroonService, context=None)
 
         try:
-            dm = macaroon_service.find_from_raw(macaroon)
+            dm = macaroon_service.verify_signature_only(macaroon)
             oidc_claims = (
                 dm.additional.get("oidc")
                 if dm.oidc_publisher and dm.additional
@@ -131,29 +145,17 @@ class MacaroonSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Re-extract our Macaroon from the request, it sucks to have to do this work
-        # twice, but I believe it is inevitable unless we pass the Macaroon back as
-        # a principal-- which doesn't seem to be the right fit for it.
+        # Cached from ``identity``, so this is the same token that produced the
+        # identity we are now authorizing.
         macaroon = _extract_http_macaroon(request)
 
         # It should not be possible to *not* have a macaroon at this point, because we
         # can't call this function without an identity that came from a macaroon
         assert isinstance(macaroon, str), "no valid macaroon"
 
-        # Check to make sure that the permission we're attempting to permit is one that
-        # is allowed to be used for macaroons.
-        # TODO: This should be moved out of there and into the macaroons themselves, it
-        #       doesn't really make a lot of sense here and it makes things more
-        #       complicated if we want to allow the use of macaroons for actions other
-        #       than uploading.
-        if permission not in [
-            Permissions.ProjectsUpload,
-            # TODO: Adding API-specific routes here is not sustainable. However,
-            #  removing this guard would allow Macaroons to be used for Session-based
-            #  operations, bypassing any 2FA requirements.
-            Permissions.APIEcho,
-            Permissions.APIObservationsAdd,
-        ]:
+        if not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        ):
             return WarehouseDenied(
                 f"API tokens are not valid for permission: {permission}!",
                 reason="invalid_permission",

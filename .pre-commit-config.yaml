@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: translations
+        name: translations
+        entry: make translations
+        language: system
+        files: '\.py$|\.html$|babel\.cfg$'
+        pass_filenames: false
+
+      - id: reformat
+        name: reformat
+        entry: make reformat
+        language: system
+        files: '\.py$|\.html$'
+        pass_filenames: false
+
+      - id: static-lint
+        name: static-lint
+        entry: make static_lint
+        language: system
+        files: '\.scss$|\.js$'
+        pass_filenames: false

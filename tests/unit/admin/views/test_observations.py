@@ -1,65 +1,537 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-import pretend
 import pytest
 
-from warehouse.admin.views import observations as views
-from warehouse.observations.models import Observation
+from pyramid.httpexceptions import HTTPBadRequest
+from sqlalchemy.dialects import postgresql
 
-from ....common.db.accounts import UserFactory
+from warehouse.admin.views import helpers, observations as views
+from warehouse.observations.models import ObservationKind
+
+from ....common.db.accounts import UserFactory, UserObservationFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
+)
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ProjectObservationFactory,
+    ReleaseObservationFactory,
 )
 
 
-class TestObservationsList:
-    def test_observations_list(self):
-        request = pretend.stub(
-            db=pretend.stub(
-                query=pretend.call_recorder(
-                    lambda *a: pretend.stub(
-                        order_by=lambda *a: pretend.stub(all=lambda: [])
-                    )
-                )
+def _tabulator_params(*, page=None, size=None, sort=None, filters=None):
+    """Build the query-string dict Tabulator sends in remote mode."""
+    params = {}
+    if page is not None:
+        params["page"] = str(page)
+    if size is not None:
+        params["size"] = str(size)
+    if sort is not None:
+        params["sort[0][field]"] = sort[0]
+        params["sort[0][dir]"] = sort[1]
+    for i, (field, value) in enumerate((filters or {}).items()):
+        params[f"filter[{i}][field]"] = field
+        params[f"filter[{i}][type]"] = "like"
+        params[f"filter[{i}][value]"] = value
+    return params
+
+
+def _parse(params):
+    """Run the shared parser with this view's allowlists."""
+    return helpers.parse_tabulator_params(
+        params,
+        sortable_fields=views._SORTABLE_FIELDS,
+        default_sort_field="created",
+        filter_fields=views._FILTER_FIELDS,
+    )
+
+
+class TestParseTabulatorParams:
+    def test_defaults(self):
+        parsed = _parse({})
+        assert parsed.page == 1
+        assert parsed.size == 25
+        assert parsed.sort_field == "created"
+        assert parsed.sort_dir == "desc"
+        assert parsed.filters == {}
+
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [(-5, 1), (0, 1), (25, 25), (100, 100), (1000, 100)],
+    )
+    def test_size_clamping(self, raw, expected):
+        parsed = _parse(_tabulator_params(size=raw))
+        assert parsed.size == expected
+
+    def test_page_clamped_to_one(self):
+        parsed = _parse(_tabulator_params(page=-3))
+        assert parsed.page == 1
+
+    @pytest.mark.parametrize(
+        "overrides",
+        [
+            pytest.param({"page": "nope"}, id="bad_page"),
+            pytest.param({"size": "nope"}, id="bad_size"),
+            pytest.param({"page": "999999"}, id="page_too_deep"),
+            pytest.param(
+                {"sort[0][field]": "kind", "sort[0][dir]": "sideways"},
+                id="bad_sort_dir",
+            ),
+            pytest.param(
+                {"filter[0][field]": "summary", "filter[0][value]": "x" * 501},
+                id="oversized_filter",
+            ),
+        ],
+    )
+    def test_malformed_input_raises(self, overrides):
+        with pytest.raises(HTTPBadRequest):
+            _parse(_tabulator_params() | overrides)
+
+    def test_sort_params(self):
+        parsed = _parse(_tabulator_params(sort=("kind", "asc")))
+        assert parsed.sort_field == "kind"
+        assert parsed.sort_dir == "asc"
+
+    @pytest.mark.parametrize("field", ["summary", "related", "nonsense"])
+    def test_unsortable_field_falls_back_to_default(self, field):
+        parsed = _parse(_tabulator_params(sort=(field, "asc")))
+        assert parsed.sort_field == "created"
+        assert parsed.sort_dir == "desc"
+
+    @pytest.mark.parametrize(
+        ("raw_kind", "expected"),
+        [
+            pytest.param("is_malware", "is_malware", id="known_kind"),
+            # The parser allowlists field names, not values; an unrecognized
+            # kind is rejected by the view's own `_parse_params`.
+            pytest.param("not_a_real_kind", "not_a_real_kind", id="unknown_kind"),
+            pytest.param("", None, id="empty_kind_is_dropped"),
+        ],
+    )
+    def test_kind_filter(self, raw_kind, expected):
+        parsed = _parse(
+            _tabulator_params(filters={"kind": raw_kind} if raw_kind else None)
+        )
+        assert parsed.filters.get("kind") == expected
+
+    def test_summary_filter(self):
+        parsed = _parse(_tabulator_params(filters={"summary": "needle"}))
+        assert parsed.filters == {"summary": "needle"}
+
+    def test_unknown_filter_field_is_ignored(self):
+        parsed = _parse(_tabulator_params(filters={"nonsense": "value"}))
+        assert parsed.filters == {}
+
+    def test_empty_filter_value_is_ignored(self):
+        params = {"filter[0][field]": "kind", "filter[0][value]": ""}
+        parsed = _parse(params)
+        assert parsed.filters == {}
+
+
+class TestParseParams:
+    """The view's own layer on top of the shared parser."""
+
+    def test_accepts_a_known_kind(self, db_request):
+        db_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        assert views._parse_params(db_request).filters == {"kind": "is_malware"}
+
+    def test_rejects_an_unknown_kind(self, db_request):
+        """
+        Letting it through would scan every observation table to return
+        nothing, reporting the typo as an empty table.
+        """
+        db_request.GET.update(_tabulator_params(filters={"kind": "not_a_kind"}))
+        with pytest.raises(HTTPBadRequest):
+            views._parse_params(db_request)
+
+
+def _compile(stmt):
+    """Compile a statement against the PostgreSQL dialect with literal binds."""
+    return str(
+        stmt.compile(
+            dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+        )
+    )
+
+
+def _parsed(**overrides) -> helpers.TabulatorParams:
+    """Build a _TabulatorParams with defaults that match the HTML-shell values."""
+    fields: dict[str, object] = {
+        "page": 1,
+        "size": 25,
+        "sort_field": "created",
+        "sort_dir": "desc",
+        "filters": {},
+    }
+    fields.update(overrides)
+    return helpers.TabulatorParams(**fields)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("kind", list(ObservationKind))
+def test_every_kind_is_mapped(kind):
+    """The kind dropdown offers every ObservationKind, so a missing entry is a
+    dead link the moment an admin selects it."""
+    assert kind.value[0] in views._KIND_TO_ADMIN_ROUTE
+
+
+class TestBuildObservationsQuery:
+    # db_request triggers ORM configuration so Observation.related_name (an
+    # AbstractConcreteBase-aggregated column) is resolvable in compile-only tests.
+    pytestmark = pytest.mark.usefixtures("db_request")
+
+    def test_kind_filter_keeps_the_polymorphic_union(self):
+        """The admin release page offers every kind, so an "Is Malware" report
+        can sit in release_observations as readily as in project_observations.
+        Narrowing to one table would drop the other from a filtered page."""
+        compiled = _compile(
+            views._build_observations_query(_parsed(filters={"kind": "is_malware"}))
+        )
+        assert "release_observations" in compiled
+        assert "UNION ALL" in compiled
+
+    def test_no_kind_filter_uses_polymorphic_union(self):
+        compiled = _compile(views._build_observations_query(_parsed()))
+        assert "UNION ALL" in compiled
+
+    def test_search_filter_matches_summary_and_related_name(self):
+        compiled = _compile(
+            views._build_observations_query(
+                _parsed(filters={"summary": "malicious", "kind": "is_malware"})
             )
         )
-        assert views.observations_list(request) == {"kind_groups": defaultdict(list)}
-        assert request.db.query.calls == [pretend.call(Observation)]
+        assert "malicious" in compiled
+        assert compiled.lower().count("like") == 2
 
-    def test_observations_list_with_observations(self):
-        observations = [
-            Observation(
-                kind="is_spam",
-                summary="This is spam",
-                payload={},
-            ),
-            Observation(
-                kind="is_spam",
-                summary="This is also spam",
-                payload={},
-            ),
-        ]
+    def test_search_filter_escapes_like_wildcards(self):
+        """A literal % in a summary search is not a wildcard."""
+        compiled = _compile(
+            views._build_observations_query(_parsed(filters={"summary": "100%"}))
+        )
+        assert "100/%" in compiled
+        assert "ESCAPE" in compiled.upper()
 
-        request = pretend.stub(
-            db=pretend.stub(
-                query=pretend.call_recorder(
-                    lambda *a: pretend.stub(
-                        order_by=lambda *a: pretend.stub(all=lambda: observations)
-                    )
-                )
+    def test_page_query_breaks_ties_on_id(self):
+        """
+        Neither sortable column is unique, and paging is LIMIT/OFFSET over
+        separate statements, so a tied group has to order the same way twice.
+        """
+        compiled = _compile(views._build_observations_query(_parsed()))
+        order_by = compiled.upper().rsplit("ORDER BY", 1)[1]
+        assert "ID DESC" in order_by
+
+    @pytest.mark.parametrize(
+        ("sort_dir", "expect_desc_keyword"),
+        [("desc", True), ("asc", False)],
+    )
+    def test_sort_direction(self, sort_dir, expect_desc_keyword):
+        # ASC is the SQL default and SQLAlchemy omits it; only "desc" adds DESC.
+        compiled = _compile(
+            views._build_observations_query(
+                _parsed(sort_field="kind", sort_dir=sort_dir)
             )
         )
+        assert "ORDER BY" in compiled.upper()
+        assert (" DESC" in compiled.upper()) is expect_desc_keyword
 
-        assert views.observations_list(request) == {
-            "kind_groups": {"is_spam": observations}
+    def test_fetches_one_extra_row(self):
+        compiled = _compile(views._build_observations_query(_parsed(page=2, size=10)))
+        assert "LIMIT 11" in compiled
+        assert "OFFSET 10" in compiled
+
+
+class TestRenderTabulatorPayload:
+    def test_empty_database(self, route_request):
+        payload = views._render_tabulator_payload(route_request)
+        assert payload == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
         }
-        assert request.db.query.calls == [pretend.call(Observation)]
+
+    def test_returns_rows(self, route_request):
+        observer = ObserverFactory.create()
+        user = UserFactory.create(username="reporter-1")
+        user.observer = observer
+        project = ProjectFactory.create(name="evil-pkg")
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=project,
+            summary="malicious install hook",
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 1
+        assert len(payload["data"]) == 1
+        row = payload["data"][0]
+        assert row["kind"] == "is_malware"
+        assert row["kind_display"] == "Is Malware"
+        assert row["summary"] == "malicious install hook"
+        assert row["observer"] == "reporter-1"
+        assert row["observer_link"] == "/admin/users/reporter-1/"
+        assert row["related_link"] == "/admin/projects/evil-pkg/"
+
+    def test_pagination(self, route_request):
+        ProjectObservationFactory.create_batch(30, kind="is_malware")
+
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=2, size=10)
+        )
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 10
+
+    def test_kind_filter_narrows_results(self, route_request):
+        ProjectObservationFactory.create_batch(3, kind="is_malware")
+        ProjectObservationFactory.create_batch(2, kind="is_spam")
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 3
+        assert all(r["kind"] == "is_malware" for r in payload["data"])
+
+    def test_kind_filter_keeps_observations_on_releases(self, route_request):
+        """Admins record observations on releases as well as on projects, and
+        the unfiltered list shows both. Picking a kind must not quietly drop
+        one of them."""
+        ProjectObservationFactory.create(kind="is_malware")
+        ReleaseObservationFactory.create(kind="is_malware")
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 2
+
+    def test_summary_filter_matches_summary(self, route_request):
+        observer = ObserverFactory.create()
+        ProjectObservationFactory.create(
+            kind="is_malware", observer=observer, summary="extremely distinctive phrase"
+        )
+        ProjectObservationFactory.create_batch(
+            3, kind="is_malware", observer=observer, summary="boring"
+        )
+
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware", "summary": "distinctive"})
+        )
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 1
+        assert "distinctive" in payload["data"][0]["summary"]
+
+    def test_related_link_none_when_related_deleted(self, route_request):
+        observer = ObserverFactory.create()
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=None,
+            related_name="Project(id=None, name='deleted-pkg')",
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"][0]["related_link"] is None
+        assert payload["data"][0]["related"] == "deleted-pkg"
+
+    def test_observer_link_none_for_non_user_observer(self, route_request):
+        observer = ObserverFactory.create()  # Observer with no parent User
+        ProjectObservationFactory.create(kind="is_malware", observer=observer)
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"][0]["observer"] == ""
+        assert payload["data"][0]["observer_link"] is None
+
+    def test_user_observation_produces_user_link(self, route_request):
+        target_user = UserFactory.create(username="compromised-acct")
+        observer = ObserverFactory.create()
+        UserFactory.create(username="reporter").observer = observer
+        UserObservationFactory.create(
+            kind="account_abuse",
+            observer=observer,
+            related=target_user,
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "account_abuse"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"][0]["related_link"] == "/admin/users/compromised-acct/"
+
+    def test_organization_application_observation_produces_link(self, route_request):
+        org_app = OrganizationApplicationFactory.create()
+        observer = ObserverFactory.create()
+        OrganizationApplicationObservationFactory.create(
+            kind="information_request",
+            observer=observer,
+            related=org_app,
+        )
+
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "information_request"})
+        )
+        payload = views._render_tabulator_payload(route_request)
+
+        expected = f"/admin/organization_applications/{org_app.id}/"
+        assert payload["data"][0]["related_link"] == expected
+
+    def test_organization_application_note_produces_link(self, route_request):
+        org_app = OrganizationApplicationFactory.create()
+        observer = ObserverFactory.create()
+        OrganizationApplicationObservationFactory.create(
+            kind="admin_note",
+            observer=observer,
+            related=org_app,
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "admin_note"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        expected = f"/admin/organization_applications/{org_app.id}/"
+        assert payload["data"][0]["related_link"] == expected
+
+    def test_project_observation_with_unparseable_related_name(self, route_request):
+        """
+        A project observation whose related_name doesn't match the
+        Project(name='...') repr pattern should fall back to no link.
+        """
+        observer = ObserverFactory.create()
+        project = ProjectFactory.create()
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=project,
+            related_name="mangled-repr-without-name",
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"][0]["related_link"] is None
+        assert payload["data"][0]["related"] == "mangled-repr-without-name"
+
+    def test_user_observation_with_unparseable_related_name(self, route_request):
+        """
+        User observation with a still-present related_id but a related_name
+        the regex can't parse and render plain text and no link.
+        """
+        target_user = UserFactory.create()
+        observer = ObserverFactory.create()
+        UserObservationFactory.create(
+            kind="account_abuse",
+            observer=observer,
+            related=target_user,
+            related_name="not-a-parseable-repr",
+        )
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "account_abuse"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"][0]["related_link"] is None
+
+    def test_filtered_pagination_is_rolling(self, route_request):
+        """With filters active there is no count, only a next-page probe."""
+        ProjectObservationFactory.create_batch(
+            3, kind="is_malware", summary="needle phrase"
+        )
+
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, size=2)
+        )
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["last_page"] == 2
+        assert payload["total"] is None
+        assert payload["total_estimate"] is None
+
+    def test_filtered_final_page_reports_exact_total(self, route_request):
+        ProjectObservationFactory.create_batch(3, kind="is_malware")
+        ProjectObservationFactory.create_batch(2, kind="is_spam")
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["total"] == 3
+        assert payload["total_estimate"] is None
+
+    def test_unfiltered_last_page_uses_estimate(self, route_request):
+        ProjectObservationFactory.create_batch(10, kind="is_malware")
+
+        route_request.GET.update(_tabulator_params(size=2))
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["total"] is None
+        assert payload["total_estimate"] is not None
+
+    def test_last_page_capped_at_max_offset(self, route_request, monkeypatch):
+        monkeypatch.setattr(helpers, "TABULATOR_MAX_OFFSET", 4)
+        ProjectObservationFactory.create_batch(5, kind="is_malware")
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=2, size=2)
+        )
+
+        payload = views._render_tabulator_payload(route_request)
+
+        assert len(payload["data"]) == 2
+        assert payload["last_page"] == 2
+
+    def test_page_past_the_end_invents_no_total(self, route_request):
+        """
+        Everything skipped is an offset, not a count of rows that exist, so a
+        page starting past the data cannot report it as the total.
+        """
+        ProjectObservationFactory.create_batch(3, kind="is_malware")
+        route_request.GET.update(
+            _tabulator_params(filters={"kind": "is_malware"}, page=5, size=5)
+        )
+
+        payload = views._render_tabulator_payload(route_request)
+
+        assert payload["data"] == []
+        assert payload["total"] is None
+        assert payload["total_estimate"] is None
+
+    def test_observer_resolution_is_batched(self, route_request, query_recorder):
+        observer_a = ObserverFactory.create()
+        observer_b = ObserverFactory.create()
+        UserFactory.create(username="alice").observer = observer_a
+        UserFactory.create(username="bob").observer = observer_b
+        for observer in (observer_a, observer_b, observer_a, observer_b):
+            ProjectObservationFactory.create(kind="is_malware", observer=observer)
+
+        route_request.GET.update(_tabulator_params(filters={"kind": "is_malware"}))
+        with query_recorder:
+            views._render_tabulator_payload(route_request)
+        # Expected queries: statement timeout + main paginated query +
+        # observer resolution = 3. Regression sentinel for N+1s.
+        assert len(query_recorder.queries) == 3
+
+
+class TestObservationsListViews:
+    def test_html_view_returns_kinds(self, db_request):
+        result = views.observations_list(db_request)
+        assert result == {"observation_kinds": list(ObservationKind)}
+
+    def test_json_view_returns_payload(self, route_request):
+        result = views.observations_list_json(route_request)
+        assert set(result.keys()) == {
+            "last_page",
+            "total",
+            "total_estimate",
+            "data",
+        }
 
 
 class TestParseDaysParam:
@@ -79,7 +551,7 @@ class TestParseDaysParam:
     )
     def test_parse_days(self, params, expected, mocker):
         request = mocker.MagicMock(params=params)
-        assert views._parse_days_param(request) == expected
+        assert views.parse_days_param(request) == expected
 
 
 class TestHoursBetween:
@@ -127,7 +599,7 @@ class TestHoursBetween:
 
 def _fetch_observations(db_request):
     """Helper to fetch observations for tests using the new API."""
-    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=90)
+    cutoff_date = datetime.now(tz=UTC) - timedelta(days=90)
     return views._fetch_malware_observations(db_request, cutoff_date), cutoff_date
 
 
@@ -199,7 +671,7 @@ class TestGetCorroborationStats:
         observer2 = ObserverFactory.create()
         project = ProjectFactory.create()
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Multi-report package with one true positive action
         ProjectObservationFactory.create(
@@ -230,7 +702,7 @@ class TestGetCorroborationStats:
         observer = ObserverFactory.create()
         project = ProjectFactory.create()
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Single-report package with false positive action
         ProjectObservationFactory.create(
@@ -298,7 +770,7 @@ class TestGetObserverTypeStats:
         regular_observer = ObserverFactory.create()
         regular_user.observer = regular_observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Trusted observer: true positive (removed)
         ProjectObservationFactory.create(
@@ -357,7 +829,7 @@ class TestGetAutoQuarantineStats:
         project_name = "removed-reported-package"
 
         # Create observation with no related project (simulates deleted project)
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,  # Project was deleted
@@ -405,7 +877,7 @@ class TestGetAutoQuarantineStats:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         observations, cutoff_date = _fetch_observations(db_request)
@@ -437,7 +909,7 @@ class TestGetAutoQuarantineStats:
             name=project1.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         observations, cutoff_date = _fetch_observations(db_request)
@@ -448,7 +920,7 @@ class TestGetAutoQuarantineStats:
         assert result["quarantine_rate"] == 50.0
 
     def test_invalid_related_name_format(self, db_request):
-        """Test with observations that have unparseable related_name format.
+        """Test with observations that have unparsable related_name format.
 
         When related_name doesn't match the expected Project(name='...') format,
         the observation is skipped for quarantine stats.
@@ -481,13 +953,53 @@ class TestGetResponseTimelineStats:
         assert result["sample_size"] == 0
         assert result["detection_time"] is None
 
+    def test_with_observation_no_action(self, db_request):
+        """Test timeline when observation exists but no action taken yet.
+
+        Covers the branch where action_time is None (no quarantine, no removal),
+        so response_times and exposure_times are not appended.
+        """
+        admin_user = UserFactory.create(username="admin")
+        observer = ObserverFactory.create()
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+
+        project = ProjectFactory.create(created=project_created)
+
+        JournalEntryFactory.create(
+            name=project.name,
+            action="create",
+            submitted_by=admin_user,
+            submitted_date=project_created,
+        )
+
+        # Observation with no removal action and no quarantine journal entry
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=project,
+            created=report_time,
+        )
+
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
+
+        assert result["sample_size"] == 1
+        assert result["detection_time"] is not None
+        assert result["response_time"] is None
+        assert result["total_exposure"] is None
+        assert result["longest_lived"] == []
+
     def test_with_observations_and_removal(self, db_request):
         """Test timeline with observations that have removal actions."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=24)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+        removal_time = base_time - timedelta(hours=11)
+
         # Create project with a recent created date
         project = ProjectFactory.create(created=project_created)
 
@@ -499,12 +1011,6 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        # Report happens first, removal happens 1 hour later (realistic scenario)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
-        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
-
         # Create observation with removal action
         ProjectObservationFactory.create(
             kind="is_malware",
@@ -512,7 +1018,7 @@ class TestGetResponseTimelineStats:
             related=project,
             created=report_time,
             actions={
-                int(removal_time.timestamp()): {
+                int(removal_time.replace(tzinfo=UTC).timestamp()): {
                     "action": "remove_malware",
                     "actor": "admin",
                 }
@@ -532,16 +1038,19 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
-        )
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+        quarantine_time = base_time - timedelta(hours=11)
+
+        project = ProjectFactory.create(created=project_created)
 
         # Create observation
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
+            created=report_time,
         )
 
         # Create quarantine journal entry
@@ -549,7 +1058,7 @@ class TestGetResponseTimelineStats:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=quarantine_time,
         )
 
         project_data = _get_project_data(db_request)
@@ -562,12 +1071,12 @@ class TestGetResponseTimelineStats:
         """Test that longest-lived packages are returned."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        removal_time = base_time - timedelta(hours=1)
 
         # Create multiple projects with different exposure times
         for i in range(7):
-            project_created = datetime.now(tz=timezone.utc).replace(
-                tzinfo=None
-            ) - timedelta(hours=24 * (i + 1))
+            project_created = base_time - timedelta(hours=24 * (i + 1))
             project = ProjectFactory.create(created=project_created)
 
             # Create JournalEntry for project creation (required for timeline lookup)
@@ -578,16 +1087,18 @@ class TestGetResponseTimelineStats:
                 submitted_date=project_created,
             )
 
-            now = datetime.now(tz=timezone.utc)
+            report_time = base_time - timedelta(hours=2)
+            removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
             ProjectObservationFactory.create(
                 kind="is_malware",
                 observer=observer,
                 related=project,
+                created=report_time,
                 actions={
-                    int(now.timestamp()): {
+                    removal_ts: {
                         "action": "remove_malware",
                         "actor": "admin",
-                        "created_at": str(now),
+                        "created_at": str(removal_time),
                     }
                 },
             )
@@ -603,9 +1114,14 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
         observer1 = ObserverFactory.create()
         observer2 = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=48)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=48)
+        even_earlier_report = base_time - timedelta(hours=8)
+        earlier_removal = base_time - timedelta(hours=7)
+        report_time_1 = base_time - timedelta(hours=6)
+        report_time_2 = base_time - timedelta(hours=4)
+        removal_time = base_time - timedelta(hours=2)
+
         project = ProjectFactory.create(created=project_created)
 
         # Create JournalEntry for project creation (required for timeline lookup)
@@ -616,20 +1132,19 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        now = datetime.now(tz=timezone.utc)
-        earlier = now - timedelta(hours=2)
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
 
         # First observation: earlier report time
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer1,
             related=project,
-            created=earlier.replace(tzinfo=None),
+            created=report_time_1,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
-                    "created_at": str(now),
+                    "created_at": str(removal_time),
                 }
             },
         )
@@ -639,9 +1154,9 @@ class TestGetResponseTimelineStats:
             kind="is_malware",
             observer=observer2,
             related=project,
-            created=now.replace(tzinfo=None),
+            created=report_time_2,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "some_other_action",
                     "actor": "admin",
                 }
@@ -650,15 +1165,14 @@ class TestGetResponseTimelineStats:
 
         # Third observation: even earlier, with an earlier removal time
         # This tests the branch where we update removal_time to an earlier value
-        even_earlier = now - timedelta(hours=4)
-        earlier_removal = now - timedelta(hours=3)  # Earlier than first observation
+        earlier_removal_ts = int(earlier_removal.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=ObserverFactory.create(),
             related=project,
-            created=even_earlier.replace(tzinfo=None),
+            created=even_earlier_report,
             actions={
-                int(earlier_removal.timestamp()): {
+                earlier_removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
                 }
@@ -675,31 +1189,22 @@ class TestGetResponseTimelineStats:
         """Test timeline uses min of quarantine/removal for response time."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
-        )
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=48)
+        report_time = base_time - timedelta(hours=12)
+        quarantine_time = base_time - timedelta(hours=11)
+        removal_time = base_time - timedelta(hours=10)
 
-        # Report happens first (2 hours ago)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
+        project = ProjectFactory.create(created=project_created)
 
-        # Quarantine happens after report (1 hour ago)
-        quarantine_time = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=1)
-
-        # Removal happens last (now)
-        removal_time = datetime.now(tz=timezone.utc)
-
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
             created=report_time,
             actions={
-                int(removal_time.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
                     "created_at": str(removal_time),
@@ -734,10 +1239,10 @@ class TestGetResponseTimelineStats:
         original_owner = UserFactory.create(username="original-owner")
 
         project_name = "deleted-test-project"
-        now = datetime.now(tz=timezone.utc)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
 
         # Simulate original project lifecycle (years ago)
-        original_created = now.replace(tzinfo=None) - timedelta(days=365 * 3)
+        original_created = base_time - timedelta(days=365 * 3)
         JournalEntryFactory.create(
             name=project_name,
             action="create",
@@ -749,11 +1254,11 @@ class TestGetResponseTimelineStats:
             name=project_name,
             action="remove project",
             submitted_by=original_owner,
-            submitted_date=now.replace(tzinfo=None) - timedelta(days=30),
+            submitted_date=base_time - timedelta(days=30),
         )
 
         # Malicious recreation - this is the `create` date we should use
-        malicious_created = now.replace(tzinfo=None) - timedelta(hours=48)
+        malicious_created = base_time - timedelta(hours=48)
         JournalEntryFactory.create(
             name=project_name,
             action="create",
@@ -762,27 +1267,30 @@ class TestGetResponseTimelineStats:
         )
 
         # Create observation for deleted project (related=None after removal)
-        report_time = now.replace(tzinfo=None) - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=24)
+        removal_time = base_time - timedelta(hours=1)
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,
             related_name=f"Project(id=None, name='{project_name}')",
             created=report_time,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
-                    "created_at": str(now),
+                    "created_at": str(removal_time),
                 }
             },
         )
 
         # Create quarantine journal entry
+        quarantine_time = base_time - timedelta(hours=12)
         JournalEntryFactory.create(
             name=project_name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=now.replace(tzinfo=None) - timedelta(hours=12),
+            submitted_date=quarantine_time,
         )
 
         project_data = _get_project_data(db_request)
@@ -861,7 +1369,7 @@ class TestGetTimelineData:
     """Tests for _get_timeline_data function."""
 
     def test_invalid_related_names_skip_journal_lookup(self, db_request):
-        """Test that observations with unparseable related_name skip journal lookup.
+        """Test that observations with unparsable related_name skip journal lookup.
 
         When no valid project names can be parsed from related_name,
         the function returns early without querying journal entries.
@@ -908,7 +1416,7 @@ class TestGetTimelineTrends:
         project_data = {
             "project-key": {
                 "name": "test-project",
-                "project_created": datetime.now(tz=timezone.utc).replace(tzinfo=None),
+                "project_created": datetime.now(tz=UTC).replace(tzinfo=None),
                 "first_report": None,  # Missing first_report
                 "quarantine_time": None,
                 "removal_time": None,
@@ -944,12 +1452,12 @@ class TestGetTimelineTrends:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=48)
+        project_created = datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(
+            hours=48
+        )
         project = ProjectFactory.create(created=project_created)
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create project creation journal entry (required for time_to_quarantine)
         JournalEntryFactory.create(
@@ -978,7 +1486,7 @@ class TestGetTimelineTrends:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None)
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None)
             - timedelta(hours=1),
         )
 
@@ -999,8 +1507,7 @@ class TestGetTimelineTrends:
 
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
         # Create observation without removal action
@@ -1015,7 +1522,7 @@ class TestGetTimelineTrends:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         project_data = _get_project_data(db_request)
@@ -1029,11 +1536,10 @@ class TestGetTimelineTrends:
         """Test timeline trends with only removal (no quarantine)."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create observation with removal action only
         ProjectObservationFactory.create(
@@ -1062,18 +1568,17 @@ class TestGetTimelineTrends:
         observer1 = ObserverFactory.create()
         observer2 = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # First report (later)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer1,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            created=datetime.now(tz=UTC).replace(tzinfo=None),
             actions={
                 int(now.timestamp()): {
                     "action": "remove_malware",
@@ -1088,8 +1593,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer2,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=2),
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=2),
         )
 
         project_data = _get_project_data(db_request)
@@ -1102,8 +1606,7 @@ class TestGetTimelineTrends:
         """Test that a later observation doesn't update first_report."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
         # First observation (earlier - should be first_report)
@@ -1111,8 +1614,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24),
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24),
         )
 
         # Second observation (later - should NOT update first_report)
@@ -1120,7 +1622,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            created=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         project_data = _get_project_data(db_request)
@@ -1133,11 +1635,10 @@ class TestGetTimelineTrends:
         """Test actions dict with non-remove_malware entries."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Actions dict with multiple types - one removal, one other
         ProjectObservationFactory.create(
@@ -1149,8 +1650,7 @@ class TestGetTimelineTrends:
                     "action": "some_other_action",
                     "actor": "system",
                 },
-                int(now.timestamp())
-                + 1: {
+                int(now.timestamp()) + 1: {
                     "action": "remove_malware",
                     "actor": "admin",
                     "created_at": str(now),
@@ -1172,15 +1672,12 @@ class TestGetTimelineTrends:
         """
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
         # Report happens first, removal happens 1 hour later (realistic scenario)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
-        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
+        report_time = datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=2)
+        removal_time = datetime.now(tz=UTC) - timedelta(hours=1)
 
         # Removal action - created_at is optional since we use the dict key
         ProjectObservationFactory.create(
@@ -1208,11 +1705,10 @@ class TestGetTimelineTrends:
         """Test multiple removal actions where later one is ignored."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         earlier = now - timedelta(hours=12)
         later = now
 
@@ -1246,13 +1742,21 @@ class TestGetTimelineTrends:
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
 
-        now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        # Use the most recent Wednesday noon so this test is stable around
+        # Sunday/Monday boundaries while staying within the rolling cutoff window.
+        current = datetime.now(tz=UTC).replace(tzinfo=None)
+        days_since_wednesday = (current.weekday() - 2) % 7
+        wednesday_time = (current - timedelta(days=days_since_wednesday)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
 
         # Create two projects and observations in the same week
-        project1_created = now - timedelta(hours=48)
-        project2_created = now - timedelta(hours=72)
+        project1_created = wednesday_time - timedelta(hours=48)
+        project2_created = wednesday_time - timedelta(hours=72)
         project1 = ProjectFactory.create(created=project1_created)
         project2 = ProjectFactory.create(created=project2_created)
+        project1_report_time = wednesday_time - timedelta(hours=4)
+        project2_report_time = wednesday_time - timedelta(hours=2)
 
         # Create JournalEntries for project creation (required for timeline lookup)
         JournalEntryFactory.create(
@@ -1272,13 +1776,13 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project1,
-            created=now - timedelta(hours=24),
+            created=project1_report_time,
         )
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project2,
-            created=now - timedelta(hours=20),  # same week
+            created=project2_report_time,  # same week
         )
 
         project_data = _get_project_data(db_request)

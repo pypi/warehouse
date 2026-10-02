@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -35,10 +33,12 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.manage.views import (
     organizations as org_views,
+    view_helpers,
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationRoleType,
+    OrganizationType,
     TeamProjectRole,
     TeamProjectRoleType,
 )
@@ -53,9 +53,11 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
-from ...common.db.accounts import EmailFactory
+from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationProjectFactory,
@@ -65,7 +67,6 @@ from ...common.db.organizations import (
     TeamRoleFactory,
 )
 from ...common.db.packaging import (
-    AlternateRepositoryFactory,
     FileEventFactory,
     FileFactory,
     JournalEntryFactory,
@@ -74,7 +75,6 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
     RoleInvitationFactory,
-    UserFactory,
 )
 
 
@@ -118,6 +118,272 @@ class TestManageUnverifiedAccount:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the/url"
 
+    @pytest.mark.parametrize(
+        ("has_old_primary", "expected_old_address"),
+        [
+            (True, "typo@exmaple.com"),  # codespell:ignore exmaple
+            (False, None),
+        ],
+    )
+    def test_change_unverified_primary_email(
+        self, monkeypatch, has_old_primary, expected_old_address
+    ):
+        old_email = (
+            pretend.stub(
+                id=1,
+                email="typo@exmaple.com",  # codespell:ignore exmaple
+                verified=False,
+                primary=True,
+            )
+            if has_old_primary
+            else None
+        )
+        new_email = pretend.stub(id=2, email="correct@example.com")
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            name="Test",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[old_email] if old_email else [],
+            projects=[],
+            primary_email=old_email,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        user_service = pretend.stub(
+            add_email=pretend.call_recorder(lambda *a, **kw: new_email),
+        )
+        limiter = pretend.stub(test=lambda *a: True, hit=lambda *a: True)
+        limiters = {"email.change": limiter, "email.add": limiter}
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "correct@example.com"},
+            user=user,
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda obj: None),
+                flush=lambda: None,
+            ),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        form_obj = pretend.stub(
+            validate=lambda: True,
+            email=pretend.stub(data="correct@example.com"),
+        )
+        monkeypatch.setattr(
+            views, "ChangeUnverifiedPrimaryEmailForm", lambda *a, **kw: form_obj
+        )
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        if has_old_primary:
+            assert request.db.delete.calls == [pretend.call(old_email)]
+        else:
+            assert request.db.delete.calls == []
+        assert user_service.add_email.calls == [
+            pretend.call(user.id, "correct@example.com", primary=True, ratelimit=False)
+        ]
+        assert send_email.calls == [pretend.call(request, (user, new_email))]
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.EmailPrimaryChange,
+                request=request,
+                additional={
+                    "old_primary": expected_old_address,
+                    "new_primary": "correct@example.com",
+                },
+            )
+        ]
+
+    def test_change_unverified_primary_email_validation_fails(self, monkeypatch):
+        """A failed validation still spends the attempt budget."""
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            name="Test",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        user_service = pretend.stub()
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        add_limiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+        limiters = {"email.change": attempt_limiter, "email.add": add_limiter}
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "bad"},
+            user=user,
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
+            help_url=lambda *a, **kw: "/help",
+            remote_addr="1.2.3.4",
+        )
+        form_obj = pretend.stub(validate=lambda: False)
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        monkeypatch.setattr(views, "ChangeUnverifiedPrimaryEmailForm", form_class)
+
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert result == {
+            "help_url": "/help",
+            "change_unverified_primary_email_form": form_obj,
+        }
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
+        # The strict per-IP budget is only spent on a successful change.
+        assert add_limiter.hit.calls == []
+
+    def test_change_unverified_primary_email_attempt_rate_limited(self):
+        """Exhausting the attempt budget blocks before the form is validated."""
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: False))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: True),
+        }
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=user,
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+        ]
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
+
+    def test_change_unverified_primary_email_blocked_if_verified(self):
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="testuser",
+                has_primary_verified_email=True,
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            route_path=lambda *a, **kw: "/manage/account/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/account/"
+
+    @pytest.mark.parametrize(
+        ("has_two_factor", "projects", "expected_message"),
+        [
+            (
+                True,
+                [],
+                "Cannot change email address on accounts with two-factor "
+                "authentication enabled",
+            ),
+            (
+                False,
+                [pretend.stub()],
+                "Cannot change email address on accounts with projects",
+            ),
+        ],
+    )
+    def test_change_unverified_primary_email_blocked(
+        self, has_two_factor, projects, expected_message
+    ):
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="testuser",
+                has_primary_verified_email=False,
+                has_two_factor=has_two_factor,
+                projects=projects,
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            route_path=lambda *a, **kw: "/manage/unverified/",
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(expected_message, queue="error")
+        ]
+
+    def test_change_unverified_primary_email_ip_rate_limited(self):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: False),
+        }
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=user,
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+        ]
+        # Turned away before validation, so it doesn't cost the user an attempt.
+        assert attempt_limiter.hit.calls == []
+
 
 class TestManageAccount:
     @pytest.mark.parametrize(
@@ -160,12 +426,14 @@ class TestManageAccount:
         monkeypatch.setattr(
             views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
         )
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
 
         assert view.default_response == {
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "sole_organizations": view.sole_organizations,
             "account_associations": account_associations,
         }
         assert view.request == request
@@ -342,7 +610,7 @@ class TestManageAccount:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {new_email_address} added - check your email for "
-                + "a verification link",
+                "a verification link",
                 queue="success",
             )
         ]
@@ -918,6 +1186,7 @@ class TestManageAccount:
             views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
         monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_account_deletion_email", send_email)
         logout_response = pretend.stub()
@@ -1015,6 +1284,79 @@ class TestManageAccount:
                 "Cannot delete account with active project ownerships", queue="error"
             )
         ]
+
+    def test_delete_account_has_sole_organizations(self, mocker):
+        request = mocker.Mock(
+            params={"confirm_password": "password"},
+            user=mocker.Mock(username="username"),
+            session=mocker.Mock(),
+            find_service=lambda *a, **kw: mocker.Mock(),
+        )
+
+        confirm_password_obj = mocker.Mock(validate=lambda: True)
+        mocker.patch.object(
+            views, "ConfirmPasswordForm", return_value=confirm_password_obj
+        )
+
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", mocker.Mock()
+        )
+        # No sole project ownerships, but a sole organization ownership.
+        mocker.patch.object(views.ManageVerifiedAccountViews, "active_projects", [])
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "sole_organizations", [mocker.Mock()]
+        )
+
+        view = views.ManageVerifiedAccountViews(request)
+
+        assert view.delete_account() == view.default_response
+        request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
+
+    def test_delete_account_blocks_non_good_standing_sole_organizations(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+
+        # A Company org with no subscription is not in good standing, but its
+        # owner can still reach the settings page to delete it or hand it off,
+        # so it blocks account deletion like any other sole-owned organization.
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.params = {"confirm_password": user.password}
+        db_request.find_service = lambda *a, **kw: mocker.Mock()
+        db_request.session = mocker.Mock()
+
+        confirm_password_obj = mocker.Mock(validate=lambda: True)
+        mocker.patch.object(
+            views, "ConfirmPasswordForm", return_value=confirm_password_obj
+        )
+        default_response = mocker.Mock()
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", default_response
+        )
+
+        view = views.ManageVerifiedAccountViews(db_request)
+
+        assert view.delete_account() == default_response
+
+        db_request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
+        assert organization.is_active is True
+        assert (
+            db_request.db.query(User).filter(User.username == user.username).first()
+            is not None
+        )
 
 
 class Test2FA:
@@ -1177,6 +1519,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                has_burned_recovery_codes=True,
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -1239,6 +1582,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                has_burned_recovery_codes=True,
                 has_primary_verified_email=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
@@ -1274,7 +1618,9 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(
+                has_burned_recovery_codes=True, has_primary_verified_email=False
+            ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
@@ -1289,6 +1635,25 @@ class TestProvisionTOTP:
                 "Verify your email to modify two factor authentication", queue="error"
             )
         ]
+
+    def test_validate_totp_provision_without_burned_recovery_codes(
+        self, db_request, mocker
+    ):
+        """Enrolling TOTP requires recovery codes to be confirmed first."""
+        user = UserFactory.create(with_verified_primary_email=True)
+        totp_secret = user.totp_secret
+        db_request.user = user
+        db_request.route_path = mocker.Mock(return_value="/burn/")
+        db_request.POST = MultiDict({"totp_value": "123456"})
+
+        result = views.ProvisionTOTPViews(db_request).validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/burn/"
+        db_request.route_path.assert_called_once_with(
+            "manage.account.recovery-codes.burn"
+        )
+        assert user.totp_secret == totp_secret
 
     def test_delete_totp(self, monkeypatch, db_request):
         user_service = pretend.stub(
@@ -1534,11 +1899,12 @@ class TestProvisionWebAuthn:
             user=pretend.stub(
                 id=1234,
                 webauthn=None,
+                has_burned_recovery_codes=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1602,10 +1968,10 @@ class TestProvisionWebAuthn:
         )
         request = pretend.stub(
             POST={},
-            user=pretend.stub(id=1234, webauthn=None),
+            user=pretend.stub(id=1234, webauthn=None, has_burned_recovery_codes=True),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1631,6 +1997,24 @@ class TestProvisionWebAuthn:
         assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
         assert user_service.add_webauthn.calls == []
         assert result == {"fail": {"errors": ["Not a real error"]}}
+
+    def test_validate_webauthn_provision_without_burned_recovery_codes(
+        self, db_request
+    ):
+        """Enrolling a security device requires recovery codes to be confirmed first."""
+        user = UserFactory.create()
+        db_request.user = user
+
+        result = views.ProvisionWebAuthnViews(db_request).validate_webauthn_provision()
+
+        assert result == {
+            "fail": {
+                "errors": [
+                    "Confirm your recovery codes before adding a security device"
+                ]
+            }
+        }
+        assert user.webauthn == []
 
     def test_delete_webauthn(self, monkeypatch):
         user_service = pretend.stub()
@@ -1754,6 +2138,21 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
+
+
+@pytest.mark.parametrize(
+    "view_class", [views.ProvisionTOTPViews, views.ProvisionWebAuthnViews]
+)
+def test_two_factor_provisioning_views_require_reauth(app_config, view_class):
+    """Adding or removing a 2FA method requires a recent password confirmation."""
+    class_views = [
+        intr["introspectable"]
+        for intr in app_config.registry.introspector.get_category("views")
+        if intr["introspectable"]["callable"] is view_class
+    ]
+
+    assert class_views
+    assert all(view.get("require_reauth") is True for view in class_views)
 
 
 class TestProvisionRecoveryCodes:
@@ -2368,7 +2767,12 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch, pyramid_request):
-        macaroon = pretend.stub(description="fake macaroon", permissions_caveat="user")
+        user_id = pretend.stub()
+        macaroon = pretend.stub(
+            description="fake macaroon",
+            user_id=user_id,
+            permissions_caveat={"permissions": "user"},
+        )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
             find_macaroon=pretend.call_recorder(lambda id: macaroon),
@@ -2389,7 +2793,7 @@ class TestProvisionMacaroonViews:
         pyramid_request.referer = "/fake/safe/route"
         pyramid_request.host = None
         pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
+            id=user_id,
             username=pretend.stub(),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2469,12 +2873,62 @@ class TestProvisionMacaroonViews:
             pretend.call("API Token does not exist.", queue="warning")
         ]
 
+    def test_delete_macaroon_not_owned(
+        self, monkeypatch, pyramid_request, macaroon_service
+    ):
+        owner = UserFactory.create()
+        other_user = UserFactory.create()
+        macaroon = MacaroonFactory.create(
+            user_id=other_user.id,
+            description="not my token",
+            permissions_caveat={"permissions": "user"},
+        )
+        pyramid_request.POST = {
+            "confirm_password": "password",
+            "macaroon_id": str(macaroon.id),
+        }
+        pyramid_request.route_path = pretend.call_recorder(lambda x: "/manage/account/")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.referer = "/fake/safe/route"
+        pyramid_request.host = None
+        pyramid_request.user = pretend.stub(
+            id=owner.id,
+            username=owner.username,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True,
+            macaroon_id=pretend.stub(data=str(macaroon.id)),
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(pyramid_request)
+        result = view.delete_macaroon()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert result.location == "/manage/account/"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call("API Token does not exist.", queue="warning")
+        ]
+        # Macaroon must still exist (not deleted)
+        assert macaroon_service.find_macaroon(str(macaroon.id)) == macaroon
+        # Must NOT have recorded any events
+        assert pyramid_request.user.record_event.calls == []
+
     def test_delete_macaroon_records_events_for_each_project(
         self, monkeypatch, pyramid_request
     ):
+        user_id = pretend.stub()
         macaroon = pretend.stub(
             description="fake macaroon",
-            permissions_caveat={"projects": ["foo", "bar"]},
+            user_id=user_id,
+            permissions_caveat={"permissions": {"projects": ["foo", "bar"]}},
         )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
@@ -2497,7 +2951,7 @@ class TestProvisionMacaroonViews:
         pyramid_request.referer = "/fake/safe/route"
         pyramid_request.host = None
         pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
+            id=user_id,
             username=pretend.stub(),
             projects=[
                 pretend.stub(normalized_name="foo", record_event=record_project_event),
@@ -2559,9 +3013,9 @@ class TestProvisionMacaroonViews:
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
-        project_with_older_release = ProjectFactory(releases=[older_release])
+        project_with_older_release = older_release.project
         newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
-        project_with_newer_release = ProjectFactory(releases=[newer_release])
+        project_with_newer_release = newer_release.project
         older_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2016, 1, 1)
         )
@@ -2570,6 +3024,11 @@ class TestManageProjects:
         )
         team_project = ProjectFactory(
             name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
+        )
+        archived_project = ProjectFactory(
+            releases=[],
+            created=datetime.datetime(2019, 1, 1),
+            lifecycle_status=LifecycleStatus.Archived,
         )
 
         db_request.user = UserFactory()
@@ -2590,6 +3049,11 @@ class TestManageProjects:
             user=db_request.user,
             project=older_project_with_no_releases,
             role_name="Maintainer",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=archived_project,
+            role_name="Owner",
         )
         user_second_owner = UserFactory()
         RoleFactory.create(
@@ -2616,33 +3080,36 @@ class TestManageProjects:
         )
 
         assert views.manage_projects(db_request) == {
-            "projects": [
+            "projects_active": [
                 team_project,
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
                 project_with_older_release,
             ],
+            "projects_archived": [
+                archived_project,
+            ],
             "projects_owned": {
                 project_with_newer_release.name,
                 newer_project_with_no_releases.name,
+                archived_project.name,
             },
             "projects_sole_owned": {
                 newer_project_with_no_releases.name,
+                archived_project.name,
             },
             "project_invites": [],
         }
 
 
 class TestManageProjectSettings:
-    @pytest.mark.parametrize("enabled", [False, True])
-    def test_manage_project_settings(self, enabled, monkeypatch):
-        request = pretend.stub(organization_access=enabled)
+    def test_manage_project_settings(self, monkeypatch):
+        request = pretend.stub()
         project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2658,11 +3125,10 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_managed, lifecycle_status=None)
@@ -2671,7 +3137,6 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2687,14 +3152,13 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_owned})
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_owned, lifecycle_status=None)
@@ -2703,7 +3167,6 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2719,264 +3182,9 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_managed})
-        ]
-
-    def test_add_alternate_repository(self, monkeypatch, db_request):
-        project = ProjectFactory.create(name="foo")
-
-        db_request.POST = MultiDict(
-            {
-                "display_name": "foo alt repo",
-                "link_url": "https://example.org",
-                "description": "foo alt repo descr",
-                "alternate_repository_location": "add",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_alternate_repository_form_class = pretend.call_recorder(
-            views.AddAlternateRepositoryForm
-        )
-        monkeypatch.setattr(
-            views,
-            "AddAlternateRepositoryForm",
-            add_alternate_repository_form_class,
-        )
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.add_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Added alternate repository 'foo alt repo'", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert add_alternate_repository_form_class.calls == [
-            pretend.call(db_request.POST)
-        ]
-
-    def test_add_alternate_repository_invalid(self, monkeypatch, db_request):
-        project = ProjectFactory.create(name="foo")
-
-        db_request.POST = MultiDict(
-            {
-                "display_name": "foo alt repo",
-                "link_url": "invalid link",
-                "description": "foo alt repo descr",
-                "alternate_repository_location": "add",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_alternate_repository_form_class = pretend.call_recorder(
-            views.AddAlternateRepositoryForm
-        )
-        monkeypatch.setattr(
-            views,
-            "AddAlternateRepositoryForm",
-            add_alternate_repository_form_class,
-        )
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.add_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository location details", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert add_alternate_repository_form_class.calls == [
-            pretend.call(db_request.POST)
-        ]
-
-    def test_delete_alternate_repository(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Deleted alternate repository '{alt_repo.name}'", queue="success"
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    @pytest.mark.parametrize("alt_repo_id", [None, "", "blah"])
-    def test_delete_alternate_repository_invalid_id(self, db_request, alt_repo_id):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": alt_repo_id,
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository id", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_wrong_id(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository for project", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_no_confirm(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_wrong_confirm(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "confirm_alternate_repository_name": f"invalid-confirm-{alt_repo.name}",
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Could not delete alternate repository - "
-                f"invalid-confirm-{alt_repo.name} is not the same as {alt_repo.name}",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_remove_organization_project_no_confirm(self):
@@ -2990,7 +3198,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3015,9 +3222,8 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
@@ -3035,21 +3241,6 @@ class TestManageProjectSettings:
             )
         ]
 
-    def test_remove_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.remove_organization_project(project, request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
         assert request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
@@ -3108,7 +3299,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3170,9 +3360,12 @@ class TestManageProjectSettings:
 
     def test_remove_organization_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
-        OrganizationProjectFactory.create(
-            organization=OrganizationFactory.create(name="bar"), project=project
-        )
+        organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+
+        # Create a team under the departing org with access to the project.
+        team = TeamFactory.create(organization=organization)
+        TeamProjectRoleFactory.create(team=team, project=project, role_name="Owner")
 
         db_request.POST = MultiDict(
             {
@@ -3219,8 +3412,16 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             ),
         ]
+
+        stale_roles = (
+            db_request.db.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == project)
+            .all()
+        )
+        assert len(stale_roles) == 0
 
     def test_transfer_organization_project_no_confirm(self):
         user = pretend.stub()
@@ -3232,7 +3433,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3256,7 +3456,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3271,26 +3470,6 @@ class TestManageProjectSettings:
                 "Could not transfer project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
-        ]
-
-    def test_transfer_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.transfer_organization_project(project, request)
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
-
-        assert request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_transfer_organization_project_no_current_organization(
@@ -3330,7 +3509,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3352,6 +3531,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3365,7 +3545,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3426,7 +3605,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3447,6 +3626,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3455,6 +3635,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3556,7 +3737,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3582,6 +3763,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3590,6 +3772,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3656,7 +3839,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3683,6 +3866,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3691,6 +3875,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -4077,12 +4262,57 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "yank_project_release",
+            "unyank_project_release",
+            "delete_project_release",
+            "delete_project_release_file",
+        ],
+    )
+    def test_release_mutations_blocked_when_quarantined(self, pyramid_request, method):
+        release = pretend.stub(
+            version="1.2.3",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+            yanked=False,
+            project=pretend.stub(name="foobar"),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = getattr(view, method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "This release is in quarantine and cannot be modified.",
+                queue="error",
+            )
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        # Yank state is untouched
+        assert release.yanked is False
+
     def test_delete_project_release_disallow_deletion(
         self, monkeypatch, pyramid_request
     ):
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
+            lifecycle_status=None,
             project=pretend.stub(
                 name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
             ),
@@ -4162,6 +4392,7 @@ class TestManageProjectRelease:
 
         assert release.yanked
         assert release.yanked_reason == "Yanky Doodle went to town"
+        assert isinstance(release.yanked_date, datetime.datetime)
 
         assert send_yanked_project_release_email.calls == [
             pretend.call(
@@ -4206,6 +4437,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": ""}
         pyramid_request.method = "POST"
@@ -4245,6 +4477,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": "invalid"}
         pyramid_request.method = "POST"
@@ -4270,7 +4503,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4315,6 +4548,7 @@ class TestManageProjectRelease:
 
         assert not release.yanked
         assert not release.yanked_reason
+        assert release.yanked_date is None
 
         assert send_unyanked_project_release_email.calls == [
             pretend.call(
@@ -4360,6 +4594,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "",
@@ -4402,6 +4637,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="Old reason",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "invalid",
@@ -4430,7 +4666,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not un-yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4513,7 +4749,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": ""}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4549,7 +4789,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": "invalid"}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4573,7 +4817,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not delete release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4586,7 +4830,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.method = "POST"
         pyramid_request.flags = pretend.stub(
             enabled=pretend.call_recorder(lambda *a: True)
@@ -4711,6 +4959,7 @@ class TestManageProjectRelease:
         release = pretend.stub(
             version="1.2.3",
             project=pretend.stub(name="foobar", normalized_name="foobar"),
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_project_name": ""}
         pyramid_request.method = "POST"
@@ -4816,7 +5065,7 @@ class TestManageProjectRelease:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
-                + f"'invalid' is not the same as {release.project.name!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
@@ -4831,7 +5080,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, _enable_organizations, pyramid_user):
+    def organization(self, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
@@ -5951,9 +6200,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6025,9 +6275,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6061,9 +6312,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6093,6 +6345,23 @@ class TestManageProjectHistory:
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
+
+    def test_only_returns_file_events_for_project(self, db_request):
+        """File events are scoped via the release -> project relationship, so a
+        file event belonging to another project must not leak into this
+        project's history."""
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        file_ = FileFactory.create(release=release)
+        own_event = FileEventFactory.create(source=file_, tag="fake:event")
+
+        # A file event on an unrelated project must not leak in. The factory
+        # builds its own distinct project -> release -> file chain.
+        FileEventFactory.create(tag="fake:event")
+
+        result = views.manage_project_history(project, db_request)
+
+        assert [event.id for event in result["events"]] == [own_event.id]
 
 
 class TestArchiveProject:

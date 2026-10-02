@@ -224,6 +224,8 @@
       <small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
     {% endif %}
   </small>
+{% elif event.tag == EventTag.Project.ShortLivedAPITokenRevoked %}
+  <strong>{% trans %}Short-lived API token revoked{% endtrans %}</strong>
 {% elif event.tag == EventTag.Project.APITokenAdded %}
   <strong>{% trans %}API token created{% endtrans %}</strong>
   <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>

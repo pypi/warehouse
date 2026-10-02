@@ -14,8 +14,7 @@ down_revision = "6ff880c36cd9"
 
 
 def upgrade():
-    op.execute(
-        """ UPDATE release_files
+    op.execute(""" UPDATE release_files
                SET path = concat_ws(
                             '/',
                             python_version,
@@ -24,8 +23,7 @@ def upgrade():
                             filename
                           )
              WHERE path IS NULL
-        """
-    )
+        """)
     op.alter_column("release_files", "path", nullable=False)
 
 

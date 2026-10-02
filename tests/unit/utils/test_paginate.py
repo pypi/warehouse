@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
 
 from webob.multidict import MultiDict
@@ -25,7 +26,7 @@ class FakeResult:
 
     @property
     def hits(self):
-        return pretend.stub(total={"value": self.total})
+        return types.SimpleNamespace(total={"value": self.total})
 
     def __iter__(self):
         yield from self.data
@@ -38,7 +39,7 @@ class FakeResult6:
 
     @property
     def hits(self):
-        return pretend.stub(total=self.total)
+        return types.SimpleNamespace(total=self.total)
 
     def __iter__(self):
         yield from self.data
@@ -127,8 +128,8 @@ class TestOpenSearchWrapper:
         with pytest.raises(RuntimeError):
             len(wrapper)
 
-    def test_best_guess_suggestion(self):
-        fake_option = pretend.stub()
+    def test_best_guess_suggestion(self, mocker):
+        fake_option = mocker.sentinel.fake_option
         query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[fake_option])
         wrapper = paginate._OpenSearchWrapper(query)
         wrapper[1:3]
@@ -181,8 +182,8 @@ class TestOpenSearchWrapper6:
         with pytest.raises(RuntimeError):
             len(wrapper)
 
-    def test_best_guess_suggestion(self):
-        fake_option = pretend.stub()
+    def test_best_guess_suggestion(self, mocker):
+        fake_option = mocker.sentinel.fake_option
         query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[fake_option])
         wrapper = paginate._OpenSearchWrapper(query)
         wrapper[1:3]
@@ -204,27 +205,26 @@ class TestOpenSearchWrapper6:
         assert wrapper.best_guess is None
 
 
-def test_opensearch_page_has_wrapper(monkeypatch):
-    page_obj = pretend.stub()
-    page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-    monkeypatch.setattr(paginate, "Page", page_cls)
+def test_opensearch_page_has_wrapper(mocker):
+    page_obj = mocker.sentinel.page_obj
+    page_cls = mocker.patch.object(paginate, "Page", return_value=page_obj)
 
     assert paginate.OpenSearchPage("first", second="foo") is page_obj
-    assert page_cls.calls == [
-        pretend.call("first", second="foo", wrapper_class=paginate._OpenSearchWrapper)
-    ]
+    page_cls.assert_called_once_with(
+        "first", second="foo", wrapper_class=paginate._OpenSearchWrapper
+    )
 
 
-def test_paginate_url(pyramid_request):
+def test_paginate_url(pyramid_request, mocker):
     pyramid_request.GET = MultiDict(pyramid_request.GET)
     pyramid_request.GET["foo"] = "bar"
 
-    url = pretend.stub()
-    pyramid_request.current_route_path = pretend.call_recorder(lambda _query: url)
+    url = mocker.sentinel.url
+    current_route_path = mocker.patch.object(
+        pyramid_request, "current_route_path", autospec=True, return_value=url
+    )
 
     url_maker = paginate.paginate_url_factory(pyramid_request)
 
     assert url_maker(5) is url
-    assert pyramid_request.current_route_path.calls == [
-        pretend.call(_query=[("foo", "bar"), ("page", 5)])
-    ]
+    current_route_path.assert_called_once_with(_query=[("foo", "bar"), ("page", 5)])

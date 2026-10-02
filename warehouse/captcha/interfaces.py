@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
+from typing import Any, NamedTuple
 
 from zope.interface import Interface
 
-ChallengeResponse = collections.namedtuple(
-    "ChallengeResponse", ("challenge_ts", "hostname")
-)
+
+class ChallengeResponse(NamedTuple):
+    challenge_ts: Any
+    hostname: Any
 
 
 class ICaptchaService(Interface):

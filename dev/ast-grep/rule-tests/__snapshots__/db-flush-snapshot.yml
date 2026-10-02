@@ -1,0 +1,20 @@
+id: db-flush
+snapshots:
+  db_session.flush():
+    labels:
+    - source: db_session.flush()
+      style: primary
+      start: 0
+      end: 18
+  request.db.flush():
+    labels:
+    - source: request.db.flush()
+      style: primary
+      start: 0
+      end: 18
+  session.flush():
+    labels:
+    - source: session.flush()
+      style: primary
+      start: 0
+      end: 15

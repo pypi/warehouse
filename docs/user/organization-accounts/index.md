@@ -4,10 +4,8 @@ title: About
 
 # PyPI Organization Accounts
 
-Organization accounts are coming to PyPI.
-In an organization account,
-users from an organization or community project
-can assemble into teams and collaborate on projects.
+PyPI organization accounts let users from an organization or community project
+assemble into teams and collaborate on projects.
 
 ## Motivation
 

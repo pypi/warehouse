@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import warehouse.legacy.api.xmlrpc.views  # noqa
-
 
 def includeme(config):
     ratelimit_string = config.registry.settings.get(

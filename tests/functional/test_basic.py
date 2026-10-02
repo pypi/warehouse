@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
+from datetime import UTC, datetime
 from http import HTTPStatus
 
 import pytest
@@ -12,6 +15,32 @@ def test_funding_manifest_urls(app_config):
     assert resp.status_code == HTTPStatus.OK
     assert resp.content_type == "text/plain"
     assert resp.body.decode(resp.charset) == "https://www.python.org/funding.json"
+
+
+def test_security_txt(app_config):
+    testapp = webtest.TestApp(app_config.make_wsgi_app())
+    resp = testapp.get("/.well-known/security.txt")
+    assert resp.status_code == HTTPStatus.OK
+    assert resp.content_type == "text/plain"
+    body = resp.body.decode(resp.charset)
+    # Verify required fields
+    assert "Contact: mailto:security@pypi.org" in body
+    assert "Expires:" in body
+    # Verify optional fields
+    assert "Preferred-Languages: en" in body
+    # In test environment, route_url generates localhost URLs
+    assert "Canonical: http://localhost/.well-known/security.txt" in body
+    assert "Policy: http://localhost/security/" in body
+    # File must end with a newline
+    assert body.endswith("\n")
+    # Verify Expires is 1 year in the future
+    expires_match = re.search(r"Expires: (\d{4})-(\d{2})-\d{2}", body)
+    assert expires_match is not None
+    expires_year = int(expires_match.group(1))
+    expires_month = int(expires_match.group(2))
+    now = datetime.now(UTC)
+    assert expires_year == now.year + 1
+    assert expires_month == now.month
 
 
 @pytest.mark.parametrize(
@@ -31,6 +60,7 @@ def test_robots_txt(app_config, domain, indexable):
             "Disallow: /simple/\n"
             "Disallow: /packages/\n"
             "Disallow: /_includes/authed/\n"
+            "Disallow: /project/*/submit-malware-report/\n"
             "Disallow: /pypi/*/json\n"
             "Disallow: /pypi/*/*/json\n"
             "Disallow: /pypi*?\n"
@@ -42,10 +72,20 @@ def test_robots_txt(app_config, domain, indexable):
         )
     else:
         assert body == (
-            "Sitemap: http://localhost/sitemap.xml\n\n"
-            "User-agent: *\n"
-            "Disallow: /\n"
+            "Sitemap: http://localhost/sitemap.xml\n\nUser-agent: *\nDisallow: /\n"
         )
+
+
+def test_organizations_landing_page(webtest):
+    resp = webtest.get("/organizations/", status=HTTPStatus.OK)
+    assert "https://example.com/service-agreement-survey" in resp.text
+    assert "/manage/organizations/" in resp.text
+
+
+def test_homepage_links_to_organizations(webtest):
+    resp = webtest.get("/", status=HTTPStatus.OK)
+    banner = resp.html.find("div", {"class": "homepage-banner"})
+    assert banner.find("a", href="/organizations/") is not None
 
 
 def test_non_existent_route_404(webtest):

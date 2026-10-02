@@ -1,0 +1,17 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.html" %}
+{% block content %}
+  <p>
+    A pending trusted publisher you registered has been used to create the
+    project <strong>{{ project_name }}</strong> on PyPI.
+  </p>
+  <p>
+    <strong>Publisher:</strong> {{ publisher_specifier }}
+  </p>
+  <p>
+    If you did not expect this, someone may have used your registered
+    trusted publisher configuration.
+    Please review the project and if anything looks wrong,
+    email admin@pypi.org to communicate with the PyPI administrators.
+  </p>
+{% endblock %}

@@ -23,6 +23,7 @@ def includeme(config):
     config.add_route(
         "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
     )
+    config.add_route("security-txt", "/.well-known/security.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
@@ -46,6 +47,13 @@ def includeme(config):
         "security",
         "/security/",
         "pages/security.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
+    )
+    config.add_template_view(
+        "organizations",
+        "/organizations/",
+        "pages/organizations.html",
         route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
@@ -136,6 +144,13 @@ def includeme(config):
         "/_includes/authed/administer-user-include/{user_name}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{user_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "includes.administer-organization-include",
+        "/_includes/authed/administer-organization-include/{organization}",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization}",
         domain=warehouse,
     )
 
@@ -289,6 +304,16 @@ def includeme(config):
     config.add_route(
         "manage.account.associations.github.callback",
         "/manage/account/associations/github/callback",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.connect",
+        "/manage/account/associations/gitlab/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.callback",
+        "/manage/account/associations/gitlab/callback",
         domain=warehouse,
     )
     config.add_route(
@@ -600,7 +625,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "integrations.github.disclose-token",  # For backwards compatiblity
+        "integrations.github.disclose-token",  # For backwards compatibility
         "/_/github/disclose-token",
         domain=warehouse,
     )
@@ -624,6 +649,7 @@ def includeme(config):
     config.add_route(
         "api.echo",
         "/danger-api/echo",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
     config.add_route(
@@ -631,6 +657,7 @@ def includeme(config):
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
 

@@ -1,76 +1,73 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import email.utils
 
 import babel.dates
 import babel.numbers
-import pretend
 
 from warehouse.i18n import filters
 
 
-def test_format_date(monkeypatch):
-    formatted = pretend.stub()
-    format_date = pretend.call_recorder(lambda *a, **kw: formatted)
-    monkeypatch.setattr(babel.dates, "format_date", format_date)
+def test_format_date(mocker, pyramid_request):
+    format_date = mocker.patch.object(
+        babel.dates, "format_date", return_value=mocker.sentinel.formatted
+    )
+    pyramid_request.locale = mocker.sentinel.locale
+    ctx = {"request": pyramid_request}
+    args = (mocker.sentinel.arg0, mocker.sentinel.arg1)
 
-    request = pretend.stub(locale=pretend.stub())
-    ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
-
-    args = [pretend.stub(), pretend.stub()]
-    kwargs = {"foo": pretend.stub()}
-
-    assert filters.format_date(ctx, *args, **kwargs) is formatted
-
-    kwargs.update({"locale": request.locale})
-    assert format_date.calls == [pretend.call(*args, **kwargs)]
-
-
-def test_format_datetime(monkeypatch):
-    formatted = pretend.stub()
-    format_datetime = pretend.call_recorder(lambda *a, **kw: formatted)
-    monkeypatch.setattr(babel.dates, "format_datetime", format_datetime)
-
-    request = pretend.stub(locale=pretend.stub())
-    ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
-
-    args = [pretend.stub(), pretend.stub()]
-    kwargs = {"foo": pretend.stub()}
-
-    assert filters.format_datetime(ctx, *args, **kwargs) is formatted
-
-    kwargs.update({"locale": request.locale})
-    assert format_datetime.calls == [pretend.call(*args, **kwargs)]
+    assert filters.format_date(ctx, *args, foo=mocker.sentinel.foo) is (
+        mocker.sentinel.formatted
+    )
+    format_date.assert_called_once_with(
+        *args, foo=mocker.sentinel.foo, locale=mocker.sentinel.locale
+    )
 
 
-def test_format_rfc822_datetime(monkeypatch):
-    formatted = pretend.stub()
-    formatdate = pretend.call_recorder(lambda *a, **kw: formatted)
-    monkeypatch.setattr(email.utils, "formatdate", formatdate)
+def test_format_datetime(mocker, pyramid_request):
+    format_datetime = mocker.patch.object(
+        babel.dates, "format_datetime", return_value=mocker.sentinel.formatted
+    )
+    pyramid_request.locale = mocker.sentinel.locale
+    ctx = {"request": pyramid_request}
+    args = (mocker.sentinel.arg0, mocker.sentinel.arg1)
 
-    ctx = pretend.stub()
-    timestamp = pretend.stub()
-    args = [pretend.stub(timestamp=lambda: timestamp), pretend.stub()]
-    kwargs = {"foo": pretend.stub()}
+    assert filters.format_datetime(ctx, *args, foo=mocker.sentinel.foo) is (
+        mocker.sentinel.formatted
+    )
+    format_datetime.assert_called_once_with(
+        *args, foo=mocker.sentinel.foo, locale=mocker.sentinel.locale
+    )
 
-    assert filters.format_rfc822_datetime(ctx, *args, **kwargs) is formatted
-    assert formatdate.calls == [pretend.call(timestamp, usegmt=True)]
+
+def test_format_rfc822_datetime(mocker):
+    formatdate = mocker.patch.object(
+        email.utils, "formatdate", return_value=mocker.sentinel.formatted
+    )
+    dt = datetime.datetime(2024, 1, 1, 12, 0, 0)
+
+    result = filters.format_rfc822_datetime(
+        {}, dt, mocker.sentinel.extra, foo=mocker.sentinel.foo
+    )
+
+    assert result is mocker.sentinel.formatted
+    formatdate.assert_called_once_with(dt.timestamp(), usegmt=True)
 
 
-def test_format_number(monkeypatch):
-    formatted = pretend.stub()
-    format_number = pretend.call_recorder(lambda *a, **kw: formatted)
-    monkeypatch.setattr(babel.numbers, "format_decimal", format_number)
+def test_format_number(mocker, pyramid_request):
+    format_decimal = mocker.patch.object(
+        babel.numbers, "format_decimal", return_value=mocker.sentinel.formatted
+    )
+    pyramid_request.locale = mocker.sentinel.locale
+    ctx = {"request": pyramid_request}
+    number = mocker.sentinel.number
 
-    request = pretend.stub(locale=pretend.stub())
-    ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
-
-    number = pretend.stub()
-    locale = request.locale
-
-    assert filters.format_number(ctx, number) is formatted
-    assert filters.format_number(ctx, number, locale="tr-TR") is formatted
-    assert format_number.calls == [
-        pretend.call(number, locale=locale),
-        pretend.call(number, locale="tr-TR"),
+    assert filters.format_number(ctx, number) is mocker.sentinel.formatted
+    assert filters.format_number(ctx, number, locale="tr-TR") is (
+        mocker.sentinel.formatted
+    )
+    assert format_decimal.call_args_list == [
+        mocker.call(number, locale=mocker.sentinel.locale),
+        mocker.call(number, locale="tr-TR"),
     ]

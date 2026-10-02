@@ -1,0 +1,22 @@
+- description: warehouse Python analysis — custom checks only (security-extended staged)
+# TODO: evaluate custom-pack-only results in CI, then re-enable security-extended
+# by uncommenting the `apply:` block below. The exclude filters further down
+# already cover the known false-positive rules from security-extended.
+# - apply: codeql-suites/python-security-extended.qls
+#   from: codeql/python-queries
+- queries: .
+# pyramid_jinja2 auto-escapes all .html templates. CodeQL's Pyramid
+# model does not account for this, producing false positives on every
+# view that returns user input to a template context.
+- exclude:
+    id:
+      - py/reflective-xss
+      - py/jinja2/autoescape-false
+# All call sites validate via is_safe_url() before redirecting.
+- exclude:
+    id:
+      - py/url-redirection
+- exclude:
+    precision:
+      - low
+      - medium

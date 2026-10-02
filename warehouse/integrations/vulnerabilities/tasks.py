@@ -44,6 +44,41 @@ def analyze_vulnerability_task(request, vulnerability_report, origin):
             if vulnerability_record:
                 request.db.delete(vulnerability_record)
         else:
+            # Look up project and releases BEFORE creating/updating the
+            # vulnerability record. This avoids an autoflush that would
+            # INSERT the record prematurely and force a collection reload
+            # when we later append to vulnerability_record.releases.
+            try:
+                project = (
+                    request.db.query(Project)
+                    .filter(
+                        Project.normalized_name
+                        == func.normalize_pep426_name(report.project)
+                    )
+                    .one()
+                )
+
+            except NoResultFound:
+                metrics.increment(
+                    "warehouse.vulnerabilities.error.project_not_found",
+                    tags=[f"origin:{origin}"],
+                )
+                return
+
+            # Batch-load all matching releases in a single query instead of
+            # one query per version (N+1). Use lazyload('*') to prevent
+            # cascading lazy loads on Release relationships we don't need.
+            releases_by_version = {
+                r.version: r
+                for r in request.db.query(Release)
+                .filter(
+                    Release.project_id == project.id,
+                    Release.version.in_(report.versions),
+                )
+                .options(orm.lazyload("*"))
+                .all()
+            }
+
             # If we don't have a vulnerability record, create it
             if not vulnerability_record:
                 vulnerability_record = VulnerabilityRecord(
@@ -67,36 +102,9 @@ def analyze_vulnerability_task(request, vulnerability_report, origin):
                 vulnerability_record.fixed_in = report.fixed_in
                 vulnerability_record.withdrawn = report.withdrawn
 
-            # Update the relationships between versions
-            try:
-                project = (
-                    request.db.query(Project)
-                    .filter(
-                        Project.normalized_name
-                        == func.normalize_pep426_name(report.project)
-                    )
-                    .one()
-                )
-
-            except NoResultFound:
-                metrics.increment(
-                    "warehouse.vulnerabilities.error.project_not_found",
-                    tags=[f"origin:{origin}"],
-                )
-                return
-
-            found_releases = False  # by now, we don't have any release found
-
             for version in report.versions:
-                try:
-                    release = (
-                        request.db.query(Release)
-                        .filter(Release.project_id == project.id)
-                        .filter(Release.version == version)
-                        .one()
-                    )
-                    found_releases = True  # at least one release found
-                except NoResultFound:
+                release = releases_by_version.get(version)
+                if release is None:
                     metrics.increment(
                         "warehouse.vulnerabilities.error.release_not_found",
                         tags=[f"origin:{origin}"],
@@ -106,7 +114,7 @@ def analyze_vulnerability_task(request, vulnerability_report, origin):
                 if release not in vulnerability_record.releases:
                     vulnerability_record.releases.append(release)
 
-            if not found_releases:
+            if not releases_by_version:
                 # no releases found, log this
                 metrics.increment(
                     "warehouse.vulnerabilities.error.no_releases_found",

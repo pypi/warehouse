@@ -20,8 +20,7 @@ def upgrade():
         "projects",
         sa.Column("total_size", sa.BigInteger(), server_default=sa.text("0")),
     )
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
         DECLARE
             _release_id uuid;
@@ -49,17 +48,13 @@ def upgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
-    op.execute(
-        """CREATE TRIGGER update_project_total_size
+        """)
+    op.execute("""CREATE TRIGGER update_project_total_size
             AFTER INSERT OR UPDATE OR DELETE ON release_files
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size();
-        """
-    )
+        """)
 
-    op.execute(
-        """WITH project_totals AS (
+    op.execute("""WITH project_totals AS (
                 SELECT
                     p.id as project_id,
                     sum(size) as project_total
@@ -74,8 +69,7 @@ def upgrade():
             SET total_size = project_totals.project_total
             FROM project_totals
             WHERE project_totals.project_id = p.id;
-        """
-    )
+        """)
 
 
 def downgrade():

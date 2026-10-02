@@ -57,8 +57,7 @@ def upgrade():
         ),
     )
     # Disable the ActiveState OIDC provider by default
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-activestate-oidc',
@@ -66,8 +65,7 @@ def upgrade():
             TRUE,
             FALSE
         )
-        """
-    )
+        """)
 
 
 def downgrade():

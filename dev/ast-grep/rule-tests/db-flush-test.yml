@@ -1,0 +1,10 @@
+id: db-flush
+
+valid:
+  - flush()
+  - request.other.flush()
+
+invalid:
+  - request.db.flush()
+  - session.flush()
+  - db_session.flush()

@@ -8,6 +8,7 @@
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
+{% set perms_admin_users_export = request.has_permission(Permissions.AdminUsersExport) %}
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
@@ -51,7 +52,7 @@
             <img class="img-fluid rounded-circle elevation-2" src="{{ gravatar(request, user.email, size=128) }}" alt="User profile picture">
           </div>
 
-          <h3 class="widget-user-username text-center">{{ user.username }}</h3>
+          <h3 class="widget-user-username text-center"><a href="{{ request.route_path('accounts.profile', username=user.username)}}">{{ user.username }}</a></h3>
           <h5 class="widget-user-desc text-center">{{ user.name }}</h5>
         </div>
 
@@ -127,6 +128,14 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
+            {% endif %}
+            <button type="button" class="btn btn-block btn-info" data-toggle="modal" data-target="#userFilesModal" id="userFilesBtn">
+              <i class="icon fa fa-file"></i> List all files
+            </button>
+            {% if perms_admin_users_export %}
+            <a href="{{ request.route_path('admin.user.export', username=user.username) }}" role="button" class="btn btn-block btn-info">
+              <i class="icon fa fa-download"></i> User account export (JSON)
+            </a>
             {% endif %}
             <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
               <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
@@ -206,6 +215,21 @@
                         </li>
                       {% endfor %}
                       </ul>
+                      {% if sole_owned_organizations %}
+                      <p>
+                        This user is the sole owner of the following organizations,
+                        which will be deactivated and their subscriptions canceled:
+                      </p>
+                      <ul>
+                      {% for organization in sole_owned_organizations %}
+                        <li>
+                          <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
+                            {{ organization.name }}
+                          </a>
+                        </li>
+                      {% endfor %}
+                      </ul>
+                      {% endif %}
                       <hr>
                       <p>
                         Enter username '{{ user.username }}'
@@ -300,7 +324,7 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      <p>This will quarantine all projects owned by this user, removing them from public APIs until cleared or removed.</p>
+                      <p>This will quarantine all projects owned or maintained by this user, removing them from public APIs until cleared or removed.</p>
                       <p>This action is reversible.</p>
                       <hr>
                       <p>Enter username '{{ user.username }}' to confirm:</p>
@@ -339,6 +363,34 @@
                   </div>
                 </div>
               </form>
+            </div>
+            <!-- User Files Modal -->
+            <div class="modal fade" id="userFilesModal" tabindex="-1" role="dialog"
+                 data-files-url="{{ request.route_path('admin.user.files', username=user.username) }}"
+                 data-username="{{ user.username }}">
+              <div class="modal-dialog modal-xl modal-dialog-scrollable user-files-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title">All files for {{ user.username }}</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p id="userFilesSummary">Loading...</p>
+                    <pre id="userFilesContent" class="user-files-content"></pre>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="userFilesCopyBtn" disabled>
+                      <i class="fa fa-copy"></i> Copy to clipboard
+                    </button>
+                    <button type="button" class="btn btn-primary" id="userFilesDownloadBtn" disabled>
+                      <i class="fa fa-download"></i> Download as .txt
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -399,7 +451,12 @@
                   <td>
                     <ul>
                       {% for url in account_recovery.payload["repos"] %}
-                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {# Older recoveries stored shorter entries, so index rather than unpack. #}
+                      <li>
+                        {{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a>
+                        {% if url|length > 2 and url[2] %}<span class="badge bg-success">verified</span>
+                        {% elif url|length > 3 and url[3] %}<span class="badge bg-secondary">verified, not pushable</span>{% endif %}
+                      </li>
                       {% endfor %}
                     </ul>
                   </td>
@@ -692,6 +749,42 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">User Limits</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.user.set_project_create_ratelimit', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if user.project_create_ratelimit_string %}
+                    {{ user.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_USER_RATELIMIT }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    <input type="number" name="project_create_ratelimit_count" id="projectCreateRatelimitCount" min="1" max="{{ PROJECT_CREATE_RATELIMIT_CAP }}" step="1" value="{{ user.project_create_ratelimit_count or '' }}"> per
+                    <select name="project_create_ratelimit_period" id="projectCreateRatelimitPeriod">
+                      {% for period in RateLimitPeriod %}
+                      <option value="{{ period.value }}" {{ 'selected' if user.project_create_ratelimit_period == period }}>{{ period.value }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not perms_admin_users_write }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">2FA</h3>
         </div>
         <div>
@@ -799,6 +892,8 @@
                 <td>
                   {% if association.service == 'github' %}
                   <i class="fa-brands fa-github"></i> GitHub
+                  {% elif association.service == 'gitlab' %}
+                  <i class="fa-brands fa-gitlab"></i> GitLab
                   {% else %}
                   {{ association.service }}
                   {% endif %}
@@ -806,6 +901,10 @@
                 <td>
                   {% if association.service == 'github' %}
                   <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% elif association.service == 'gitlab' %}
+                  <a href="https://gitlab.com/{{ association.external_username }}" target="_blank" rel="noopener">
                     {{ association.external_username }}
                   </a>
                   {% else %}
@@ -918,12 +1017,20 @@
 
         <div class="card-body">
           {% if roles %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover" id="projects"
+                 data-tabulator
+                 tabulator-layout="fitDataFill"
+                 tabulator-responsiveLayout="collapse"
+                 tabulator-pagination="true"
+                 tabulator-paginationSize="25"
+                 tabulator-placeholder="No matching projects">
             <thead>
               <tr>
                 <th>Project Name</th>
-                <th>Role</th>
-                <th>Total Size</th>
+                <th tabulator-responsive="2">Role</th>
+                <th>Lifecycle Status</th>
+                <th tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="4">Releases</th>
+                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="3">Total Size</th>
               </tr>
             </thead>
             <tbody>
@@ -931,7 +1038,9 @@
               <tr>
                 <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
                 <td>{{ project.role_name }}</td>
-                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
+                <td>{% if project.lifecycle_status %}<span class="badge {{ 'badge-warning' if project.lifecycle_status == 'quarantine-enter' else 'badge-secondary' }}">{{ project.lifecycle_status }}</span>{% endif %}</td>
+                <td>{{ project.releases_count }}</td>
+                <td>{{ project.total_size or 0 }}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -1207,7 +1316,7 @@
           </table>
         </div>
         <div class="card-footer">
-          <a href="{{ request.route_path('admin.journals.list', _query={"q": "user:" + user.username}) }}"
+          <a href="{{ request.route_path('admin.journals.list', _query={"submitted_by": user.username}) }}"
              class="btn btn-primary">View all journals for username</a>
         </div>
       </div>

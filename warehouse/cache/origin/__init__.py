@@ -1,15 +1,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import functools
 import operator
 
 from itertools import chain
+from typing import Any, NamedTuple
+
+import structlog
 
 from warehouse import db
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
-from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db import (
+    AUDIT_ONLY_ATTRS,
+    changed_attributes,
+    orm_session_from_obj,
+)
+
+logger = structlog.get_logger(__name__)
+
+# Collection-attribute mutations that should NOT trigger a CDN purge for the
+# parent object: the audit-only collections, plus collections whose child model
+# has its own `cache_keys` registration that already covers the affected
+# content (`roles`, `releases`, `files`). When the child is added/removed its
+# own purge fires, so the parent-dirty purge is either redundant (same keys) or
+# strictly broader (extra keys like `all-projects` / `org/*` that aren't
+# actually affected by the child-scoped change).
+_NON_CACHE_RELEVANT_ATTRS = AUDIT_ONLY_ATTRS | {"roles", "releases", "files"}
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -22,23 +39,52 @@ def store_purge_keys(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a cache key that we'll want to purge when the session has been committed.
-    for obj in session.new | session.dirty | session.deleted:
+    new, dirty, deleted = session.new, session.dirty, session.deleted
+    for obj in new | dirty | deleted:
         try:
             key_maker = cache_keys[obj.__class__]
         except KeyError:
             continue
 
-        purges.update(key_maker(obj).purge)
+        changed = changed_attributes(obj, dirty)
+        if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
+            continue
+
+        keys = list(key_maker(obj).purge)
+
+        if keys:
+            if obj in new:
+                state = "new"
+            elif obj in deleted:
+                state = "deleted"
+            else:
+                state = "dirty"
+
+            log_kw = {
+                "obj_class": obj.__class__.__name__,
+                "state": state,
+                "keys": sorted(keys),
+            }
+            if changed:
+                log_kw["changed_attrs"] = sorted(changed)
+            logger.info("cache_purge_keys_generated", **log_kw)
+
+        purges.update(keys)
 
 
 @db.listens_for(db.Session, "after_commit")
 def execute_purge(config, session):
     purges = session.info.pop("warehouse.cache.origin.purges", set())
 
+    if not purges:
+        return
+
     try:
         cacher_factory = config.find_service_factory(IOriginCache)
     except LookupError:
         return
+
+    logger.info("cache_purge_executing", count=len(purges), keys=sorted(purges))
 
     cacher = cacher_factory(None, config)
     cacher.purge(purges)
@@ -79,7 +125,9 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
     return inner
 
 
-CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+class CacheKeys(NamedTuple):
+    cache: Any
+    purge: Any
 
 
 def key_factory(keystring, iterate_on=None, if_attr_exists=None):
@@ -131,8 +179,15 @@ def receive_set(attribute, config, target):
     session = orm_session_from_obj(target)
     purges = session.info.setdefault("warehouse.cache.origin.purges", set())
     key_maker = cache_keys[attribute]
-    keys = key_maker(target).purge
-    purges.update(list(keys))
+    keys = list(key_maker(target).purge)
+    logger.info(
+        "cache_purge_keys_generated",
+        obj_class=target.__class__.__name__,
+        trigger="attribute_set",
+        attr=attribute.key,
+        keys=sorted(keys),
+    )
+    purges.update(keys)
 
 
 def includeme(config):

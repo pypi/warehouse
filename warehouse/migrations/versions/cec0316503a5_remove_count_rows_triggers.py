@@ -22,8 +22,7 @@ def upgrade():
 
 
 def downgrade():
-    op.execute(
-        """ CREATE FUNCTION count_rows()
+    op.execute(""" CREATE FUNCTION count_rows()
             RETURNS TRIGGER AS
             '
                 BEGIN
@@ -40,66 +39,49 @@ def downgrade():
                     RETURN NULL;
                 END;
             ' LANGUAGE plpgsql;
-        """
-    )
+        """)
 
     op.execute("LOCK TABLE projects IN SHARE ROW EXCLUSIVE MODE")
     op.execute("LOCK TABLE releases IN SHARE ROW EXCLUSIVE MODE")
     op.execute("LOCK TABLE release_files IN SHARE ROW EXCLUSIVE MODE")
     op.execute("LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE")
 
-    op.execute(
-        """ CREATE TRIGGER update_row_count
+    op.execute(""" CREATE TRIGGER update_row_count
             AFTER INSERT OR DELETE ON projects
             FOR EACH ROW
             EXECUTE PROCEDURE count_rows();
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER update_row_count
+    op.execute(""" CREATE TRIGGER update_row_count
             AFTER INSERT OR DELETE ON releases
             FOR EACH ROW
             EXECUTE PROCEDURE count_rows();
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER update_row_count
+    op.execute(""" CREATE TRIGGER update_row_count
             AFTER INSERT OR DELETE ON release_files
             FOR EACH ROW
             EXECUTE PROCEDURE count_rows();
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER update_row_count
+    op.execute(""" CREATE TRIGGER update_row_count
             AFTER INSERT OR DELETE ON users
             FOR EACH ROW
             EXECUTE PROCEDURE count_rows();
-        """
-    )
+        """)
 
-    op.execute(
-        """ INSERT INTO row_counts (table_name, count)
+    op.execute(""" INSERT INTO row_counts (table_name, count)
             VALUES  ('projects',  (SELECT COUNT(*) FROM projects));
-        """
-    )
+        """)
 
-    op.execute(
-        """ INSERT INTO row_counts (table_name, count)
+    op.execute(""" INSERT INTO row_counts (table_name, count)
             VALUES  ('releases',  (SELECT COUNT(*) FROM releases));
-        """
-    )
+        """)
 
-    op.execute(
-        """ INSERT INTO row_counts (table_name, count)
+    op.execute(""" INSERT INTO row_counts (table_name, count)
             VALUES  ('release_files',  (SELECT COUNT(*) FROM release_files));
-        """
-    )
+        """)
 
-    op.execute(
-        """ INSERT INTO row_counts (table_name, count)
+    op.execute(""" INSERT INTO row_counts (table_name, count)
             VALUES  ('users',  (SELECT COUNT(*) FROM users));
-        """
-    )
+        """)

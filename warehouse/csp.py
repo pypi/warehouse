@@ -110,7 +110,7 @@ def _connect_src_settings(config) -> list:
         # Incoming scheme could be http or https.
         scheme_replacement = "wss" if parsed_url.scheme == "https" else "ws"
 
-        replaced = parsed_url._replace(scheme=scheme_replacement)  # noqa
+        replaced = parsed_url._replace(scheme=scheme_replacement)
 
         settings.extend(
             [
@@ -131,9 +131,6 @@ def _script_src_settings(config) -> list:
         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
         # Hash for v3.2.2 of MathJax tex-svg.js
         "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
-        # Hash for MathJax inline config
-        # See warehouse/templates/packaging/detail.html
-        "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
     ]
 
     if config.registry.settings.get("warehouse.env") == Environment.development:

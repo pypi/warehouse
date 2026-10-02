@@ -2,9 +2,6 @@
 
 import uuid
 
-from unittest import mock
-
-import pretend
 import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage
@@ -16,15 +13,28 @@ import warehouse.constants
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import LifecycleStatus, Project, Role
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    LifecycleStatus,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ....common.db.packaging import (
+    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ProjectObservationFactory,
@@ -35,29 +45,60 @@ from ....common.db.packaging import (
 
 class TestProjectList:
     def test_no_query(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
+        projects = ProjectFactory.create_batch(5)
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[:25], "query": None, "exact_match": None}
+        assert result["query"] is None
+        assert result["days"] == 30
+        assert result["allowed_days"] == (30, 60, 90)
+        assert len(result["creation_series"]) == 30
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 5
+        recent = result["recent_projects"]
+        assert len(recent) == 5
+        assert {r.name for r in recent} == {p.name for p in projects}
+        # Each row should have the expected columns
+        for row in recent:
+            assert hasattr(row, "name")
+            assert hasattr(row, "normalized_name")
+            assert hasattr(row, "created")
+            assert hasattr(row, "latest_version")
 
-    def test_with_page(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
-        db_request.GET["page"] = "2"
+    def test_no_query_with_days_param(self, db_request):
+        ProjectFactory.create_batch(3)
+        db_request.GET["days"] = "60"
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[25:], "query": None, "exact_match": None}
+        assert result["days"] == 60
+        assert len(result["creation_series"]) == 60
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 3
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_no_query_with_non_integer_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "abc"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_with_invalid_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "999"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_recent_projects_limit(self, db_request):
+        ProjectFactory.create_batch(15)
+        result = views.project_list(db_request)
+
+        assert len(result["recent_projects"]) == 10
+
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"q": "something", "page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.project_list(request)
+            views.project_list(pyramid_request)
 
     def test_basic_query(self, db_request):
         projects = sorted(
@@ -71,6 +112,51 @@ class TestProjectList:
             "query": projects[0].name,
             "exact_match": None,
         }
+
+    def test_basic_query_with_page(self, db_request):
+        projects = sorted(
+            ProjectFactory.create_batch(30),
+            key=lambda p: p.normalized_name,
+        )
+        db_request.GET["q"] = projects[0].name
+        db_request.GET["page"] = "1"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [projects[0]],
+            "query": projects[0].name,
+            "exact_match": None,
+        }
+
+    def test_id_query(self, db_request):
+        projects = ProjectFactory.create_batch(3)
+        target = projects[1]
+        db_request.GET["q"] = f"id:{target.id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [target],
+            "query": f"id:{target.id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_not_found(self, db_request):
+        ProjectFactory.create()
+        missing_id = uuid.uuid4()
+        db_request.GET["q"] = f"id:{missing_id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [],
+            "query": f"id:{missing_id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_invalid_uuid(self, db_request):
+        db_request.GET["q"] = "id:not-a-uuid"
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_list(db_request)
 
 
 class TestProjectDetail:
@@ -94,6 +180,7 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
+            "journal_count": 75,
             "oidc_publishers": oidc_publishers,
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
@@ -104,20 +191,19 @@ class TestProjectDetail:
             "observations": [],
         }
 
-    def test_non_normalized_name(self, db_request):
+    def test_non_normalized_name(self, db_request, mocker):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/admin/projects/the-redirect/",
         )
         with pytest.raises(HTTPMovedPermanently):
             views.project_detail(project, db_request)
 
     def test_with_organization(self, db_request):
-        from ....common.db.organizations import (
-            OrganizationFactory,
-            OrganizationProjectFactory,
-        )
 
         organization = OrganizationFactory.create(
             upload_limit=150 * views.ONE_MIB,
@@ -157,39 +243,35 @@ class TestReleaseDetail:
             "observations": [],
         }
 
-    def test_release_render(self, db_request):
+    def test_release_render(self, db_request, mocker):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project)
         db_request.matchdict["project_name"] = str(project.normalized_name)
         db_request.matchdict["version"] = str(release.version)
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
         # Mock request task handler
-        request_task_mock = mock.Mock()
+        request_task_mock = mocker.Mock()
         db_request.task = request_task_mock
 
         views.release_render(release, db_request)
 
         request_task_mock.assert_called_with(update_release_description)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Task sent to re-render description for {release}", queue="success"
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Task sent to re-render description for {release}", queue="success"
+        )
 
 
 class TestReleaseAddObservation:
-    def test_add_observation(self, db_request):
+    def test_add_observation(self, db_request, mocker):
         release = ReleaseFactory.create()
         user = UserFactory.create()
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
         db_request.matchdict["project_name"] = release.project.normalized_name
         db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
@@ -200,85 +282,124 @@ class TestReleaseAddObservation:
 
         assert len(release.observations) == 1
 
-    def test_no_kind_errors(self):
-        release = pretend.stub(
-            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+    def test_no_kind_errors(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
         )
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        with pytest.raises(HTTPSeeOther) as exc:
-            views.add_release_observation(release, request)
-        assert exc.value.status_code == 303
-        assert exc.value.headers["Location"] == "/foo/bar/"
-
-        assert request.session.flash.calls == [
-            pretend.call("Provide a kind", queue="error")
-        ]
-
-    def test_invalid_kind_errors(self):
-        release = pretend.stub(
-            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
-        )
-        request = pretend.stub(
-            POST={"kind": "not a valid kind"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+        pyramid_request.POST = {}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_release_observation(release, request)
+            views.add_release_observation(release, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Invalid kind", queue="error")
-        ]
-
-    def test_no_summary_errors(self):
-        release = pretend.stub(
-            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a kind", queue="error"
         )
-        request = pretend.stub(
-            POST={"kind": ObservationKind.IsSpam.value[0]},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+
+    def test_invalid_kind_errors(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {"kind": "not a valid kind"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_release_observation(release, request)
+            views.add_release_observation(release, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Provide a summary", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid kind", queue="error"
+        )
+
+    def test_no_summary_errors(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {"kind": ObservationKind.IsSpam.value[0]}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a summary", queue="error"
+        )
 
 
 class TestProjectQuarantine:
-    def test_remove_from_quarantine(self, db_request):
+    def test_remove_from_quarantine(self, db_request, mocker):
         project = ProjectFactory.create(lifecycle_status="quarantine-enter")
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
         db_request.matchdict["project_name"] = project.normalized_name
 
         views.remove_from_quarantine(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Project {project.name} quarantine cleared.\n"
-                "Please update related Help Scout conversations.",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Project {project.name} quarantine cleared.\n"
+            "Please update related Help Scout conversations.",
+            queue="success",
+        )
+
+    def test_release_quarantine(self, db_request, mocker):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/projects/release/",
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = UserFactory.create()
+
+        result = views.release_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineEnter
+        db_request.route_path.assert_called_once_with(
+            "admin.project.release",
+            project_name=project.normalized_name,
+            version=release.version,
+        )
+
+    def test_release_remove_from_quarantine(self, db_request, mocker):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/projects/release/",
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = UserFactory.create()
+
+        result = views.release_remove_from_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineExit
 
 
 class TestProjectReleasesList:
@@ -366,106 +487,33 @@ class TestProjectReleasesList:
             "query": f"{releases[3].version}",
         }
 
-    def test_non_normalized_name(self, db_request):
+    def test_non_normalized_name(self, db_request, mocker):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/releases/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/admin/projects/the-redirect/releases/",
         )
         with pytest.raises(HTTPMovedPermanently):
             views.releases_list(project, db_request)
 
 
 class TestProjectJournalsList:
-    def test_no_query(self, db_request):
+    def test_returns_project(self, db_request):
         project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
         db_request.matchdict["project_name"] = project.normalized_name
+
         result = views.journals_list(project, db_request)
 
-        assert result == {"journals": journals[:25], "project": project, "query": None}
-
-    def test_with_page(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "2"
-        result = views.journals_list(project, db_request)
-
-        assert result == {"journals": journals[25:], "project": project, "query": None}
-
-    def test_with_invalid_page(self, db_request):
-        project = ProjectFactory.create()
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "not an integer"
-
-        with pytest.raises(HTTPBadRequest):
-            views.journals_list(project, db_request)
-
-    def test_version_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"version:{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": [journals[3]],
-            "project": project,
-            "query": f"version:{journals[3].version}",
-        }
-
-    def test_invalid_key_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:username"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": "user:username",
-        }
-
-    def test_basic_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": f"{journals[3].version}",
-        }
+        assert result == {"project": project}
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/journals/"
+        db_request.current_route_path = lambda *a, **kw: (
+            "/admin/projects/the-redirect/journals/"
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
@@ -513,12 +561,12 @@ class TestProjectObservationsList:
 
 
 class TestProjectAddObservation:
-    def test_add_observation(self, db_request):
+    def test_add_observation(self, db_request, mocker):
         project = ProjectFactory.create()
         observer = ObserverFactory.create()
         user = UserFactory.create(observer=observer)
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
@@ -529,11 +577,11 @@ class TestProjectAddObservation:
 
         assert len(project.observations) == 1
 
-    def test_no_user_observer(self, db_request):
+    def test_no_user_observer(self, db_request, mocker):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
@@ -544,242 +592,249 @@ class TestProjectAddObservation:
 
         assert len(project.observations) == 1
 
-    def test_no_kind_errors(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+    def test_no_kind_errors(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
+        pyramid_request.POST = {}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_project_observation(project, request)
+            views.add_project_observation(project, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Provide a kind", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a kind", queue="error"
+        )
 
-    def test_invalid_kind_errors(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={"kind": "not a valid kind"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+    def test_invalid_kind_errors(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
+        pyramid_request.POST = {"kind": "not a valid kind"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_project_observation(project, request)
+            views.add_project_observation(project, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Invalid kind", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid kind", queue="error"
+        )
 
-    def test_no_summary_errors(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={"kind": ObservationKind.IsSpam.value[0]},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+    def test_no_summary_errors(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
+        pyramid_request.POST = {"kind": ObservationKind.IsSpam.value[0]}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_project_observation(project, request)
+            views.add_project_observation(project, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Provide a summary", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a summary", queue="error"
+        )
 
 
 class TestProjectSetTotalSizeLimit:
-    def test_sets_total_size_limitwith_integer(self, db_request):
+    def test_sets_total_size_limitwith_integer(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
         views.set_total_size_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Set the total size limit on 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Set the total size limit on 'foo'", queue="success"
+        )
 
         assert project.total_size_limit == 150 * views.ONE_GIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": None,
+            "new_total_size_limit": 150 * views.ONE_GIB,
+            "actor": user.username,
+        }
 
-    def test_sets_total_size_limitwith_none(self, db_request):
+    def test_sets_total_size_limitwith_none(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         project.total_size_limit = 150 * views.ONE_GIB
+        user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": ""})
 
         views.set_total_size_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Set the total size limit on 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Set the total size limit on 'foo'", queue="success"
+        )
 
         assert project.total_size_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": 150 * views.ONE_GIB,
+            "new_total_size_limit": None,
+            "actor": user.username,
+        }
 
-    def test_sets_total_size_limitwith_non_integer(self, db_request):
+    def test_sets_total_size_limitwith_non_integer(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "meep"})
 
         result = views.set_total_size_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "total_size_limit: Total size limit must be a valid integer or empty",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "total_size_limit: Total size limit must be a valid integer or empty",
+            queue="error",
+        )
         assert result.status_code == 303
 
-    def test_sets_total_size_limit_with_less_than_minimum(self, db_request):
+    def test_sets_total_size_limit_with_less_than_minimum(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "9"})
 
         result = views.set_total_size_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "total_size_limit: Total organization size can not be less than "
-                "10.0GiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "total_size_limit: Total organization size can not be less than 10.0GiB",
+            queue="error",
+        )
         assert result.status_code == 303
 
 
 class TestProjectSetLimit:
-    def test_sets_limitwith_integer(self, db_request):
+    def test_sets_limitwith_integer(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
 
         views.set_upload_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Set the upload limit on 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Set the upload limit on 'foo'", queue="success"
+        )
 
         assert project.upload_limit == new_upload_limit * views.ONE_MIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": None,
+            "new_upload_limit": new_upload_limit * views.ONE_MIB,
+            "actor": user.username,
+        }
 
-    def test_sets_limit_with_none(self, db_request):
+    def test_sets_limit_with_none(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         project.upload_limit = 90 * views.ONE_MIB
+        user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": ""})
 
         views.set_upload_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Set the upload limit on 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Set the upload limit on 'foo'", queue="success"
+        )
 
         assert project.upload_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": 90 * views.ONE_MIB,
+            "new_upload_limit": None,
+            "actor": user.username,
+        }
 
-    def test_sets_limit_with_non_integer(self, db_request):
+    def test_sets_limit_with_non_integer(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": "meep"})
 
         result = views.set_upload_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit must be a valid integer or empty",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit must be a valid integer or empty", queue="error"
+        )
         assert result.status_code == 303
 
-    def test_sets_limit_with_less_than_minimum(self, db_request):
+    def test_sets_limit_with_less_than_minimum(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": "20"})
 
         result = views.set_upload_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit can not be less than 100.0MiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit can not be less than 100.0MiB", queue="error"
+        )
         assert result.status_code == 303
 
-    def test_sets_limit_above_maximum(self, db_request):
+    def test_sets_limit_above_maximum(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict(
             {"upload_limit": str(views.UPLOAD_LIMIT_CAP // views.ONE_MIB + 1)}
@@ -787,246 +842,234 @@ class TestProjectSetLimit:
 
         result = views.set_upload_limit(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit can not be greater than 1024.0MiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit can not be greater than 1024.0MiB",
+            queue="error",
+        )
         assert result.status_code == 303
 
 
 class TestDeleteProject:
-    def test_no_confirm(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+    def test_no_confirm(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
+        pyramid_request.POST = {}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.delete_project(project, request)
+            views.delete_project(project, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
-    def test_wrong_confirm(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={"confirm_project_name": "bar"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+    def test_wrong_confirm(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
+        pyramid_request.POST = {"confirm_project_name": "bar"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.delete_project(project, request)
+            views.delete_project(project, pyramid_request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Could not delete project - 'bar' is not the same as 'foo'",
-                queue="error",
-            )
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Could not delete project - 'bar' is not the same as 'foo'", queue="error"
+        )
 
-    def test_deletes_project(self, db_request):
+    def test_deletes_project(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST["confirm_project_name"] = project.name
         db_request.user = UserFactory.create()
 
         views.delete_project(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Deleted the project 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Deleted the project 'foo'", queue="success"
+        )
 
         assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
 
 
 class TestAddRole:
-    def test_add_role(self, db_request):
+    def test_add_role(self, db_request, mocker):
         role_name = "Maintainer"
         project = ProjectFactory.create(name="foo")
         UserFactory.create(username="admin")
         user = UserFactory.create(username="bar")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.POST["username"] = user.username
         db_request.POST["role_name"] = role_name
         db_request.user = UserFactory.create()
 
         views.add_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Added 'bar' as '{role_name}' on 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Added 'bar' as '{role_name}' on 'foo'", queue="success"
+        )
 
         role = db_request.db.query(Role).one()
         assert role.role_name == role_name
         assert role.user == user
         assert role.project == project
 
-    def test_add_role_no_username(self, db_request):
+    def test_add_role_no_username(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
         db_request.POST = {}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
 
         with pytest.raises(HTTPSeeOther):
             views.add_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a username", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Provide a username", queue="error"
+        )
 
-    def test_add_role_no_user(self, db_request):
+    def test_add_role_no_user(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
         db_request.POST = {"username": "bar"}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
 
         with pytest.raises(HTTPSeeOther):
             views.add_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Unknown username 'bar'", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Unknown username 'bar'", queue="error"
+        )
 
-    def test_add_role_no_role_name(self, db_request):
+    def test_add_role_no_role_name(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         UserFactory.create(username="bar")
 
         db_request.POST = {"username": "bar"}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
 
         with pytest.raises(HTTPSeeOther):
             views.add_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a role", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Provide a role", queue="error"
+        )
 
-    def test_add_role_with_existing_role(self, db_request):
+    def test_add_role_with_existing_role(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="bar")
         role = RoleFactory.create(project=project, user=user)
 
         db_request.POST = {"username": "bar", "role_name": role.role_name}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
 
         with pytest.raises(HTTPSeeOther):
             views.add_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("User 'bar' already has a role on this project", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "User 'bar' already has a role on this project", queue="error"
+        )
 
 
 class TestDeleteRole:
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="bar")
         role = RoleFactory.create(project=project, user=user)
         UserFactory.create(username="admin")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.POST["username"] = user.username
         db_request.matchdict["role_id"] = role.id
         db_request.user = UserFactory.create()
 
         views.delete_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Removed '{role.user.username}' as '{role.role_name}' "
-                f"on '{project.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
+            queue="success",
+        )
 
         assert db_request.db.query(Role).all() == []
 
-    def test_delete_role_not_found(self, db_request):
+    def test_delete_role_not_found(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["role_id"] = uuid.uuid4()
         db_request.user = UserFactory.create()
 
         with pytest.raises(HTTPSeeOther):
             views.delete_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("This role no longer exists", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "This role no longer exists", queue="error"
+        )
 
-    def test_delete_role_no_confirm(self, db_request):
+    def test_delete_role_no_confirm(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="bar")
         role = RoleFactory.create(project=project, user=user)
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect/"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["role_id"] = role.id
         db_request.user = UserFactory.create()
 
         with pytest.raises(HTTPSeeOther):
             views.delete_role(project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
 
 class TestReindexProject:
-    def test_reindexes_project(self, db_request):
+    def test_reindexes_project(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/admin/projects/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         # Mock request task handler
-        request_task_mock = mock.Mock()
+        request_task_mock = mocker.Mock()
         db_request.task = request_task_mock
 
         views.reindex_project(project, db_request)
@@ -1034,99 +1077,389 @@ class TestReindexProject:
         # Make sure reindex_project task was called
         request_task_mock.assert_called_with(reindex_project)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Task sent to reindex the project 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Task sent to reindex the project 'foo'", queue="success"
+        )
 
 
 class TestProjectArchival:
-    def test_archive(self, db_request):
+    def test_archive(self, db_request, mocker):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="testuser")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         db_request.method = "POST"
         db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.archive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
         assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
-        assert db_request.route_path.calls == [
-            pretend.call("admin.project.detail", project_name=project.name)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.project.detail", project_name=project.name
+        )
 
-    def test_unarchive_project(self, db_request):
+    def test_unarchive_project(self, db_request, mocker):
         project = ProjectFactory.create(
             name="foo", lifecycle_status=LifecycleStatus.Archived
         )
         user = UserFactory.create(username="testuser")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         db_request.method = "POST"
         db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.unarchive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.project.detail", project_name=project.name)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.project.detail", project_name=project.name
+        )
         assert project.lifecycle_status is None
 
-    def test_disallowed_archive(self, db_request):
+    def test_disallowed_archive(self, db_request, mocker):
         project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
         user = UserFactory.create(username="testuser")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         db_request.method = "POST"
         db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.archive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Cannot archive project with status {project.lifecycle_status}",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.project.detail", project_name="foo")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Cannot archive project with status {project.lifecycle_status}",
+            queue="error",
+        )
+        db_request.route_path.assert_called_once_with(
+            "admin.project.detail", project_name="foo"
+        )
         assert project.lifecycle_status == "quarantine-enter"
 
-    def test_disallowed_unarchive(self, db_request):
+    def test_disallowed_unarchive(self, db_request, mocker):
         project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
         user = UserFactory.create(username="testuser")
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         db_request.method = "POST"
         db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.unarchive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Can only unarchive an archived project", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.project.detail", project_name="foo")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Can only unarchive an archived project", queue="error"
+        )
+        db_request.route_path.assert_called_once_with(
+            "admin.project.detail", project_name="foo"
+        )
         assert project.lifecycle_status == "quarantine-enter"
+
+
+class TestDeleteRelease:
+    def test_no_confirm(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
+        pyramid_request.route_path.assert_called_once_with(
+            "admin.project.release", project_name="foo", version="1.0"
+        )
+
+    def test_wrong_confirm(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {"confirm_version": "wrong"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Could not delete release - 'wrong' is not the same as '1.0'", queue="error"
+        )
+
+    def test_no_reason(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {"confirm_version": "1.0", "reason": ""}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a reason", queue="error"
+        )
+
+    def test_deletes_release(self, db_request, mocker):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        mocker.patch.object(project, "record_event", autospec=True, return_value=None)
+
+        db_request.POST = {
+            "confirm_version": release.version,
+            "reason": "compromised account",
+        }
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
+
+        send_email = mocker.patch.object(
+            views, "send_removed_project_release_email", autospec=True
+        )
+
+        result = views.delete_release(release, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        # Release is deleted
+        assert db_request.db.query(Release).all() == []
+
+        # JournalEntry created
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+        assert entry.name == project.name
+        assert entry.action == "remove release"
+        assert entry.version == release.version
+        assert entry.submitted_by == user
+
+        # Event recorded with reason
+        project.record_event.assert_called_once_with(
+            tag=EventTag.Project.ReleaseRemove,
+            request=db_request,
+            additional={
+                "submitted_by": user.username,
+                "canonical_version": release.canonical_version,
+                "reason": "compromised account",
+            },
+        )
+
+        # Email sent to contributors with reason
+        send_email.assert_called_once_with(
+            db_request,
+            user,
+            release=release,
+            submitter_name=user.username,
+            submitter_role="admin",
+            recipient_role="Owner",
+            reason="compromised account",
+        )
+
+        db_request.session.flash.assert_called_once_with(
+            f"Deleted release {release.version!r}", queue="success"
+        )
+
+        db_request.route_path.assert_called_once_with(
+            "admin.project.detail", project_name=project.normalized_name
+        )
+
+
+class TestDeleteReleaseFile:
+    def test_no_confirm(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
+
+    def test_wrong_confirm(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {"confirm_project_name": "wrong"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Could not delete file - 'wrong' is not the same as 'foo'", queue="error"
+        )
+
+    def test_no_reason(self, pyramid_request, mocker):
+        release = ReleaseFactory.build(
+            version="1.0", project=ProjectFactory.build(name="foo")
+        )
+        pyramid_request.POST = {
+            "confirm_project_name": "foo",
+            "file_id": "abc",
+            "reason": "",
+        }
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, pyramid_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Provide a reason", queue="error"
+        )
+
+    def test_file_not_found(self, db_request, mocker):
+        release = ReleaseFactory.create()
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": str(uuid.uuid4()),
+            "reason": "malware detected",
+        }
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, db_request)
+        assert exc.value.status_code == 303
+
+        db_request.session.flash.assert_called_once_with(
+            "Could not find file", queue="error"
+        )
+
+    def test_deletes_file(self, db_request, mocker):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(release=release, filename="foobar-1.0.tar.gz")
+        mocker.patch.object(project, "record_event", autospec=True, return_value=None)
+
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "file_id": str(release_file.id),
+            "reason": "malware detected",
+        }
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.user = user
+
+        send_email = mocker.patch.object(
+            views, "send_removed_project_release_file_email", autospec=True
+        )
+
+        result = views.delete_release_file(release, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        # File is deleted
+        assert db_request.db.query(File).all() == []
+
+        # JournalEntry created
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+        assert entry.name == project.name
+        assert entry.action == "remove file foobar-1.0.tar.gz"
+        assert entry.version == release.version
+        assert entry.submitted_by == user
+
+        # Event recorded on project (not file, which gets cascade-deleted)
+        project.record_event.assert_called_once_with(
+            tag=EventTag.File.FileRemove,
+            request=db_request,
+            additional={
+                "submitted_by": user.username,
+                "canonical_version": release.canonical_version,
+                "filename": "foobar-1.0.tar.gz",
+                "project_id": str(project.id),
+                "reason": "malware detected",
+            },
+        )
+
+        # Email sent with reason
+        send_email.assert_called_once_with(
+            db_request,
+            user,
+            file="foobar-1.0.tar.gz",
+            release=release,
+            submitter_name=user.username,
+            submitter_role="admin",
+            recipient_role="Owner",
+            reason="malware detected",
+        )
+
+        db_request.session.flash.assert_called_once_with(
+            "Deleted file 'foobar-1.0.tar.gz'", queue="success"
+        )
+
+        db_request.route_path.assert_called_once_with(
+            "admin.project.release",
+            project_name=project.normalized_name,
+            version=release.version,
+        )

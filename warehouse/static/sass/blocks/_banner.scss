@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colors";
+
+/*
+  Large blue padded horizontal container for at the top of the page:
+  <div class="banner"></div>
+
+  Modifiers:
+    - project: Reduced padding for project pages
+    - pre-release: Light blue background with dark text
+    - archived: Light grey background with dark text
+    - yanked: Dark background
+    - quarantined: Orange background
+*/
+
+.banner {
+  background-color: colors.$primary-color;
+  color: colors.$white;
+  padding: 50px 0;
+
+  @media only screen and (max-width: breakpoints.$tablet) {
+    padding: 40px 0;
+  }
+
+  @media only screen and (max-width: breakpoints.$mobile) {
+    padding: 25px 0;
+  }
+
+  &--project {
+    padding: 40px 0;
+  }
+
+  &--pre-release {
+    background-color: colors.$primary-color-light-border;
+    color: colors.$text-color;
+  }
+
+  &--archived {
+    background-color: colors.$off-white;
+    color: colors.$text-color;
+  }
+
+  &--yanked {
+    background-color: colors.$text-color;
+  }
+
+  &--quarantined {
+    background-color: colors.$warning-color;
+  }
+}

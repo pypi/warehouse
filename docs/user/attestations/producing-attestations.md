@@ -221,11 +221,11 @@ Before uploading attestations to the index, please:
     See [pypi-attestations' documentation] for usage as a Python library.
 
 
-[Trusted Publishing]: /trusted-publishers/
+[Trusted Publishing]: ../trusted-publishers/index.md
 
 [gh-action-pypi-publish]: https://github.com/pypa/gh-action-pypi-publish
 
-[publish attestation]: /attestations/publish/v1
+[publish attestation]: ../attestations/publish/v1.md
 
 [official workflows described above]: #the-easy-way
 
@@ -241,8 +241,8 @@ Before uploading attestations to the index, please:
 
 [twine]: https://github.com/pypa/twine
 
-[legacy upload API documentation]: /api/upload
+[legacy upload API documentation]: ../api/upload.md
 
-[GitLab Trusted Publishing]: /trusted-publishers/using-a-publisher/#gitlab-cicd
+[GitLab Trusted Publishing]: ../trusted-publishers/using-a-publisher.md#gitlab-cicd
 [Linux Foundation Immutable Record notice]: https://lfprojects.org/policies/hosted-project-tools-immutable-records/
 [workload identity]: https://cloud.google.com/iam/docs/workload-identity-federation

@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
+import responses
 import wtforms
 
-from requests import ConnectionError, HTTPError, Timeout
+from pyramid.i18n import Localizer
 from webob.multidict import MultiDict
 
 from warehouse import i18n
@@ -23,11 +25,13 @@ from ....common.db.packaging import (
     RoleFactory,
 )
 
+_LOOKUP_OWNER_URL = "https://api.github.com/users/some-owner"
+
 
 class TestPendingGitHubPublisherForm:
-    def test_validate(self, monkeypatch, project_service):
-        route_url = pretend.stub()
-        user = pretend.stub()
+    def test_validate(self, mocker, project_service):
+        route_url = mocker.sentinel.route_url
+        user = mocker.sentinel.user
 
         data = MultiDict(
             {
@@ -39,7 +43,7 @@ class TestPendingGitHubPublisherForm:
         )
         form = github.PendingGitHubPublisherForm(
             MultiDict(data),
-            api_token=pretend.stub(),
+            api_token=mocker.sentinel.api_token,
             route_url=route_url,
             check_project_name=project_service.check_project_name,
             user=user,
@@ -47,7 +51,7 @@ class TestPendingGitHubPublisherForm:
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
 
         assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
@@ -55,9 +59,10 @@ class TestPendingGitHubPublisherForm:
         assert form.validate()
 
     def test_validate_project_name_already_in_use_owner(
-        self, pyramid_config, project_service
+        self, mocker, pyramid_config, project_service
     ):
-        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+        route_url = mocker.stub(name="route_url")
+        route_url.return_value = ""
 
         user = UserFactory.create()
         project = ProjectFactory.create(name="some-project")
@@ -70,24 +75,23 @@ class TestPendingGitHubPublisherForm:
             user=user,
         )
 
-        field = pretend.stub(data="some-project")
+        form.project_name.data = "some-project"
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_project_name(field)
+            form.validate_project_name(form.project_name)
 
         # The project settings URL is only shown in the error message if
         # the user is the owner of the project
-        assert route_url.calls == [
-            pretend.call(
-                "manage.project.settings.publishing",
-                project_name="some-project",
-                _query={"provider": {"github"}},
-            )
-        ]
+        route_url.assert_called_once_with(
+            "manage.project.settings.publishing",
+            project_name="some-project",
+            _query={"project_name": "some-project", "provider": {"github"}},
+        )
 
     def test_validate_project_name_already_in_use_not_owner(
-        self, pyramid_config, project_service
+        self, mocker, pyramid_config, project_service
     ):
-        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+        route_url = mocker.stub(name="route_url")
+        route_url.return_value = ""
 
         user = UserFactory.create()
         ProjectFactory.create(name="some-project")
@@ -99,36 +103,38 @@ class TestPendingGitHubPublisherForm:
             user=user,
         )
 
-        field = pretend.stub(data="some-project")
+        form.project_name.data = "some-project"
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_project_name(field)
+            form.validate_project_name(form.project_name)
 
-        assert route_url.calls == []
+        route_url.assert_not_called()
 
     @pytest.mark.parametrize(
         "reason",
         [
-            ProjectNameUnavailableExistingError(pretend.stub(owners=[pretend.stub()])),
+            ProjectNameUnavailableExistingError(
+                types.SimpleNamespace(owners=[object()])
+            ),
             ProjectNameUnavailableInvalidError(),
             ProjectNameUnavailableStdlibError(),
             ProjectNameUnavailableProhibitedError(),
             ProjectNameUnavailableSimilarError(similar_project_name="pkg_name"),
         ],
     )
-    def test_validate_project_name_unavailable(self, reason, pyramid_config):
+    def test_validate_project_name_unavailable(self, reason, mocker, pyramid_config):
         def check_project_name(name):
             raise reason
 
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
-            route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
+            route_url=mocker.stub(name="route_url"),
             check_project_name=check_project_name,
-            user=pretend.stub(),
+            user=mocker.sentinel.user,
         )
 
-        field = pretend.stub(data="some-project")
+        form.project_name.data = "some-project"
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_project_name(field)
+            form.validate_project_name(form.project_name)
 
 
 class TestGitHubPublisherForm:
@@ -142,7 +148,7 @@ class TestGitHubPublisherForm:
             ("fake-token", {"Authorization": "token fake-token"}),
         ],
     )
-    def test_validate(self, token, headers, monkeypatch):
+    def test_validate(self, token, headers, mocker):
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -154,181 +160,114 @@ class TestGitHubPublisherForm:
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
 
         assert form._api_token == token
         assert form._headers_auth() == headers
         assert form.validate(), str(form.errors)
 
-    def test_lookup_owner_404(self, monkeypatch):
-        response = pretend.stub(
-            status_code=404, raise_for_status=pretend.raiser(HTTPError)
-        )
-        requests = pretend.stub(
-            get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
-        )
-        monkeypatch.setattr(github, "requests", requests)
+    @responses.activate
+    def test_lookup_owner_404(self):
+        responses.add(responses.GET, _LOOKUP_OWNER_URL, status=404)
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
-        assert requests.get.calls == [
-            pretend.call(
-                "https://api.github.com/users/some-owner",
-                headers={
-                    "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token fake-token",
-                },
-                allow_redirects=True,
-                timeout=5,
-            )
-        ]
-
-    def test_lookup_owner_403(self, monkeypatch):
-        response = pretend.stub(
-            status_code=403,
-            raise_for_status=pretend.raiser(HTTPError),
-            json=lambda: {"message": "fake-message"},
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == _LOOKUP_OWNER_URL
+        assert responses.calls[0].request.headers["Authorization"] == "token fake-token"
+        assert (
+            responses.calls[0].request.headers["Accept"]
+            == "application/vnd.github.v3+json"
         )
-        requests = pretend.stub(
-            get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
-        )
-        monkeypatch.setattr(github, "requests", requests)
+        assert responses.calls[0].request.req_kwargs["timeout"] == 5
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
+    @responses.activate
+    def test_lookup_owner_403(self, mocker):
+        capture_message = mocker.patch.object(
+            github.sentry_sdk, "capture_message", autospec=True
+        )
+        responses.add(
+            responses.GET,
+            _LOOKUP_OWNER_URL,
+            status=403,
+            json={"message": "fake-message"},
+        )
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
-        assert requests.get.calls == [
-            pretend.call(
-                "https://api.github.com/users/some-owner",
-                headers={
-                    "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token fake-token",
-                },
-                allow_redirects=True,
-                timeout=5,
-            )
-        ]
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Exceeded GitHub rate limit for user lookups. "
-                "Reason: {'message': 'fake-message'}"
-            )
-        ]
-
-    def test_lookup_owner_other_http_error(self, monkeypatch):
-        response = pretend.stub(
-            # anything that isn't 404 or 403
-            status_code=422,
-            raise_for_status=pretend.raiser(HTTPError),
-            content=b"fake-content",
+        assert len(responses.calls) == 1
+        capture_message.assert_called_once_with(
+            "Exceeded GitHub rate limit for user lookups. "
+            "Reason: {'message': 'fake-message'}"
         )
-        requests = pretend.stub(
-            get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
-        )
-        monkeypatch.setattr(github, "requests", requests)
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
+    @responses.activate
+    def test_lookup_owner_other_http_error(self, mocker):
+        capture_message = mocker.patch.object(
+            github.sentry_sdk, "capture_message", autospec=True
+        )
+        # anything that isn't 404 or 403
+        responses.add(
+            responses.GET, _LOOKUP_OWNER_URL, status=422, body=b"fake-content"
+        )
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
-        assert requests.get.calls == [
-            pretend.call(
-                "https://api.github.com/users/some-owner",
-                headers={
-                    "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token fake-token",
-                },
-                allow_redirects=True,
-                timeout=5,
-            )
-        ]
-
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from GitHub user lookup: "
-                "response.content=b'fake-content'"
-            )
-        ]
-
-    def test_lookup_owner_http_timeout(self, monkeypatch):
-        requests = pretend.stub(
-            get=pretend.raiser(Timeout),
-            Timeout=Timeout,
-            HTTPError=HTTPError,
-            ConnectionError=ConnectionError,
+        assert len(responses.calls) == 1
+        capture_message.assert_called_once_with(
+            "Unexpected error from GitHub user lookup: response.content=b'fake-content'"
         )
-        monkeypatch.setattr(github, "requests", requests)
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
+    @responses.activate
+    def test_lookup_owner_http_timeout(self, mocker):
+        capture_message = mocker.patch.object(
+            github.sentry_sdk, "capture_message", autospec=True
+        )
+        responses.add(responses.GET, _LOOKUP_OWNER_URL, body=github.requests.Timeout())
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call("Timeout from GitHub user lookup API (possibly offline)")
-        ]
-
-    def test_lookup_owner_connection_error(self, monkeypatch):
-        requests = pretend.stub(
-            get=pretend.raiser(ConnectionError),
-            Timeout=Timeout,
-            HTTPError=HTTPError,
-            ConnectionError=ConnectionError,
+        capture_message.assert_called_once_with(
+            "Timeout from GitHub user lookup API (possibly offline)"
         )
-        monkeypatch.setattr(github, "requests", requests)
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
+    @responses.activate
+    def test_lookup_owner_connection_error(self, mocker):
+        capture_message = mocker.patch.object(
+            github.sentry_sdk, "capture_message", autospec=True
+        )
+        responses.add(
+            responses.GET, _LOOKUP_OWNER_URL, body=github.requests.ConnectionError()
+        )
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Connection error from GitHub user lookup API (possibly offline)"
-            )
-        ]
+        capture_message.assert_called_once_with(
+            "Connection error from GitHub user lookup API (possibly offline)"
+        )
 
-    def test_lookup_owner_succeeds(self, monkeypatch):
-        fake_owner_info = pretend.stub()
-        response = pretend.stub(
-            status_code=200,
-            raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: fake_owner_info,
-        )
-        requests = pretend.stub(
-            get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
-        )
-        monkeypatch.setattr(github, "requests", requests)
+    @responses.activate
+    def test_lookup_owner_succeeds(self):
+        owner_info = {"login": "fake-username", "id": 1234}
+        responses.add(responses.GET, _LOOKUP_OWNER_URL, json=owner_info)
 
         form = github.GitHubPublisherForm(api_token="fake-token")
         info = form._lookup_owner("some-owner")
 
-        assert requests.get.calls == [
-            pretend.call(
-                "https://api.github.com/users/some-owner",
-                headers={
-                    "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token fake-token",
-                },
-                allow_redirects=True,
-                timeout=5,
-            )
-        ]
-        assert response.raise_for_status.calls == [pretend.call()]
-        assert info == fake_owner_info
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == _LOOKUP_OWNER_URL
+        assert responses.calls[0].request.headers["Authorization"] == "token fake-token"
+        assert info == owner_info
 
     @pytest.mark.parametrize(
         "data",
@@ -351,28 +290,30 @@ class TestGitHubPublisherForm:
             {"repository": "some", "owner": "some", "workflow_filename": ""},
         ],
     )
-    def test_validate_basic_invalid_fields(self, monkeypatch, data):
-        form = github.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
+    def test_validate_basic_invalid_fields(self, mocker, data):
+        form = github.GitHubPublisherForm(
+            MultiDict(data), api_token=mocker.sentinel.token
+        )
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
 
         assert not form.validate()
 
-    def test_validate_owner(self, monkeypatch):
-        form = github.GitHubPublisherForm(api_token=pretend.stub())
+    def test_validate_owner(self, mocker):
+        form = github.GitHubPublisherForm(api_token=mocker.sentinel.token)
 
         owner_info = {"login": "some-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
 
-        field = pretend.stub(data="SOME-USERNAME")
-        form.validate_owner(field)
+        form.owner.data = "SOME-USERNAME"
+        form.validate_owner(form.owner)
 
         assert form.normalized_owner == "some-username"
         assert form.owner_id == "1234"
 
-    def test_validate_workflow_filename_strips_whitespace(self, monkeypatch):
+    def test_validate_workflow_filename_strips_whitespace(self, mocker):
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -380,9 +321,11 @@ class TestGitHubPublisherForm:
                 "workflow_filename": "  some-workflow.yml  ",
             }
         )
-        form = github.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
+        form = github.GitHubPublisherForm(
+            MultiDict(data), api_token=mocker.sentinel.token
+        )
         owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
 
         assert form.validate(), str(form.errors)
         assert form.owner.data == "some-owner"
@@ -392,12 +335,12 @@ class TestGitHubPublisherForm:
     @pytest.mark.parametrize(
         "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
     )
-    def test_validate_workflow_filename_raises(self, workflow_filename):
-        form = github.GitHubPublisherForm(api_token=pretend.stub())
-        field = pretend.stub(data=workflow_filename)
+    def test_validate_workflow_filename_raises(self, mocker, workflow_filename):
+        form = github.GitHubPublisherForm(api_token=mocker.sentinel.token)
+        form.workflow_filename.data = workflow_filename
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_workflow_filename(field)
+            form.validate_workflow_filename(form.workflow_filename)
 
     @pytest.mark.parametrize(
         ("environment", "expected"),
@@ -419,27 +362,30 @@ class TestGitHubPublisherForm:
             ("\n", "Environment name must not contain non-printable characters"),
         ],
     )
-    def test_validate_environment_raises(self, environment, expected, monkeypatch):
-        request = pretend.stub(
-            localizer=pretend.stub(translate=pretend.call_recorder(lambda ts: ts))
+    def test_validate_environment_raises(
+        self, environment, expected, mocker, pyramid_request
+    ):
+        localizer = mocker.create_autospec(Localizer, instance=True)
+        localizer.translate.side_effect = lambda ts: ts
+        pyramid_request.localizer = localizer
+        mocker.patch.object(
+            i18n, "get_current_request", autospec=True, return_value=pyramid_request
         )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(i18n, "get_current_request", get_current_request)
 
-        form = github.GitHubPublisherForm(api_token=pretend.stub())
-        field = pretend.stub(data=environment)
+        form = github.GitHubPublisherForm(api_token=mocker.sentinel.token)
+        form.environment.data = environment
 
         with pytest.raises(wtforms.validators.ValidationError) as e:
-            form.validate_environment(field)
+            form.validate_environment(form.environment)
 
         assert str(e.value).startswith(expected)
 
     @pytest.mark.parametrize("environment", ["", None])
-    def test_validate_environment_passes(self, environment):
-        field = pretend.stub(data=environment)
-        form = github.GitHubPublisherForm(api_token=pretend.stub())
+    def test_validate_environment_passes(self, environment, mocker):
+        form = github.GitHubPublisherForm(api_token=mocker.sentinel.token)
+        form.environment.data = environment
 
-        assert form.validate_environment(field) is None
+        assert form.validate_environment(form.environment) is None
 
     @pytest.mark.parametrize(
         ("data", "expected"),
@@ -451,6 +397,8 @@ class TestGitHubPublisherForm:
             (None, ""),  # None and empty string are equivalent
         ],
     )
-    def test_normalized_environment(self, data, expected):
-        form = github.GitHubPublisherForm(api_token=pretend.stub(), environment=data)
+    def test_normalized_environment(self, data, expected, mocker):
+        form = github.GitHubPublisherForm(
+            api_token=mocker.sentinel.token, environment=data
+        )
         assert form.normalized_environment == expected

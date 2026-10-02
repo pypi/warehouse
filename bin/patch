@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -ex
+
+
+# NOTE: The ordering of these is important!
+# NOTE: We do this as by composing the scripts rather than composing the make
+#       targets so that they can all run in the same docker container and we
+#       dont end up spinning up N docker containers.
+
+# We reformat first, as this can automatically fix some of the issues that
+# linting catches.
+bin/reformat
+
+# Then we lint, because if there are any remaining issues, we want to catch them
+# before doing anything else because fixing them may change line numbers so the
+# later steps may not be valid after the fix anyways.
+bin/lint
+
+# Then we extract our translatable strings, this embeds line numbers of where it
+# finds theose strings, so this comes last because if the above changes the
+# line numbers at all, this would need to be re-ran.
+bin/translations

@@ -16,6 +16,7 @@ from packaging.metadata import (
     RawMetadata,
     _parse_keywords,
     _parse_project_urls,
+    parse_email,
 )
 from packaging.requirements import InvalidRequirement, Requirement
 from trove_classifiers import all_classifiers, deprecated_classifiers
@@ -23,7 +24,10 @@ from webob.multidict import MultiDict
 
 from warehouse.utils import http
 
-SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
+SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4", "2.5"}
+
+# The *-Dist fields that may not carry a direct reference (PEP 440 ``name @ url``).
+_DEPENDENCY_FIELDS: typing.Final = ("requires_dist", "provides_dist", "obsoletes_dist")
 
 DYNAMIC_FIELDS = [
     "Platform",
@@ -55,6 +59,8 @@ DYNAMIC_FIELDS = [
     "Requires",
     "Provides",
     "Obsoletes",
+    "Import-Name",  # Permitted as dynamic in PEP 794
+    "Import-Namespace",  # Permitted as dynamic in PEP 794
 ]
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
@@ -84,7 +90,7 @@ def parse(
     else:
         raise NoMetadataError
 
-    # Validate the metadata using our custom rules, which we layer ontop of the
+    # Validate the metadata using our custom rules, which we layer on top of the
     # built in rules to add PyPI specific constraints above and beyond what the
     # core metadata requirements are.
     _validate_metadata(metadata, backfill=backfill)
@@ -92,8 +98,65 @@ def parse(
     return metadata
 
 
+def _direct_dependency_errors(
+    field: str, req_strs: typing.Iterable[str]
+) -> list[InvalidMetadata]:
+    """
+    Validate the requirement strings of a *-Dist field: each must parse, and
+    none may be a direct reference (PEP 440 ``name @ url``).
+    """
+    header = _RAW_TO_EMAIL_MAPPING[field]
+    errors: list[InvalidMetadata] = []
+    for req_str in req_strs:
+        try:
+            req = Requirement(req_str)
+        # A deeply nested marker overflows the parser's recursion; that is as
+        # invalid as a syntax error. Keep only the first line of the parser
+        # message, the rest is caret art that does not survive a status line.
+        except (InvalidRequirement, RecursionError) as exc:
+            reason = str(exc).partition("\n")[0]
+            errors.append(InvalidMetadata(header, f"{req_str!r} is invalid: {reason}"))
+        else:
+            # NOTE: This part should not be lifted to packaging.metadata
+            if req.url is not None:
+                errors.append(
+                    InvalidMetadata(
+                        header, f"Can't have direct dependency: {req_str!r}"
+                    )
+                )
+    return errors
+
+
+def validate_artifact_dependencies(content: bytes) -> None:
+    """
+    Reject direct references in the dependency fields of an artifact's own
+    metadata file (a wheel's METADATA or an sdist's PKG-INFO).
+
+    The upload form is validated by `parse`, but the form is supplied by the
+    uploader and can omit dependencies that the artifact still declares.
+    Installers read the artifact's metadata, so it has to be checked too.
+
+    This is deliberately narrow. The other PyPI-specific rules in
+    `_validate_metadata` still bind only the form; applying them to the
+    artifact, and storing the artifact's metadata per file, belongs to the
+    per-file metadata work rather than to this check.
+    See: https://github.com/pypi/warehouse/issues/8090
+    """
+    raw, unparsed = parse_email(content)
+    for field in _DEPENDENCY_FIELDS:
+        header = _RAW_TO_EMAIL_MAPPING[field]
+        # parse_email sets aside fields it could not decode; fail closed rather
+        # than treat an undecodable dependency list as an empty one.
+        if header in unparsed:
+            raise InvalidMetadata(header, f"{header!r} could not be parsed")
+        if field in raw:
+            errors = _direct_dependency_errors(field, raw[field])
+            if errors:
+                raise errors[0]
+
+
 def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
-    # Add our own custom validations ontop of the standard validations from
+    # Add our own custom validations on top of the standard validations from
     # packaging.metadata.
     errors: list[InvalidMetadata] = []
 
@@ -115,7 +178,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
         errors.append(
             InvalidMetadata(
                 "version",
-                f"The use of local versions in {metadata.version!r} is not allowed.",
+                f"The use of local versions in '{metadata.version}' is not allowed.",
             )
         )
 
@@ -125,15 +188,14 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # NOTE: We currently only support string fields.
     for field, limit in _LENGTH_LIMITS.items():
         value = getattr(metadata, field)
-        if isinstance(value, str):
-            if len(value) > limit:
-                email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
-                errors.append(
-                    InvalidMetadata(
-                        email_name,
-                        f"{email_name!r} field must be {limit} characters or less.",
-                    )
+        if isinstance(value, str) and len(value) > limit:
+            email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
+            errors.append(
+                InvalidMetadata(
+                    email_name,
+                    f"{email_name!r} field must be {limit} characters or less.",
                 )
+            )
 
     # We require that the author and maintainer emails, if they're provided, are
     # valid RFC822 email addresses.
@@ -144,7 +206,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     #       One thing that does make it hard for packaging.metadata to do this, is
     #       this validation isn't in the stdlib, and we use the email-validator
     #       package to implement it.
-    for field in {"author_email", "maintainer_email"}:
+    for field in ("author_email", "maintainer_email"):
         if (addr := getattr(metadata, field)) is not None:
             _, address = email.utils.parseaddr(addr)
             if address:
@@ -159,10 +221,10 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                     )
 
     # Validate that the classifiers are valid classifiers
-    for classifier in sorted(set(metadata.classifiers or []) - set(all_classifiers)):
-        errors.append(
-            InvalidMetadata("classifier", f"{classifier!r} is not a valid classifier.")
-        )
+    errors.extend(
+        InvalidMetadata("classifier", f"{c!r} is not a valid classifier.")
+        for c in sorted(set(metadata.classifiers or []) - set(all_classifiers))
+    )
 
     # Validate that no deprecated classifiers are being used.
     # NOTE: We only check this is we're not doing a backfill, because backfill
@@ -191,15 +253,16 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # Validate that URL fields are actually URLs
     # TODO: This is another one that it would be nice to lift this up to
     #       packaging.metadata
-    for field in {"home_page", "download_url"}:
-        if (url := getattr(metadata, field)) is not None:
-            if not http.is_valid_uri(url, require_authority=False):
-                errors.append(
-                    InvalidMetadata(
-                        _RAW_TO_EMAIL_MAPPING.get(field, field),
-                        f"{url!r} is not a valid url.",
-                    )
+    for field in ("home_page", "download_url"):
+        if (url := getattr(metadata, field)) is not None and not http.is_valid_uri(
+            url, require_authority=False
+        ):
+            errors.append(  # noqa: PERF401
+                InvalidMetadata(
+                    _RAW_TO_EMAIL_MAPPING.get(field, field),
+                    f"{url!r} is not a valid url.",
                 )
+            )
 
     # Validate the Project URL structure to ensure that we have real, valid,
     # values for both labels and urls.
@@ -220,38 +283,19 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 
     # Validate that the *-Dist fields that packaging.metadata didn't validate are valid.
     # TODO: This probably should be pulled up into packaging.metadata.
-    for field in {"provides_dist", "obsoletes_dist"}:
+    for field in ("provides_dist", "obsoletes_dist"):
         if (value := getattr(metadata, field)) is not None:
-            for req_str in value:
-                try:
-                    req = Requirement(req_str)
-                except InvalidRequirement as exc:
-                    errors.append(
-                        InvalidMetadata(
-                            _RAW_TO_EMAIL_MAPPING.get(field, field),
-                            f"{req_str!r} is invalid: {exc}",
-                        )
-                    )
-                else:
-                    # Validate that an URL isn't being listed.
-                    # NOTE: This part should not be lifted to packaging.metadata
-                    if req.url is not None:
-                        errors.append(
-                            InvalidMetadata(
-                                _RAW_TO_EMAIL_MAPPING.get(field, field),
-                                f"Can't have direct dependency: {req_str!r}",
-                            )
-                        )
+            errors.extend(_direct_dependency_errors(field, value))
 
     # Ensure that the *-Dist fields are not referencing any direct dependencies.
     # NOTE: Because packaging.metadata doesn't parse Provides-Dist and Obsoletes-Dist
     #       we skip those here and check that elsewhere. However, if packaging.metadata
     #       starts to parse those, then we can add them here.
-    for field in {"requires_dist"}:
+    for field in ("requires_dist",):
         if (value := getattr(metadata, field)) is not None:
             for req in value:
                 if req.url is not None:
-                    errors.append(
+                    errors.append(  # noqa: PERF401
                         InvalidMetadata(
                             _RAW_TO_EMAIL_MAPPING.get(field, field),
                             f"Can't have direct dependency: {req}",
@@ -260,11 +304,11 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 
     # Validate that any `dynamic` fields passed are in the allowed list
     # TODO: This probably should be lifted up to packaging.metadata
-    for field in {"dynamic"}:
+    for field in ("dynamic",):
         if (value := getattr(metadata, field)) is not None:
             for key in value:
                 if key not in map(str.lower, DYNAMIC_FIELDS):
-                    errors.append(
+                    errors.append(  # noqa: PERF401
                         InvalidMetadata(
                             _RAW_TO_EMAIL_MAPPING.get(field, field),
                             f"Dynamic field {key!r} is not a valid dynamic field.",
@@ -294,6 +338,8 @@ _override = {
     "platforms": "platform",
     "supported_platforms": "supported_platform",
     "license_files": "license_file",
+    "import_names": "import_name",
+    "import_namespaces": "import_namespace",
 }
 _FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 
@@ -368,7 +414,7 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
             except KeyError:
                 unparsed[name] = value
         # Nothing that we've done has managed to parse this, so it'll just
-        # throw it in our unparseable data and move on.
+        # throw it in our unparsable data and move on.
         else:
             unparsed[name] = value
 

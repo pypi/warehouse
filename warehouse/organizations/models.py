@@ -34,8 +34,10 @@ from sqlalchemy.orm import (
 from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservations, ObservationKind
+from warehouse.events.tags import EventTag
+from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -48,7 +50,7 @@ if typing.TYPE_CHECKING:
     from warehouse.subscriptions.models import StripeCustomer, StripeSubscription
 
 
-class OrganizationRoleType(str, enum.Enum):
+class OrganizationRoleType(enum.StrEnum):
     Owner = "Owner"
     BillingManager = "Billing Manager"
     Manager = "Manager"
@@ -236,7 +238,7 @@ class OrganizationOIDCIssuer(db.Model):
     created_by: Mapped[User] = relationship(lazy=False)
 
 
-class OrganizationType(str, enum.Enum):
+class OrganizationType(enum.StrEnum):
     Community = "Community"
     Company = "Company"
 
@@ -302,15 +304,15 @@ class OrganizationApplicationFactory:
 
 class OrganizationMixin:
     @declared_attr
-    def __table_args__(cls):  # noqa: N805
+    def __table_args__(cls):
         return (
             CheckConstraint(
                 "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-                name="%s_valid_name" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_name",
             ),
             CheckConstraint(
                 "link_url ~* '^https?://.*'::text",
-                name="%s_valid_link_url" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_link_url",
             ),
         )
 
@@ -333,6 +335,17 @@ class OrganizationMixin:
 class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
 
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            *super().__table_args__,
+            CheckConstraint(
+                "(project_create_ratelimit_count IS NULL) = "
+                "(project_create_ratelimit_period IS NULL)",
+                name="organizations_project_create_ratelimit_complete",
+            ),
+        )
+
     __repr__ = make_repr("name")
 
     normalized_name: Mapped[str] = mapped_column(
@@ -354,6 +367,18 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         BigInteger,
         comment="Maximum total size limit in bytes for projects in this organization",
     )
+    project_create_ratelimit_count: Mapped[int | None] = mapped_column(
+        comment=(
+            "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
+            "NULL means no override: the configured default applies."
+        ),
+    )
+    project_create_ratelimit_period: Mapped[RateLimitPeriod | None] = mapped_column(
+        comment=(
+            "Period the count is measured over. Must be NULL exactly when "
+            "project_create_ratelimit_count is NULL."
+        ),
+    )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
     )
@@ -369,7 +394,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     )
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
-        order_by=lambda: Team.name.asc(),
+        order_by=lambda: Team.name.asc(),  # noqa: PLW0108
     )
     projects: Mapped[list[Project]] = relationship(
         secondary=OrganizationProject.__table__,
@@ -393,7 +418,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
-    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+    manual_activation: Mapped[OrganizationManualActivation | None] = relationship(
         back_populates="organization",
         uselist=False,
     )
@@ -403,6 +428,19 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = relationship(
         back_populates="pypi_organization",
     )
+
+    @property
+    def project_create_ratelimit_string(self) -> str | None:
+        """Composed `limits`-syntax string, or None when no override is set."""
+        count = self.project_create_ratelimit_count
+        period = self.project_create_ratelimit_period
+        if count is None and period is None:
+            return None
+        if count is None or period is None:
+            raise ValueError(
+                "Project creation rate limit requires both count and period"
+            )
+        return f"{count} per {period.value}"
 
     @property
     def owners(self):
@@ -459,6 +497,34 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             self.manual_activation is not None and self.manual_activation.is_active
         )
 
+    @property
+    def is_awaiting_initial_billing(self) -> bool:
+        """Check if this Company organization has never activated billing."""
+        if not self.is_active or self.orgtype != OrganizationType.Company:
+            return False
+
+        if bool(self.subscriptions) or self.manual_activation is not None:
+            return False
+
+        return (
+            self.events.filter(
+                self.Event.tag.in_(
+                    (
+                        EventTag.Organization.SubscriptionCreate,
+                        EventTag.Organization.ManualActivationAdd,
+                    )
+                )
+            ).first()
+            is None
+        )
+
+    def can_manage_members(self) -> bool:
+        """Check if this organization may invite or remove members.
+
+        Only for good standing orgs or orgs needing to invite billing managers.
+        """
+        return self.is_in_good_standing() or self.is_awaiting_initial_billing
+
     def get_billing_status_display(self) -> str:
         """Get a human-readable billing status for display in forms.
 
@@ -467,8 +533,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         """
         if self.is_in_good_standing():
             return self.name
-        else:
-            return f"{self.name} (Billing inactive)"
+        return f"{self.name} (Billing inactive)"
 
     def __acl__(self):
         session = orm_session_from_obj(self)
@@ -520,6 +585,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsManage,
                             Permissions.OrganizationTeamsManage,
@@ -536,6 +602,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing (Permissions.OrganizationsBillingManage)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Remove own org/team role (Permissions.OrganizationsRoleRemove)
                 # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
@@ -566,6 +633,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationTeamsManage,
                             Permissions.OrganizationProjectsAdd,
@@ -590,6 +658,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                         ],
                     )
@@ -601,16 +670,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         for subscription in self.subscriptions:
             if not subscription.is_restricted:
                 return subscription
-        else:
-            return None
+        return None
 
     @property
     def manageable_subscription(self):
         for subscription in self.subscriptions:
             if subscription.is_manageable:
                 return subscription
-        else:
-            return None
+        return None
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
@@ -695,7 +762,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __repr__ = make_repr("name")
 
     @declared_attr
-    def normalized_name(cls):  # noqa: N805
+    def normalized_name(cls):
         return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
@@ -752,30 +819,42 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         back_populates="application", viewonly=True
     )
 
+    def get_observations(self, kind: ObservationKind) -> list[Observation]:
+        observations = [
+            observation
+            for observation in self.observations
+            if observation.kind == kind.value[0]
+        ]
+
+        return sorted(observations, key=lambda x: x.created, reverse=True)
+
     @property
     def information_requests(self):
-        return sorted(
-            [
-                observation
-                for observation in self.observations
-                if observation.kind == ObservationKind.InformationRequest.value[0]
-            ],
-            key=lambda x: x.created,
-            reverse=True,
-        )
+        return self.get_observations(ObservationKind.InformationRequest)
+
+    @property
+    def notes(self):
+        return self.get_observations(ObservationKind.AdminNote)
+
+    @property
+    def conversation(self):
+        """
+        Information requests and internal notes, merged into a single
+        chronological (oldest first) thread for admin display.
+        """
+        return sorted(self.information_requests + self.notes, key=lambda x: x.created)
 
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
 
     def __acl__(self):
-        acls = [
+        return [
             (
                 Allow,
                 f"user:{self.submitted_by.id}",
                 (Permissions.OrganizationApplicationsManage,),
             )
         ]
-        return acls
 
 
 class OrganizationNameCatalog(db.Model):
@@ -841,7 +920,7 @@ class OrganizationInvitation(db.Model):
     )
 
 
-class TeamRoleType(str, enum.Enum):
+class TeamRoleType(enum.StrEnum):
     Member = "Member"
 
 
@@ -873,7 +952,7 @@ class TeamRole(db.Model):
     team: Mapped[Team] = relationship(lazy=False)
 
 
-class TeamProjectRoleType(str, enum.Enum):
+class TeamProjectRoleType(enum.StrEnum):
     Owner = "Owner"  # Granted "Administer" permissions.
     Maintainer = "Maintainer"  # Granted "Upload" permissions.
 

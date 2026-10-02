@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.oidc import GitHubPublisherFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.packaging.metadata_verification import (
     _verify_url_pypi,
@@ -111,6 +111,19 @@ from warehouse.packaging.metadata_verification import (
             "myproject",
             False,
         ),
+        (  # Backslash bypass: rfc3986 normalizes to /project/myproject/,
+            # but a browser (treating "\" as "/") visits /project/otherproject/.
+            r"https://pypi.org/project/myproject/..\x/../otherproject\x/../",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Same bypass aimed at the /p/ form
+            r"https://pypi.org/p/myproject/..\x/../..\account\logout\x/../",
+            "myproject",
+            "myproject",
+            False,
+        ),
     ],
 )
 def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
@@ -120,8 +133,9 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
 def test_verify_url():
     # `verify_url` is just a helper function that calls `_verify_url_pypi` and
     # `OIDCPublisher.verify_url`, where the actual verification logic lives.
-    publisher_verifies = pretend.stub(verify_url=lambda url: True)
-    publisher_fails = pretend.stub(verify_url=lambda url: False)
+    publisher = GitHubPublisherFactory.build(
+        repository_owner="org", repository_name="myproject"
+    )
 
     assert verify_url(
         url="https://pypi.org/project/myproject/",
@@ -132,14 +146,14 @@ def test_verify_url():
 
     assert verify_url(
         url="https://github.com/org/myproject/issues",
-        publisher=publisher_verifies,
+        publisher=publisher,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
     assert not verify_url(
         url="example.com",
-        publisher=publisher_fails,
+        publisher=publisher,
         project_name="myproject",
         project_normalized_name="myproject",
     )

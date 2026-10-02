@@ -2,7 +2,7 @@
 
 import datetime
 
-import pretend
+import stripe
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
@@ -11,19 +11,21 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRoleType,
+    OrganizationType,
 )
 from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
+    notify_organizations_requiring_subscription,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
-from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationManualActivationFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
@@ -40,60 +42,54 @@ from ...common.db.subscriptions import (
 
 class TestUpdateInvitationStatus:
     def test_update_invitation_status(
-        self, db_request, user_service, organization_service
+        self, db_request, user_service, organization_service, token_service, mocker
     ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=pretend.raiser(TokenExpired))
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", side_effect=TokenExpired)
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Expired
 
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"organization_name": invite.organization.name},
-            )
-        ]
-        assert organization.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Organization.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"target_user_id": str(invite.user.id)},
-            )
-        ]
+        user_event.assert_called_once_with(
+            tag=EventTag.Account.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"organization_name": invite.organization.name},
+        )
+        org_event.assert_called_once_with(
+            tag=EventTag.Organization.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"target_user_id": str(invite.user.id)},
+        )
 
-    def test_no_updates(self, db_request, user_service, organization_service):
+    def test_no_updates(
+        self, db_request, user_service, organization_service, token_service, mocker
+    ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=lambda token: {})
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", return_value={})
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Pending
 
-        assert user.record_event.calls == []
-        assert organization.record_event.calls == []
+        user_event.assert_not_called()
+        org_event.assert_not_called()
 
 
 class TestDeleteOrganizationApplications:
@@ -146,7 +142,9 @@ class TestDeleteOrganizationApplications:
 
 
 class TestUpdateOrganizationSubscriptionUsage:
-    def test_update_organization_subscription_usage_record(self, db_request):
+    def test_update_organization_subscription_usage_record(
+        self, db_request, billing_service, mocker
+    ):
         # Setup an organization with an active subscription
         organization = OrganizationFactory.create()
         owner_user = UserFactory.create()
@@ -210,22 +208,182 @@ class TestUpdateOrganizationSubscriptionUsage:
         )
         StripeSubscriptionItemFactory.create(subscription=subscription)
 
-        create_or_update_usage_record = pretend.call_recorder(
-            lambda *a, **kw: {
+        create_usage_record = mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            return_value={
                 "subscription_item_id": "si_1234",
                 "organization_member_count": "5",
-            }
-        )
-        billing_service = pretend.stub(
-            create_or_update_usage_record=create_or_update_usage_record,
-        )
-
-        db_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: billing_service
+            },
         )
 
         update_organziation_subscription_usage_record(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(IBillingService, context=None)
-        ]
+        # Only the active subscription is reported; the canceled one is skipped.
+        create_usage_record.assert_called_once()
+
+    def test_continues_when_a_subscription_fails(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        # First usage report raises; the batch must still report the second org.
+        for _ in range(2):
+            organization = OrganizationFactory.create()
+            OrganizationRoleFactory(
+                organization=organization,
+                user=UserFactory.create(),
+                role_name=OrganizationRoleType.Owner,
+            )
+            stripe_customer = StripeCustomerFactory.create()
+            OrganizationStripeCustomerFactory.create(
+                organization=organization, customer=stripe_customer
+            )
+            subscription_price = StripeSubscriptionPriceFactory.create(
+                subscription_product=StripeSubscriptionProductFactory.create()
+            )
+            subscription = StripeSubscriptionFactory.create(
+                customer=stripe_customer, subscription_price=subscription_price
+            )
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+            StripeSubscriptionItemFactory.create(subscription=subscription)
+
+        create_usage_record = mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=[
+                stripe.error.InvalidRequestError(
+                    "Cannot create the usage record because the subscription "
+                    "has been canceled.",
+                    None,
+                ),
+                {"subscription_item_id": "si_1234", "organization_member_count": "1"},
+            ],
+        )
+        increment = mocker.spy(metrics, "increment")
+
+        update_organziation_subscription_usage_record(db_request)
+
+        # Both subscriptions are attempted even though the first one raised.
+        assert create_usage_record.call_count == 2
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.error",
+            tags=["error_type:InvalidRequestError"],
+        )
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.updated"
+        )
+
+
+class TestNotifyOrganizationsRequiringSubscription:
+    def test_notifies_owners_of_company_orgs_not_in_good_standing(
+        self, db_request, mocker
+    ):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        owner1 = UserFactory.create()
+        owner2 = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=owner1, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationRoleFactory.create(
+            organization=organization, user=owner2, role_name=OrganizationRoleType.Owner
+        )
+        # A non-owner member should not be notified.
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Member,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        assert send_email.call_count == 2
+        send_email.assert_any_call(
+            db_request, owner1, organization_name=organization.name
+        )
+        send_email.assert_any_call(
+            db_request, owner2, organization_name=organization.name
+        )
+
+    def test_skips_good_standing_non_company_and_inactive_orgs(
+        self, db_request, mocker
+    ):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        # Company org in good standing via an active manual activation.
+        good_standing = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        OrganizationManualActivationFactory.create(organization=good_standing)
+        OrganizationRoleFactory.create(
+            organization=good_standing,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Community org (only Company orgs require a subscription).
+        community = OrganizationFactory.create(
+            orgtype=OrganizationType.Community, is_active=True
+        )
+        OrganizationRoleFactory.create(
+            organization=community,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Inactive Company org.
+        inactive = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=False
+        )
+        OrganizationRoleFactory.create(
+            organization=inactive,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()
+
+    def test_skips_recently_approved_orgs_within_grace_period(self, db_request, mocker):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company,
+            is_active=True,
+            created=datetime.datetime.now(datetime.UTC),
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()
+
+    def test_handles_company_org_without_owners(self, db_request, mocker):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        OrganizationFactory.create(orgtype=OrganizationType.Company, is_active=True)
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()

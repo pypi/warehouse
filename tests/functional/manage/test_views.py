@@ -6,7 +6,6 @@ from http import HTTPStatus
 
 import faker
 import pretend
-import pytest
 
 from webob.multidict import MultiDict
 
@@ -111,7 +110,6 @@ class TestManageAccount:
 
 
 class TestManageOrganizations:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_organization_application(
         self,
         pyramid_services,
@@ -127,7 +125,6 @@ class TestManageOrganizations:
         user = UserFactory.create(name="old name")
         EmailFactory.create(primary=True, verified=True, public=True, user=user)
         db_request.user = user
-        db_request.organization_access = True
         db_request.method = "POST"
         db_request.path = "/manage/organizations/"
         db_request.POST = MultiDict(
@@ -135,7 +132,7 @@ class TestManageOrganizations:
                 "name": "psf",
                 "display_name": "Python Software Foundation",
                 "orgtype": "Community",
-                "link_url": "https://www.python.org/psf/",
+                "link_url": " https://www.python.org/psf/ ",
                 "description": (
                     "To promote, protect, and advance the Python programming "
                     "language, and to support and facilitate the growth of a "
@@ -166,6 +163,6 @@ class TestManageOrganizations:
             organization_application.orgtype
             == OrganizationType[db_request.POST["orgtype"]]
         )
-        assert organization_application.link_url == db_request.POST["link_url"]
+        assert organization_application.link_url == "https://www.python.org/psf/"
         assert organization_application.description == db_request.POST["description"]
         assert organization_application.submitted_by == user

@@ -23,16 +23,14 @@ def upgrade():
         sa.Column("expires", TZDateTime(), nullable=True),
     )
 
-    op.execute(
-        """
+    op.execute("""
         UPDATE user_unique_logins
         SET expires =
             CASE
                 WHEN status = 'confirmed' THEN NULL
                 ELSE created + INTERVAL '6 hours'
             END
-        """
-    )
+        """)
 
 
 def downgrade():

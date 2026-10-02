@@ -12,7 +12,10 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationType,
 )
-from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+)
 
 
 @view_config(
@@ -61,12 +64,7 @@ def dashboard(request):
         .filter(Organization.orgtype == OrganizationType.Company)
         .filter(
             Organization.subscriptions.any(
-                StripeSubscription.status.in_(
-                    (
-                        StripeSubscriptionStatus.Active.value,
-                        StripeSubscriptionStatus.Trialing.value,
-                    )
-                )
+                StripeSubscription.status.in_(ACTIVE_SUBSCRIPTION_STATUSES)
             )
         )
         .scalar()
@@ -77,12 +75,7 @@ def dashboard(request):
         .filter(Organization.orgtype == OrganizationType.Company)
         .filter(
             Organization.subscriptions.any(
-                StripeSubscription.status.in_(
-                    (
-                        StripeSubscriptionStatus.Active.value,
-                        StripeSubscriptionStatus.Trialing.value,
-                    )
-                )
+                StripeSubscription.status.in_(ACTIVE_SUBSCRIPTION_STATUSES)
             )
         )
         .scalar()

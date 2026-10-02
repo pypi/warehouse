@@ -1,10 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
 {% block title %}PyPI 2FA Security Key Giveaway{% endblock %}
-{% block description %}
+{% block description -%}
   PyPI is implementing a 2FA requirement for critical projects, and distributing security keys to critical maintainers.
-{% endblock %}
-{% block image %}{{ request.static_url("warehouse:static/dist/images/titan.png") }}{% endblock %}
+{%- endblock %}
+{% block preview_image %}{{ preview_image_tags(request.static_url("warehouse:static/dist/images/titan.png") , 2785, 1392, gettext("Two Titan security keys, one USB-A and one USB-C")) }}{% endblock %}
 {% block content %}
   <div class="horizontal-section">
     <div class="narrow-container">

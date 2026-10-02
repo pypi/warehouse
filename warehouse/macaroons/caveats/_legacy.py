@@ -35,7 +35,7 @@ def _adapt_v1(data: Mapping) -> Sequence | None:
         return [3, str(request.user.id)]
     # Our project level permissions for V1 caveats had a dictionary, with
     # the key "projects", and that was a list of normalized project names.
-    elif isinstance(permissions, Mapping) and "projects" in permissions:
+    if isinstance(permissions, Mapping) and "projects" in permissions:
         return [1, permissions["projects"]]
 
     # If we get to here, then we don't know how to adapt this token, so

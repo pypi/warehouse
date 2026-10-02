@@ -97,7 +97,7 @@ def wheel_url(name, version, build_tag, python_tag, abi_tag, platform_tag):
     return f'{host}/packages/{python_tag}/{name[0]}/{name}/{filename}'
 ```
 
-Example predicable URL use:
+Example predictable URL use:
 
 ```bash
 $ curl -I https://files.pythonhosted.org/packages/source/v/virtualenv/virtualenv-15.2.0.tar.gz

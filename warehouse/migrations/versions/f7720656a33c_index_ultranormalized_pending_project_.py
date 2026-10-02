@@ -36,12 +36,10 @@ down_revision = "6ee23f5a6c1b"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         CREATE INDEX pending_project_name_ultranormalized
           ON pending_oidc_publishers (ultranormalize_name(project_name));
-        """
-    )
+        """)
 
 
 def downgrade():
