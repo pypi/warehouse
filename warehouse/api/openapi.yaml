@@ -8,6 +8,113 @@ info:
 
 components:
   schemas:
+    TrustedPublisher:
+      type: object
+      description: A registered trusted publisher for a project
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "7f89a3b2-1234-5678-abcd-ef0123456789"
+        publisher_name:
+          type: string
+          example: "GitHub"
+        publisher_url:
+          type: string
+          nullable: true
+          example: "https://github.com/myorg/myrepo"
+        specifier:
+          type: string
+          example: "myorg/myrepo/.github/workflows/publish.yml"
+    TrustedPublisherGitHub:
+      type: object
+      description: GitHub Actions trusted publisher configuration
+      properties:
+        publisher:
+          type: string
+          enum: [github]
+        owner:
+          type: string
+          description: GitHub repository owner (username or organization)
+          example: "myorg"
+        repository:
+          type: string
+          description: Repository name
+          example: "myrepo"
+        workflow_filename:
+          type: string
+          description: Workflow filename (must end with .yml or .yaml, no path separators)
+          example: "publish.yml"
+        environment:
+          type: string
+          description: Optional GitHub Actions environment name
+          example: "release"
+      required: [publisher, owner, repository, workflow_filename]
+    TrustedPublisherGitLab:
+      type: object
+      description: GitLab CI trusted publisher configuration
+      properties:
+        publisher:
+          type: string
+          enum: [gitlab]
+        namespace:
+          type: string
+          description: GitLab namespace (username or group/subgroup)
+          example: "mygroup"
+        project:
+          type: string
+          description: GitLab project name
+          example: "myrepo"
+        workflow_filepath:
+          type: string
+          description: Top-level pipeline file path (must end with .yml or .yaml)
+          example: ".gitlab-ci.yml"
+        environment:
+          type: string
+          description: Optional GitLab environment name
+          example: "production"
+        issuer_url:
+          type: string
+          description: GitLab issuer URL (defaults to https://gitlab.com)
+          example: "https://gitlab.com"
+      required: [publisher, namespace, project, workflow_filepath]
+    TrustedPublisherGoogle:
+      type: object
+      description: Google Cloud trusted publisher configuration
+      properties:
+        publisher:
+          type: string
+          enum: [google]
+        email:
+          type: string
+          format: email
+          description: Google service account email
+          example: "my-sa@my-project.iam.gserviceaccount.com"
+        sub:
+          type: string
+          description: Optional subject claim
+          example: "123456789"
+      required: [publisher, email]
+    TrustedPublisherActiveState:
+      type: object
+      description: ActiveState Platform trusted publisher configuration
+      properties:
+        publisher:
+          type: string
+          enum: [activestate]
+        organization:
+          type: string
+          description: ActiveState organization name
+          example: "myorg"
+        project:
+          type: string
+          description: ActiveState project name
+          example: "myproject"
+        actor:
+          type: string
+          description: ActiveState actor username
+          example: "myuser"
+      required: [publisher, organization, project, actor]
     Observation:
       type: object
       description: A generic Observation object shape
@@ -71,6 +178,125 @@ paths:
                 example: { "username": "someuser" }
         '400':
             description: Bad request
+  /danger-api/projects/{name}/trusted-publishers:
+    get:
+      summary: List trusted publishers for a project
+      description: List all trusted publishers registered to a project.
+      operationId: listTrustedPublishers
+      tags:
+        - danger-api
+      parameters:
+        - name: name
+          in: path
+          description: The name of the Project
+          required: true
+          schema:
+            type: string
+            example: "project-name"
+      responses:
+        '200':
+          description: List of trusted publishers
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  trusted_publishers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TrustedPublisher'
+        '403':
+          description: Forbidden
+        '404':
+          description: Project not found
+    post:
+      summary: Add a trusted publisher to a project
+      description: |
+        Add a new trusted publisher to a project. Requires a project-owner API token.
+
+        The `publisher` field selects the provider; remaining fields are provider-specific.
+      operationId: addTrustedPublisher
+      tags:
+        - danger-api
+      parameters:
+        - name: name
+          in: path
+          description: The name of the Project
+          required: true
+          schema:
+            type: string
+            example: "project-name"
+      requestBody:
+        description: Trusted publisher configuration
+        required: true
+        content:
+          application/vnd.pypi.api-v0-danger+json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/TrustedPublisherGitHub'
+                - $ref: '#/components/schemas/TrustedPublisherGitLab'
+                - $ref: '#/components/schemas/TrustedPublisherGoogle'
+                - $ref: '#/components/schemas/TrustedPublisherActiveState'
+              discriminator:
+                propertyName: publisher
+      responses:
+        '201':
+          description: Trusted publisher added
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  trusted_publisher:
+                    $ref: '#/components/schemas/TrustedPublisher'
+        '400':
+          description: Bad request (validation error)
+        '403':
+          description: Forbidden
+        '404':
+          description: Project not found
+        '409':
+          description: Publisher already registered to this project
+        '429':
+          description: Rate limit exceeded
+  /danger-api/projects/{name}/trusted-publishers/{publisher_id}:
+    delete:
+      summary: Remove a trusted publisher from a project
+      description: Remove a trusted publisher from a project by its ID.
+      operationId: deleteTrustedPublisher
+      tags:
+        - danger-api
+      parameters:
+        - name: name
+          in: path
+          description: The name of the Project
+          required: true
+          schema:
+            type: string
+            example: "project-name"
+        - name: publisher_id
+          in: path
+          description: The UUID of the trusted publisher
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "7f89a3b2-1234-5678-abcd-ef0123456789"
+      responses:
+        '200':
+          description: Trusted publisher removed
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Removed trusted publisher from project-name"
+        '403':
+          description: Forbidden
+        '404':
+          description: Publisher not found for this project
   /danger-api/projects/{name}/observations:
     post:
       summary: Submit a project observation
