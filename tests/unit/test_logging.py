@@ -268,6 +268,22 @@ class TestGunicornLogger:
         assert record.country == "US"
         assert record.duration_ms == pytest.approx(1234.0)
         assert record.__dict__["request.id"] == "a-request-id"
+        assert record.rpc_method is None
+        assert record.rpc_args is None
+
+    def test_access_emits_xmlrpc_call(self, gunicorn_cfg, access_records):
+        logger = wlogging.GunicornLogger(gunicorn_cfg)
+        resp = SimpleNamespace(status="200 OK", sent=0, headers=[])
+        environ = self._environ() | {
+            "warehouse.xmlrpc.method": "browse",
+            "warehouse.xmlrpc.args": '[["Framework :: Django"]]',
+        }
+
+        logger.access(resp, None, environ, timedelta(milliseconds=5))
+
+        (record,) = access_records
+        assert record.rpc_method == "browse"
+        assert record.rpc_args == '[["Framework :: Django"]]'
 
     def test_access_integer_status(self, gunicorn_cfg, access_records):
         logger = wlogging.GunicornLogger(gunicorn_cfg)
