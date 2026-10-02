@@ -1,0 +1,12 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{# Tab: Metadata. Mobile-only counterpart to project-description.html's
+   sidebar — see project-tabs__tab--mobile-only and
+   project-description__sidebar for how the two stay mutually exclusive. #}
+<div id="metadata"
+     data-project-tabs-target="content"
+     role="tabpanel"
+     aria-labelledby="metadata-tab"
+     tabindex="-1">
+  <h2 class="page-title">{% trans %}Metadata{% endtrans %}</h2>
+  {% include "warehouse:templates/includes/packaging/project-metadata.html" %}
+</div>
