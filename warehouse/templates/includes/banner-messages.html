@@ -1,16 +1,16 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% for banner in banners %}
-  <div class="notification-bar {{ "notification-bar--dismissable" if banner.dismissable else "" }}"
+  <div class="banner {{ "banner--dismissable" if banner.dismissable else "" }}"
        data-controller="notification"
        data-notification-target="notification"
        id="{{ banner.id }}">
-    <div class="notification-bar__container">
-      <span class="notification-bar__icon">
+    <div class="banner__container">
+      <span class="banner__icon">
         <i class="fa {{ banner.fa_icon }}" aria-hidden="true"></i>
       </span>
-      <span class="notification-bar__message">{{ banner.text }}</span>
+      <span class="banner__message">{{ banner.text }}</span>
       <a href="{{ banner.link_url }}"
-         class="button notification-bar__button"
+         class="button banner__button"
          target="_blank"
          rel="noopener">{{ banner.link_label }}</a>
       {% if banner.dismissable %}
@@ -18,7 +18,7 @@
                 title="{% trans %}Dismiss this notification{% endtrans %}"
                 data-notification-target="dismissButton"
                 data-action="click->notification#dismiss"
-                class="notification-bar__dismiss"
+                class="banner__dismiss"
                 aria-label="{% trans %}Close{% endtrans %}">
           <i class="fa fa-times" aria-hidden="true"></i>
         </button>
