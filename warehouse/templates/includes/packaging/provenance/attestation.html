@@ -112,7 +112,9 @@
             {% endif %}
           </dt>
           <dd>
-            <a href="{{ viewer.source }}  " target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
+            <a href="{{ viewer.source }}  "
+               target="_blank"
+               rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
           </dd>
         {% endif %}
         {% if viewer.permalink_with_digest %}
@@ -175,7 +177,9 @@
             {% endif %}
           </dt>
           <dd>
-            <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace('https://', '') }}</a>
+            <a href="{{ viewer.workflow_url }}"
+               target="_blank"
+               rel="noopener">{{ viewer.workflow_url | replace('https://', '') }}</a>
           </dd>
         {% endif %}
         {% if viewer.run_invocation_uri %}
@@ -187,7 +191,9 @@
             {% endif %}
           </dt>
           <dd>
-            <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
+            <a href="{{ viewer.run_invocation_uri }}"
+               target="_blank"
+               rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
           </dd>
         {% endif %}
         {% if not viewer.workflow_url and not viewer.run_invocation_uri %}

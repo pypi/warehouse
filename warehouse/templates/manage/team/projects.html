@@ -49,7 +49,8 @@
                  title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
             {% else %}
               {# Show disabled button #}
-              <button class="button button--primary"
+              <button type="button"
+                      class="button button--primary"
                       disabled
                       title="{% trans %}You are not an owner of this project{% endtrans %}">
                 {% trans %}Manage{% endtrans %}
@@ -60,7 +61,8 @@
                  class="button"
                  title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
             {% else %}
-              <button class="button"
+              <button type="button"
+                      class="button"
                       disabled
                       title="{% trans %}This project has no releases{% endtrans %}">
                 {% trans %}View{% endtrans %}

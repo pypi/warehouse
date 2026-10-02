@@ -1,19 +1,17 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
 {% block content %}
-  <p>
-    The file {{ file }} from release {{ release_version }} of the {{ project_name }} project has been deleted.
-    <ul>
+  <p>The file {{ file }} from release {{ release_version }} of the {{ project_name }} project has been deleted.</p>
+  <ul>
+    <li>
+      <strong>Deleted by:</strong> {{ submitter_name }} with a role: {{ submitter_role }}.
+    </li>
+    {% if reason %}
       <li>
-        <strong>Deleted by:</strong> {{ submitter_name }} with a role: {{ submitter_role }}.
+        <strong>Reason:</strong> {{ reason }}
       </li>
-      {% if reason %}
-        <li>
-          <strong>Reason:</strong> {{ reason }}
-        </li>
-      {% endif %}
-    </ul>
-  </p>
+    {% endif %}
+  </ul>
   <p>
     If you have questions or concerns, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
   </p>

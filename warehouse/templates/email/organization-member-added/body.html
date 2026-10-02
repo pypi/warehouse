@@ -8,22 +8,22 @@
 {% endblock %}
 {% block content %}
   <p>
-    {% trans username=username, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has joined the "{{ organization_name }}" organization{% endtrans %}:
-    <ul class="member-details">
-      <li>
-        <strong>{% trans %}Username{% endtrans %}</strong>: {{ username }}
-      </li>
-      <li>
-        <strong>{% trans %}Role{% endtrans %}</strong>: {{ role }}
-      </li>
-      <li>
-        <strong>{% trans %}Member of{% endtrans %}</strong>: {{ organization_name }}
-      </li>
-      <li>
-        <strong>{% trans %}Added by{% endtrans %}</strong>: {{ submitter }}
-      </li>
-    </ul>
+    {% trans username=username, user_profile=request.route_url("accounts.profile", username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has joined the "{{ organization_name }}" organization{% endtrans %}:
   </p>
+  <ul class="member-details">
+    <li>
+      <strong>{% trans %}Username{% endtrans %}</strong>: {{ username }}
+    </li>
+    <li>
+      <strong>{% trans %}Role{% endtrans %}</strong>: {{ role }}
+    </li>
+    <li>
+      <strong>{% trans %}Member of{% endtrans %}</strong>: {{ organization_name }}
+    </li>
+    <li>
+      <strong>{% trans %}Added by{% endtrans %}</strong>: {{ submitter }}
+    </li>
+  </ul>
   <p>
     {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
   </p>

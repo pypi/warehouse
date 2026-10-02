@@ -29,23 +29,23 @@
       {# Display action for organization project events #}
     {% elif event.tag == EventTag.Organization.OrganizationProjectAdd %}
       <strong>
-        {% trans href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}<a href="{{ href }}">{{ project_name }}</a> project added to organization{% endtrans %}
+        {% trans href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}<a href="{{ href }}">{{ project_name }}</a> project added to organization{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationProjectRemove %}
       <strong>
-        {% trans href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}<a href="{{ href }}">{{ project_name }}</a> project removed from organization{% endtrans %}
+        {% trans href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}<a href="{{ href }}">{{ project_name }}</a> project removed from organization{% endtrans %}
       </strong>
       {# Display action for organization role events #}
     {% elif event.tag == EventTag.Organization.OrganizationRoleAdd %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as organization {{ role_name }}{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
       {% set target_user_obj = get_user(event.additional.target_user_id) %}
       <strong>
         {% if target_user_obj %}
-          {% trans href=request.route_path('accounts.profile', username=target_user_obj.username), username=target_user_obj.username, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
+          {% trans href=request.route_path("accounts.profile", username=target_user_obj.username), username=target_user_obj.username, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
         {% else %}
           {% trans role_name=event.additional.role_name|lower %}A deleted user was removed as organization {{ role_name }}{% endtrans %}
         {% endif %}
@@ -53,27 +53,27 @@
     {% elif event.tag == EventTag.Organization.OrganizationRoleChange %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> changed to organization {{ role_name }}{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> changed to organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> invited to join as organization {{ role_name }}{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> invited to join as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleDeclineInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> declined invitation to join as organization {{ role_name }}{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> declined invitation to join as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleRevokeInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }}{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleExpireInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }} expired{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }} expired{% endtrans %}
       </strong>
       {# Display action for team events #}
     {% elif event.tag == EventTag.Organization.TeamCreate %}
@@ -83,25 +83,25 @@
       {# Display action for team project role events #}
     {% elif event.tag == EventTag.Organization.TeamProjectRoleAdd %}
       <strong>
-        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.TeamProjectRoleRemove %}
       <strong>
-        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.TeamProjectRoleChange %}
       <strong>
-        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.target_team, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
       {# Display action for team role events #}
     {% elif event.tag == EventTag.Organization.TeamRoleAdd %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.TeamRoleRemove %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
       </strong>
       {# Display custom trusted publisher events #}
     {% elif event.tag == EventTag.Organization.OIDCPublisherAdded %}

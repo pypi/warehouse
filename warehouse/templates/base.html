@@ -76,14 +76,14 @@
 {%- endmacro %}
 {% macro trademarks(long=False) -%}
   {% if long %}
-    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path("trademarks") %}
     "{{ wordmark }}", "{{ name }}", and the blocks logos are registered trademarks of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a> referring to the products and services associated with pypi.org. Any other use by any other party is prohibited.
-  {% endtrans %}
-{% else %}
-  {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
-  "{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
-{% endtrans %}
-{% endif %}
+    {% endtrans %}
+  {% else %}
+    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path("trademarks") %}
+    "{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
+    {% endtrans %}
+  {% endif %}
 {%- endmacro %}
 {# The preview image and every tag describing it travel together, so a page
  # cannot override the image and silently keep the previous dimensions. #}
@@ -123,14 +123,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="defaultLanguage" content="en">
     <meta name="availableLanguages"
-          content="{{ ', '.join(KNOWN_LOCALES.keys() ) }}">
+          content="{{ ', '.join(KNOWN_LOCALES.keys()) }}">
     {# djlint:off #}
     <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
     {# djlint:on #}
     <meta name="description"
           content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
     <link rel="stylesheet"
-          href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction) ) }}">
+          href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction)) }}">
     <link rel="stylesheet"
           href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet"
@@ -267,22 +267,22 @@
         {% block banner_messages %}
           {% csi request.route_path("includes.db-banners") %}
         {% endcsi %}
-      {% endblock %}
-    </div>
-    {% block flash_messages %}
-      {% csi request.route_path("includes.flash-messages") %}
-    {% endcsi %}
-  {% endblock %}
-  {% for flag in request.flags.notifications() %}
-    <div class="notification-bar">
-      <div class="notification-bar__container">
-        <span class="notification-bar__message">{{ flag.description }}</span>
-      </div>
-    </div>
-  {% endfor %}
-  {% block session_notifications %}
-    {% csi request.route_path("includes.session-notifications") %}
+    {% endblock %}
+  </div>
+  {% block flash_messages %}
+    {% csi request.route_path("includes.flash-messages") %}
   {% endcsi %}
+{% endblock %}
+{% for flag in request.flags.notifications() %}
+  <div class="notification-bar">
+    <div class="notification-bar__container">
+      <span class="notification-bar__message">{{ flag.description }}</span>
+    </div>
+  </div>
+{% endfor %}
+{% block session_notifications %}
+  {% csi request.route_path("includes.session-notifications") %}
+{% endcsi %}
 {% endblock %}
 <header class="site-header {% if testPyPI %}site-header--test-pypi{% elif devPyPI %}site-header--dev-pypi{% else %}{% endif %}">
   <div class="site-container">
@@ -311,8 +311,7 @@
                    data-controller="search-focus"
                    data-action="keydown@window->search-focus#focusSearchField"
                    data-search-focus-target="searchField">
-            {% block search_form_extra_inputs %}
-            {% endblock %}
+            {% block search_form_extra_inputs %}{% endblock %}
             <button type="submit" class="search-form__button">
               <i class="fa fa-search" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Search{% endtrans %}</span>
@@ -362,7 +361,7 @@
              class="-js-white-cube">
         <span>PyPI</span>
       </a>
-      <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
+      <p class="footer__tagline">{% trans href="https://www.python.org/psf/", title=gettext("External link") %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
       {% if request.registry.settings.get("statuspage.url") %}
         <p class="footer__status">
           <span class="footer__status-dot" aria-hidden="true"></span>
@@ -528,7 +527,7 @@
     </li>
     {% if source_commit and source_commit != "null" %}
       <li>
-        {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+        {% trans href="https://github.com/pypi/warehouse/commit/" ~ source_commit, sha=source_commit[:7], title=gettext("External link") %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
       </li>
     {% endif %}
   </ul>

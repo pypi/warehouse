@@ -43,7 +43,7 @@
           <th scope="row">{% trans %}Tags{% endtrans %}</th>
           <td class="file-tags">
             {% for tag in file.pretty_wheel_tags %}
-              {% if tag.lower() not in ['any', 'none'] %}
+              {% if tag.lower() not in ["any", "none"] %}
                 <span class="badge badge--neutral badge--no-uppercase">{{ tag }}</span>
               {% endif %}
             {% endfor %}
@@ -127,7 +127,7 @@
     <h3>{% trans %}Provenance{% endtrans %}</h3>
     {% set provenance = file.provenance.as_model %}
     <p>
-      {% trans href=request.user_docs_url('/attestations/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
+      {% trans href=request.user_docs_url("/attestations/") %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
     </p>
     {% for bundle in provenance.attestation_bundles %}
       {% for attestation in bundle.attestations %}
