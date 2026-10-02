@@ -11,7 +11,7 @@
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None) %}
 <div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label>
+  <label for="{{ input_id }}">
     {{ label }}
   </label>
   {{ field(id=input_id, class=class, placeholder=placeholder) }}
@@ -122,7 +122,8 @@
       <ul class="org-review-checks">
         {% for check in checks %}
         <li class="org-review-check">
-          <i class="fa-solid {{ check_icons[check.status.value] }} org-review-check-icon"></i>
+          <i class="fa-solid {{ check_icons[check.status.value] }} org-review-check-icon" aria-hidden="true"></i>
+          <span class="sr-only">{{ check.status.value }}:</span>
           <div class="org-review-check-body">
             <span class="org-review-check-label">{{ check.label }}</span>
             <span class="org-review-check-detail text-muted">{{ check.detail }}</span>
@@ -145,8 +146,8 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-3 col-md-4">
+  <div class="row text-break">
+    <div class="col-xl-3 col-md-4">
       <div class="org-review-rail">
         <div class="card">
           <div class="card-header with-border">
@@ -238,8 +239,8 @@
     </div>
 
     {% set information_requests = organization_application.information_requests %}
-    {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
-    <div class="col-lg-9 col-md-8">
+    {% set outstanding_information_requests = information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
+    <div class="col-xl-9 col-md-8">
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">
@@ -386,7 +387,7 @@
   {#- Kept outside the sticky rail: `position: sticky` creates a stacking context,
       which would render these behind Bootstrap's body-level backdrop. -#}
   {% if user %}
-  <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="modal-dialog" role="document">
@@ -417,7 +418,7 @@
     </form>
   </div>
 
-  <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
@@ -456,7 +457,7 @@
     </form>
   </div>
 
-  <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="deferModal" tabindex="-1" role="dialog" aria-labelledby="deferModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
@@ -495,7 +496,7 @@
     </form>
   </div>
 
-  <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="requestMoreInfoModal" tabindex="-1" role="dialog" aria-labelledby="requestMoreInfoModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
       <div class="hidden" id="AddOrgEmailTemplate">
           Hello {{ organization_application.submitted_by.username }}!
@@ -586,7 +587,7 @@
     </form>
   </div>
 
-  <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="declineModal" tabindex="-1" role="dialog" aria-labelledby="declineModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
@@ -625,7 +626,7 @@
     </form>
   </div>
 
-  <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog">
+  <div class="modal fade text-break" id="addNoteModal" tabindex="-1" role="dialog" aria-labelledby="addNoteModalLabel">
     <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="modal-dialog" role="document">
