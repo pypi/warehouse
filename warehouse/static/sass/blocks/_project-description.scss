@@ -150,7 +150,8 @@
       color: colors.$text-color;
       font-style: normal;
 
-      &.note {
+      &.note,
+      &.admonition-see-also {
         --admonition-color: #{colors.$primary-color};
       }
 
@@ -180,34 +181,6 @@
       padding-bottom: 0;
       color: var(--admonition-color);
       font-weight: fonts.$bold-font-weight;
-
-      &::before {
-        display: inline-block;
-        width: 1.5em;
-        font-family: fonts.$fa-font-family;
-        font-weight: 900;
-        content: "\f05a";
-      }
-    }
-
-    .tip > .admonition-title::before,
-    .hint > .admonition-title::before {
-      content: "\f0eb";
-    }
-
-    .important > .admonition-title::before {
-      content: "\f06a";
-    }
-
-    .warning > .admonition-title::before,
-    .attention > .admonition-title::before {
-      content: "\f071";
-    }
-
-    .caution > .admonition-title::before,
-    .danger > .admonition-title::before,
-    .error > .admonition-title::before {
-      content: "\f057";
     }
 
     blockquote {
