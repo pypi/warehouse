@@ -13,6 +13,10 @@ plugins:
 markdown_extensions:
   - admonition
   - attr_list
+  - footnotes
+  - md_in_html
+  - toc:
+      toc_depth: 3
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.superfences
@@ -70,10 +74,50 @@ edit_uri: blob/main/docs/user/
 
 nav:
   - "index.md"
-  - "Project Management":
-      - "project-management/storage-limits.md"
-      - "project-management/yanking.md"
+  - "Using PyPI":
+      - "using-pypi/pypi-basics.md"
+      - "using-pypi/finding-and-installing.md"
+      - "Package Security":
+          - "using-pypi/package-security/introduction.md"
+          - "using-pypi/package-security/source-code-security.md"
+          - "using-pypi/package-security/provenance.md"
+          - "using-pypi/package-security/package-integrity.md"
+          - "using-pypi/package-security/common-attacks.md"
+          - "using-pypi/package-security/reporting-issues.md"
+      - "using-pypi/troubleshooting.md"
+  - "Configuring and Managing PyPI Projects":
+      - "project-management/choosing-a-name.md"
       - "project-management/name-retention.md"
+      - "project-management/project-descriptions.md"
+      - "project_metadata.md"
+      - "archives.md"
+      - "project-management/storage-limits.md"
+      - "project-management/managing-collaborators.md"
+      - "project-management/yanking.md"
+      - "project-management/archiving-projects.md"
+      - "project-management/troubleshooting.md"
+  - "Publishing Projects to PyPI":
+      - "publishing/publishing-to-pypi.md"
+      - "publishing/troubleshooting.md"
+      - "Trusted Publishing":
+          - "trusted-publishers/index.md"
+          - "trusted-publishers/adding-a-publisher.md"
+          - "trusted-publishers/creating-a-project-through-oidc.md"
+          - "trusted-publishers/using-a-publisher.md"
+          - "trusted-publishers/security-model.md"
+          - "trusted-publishers/troubleshooting.md"
+          - "trusted-publishers/internals.md"
+      - "Attestations":
+          - "attestations/index.md"
+          - "attestations/producing-attestations.md"
+          - "attestations/consuming-attestations.md"
+          - "attestations/publish/v1.md"
+          - "attestations/security-model.md"
+  - "Your PyPI Account":
+      - "your-account/managing-your-account.md"
+      - "your-account/two-factor-authentication.md"
+      - "your-account/account-recovery.md"
+      - "your-account/security-alerts.md"
   - "Organization Accounts":
       - "organization-accounts/index.md"
       - "organization-accounts/org-acc-faq.md"
@@ -85,21 +129,6 @@ nav:
           - "organization-accounts/actions/team-actions.md"
       - "organization-accounts/pricing-and-payments.md"
       - "organization-accounts/support.md"
-  - "Trusted Publishers":
-      - "trusted-publishers/index.md"
-      - "trusted-publishers/adding-a-publisher.md"
-      - "trusted-publishers/creating-a-project-through-oidc.md"
-      - "trusted-publishers/using-a-publisher.md"
-      - "trusted-publishers/security-model.md"
-      - "trusted-publishers/troubleshooting.md"
-      - "trusted-publishers/internals.md"
-  - "Digital Attestations":
-      - "attestations/index.md"
-      - "attestations/producing-attestations.md"
-      - "attestations/consuming-attestations.md"
-      - "attestations/publish/v1.md"
-      - "attestations/security-model.md"
-  - "project_metadata.md"
   - "APIs and Datasets":
       - "api/index.md"
       - "api/index-api.md"
@@ -110,3 +139,11 @@ nav:
       - "api/bigquery.md"
       - "api/feeds.md"
       - "api/secrets.md"
+  - "About PyPI":
+      - "about/who-maintains-pypi.md"
+      - "about/contributing.md"
+      - "about/pypi-roadmap.md"
+      - "about/service-availability.md"
+      - "about/pypi-statistics.md"
+      - "about/security-and-internals.md"
+      - "about/getting-help.md"
