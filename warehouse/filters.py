@@ -9,6 +9,8 @@ import json
 import re
 import urllib.parse
 
+from email.errors import MessageError
+from email.header import decode_header, make_header
 from email.utils import getaddresses
 
 import jinja2
@@ -172,6 +174,42 @@ def parse_isoformat(datestring):
     return datetime.datetime.fromisoformat(datestring)
 
 
+_MIME_ENCODED_WORDS = re.compile(
+    r"=\?[^?]+\?[bq]\?.*?\?="
+    r"(?:[ \t\r\n]*=\?[^?]+\?[bq]\?.*?\?=)*",
+    re.IGNORECASE,
+)
+
+
+def _decode_mime_match(match: re.Match[str]) -> str:
+    """Decode one RFC 2047 encoded-word group, or leave it unchanged if unsafe."""
+    encoded = match.group()
+    try:
+        decoded = str(make_header(decode_header(encoded)))
+        # utf-7 (and similar) can yield unpaired surrogates that break WebOb.
+        decoded.encode("utf-8")
+        return decoded
+    except (MessageError, LookupError, UnicodeError, ValueError):
+        return encoded
+
+
+def decode_mime_header(value: str | None) -> str | None:
+    """
+    Decode RFC 2047 encoded-words in metadata header values.
+
+    Package metadata occasionally stores Author / Author-email display names as
+    MIME encoded-words (e.g. ``=?utf-8?q?Jos=C3=A9_Mu=C3=B1oz?=``).
+    Render those as human-readable Unicode in the UI.
+    """
+    if not value or len(value) > 4096 or "=?" not in value:
+        return value
+    try:
+        # Decode only encoded-word groups so surrounding Unicode stays intact.
+        return _MIME_ENCODED_WORDS.sub(_decode_mime_match, value)
+    except (MessageError, LookupError, UnicodeError, ValueError):
+        return value
+
+
 def format_email(metadata_email: str) -> tuple[str, str]:
     """
     Return the name and email address from a metadata RFC-822 string.
@@ -179,7 +217,8 @@ def format_email(metadata_email: str) -> tuple[str, str]:
     TODO: Support more than one email address, per RFC-822.
     """
     emails = []
-    for name, email in getaddresses([metadata_email]):
+    for raw_name, email in getaddresses([metadata_email]):
+        name = decode_mime_header(raw_name) or ""
         if "@" not in email:
             return name, ""
         emails.append((name, email))
