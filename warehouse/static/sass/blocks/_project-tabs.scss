@@ -46,7 +46,7 @@
     li {
       float: left;
 
-      @media screen and (max-width: breakpoints.$small-tablet) {
+      @media screen and (max-width: breakpoints.$tablet) {
         float: none;
         width: 100%;
       }
@@ -90,7 +90,7 @@
       margin-right: 2px;
     }
 
-    @media screen and (max-width: breakpoints.$small-tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       display: block;
       float: none;
       width: 100%;
