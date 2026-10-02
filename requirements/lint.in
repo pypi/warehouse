@@ -3,7 +3,7 @@
 ruff<0.16
 ast-grep-cli
 codespell
-djlint<1.47
+djlint
 mypy
 tombi
 celery-types
