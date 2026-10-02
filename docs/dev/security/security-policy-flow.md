@@ -197,6 +197,8 @@ config.add_legacy_action_route(
 ```
 
 A token-only API route passes `auth_methods={"macaroon"}` instead.
+Listing `basic-auth` without `macaroon` raises a `ConfigurationError`, since
+the only credential basic-auth lets through is a macaroon.
 
 Each policy consults the predicate during `identity()` and bows out when its
 method is not in the route's allowed set:
@@ -206,6 +208,7 @@ method is not in the route's allowed set:
 | *(no `auth_methods`)* | yes | no (needs explicit opt-in) | yes |
 | `{"basic-auth", "macaroon"}` (forklift upload) | no | yes | yes |
 | `{"macaroon"}` (token-only API) | no | no | yes |
+| `{"api-key"}` (future Maintainer API) | no | no | no |
 
 `auth_methods_for_route` returns `None` when a route carries no predicate, and
 each policy decides its own default for that case. `SessionSecurityPolicy` and
@@ -292,11 +295,13 @@ header, either as `Basic` with username `__token__`, or as `token`/`bearer`.
 ```mermaid
 flowchart TD
     A[<code>identity</code>]:::warehouse --> VARY[add Vary: <code>Authorization</code><br/>set method = <code>MACAROON</code>]:::warehouse
-    VARY --> EX[extract macaroon from<br/><code>Authorization</code> header]:::warehouse
+    VARY --> AM{no <code>matched_route</code>, or<br/><code>auth_methods</code> set and<br/><code>MACAROON</code> excluded?}:::warehouse
+    AM -->|yes| N0[return <code>None</code>]:::warehouse
+    AM -->|no| EX[extract macaroon from<br/><code>Authorization</code> header<br/>cached per request]:::warehouse
     EX --> HAS{macaroon string<br/>extracted?}:::warehouse
     HAS -->|no| N1[return <code>None</code>]:::warehouse
-    HAS -->|yes| FIND[(<code>IMacaroonService.find_from_raw</code>)]:::service
-    FIND --> VALID{structurally valid<br/>+ in DB?}:::warehouse
+    HAS -->|yes| FIND[(<code>IMacaroonService.verify_signature_only</code>)]:::service
+    FIND --> VALID{structurally valid<br/>+ in DB<br/>+ valid signature?}:::warehouse
     VALID -->|<code>InvalidMacaroonError</code>| N2[return <code>None</code>]:::warehouse
     VALID -->|yes| WHO{bound to a user<br/>or a publisher?}:::warehouse
     WHO -->|user| DIS[(<code>IUserService.is_disabled</code>)]:::service
@@ -308,10 +313,10 @@ flowchart TD
     classDef service fill:#fef3c7,stroke:#b45309,color:#78350f
 ```
 
-Note that `identity()` here only proves the token *exists* and maps to a live
-principal. It does not yet verify the macaroon's caveats. That happens in
-`permits()`, because caveat verification depends on the specific context and
-permission being requested.
+Note that `identity()` here only proves the token *exists*, has a valid
+signature, and maps to a live principal. It does not yet verify the macaroon's
+caveats. That happens in `permits()`, because caveat verification depends on
+the specific context and permission being requested.
 
 ## 5. Authorization: how `permits` decides
 
@@ -371,7 +376,7 @@ Two gates sit on top of the ACL result, and they only ever *downgrade* an
 
 ```mermaid
 flowchart TD
-    A[<code>permits</code>]:::warehouse --> EX[re-extract macaroon from<br/><code>Authorization</code> header]:::warehouse
+    A[<code>permits</code>]:::warehouse --> EX[macaroon from the<br/>per-request cache filled<br/>by <code>identity</code>]:::warehouse
     EX --> ASSERT[assert macaroon is a <code>str</code>]:::warehouse
     ASSERT --> ALLOW{<code>MACAROON</code> allowed<br/>for this permission?}:::warehouse
     ALLOW -->|no| D1[<code>WarehouseDenied</code><br/>'invalid_permission']:::warehouse
@@ -451,7 +456,7 @@ sequenceDiagram
     M->>BA: identity(request)
     BA-->>M: None (username is __token__, passes through)
     M->>MP: identity(request)
-    MP->>DB: find_from_raw(token), is_disabled(user)
+    MP->>DB: verify_signature_only(token), is_disabled(user)
     DB-->>MP: Macaroon -> live User
     MP-->>M: UserContext(user, macaroon)
     M->>MP: permits(...)
@@ -482,8 +487,8 @@ sequenceDiagram
   and traversal, and only for views that declare a `permission`. There is no
   authentication middleware.
 - `identity()` proves *who* you are; `permits()` proves *what you may do*. For
-  macaroons the split is sharper: existence is checked in `identity()`, caveats
-  in `permits()`.
+  macaroons the split is sharper: existence and signature are checked in
+  `identity()`, while caveats are checked in `permits()`.
 - The same policy that authenticates a request authorizes it. The cached
   `(identity, policy)` pair plus the `request.identity == identity` assertion
   guard against confused-deputy mistakes.

@@ -3,12 +3,14 @@ import datetime
 import hashlib
 import hmac
 import os.path
+import posixpath
 import re
 import tarfile
 import tempfile
 import zipfile
 import zlib
 
+from collections.abc import Iterable
 from contextlib import ExitStack, nullcontext
 
 import packaging.requirements
@@ -73,6 +75,7 @@ from warehouse.utils.wheel import (
     InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    is_valid_platform_tag,
     validate_entrypoints,
     validate_record,
 )
@@ -80,6 +83,8 @@ from warehouse.utils.wheel import (
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
+# Upper bound on an sdist's PKG-INFO, which is read into memory to validate it.
+MAX_PKG_INFO_SIZE = 10 * ONE_MIB
 
 # If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
@@ -94,133 +99,9 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
-# Wheel platform checking
 
-# Note: defining new platform ABI compatibility tags that don't
-#       have a python.org binary release to anchor them is a
-#       complex task that needs more than just OS+architecture info.
-#       For Linux specifically, the platform ABI is defined by each
-#       individual distro version, so wheels built on one version may
-#       not even work on older versions of the same distro, let alone
-#       a completely different distro.
-#
-#       That means new entries should only be added given an
-#       accompanying ABI spec that explains how to build a
-#       compatible binary (see the manylinux specs as examples).
-
-# These platforms can be handled by a simple static list:
-_allowed_platforms = {
-    "any",
-    "win32",
-    "win_arm64",
-    "win_amd64",
-    "win_ia64",
-    "manylinux1_x86_64",
-    "manylinux1_i686",
-    "manylinux2010_x86_64",
-    "manylinux2010_i686",
-    "manylinux2014_x86_64",
-    "manylinux2014_i686",
-    "manylinux2014_aarch64",
-    "manylinux2014_armv7l",
-    "manylinux2014_ppc64",
-    "manylinux2014_ppc64le",
-    "manylinux2014_s390x",
-    "linux_armv6l",
-    "linux_armv7l",
-}
-# macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
-_macosx_arches = {
-    "ppc",
-    "ppc64",
-    "i386",
-    "x86_64",
-    "arm64",
-    "intel",
-    "fat",
-    "fat3",
-    "fat64",
-    "universal",
-    "universal2",
-}
-# macosx 10 is also supported, but with different rules
-_macosx_major_versions = {
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "26",
-}
-
-_ios_platform_re = re.compile(
-    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
-)
-_ios_arches = {
-    "arm64",
-    "x86_64",
-}
-
-_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
-_android_arches = {
-    "armeabi_v7a",
-    "arm64_v8a",
-    "x86",
-    "x86_64",
-}
-
-# manylinux pep600 and musllinux pep656 are a little more complicated:
-_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_jointlinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64le",
-    "s390x",
-    "riscv64",
-}
-_manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches
-
-_pyemscripten_platform_re = re.compile(
-    r"pyemscripten_(?P<major>\d+)_(?P<minor>\d+)_wasm32"
-)
-
-
-# Actual checking code;
 def _valid_platform_tag(platform_tag):
-    if platform_tag in _allowed_platforms:
-        return True
-    m = _macosx_platform_re.match(platform_tag)
-    # https://github.com/pypa/packaging.python.org/issues/1933
-    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
-    # only the minor version ever increased, and `macosx_{major}_0` for the
-    # new release scheme where we don't know how many minor versions each
-    # release has.
-    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
-        return True
-    if (
-        m
-        and m.group("major") in _macosx_major_versions
-        and m.group("minor") == "0"
-        and m.group("arch") in _macosx_arches
-    ):
-        return True
-    m = _linux_platform_re.match(platform_tag)
-    if m and m.group("libc") == "musl":
-        return m.group("arch") in _musllinux_arches
-    if m and m.group("libc") == "many":
-        return m.group("arch") in _manylinux_arches
-    m = _ios_platform_re.match(platform_tag)
-    if m and m.group("arch") in _ios_arches:
-        return True
-    m = _android_platform_re.match(platform_tag)
-    if m and m.group("arch") in _android_arches:
-        return True
-    m = _pyemscripten_platform_re.match(platform_tag)
-    return bool(m)
+    return is_valid_platform_tag(platform_tag)
 
 
 _error_message_order = ["metadata-version", "name", "version"]
@@ -354,6 +235,9 @@ def _is_valid_dist_file(
                             "File does not use a supported compression type",
                         )
 
+                if (alias := _non_canonical_member_path(zfp.namelist())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
+
                 if filename.endswith(".zip"):
                     top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
@@ -440,6 +324,8 @@ def _is_valid_dist_file(
                             "See https://docs.pypi.org/archives for more information"
                         ),
                     )
+                if (alias := _non_canonical_member_path(tar.getnames())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -554,6 +440,45 @@ def _commonpath(values):
     if not values:
         return ""
     return os.path.commonpath(values)
+
+
+def _non_canonical_member_path(names: Iterable[str]) -> str | None:
+    """
+    Return the first archive member path that an installer would normalize to
+    a different path, or ``None`` if every path is already canonical.
+
+    pip maps wheel members through ``PurePosixPath`` and tar extraction
+    normalizes too, so ``x.dist-info/./METADATA`` lands on ``METADATA`` and
+    replaces the entry Warehouse validated.
+    """
+    for name in names:
+        if name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+            return name
+    return None
+
+
+def _validate_artifact_dependencies(
+    request: Request, filetype: str, description: str, content: bytes
+) -> None:
+    """
+    Reject an artifact whose own metadata file declares a direct dependency.
+
+    ``description`` names the artifact and file for the error message, e.g.
+    ``"Wheel 'foo.whl' has invalid METADATA"``.
+    """
+    try:
+        metadata.validate_artifact_dependencies(content)
+    except metadata.InvalidMetadata as error:
+        request.metrics.increment(
+            "warehouse.upload.failed",
+            tags=["reason:invalid-artifact-metadata", f"filetype:{filetype}"],
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"{description} ({error.field}): {error}. "
+            "See https://packaging.python.org/specifications/core-metadata "
+            "for more information.",
+        )
 
 
 def _ensure_user_can_upload(request: Request) -> None:
@@ -691,7 +616,9 @@ def file_upload(request):
 
     # Get a validated Metadata object from the form data.
     # TODO: We should eventually extract this data out of the artifact and use that,
-    #       but for now we'll continue to use the form data.
+    #       but for now we'll continue to use the form data. Until then, only the
+    #       artifact's dependency fields are checked, further down.
+    #       See: https://github.com/pypi/warehouse/issues/8090
     try:
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
@@ -1385,15 +1312,45 @@ def file_upload(request):
 
             filename = os.path.basename(temporary_filename)
 
+            # _is_valid_dist_file above checked that this is a tarfile with a
+            # member named PKG-INFO, but not what kind of member it is.
+            tar = upload_archive
+            assert isinstance(tar, tarfile.TarFile)
+            top_level = _commonpath(tar.getnames())
+            pkg_info_name = os.path.join(top_level, "PKG-INFO")
+            pkg_info_member = tar.getmember(pkg_info_name)
+            if not pkg_info_member.isfile() or pkg_info_member.size > MAX_PKG_INFO_SIZE:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-pkg-info",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Source distribution '{filename}' has invalid PKG-INFO: "
+                    f"{pkg_info_name} must be a regular file no larger than "
+                    f"{MAX_PKG_INFO_SIZE // ONE_MIB} MiB.",
+                )
+            # Reading a member re-inflates the stream from wherever the
+            # validation scan left it, so time it like getnames above.
+            with request.metrics.timed("warehouse.upload.tarfile.read_pkg_info"):
+                pkg_info = tar.extractfile(pkg_info_member)
+                assert pkg_info is not None  # isfile() above guarantees this
+                pkg_info_content = pkg_info.read()
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Source distribution '{filename}' has invalid PKG-INFO",
+                pkg_info_content,
+            )
+
             if meta.license_files:
                 """
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                tar = upload_archive
-                assert isinstance(tar, tarfile.TarFile)
-                top_level = _commonpath(tar.getnames())
-                # Already validated as a tarfile by _is_valid_dist_file above
                 for license_file in meta.license_files:
                     target_file = os.path.join(top_level, license_file)
                     try:
@@ -1591,6 +1548,12 @@ def file_upload(request):
                     f"Wheel '{filename}' does not contain the required "
                     f"METADATA file: {metadata_filename}",
                 )
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Wheel '{filename}' has invalid METADATA",
+                wheel_metadata_contents,
+            )
             try:
                 with open(temporary_filename + ".metadata", "wb") as fp:
                     fp.write(wheel_metadata_contents)
@@ -1779,7 +1742,7 @@ def file_upload(request):
         )
     )
 
-    request.db.flush()  # server default columns for celery  # ast-grep-ignore: db-flush
+    request.db.flush()  # ast-grep-ignore: db-flush -- server default columns for celery
 
     # Push updates to BigQuery
     dist_metadata = {

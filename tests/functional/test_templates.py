@@ -29,6 +29,7 @@ FILTERS = {
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
     "is_recent": "warehouse.filters:is_recent",
+    "natsort": "natsort:natsorted",
 }
 
 # A compiled regex that matches a subject block, possibly with newlines inside

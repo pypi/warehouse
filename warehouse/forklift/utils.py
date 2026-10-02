@@ -14,5 +14,6 @@ def _exc_with_message(exc, message, **kwargs):
     # Specifically here, where user-supplied text may appear in the message,
     # which our WSGI server may not appropriately handle (indeed gunicorn does not).
     status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
+    status_message = status_message.replace("\r", " ").replace("\n", " ")
     resp.status = f"{resp.status_code} {status_message}"
     return resp
