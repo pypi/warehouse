@@ -144,7 +144,7 @@
                   {% if wheel_filters_all['interpreter'] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Interpreter{% endtrans %}</legend>
-                      {% for value in wheel_filters_all['interpreter'] | sort %}
+                      {% for value, label in wheel_filters_all['interpreter'].items() | natsort | unique(attribute=1) %}
                         <label for="security-filter-interpreter-{{ value }}">
                           <input type="radio"
                                  id="security-filter-interpreter-{{ value }}"
@@ -155,7 +155,7 @@
                                  data-filtered-source="interpreter"
                                  data-comparison-type="exact"
                                  data-auto-update-url-querystring="true">
-                          {{ wheel_filters_all['interpreter'][value] }}
+                          {{ label }}
                         </label>
                       {% endfor %}
                     </fieldset>
@@ -163,7 +163,7 @@
                   {% if wheel_filters_all['platform'] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Platform{% endtrans %}</legend>
-                      {% for value in wheel_filters_all['platform'] | sort %}
+                      {% for value, label in wheel_filters_all['platform'].items() | natsort | unique(attribute=1) %}
                         <label for="security-filter-platform-{{ value }}">
                           <input type="radio"
                                  id="security-filter-platform-{{ value }}"
@@ -174,7 +174,7 @@
                                  data-filtered-source="platform"
                                  data-comparison-type="exact"
                                  data-auto-update-url-querystring="true">
-                          {{ wheel_filters_all['platform'][value] }}
+                          {{ label }}
                         </label>
                       {% endfor %}
                     </fieldset>
