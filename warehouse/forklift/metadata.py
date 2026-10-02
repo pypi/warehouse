@@ -136,6 +136,15 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                 )
             )
 
+    errors.extend(
+        InvalidMetadata(
+            _RAW_TO_EMAIL_MAPPING[field],
+            "'?=' is not allowed. Use plain Unicode instead of MIME encoding.",
+        )
+        for field in ("author", "author_email", "maintainer", "maintainer_email")
+        if "?=" in (getattr(metadata, field) or "")
+    )
+
     # We require that the author and maintainer emails, if they're provided, are
     # valid RFC822 email addresses.
     # TODO: Arguably this should added to packaging.metadata, as the core metadata
