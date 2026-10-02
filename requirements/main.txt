@@ -684,9 +684,9 @@ google-cloud-core==2.6.0 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-google-cloud-storage==3.14.1 \
-    --hash=sha256:8f0fe2b74bd80ddcbd67247a3b47b81035a0a4f448569ed358fa40a46c940118 \
-    --hash=sha256:b24e74b493c60b19b83462933a83bb831e45b6ca4924b0d75eac8e176b58b3a7
+google-cloud-storage==3.15.0 \
+    --hash=sha256:110041ee1cb566114015aa7c2492f1ff18c92af528588386663f4b41b6279989 \
+    --hash=sha256:248905def997a300ad456c0696cf7fad04b8c38412c1103ebb2a60cc6341579f
     # via -r requirements/main.in
 google-crc32c==1.8.0 \
     --hash=sha256:014a7e68d623e9a4222d663931febc3033c5c7c9730785727de2a81f87d5bab8 \
@@ -1608,9 +1608,9 @@ plaster-pastedeploy==1.0.1 \
     --hash=sha256:ad3550cc744648969ed3b810f33c9344f515ee8d8a8cec18e8f2c4a643c2181f \
     --hash=sha256:be262e6d2e41a7264875daa2fe2850cbb0615728bcdc92828fdc72736e381412
     # via pyramid
-platformdirs==4.11.12 \
-    --hash=sha256:b1ba966ac76153d9985a0787ffab951e7c18416189873d4e4ddb2c8a04a0a254 \
-    --hash=sha256:e8dc1cb58f1153fd7f61db1374317770baababec2480b37b8f01c6cc25b45267
+platformdirs==4.11.13 \
+    --hash=sha256:228b2283af5c1f32673cdf55271216a52bbd8258cb31374e302ad7bd26cd7513 \
+    --hash=sha256:6985eefdc2298693e4ce1fe124645524cb967428eb6384e0ce5b49767e7ea8ba
     # via
     #   -r requirements/main.in
     #   sigstore
