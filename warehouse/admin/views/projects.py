@@ -8,6 +8,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_, select
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -189,7 +190,7 @@ def project_detail(project, request):
         request.db.query(Role)
         .join(User)
         .filter(Role.project == project)
-        .distinct(User.username)
+        .ext(distinct_on(User.username))
         .all()
     )
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
