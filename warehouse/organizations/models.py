@@ -962,6 +962,9 @@ class TeamProjectRole(db.Model):
     __table_args__ = (
         Index("team_project_roles_project_id_idx", "project_id"),
         Index("team_project_roles_team_id_idx", "team_id"),
+        Index(
+            "team_project_roles_organization_project_id_idx", "organization_project_id"
+        ),
         UniqueConstraint(
             "project_id",
             "team_id",
@@ -980,11 +983,28 @@ class TeamProjectRole(db.Model):
     team_id: Mapped[UUID] = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    # Ties the role to the org-project association it depends on, so that
+    # removing a project from an organization cascades the role away at the
+    # database level rather than relying on service-layer cleanup.
+    # Nullable for now: the previous version of the code is still running
+    # while this migration is applied, and it inserts rows without this
+    # column. A follow-up migration makes it NOT NULL once every writer
+    # populates it. See https://github.com/pypi/warehouse/issues/19748
+    organization_project_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("organization_projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=True,
+        comment=(
+            "The org-project association this role depends on. Lets the database "
+            "cascade the role away when a project leaves the organization. NULL "
+            "only for rows predating this column."
+        ),
+    )
 
     project: Mapped[Project] = relationship(
         lazy=False, back_populates="team_project_roles"
     )
     team: Mapped[Team] = relationship(lazy=False)
+    organization_project: Mapped[OrganizationProject | None] = relationship()
 
 
 class TeamFactory:
