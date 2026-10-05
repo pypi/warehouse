@@ -827,7 +827,7 @@ def file_upload(request):
 
     # If organization owned project, check if the organization is active.
     # Inactive organizations cannot upload new releases to their projects.
-    if project.organization and not project.organization.good_standing:
+    if project.organization and not project.organization.is_in_good_standing():
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:org-not-active"]
         )
