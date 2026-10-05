@@ -50,7 +50,8 @@
                  title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
             {% else %}
               {# Show disabled button #}
-              <button class="button button--primary"
+              <button type="button"
+                      class="button button--primary"
                       disabled
                       title="{% trans %}You are not an owner of this project{% endtrans %}">
                 {% trans %}Manage{% endtrans %}
@@ -61,7 +62,8 @@
                  class="button"
                  title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
             {% else %}
-              <button class="button"
+              <button type="button"
+                      class="button"
                       disabled
                       title="{% trans %}This project has no releases{% endtrans %}">
                 {% trans %}View{% endtrans %}
@@ -75,7 +77,7 @@
         <p>
           {% trans %}There are no projects in your organization, yet.{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationProjectsAdd) %}
-            {%+ trans href='https://packaging.python.org/' %}Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+            {%+ trans href="https://packaging.python.org/" %}Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
           {% endif %}
         </p>
       </div>
@@ -92,7 +94,8 @@
                value="{{ request.session.get_csrf_token() }}">
         {{ form_errors(add_organization_project_form) }}
         {# New or existing? radio buttons should be siblings of div.form-group below. #}
-        <label class="form-group__label" for="add_existing_project">{% trans %}️New or existing project?{% endtrans %}</label>
+        <label class="form-group__label"
+               for="add_existing_project">{% trans %}️New or existing project?{% endtrans %}</label>
         {% for subfield in add_organization_project_form.add_existing_project %}
           {{ subfield(data_target=".radio-toggle-" + loop.index|string) }}
           {{ subfield.label }}
@@ -110,38 +113,38 @@
           </label>
           {% set no_existing_projects = add_organization_project_form.existing_project_name.choices|length <= 1 %}
           {{ add_organization_project_form.existing_project_name(class_="form-group__field",
-                    disabled=no_existing_projects,
-                    title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "",
-          aria_describedby="existing-project-name-errors",
+            disabled=no_existing_projects,
+            title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "",
+            aria_describedby="existing-project-name-errors",
           ) }}
           <div id="existing-project-name-errors">{{ field_errors(add_organization_project_form.existing_project_name) }}</div>
           <p class="form-group__help-text">
             {% trans %}
             Owners or managers of this organization can transfer a project that they own to this organization if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
-          {% endtrans %}
-        </p>
-      </div>
-      <input value="{% trans %}Transfer existing project{% endtrans %}"
-             class="button button--primary radio-toggle radio-toggle-1"
-             type="submit">
-      <div class="form-group radio-toggle radio-toggle-2">
-        <label class="form-group__label" for="project">
-          {% trans %}️Name of new project{% endtrans %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        </label>
-        {{ add_organization_project_form.new_project_name(class_="form-group__field",
-                aria_describedby="new-project-name-errors",) }}
-        <div id="new-project-name-errors">{{ field_errors(add_organization_project_form.new_project_name) }}</div>
-        <p class="form-group__help-text">
-          {% trans %}
-          Owners of this organization can create an empty project and add it to the organization.
-        {% endtrans %}
-      </p>
-    </div>
-    <input value="{% trans %}Create and add new project{% endtrans %}"
-           class="button button--primary radio-toggle radio-toggle-2"
-           type="submit">
-  </form>
-</section>
-{% endif %}
+            {% endtrans %}
+          </p>
+        </div>
+        <input value="{% trans %}Transfer existing project{% endtrans %}"
+               class="button button--primary radio-toggle radio-toggle-1"
+               type="submit">
+        <div class="form-group radio-toggle radio-toggle-2">
+          <label class="form-group__label" for="project">
+            {% trans %}️Name of new project{% endtrans %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          </label>
+          {{ add_organization_project_form.new_project_name(class_="form-group__field",
+            aria_describedby="new-project-name-errors",) }}
+          <div id="new-project-name-errors">{{ field_errors(add_organization_project_form.new_project_name) }}</div>
+          <p class="form-group__help-text">
+            {% trans %}
+            Owners of this organization can create an empty project and add it to the organization.
+            {% endtrans %}
+          </p>
+        </div>
+        <input value="{% trans %}Create and add new project{% endtrans %}"
+               class="button button--primary radio-toggle radio-toggle-2"
+               type="submit">
+      </form>
+    </section>
+  {% endif %}
 {% endblock %}

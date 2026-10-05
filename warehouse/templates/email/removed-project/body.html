@@ -1,14 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
 {% block content %}
-  <p>
-    The project {{ project_name }} has been deleted.
-    <ul>
-      <li>
-        <strong>Deleted by:</strong> {{ submitter_name }} with a role: {{ submitter_role }}.
-      </li>
-    </ul>
-  </p>
+  <p>The project {{ project_name }} has been deleted.</p>
+  <ul>
+    <li>
+      <strong>Deleted by:</strong> {{ submitter_name }} with a role: {{ submitter_role }}.
+    </li>
+  </ul>
   <p>
     If you have questions or concerns, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
   </p>

@@ -24,11 +24,11 @@
         </label>
         {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
           {{ save_team_form.name(placeholder=gettext("Name of your team") ,
-          autocomplete="off",
-          autocapitalize="off",
-          spellcheck="false",
-          class_="form-group__field",
-          aria_describedby="name-errors",
+            autocomplete="off",
+            autocapitalize="off",
+            spellcheck="false",
+            class_="form-group__field",
+            aria_describedby="name-errors",
           ) }}
         {% else %}
           <p class="form-group__text">{{ save_team_form.name.data }}</p>
@@ -59,7 +59,8 @@
       <div class="callout-block callout-block--danger">
         <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
         <p>
-          <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+          <i class="fa fa-exclamation-triangle"
+             aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
           {% trans %}You will not be able to recover your team after you delete it.{% endtrans %}
         </p>
         {{ confirm_button(gettext("Delete team") , gettext("Team Name"), "team_name", team.name) }}
