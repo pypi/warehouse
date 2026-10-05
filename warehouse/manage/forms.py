@@ -657,6 +657,7 @@ class SaveOrganizationForm(wtforms.Form):
         ]
     )
     link_url = wtforms.URLField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message="Specify your organization URL"),
             wtforms.validators.Length(
@@ -670,7 +671,7 @@ class SaveOrganizationForm(wtforms.Form):
                 r"^https?://",
                 message=_("The organization URL must start with http:// or https://"),
             ),
-        ]
+        ],
     )
     description = wtforms.TextAreaField(
         validators=[

@@ -4,13 +4,15 @@ import csv
 import io
 import uuid
 
-import pretend
+from types import SimpleNamespace
+
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import emails as views
 from warehouse.email.ses.models import EmailStatuses
+from warehouse.tasks import WarehouseTask
 
 from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.ses import EmailMessageFactory
@@ -38,11 +40,11 @@ class TestEmailList:
 
         assert result == {"emails": emails[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.email_list(request)
+            views.email_list(pyramid_request)
 
     def test_basic_query(self, db_request):
         emails = sorted(
@@ -104,7 +106,7 @@ class TestEmailList:
 
 
 class TestEmailMass:
-    def test_sends_emails(self, db_request):
+    def test_sends_emails(self, db_request, mocker):
         user1 = UserFactory.create()
         email1 = EmailFactory.create(user=user1, primary=True)
         user2 = UserFactory.create()
@@ -131,25 +133,26 @@ class TestEmailMass:
         )
         wrapper.seek(0)
 
-        delay = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.params = {"csvfile": pretend.stub(file=input_file)}
-        db_request.task = lambda a: pretend.stub(delay=delay)
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        task = mocker.create_autospec(WarehouseTask, instance=True)
+        delay = task.delay
+        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        db_request.task = mocker.Mock(return_value=task)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = views.email_mass(db_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("admin.emails.list")]
+        db_request.route_path.assert_called_once_with("admin.emails.list")
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Mass emails sent", queue="success")
-        ]
-        assert delay.calls == [
-            pretend.call(
+        db_request.session.flash.assert_called_once_with(
+            "Mass emails sent", queue="success"
+        )
+        assert delay.call_args_list == [
+            mocker.call(
                 email1.email,
                 {
                     "subject": "Test Subject 1",
@@ -167,7 +170,7 @@ class TestEmailMass:
                     },
                 },
             ),
-            pretend.call(
+            mocker.call(
                 email2.email,
                 {
                     "subject": "Test Subject 2",
@@ -187,7 +190,7 @@ class TestEmailMass:
             ),
         ]
 
-    def test_user_without_email_sends_no_emails(self, db_request):
+    def test_user_without_email_sends_no_emails(self, db_request, mocker):
         user = UserFactory.create()
 
         input_file = io.BytesIO()
@@ -204,22 +207,23 @@ class TestEmailMass:
         )
         wrapper.seek(0)
 
-        delay = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.params = {"csvfile": pretend.stub(file=input_file)}
-        db_request.task = lambda a: pretend.stub(delay=delay)
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        task = mocker.create_autospec(WarehouseTask, instance=True)
+        delay = task.delay
+        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        db_request.task = mocker.Mock(return_value=task)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.email_mass(db_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("admin.emails.list")]
+        db_request.route_path.assert_called_once_with("admin.emails.list")
         assert result.headers["Location"] == "/the-redirect"
-        assert delay.calls == []
+        delay.assert_not_called()
 
-    def test_no_rows_sends_no_emails(self):
+    def test_no_rows_sends_no_emails(self, pyramid_request, mocker):
         input_file = io.BytesIO()
         wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
         fieldnames = ["user_id", "subject", "body_text"]
@@ -227,37 +231,35 @@ class TestEmailMass:
         writer.writeheader()
         wrapper.seek(0)
 
-        delay = pretend.call_recorder(lambda *a, **kw: None)
-        request = pretend.stub(
-            params={"csvfile": pretend.stub(file=input_file)},
-            task=lambda a: pretend.stub(delay=delay),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        task = mocker.create_autospec(WarehouseTask, instance=True)
+        pyramid_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        pyramid_request.task = mocker.Mock(return_value=task)
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
         )
+        mocker.spy(pyramid_request.session, "flash")
 
-        result = views.email_mass(request)
+        result = views.email_mass(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert request.route_path.calls == [pretend.call("admin.emails.list")]
+        pyramid_request.route_path.assert_called_once_with("admin.emails.list")
         assert result.headers["Location"] == "/the-redirect"
-        assert request.session.flash.calls == [
-            pretend.call("No emails to send", queue="error")
-        ]
-        assert delay.calls == []
+        pyramid_request.session.flash.assert_called_once_with(
+            "No emails to send", queue="error"
+        )
+        task.delay.assert_not_called()
 
 
 class TestEmailDetail:
-    def test_existing_email(self, db_session):
+    def test_existing_email(self, db_request):
         em = EmailMessageFactory.create()
+        db_request.matchdict["email_id"] = em.id
 
-        request = pretend.stub(matchdict={"email_id": em.id}, db=db_session)
+        assert views.email_detail(db_request) == {"email": em}
 
-        assert views.email_detail(request) == {"email": em}
-
-    def test_nonexistent_email(self, db_session):
+    def test_nonexistent_email(self, db_request):
         EmailMessageFactory.create()
-
-        request = pretend.stub(matchdict={"email_id": str(uuid.uuid4())}, db=db_session)
+        db_request.matchdict["email_id"] = str(uuid.uuid4())
 
         with pytest.raises(HTTPNotFound):
-            views.email_detail(request)
+            views.email_detail(db_request)

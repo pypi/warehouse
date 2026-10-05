@@ -16,6 +16,7 @@ from packaging.metadata import (
     RawMetadata,
     _parse_keywords,
     _parse_project_urls,
+    parse_email,
 )
 from packaging.requirements import InvalidRequirement, Requirement
 from trove_classifiers import all_classifiers, deprecated_classifiers
@@ -24,6 +25,9 @@ from webob.multidict import MultiDict
 from warehouse.utils import http
 
 SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4", "2.5"}
+
+# The *-Dist fields that may not carry a direct reference (PEP 440 ``name @ url``).
+_DEPENDENCY_FIELDS: typing.Final = ("requires_dist", "provides_dist", "obsoletes_dist")
 
 DYNAMIC_FIELDS = [
     "Platform",
@@ -92,6 +96,63 @@ def parse(
     _validate_metadata(metadata, backfill=backfill)
 
     return metadata
+
+
+def _direct_dependency_errors(
+    field: str, req_strs: typing.Iterable[str]
+) -> list[InvalidMetadata]:
+    """
+    Validate the requirement strings of a *-Dist field: each must parse, and
+    none may be a direct reference (PEP 440 ``name @ url``).
+    """
+    header = _RAW_TO_EMAIL_MAPPING[field]
+    errors: list[InvalidMetadata] = []
+    for req_str in req_strs:
+        try:
+            req = Requirement(req_str)
+        # A deeply nested marker overflows the parser's recursion; that is as
+        # invalid as a syntax error. Keep only the first line of the parser
+        # message, the rest is caret art that does not survive a status line.
+        except (InvalidRequirement, RecursionError) as exc:
+            reason = str(exc).partition("\n")[0]
+            errors.append(InvalidMetadata(header, f"{req_str!r} is invalid: {reason}"))
+        else:
+            # NOTE: This part should not be lifted to packaging.metadata
+            if req.url is not None:
+                errors.append(
+                    InvalidMetadata(
+                        header, f"Can't have direct dependency: {req_str!r}"
+                    )
+                )
+    return errors
+
+
+def validate_artifact_dependencies(content: bytes) -> None:
+    """
+    Reject direct references in the dependency fields of an artifact's own
+    metadata file (a wheel's METADATA or an sdist's PKG-INFO).
+
+    The upload form is validated by `parse`, but the form is supplied by the
+    uploader and can omit dependencies that the artifact still declares.
+    Installers read the artifact's metadata, so it has to be checked too.
+
+    This is deliberately narrow. The other PyPI-specific rules in
+    `_validate_metadata` still bind only the form; applying them to the
+    artifact, and storing the artifact's metadata per file, belongs to the
+    per-file metadata work rather than to this check.
+    See: https://github.com/pypi/warehouse/issues/8090
+    """
+    raw, unparsed = parse_email(content)
+    for field in _DEPENDENCY_FIELDS:
+        header = _RAW_TO_EMAIL_MAPPING[field]
+        # parse_email sets aside fields it could not decode; fail closed rather
+        # than treat an undecodable dependency list as an empty one.
+        if header in unparsed:
+            raise InvalidMetadata(header, f"{header!r} could not be parsed")
+        if field in raw:
+            errors = _direct_dependency_errors(field, raw[field])
+            if errors:
+                raise errors[0]
 
 
 def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
@@ -224,26 +285,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # TODO: This probably should be pulled up into packaging.metadata.
     for field in ("provides_dist", "obsoletes_dist"):
         if (value := getattr(metadata, field)) is not None:
-            for req_str in value:
-                try:
-                    req = Requirement(req_str)
-                except InvalidRequirement as exc:
-                    errors.append(
-                        InvalidMetadata(
-                            _RAW_TO_EMAIL_MAPPING.get(field, field),
-                            f"{req_str!r} is invalid: {exc}",
-                        )
-                    )
-                else:
-                    # Validate that an URL isn't being listed.
-                    # NOTE: This part should not be lifted to packaging.metadata
-                    if req.url is not None:
-                        errors.append(
-                            InvalidMetadata(
-                                _RAW_TO_EMAIL_MAPPING.get(field, field),
-                                f"Can't have direct dependency: {req_str!r}",
-                            )
-                        )
+            errors.extend(_direct_dependency_errors(field, value))
 
     # Ensure that the *-Dist fields are not referencing any direct dependencies.
     # NOTE: Because packaging.metadata doesn't parse Provides-Dist and Obsoletes-Dist
