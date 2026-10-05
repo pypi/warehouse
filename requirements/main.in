@@ -37,7 +37,7 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-platformdirs>=4.11.13
+platformdirs>=4.12.1
 premailer
 psycopg[binary]
 pydantic

@@ -223,8 +223,7 @@
   {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
 {% endif %}
 <hr>
-<div class="callout-block callout-block--danger"
-     data-controller="delete-confirm">
+<div class="callout-block callout-block--danger">
   <h3>{% trans %}Delete project{% endtrans %}</h3>
   <p>
     <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
@@ -256,51 +255,7 @@
   </small>
 </li>
 </ul>
-<ul class="no-bullets">
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that I am permanently deleting all releases for this project.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that my users will no longer be able to install this project.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that I will <a href="https://pypi.org/help/#file-name-reuse">not be able to re-upload any deleted versions</a>.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that I am releasing this project name for use by any other PyPI user.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that I may not be able to re-register the project name <a href="https://pypi.org/help/#project-name">under some circumstances</a>.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that I will not be able to undo this.
-  </li>
-  <li>
-    <input type="checkbox"
-           data-action="input->delete-confirm#check"
-           data-delete-confirm-target="input">
-    I understand that the PyPI administrators will not be able to undo this.
-  </li>
-</ul>
 {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
-{{ confirm_button(gettext("Delete project") , gettext("Project Name"), "project_name", project.name, action=action, additional_attributes="data-delete-confirm-target=button") }}
+{{ confirm_button(gettext("Delete project") , gettext("Project Name"), "project_name", project.name, action=action, extra_description=delete_project_acknowledgments(), wide=True) }}
 </div>
 {% endblock %}
