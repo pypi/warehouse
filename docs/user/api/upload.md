@@ -67,7 +67,10 @@ POST request with the following fields:
     An organization that isn't in good standing also blocks uploads to all
     of the projects it already owns, whether or not this field is set.
 
-    Package indexes that don't support this field silently ignore it.
+    Package indexes that don't support this field silently ignore it, so on
+    those indexes a new project is created in the uploader's user account
+    instead of in the organization.
+
 - You can set any other field from the [Core metadata specifications].
 
     All fields need to be renamed to lowercase and hyphens need to replaced
