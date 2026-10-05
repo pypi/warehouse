@@ -494,7 +494,7 @@ def _get_organization_by_name(request: Request, organization_name: str) -> Organ
 
     if organization is None:
         request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:organization-not-found"]
+            "warehouse.upload.failed", tags=["reason:org-not-found"]
         )
         raise _exc_with_message(
             HTTPBadRequest, f"Organization {organization_name!r} does not exist."
@@ -526,7 +526,7 @@ def _get_organization_for_new_project(
     )
     if role is None or role.role_name != OrganizationRoleType.Owner:
         request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:organization-permission-denied"]
+            "warehouse.upload.failed", tags=["reason:org-permission-denied"]
         )
         raise _exc_with_message(
             HTTPForbidden,
@@ -815,7 +815,7 @@ def file_upload(request):
         organization = _get_organization_by_name(request, form.organization.data)
         if project.organization is None or project.organization.id != organization.id:
             request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:organization-mismatch"]
+                "warehouse.upload.failed", tags=["reason:org-mismatch"]
             )
             raise _exc_with_message(
                 HTTPBadRequest,

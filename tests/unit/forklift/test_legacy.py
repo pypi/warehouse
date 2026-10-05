@@ -5615,7 +5615,7 @@ class TestFileUpload:
         assert excinfo.value.status == "400 Organization 'no-such-org' does not exist."
         assert db_request.db.query(Project).count() == 0
         assert db_request.metrics.increment.call_args_list[-1] == mock.call(
-            "warehouse.upload.failed", tags=["reason:organization-not-found"]
+            "warehouse.upload.failed", tags=["reason:org-not-found"]
         )
 
     @pytest.mark.parametrize(
@@ -5659,6 +5659,9 @@ class TestFileUpload:
             "projects when uploading."
         )
         assert db_request.db.query(Project).count() == 0
+        assert db_request.metrics.increment.call_args_list[-1] == mock.call(
+            "warehouse.upload.failed", tags=["reason:org-permission-denied"]
+        )
 
     def test_upload_fails_creating_project_in_inactive_organization(
         self, pyramid_config, db_request, organization_service, project_service
@@ -5687,6 +5690,9 @@ class TestFileUpload:
             "Please contact support+orgs@pypi.org."
         )
         assert db_request.db.query(Project).count() == 0
+        assert db_request.metrics.increment.call_args_list[-1] == mock.call(
+            "warehouse.upload.failed", tags=["reason:org-not-active"]
+        )
 
     def test_upload_succeeds_for_project_in_named_organization(
         self, pyramid_config, db_request, organization_service, storage_service
@@ -5751,7 +5757,7 @@ class TestFileUpload:
             "400 Project 'example' is not owned by organization 'example-org'."
         )
         assert db_request.metrics.increment.call_args_list[-1] == mock.call(
-            "warehouse.upload.failed", tags=["reason:organization-mismatch"]
+            "warehouse.upload.failed", tags=["reason:org-mismatch"]
         )
         assert project.releases == []
 
