@@ -1035,6 +1035,30 @@ class TestFileUpload:
                 "See https://packaging.python.org/en/latest/specifications/"
                 "version-specifiers/#local-version-identifiers for more information.",
             ),
+            # organization errors
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "md5_digest": "a fake md5 digest",
+                    "organization": "org\x00name",
+                },
+                "Invalid value for organization. Error: Null bytes are not allowed.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "md5_digest": "a fake md5 digest",
+                    "organization": "o" * 51,
+                },
+                "Invalid value for organization. "
+                "Error: Organization names are 50 characters or less.",
+            ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")

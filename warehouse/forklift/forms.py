@@ -5,6 +5,8 @@ import re
 import wtforms
 import wtforms.validators
 
+from warehouse.accounts.forms import PreventNullBytesValidator
+from warehouse.constants import MAX_ORGANIZATION_NAME_LENGTH
 from warehouse.utils.project import PROJECT_NAME_RE
 
 _filetype_extension_mapping = {
@@ -46,7 +48,19 @@ class UploadForm(wtforms.Form):
     # The organization that owns the project. A brand new project is created in
     # it, and an existing project must already belong to it. The given name is
     # resolved and normalized after the project lookup and permission checks.
-    organization = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    organization = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
+            PreventNullBytesValidator(),
+            wtforms.validators.Length(
+                max=MAX_ORGANIZATION_NAME_LENGTH,
+                message=(
+                    f"Organization names are {MAX_ORGANIZATION_NAME_LENGTH} "
+                    "characters or less."
+                ),
+            ),
+        ]
+    )
 
     # File metadata
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
