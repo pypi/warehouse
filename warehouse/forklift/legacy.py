@@ -770,9 +770,10 @@ def file_upload(request):
                 request, organization, project, link=False
             )
 
-    # Check that the identity has permission to do things to this project, if this
-    # is a new project this will act as a sanity check for the role we just
-    # added above.
+    # Check that the identity has permission to do things to this project. If this
+    # is a new project, this also acts as a sanity check on the access we just set
+    # up: the Owner role added for the uploader, or for a project created in an
+    # organization, the uploader's Owner role in that organization.
     allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
