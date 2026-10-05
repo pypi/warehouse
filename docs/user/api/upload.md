@@ -64,6 +64,9 @@ POST request with the following fields:
     `400 Bad Request`. Naming an organization you aren't an Owner of when
     creating a project is rejected with `403 Forbidden`.
 
+    An organization that isn't in good standing also blocks uploads to all
+    of the projects it already owns, whether or not this field is set.
+
     Package indexes that don't support this field silently ignore it.
 - You can set any other field from the [Core metadata specifications].
 
