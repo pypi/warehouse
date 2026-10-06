@@ -2436,7 +2436,7 @@ class TestManageOrganizationRoles:
 
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_1
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -2503,7 +2503,7 @@ class TestManageOrganizationRoles:
 
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_1
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -2714,7 +2714,7 @@ class TestResendOrganizationInvitations:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations"
@@ -2810,7 +2810,7 @@ class TestResendOrganizationInvitations:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations"
@@ -2855,7 +2855,7 @@ class TestResendOrganizationInvitations:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations"
@@ -2902,7 +2902,7 @@ class TestRevokeOrganizationInvitation:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations"
@@ -2979,7 +2979,7 @@ class TestRevokeOrganizationInvitation:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations"
@@ -3014,7 +3014,7 @@ class TestRevokeOrganizationInvitation:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "203.0.113.10"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/roles"
