@@ -7,7 +7,7 @@
 asyncudp==0.11.0 \
     --hash=sha256:96d859d86471e3ed30cf9f05cb38e96920156e3a9fe70ee916096ba758ea316e \
     --hash=sha256:c8ab6459f4dc8ebc42f401d3bd72c2a6c6808d10e42231f39e0c433ac646abf9
-    # via -r requirements/dev.in
+    # via -r dev.in
 build==1.5.0 \
     --hash=sha256:13f3eecb844759ab66efec90ca17639bbf14dc06cb2fdf37a9010322d9c50a6f \
     --hash=sha256:302c22c3ba2a0fd5f3911918651341ebb3896176cbdec15bd421f80b1afc7647
@@ -20,15 +20,15 @@ hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
     --hash=sha256:e872b959f09d90be5fb615bd2e62de89a0b57efc037bdf9637fb09cdf8552b19
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   pyramid
 legacy-cgi==2.6.4 \
     --hash=sha256:7e235ce58bf1e25d1fc9b2d299015e4e2cd37305eccafec1e6bac3fc04b878cd \
     --hash=sha256:abb9dfc7835772f7c9317977c63253fd22a7484b5c9bbcdca60a29dcce97c577
     # via webob
-mako==1.3.12 \
-    --hash=sha256:8f61569480282dbf557145ce441e4ba888be453c30989f879f0d652e39f53ea9 \
-    --hash=sha256:9f778e93289bd410bb35daadeb4fc66d95a746f0b75777b942088b7fd7af550a
+mako==1.4.2 \
+    --hash=sha256:7227a060ee3af55a493af61d73d6beef13044b81dba9586736c13945f09464ce \
+    --hash=sha256:e70a2a4308952b33a21208bfd6725da79fae5a8c224578f8cfdeb60e5ace03df
     # via pyramid-mako
 markupsafe==3.0.3 \
     --hash=sha256:0303439a41979d9e74d18ff5e2dd8c43ed6c6001fd40e5bf2e43f7bd9bbc523f \
@@ -134,11 +134,11 @@ pastedeploy==3.1.0 \
 pip-api==0.0.35 \
     --hash=sha256:14dea05d7b3b68f4c7582213e3ae8932bbba8e1f754bf06b95263d5fa6ab4363 \
     --hash=sha256:66990d0da25378555cbb538db79384bab92d4617c6350dfd7a2126ba2a3a9894
-    # via -r requirements/dev.in
+    # via -r dev.in
 pip-tools==7.6.1 \
     --hash=sha256:6111c8b4b07fd14b7223ca921485b0e96cf66e20bf94da95eeed9845f510cb8f \
     --hash=sha256:695556edeb647eb94ee8345cc7108657fdb7fb16b3876623a399b4f61bbede01
-    # via -r requirements/dev.in
+    # via -r dev.in
 plaster==1.1.2 \
     --hash=sha256:42992ab1f4865f1278e2ad740e8ad145683bb4022e03534265528f0c23c0df2d \
     --hash=sha256:f8befc54bf8c1147c10ab40297ec84c2676fa2d4ea5d6f524d9436a80074ef98
@@ -168,7 +168,7 @@ pyramid==2.1 \
 pyramid-debugtoolbar==4.12.1 \
     --hash=sha256:1d13a82444b3396d5a76d1e611d0de1b38da096f04440041e8e889536103864b \
     --hash=sha256:71e888d349c85fcca12b3e6dc4c7ae8e3f02a1d5acc05154fd9ba8c7f661b43d
-    # via -r requirements/dev.in
+    # via -r dev.in
 pyramid-mako==1.1.0 \
     --hash=sha256:0066c863441f1c3ddea60cee1ccc50d00a91a317a8052ca44131da1a12a840e2 \
     --hash=sha256:76104592d292b6974cf7080aa52405c51f396a621535f01e274d7fe546e85a43
@@ -212,7 +212,7 @@ watchdog==6.0.0 \
     --hash=sha256:e6f0e77c9417e7cd62af82529b10563db3423625c5fce018430b249bf977f9e8 \
     --hash=sha256:e7631a77ffb1f7d2eefa4445ebbee491c720a5661ddf6df3498ebecae5ed375c \
     --hash=sha256:ef810fbf7b781a5a593894e4f439773830bdecb885e6880d957d5b9382a960d2
-    # via -r requirements/dev.in
+    # via -r dev.in
 webob==1.8.11 \
     --hash=sha256:4addd1d38d6a7fbe0eda22d45f25a40d74c8b290f3a99c0ac3d4023cf21f2da2 \
     --hash=sha256:aa8c27231070b135c025e567a9cd7eda03f4df71352ffaac740cb6a75f0f81a5
