@@ -245,6 +245,11 @@ def remember_device_token_service(auth_token_services):
 
 
 @pytest.fixture
+def confirm_login_token_service(auth_token_services):
+    return auth_token_services["confirm_login"]
+
+
+@pytest.fixture
 def two_factor_user(db_session):
     """
     A TOTP-enabled user whose last login predates any token signed in the test.
@@ -280,6 +285,16 @@ def password_reset_token(token_service):
         )
 
     return _make
+
+
+@pytest.fixture
+def invite_request(db_request, mocker):
+    """A POST request answering an invitation, redirecting to ``/``."""
+    db_request.method = "POST"
+    db_request.remote_addr = "192.168.1.1"
+    mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
+    mocker.spy(db_request.session, "flash")
+    return db_request
 
 
 class TestAccountsSearch:
@@ -2501,113 +2516,110 @@ class TestVerifyEmail:
 
 
 class TestVerifyOrganizationRole:
-    @pytest.mark.parametrize(
-        "desired_role", ["Member", "Manager", "Owner", "Billing Manager"]
-    )
-    def test_verify_organization_role(
-        self, db_request, token_service, monkeypatch, desired_role
-    ):
-        organization = OrganizationFactory.create()
-        user = UserFactory.create()
-        OrganizationInvitationFactory.create(
-            organization=organization,
-            user=user,
-            token="RANDOM_KEY",
-        )
+    @pytest.fixture
+    def organization(self, db_session):
+        return OrganizationFactory.create()
+
+    @pytest.fixture
+    def owner_user(self, organization):
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
             organization=organization,
             user=owner_user,
             role_name=OrganizationRoleType.Owner,
         )
+        return owner_user
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
+    @pytest.fixture
+    def invite_token(self, token_service, organization, owner_user):
+        """Sign an organization invitation token for ``user``, sent by the owner."""
+
+        def _make(user, desired_role="Manager"):
+            return token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": desired_role,
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": owner_user.id,
+                }
+            )
+
+        return _make
+
+    @pytest.mark.parametrize(
+        "desired_role", ["Member", "Manager", "Owner", "Billing Manager"]
+    )
+    def test_verify_organization_role(
+        self,
+        invite_request,
+        organization,
+        owner_user,
+        invite_token,
+        mocker,
+        desired_role,
+    ):
+        user = UserFactory.create()
+        token = invite_token(user, desired_role)
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+            token=token,
         )
 
-        organization_member_added_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        invite_request.user = user
+        invite_request.GET["token"] = token
+
+        organization_member_added_email = mocker.patch.object(
+            views, "send_organization_member_added_email", autospec=True
         )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_added_email",
-            organization_member_added_email,
-        )
-        added_as_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_added_as_organization_member_email",
-            added_as_organization_member_email,
+        added_as_organization_member_email = mocker.patch.object(
+            views, "send_added_as_organization_member_email", autospec=True
         )
 
-        result = views.verify_organization_role(db_request)
+        result = views.verify_organization_role(invite_request)
 
-        db_request.db.flush()
+        invite_request.db.flush()
 
         assert not (
-            db_request.db.query(OrganizationInvitation)
+            invite_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == user)
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
         assert (
-            db_request.db.query(OrganizationRole)
+            invite_request.db.query(OrganizationRole)
             .filter(
                 OrganizationRole.organization == organization,
                 OrganizationRole.user == user,
             )
             .one()
         )
-        assert organization_member_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                submitter=owner_user,
-                organization_name=organization.name,
-                role=desired_role,
-            )
-        ]
-        assert added_as_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=owner_user,
-                organization_name=organization.name,
-                role=desired_role,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                (
-                    f"You are now {desired_role} of the "
-                    f"'{organization.name}' organization."
-                ),
-                queue="success",
-            )
-        ]
+        organization_member_added_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            submitter=owner_user,
+            organization_name=organization.name,
+            role=desired_role,
+        )
+        added_as_organization_member_email.assert_called_once_with(
+            invite_request,
+            user,
+            submitter=owner_user,
+            organization_name=organization.name,
+            role=desired_role,
+        )
+        invite_request.session.flash.assert_called_once_with(
+            (f"You are now {desired_role} of the '{organization.name}' organization."),
+            queue="success",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.organization.roles",
-                organization_name=organization.normalized_name,
-            )
-        ]
+        invite_request.route_path.assert_called_once_with(
+            "manage.organization.roles",
+            organization_name=organization.normalized_name,
+        )
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -2618,193 +2630,106 @@ class TestVerifyOrganizationRole:
         ],
     )
     def test_verify_organization_role_loads_failure(
-        self, db_request, token_service, exception, message
+        self, invite_request, token_service, exception, message, mocker
     ):
-        def loads(token):
-            raise exception
+        invite_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
+        )
 
-        db_request.params = {"token": "RANDOM_KEY"}
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = loads
+        views.verify_organization_role(invite_request)
 
-        views.verify_organization_role(db_request)
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        invite_request.route_path.assert_called_once_with("manage.organizations")
+        invite_request.session.flash.assert_called_once_with(message, queue="error")
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-        assert db_request.session.flash.calls == [pretend.call(message, queue="error")]
+    def test_verify_email_invalid_action(self, invite_request, token_service):
+        invite_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
 
-    def test_verify_email_invalid_action(self, db_request, token_service):
-        data = {"action": "invalid-action"}
-        db_request.params = {"token": "RANDOM_KEY"}
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = lambda a: data
+        views.verify_organization_role(invite_request)
 
-        views.verify_organization_role(db_request)
+        invite_request.route_path.assert_called_once_with("manage.organizations")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: not an organization invitation token", queue="error"
+        )
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: not an organization invitation token", queue="error"
-            )
-        ]
-
-    def test_verify_organization_role_revoked(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_organization_role_revoked(self, invite_request, invite_token):
         user = UserFactory.create()
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation no longer exists.",
+            queue="error",
         )
-
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Organization invitation no longer exists.",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
     def test_verify_organization_role_declined(
-        self, db_request, token_service, monkeypatch
+        self, invite_request, organization, owner_user, invite_token, mocker
     ):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
         user = UserFactory.create()
+        token = invite_token(user)
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
-            token="RANDOM_KEY",
-        )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+            token=token,
         )
         message = "Some reason to decline."
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.POST.update(
-            {"token": "RANDOM_KEY", "decline": "Decline", "message": message}
-        )
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
+        invite_request.user = user
+        invite_request.POST.update(
+            {"token": token, "decline": "Decline", "message": message}
         )
 
-        organization_member_invite_declined_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        organization_member_invite_declined_email = mocker.patch.object(
+            views, "send_organization_member_invite_declined_email", autospec=True
         )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_invite_declined_email",
-            organization_member_invite_declined_email,
-        )
-        declined_as_invited_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_declined_as_invited_organization_member_email",
-            declined_as_invited_organization_member_email,
+        declined_as_invited_organization_member_email = mocker.patch.object(
+            views, "send_declined_as_invited_organization_member_email", autospec=True
         )
 
-        result = views.verify_organization_role(db_request)
+        result = views.verify_organization_role(invite_request)
 
         assert not (
-            db_request.db.query(OrganizationInvitation)
+            invite_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == user)
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
-        assert organization_member_invite_declined_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                organization_name=organization.name,
-                message=message,
-            )
-        ]
-        assert declined_as_invited_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                organization_name=organization.name,
-            )
-        ]
+        organization_member_invite_declined_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            organization_name=organization.name,
+            message=message,
+        )
+        declined_as_invited_organization_member_email.assert_called_once_with(
+            invite_request,
+            user,
+            organization_name=organization.name,
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-    def test_verify_fails_with_different_user(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_fails_with_different_user(self, invite_request, invite_token):
         user = UserFactory.create()
-        user_2 = UserFactory.create()
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = UserFactory.create()
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation is not valid.", queue="error"
         )
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-        db_request.user = user_2
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Organization invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-
-    def test_verify_fails_with_token_mismatch(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_fails_with_token_mismatch(
+        self, invite_request, organization, invite_token
+    ):
         user = UserFactory.create()
         # Create invitation with a different token than what's in the request
         OrganizationInvitationFactory.create(
@@ -2812,184 +2737,150 @@ class TestVerifyOrganizationRole:
             user=user,
             token="WRONG_TOKEN",
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation is not valid.", queue="error"
         )
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Organization invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-
-    def test_verify_role_get_confirmation(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_role_get_confirmation(
+        self, invite_request, organization, invite_token
+    ):
         user = UserFactory.create()
+        token = invite_token(user)
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
-            token="RANDOM_KEY",
-        )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+            token=token,
         )
 
-        db_request.user = user
-        db_request.method = "GET"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
+        invite_request.user = user
+        invite_request.method = "GET"
+        invite_request.GET["token"] = token
 
-        roles = views.verify_organization_role(db_request)
+        roles = views.verify_organization_role(invite_request)
 
         assert roles == {
             "organization_name": organization.name,
-            "desired_role": desired_role,
+            "desired_role": "Manager",
         }
 
 
 class TestVerifyProjectRole:
+    @pytest.fixture
+    def project(self, db_session):
+        return ProjectFactory.create()
+
+    @pytest.fixture
+    def invite_token(self, token_service, project):
+        """
+        Sign a project role invitation token for ``user``, sent by
+        ``submitter`` (``user`` themselves by default).
+        """
+
+        def _make(user, desired_role="Maintainer", submitter=None):
+            return token_service.dumps(
+                {
+                    "action": "email-project-role-verify",
+                    "desired_role": desired_role,
+                    "user_id": user.id,
+                    "project_id": project.id,
+                    "submitter_id": (submitter or user).id,
+                }
+            )
+
+        return _make
+
     @pytest.mark.parametrize("desired_role", ["Maintainer", "Owner"])
     def test_verify_project_role(
-        self, db_request, user_service, token_service, monkeypatch, desired_role
+        self,
+        invite_request,
+        project,
+        invite_token,
+        user_service,
+        mocker,
+        desired_role,
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
+        token = invite_token(user, desired_role, submitter=owner_user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.GET["token"] = token
+        mocker.spy(invite_request, "find_service")
+        mocker.spy(user_service, "get_user")
 
-        collaborator_added_email = pretend.call_recorder(lambda *args, **kwargs: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_added_email", collaborator_added_email
+        collaborator_added_email = mocker.patch.object(
+            views, "send_collaborator_added_email", autospec=True
         )
-        added_as_collaborator_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views, "send_added_as_collaborator_email", added_as_collaborator_email
+        added_as_collaborator_email = mocker.patch.object(
+            views, "send_added_as_collaborator_email", autospec=True
         )
 
-        result = views.verify_project_role(db_request)
+        result = views.verify_project_role(invite_request)
 
-        db_request.db.flush()
+        invite_request.db.flush()
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email"),
-            pretend.call(IUserService, context=None),
+        assert invite_request.find_service.call_args_list == [
+            mocker.call(ITokenService, name="email"),
+            mocker.call(IUserService, context=None),
         ]
-
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert user_service.get_user.calls == [
-            pretend.call(user.id),
-            pretend.call(db_request.user.id),
+        # The token service stringifies its payload, so ids come back as str.
+        assert user_service.get_user.call_args_list == [
+            mocker.call(str(user.id)),
+            mocker.call(str(owner_user.id)),
         ]
 
         assert not (
-            db_request.db.query(RoleInvitation)
+            invite_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
             .filter(RoleInvitation.project == project)
             .one_or_none()
         )
         assert (
-            db_request.db.query(Role)
+            invite_request.db.query(Role)
             .filter(Role.project == project, Role.user == user)
             .one()
         )
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"You are now {desired_role} of the '{project.name}' project.",
-                queue="success",
-            )
-        ]
+        invite_request.session.flash.assert_called_once_with(
+            f"You are now {desired_role} of the '{project.name}' project.",
+            queue="success",
+        )
 
-        assert collaborator_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=desired_role,
-            )
-        ]
-        assert added_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=desired_role,
-            )
-        ]
+        collaborator_added_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            submitter=owner_user,
+            project_name=project.name,
+            role=desired_role,
+        )
+        added_as_collaborator_email.assert_called_once_with(
+            invite_request,
+            user,
+            submitter=owner_user,
+            project_name=project.name,
+            role=desired_role,
+        )
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [
-            (
-                pretend.call("manage.project.roles", project_name=project.name)
-                if desired_role == "Owner"
-                else pretend.call("packaging.project", name=project.name)
+        if desired_role == "Owner":
+            invite_request.route_path.assert_called_once_with(
+                "manage.project.roles", project_name=project.name
             )
-        ]
+        else:
+            invite_request.route_path.assert_called_once_with(
+                "packaging.project", name=project.name
+            )
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -3000,263 +2891,119 @@ class TestVerifyProjectRole:
         ],
     )
     def test_verify_project_role_loads_failure(
-        self, pyramid_request, exception, message
+        self, invite_request, token_service, exception, message, mocker
     ):
-        def loads(token):
-            raise exception
-
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(loads=loads)
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        views.verify_project_role(pyramid_request)
-
-        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
-
-    def test_verify_email_invalid_action(self, pyramid_request):
-        data = {"action": "invalid-action"}
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(
-            loads=lambda a: data
+        invite_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
         )
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        views.verify_project_role(pyramid_request)
+        views.verify_project_role(invite_request)
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: not a collaboration invitation token", queue="error"
-            )
-        ]
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        invite_request.route_path.assert_called_once_with("manage.projects")
+        invite_request.session.flash.assert_called_once_with(message, queue="error")
 
-    def test_verify_project_role_revoked(self, db_request, user_service, token_service):
-        project = ProjectFactory.create()
+    def test_verify_email_invalid_action(self, invite_request, token_service):
+        invite_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
+
+        views.verify_project_role(invite_request)
+
+        invite_request.route_path.assert_called_once_with("manage.projects")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: not a collaboration invitation token", queue="error"
+        )
+
+    def test_verify_project_role_revoked(self, invite_request, invite_token):
         user = UserFactory.create()
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation no longer exists.",
+            queue="error",
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Role invitation no longer exists.",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
-
-    def test_verify_project_role_declined(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_project_role_declined(self, invite_request, project, invite_token):
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
+        token = invite_token(user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.POST.update({"token": token, "decline": "Decline"})
 
-        result = views.verify_project_role(db_request)
+        result = views.verify_project_role(invite_request)
 
         assert not (
-            db_request.db.query(RoleInvitation)
+            invite_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
             .filter(RoleInvitation.project == project)
             .one_or_none()
         )
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-    def test_verify_fails_with_different_user(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_fails_with_different_user(self, invite_request, invite_token):
         user = UserFactory.create()
-        user_2 = UserFactory.create()
 
-        db_request.user = user_2
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = UserFactory.create()
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation is not valid.", queue="error"
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Role invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
     def test_verify_fails_with_token_mismatch(
-        self, db_request, user_service, token_service
+        self, invite_request, project, invite_token
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
         # Create invitation with a different token than what's in the request
         RoleInvitationFactory.create(user=user, project=project, token="WRONG_TOKEN")
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
 
-        views.verify_project_role(db_request)
+        views.verify_project_role(invite_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Role invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation is not valid.", queue="error"
+        )
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
     def test_verify_fails_with_missing_project(
-        self, db_request, user_service, token_service
+        self, invite_request, project, invite_token
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        invite_request.db.delete(project)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: project does not exist", queue="error"
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-        db_request.db.delete(project)
-
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid token: project does not exist", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
-
-    def test_verify_role_get_confirmation(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_role_get_confirmation(self, invite_request, project, invite_token):
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
+        token = invite_token(user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "GET"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.method = "GET"
+        invite_request.GET["token"] = token
 
-        roles = views.verify_project_role(db_request)
+        roles = views.verify_project_role(invite_request)
 
         assert roles == {
             "project_name": project.name,
@@ -3265,158 +3012,151 @@ class TestVerifyProjectRole:
 
 
 class TestViewTermsOfService:
-    def test_view_terms_of_service_no_user(self):
-        user_service = pretend.stub(
-            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request = pretend.stub(
-            user=None,
-            find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
-        )
-        result = views.view_terms_of_service(pyramid_request)
-        assert isinstance(result, HTTPSeeOther)
-        assert (
-            result.headers["Location"]
-            == "https://policies.python.org/pypi.org/Terms-of-Service/"
-        )
-        assert user_service.record_tos_engagement.calls == []
+    def test_view_terms_of_service_no_user(self, pyramid_request, user_service, mocker):
+        pyramid_request.user = None
+        mocker.spy(user_service, "record_tos_engagement")
 
-    def test_view_terms_of_service(self):
-        user_service = pretend.stub(
-            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request = pretend.stub(
-            user=pretend.stub(id="user-id"),
-            find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
-        )
         result = views.view_terms_of_service(pyramid_request)
+
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.headers["Location"]
             == "https://policies.python.org/pypi.org/Terms-of-Service/"
         )
-        assert user_service.record_tos_engagement.calls == [
-            pretend.call("user-id", "the-revision", TermsOfServiceEngagement.Viewed)
-        ]
+        user_service.record_tos_engagement.assert_not_called()
+
+    def test_view_terms_of_service(self, db_request, user_service, mocker):
+        db_request.user = UserFactory.create()
+        db_request.registry.settings = {"terms.revision": "the-revision"}
+        mocker.spy(user_service, "record_tos_engagement")
+
+        result = views.view_terms_of_service(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == "https://policies.python.org/pypi.org/Terms-of-Service/"
+        )
+        user_service.record_tos_engagement.assert_called_once_with(
+            db_request.user.id, "the-revision", TermsOfServiceEngagement.Viewed
+        )
 
 
 class TestProfileCallout:
-    def test_profile_callout_returns_user(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_profile_callout_returns_user(self, mocker):
+        user = UserFactory.build()
 
-        assert views.profile_callout(user, request) == {"user": user}
+        assert views.profile_callout(user, mocker.sentinel.request) == {"user": user}
 
 
 class TestEditProfileButton:
-    def test_edit_profile_button(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_edit_profile_button(self, mocker):
+        user = UserFactory.build()
 
-        assert views.edit_profile_button(user, request) == {"user": user}
+        assert views.edit_profile_button(user, mocker.sentinel.request) == {
+            "user": user
+        }
 
 
 class TestProfilePublicEmail:
-    def test_profile_public_email_returns_user(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_profile_public_email_returns_user(self, mocker):
+        user = UserFactory.build()
 
-        assert views.profile_public_email(user, request) == {"user": user}
+        assert views.profile_public_email(user, mocker.sentinel.request) == {
+            "user": user
+        }
 
 
 class TestReAuthentication:
+    @pytest.fixture
+    def reauth_request(self, db_request, mocker):
+        """A request from a logged-in user, with a real warehouse session."""
+        db_request.user = UserFactory.create()
+        db_request.session = Session()
+        mocker.spy(db_request.session, "record_auth_timestamp")
+        mocker.spy(db_request.session, "record_password_timestamp")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        return db_request
+
+    @pytest.fixture
+    def form_class(self, mocker):
+        """An autospec'd ``ReAuthenticateForm`` that validates."""
+        form_class = mocker.create_autospec(views.ReAuthenticateForm)
+        form_class.return_value.validate.return_value = True
+        return form_class
+
     @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
-    def test_reauth(self, monkeypatch, pyramid_request, pyramid_services, next_route):
-        user_service = pretend.stub(get_password_timestamp=lambda uid: 0)
-        response = pretend.stub()
+    def test_reauth(self, reauth_request, user_service, form_class, next_route):
+        reauth_request.matched_route = SimpleNamespace(name="manage.account")
+        reauth_request.matchdict = {"foo": "bar"}
+        reauth_request.GET = MultiDict({"baz": "bar"})
 
-        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
-
-        pyramid_services.register_service(user_service, IUserService, None)
-
-        pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
-        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        pyramid_request.session.record_password_timestamp = lambda ts: None
-        pyramid_request.user = pretend.stub(id=pretend.stub, username=pretend.stub())
-        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
-        pyramid_request.matchdict = {"foo": "bar"}
-        pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
-
-        form_obj = pretend.stub(
-            next_route=pretend.stub(data=next_route),
-            next_route_matchdict=pretend.stub(data="{}"),
-            next_route_query=pretend.stub(data="{}"),
-            validate=lambda: True,
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        form = form_class.return_value
+        form.next_route.data = next_route
+        form.next_route_matchdict.data = "{}"
+        form.next_route_query.data = "{}"
 
         if next_route is not None:
-            pyramid_request.method = "POST"
-            pyramid_request.POST["next_route"] = next_route
-            pyramid_request.POST["next_route_matchdict"] = "{}"
-            pyramid_request.POST["next_route_query"] = "{}"
+            reauth_request.method = "POST"
+            reauth_request.POST["next_route"] = next_route
+            reauth_request.POST["next_route_matchdict"] = "{}"
+            reauth_request.POST["next_route_query"] = "{}"
 
-        _ = views.reauthenticate(pyramid_request, _form_class=form_class)
+        result = views.reauthenticate(reauth_request, _form_class=form_class)
 
-        assert pyramid_request.session.record_auth_timestamp.calls == (
-            [pretend.call()] if next_route is not None else []
-        )
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                user_id=pyramid_request.user.id,
-                next_route=pyramid_request.matched_route.name,
-                next_route_matchdict=json.dumps(pyramid_request.matchdict),
-                next_route_query=json.dumps(pyramid_request.GET.mixed()),
-                action="reauthenticate",
-                user_service=user_service,
-                check_password_metrics_tags=[
-                    "method:reauth",
-                    "auth_method:reauthenticate_form",
-                ],
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        if next_route is not None:
+            reauth_request.route_path.assert_called_once_with(next_route, _query={})
+            reauth_request.session.record_auth_timestamp.assert_called_once_with()
+            reauth_request.session.record_password_timestamp.assert_called_once_with(
+                user_service.get_password_timestamp(reauth_request.user.id)
             )
-        ]
+        else:
+            reauth_request.route_path.assert_called_once_with("manage.projects")
+            reauth_request.session.record_auth_timestamp.assert_not_called()
+            reauth_request.session.record_password_timestamp.assert_not_called()
+        form_class.assert_called_once_with(
+            reauth_request.POST,
+            request=reauth_request,
+            user_id=reauth_request.user.id,
+            next_route="manage.account",
+            next_route_matchdict=json.dumps({"foo": "bar"}),
+            next_route_query=json.dumps({"baz": "bar"}),
+            action="reauthenticate",
+            user_service=user_service,
+            check_password_metrics_tags=[
+                "method:reauth",
+                "auth_method:reauthenticate_form",
+            ],
+        )
 
-    def test_reauth_no_user(self, monkeypatch, pyramid_request):
+    def test_reauth_no_user(self, pyramid_request, mocker):
         pyramid_request.user = None
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
 
         result = views.reauthenticate(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         assert result.headers["Location"] == "/the-redirect"
 
     def test_reauth_rejects_different_users_password(
-        self, monkeypatch, pyramid_request, pyramid_services
+        self, reauth_request, user_service, mocker
     ):
-        alice = pretend.stub(
-            id=1,
-            username="alice",
-            record_event=pretend.call_recorder(lambda **kwargs: None),
-        )
-        user_service = pretend.stub(
-            check_password=pretend.call_recorder(
-                lambda user_id, password, tags=None: (
-                    user_id == 2 and password == "bob-password"
-                )
-            ),
-            find_userid=pretend.call_recorder(lambda username: 2),
-            get_user=pretend.call_recorder(lambda user_id: alice),
-            get_password_timestamp=pretend.call_recorder(lambda user_id: 0),
-        )
-        response = pretend.stub(headers={"Location": "/target"})
+        """Bob's valid password must not reauthenticate Alice's session."""
+        alice = reauth_request.user
+        UserFactory.create(username="bob", clear_pwd="bob-password")
+        mocker.spy(user_service, "check_password")
+        mocker.spy(user_service, "find_userid")
+        mocker.spy(alice, "record_event")
 
-        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
-        pyramid_services.register_service(user_service, IUserService, None)
-
-        pyramid_request.method = "POST"
-        pyramid_request.POST = MultiDict(
+        reauth_request.method = "POST"
+        reauth_request.POST = MultiDict(
             {
                 "username": "bob",
                 "password": "bob-password",
@@ -3425,41 +3165,35 @@ class TestReAuthentication:
                 "next_route_query": "{}",
             }
         )
-        pyramid_request.user = alice
-        pyramid_request.matched_route = pretend.stub(name="manage.account.publishing")
-        pyramid_request.matchdict = {}
-        pyramid_request.GET = pretend.stub(mixed=lambda: {})
-        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
-        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda: None
-        )
-        pyramid_request.session.record_password_timestamp = pretend.call_recorder(
-            lambda ts: None
-        )
+        reauth_request.matched_route = SimpleNamespace(name="manage.account.publishing")
+        reauth_request.matchdict = {}
+        reauth_request.GET = MultiDict()
 
-        result = views.reauthenticate(pyramid_request)
+        result = views.reauthenticate(reauth_request)
 
-        assert result is response
-        assert user_service.check_password.calls == [
-            pretend.call(
-                alice.id,
-                "bob-password",
-                tags=[
-                    "method:reauth",
-                    "auth_method:reauthenticate_form",
-                ],
-            )
-        ]
-        assert user_service.find_userid.calls == []
-        assert alice.record_event.calls == [
-            pretend.call(
-                tag="account:reauthenticate:failure",
-                request=pyramid_request,
-                additional={"reason": "invalid_password"},
-            )
-        ]
-        assert pyramid_request.session.record_auth_timestamp.calls == []
-        assert pyramid_request.session.record_password_timestamp.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        reauth_request.route_path.assert_called_once_with(
+            "manage.account.publishing", _query={}
+        )
+        # check_password appends its mechanism tag to the caller's list in place.
+        user_service.check_password.assert_called_once_with(
+            alice.id,
+            "bob-password",
+            tags=[
+                "method:reauth",
+                "auth_method:reauthenticate_form",
+                "mechanism:check_password",
+            ],
+        )
+        user_service.find_userid.assert_not_called()
+        alice.record_event.assert_called_once_with(
+            tag="account:reauthenticate:failure",
+            request=reauth_request,
+            additional={"reason": "invalid_password"},
+        )
+        reauth_request.session.record_auth_timestamp.assert_not_called()
+        reauth_request.session.record_password_timestamp.assert_not_called()
 
     @pytest.mark.parametrize(
         ("next_route_matchdict", "next_route_query"),
@@ -3476,27 +3210,19 @@ class TestReAuthentication:
         ],
     )
     def test_reauth_invalid_json_raises_400(
-        self, pyramid_request, pyramid_services, next_route_matchdict, next_route_query
+        self, reauth_request, form_class, next_route_matchdict, next_route_query
     ):
-        user_service = pretend.stub()
-        pyramid_services.register_service(user_service, IUserService, None)
+        reauth_request.matched_route = SimpleNamespace(name="manage.account")
+        reauth_request.matchdict = {}
+        reauth_request.GET = MultiDict()
 
-        pyramid_request.user = pretend.stub(id=pretend.stub(), username=pretend.stub())
-        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
-        pyramid_request.matchdict = {}
-        pyramid_request.GET = pretend.stub(mixed=lambda: {})
-        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
-
-        form_obj = pretend.stub(
-            next_route=pretend.stub(data="/manage/accounts"),
-            next_route_matchdict=pretend.stub(data=next_route_matchdict),
-            next_route_query=pretend.stub(data=next_route_query),
-            validate=lambda: True,
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        form = form_class.return_value
+        form.next_route.data = "/manage/accounts"
+        form.next_route_matchdict.data = next_route_matchdict
+        form.next_route_query.data = next_route_query
 
         with pytest.raises(HTTPBadRequest):
-            views.reauthenticate(pyramid_request, _form_class=form_class)
+            views.reauthenticate(reauth_request, _form_class=form_class)
 
 
 class TestManageAccountPublishingViews:
@@ -5270,13 +4996,42 @@ class TestManageAccountPublishingViews:
 
 
 class TestConfirmLogin:
-    def test_already_logged_in(self, pyramid_request):
-        pyramid_request.user = UserFactory.create()
-        pyramid_request.route_path = pretend.call_recorder(lambda route: f"/{route}")
+    @pytest.fixture
+    def confirm_request(self, db_request, confirm_login_token_service, mocker):
+        """An anonymous request carrying a token, redirecting to ``/<route>``."""
+        db_request.user = None
+        db_request.params = {"token": "foo"}
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
+        )
+        mocker.spy(db_request.session, "flash")
+        return db_request
+
+    @pytest.fixture
+    def confirm_token(self, confirm_login_token_service):
+        """Sign a login-confirmation token for ``user``."""
+
+        def _make(user, unique_login_id):
+            return confirm_login_token_service.dumps(
+                {
+                    "action": "login-confirmation",
+                    "user.id": user.id,
+                    "user.last_login": user.last_login.isoformat(),
+                    "unique_login_id": unique_login_id,
+                }
+            )
+
+        return _make
+
+    def test_already_logged_in(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
+        )
         result = views.confirm_login(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/index"
-        assert pyramid_request.route_path.calls == [pretend.call("index")]
+        pyramid_request.route_path.assert_called_once_with("index")
 
     def test_no_token(self, pyramid_request):
         pyramid_request.user = None
@@ -5292,174 +5047,98 @@ class TestConfirmLogin:
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
-    def test_token_error(self, pyramid_request, exception, message):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_service = pretend.stub(loads=pretend.raiser(exception))
-        user_service = pretend.stub()
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
+    def test_token_error(
+        self, confirm_request, confirm_login_token_service, exception, message, mocker
+    ):
+        mocker.patch.object(
+            confirm_login_token_service, "loads", autospec=True, side_effect=exception
+        )
 
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
+        confirm_login_token_service.loads.assert_called_once_with("foo")
+        confirm_request.session.flash.assert_called_once_with(message, queue="error")
 
-    def test_invalid_action(self, pyramid_request):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_data = {"action": "wrong-action"}
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub()
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
+    def test_invalid_action(self, confirm_request, confirm_login_token_service):
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {"action": "wrong-action"}
+        )
 
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: not a login confirmation token", queue="error")
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid token: not a login confirmation token", queue="error"
+        )
 
-    def test_user_not_found(self, pyramid_request):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(uuid.uuid4()),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
+    def test_user_not_found(
+        self, confirm_request, confirm_login_token_service, user_service, mocker
+    ):
+        missing_id = uuid.uuid4()
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {"action": "login-confirmation", "user.id": missing_id}
+        )
+        mocker.spy(user_service, "get_user")
 
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: user not found", queue="error")
-        ]
+        user_service.get_user.assert_called_once_with(missing_id)
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid token: user not found", queue="error"
+        )
 
-    def test_unique_login_not_found(self, db_request):
+    def test_unique_login_not_found(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
-        db_request.user = None
-        db_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": str(uuid.uuid4()),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+        confirm_request.params["token"] = confirm_token(user, uuid.uuid4())
 
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid login attempt.", queue="error")
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid login attempt.", queue="error"
+        )
 
-    def test_ip_address_mismatch(self, db_request):
+    def test_ip_address_mismatch(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
         unique_login = UserUniqueLoginFactory.create(user=user, ip_address=ip_address)
-        db_request.user = None
-        db_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": unique_login.id,
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
 
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Device details didn't match, please try again from the device you "
-                "originally used to log in.",
-                queue="error",
-            )
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Device details didn't match, please try again from the device you "
+            "originally used to log in.",
+            queue="error",
+        )
 
-    def test_success(self, monkeypatch, db_request):
+    def test_success(self, confirm_request, confirm_token, mocker):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         unique_login = UserUniqueLoginFactory.create(
             user=user,
-            ip_address=db_request.ip_address,
+            ip_address=confirm_request.ip_address,
         )
-        db_request.user = None
-        db_request.params = {"token": "foo"}
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
 
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": str(unique_login.id),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
-
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-
-        _login_user = pretend.call_recorder(
-            lambda request, userid, two_factor_method=None: [("foo", "bar")]
-        )
-        monkeypatch.setattr(views, "_login_user", _login_user)
-        _set_userid_insecure_cookie = pretend.call_recorder(lambda resp, userid: None)
-        monkeypatch.setattr(
-            views, "_set_userid_insecure_cookie", _set_userid_insecure_cookie
+        _login_user = mocker.patch.object(views, "_login_user", autospec=True)
+        _set_userid_insecure_cookie = mocker.patch.object(
+            views, "_set_userid_insecure_cookie", autospec=True
         )
 
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.projects"
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
-        assert _login_user.calls == [
-            pretend.call(db_request, user.id, two_factor_method="email-confirmation")
-        ]
-        assert _set_userid_insecure_cookie.calls == [pretend.call(result, user.id)]
+        _login_user.assert_called_once_with(
+            confirm_request, user.id, two_factor_method="email-confirmation"
+        )
+        _set_userid_insecure_cookie.assert_called_once_with(result, user.id)
