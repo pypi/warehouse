@@ -2117,6 +2117,8 @@ class ManageAccountPublishingViews:
                 context_id=form.normalized_context_id,
                 vcs_ref=form.normalized_vcs_ref,
                 vcs_origin=form.normalized_vcs_origin,
+                circleci_org_name=form.circleci_org_name,
+                circleci_project_name=form.circleci_project_name,
             ),
             make_existence_filters=lambda form: {
                 "project_name": form.project_name.data,
