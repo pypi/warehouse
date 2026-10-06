@@ -28,6 +28,7 @@ Functional tests simulate real end-user interactions with PyPI. They test the ap
 from tests.common.db.accounts import UserFactory
 from tests.common.db.packaging import ProjectFactory
 
+
 def test_user_can_view_project(webtest):
     """Test that a user can view a project page."""
     # Arrange: Create test data

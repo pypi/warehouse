@@ -398,8 +398,10 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "pydantic_core-2.16.2-pp39-pypy39_pp73-"
-            "manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+            (
+                "pydantic_core-2.16.2-pp39-pypy39_pp73-"
+                "manylinux_2_17_aarch64.manylinux2014_aarch64.whl"
+            ),
             _build(
                 interp_pp39="PyPy 3.9",
                 abi_pypy39_pp73="PyPy 3.9 7.3",
@@ -478,8 +480,10 @@ nbval = nbval.plugin
             _build(),
         ),
         (
-            "aiohttp-3.13.2-cp314-cp314udmtz-"
-            "manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl",
+            (
+                "aiohttp-3.13.2-cp314-cp314udmtz-"
+                "manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl"
+            ),
             _build(
                 interp_cp314="CPython 3.14",
                 abi_cp314udmtz="CPython 3.14 "
@@ -489,8 +493,10 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "aiohttp-3.13.2-cp314-cp314t-"
-            "manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl",
+            (
+                "aiohttp-3.13.2-cp314-cp314t-"
+                "manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl"
+            ),
             _build(
                 interp_cp314="CPython 3.14",
                 abi_cp314t="CPython 3.14 free-threading",
@@ -500,8 +506,10 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "aiohttp-3.13.2-cp39-cp39-"
-            "manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl",
+            (
+                "aiohttp-3.13.2-cp39-cp39-"
+                "manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl"
+            ),
             _build(
                 interp_cp39="CPython 3.9",
                 abi_cp39="CPython 3.9",
@@ -511,8 +519,10 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "numpy-2.3.4-pp311-pypy311_pp73-"
-            "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+            (
+                "numpy-2.3.4-pp311-pypy311_pp73-"
+                "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl"
+            ),
             _build(
                 interp_pp311="PyPy 3.11",
                 abi_pypy311_pp73="PyPy 3.11 7.3",
@@ -521,8 +531,10 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "numpy-2.3.4-pp311-pp73_pypy311-"
-            "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+            (
+                "numpy-2.3.4-pp311-pp73_pypy311-"
+                "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl"
+            ),
             _build(
                 interp_pp311="PyPy 3.11",
                 abi_pp73_pypy311="PyPy 3.11 7.3",
