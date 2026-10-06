@@ -461,6 +461,7 @@ class TestCircleCIPublisher:
             "exp",
             "aud",
             # unchecked claims
+            "sub",
             "oidc.circleci.com/job-id",
             "oidc.circleci.com/pipeline-id",
             "oidc.circleci.com/workflow-id",

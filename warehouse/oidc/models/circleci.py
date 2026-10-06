@@ -103,6 +103,7 @@ class CircleCIPublisherMixin:
     }
 
     __unchecked_claims__: set[str] = {
+        "sub",
         "oidc.circleci.com/job-id",
         "oidc.circleci.com/pipeline-id",
         "oidc.circleci.com/workflow-id",
