@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from types import SimpleNamespace
+
 import pretend
 import psycopg
 import pytest
@@ -10,8 +12,10 @@ from tests.common.db.oidc import (
 )
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.models import _core
 from warehouse.oidc.models.circleci import (
     CircleCIPublisher,
+    PendingCircleCIPublisher,
     _check_context_id,
     _check_optional_string,
 )
@@ -322,35 +326,64 @@ class TestCircleCIPublisher:
         # The publisher expects ssh-rerun to always be False
         assert getattr(publisher, "oidc.circleci.com/ssh-rerun") is False
 
-    def test_rejects_ssh_rerun_true(self):
-        publisher = CircleCIPublisher(
+    @pytest.mark.parametrize(
+        "publisher_cls", [CircleCIPublisher, PendingCircleCIPublisher]
+    )
+    @pytest.mark.parametrize(
+        ("ssh_rerun", "valid"),
+        [
+            (False, True),
+            (True, False),
+            ("true", False),
+            ("false", False),
+            (None, False),
+        ],
+    )
+    def test_verify_claims_ssh_rerun(self, mocker, publisher_cls, ssh_rerun, valid):
+        # context_id, vcs_ref and vcs_origin column defaults only apply on INSERT.
+        publisher = publisher_cls(
             circleci_org_id=ORG_ID,
             circleci_project_id=PROJECT_ID,
             pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="",
+            vcs_origin="",
         )
+        signed_claims = new_signed_claims(ssh_rerun=ssh_rerun)
 
-        signed_claims = new_signed_claims(ssh_rerun=True)
+        if valid:
+            assert publisher.verify_claims(
+                signed_claims=signed_claims,
+                publisher_service=mocker.sentinel.publisher_service,
+            )
+        else:
+            with pytest.raises(InvalidPublisherError) as e:
+                publisher.verify_claims(
+                    signed_claims=signed_claims,
+                    publisher_service=mocker.sentinel.publisher_service,
+                )
+            assert str(e.value) == (
+                "Check failed for required claim 'oidc.circleci.com/ssh-rerun'"
+            )
 
-        # Verify the ssh-rerun claim check fails when True
-        check_fn = publisher.__required_verifiable_claims__[
-            "oidc.circleci.com/ssh-rerun"
-        ]
-        assert check_fn(False, True, signed_claims) is False
+    @pytest.mark.parametrize(
+        "missing", sorted(CircleCIPublisher.__required_verifiable_claims__.keys())
+    )
+    def test_circleci_publisher_missing_claims(self, mocker, missing):
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
-    def test_accepts_ssh_rerun_false(self):
-        publisher = CircleCIPublisher(
-            circleci_org_id=ORG_ID,
-            circleci_project_id=PROJECT_ID,
-            pipeline_definition_id=PIPELINE_DEF_ID,
+        signed_claims = new_signed_claims()
+        signed_claims.pop(missing)
+
+        with pytest.raises(InvalidPublisherError) as e:
+            CircleCIPublisher.check_claims_existence(signed_claims)
+        assert str(e.value) == f"Missing claim {missing!r}"
+        sentry_sdk.capture_message.assert_called_once_with(
+            f"JWT for CircleCIPublisher is missing claim: {missing}"
         )
-
-        signed_claims = new_signed_claims(ssh_rerun=False)
-
-        # Verify the ssh-rerun claim check passes when False
-        check_fn = publisher.__required_verifiable_claims__[
-            "oidc.circleci.com/ssh-rerun"
-        ]
-        assert check_fn(False, False, signed_claims) is True
+        assert scope.fingerprint == [missing]
 
     def test_lookup_by_claims_hits(self, db_request):
         publisher = CircleCIPublisherFactory.create(
