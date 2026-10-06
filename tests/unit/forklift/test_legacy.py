@@ -1142,8 +1142,10 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "organization": "o" * 51,
                 },
-                "Invalid value for organization. "
-                "Error: Organization names are 50 characters or less.",
+                (
+                    "Invalid value for organization. "
+                    "Error: Organization names are 50 characters or less."
+                ),
             ),
         ],
     )
