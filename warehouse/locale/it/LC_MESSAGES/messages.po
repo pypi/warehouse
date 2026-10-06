@@ -25,13 +25,14 @@
 # Pietro Marini <marinipietro456@gmail.com>, 2024.
 # Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>, 2025.
 # Paolo <wildlux@gmail.com>, 2025.
+# Amedeo Landi <amedeo.landi@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-09-28 15:17+0000\n"
-"Last-Translator: Paolo <wildlux@gmail.com>\n"
+"PO-Revision-Date: 2026-08-27 13:14+0000\n"
+"Last-Translator: Amedeo Landi <amedeo.landi@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -39,7 +40,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -371,14 +372,9 @@ msgstr ""
 "org/help#admin-intervention per dettagli."
 
 #: warehouse/accounts/views.py:1577
-#, fuzzy
-#| msgid ""
-#| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
-#| "intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"La cancellazione dei progetti è temporaneamente disabilitata. Vedi https://"
-"pypi.org/help#admin-intervention per dettagli."
+"disabilitata. Vedi https://pypi.org/help#admin-intervention per dettagli."
 
 #: warehouse/accounts/views.py:1593
 msgid ""
@@ -436,17 +432,15 @@ msgstr "Anteprima Annuncio"
 
 #: warehouse/manage/forms.py:292
 msgid "Specify an association ID"
-msgstr ""
+msgstr "Specificare un ID di associazione"
 
 #: warehouse/manage/forms.py:293
-#, fuzzy
-#| msgid "Publisher must be specified by ID"
 msgid "Association must be specified by ID"
-msgstr "L'autore deve essere specificato da un ID"
+msgstr "L'associazione deve essere specificata da un ID"
 
 #: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
-msgstr ""
+msgstr "Nessun account associato all'ID fornito"
 
 #: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"

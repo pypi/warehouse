@@ -62,6 +62,7 @@ from warehouse.accounts.models import (
     WebAuthn,
     email_domain,
 )
+from warehouse.constants import RateLimitPeriod
 from warehouse.email import send_unrecognized_login_email
 from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
@@ -303,7 +304,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
-        self.db.flush()  # generate user.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate user.id
 
         return user
 
@@ -342,7 +343,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
-        self.db.flush()  # generate email.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate email.id
 
         if ratelimit:
             self.ratelimiters["email.add"].hit(self.remote_addr)
@@ -365,6 +366,31 @@ class DatabaseUserService:
             user.disabled_for = None
 
         return user
+
+    def set_project_create_ratelimit(
+        self,
+        user_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        user = self.get_user(user_id)
+        previous = user.project_create_ratelimit_string
+        user.project_create_ratelimit_count = count
+        user.project_create_ratelimit_period = period if count is not None else None
+
+        user.record_event(
+            tag=EventTag.Account.ProjectCreateRateLimitChange,
+            request=request,
+            additional={
+                "old_project_create_ratelimit_string": previous,
+                "new_project_create_ratelimit_string": (
+                    user.project_create_ratelimit_string
+                ),
+                "actor": request.user.username,
+            },
+        )
+        return user.project_create_ratelimit_string
 
     def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
@@ -620,7 +646,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
-        self.db.flush()  # generate webauthn.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate webauthn.id
 
         return webauthn
 
@@ -781,7 +807,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
-            request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
+            request.db.flush()  # ast-grep-ignore: db-flush -- generaten token id
             user.record_event(
                 tag=EventTag.Account.LoginNewDevice,
                 request=request,
@@ -907,7 +933,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
-            self.db.flush()  # generate the id  # ast-grep-ignore: db-flush
+            self.db.flush()  # ast-grep-ignore: db-flush -- generate the id
         except UniqueViolation:
             self.db.rollback()
             raise ValueError(
@@ -1296,6 +1322,10 @@ class UserCheckEmailReputationService:
     domain that is not (a throwaway alias on a public provider), and only an
     address-level check sees those. The address is sent to UserCheck but
     never logged here: log lines carry the domain only.
+
+    `disposable_provider`, which is what separates a disposable domain from
+    a throwaway address on a legitimate one, is a Pro plan field: on a
+    lesser plan it never arrives and no verdict is ever domain-level.
     """
 
     API_BASE = "https://api.usercheck.com/email"
@@ -1307,12 +1337,12 @@ class UserCheckEmailReputationService:
         api_key: str | None,
         metrics,
         ratelimiter: IRateLimiter,
-        remote_addr: str | None,
+        ratelimit_key: str | None,
     ) -> None:
         self._http = session
         self._metrics = metrics
         self._ratelimiter = ratelimiter
-        self._remote_addr = remote_addr
+        self._ratelimit_key = ratelimit_key
         self.api_key = api_key
 
     @classmethod
@@ -1326,7 +1356,14 @@ class UserCheckEmailReputationService:
             ratelimiter=request.find_service(
                 IRateLimiter, name="email.reputation", context=None
             ),
-            remote_addr=request.remote_addr,
+            # Charge the caller we can actually name. Registration arrives
+            # unauthenticated, so it falls back to the client address, which
+            # everyone behind one NAT egress shares: keying the authenticated
+            # flows on the address too would let one signed-in account
+            # hammering add_email lock its whole office out of registering.
+            ratelimit_key=(
+                str(request.user.id) if request.user else request.remote_addr
+            ),
         )
 
     @staticmethod
@@ -1346,24 +1383,24 @@ class UserCheckEmailReputationService:
             return None
 
         # Every check costs a metered remote request, and the registration
-        # form reaches here unauthenticated, so bound how fast any one client
+        # form reaches here unauthenticated, so bound how fast any one caller
         # can make us spend money. The budget is spent atomically, up front,
         # via hit(): a test-then-spend pair would let a concurrent burst of
         # requests all pass the test before any of them recorded a spend.
         # Spending before the remote call also means a repeatedly failing
         # upstream still consumes budget, bounding how hard we hammer a
         # failing service. Denial raises instead of failing open: the
-        # limiter is keyed on the caller's own address, and a caller who can
+        # limiter is keyed on the caller itself, and a caller who can
         # exhaust it at will could otherwise skip the check that gates their
         # own submissions.
-        if self._remote_addr and not self._ratelimiter.hit(self._remote_addr):
+        if self._ratelimit_key and not self._ratelimiter.hit(self._ratelimit_key):
             logger.warning("Email reputation check rate limited", domain=domain)
             self._metrics.increment(
                 "warehouse.email_reputation.request",
                 tags=["service:usercheck", "result:ratelimited"],
             )
             raise TooManyEmailReputationChecks(
-                resets_in=self._ratelimiter.resets_in(self._remote_addr)
+                resets_in=self._ratelimiter.resets_in(self._ratelimit_key)
             )
 
         try:

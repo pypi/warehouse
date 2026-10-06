@@ -13,7 +13,7 @@
 # Marek Fic <marekfic1982@gmail.com>, 2022.
 # Jakub Fabijan <animatorzPolski@gmail.com>, 2022.
 # Komornik Bank <pklolkolo@gmail.com>, 2023.
-# Maciej Olko <maciej.olko@gmail.com>, 2023, 2024, 2025.
+# Maciej Olko <maciej.olko@gmail.com>, 2023, 2024, 2025, 2026.
 # Krzysztof Beker <Krizzard@users.noreply.hosted.weblate.org>, 2024.
 # kaem <konmarciniak@gmail.com>, 2024.
 # Paul <pa.przybyszewski@gmail.com>, 2024.
@@ -23,18 +23,17 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-01-18 12:06+0000\n"
-"Last-Translator: Michał p Biegluk python router "
-"<python@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
-">\n"
+"PO-Revision-Date: 2026-08-24 01:22+0000\n"
+"Last-Translator: Maciej Olko <maciej.olko@gmail.com>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/"
+"pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -10929,7 +10928,7 @@ msgstr "Dokumentacja"
 
 #: warehouse/templates/pages/help.html:1467
 msgid "Python Packaging User Guide"
-msgstr ""
+msgstr "Podręcznik użytkownika pakietów Pythona"
 
 #: warehouse/templates/pages/help.html:1473
 msgid "Python documentation"

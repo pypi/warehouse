@@ -70,7 +70,11 @@ class RedisLru:
                 json.dumps(value, separators=(",", ":")),
             )
             ttl = expires or self.expires
-            pipeline.expire(self.format_key(func_name, tag), ttl)
+            # `nx` keeps the TTL absolute from the hash's first write. Without it
+            # every write pushes the expiry out, so a tag that keeps receiving new
+            # keys never lapses, and there is no `hdel` here to reclaim the fields
+            # it has already accumulated.
+            pipeline.expire(self.format_key(func_name, tag), ttl, nx=True)
             pipeline.execute()
             return value
         except redis.exceptions.RedisError, redis.exceptions.ConnectionError:

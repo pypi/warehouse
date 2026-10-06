@@ -42,6 +42,7 @@ from warehouse.accounts.models import (
     User,
     UserTermsOfServiceEngagement,
 )
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting import DummyRateLimiter
@@ -517,6 +518,45 @@ class TestDatabaseUserService:
         admin = UserFactory.create(is_superuser=True, username="admin")
 
         assert user_service.get_admin_user() == admin
+
+    def test_set_project_create_ratelimit(self, user_service, db_request):
+        user = UserFactory.create()
+        db_request.user = UserFactory.create()
+
+        limit = user_service.set_project_create_ratelimit(
+            user.id, db_request, 25, RateLimitPeriod.Day
+        )
+
+        assert limit == "25 per day"
+        assert user.project_create_ratelimit_count == 25
+        assert user.project_create_ratelimit_period is RateLimitPeriod.Day
+        event = user.events.one()
+        assert event.tag == "account:project_create_ratelimit:change"
+        assert event.additional == {
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "25 per day",
+            "actor": db_request.user.username,
+        }
+
+    def test_set_project_create_ratelimit_clears_override(
+        self, user_service, db_request
+    ):
+        """A None count clears the override and records what it replaced."""
+        user = UserFactory.create(
+            project_create_ratelimit_count=25,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+        db_request.user = UserFactory.create()
+
+        limit = user_service.set_project_create_ratelimit(
+            user.id, db_request, None, RateLimitPeriod.Hour
+        )
+
+        assert limit is None
+        assert user.project_create_ratelimit_string is None
+        event = user.events.one()
+        assert event.additional["old_project_create_ratelimit_string"] == "25 per day"
+        assert event.additional["new_project_create_ratelimit_string"] is None
 
     @pytest.mark.parametrize(
         ("reason", "expected"),
@@ -2288,19 +2328,37 @@ class TestNullEmailReputationService:
 
 
 class TestEmailReputationResult:
+    DOMAIN_VERDICT = {
+        "disposable": True,
+        "public_domain": False,
+        "relay_domain": False,
+        "disposable_provider": "DropMail",
+    }
+
     @pytest.mark.parametrize(
         ("result_kwargs", "expected"),
         [
-            # Domain-level disposability needs the public and relay flags
-            # to be explicitly clear.
-            ({"disposable": True, "public_domain": False, "relay_domain": False}, True),
-            ({"disposable": True, "public_domain": True, "relay_domain": False}, False),
-            ({"disposable": True, "public_domain": False, "relay_domain": True}, False),
-            ({"disposable": True}, False),
-            ({"public_domain": False, "relay_domain": False}, False),
+            pytest.param(DOMAIN_VERDICT, True, id="named-provider-with-clear-flags"),
+            pytest.param(
+                DOMAIN_VERDICT | {"disposable_provider": None},
+                False,
+                id="throwaway-address-on-unnamed-domain",
+            ),
+            pytest.param(
+                DOMAIN_VERDICT | {"public_domain": True}, False, id="public-domain"
+            ),
+            pytest.param(
+                DOMAIN_VERDICT | {"relay_domain": True}, False, id="relay-domain"
+            ),
+            pytest.param({"disposable": True}, False, id="unknown-flags"),
+            pytest.param(
+                DOMAIN_VERDICT | {"disposable": False}, False, id="not-disposable"
+            ),
         ],
     )
-    def test_disposable_domain_requires_explicit_flags(self, result_kwargs, expected):
+    def test_disposable_domain_requires_provider_and_explicit_flags(
+        self, result_kwargs, expected
+    ):
         result = EmailReputationResult(**result_kwargs)
 
         assert result.disposable_domain is expected
@@ -2327,14 +2385,37 @@ class TestUserCheckEmailReputationService:
             ),
             find_service=_find_service,
             remote_addr=REMOTE_ADDR,
+            user=None,
         )
         svc = services.UserCheckEmailReputationService.create_service(None, request)
 
         assert svc._http is request.http
         assert svc._metrics is request.metrics
         assert svc._ratelimiter is ratelimiter
-        assert svc._remote_addr == REMOTE_ADDR
+        assert svc._ratelimit_key == REMOTE_ADDR
         assert svc.api_key == "some_api_key"
+
+    def test_factory_keys_the_budget_on_an_authenticated_caller(self, db_session):
+        """
+        An identified caller is charged by user id, so one signed-in account
+        cannot spend the budget of everyone sharing its egress address.
+        """
+        user = UserFactory.create()
+        ratelimiter = object()
+
+        request = SimpleNamespace(
+            http=object(),
+            metrics=object(),
+            registry=SimpleNamespace(
+                settings={"email_reputation.api_key": "some_api_key"}
+            ),
+            find_service=lambda iface, name=None, context=None: ratelimiter,
+            remote_addr=REMOTE_ADDR,
+            user=user,
+        )
+        svc = services.UserCheckEmailReputationService.create_service(None, request)
+
+        assert svc._ratelimit_key == str(user.id)
 
     def _response(self, mocker, body):
         response = mocker.Mock(spec=requests.Response)
@@ -2347,7 +2428,7 @@ class TestUserCheckEmailReputationService:
         response,
         metrics=None,
         ratelimiter=None,
-        remote_addr=REMOTE_ADDR,
+        ratelimit_key=REMOTE_ADDR,
     ):
         session = requests.Session()
         mocker.patch.object(session, "get", autospec=True, return_value=response)
@@ -2359,7 +2440,7 @@ class TestUserCheckEmailReputationService:
                 ratelimiter=(
                     ratelimiter if ratelimiter is not None else DummyRateLimiter()
                 ),
-                remote_addr=remote_addr,
+                ratelimit_key=ratelimit_key,
             ),
             session,
         )
@@ -2676,21 +2757,21 @@ class TestUserCheckEmailReputationService:
             )
         ]
 
-    @pytest.mark.parametrize("remote_addr", [None, ""])
-    def test_missing_remote_addr_skips_the_ratelimiter(
-        self, mocker, ratelimit_service, remote_addr
+    @pytest.mark.parametrize("ratelimit_key", [None, ""])
+    def test_missing_ratelimit_key_skips_the_ratelimiter(
+        self, mocker, ratelimit_service, ratelimit_key
     ):
         """
-        Without a client address there is no per-client budget to spend, so
-        the check proceeds instead of pooling every request into one shared
-        bucket keyed on None or the empty string.
+        Without anything to name the caller there is no per-caller budget to
+        spend, so the check proceeds instead of pooling every request into
+        one shared bucket keyed on None or the empty string.
         """
         mocker.patch.object(ratelimit_service, "hit", return_value=False)
         svc, session = self._service(
             mocker,
             self._response(mocker, {"domain": "example.com"}),
             ratelimiter=ratelimit_service,
-            remote_addr=remote_addr,
+            ratelimit_key=ratelimit_key,
         )
 
         result = svc.check_email("foo@example.com")

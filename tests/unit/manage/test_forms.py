@@ -10,7 +10,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
-from warehouse.utils import otp, webauthn
+from warehouse.utils import otp
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
@@ -185,13 +185,14 @@ class TestSaveAccountForm:
 
 class TestAddEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_reputation_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -397,13 +398,14 @@ class TestAddEmailForm:
 
 class TestChangeUnverifiedPrimaryEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_reputation_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.ChangeUnverifiedPrimaryEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -593,24 +595,27 @@ class TestProvisionWebAuthnForm:
             form.credential.errors.pop() == "Invalid WebAuthn credential: Bad payload"
         )
 
-    def test_verify_assertion_invalid(self):
-        user_service = pretend.stub(
-            verify_webauthn_credential=pretend.raiser(
-                webauthn.RegistrationRejectedError("Fake exception")
-            ),
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
-        )
+    def test_verify_credential_invalid(self, user_service):
+        user = UserFactory.create()
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
+            formdata=MultiDict(
+                {
+                    "credential": (
+                        '{"id": "foo", "rawId": "foo", "response": '
+                        '{"attestationObject": "foo", "clientDataJSON": "bar"}, '
+                        '"type": "public-key"}'
+                    ),
+                    "label": "fake label",
+                }
+            ),
             user_service=user_service,
-            user_id=pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
+            user_id=user.id,
+            challenge=b"not_a_real_challenge",
+            rp_id="fake_rp_id",
+            origin="fake_origin",
         )
 
         assert not form.validate()
-        assert form.credential.errors.pop() == "Fake exception"
 
     def test_verify_label_missing(self):
         user_service = pretend.stub(

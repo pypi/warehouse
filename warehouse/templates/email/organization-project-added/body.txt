@@ -7,6 +7,8 @@
 {% block content %}
 {% trans organization_name=organization_name, project_name=project_name, site=site %}The {{ site }} project "{{ project_name }}" has been added to the "{{ organization_name }}" organization.{% endtrans %}
 
+{% trans %}Added by{% endtrans %}: {{ submitter }}
+
 {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email {{ email_address }} to communicate with the {{ site }} administrators.{% endtrans %}
 {% endblock %}
 

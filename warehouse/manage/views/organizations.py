@@ -4,6 +4,8 @@ import datetime
 
 from urllib.parse import urljoin
 
+import humanize
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
@@ -84,7 +86,9 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.subscriptions import IBillingService, ISubscriptionService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
@@ -512,9 +516,12 @@ class ManageOrganizationSettingsViews:
         # Get owners before deleting organization.
         owner_users = set(organization_owners(self.request, self.organization))
 
-        # Cancel any subscriptions tied to this organization.
-        if self.organization.subscriptions:
-            for subscription in self.organization.subscriptions:
+        # Cancel subscriptions that are not already in a terminal state.
+        for subscription in self.organization.subscriptions:
+            if subscription.status not in (
+                StripeSubscriptionStatus.Canceled.value,
+                StripeSubscriptionStatus.IncompleteExpired.value,
+            ):
                 self.billing_service.cancel_subscription(subscription.subscription_id)
 
         self.organization_service.delete_organization(self.organization.id)
@@ -858,14 +865,44 @@ class ManageOrganizationProjectsViews:
                     self.request.user,
                     request=self.request,
                     creator_is_owner=False,
-                    ratelimited=False,
+                    ratelimited=True,
+                    organization_id=self.organization.id,
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            except RateLimiterException as exc:
+                self.request.tm.doom()
+                self.request.response.status = 429
+                if exc.resets_in is None:
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again later."
+                        )
+                    )
+                else:
+                    self.request.response.retry_after = exc.resets_in.total_seconds()
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again in ${time}.",
+                            mapping={
+                                "time": humanize.naturaldelta(
+                                    exc.resets_in.total_seconds()
+                                )
+                            },
+                        )
+                    )
+                return default_response
 
-        # Add project to organization, record events, and notify owners.
-        add_organization_project_and_notify(self.request, self.organization, project)
+        # create_project already linked a new project; only link an existing one.
+        add_organization_project_and_notify(
+            self.request,
+            self.organization,
+            project,
+            link=form.add_existing_project.data,
+        )
 
         # Display notification message.
         self.request.session.flash(
@@ -1492,6 +1529,7 @@ def remove_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
         # Display notification message.
         request.session.flash(
@@ -1632,6 +1670,7 @@ def transfer_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
 
         # Mark Organization as dirty, so purges will happen
@@ -1809,7 +1848,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+            self.request.db.flush()  # ast-grep-ignore: db-flush -- To get the new ID
         except UniqueViolation:
             # Double-post protection. The failed INSERT leaves the transaction
             # in an aborted state, so roll back before redirecting -- otherwise

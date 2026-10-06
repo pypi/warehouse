@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from celery.schedules import crontab
 
@@ -15,7 +15,7 @@ from warehouse.packaging.interfaces import (
     ISimpleStorage,
 )
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.services import project_service_factory
+from warehouse.packaging.services import LocalFileStorage, project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     reconcile_file_storages,
@@ -23,17 +23,18 @@ from warehouse.packaging.tasks import (
 )
 
 
-def test_includeme(monkeypatch, mocker):
-    storage_class = pretend.stub(
-        create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
-    )
-
+def test_includeme(mocker):
     def key_factory(keystring, iterate_on=None, if_attr_exists=None):
-        return pretend.call(
-            keystring, iterate_on=iterate_on, if_attr_exists=if_attr_exists
+        """Stand in for the real factory, whose closure isn't comparable."""
+        return types.SimpleNamespace(
+            keystring=keystring,
+            iterate_on=iterate_on,
+            if_attr_exists=if_attr_exists,
         )
 
-    monkeypatch.setattr(packaging, "key_factory", key_factory)
+    mocker.patch.object(
+        packaging, "key_factory", autospec=True, side_effect=key_factory
+    )
     settings = {
         "files.backend": "foo.bar",
         "archive_files.backend": "peas.carrots",
@@ -41,40 +42,45 @@ def test_includeme(monkeypatch, mocker):
         "docs.backend": "wu.tang",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.packaging.project_create_organization_ratelimit_string": (
+            "10 per day"
+        ),
     }
 
-    config = pretend.stub(
-        maybe_dotted=lambda dotted: storage_class,
-        register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name=None: None
-        ),
-        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
-        registry=pretend.stub(settings=settings),
-        register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
-        get_settings=lambda: settings,
-        add_periodic_task=mocker.Mock(),
+    config = mocker.Mock(
+        spec=[
+            "maybe_dotted",
+            "register_service_factory",
+            "register_rate_limiter",
+            "register_origin_cache_keys",
+            "registry",
+            "add_periodic_task",
+        ]
     )
+    config.maybe_dotted.return_value = LocalFileStorage
+    config.registry = types.SimpleNamespace(settings=settings)
 
     packaging.includeme(config)
 
-    assert config.register_service_factory.calls == [
-        pretend.call(storage_class.create_service, IFileStorage, name="cache"),
-        pretend.call(storage_class.create_service, IFileStorage, name="archive"),
-        pretend.call(storage_class.create_service, ISimpleStorage),
-        pretend.call(storage_class.create_service, IDocsStorage),
-        pretend.call(project_service_factory, IProjectService),
+    assert config.register_service_factory.call_args_list == [
+        mocker.call(LocalFileStorage.create_service, IFileStorage, name="cache"),
+        mocker.call(LocalFileStorage.create_service, IFileStorage, name="archive"),
+        mocker.call(LocalFileStorage.create_service, ISimpleStorage),
+        mocker.call(LocalFileStorage.create_service, IDocsStorage),
+        mocker.call(project_service_factory, IProjectService),
     ]
-    assert config.register_rate_limiter.calls == [
-        pretend.call("20 per hour", "project.create.user"),
-        pretend.call("40 per hour", "project.create.ip"),
+    assert config.register_rate_limiter.call_args_list == [
+        mocker.call("20 per hour", "project.create.user"),
+        mocker.call("40 per hour", "project.create.ip"),
+        mocker.call("10 per day", "project.create.organization"),
     ]
-    assert config.register_origin_cache_keys.calls == [
-        pretend.call(
+    assert config.register_origin_cache_keys.call_args_list == [
+        mocker.call(
             File,
             cache_keys=["project/{obj.release.project.normalized_name}"],
             purge_keys=[key_factory("project/{obj.release.project.normalized_name}")],
         ),
-        pretend.call(
+        mocker.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
             purge_keys=[
@@ -86,7 +92,7 @@ def test_includeme(monkeypatch, mocker):
                 ),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Release,
             cache_keys=["project/{obj.project.normalized_name}"],
             purge_keys=[
@@ -98,15 +104,15 @@ def test_includeme(monkeypatch, mocker):
                 ),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Role,
             purge_keys=[
                 key_factory("user/{obj.user.username}"),
                 key_factory("project/{obj.project.normalized_name}"),
             ],
         ),
-        pretend.call(User, cache_keys=["user/{obj.username}"]),
-        pretend.call(
+        mocker.call(User, cache_keys=["user/{obj.username}"]),
+        mocker.call(
             User.name,
             purge_keys=[
                 key_factory("user/{obj.username}"),
@@ -114,7 +120,7 @@ def test_includeme(monkeypatch, mocker):
                 key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Email.primary,
             purge_keys=[
                 key_factory("user/{obj.user.username}"),
@@ -123,14 +129,14 @@ def test_includeme(monkeypatch, mocker):
                 ),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Organization,
             cache_keys=["org/{obj.normalized_name}"],
             purge_keys=[
                 key_factory("org/{obj.normalized_name}"),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Organization.name,
             purge_keys=[
                 key_factory("user/{itr.username}", iterate_on="users"),
@@ -138,7 +144,7 @@ def test_includeme(monkeypatch, mocker):
                 key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
-        pretend.call(
+        mocker.call(
             Organization.display_name,
             purge_keys=[
                 key_factory("user/{itr.username}", iterate_on="users"),
@@ -146,7 +152,7 @@ def test_includeme(monkeypatch, mocker):
                 key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
-        pretend.call(
+        mocker.call(
             OrganizationProject,
             purge_keys=[
                 key_factory("project/{attr.normalized_name}", if_attr_exists="project"),

@@ -13,7 +13,15 @@ To activate a subscription, visit your organization's billing page:
 
 {{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}
 
-If your organization is no longer using PyPI Organizations features, or if you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org.
+If you no longer want this organization, you can delete it yourself from its settings page, and we will stop emailing you about it:
+
+{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}
+
+Deleting an organization requires that it owns no projects, so remove or transfer any projects first.
+
+{% trans %}Company organizations are for for-profit companies. Community organizations are for community-supported projects and teams. Non-profits, NGOs, schools, and other non-commercial groups belong here too; you do not need to be an informal project to qualify. Publishing open-source packages does not by itself qualify a company for a Community organization.{% endtrans %}
+
+If you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org.
 
 – The PyPI Team
 {% endblock %}

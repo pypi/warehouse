@@ -1,26 +1,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import tempfile
+import io
 import uuid
 
-from contextlib import contextmanager
+from pathlib import Path
+from unittest.mock import call
 
-import pretend
 import pytest
 
-from google.cloud.bigquery import SchemaField
+from google.cloud.bigquery import Client, SchemaField, Table
 from wtforms import Field, Form, StringField
-
-import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import DependencyKind, Description
+from warehouse.packaging.services import LocalArchiveFileStorage, LocalFileStorage
 from warehouse.packaging.tasks import (
+    _copy_file_to_cache,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    fetch_sizes,
+    reconcile_file_storages,
     sync_file_to_cache,
     typo_check_project_name,
     update_bigquery_release_files,
@@ -40,46 +43,100 @@ from ...common.db.packaging import (
 )
 
 
+class TestCopyFileToCache:
+    @pytest.fixture
+    def bounded_stream(self):
+        """A stream that refuses to be read in one go.
+
+        Reading a whole distribution into memory is how the archive copy used
+        to work, and a 345MB wheel is 345MB of worker RSS.
+        """
+
+        class BoundedStream(io.BytesIO):
+            def read(self, size=-1):
+                assert 0 < size <= 1024 * 1024, "archive object read in one go"
+                return super().read(size)
+
+        return BoundedStream
+
+    @pytest.fixture
+    def archive(self, mocker):
+        storage = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
+        storage.get_metadata.return_value = {"fizz": "buzz"}
+        return storage
+
+    @pytest.fixture
+    def cache(self, mocker):
+        return mocker.create_autospec(LocalFileStorage, instance=True)
+
+    def test_streams_in_chunks_and_closes_the_source(
+        self, bounded_stream, archive, cache
+    ):
+        content = b"x" * (3 * 1024 * 1024 + 17)
+        stream = bounded_stream(content)
+        archive.get.return_value = stream
+        stored = {}
+
+        def store(path, filename, *, meta=None):
+            stored["path"] = path
+            stored["content"] = Path(filename).read_bytes()
+            stored["meta"] = meta
+            stored["filename"] = filename
+
+        cache.store.side_effect = store
+
+        _copy_file_to_cache(archive, cache, "some/file.whl")
+
+        assert stored["path"] == "some/file.whl"
+        assert stored["content"] == content
+        assert stored["meta"] == {"fizz": "buzz"}
+        assert stream.closed
+        assert not Path(stored["filename"]).exists()
+
+    def test_closes_the_source_when_the_cache_upload_fails(
+        self, bounded_stream, archive, cache
+    ):
+        stream = bounded_stream(b"x" * 1024)
+        archive.get.return_value = stream
+        cache.store.side_effect = OSError("upload failed")
+
+        with pytest.raises(OSError, match="upload failed"):
+            _copy_file_to_cache(archive, cache, "some/file.whl")
+
+        assert stream.closed
+
+
 @pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache(db_request, monkeypatch, cached):
-    file = FileFactory(cached=cached)
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
+@pytest.mark.parametrize("has_metadata", [True, False])
+def test_sync_file_to_cache(db_request, pyramid_services, mocker, cached, has_metadata):
+    file = FileFactory(
+        cached=cached,
+        metadata_file_sha256_digest="deadbeef" if has_metadata else None,
     )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
+    contents = {file.path: b"distribution content"}
+    if has_metadata:
+        contents[file.metadata_path] = b"metadata content"
+    stored = {}
 
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
+    def store(path, filename, *, meta=None):
+        stored[path] = (Path(filename).read_bytes(), meta)
 
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+    archive = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
+    archive.get_metadata.return_value = {"fizz": "buzz"}
+    archive.get.side_effect = lambda path: io.BytesIO(contents[path])
+    cache = mocker.create_autospec(LocalFileStorage, instance=True)
+    cache.store.side_effect = store
+    pyramid_services.register_service(archive, IFileStorage, None, name="archive")
+    pyramid_services.register_service(cache, IFileStorage, None, name="cache")
 
     sync_file_to_cache(db_request, file.id)
 
     assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert archive_stub.get.calls == [pretend.call(file.path)]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+    assert stored == (
+        {}
+        if cached
+        else {path: (content, {"fizz": "buzz"}) for path, content in contents.items()}
+    )
 
 
 def test_compute_packaging_metrics(db_request, metrics):
@@ -99,63 +156,11 @@ def test_compute_packaging_metrics(db_request, metrics):
 
     compute_packaging_metrics(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.total_projects", 2),
-        pretend.call("warehouse.packaging.total_releases", 3),
-        pretend.call("warehouse.packaging.total_files", 4),
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.packaging.total_projects", 2),
+        call("warehouse.packaging.total_releases", 3),
+        call("warehouse.packaging.total_files", 4),
     ]
-
-
-@pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
-    file = FileFactory(
-        cached=cached,
-        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
-    )
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
-    )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
-
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
-
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
-
-    sync_file_to_cache(db_request, file.id)
-
-    assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert archive_stub.get.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):
@@ -164,197 +169,171 @@ def test_check_file_cache_tasks_outstanding(db_request, metrics):
 
     check_file_cache_tasks_outstanding(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.files.not_cached", 3)
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.packaging.files.not_cached", 3)
     ]
 
 
-def test_fetch_checksums():
-    file_stub = pretend.stub(
-        path="/path",
-        metadata_path="/path.metadata",
-    )
-    storage_stub = pretend.stub(
-        get_checksum=lambda pth: f"{pth}-deadbeef",
-    )
+class TestReconcileFileStorages:
+    @pytest.fixture
+    def sized_storage(self, mocker):
+        """Build a storage stub answering get_size from a {path: size} mapping."""
 
-    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        "/path-deadbeef",
-        "/path.metadata-deadbeef",
-    )
+        def _raise_not_found(path):
+            raise FileNotFoundError(f"No such key: {path!r}")
 
+        def _sized_storage(sizes):
+            storage = mocker.create_autospec(LocalFileStorage, instance=True)
+            storage.get_size.side_effect = lambda path: (
+                sizes[path] if path in sizes else _raise_not_found(path)
+            )
+            return storage
 
-def test_fetch_checksums_none():
-    file_stub = pretend.stub(
-        path="/path",
-        metadata_path="/path.metadata",
-    )
-    storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
+        return _sized_storage
 
-    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        None,
-        None,
-    )
+    @pytest.fixture
+    def reconcile(self, db_request, pyramid_services):
+        """Run the task against the given archive and cache storages."""
 
+        def _reconcile(archive_storage, cache_storage):
+            pyramid_services.register_service(
+                archive_storage, IFileStorage, None, name="archive"
+            )
+            pyramid_services.register_service(
+                cache_storage, IFileStorage, None, name="cache"
+            )
+            db_request.registry.settings = {"reconcile_file_storages.batch_size": 3}
+            reconcile_file_storages(db_request)
 
-def test_reconcile_file_storages_all_good(db_request, metrics):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    all_good = FileFactory.create(release=release, cached=False)
-    all_good.md5_digest = f"{all_good.path}-deadbeef"
-    all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
+        return _reconcile
 
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert metrics.increment.calls == []
-    assert all_good.cached is True
-
-
-def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    fixable = FileFactory.create(release=release, cached=False)
-    fixable.md5_digest = f"{fixable.path}-deadbeef"
-    fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": broke_storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
-
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
-        pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
-    ]
-    assert copy_file.calls == [
-        pretend.call(storage_service, broke_storage_service, fixable.path),
-        pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
-    ]
-    assert fixable.cached is True
-
-
-@pytest.mark.parametrize(
-    (
-        "borked_ext",
-        "metrics_tag",
-    ),
-    [
-        (
-            "",
-            "type:dist",
-        ),
-        (
-            ".metadata",
-            "type:metadata",
-        ),
-    ],
-)
-def test_reconcile_file_storages_borked(
-    db_request, monkeypatch, metrics, borked_ext, metrics_tag
-):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    borked = FileFactory.create(release=release, cached=False)
-    borked.md5_digest = f"{borked.path}-deadbeef"
-    borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: (
-            None if pth == borked.path + borked_ext else f"{pth}-deadbeef"
+    @pytest.fixture
+    def file(self, db_session):
+        """An uncached file large enough that S3 stores it as a multipart upload."""
+        return FileFactory.create(
+            cached=False,
+            size=345187092,
+            metadata_file_sha256_digest="deadbeef",
         )
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
 
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert copy_file.calls == []
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.filestorage.unreconciled", tags=[metrics_tag])
-    ]
-    assert borked.cached is False
-
-
-@pytest.mark.parametrize(
-    (
-        "borked_ext",
-        "metrics_tag",
-    ),
-    [
-        (
-            ".metadata",
-            "type:metadata",
-        ),
-    ],
-)
-def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    just_dist = FileFactory.create(release=release, cached=False)
-    just_dist.md5_digest = f"{just_dist.path}-deadbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: (
-            None if pth == just_dist.path + borked_ext else f"{pth}-deadbeef"
+    @pytest.fixture
+    def copy_file(self, mocker):
+        return mocker.patch(
+            "warehouse.packaging.tasks._copy_file_to_cache", autospec=True
         )
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
 
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+    def test_fetch_sizes(self, sized_storage, file):
+        storage = sized_storage({file.path: 10, file.metadata_path: 20})
 
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+        assert fetch_sizes(storage, file) == (10, 20)
 
-    assert copy_file.calls == []
-    assert metrics.increment.calls == []
-    assert just_dist.cached is True
+    def test_fetch_sizes_missing(self, sized_storage, file):
+        assert fetch_sizes(sized_storage({}), file) == (None, None)
+
+    def test_both_stores_agree_with_db(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        """A file present and correctly sized in both stores needs no work.
+
+        This previously compared an S3 multipart ETag against ``md5_digest``,
+        which can never match, so every file over the 8MB multipart threshold
+        errored on every run and never became cached.
+
+        See: https://github.com/pypi/warehouse/issues/19704
+        """
+        sizes = {file.path: file.size, file.metadata_path: 20}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        metrics.increment.assert_not_called()
+        assert file.cached is True
+
+    def test_cache_missing_is_pulled_from_archive(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size, file.metadata_path: 20})
+        cache = sized_storage({})
+
+        reconcile(archive, cache)
+
+        assert copy_file.call_args_list == [
+            call(archive, cache, file.path),
+            call(archive, cache, file.metadata_path),
+        ]
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.reconciled", tags=["type:dist"]),
+            call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
+        ]
+        assert file.cached is True
+
+    def test_cache_size_differs_is_pulled_from_archive(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size, file.metadata_path: 20})
+        cache = sized_storage({file.path: file.size - 1, file.metadata_path: 20})
+
+        reconcile(archive, cache)
+
+        assert copy_file.call_args_list == [call(archive, cache, file.path)]
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.reconciled", tags=["type:dist"])
+        ]
+        assert file.cached is True
+
+    def test_archive_size_disagrees_with_db(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        """The archive is only golden where it matches what we recorded on upload."""
+        sizes = {file.path: file.size - 1, file.metadata_path: 20}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:dist"])
+        ]
+        assert file.cached is False
+
+    def test_archive_missing_dist(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.metadata_path: 20})
+        cache = sized_storage({file.path: file.size, file.metadata_path: 20})
+
+        reconcile(archive, cache)
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:dist"])
+        ]
+        assert file.cached is False
+
+    def test_archive_missing_metadata(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size})
+        cache = sized_storage({file.path: file.size})
+
+        reconcile(archive, cache)
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:metadata"])
+        ]
+        assert file.cached is False
+
+    def test_no_metadata_file_expected(
+        self, db_session, sized_storage, reconcile, copy_file, metrics
+    ):
+        file = FileFactory.create(cached=False, metadata_file_sha256_digest=None)
+        sizes = {file.path: file.size}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        metrics.increment.assert_not_called()
+        assert file.cached is True
 
 
 def test_update_description_html(monkeypatch, db_request):
@@ -382,7 +361,7 @@ def test_update_description_html(monkeypatch, db_request):
     }
 
 
-def test_update_release_description(db_request):
+def test_update_release_description(db_request, mocker):
     description = DescriptionFactory.create(
         raw="rst\n===\n\nbody text",
         html="",
@@ -390,11 +369,13 @@ def test_update_release_description(db_request):
     )
     release = ReleaseFactory.create(description=description)
 
-    task = pretend.stub()
-    update_release_description(task, db_request, release.id)
+    update_release_description(mocker.sentinel.task, db_request, release.id)
 
     updated_description = db_request.db.get(Description, description.id)
-    assert updated_description.html == "<p>body text</p>\n"
+    assert (
+        updated_description.html
+        == '<section id="user-content-rst">\n<h1>rst<a title="link to this section" href="#user-content-rst" rel="nofollow"></a></h1>\n<p>body text</p>\n</section>\n'  # noqa: E501
+    )
     assert updated_description.rendered_by == readme.renderer_version()
 
 
@@ -502,13 +483,13 @@ class TestUpdateBigQueryMetadata:
         [
             (
                 "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions", timeout=5.0, retry=None)],
+                [call("example.pypi.distributions", timeout=5.0, retry=None)],
             ),
             (
                 "example.pypi.distributions some.other.table",
                 [
-                    pretend.call("example.pypi.distributions", timeout=5.0, retry=None),
-                    pretend.call("some.other.table", timeout=5.0, retry=None),
+                    call("example.pypi.distributions", timeout=5.0, retry=None),
+                    call("some.other.table", timeout=5.0, retry=None),
                 ],
             ),
         ],
@@ -517,6 +498,8 @@ class TestUpdateBigQueryMetadata:
     def test_insert_new_row(
         self,
         db_request,
+        pyramid_services,
+        mocker,
         release_files_table,
         expected_get_table_calls,
         form_factory,
@@ -532,19 +515,13 @@ class TestUpdateBigQueryMetadata:
         for value in form_factory.values():
             value.process(None)
 
-        get_table = pretend.stub(schema=bq_schema)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda *a, **kw: get_table),
-            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
-        )
+        bq_table = mocker.create_autospec(Table, instance=True)
+        bq_table.schema = bq_schema
+        bigquery = mocker.create_autospec(Client, instance=True)
+        bigquery.get_table.return_value = bq_table
+        bigquery.insert_rows_json.return_value = []
 
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            pytest.fail(f"Unexpected service name: {name}")
-
-        db_request.find_service = find_service
+        pyramid_services.register_service(bigquery, name="gcloud.bigquery")
         db_request.registry.settings = {
             "warehouse.release_files_table": release_files_table
         }
@@ -594,13 +571,11 @@ class TestUpdateBigQueryMetadata:
             "upload_time": release_file.upload_time,
         }
 
-        task = pretend.stub()
-        update_bigquery_release_files(task, db_request, dist_metadata)
+        update_bigquery_release_files(mocker.sentinel.task, db_request, dist_metadata)
 
-        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == expected_get_table_calls
-        assert bigquery.insert_rows_json.calls == [
-            pretend.call(
+        assert bigquery.get_table.call_args_list == expected_get_table_calls
+        assert bigquery.insert_rows_json.call_args_list == [
+            call(
                 table=table,
                 json_rows=[
                     {
@@ -658,16 +633,18 @@ class TestUpdateBigQueryMetadata:
             for table in release_files_table.split()
         ]
 
-    def test_var_is_none(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+    def test_var_is_none(self, mocker):
+        # Only the settings lookup runs before the early return, so this stays
+        # DB-free rather than pulling in the pyramid_request service graph.
+        request = mocker.Mock(spec=["registry"])
+        request.registry.settings = {"warehouse.release_files_table": None}
+
+        update_bigquery_release_files(
+            mocker.sentinel.task, request, mocker.sentinel.dist_metadata
         )
-        task = pretend.stub()
-        dist_metadata = pretend.stub()
-        update_bigquery_release_files(task, request, dist_metadata)
 
 
-def test_compute_2fa_metrics(db_request, monkeypatch):
+def test_compute_2fa_metrics(db_request, metrics):
     # A user without 2FA enabled
     UserFactory.create(totp_secret=None, webauthn=[])
 
@@ -692,15 +669,12 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
     db_request.db.add(webauthn2)
     some_user.webauthn = [webauthn, webauthn2]
 
-    gauge = pretend.call_recorder(lambda metric, value: None)
-    db_request.find_service = lambda *a, **kw: pretend.stub(gauge=gauge)
-
     compute_2fa_metrics(db_request)
 
-    assert gauge.calls == [
-        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 1),
-        pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
-        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.2fa.total_users_with_totp_enabled", 1),
+        call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
+        call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
     ]
 
 

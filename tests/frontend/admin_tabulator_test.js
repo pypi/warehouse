@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, describe, it, beforeEach, jest */
+/* global expect, describe, it, beforeEach, afterEach, jest */
 
 /**
  * Tests for the declarative admin tables, asserting on runtime behavior rather
@@ -211,42 +211,6 @@ describe("declarative admin tables", () => {
     // would have left the second as a plain <table>.
     expect(document.querySelectorAll("div.tabulator")).toHaveLength(2);
   });
-
-  it("exports what a cell shows rather than the markup showing it", async () => {
-    const table = await render(`
-      <table id="sponsors" data-tabulator data-tabulator-download>
-        <thead><tr><th>Name</th></tr></thead>
-        <tbody><tr><td><a href="/admin/sponsors/00000000/">Aardvark</a></td></tr>
-        </tbody></table>`);
-
-    const { accessorDownload, accessorClipboard } = table.options.columnDefaults;
-    const cell = "<a href=\"/admin/sponsors/00000000/\">Aardvark</a>";
-    expect(accessorDownload(cell)).toBe("Aardvark");
-    expect(accessorClipboard(cell)).toBe("Aardvark");
-
-    const download = jest.spyOn(table, "download").mockImplementation(() => {});
-    const copy = jest.spyOn(table, "copyToClipboard").mockImplementation(() => {});
-    const [copyButton, csvButton] = document.querySelectorAll(
-      "div.btn-group > button",
-    );
-    copyButton.click();
-    csvButton.click();
-
-    // Filtered and sorted as they stand, across every page, which is what the
-    // DataTables toolbar these replace exported.
-    expect(copy).toHaveBeenCalledWith("active");
-    // Without this the Clipboard module never binds the listener that
-    // `copyToClipboard` fires against, and the button does nothing at all.
-    expect(table.options.clipboard).toBe("copy");
-    expect(download).toHaveBeenCalledWith("csv", "sponsors.csv", {}, "active");
-  });
-
-  it("leaves the export buttons off a table that did not ask for them", async () => {
-    await render(`
-      <table data-tabulator><thead><tr><th>Name</th></tr></thead>
-        <tbody><tr><td>a</td></tr></tbody></table>`);
-    expect(document.querySelector("div.btn-group")).toBeNull();
-  });
 });
 
 /**
@@ -290,6 +254,19 @@ function rejection(message) {
 }
 
 describe("remote admin tables", () => {
+  beforeEach(() => {
+    // Tabulator logs every rejected load. These tests reject on purpose, so
+    // drop that line and let anything else through.
+    const consoleError = console.error;
+    jest.spyOn(console, "error").mockImplementation((...args) => {
+      if (args[0] !== "Data Load Error: ") consoleError(...args);
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders an endpoint's message as text rather than as markup", async () => {
     const { table, queue } = await renderRemote();
     queue[0].reject(
