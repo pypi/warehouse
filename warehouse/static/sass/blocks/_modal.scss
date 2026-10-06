@@ -55,6 +55,10 @@
 
   &__body {
     padding: grid.$spacing-unit;
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
   }
 
   @media screen and (max-width: breakpoints.$tablet) {

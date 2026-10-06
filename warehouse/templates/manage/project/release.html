@@ -114,50 +114,19 @@
                       <i class="fa fa-trash-alt" aria-hidden="true"></i>
                       {% trans %}Delete{% endtrans %}
                     </a>
-                    {% set extra_fields %}
-                      <input name="file_id" type="hidden" value="{{ file.id }}">
-                    {% endset %}
                     {% set extra_description %}
+                      <input name="file_id" type="hidden" value="{{ file.id }}">
                       <p>
-                        <strong>{% trans %}Filename:{% endtrans %}</strong> {{ file.filename }}
+                        <strong>{% trans %}Filename:{% endtrans %}</strong> <code>{{ file.filename }}</code>
                       </p>
-                      <ul class="no-bullets no-left-margin">
-                        <li class="margin-bottom">
-                          <input class="inline-checkbox"
-                                 type="checkbox"
-                                 data-action="input->confirm#check"
-                                 data-confirm-target="checkbox">
-                          {% trans %}I understand that my users will no longer be able to install this file for this release of this project.{% endtrans %}
-                        </li>
-                        <li class="margin-bottom">
-                          <input class="inline-checkbox"
-                                 type="checkbox"
-                                 data-action="input->confirm#check"
-                                 data-confirm-target="checkbox">
-                          {% trans filename=file.filename, href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href={{ href }} target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}
-                        </li>
-                        <li class="margin-bottom">
-                          <input class="inline-checkbox"
-                                 type="checkbox"
-                                 data-action="input->confirm#check"
-                                 data-confirm-target="checkbox">
-                          {% trans %}I understand that I will not be able to undo this.{% endtrans %}
-                        </li>
-                        <li>
-                          <input class="inline-checkbox"
-                                 type="checkbox"
-                                 data-action="input->confirm#check"
-                                 data-confirm-target="checkbox">
-                          {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
-                        </li>
-                      </ul>
+                      {{ delete_file_acknowledgments(file.filename) }}
                     {% endset %}
                   </li>
                 {% endif %}
               </ul>
             </nav>
             {% if release.lifecycle_status != "quarantine-enter" %}
-              {{ confirm_modal(title, gettext("Project name") , "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description) }}
+              {{ confirm_modal(title, gettext("Project name") , "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, wide=True) }}
             {% endif %}
           </td>
         </tr>
@@ -229,8 +198,7 @@
 {{ confirm_button(gettext("Yank release") , gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
 </div>
 {% endif %}
-<div class="callout-block callout-block--danger"
-     data-controller="delete-confirm">
+<div class="callout-block callout-block--danger">
   <h3>{% trans %}Delete release{% endtrans %}</h3>
   <p>
     <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
@@ -258,40 +226,8 @@
     target="_blank"
     rel="noopener">post release</a> instead.{% endtrans %}
   </p>
-  <ul class="no-bullets">
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans release_version=release.version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that I will not be able to undo this.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
-    </li>
-  </ul>
 </p>
-{{ confirm_button(gettext("Delete release") , gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
+{{ confirm_button(gettext("Delete release") , gettext("Version"), "delete_version", release.version, extra_description=delete_release_acknowledgments(release.version), wide=True) }}
 </div>
 {% endif %}
 {% endblock %}
