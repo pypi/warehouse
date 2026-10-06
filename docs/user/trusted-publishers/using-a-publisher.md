@@ -310,37 +310,20 @@ below describe the setup process for each supported Trusted Publisher.
         at_time = "PUBLISHED_TIMESTAMP"
 
         publish_receipt = pypi_publisher(
-          attempt = 1,
-          audience = "testpypi",
-          pypi_uri = "test.pypi.org",
-          src = wheels
+            attempt=1, audience="testpypi", pypi_uri="test.pypi.org", src=wheels
         )
-        runtime = state_tool_artifacts(
-          build_flags = [
-          ],
-          src = sources
-        )
+        runtime = state_tool_artifacts(build_flags=[], src=sources)
         sources = solve(
-          at_time = at_time,
-          platforms = [
-            "7c998ec2-7491-4e75-be4d-8885800ef5f2"
-          ],
-          requirements = [
-            Req(namespace = "language", name = "python", version = Eq(value="3.10.13")),
-            Req(namespace = "NAMESPACE", name = "PKG_NAME", version = Eq(value="VERSION"))
-          ],
-          solver_version = null
+            at_time=at_time,
+            platforms=["7c998ec2-7491-4e75-be4d-8885800ef5f2"],
+            requirements=[
+                Req(namespace="language", name="python", version=Eq(value="3.10.13")),
+                Req(namespace="NAMESPACE", name="PKG_NAME", version=Eq(value="VERSION")),
+            ],
+            solver_version=null,
         )
-        wheel_srcs = select_ingredient(
-          namespace = "NAMESPACE",
-          name = "PKG_NAME",
-          src = sources
-        )
-        wheels = make_wheel(
-          at_time = at_time,
-          python_version = "3.10.13",
-          src = wheel_srcs
-        )
+        wheel_srcs = select_ingredient(namespace="NAMESPACE", name="PKG_NAME", src=sources)
+        wheels = make_wheel(at_time=at_time, python_version="3.10.13", src=wheel_srcs)
 
         main = runtime
         ```

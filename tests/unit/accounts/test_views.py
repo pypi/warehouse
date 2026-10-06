@@ -1959,14 +1959,18 @@ class TestRegister:
             (
                 datetime.timedelta(seconds=3300),
                 "3300",
-                "Too many registration attempts from your network. Please try "
-                "again in 55 minutes.",
+                (
+                    "Too many registration attempts from your network. Please try "
+                    "again in 55 minutes."
+                ),
             ),
             (
                 None,
                 None,
-                "Too many registration attempts from your network. Please try "
-                "again later.",
+                (
+                    "Too many registration attempts from your network. Please try "
+                    "again later."
+                ),
             ),
         ],
     )

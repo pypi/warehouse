@@ -20,9 +20,7 @@ for rendering your email:
 
 ```python
 @_email("something-awesome-happened")
-def send_something_awesome_happened_email(
-    request, user, *, arbitrary, arguments
-):
+def send_something_awesome_happened_email(request, user, *, arbitrary, arguments):
     return {
         "arbitrary": arbitrary,
         "arguments": arguments,
