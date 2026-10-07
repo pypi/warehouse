@@ -68,6 +68,7 @@ from ...common.db.macaroons import MacaroonFactory
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeSubscriptionFactory,
@@ -5977,11 +5978,25 @@ class TestFileUpload:
             "warehouse.upload.failed", tags=["reason:org-permission-denied"]
         )
 
+    @pytest.mark.parametrize(
+        "organization_kwargs",
+        [
+            pytest.param({"is_active": False}, id="deactivated"),
+            pytest.param({"orgtype": "Company"}, id="company-without-billing"),
+        ],
+    )
     def test_upload_fails_creating_project_in_inactive_organization(
-        self, pyramid_config, db_request, organization_service, project_service
+        self,
+        pyramid_config,
+        db_request,
+        organization_service,
+        project_service,
+        organization_kwargs,
     ):
         user = UserFactory.create(with_verified_primary_email=True)
-        organization = OrganizationFactory.create(name="example-org", is_active=False)
+        organization = OrganizationFactory.create(
+            name="example-org", **organization_kwargs
+        )
         OrganizationRoleFactory.create(
             organization=organization, user=user, role_name=OrganizationRoleType.Owner
         )
@@ -6006,6 +6021,81 @@ class TestFileUpload:
         assert db_request.db.query(Project).count() == 0
         assert db_request.metrics.increment.call_args_list[-1] == mock.call(
             "warehouse.upload.failed", tags=["reason:org-not-active"]
+        )
+
+    def test_upload_creates_project_in_organization_by_previous_name(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        organization_service,
+        project_service,
+        storage_service,
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="new-org")
+        OrganizationNameCatalogFactory.create(
+            normalized_name="old-org", organization_id=organization.id
+        )
+        OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Owner
+        )
+        monkeypatch.setattr(legacy, "add_organization_project_and_notify", mock.Mock())
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="Old_Org",
+            project_service=project_service,
+            storage_service=storage_service,
+            organization_service=organization_service,
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+        assert project.organization == organization
+
+    def test_upload_rejected_after_creating_project_only_queues_notification(
+        self,
+        pyramid_config,
+        db_request,
+        organization_service,
+        project_service,
+        storage_service,
+        make_email_renderers,
+        send_email,
+    ):
+        make_email_renderers("organization-project-added")
+        user = UserFactory.create(with_verified_primary_email=True)
+        organization = OrganizationFactory.create(name="example-org")
+        OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Owner
+        )
+        # A non-permissive policy rejects the upload after the project was created
+        # in the organization and its owners notified.
+        self._prepare_organization_upload(
+            pyramid_config,
+            db_request,
+            user,
+            organization="example-org",
+            project_service=project_service,
+            storage_service=storage_service,
+            organization_service=organization_service,
+            permissive=False,
+        )
+        db_request.help_url = mock.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden):
+            legacy.file_upload(db_request)
+
+        # The notification was only queued as a task, which is sent after the
+        # transaction commits, so the rejected upload's rollback discards it along
+        # with the project and its events.
+        db_request.task.assert_any_call(send_email)
+        send_email.delay.assert_any_call(
+            f"{user.name} <{user.email}>", mock.ANY, mock.ANY
         )
 
     def test_upload_succeeds_for_project_in_named_organization(
