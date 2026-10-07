@@ -124,23 +124,29 @@ msgstr ""
 msgid "You must agree to the Terms of Service and Acceptable Use Policy."
 msgstr ""
 
-#: warehouse/accounts/forms.py:699
+#: warehouse/accounts/forms.py:659
+msgid ""
+"Your account has been suspended. Please contact security@pypi.org for "
+"assistance."
+msgstr ""
+
+#: warehouse/accounts/forms.py:701
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:716
+#: warehouse/accounts/forms.py:718
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:780
+#: warehouse/accounts/forms.py:782
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:789
+#: warehouse/accounts/forms.py:791
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:818
+#: warehouse/accounts/forms.py:820
 msgid "The username isn't valid. Try again."
 msgstr ""
 
