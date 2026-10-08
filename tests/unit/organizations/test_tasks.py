@@ -382,6 +382,29 @@ class TestReconcileStripeStatus:
             additional={"subscription_id": subscription.subscription_id},
         )
 
+    def test_skips_locally_canceled_subscription(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        # Stripe never reactivates a canceled subscription, so canceled rows are
+        # excluded up front instead of being re-checked every run.
+        organization, subscription = self._make_org_subscription()
+        subscription.status = StripeSubscriptionStatus.Canceled
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Active.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        sync_status.assert_not_called()
+        record_event.assert_not_called()
+        assert subscription.status == StripeSubscriptionStatus.Canceled
+
     def test_retries_on_transient_stripe_errors(
         self, db_request, billing_service, mocker
     ):

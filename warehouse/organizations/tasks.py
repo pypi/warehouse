@@ -26,7 +26,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
-from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
 
 TRANSIENT_STRIPE_ERRORS = (
     stripe.error.APIConnectionError,
@@ -128,7 +128,13 @@ def reconcile_stripe_status(request):
     # Re-sync each subscription's status from Stripe so that state we would have
     # learned from a webhook (e.g. a cancellation) is recovered even if the
     # webhook was dropped. Mirrors the customer.subscription.updated handler.
-    organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
+    # Canceled is terminal on Stripe, so those rows never need re-checking.
+    organization_subscriptions = (
+        request.db.query(OrganizationStripeSubscription)
+        .join(OrganizationStripeSubscription.subscription)
+        .filter(StripeSubscription.status != StripeSubscriptionStatus.Canceled)
+        .all()
+    )
     billing_service = request.find_service(IBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
 
