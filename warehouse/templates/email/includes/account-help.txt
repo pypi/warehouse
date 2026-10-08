@@ -1,0 +1,6 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% trans %}If you have forgotten your password, you can reset your password here:{% endtrans +%}
+{{ request.route_url('accounts.request-password-reset') }}
+
+{% trans %}If you have lost access to your two-factor authentication method and recovery codes, follow the account recovery steps to open an issue on our support tracker instead of emailing the PyPI administrators:{% endtrans +%}
+{{ request.route_url('help', _anchor='account-recovery') }}
