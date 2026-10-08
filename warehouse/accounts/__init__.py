@@ -38,6 +38,8 @@ from warehouse.accounts.tasks import (
     unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer._security_policy import ApiKeySecurityPolicy
+from warehouse.api.maintainer._utils import ApiKeyContext
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -61,7 +63,7 @@ def _user(request):
     if request.identity is None:
         return None
 
-    if isinstance(request.identity, UserContext):
+    if isinstance(request.identity, (UserContext, ApiKeyContext)):
         return request.identity.user
     return None
 
@@ -170,6 +172,7 @@ def includeme(config):
                 SessionSecurityPolicy(),
                 BasicAuthSecurityPolicy(),
                 MacaroonSecurityPolicy(),
+                ApiKeySecurityPolicy(),
             ],
         )
     )
