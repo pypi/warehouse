@@ -17,5 +17,7 @@ To regain access to your account, reset your password on PyPI ({{ request.route_
 
 # How can I contact you?
 
+{% include "email/includes/account-help.txt" +%}
+
 For more information, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
