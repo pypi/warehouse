@@ -203,6 +203,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
 "interfaces.py" = ["N805"]
+"_interfaces.py" = ["N805"]
 
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
