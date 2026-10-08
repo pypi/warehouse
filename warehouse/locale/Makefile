@@ -1,12 +1,14 @@
 GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 
+POT_OUTPUT ?= warehouse/locale/messages.pot
+
 compile-pot:
 	cd ../../; \
 	PYTHONPATH=$(PWD) pybabel extract \
 		-F babel.cfg \
 		--omit-header \
 		--ignore-dirs='.* _* *dist*' 'warehouse/migrations/' \
-		--output="warehouse/locale/messages.pot" \
+		--output="$(POT_OUTPUT)" \
 		warehouse
 
 init-po:
