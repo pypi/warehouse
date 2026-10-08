@@ -344,7 +344,7 @@ class TestReconcileStripeStatus:
     ):
         organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
-        update_status = mocker.spy(subscription_service, "update_subscription_status")
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
         mocker.patch.object(
             billing_service,
             "list_subscriptions",
@@ -355,7 +355,7 @@ class TestReconcileStripeStatus:
 
         reconcile_stripe_status(db_request)
 
-        update_status.assert_not_called()
+        assert sync_status.spy_return is False
         record_event.assert_not_called()
 
     def test_records_cancel_when_canceled_on_stripe(

@@ -484,7 +484,18 @@ class StripeSubscriptionService:
         if previous_status == status:
             return False
 
-        self.update_subscription_status(id, status)
+        # make sure we don't record things twice
+        updated = (
+            self.db.query(StripeSubscription)
+            .filter(
+                StripeSubscription.id == id,
+                StripeSubscription.status == previous_status,
+            )
+            .update({StripeSubscription.status: status}, synchronize_session="fetch")
+        )
+        if not updated:
+            return False
+
         if status == StripeSubscriptionStatus.Canceled:
             subscription.organization.record_event(
                 tag=EventTag.Organization.SubscriptionCancel,
