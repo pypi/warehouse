@@ -295,6 +295,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -304,6 +305,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -313,6 +315,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -322,6 +325,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                 ],
@@ -457,6 +461,7 @@ class TestProject:
         _perms_read_and_write = [
             Permissions.ProjectsRead,
             Permissions.ProjectsWrite,
+            Permissions.ProjectsYank,
         ]
         assert acls == [
             (
@@ -576,6 +581,7 @@ class TestProject:
                 Permissions.ProjectsRead,
                 Permissions.ProjectsUpload,
                 Permissions.ProjectsWrite,
+                Permissions.ProjectsYank,
             ],
         ) in acls
         assert any(principal == f"user:{inactive_user.id}" for _, principal, _ in acls)
@@ -1402,6 +1408,7 @@ class TestRelease:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -1411,6 +1418,7 @@ class TestRelease:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                 ],
