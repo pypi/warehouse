@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import cgi
-
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from pyramid.testing import DummySecurityPolicy
+from webob.compat import cgi_FieldStorage
 from webob.multidict import MultiDict
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -48,7 +47,12 @@ class TestSanitizeRequest:
 
     def test_fails_with_fieldstorage(self, pyramid_request, mocker):
         pyramid_request.method = "POST"
-        pyramid_request.POST = MultiDict({"keywords": cgi.FieldStorage()})
+        # `list` of None is what WebOb leaves on a real parsed field; the
+        # query-string parse this constructor runs would leave `[]`, which is
+        # falsy and zero-length where a real field raises TypeError.
+        field = cgi_FieldStorage(environ={"QUERY_STRING": ""})
+        field.list = None
+        pyramid_request.POST = MultiDict({"keywords": field})
 
         @decorators.sanitize
         def wrapped(context, request):
@@ -67,13 +71,13 @@ class TestSanitizeRequest:
 
 
 class TestEnsureUploadsAllowed:
-    """Flags default to disabled from the migration seed, so db_request's real
-    Flags service already answers False without any per-test setup."""
+    """The AdminFlag rows are seeded disabled by migration, so db_request's real
+    Flags service answers False here."""
 
     def test_success_with_user(self, pyramid_config, db_request, mocker):
-        user = UserFactory.create()
-        db_request.user = user
-        pyramid_config.set_security_policy(DummySecurityPolicy(identity=user))
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=UserFactory.build())
+        )
         resp = mocker.sentinel.resp
 
         @decorators.ensure_uploads_allowed
@@ -84,7 +88,7 @@ class TestEnsureUploadsAllowed:
 
     def test_success_with_nonuser(self, pyramid_config, db_request, mocker):
         pyramid_config.set_security_policy(
-            DummySecurityPolicy(identity=GitHubPublisherFactory.create())
+            DummySecurityPolicy(identity=GitHubPublisherFactory.build())
         )
         resp = mocker.sentinel.resp
 

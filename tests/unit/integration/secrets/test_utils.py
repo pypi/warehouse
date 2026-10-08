@@ -2,6 +2,7 @@
 
 import time
 
+import pymacaroons
 import pytest
 import requests
 import responses
@@ -11,6 +12,7 @@ from warehouse import integrations
 from warehouse.events.tags import EventTag
 from warehouse.integrations.secrets import utils
 from warehouse.macaroons import caveats
+from warehouse.macaroons.services import deserialize_raw_macaroon
 
 
 def test_disclosure_origin_serialization(someorigin):
@@ -62,8 +64,10 @@ def test_invalid_token_leak_request():
         ({}, "Record is missing attribute(s): token, type, url", "format"),
         (
             {"type": "not_found", "token": "a", "url": "b"},
-            "Matcher with code not_found not found. "
-            "Available codes are: failure, pypi_api_token",
+            (
+                "Matcher with code not_found not found. "
+                "Available codes are: failure, pypi_api_token"
+            ),
             "invalid_matcher",
         ),
         (
@@ -486,9 +490,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )
@@ -523,9 +529,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )
@@ -630,7 +638,63 @@ def test_analyze_disclosure(db_request, mocker, macaroon_service, metrics, someo
     )
     # The macaroon was really deleted from the database.
     with pytest.raises(utils.InvalidMacaroonError):
-        macaroon_service.find_from_raw(serialized)
+        macaroon_service.verify_signature_only(serialized)
+
+
+def test_analyze_disclosure_attenuated_macaroon(
+    db_request, mocker, macaroon_service, metrics, someorigin
+):
+    """
+    A leaked child macaroon, attenuated by someone other than us, revokes the
+    parent macaroon we issued.
+    """
+    user = UserFactory.create()
+    serialized, macaroon = macaroon_service.create_macaroon(
+        "fake location",
+        "foo",
+        [caveats.RequestUser(user_id=str(user.id))],
+        user_id=user.id,
+    )
+    child = deserialize_raw_macaroon(serialized)
+    child.add_first_party_caveat(
+        caveats.serialize(caveats.Expiration(expires_at=10, not_before=0))
+    )
+    record_event = mocker.patch.object(user, "record_event", autospec=True)
+
+    svc = {
+        utils.IMetricsService: metrics,
+        utils.IMacaroonService: macaroon_service,
+    }
+    db_request.find_service = lambda iface, context: svc[iface]
+
+    send_email = mocker.patch.object(
+        utils, "send_token_compromised_email_leak", autospec=True
+    )
+
+    utils.analyze_disclosure(
+        request=db_request,
+        disclosure_record={
+            "type": "pypi_api_token",
+            "token": f"pypi-{child.serialize()}",
+            "url": "http://example.com",
+        },
+        origin=someorigin,
+    )
+
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.valid"),
+        mocker.call("warehouse.token_leak.someorigin.processed"),
+    ]
+    send_email.assert_called_once_with(
+        db_request, user, public_url="http://example.com", origin=someorigin
+    )
+    record_event.assert_called_once()
+    assert record_event.call_args.kwargs["additional"]["macaroon_id"] == str(
+        macaroon.id
+    )
+    # The parent macaroon is gone from the database.
+    assert macaroon_service.find_macaroon(str(macaroon.id)) is None
 
 
 def test_analyze_disclosure_wrong_record(
@@ -679,6 +743,55 @@ def test_analyze_disclosure_invalid_macaroon(
         mocker.call("warehouse.token_leak.someorigin.received"),
         mocker.call("warehouse.token_leak.someorigin.error.invalid"),
     ]
+
+
+def test_analyze_disclosure_forged_macaroon(
+    db_request, mocker, macaroon_service, metrics, someorigin
+):
+    user = UserFactory.create()
+    _, macaroon = macaroon_service.create_macaroon(
+        "fake location",
+        "foo",
+        [caveats.RequestUser(user_id=str(user.id))],
+        user_id=user.id,
+    )
+
+    svc = {
+        utils.IMetricsService: metrics,
+        utils.IMacaroonService: macaroon_service,
+    }
+    db_request.find_service = lambda iface, context: svc[iface]
+
+    send_email = mocker.patch.object(
+        utils, "send_token_compromised_email_leak", autospec=True
+    )
+
+    # A macaroon carrying a real macaroon's identifier, but signed with a key
+    # that isn't the one we issued it with.
+    forged = pymacaroons.Macaroon(
+        location="fake location",
+        identifier=str(macaroon.id),
+        key=b"not the real key",
+        version=pymacaroons.MACAROON_V2,
+    ).serialize()
+
+    utils.analyze_disclosure(
+        request=db_request,
+        disclosure_record={
+            "type": "pypi_api_token",
+            "token": f"pypi-{forged}",
+            "url": "http://example.com",
+        },
+        origin=someorigin,
+    )
+
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.error.invalid"),
+    ]
+    send_email.assert_not_called()
+    # The macaroon the forgery named is still in the database.
+    assert macaroon_service.find_macaroon(str(macaroon.id)) is not None
 
 
 def test_analyze_disclosure_unknown_error(pyramid_request, mocker, metrics, someorigin):

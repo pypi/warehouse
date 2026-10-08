@@ -65,23 +65,7 @@ class TestDatabaseMacaroonService:
         assert macaroon.id == dm.id
         assert macaroon.user == user
 
-    def test_find_from_raw(self, user_service, macaroon_service):
-        user = UserFactory.create()
-        serialized, macaroon = macaroon_service.create_macaroon(
-            "fake location",
-            "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
-            user_id=user.id,
-        )
-
-        dm = macaroon_service.find_from_raw(serialized)
-
-        assert isinstance(dm, Macaroon)
-        assert macaroon.id == dm.id
-        assert macaroon.user == user
-        assert macaroon.additional is None
-
-    def test_find_from_raw_oidc(self, macaroon_service):
+    def test_verify_signature_only_oidc(self, macaroon_service):
         publisher = GitHubPublisherFactory.create()
         claims = {"sha": "somesha", "ref": "someref"}
         (
@@ -95,7 +79,7 @@ class TestDatabaseMacaroonService:
             additional=claims,
         )
 
-        dm = macaroon_service.find_from_raw(serialized)
+        dm = macaroon_service.verify_signature_only(serialized)
 
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
@@ -109,20 +93,26 @@ class TestDatabaseMacaroonService:
             # Macaroon properly formatted but not found.
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
-            "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
+            (
+                "py"
+                "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
+                "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g"
+            ),
             # Macaroon that is malformed and has an invalid (non utf-8) identifier
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
-            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
+            (
+                "py"
+                "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+                "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK"
+            ),
         ],
     )
-    def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
+    def test_verify_signature_only_not_found_or_invalid(
+        self, macaroon_service, raw_macaroon
+    ):
         with pytest.raises(services.InvalidMacaroonError):
-            macaroon_service.find_from_raw(raw_macaroon)
+            macaroon_service.verify_signature_only(raw_macaroon)
 
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
@@ -145,9 +135,11 @@ class TestDatabaseMacaroonService:
             # Macaroon that is malformed and has an invalid (non utf-8) identifier
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
-            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
+            (
+                "py"
+                "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+                "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK"
+            ),
         ],
     )
     def test_find_userid_malformed_macaroon(self, macaroon_service, raw_macaroon):
@@ -294,14 +286,13 @@ class TestDatabaseMacaroonService:
 
     def test_verify_valid_macaroon(self, mocker, db_request, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, dm = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(user.id))],
             user_id=user.id,
         )
 
-        dm = macaroon_service.find_from_raw(raw_macaroon)
         # Add a database only caveat that has not been embedded into the macaroon
         dm.caveats = [*dm.caveats, caveats.Expiration(expires_at=5, not_before=2)]
 
@@ -446,6 +437,26 @@ class TestDatabaseMacaroonService:
         raw_macaroon, db_macaroon = user_macaroon
 
         assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
+
+    def test_verify_signature_only_attenuated(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        A macaroon attenuated by someone else resolves to the macaroon we issued,
+        even when the added caveat would fail full verification.
+        """
+        raw_macaroon, db_macaroon = user_macaroon
+        m = services.deserialize_raw_macaroon(raw_macaroon)
+        m.add_first_party_caveat(
+            caveats.serialize(caveats.Expiration(expires_at=10, not_before=0))
+        )
+
+        assert (
+            macaroon_service.verify_signature_only(f"pypi-{m.serialize()}")
+            == db_macaroon
+        )
 
     def test_verify_signature_only_nonexistent(
         self,

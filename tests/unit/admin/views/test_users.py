@@ -4,7 +4,6 @@ import datetime
 import json
 
 import freezegun
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
@@ -12,13 +11,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
-from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
+from warehouse.accounts.interfaces import IEmailBreachedService
 from warehouse.accounts.models import (
     DisableReason,
     ProhibitedEmailDomain,
     RecoveryCode,
     WebAuthn,
 )
+from warehouse.accounts.services import NullEmailBreachedService
 from warehouse.admin.views import users as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
@@ -63,11 +63,11 @@ class TestUserList:
 
         assert result == {"users": users[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.user_list(request)
+            views.user_list(pyramid_request)
 
     def test_basic_query(self, db_request):
         users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
@@ -134,7 +134,7 @@ class TestUserForm:
 
 
 class TestUserDetail:
-    def test_gets_user(self, db_request):
+    def test_gets_user(self, db_request, pyramid_services):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
         project = ProjectFactory.create()
@@ -147,10 +147,9 @@ class TestUserDetail:
         db_request.matchdict["username"] = str(user.username)
         db_request.POST = NoVars()
 
-        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
-        db_request.find_service = lambda interface, **kwargs: {
-            IEmailBreachedService: breach_service,
-        }[interface]
+        pyramid_services.register_service(
+            NullEmailBreachedService(), IEmailBreachedService, None
+        )
 
         result = views.user_detail(user, db_request)
 
@@ -185,14 +184,17 @@ class TestUserDetail:
 
         assert result["sole_owned_organizations"] == [organization]
 
-    def test_updates_user(self, db_request):
+    def test_updates_user(self, db_request, mocker):
         user = UserFactory.create()
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
         db_request.POST = MultiDict(db_request.POST)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/users/{user.username}/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
         )
 
         resp = views.user_detail(user, db_request)
@@ -201,20 +203,21 @@ class TestUserDetail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.name == "Jane Doe"
 
-    def test_user_detail_redirects_actual_name(self, db_request):
+    def test_user_detail_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_detail(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
 
 class TestUserExport:
@@ -317,7 +320,7 @@ class TestUserFiles:
 
 
 class TestUserEmailSubmit:
-    def test_updates_user_emails(self, db_request):
+    def test_updates_user_emails(self, db_request, mocker):
         email1 = EmailFactory.create(primary=True)
         email2 = EmailFactory.create(primary=False)
         user = UserFactory.create(emails=[email1, email2])
@@ -332,13 +335,14 @@ class TestUserEmailSubmit:
             db_request.POST[f"emails-{i}-primary"] = email is email2
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, username=None: f"/admin/users/{username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            side_effect=lambda route_name, username=None: f"/admin/users/{username}/",
         )
 
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.user_submit_email(user, db_request)
 
@@ -347,11 +351,11 @@ class TestUserEmailSubmit:
 
         assert isinstance(resp, HTTPSeeOther)
         assert resp.headers["Location"] == f"/admin/users/{user.username}/"
-        assert db_request.session.flash.calls == [
-            pretend.call(f"User '{user.username}': emails updated", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"User '{user.username}': emails updated", queue="success"
+        )
 
-    def test_updates_user_no_primary_email(self, db_request):
+    def test_updates_user_no_primary_email(self, db_request, mocker):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
         db_request.matchdict["username"] = str(user.username)
@@ -361,25 +365,24 @@ class TestUserEmailSubmit:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, username=None: f"/admin/users/{username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            side_effect=lambda route_name, username=None: f"/admin/users/{username}/",
         )
 
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.user_submit_email(user, db_request)
 
         assert isinstance(resp, HTTPSeeOther)
         assert resp.headers["Location"] == f"/admin/users/{user.username}/"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "emails: ['There must be exactly one primary email']", queue="error"
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "emails: ['There must be exactly one primary email']", queue="error"
+        )
 
-    def test_updates_user_multiple_primary_emails(self, db_request):
+    def test_updates_user_multiple_primary_emails(self, db_request, mocker):
         email1 = EmailFactory.create(primary=True)
         email2 = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email1, email2])
@@ -393,42 +396,41 @@ class TestUserEmailSubmit:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, username=None: f"/admin/users/{username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            side_effect=lambda route_name, username=None: f"/admin/users/{username}/",
         )
 
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.user_submit_email(user, db_request)
 
         assert isinstance(resp, HTTPSeeOther)
         assert resp.headers["Location"] == f"/admin/users/{user.username}/"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "emails: ['There must be exactly one primary email']", queue="error"
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "emails: ['There must be exactly one primary email']", queue="error"
+        )
 
-    def test_user_detail_redirects_actual_name(self, db_request):
+    def test_user_detail_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, username=None: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
         result = views.user_submit_email(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
 
 
 class TestUserAddEmail:
-    def test_add_primary_email(self, db_request):
+    def test_add_primary_email(self, db_request, mocker):
         old_email = EmailFactory.create(email="old@bar.com", primary=True)
         user = UserFactory.create(emails=[old_email])
         db_request.matchdict["username"] = str(user.username)
@@ -437,8 +439,11 @@ class TestUserAddEmail:
         db_request.POST["primary"] = True
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/admin/users/{user.username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
         )
 
         resp = views.user_add_email(user, db_request)
@@ -455,7 +460,7 @@ class TestUserAddEmail:
         assert emails["foo@bar.com"].primary
         assert emails["foo@bar.com"].verified
 
-    def test_add_non_primary_email(self, db_request):
+    def test_add_non_primary_email(self, db_request, mocker):
         old_email = EmailFactory.create(email="old@bar.com", primary=True)
         user = UserFactory.create(emails=[old_email])
         db_request.matchdict["username"] = str(user.username)
@@ -464,8 +469,11 @@ class TestUserAddEmail:
         # No "primary" field
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/admin/users/{user.username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
         )
 
         resp = views.user_add_email(user, db_request)
@@ -481,7 +489,7 @@ class TestUserAddEmail:
         assert emails["old@bar.com"].primary
         assert not emails["foo@bar.com"].primary
 
-    def test_add_invalid(self, db_request):
+    def test_add_invalid(self, db_request, mocker):
         user = UserFactory.create(emails=[])
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
@@ -489,8 +497,11 @@ class TestUserAddEmail:
         db_request.POST["primary"] = True
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/admin/users/{user.username}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
         )
 
         resp = views.user_add_email(user, db_request)
@@ -501,24 +512,25 @@ class TestUserAddEmail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.emails == []
 
-    def test_user_add_email_redirects_actual_name(self, db_request):
+    def test_user_add_email_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_add_email(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
 
 class TestUserDelete:
-    def test_deletes_user(self, db_request, monkeypatch):
+    def test_deletes_user(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create()
         another_project = ProjectFactory.create()
@@ -531,7 +543,9 @@ class TestUserDelete:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
         db_request.user = UserFactory.create()
 
         result = views.user_delete(user, db_request)
@@ -540,7 +554,7 @@ class TestUserDelete:
 
         assert not db_request.db.get(User, user.id)
         assert db_request.db.query(Project).all() == [another_project]
-        assert db_request.route_path.calls == [pretend.call("admin.user.list")]
+        db_request.route_path.assert_called_once_with("admin.user.list")
         assert result.status_code == 303
         assert result.location == "/foobar"
 
@@ -641,14 +655,16 @@ class TestUserDelete:
         cancel_subscription.assert_called_once_with(subscription.subscription_id)
         assert organization.is_active is False
 
-    def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
+    def test_deletes_user_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create()
         RoleFactory(project=project, user=user, role_name="Owner")
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
 
         result = views.user_delete(user, db_request)
 
@@ -656,37 +672,40 @@ class TestUserDelete:
 
         assert db_request.db.get(User, user.id)
         assert db_request.db.query(Project).all() == [project]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_delete_redirects_actual_name(self, db_request):
+    def test_user_delete_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_delete(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
 
 class TestUserFreeze:
-    def test_freezes_user(self, db_request, monkeypatch):
+    def test_freezes_user(self, db_request, mocker):
         user = UserFactory.create()
         verified_email = EmailFactory.create(user=user, verified=True, primary=True)
         EmailFactory.create(user=user, verified=False, primary=False)
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
         db_request.user = UserFactory.create()
 
         result = views.user_freeze(user, db_request)
@@ -697,7 +716,7 @@ class TestUserFreeze:
         prohibition = db_request.db.query(ProhibitedEmailDomain).one()
         assert prohibition.domain == verified_email.domain
 
-        assert db_request.route_path.calls == [pretend.call("admin.user.list")]
+        db_request.route_path.assert_called_once_with("admin.user.list")
         assert result.status_code == 303
         assert result.location == "/foobar"
 
@@ -775,13 +794,15 @@ class TestUserFreeze:
         )
         assert result.status_code == 303
 
-    def test_freezes_user_bad_confirm(self, db_request, monkeypatch):
+    def test_freezes_user_bad_confirm(self, db_request, mocker):
         user = UserFactory.create(is_frozen=False)
         EmailFactory.create(user=user, verified=True, primary=True)
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
 
         result = views.user_freeze(user, db_request)
 
@@ -789,26 +810,27 @@ class TestUserFreeze:
 
         assert not db_request.db.get(User, user.id).is_frozen
         assert not db_request.db.query(ProhibitedEmailDomain).all()
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_freeze_redirects_actual_name(self, db_request):
+    def test_user_freeze_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_freeze(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
 
 class TestUserSetProjectCreateRatelimit:
@@ -903,80 +925,74 @@ class TestUserSetProjectCreateRatelimit:
 
 
 class TestUserResetPassword:
-    def test_resets_password(self, db_request, monkeypatch):
+    def test_resets_password(self, db_request, user_service, mocker):
         user = UserFactory.create()
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = UserFactory.create()
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(
-                lambda userid, request, reason: None
-            ),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = UserFactory.create()
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_password_reset_by_admin_email", autospec=True
+        )
 
         result = views.user_reset_password(user, db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
-        ]
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        send_email.assert_called_once_with(db_request, user)
+        user_service.disable_password.assert_called_once_with(
+            user.id, db_request, reason=DisableReason.AdminInitiated
+        )
+        assert user.disabled_for == DisableReason.AdminInitiated
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_resets_password_bad_confirm(self, db_request, monkeypatch):
+    def test_resets_password_bad_confirm(self, db_request, user_service, mocker):
         user = UserFactory.create()
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = UserFactory.create()
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = UserFactory.create()
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_password_reset_by_admin_email", autospec=True
+        )
 
         result = views.user_reset_password(user, db_request)
 
-        assert db_request.find_service.calls == []
-        assert send_email.calls == []
-        assert service.disable_password.calls == []
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        send_email.assert_not_called()
+        user_service.disable_password.assert_not_called()
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_reset_password_redirects_actual_name(self, db_request):
+    def test_user_reset_password_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_reset_password(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
 
 class TestUserRecoverAccountInitiate:
@@ -1202,9 +1218,9 @@ class TestUserRecoverAccountInitiate:
             False,
         ]
 
-    def test_user_recover_account_initiate_only_one(self, db_request):
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+    def test_user_recover_account_initiate_only_one(self, db_request, mocker):
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1231,11 +1247,13 @@ class TestUserRecoverAccountInitiate:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
 
-    def test_user_recover_account_initiate_submit(self, db_request, monkeypatch):
+    def test_user_recover_account_initiate_submit(
+        self, db_request, monkeypatch, mocker
+    ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
@@ -1258,8 +1276,9 @@ class TestUserRecoverAccountInitiate:
             name="Source Code", release=release, url="http://example.com/source0"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
         monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
 
         db_request.method = "POST"
@@ -1268,28 +1287,26 @@ class TestUserRecoverAccountInitiate:
         db_request.POST["support_issue_link"] = (
             "https://github.com/pypi/support/issues/666"
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
         now = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                (user, None),
-                project_name=project.name,
-                support_issue_link="https://github.com/pypi/support/issues/666",
-                token="deadbeef",
-            )
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            (user, None),
+            project_name=project.name,
+            support_issue_link="https://github.com/pypi/support/issues/666",
+            token="deadbeef",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert len(user.active_account_recoveries) == 1
         account_recovery = user.active_account_recoveries[0]
         assert account_recovery.payload == {
@@ -1307,7 +1324,7 @@ class TestUserRecoverAccountInitiate:
         assert account_recovery.additional == {"status": "initiated"}
 
     def test_user_recover_account_initiate_no_urls_submit(
-        self, db_request, monkeypatch
+        self, db_request, monkeypatch, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1328,8 +1345,9 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
         monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
 
         db_request.method = "POST"
@@ -1338,28 +1356,26 @@ class TestUserRecoverAccountInitiate:
         db_request.POST["support_issue_link"] = (
             "https://github.com/pypi/support/issues/666"
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
         now = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                (user, None),
-                project_name="",
-                support_issue_link="https://github.com/pypi/support/issues/666",
-                token="deadbeef",
-            )
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            (user, None),
+            project_name="",
+            support_issue_link="https://github.com/pypi/support/issues/666",
+            token="deadbeef",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert len(user.active_account_recoveries) == 1
         account_recovery = user.active_account_recoveries[0]
         assert account_recovery.payload == {
@@ -1373,8 +1389,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email(
-        self, db_request, monkeypatch
+        self, db_request, monkeypatch, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1395,8 +1412,9 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
         monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
 
         db_request.method = "POST"
@@ -1406,8 +1424,8 @@ class TestUserRecoverAccountInitiate:
             "https://github.com/pypi/support/issues/666"
         )
         db_request.POST["override_to_email"] = "foo@example.com"
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
         now = datetime.datetime.now(datetime.UTC)
@@ -1417,20 +1435,18 @@ class TestUserRecoverAccountInitiate:
         _email = next(e for e in user.emails if e.email == "foo@example.com")
         assert _email.verified is False
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                (user, _email),
-                project_name="",
-                support_issue_link="https://github.com/pypi/support/issues/666",
-                token="deadbeef",
-            )
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            (user, _email),
+            project_name="",
+            support_issue_link="https://github.com/pypi/support/issues/666",
+            token="deadbeef",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert len(user.active_account_recoveries) == 1
         account_recovery = user.active_account_recoveries[0]
         assert account_recovery.payload == {
@@ -1444,8 +1460,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists(
-        self, db_request, monkeypatch
+        self, db_request, monkeypatch, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1469,8 +1486,9 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
         monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
 
         db_request.method = "POST"
@@ -1480,8 +1498,8 @@ class TestUserRecoverAccountInitiate:
             "https://github.com/pypi/support/issues/666"
         )
         db_request.POST["override_to_email"] = "foo@example.com"
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
         now = datetime.datetime.now(datetime.UTC)
@@ -1491,20 +1509,18 @@ class TestUserRecoverAccountInitiate:
         _email = next(e for e in user.emails if e.email == "foo@example.com")
         assert _email.verified is False
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                (user, _email),
-                project_name="",
-                support_issue_link="https://github.com/pypi/support/issues/666",
-                token="deadbeef",
-            )
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            (user, _email),
+            project_name="",
+            support_issue_link="https://github.com/pypi/support/issues/666",
+            token="deadbeef",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert len(user.active_account_recoveries) == 1
         account_recovery = user.active_account_recoveries[0]
         assert account_recovery.payload == {
@@ -1518,8 +1534,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists_wrong_user(
-        self, db_request, monkeypatch
+        self, db_request, monkeypatch, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1544,8 +1561,9 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
         monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
 
         db_request.method = "POST"
@@ -1555,28 +1573,50 @@ class TestUserRecoverAccountInitiate:
             "https://github.com/pypi/support/issues/666"
         )
         db_request.POST["override_to_email"] = "foo@example.com"
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.account_recovery.initiate", username=user.username)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Email address already associated with a user", queue="error")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.account_recovery.initiate", username=user.username
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Email address already associated with a user", queue="error"
+        )
         assert len(user.active_account_recoveries) == 0
 
+    def test_user_recover_account_initiate_invalid_email_format(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/1"
+        )
+        db_request.POST["override_to_email"] = "invalid-email"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
+        )
+        mocker.spy(db_request.session, "flash")
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        db_request.session.flash.assert_called_once_with(
+            "Invalid or undeliverable email address", queue="error"
+        )
+
     def test_user_recover_account_initiate_no_support_issue_link_submit(
-        self, db_request
+        self, db_request, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1597,34 +1637,34 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
 
         db_request.method = "POST"
         db_request.user = admin_user
         db_request.POST["project_name"] = ""
         db_request.POST["support_issue_link"] = ""
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.account_recovery.initiate", username=user.username)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a link to the pypi/support issue", queue="error")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.account_recovery.initiate", username=user.username
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Provide a link to the pypi/support issue", queue="error"
+        )
         assert len(user.active_account_recoveries) == 0
 
     def test_user_recover_account_initiate_invalid_support_issue_link_submit(
-        self, db_request
+        self, db_request, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1645,7 +1685,9 @@ class TestUserRecoverAccountInitiate:
             name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
 
         db_request.method = "POST"
         db_request.user = admin_user
@@ -1653,28 +1695,26 @@ class TestUserRecoverAccountInitiate:
         db_request.POST["support_issue_link"] = (
             "https://github.com/pypi/warehouse/issues/420"
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.account_recovery.initiate", username=user.username)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("The pypi/support issue link is invalid", queue="error")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.account_recovery.initiate", username=user.username
+        )
+        db_request.session.flash.assert_called_once_with(
+            "The pypi/support issue link is invalid", queue="error"
+        )
         assert len(user.active_account_recoveries) == 0
 
     def test_recover_account_initiate_invalid_project_name_with_available_urls_submit(
-        self, db_request
+        self, db_request, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1695,7 +1735,9 @@ class TestUserRecoverAccountInitiate:
             name="Homepage", release=release, url="https://example.com/home"
         )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        send_email = mocker.patch.object(
+            views, "send_account_recovery_initiated_email", autospec=True
+        )
 
         db_request.method = "POST"
         db_request.user = admin_user
@@ -1703,30 +1745,28 @@ class TestUserRecoverAccountInitiate:
         db_request.POST["support_issue_link"] = (
             "https://github.com/pypi/support/issues/420"
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda route_name, **kwargs: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_recover_account_initiate(user, db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.account_recovery.initiate", username=user.username)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Select a project for verification", queue="error")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.account_recovery.initiate", username=user.username
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Select a project for verification", queue="error"
+        )
         assert len(user.active_account_recoveries) == 0
 
 
 class TestUserRecoverAccountCancel:
     def test_user_recover_account_cancel_cancels_active_account_recoveries(
-        self, db_request, monkeypatch
+        self, db_request, user_service, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1765,10 +1805,11 @@ class TestUserRecoverAccountCancel:
         db_request.method = "POST"
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
         db_request.user = user
-        service = pretend.stub()
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        mocker.spy(user_service, "disable_password")
 
         now = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(now):
@@ -1778,20 +1819,20 @@ class TestUserRecoverAccountCancel:
         assert len(user.webauthn) == 1
         assert len(user.recovery_codes.all()) == 1
 
-        assert db_request.find_service.calls == []
+        user_service.disable_password.assert_not_called()
         assert account_recovery0.additional["status"] == "cancelled"
         assert account_recovery0.payload["cancelled"] == str(now)
         assert account_recovery1.additional["status"] == "cancelled"
         assert account_recovery1.payload["cancelled"] == str(now)
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
 
 class TestUserRecoverAccountComplete:
-    def test_user_recover_account_complete(self, db_request, monkeypatch):
+    def test_user_recover_account_complete(self, db_request, user_service, mocker):
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
             webauthn=[
@@ -1810,39 +1851,34 @@ class TestUserRecoverAccountComplete:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = user
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(
-                lambda userid, request, reason: None
-            ),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = user
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_password_reset_by_admin_email", autospec=True
+        )
 
         result = views.user_recover_account_complete(user, db_request)
 
         assert user.totp_secret is None
         assert len(user.webauthn) == 0
         assert len(user.recovery_codes.all()) == 0
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
-        ]
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        send_email.assert_called_once_with(db_request, user)
+        user_service.disable_password.assert_called_once_with(
+            user.id, db_request, reason=DisableReason.AdminInitiated
+        )
+        assert user.disabled_for == DisableReason.AdminInitiated
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
     def test_user_recover_account_complete_completes_active_account_recoveries(
-        self, db_request, monkeypatch
+        self, db_request, user_service, mocker
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1880,18 +1916,15 @@ class TestUserRecoverAccountComplete:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = user
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(
-                lambda userid, request, reason: None
-            ),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = user
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_password_reset_by_admin_email", autospec=True
+        )
 
         now = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(now):
@@ -1900,67 +1933,68 @@ class TestUserRecoverAccountComplete:
         assert user.totp_secret is None
         assert len(user.webauthn) == 0
         assert len(user.recovery_codes.all()) == 0
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
-        ]
         assert account_recovery0.additional["status"] == "completed"
         assert account_recovery0.payload["completed"] == str(now)
         assert account_recovery1.additional["status"] == "completed"
         assert account_recovery1.payload["completed"] == str(now)
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        send_email.assert_called_once_with(db_request, user)
+        user_service.disable_password.assert_called_once_with(
+            user.id, db_request, reason=DisableReason.AdminInitiated
+        )
+        assert user.disabled_for == DisableReason.AdminInitiated
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_recover_account_complete_bad_confirm(self, db_request, monkeypatch):
+    def test_user_recover_account_complete_bad_confirm(
+        self, db_request, user_service, mocker
+    ):
         user = UserFactory.create()
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = UserFactory.create()
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = UserFactory.create()
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_password_reset_by_admin_email", autospec=True
+        )
 
         result = views.user_recover_account_complete(user, db_request)
 
-        assert db_request.find_service.calls == []
-        assert send_email.calls == []
-        assert service.disable_password.calls == []
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        send_email.assert_not_called()
+        user_service.disable_password.assert_not_called()
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_recover_account_complete_redirects_actual_name(self, db_request):
+    def test_user_recover_account_complete_redirects_actual_name(
+        self, db_request, mocker
+    ):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
 
         result = views.user_recover_account_complete(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
     def test_user_recover_account_complete_with_override_email_sets_as_primary(
-        self, db_request, monkeypatch
+        self, db_request, user_service, mocker
     ):
         user = UserFactory.create(with_verified_primary_email=True)
         existing_primary_email = user.primary_email
@@ -1990,18 +2024,13 @@ class TestUserRecoverAccountComplete:
         db_request.method = "POST"
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.user = user
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(
-                lambda userid, request, reason: None
-            ),
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
-        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+        db_request.user = user
+        mocker.spy(user_service, "disable_password")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+        mocker.patch.object(views, "send_password_reset_by_admin_email", autospec=True)
 
         result = views.user_recover_account_complete(user, db_request)
 
@@ -2014,126 +2043,122 @@ class TestUserRecoverAccountComplete:
 
 
 class TestUserBurnRecoveryCodes:
-    def test_burns_recovery_codes(self, db_request, monkeypatch, user_service):
+    def test_burns_recovery_codes(self, db_request, user_service, mocker):
         user = UserFactory.create()
         codes = user_service.generate_recovery_codes(user.id)
-        user_service._check_ratelimits = pretend.call_recorder(
-            user_service._check_ratelimits
-        )
+        mocker.spy(user_service, "_check_ratelimits")
 
         # Burn one code in advance
         user.recovery_codes[0].burned = datetime.datetime.now(datetime.UTC)
 
         # Provide all the codes, plus one invalid code
         db_request.POST["to_burn"] = "\n".join(codes) + "\ninvalid"
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         assert any(not code.burned for code in user.recovery_codes)
 
         result = views.user_burn_recovery_codes(user, db_request)
 
         assert all(code.burned for code in user.recovery_codes)
-        assert db_request.session.flash.calls == [
-            pretend.call("Burned 7 recovery code(s)", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Burned 7 recovery code(s)", queue="success"
+        )
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
-        assert user_service._check_ratelimits.calls == []
+        user_service._check_ratelimits.assert_not_called()
 
-    def test_no_recovery_codes_provided(self, db_request, monkeypatch, user_service):
+    def test_no_recovery_codes_provided(self, db_request, user_service, mocker):
         user = UserFactory.create()
         user_service.generate_recovery_codes(user.id)
 
         db_request.POST["to_burn"] = ""
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         assert all(not code.burned for code in user.recovery_codes)
 
         result = views.user_burn_recovery_codes(user, db_request)
 
         assert all(not code.burned for code in user.recovery_codes)
-        assert db_request.session.flash.calls == [
-            pretend.call("No recovery codes provided", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", username=user.username)
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "No recovery codes provided", queue="error"
+        )
+        db_request.route_path.assert_called_once_with(
+            "admin.user.detail", username=user.username
+        )
         assert result.status_code == 303
         assert result.location == "/foobar"
 
 
 class TestUserEmailDomainCheck:
-    def test_user_email_domain_check(self, db_request):
+    def test_user_email_domain_check(self, db_request, mocker):
         user = UserFactory.create(with_verified_primary_email=True)
         db_request.POST["email_address"] = user.primary_email.email
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_email_domain_check(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Domain status check for '{user.primary_email.domain}' completed",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Domain status check for '{user.primary_email.domain}' completed",
+            queue="success",
+        )
         assert user.primary_email.domain_last_checked is not None
         assert user.primary_email.domain_last_status == ["active"]
 
 
 class TestUserEmailDelete:
-    def test_user_email_delete(self, db_request):
+    def test_user_email_delete(self, db_request, mocker):
         user = UserFactory.create(with_verified_primary_email=True)
         email = EmailFactory.create(user=user, primary=False, verified=False)
 
         db_request.POST["email_address"] = email.email
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_email_delete(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Email address '{email.email}' deleted", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Email address '{email.email}' deleted", queue="success"
+        )
         assert email.email not in user.emails
 
-    def test_user_email_delete_not_found(self, db_request):
+    def test_user_email_delete_not_found(self, db_request, mocker):
         user = UserFactory.create(with_verified_primary_email=True)
 
         db_request.POST["email_address"] = "something@nonexistent.com"
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_email_delete(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call("Email not found", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Email not found", queue="error"
+        )
 
 
 class TestUserQuarantineProjects:
-    def test_quarantines_user_projects(self, db_request):
+    def test_quarantines_user_projects(self, db_request, mocker):
         user = UserFactory.create()
         project1 = ProjectFactory.create()
         project2 = ProjectFactory.create()
@@ -2142,26 +2167,25 @@ class TestUserQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Quarantined 2 project(s) for user {user.username!r}",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Quarantined 2 project(s) for user {user.username!r}", queue="success"
+        )
         assert project1.lifecycle_status == "quarantine-enter"
         assert project2.lifecycle_status == "quarantine-enter"
 
-    def test_quarantines_user_projects_skips_already_quarantined(self, db_request):
+    def test_quarantines_user_projects_skips_already_quarantined(
+        self, db_request, mocker
+    ):
         user = UserFactory.create()
         project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
         project2 = ProjectFactory.create()
@@ -2170,26 +2194,25 @@ class TestUserQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Quarantined 1 project(s) for user {user.username!r}",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Quarantined 1 project(s) for user {user.username!r}", queue="success"
+        )
         assert project1.lifecycle_status == "quarantine-enter"
         assert project2.lifecycle_status == "quarantine-enter"
 
-    def test_quarantines_user_projects_no_projects_to_quarantine(self, db_request):
+    def test_quarantines_user_projects_no_projects_to_quarantine(
+        self, db_request, mocker
+    ):
         user = UserFactory.create()
         project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
         project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
@@ -2198,47 +2221,44 @@ class TestUserQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"No projects needed quarantining for user {user.username!r}",
-                queue="info",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"No projects needed quarantining for user {user.username!r}", queue="info"
+        )
 
-    def test_quarantine_user_projects_bad_confirm(self, db_request):
+    def test_quarantine_user_projects_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create()
         RoleFactory(project=project, user=user, role_name="Owner")
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Wrong confirmation input", queue="error"
+        )
         assert project.lifecycle_status is None
 
 
 class TestUserClearQuarantineProjects:
-    def test_clears_quarantine_user_projects(self, db_request):
+    def test_clears_quarantine_user_projects(self, db_request, mocker):
         user = UserFactory.create()
         project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
         project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
@@ -2247,26 +2267,26 @@ class TestUserClearQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_clear_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Cleared quarantine for 2 project(s) for {user.username!r}",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Cleared quarantine for 2 project(s) for {user.username!r}",
+            queue="success",
+        )
         assert project1.lifecycle_status == "quarantine-exit"
         assert project2.lifecycle_status == "quarantine-exit"
 
-    def test_clears_quarantine_user_projects_skips_non_quarantined(self, db_request):
+    def test_clears_quarantine_user_projects_skips_non_quarantined(
+        self, db_request, mocker
+    ):
         user = UserFactory.create()
         project1 = ProjectFactory.create()  # Not quarantined
         project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
@@ -2275,26 +2295,26 @@ class TestUserClearQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_clear_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Cleared quarantine for 1 project(s) for {user.username!r}",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Cleared quarantine for 1 project(s) for {user.username!r}",
+            queue="success",
+        )
         assert project1.lifecycle_status is None
         assert project2.lifecycle_status == "quarantine-exit"
 
-    def test_clears_quarantine_user_projects_no_quarantined_projects(self, db_request):
+    def test_clears_quarantine_user_projects_no_quarantined_projects(
+        self, db_request, mocker
+    ):
         user = UserFactory.create()
         project1 = ProjectFactory.create()
         project2 = ProjectFactory.create()
@@ -2303,40 +2323,37 @@ class TestUserClearQuarantineProjects:
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
         result = views.user_clear_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"No quarantined projects found for user {user.username!r}",
-                queue="info",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"No quarantined projects found for user {user.username!r}", queue="info"
+        )
 
-    def test_clear_quarantine_user_projects_bad_confirm(self, db_request):
+    def test_clear_quarantine_user_projects_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create(lifecycle_status="quarantine-enter")
         RoleFactory(project=project, user=user, role_name="Owner")
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
-        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
         )
+        mocker.spy(db_request.session, "flash")
 
         result = views.user_clear_quarantine_projects(user, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Wrong confirmation input", queue="error"
+        )
         assert project.lifecycle_status == "quarantine-enter"

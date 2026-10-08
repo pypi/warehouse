@@ -4,7 +4,6 @@ import uuid
 
 from collections import defaultdict
 
-import pretend
 import pytest
 
 from packaging.utils import canonicalize_name
@@ -47,11 +46,11 @@ class TestProhibitedProjectNameList:
 
         assert result == {"prohibited_project_names": prohibited[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.prohibited_project_names(request)
+            views.prohibited_project_names(pyramid_request)
 
     def test_basic_query(self, db_request):
         db_request.db.query(ProhibitedProjectName).delete()
@@ -83,11 +82,11 @@ class TestProhibitedProjectNameList:
 
 
 class TestConfirmProhibitedProjectName:
-    def test_no_project(self):
-        request = pretend.stub(GET={})
+    def test_no_project(self, pyramid_request):
+        pyramid_request.GET = {}
 
         with pytest.raises(HTTPBadRequest):
-            views.confirm_prohibited_project_names(request)
+            views.confirm_prohibited_project_names(pyramid_request)
 
     def test_nothing_to_delete(self, db_request):
         db_request.GET["project"] = "foo"
@@ -129,39 +128,45 @@ class TestConfirmProhibitedProjectName:
 
 
 class TestAddProhibitedProjectName:
-    def test_no_project(self):
-        request = pretend.stub(POST={})
+    def test_no_project(self, pyramid_request):
+        pyramid_request.POST = {}
 
         with pytest.raises(HTTPBadRequest):
-            views.add_prohibited_project_names(request)
+            views.add_prohibited_project_names(pyramid_request)
 
-    def test_no_confirm(self):
-        request = pretend.stub(
-            POST={"project": "foo"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            current_route_path=lambda: "/foo/bar/",
+    def test_no_confirm(self, pyramid_request, mocker):
+        pyramid_request.POST = {"project": "foo"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/foo/bar/",
         )
 
-        result = views.add_prohibited_project_names(request)
+        result = views.add_prohibited_project_names(pyramid_request)
 
-        assert request.session.flash.calls == [
-            pretend.call("Confirm the prohibited project name request", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Confirm the prohibited project name request", queue="error"
+        )
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-    def test_wrong_confirm(self):
-        request = pretend.stub(
-            POST={"project": "foo", "confirm": "bar"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            current_route_path=lambda: "/foo/bar/",
+    def test_wrong_confirm(self, pyramid_request, mocker):
+        pyramid_request.POST = {"project": "foo", "confirm": "bar"}
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/foo/bar/",
         )
 
-        result = views.add_prohibited_project_names(request)
+        result = views.add_prohibited_project_names(pyramid_request)
 
-        assert request.session.flash.calls == [
-            pretend.call("'bar' is not the same as 'foo'", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "'bar' is not the same as 'foo'", queue="error"
+        )
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
@@ -173,7 +178,7 @@ class TestAddProhibitedProjectName:
         ],
     )
     def test_already_existing_prohibited_project_names(
-        self, db_request, project_name, prohibit_name
+        self, db_request, project_name, prohibit_name, mocker
     ):
         ProhibitedProjectFactory.create(name=project_name)
 
@@ -182,37 +187,30 @@ class TestAddProhibitedProjectName:
         db_request.POST["project"] = prohibit_name
         db_request.POST["confirm"] = prohibit_name
         db_request.POST["comment"] = "This is a comment"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
         result = views.add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"{prohibit_name!r} has already been prohibited.",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"{prohibit_name!r} has already been prohibited.", queue="error"
+        )
         assert result.status_code == 303
         assert result.headers["Location"] == "/admin/prohibited_project_names/"
 
-    def test_adds_prohibited_project_name(self, db_request):
+    def test_adds_prohibited_project_name(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.POST["project"] = "foo"
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
         views.add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Prohibited Project Name 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Prohibited Project Name 'foo'", queue="success"
+        )
 
         prohibited_project_name = (
             db_request.db.query(ProhibitedProjectName)
@@ -224,14 +222,12 @@ class TestAddProhibitedProjectName:
         assert prohibited_project_name.prohibited_by == db_request.user
         assert prohibited_project_name.comment == "This is a comment"
 
-    def test_adds_prohibited_project_name_with_deletes(self, db_request):
+    def test_adds_prohibited_project_name_with_deletes(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.POST["project"] = "foo"
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
         project = ProjectFactory.create(name="foo")
@@ -241,9 +237,9 @@ class TestAddProhibitedProjectName:
 
         views.add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Deleted the project 'foo'", queue="success"),
-            pretend.call("Prohibited Project Name 'foo'", queue="success"),
+        assert db_request.session.flash.call_args_list == [
+            mocker.call("Deleted the project 'foo'", queue="success"),
+            mocker.call("Prohibited Project Name 'foo'", queue="success"),
         ]
 
         prohibited_project_name = (
@@ -260,12 +256,11 @@ class TestAddProhibitedProjectName:
 
 
 class TestBulkAddProhibitedProjectName:
-    def test_get(self):
-        request = pretend.stub(method="GET")
+    def test_get(self, pyramid_request):
 
-        assert views.bulk_add_prohibited_project_names(request) == {}
+        assert views.bulk_add_prohibited_project_names(pyramid_request) == {}
 
-    def test_bulk_add(self, db_request):
+    def test_bulk_add(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.method = "POST"
         comment = "This is a comment"
@@ -290,19 +285,14 @@ class TestBulkAddProhibitedProjectName:
         db_request.POST["projects"] = "\n".join(project_names)
         db_request.POST["comment"] = comment
 
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/bulk"
 
         result = views.bulk_add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Prohibited {len(project_names)!r} projects",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Prohibited {len(project_names)!r} projects", queue="success"
+        )
         assert result.status_code == 303
         assert result.headers["Location"] == "/admin/prohibited_project_names/bulk"
 
@@ -324,21 +314,19 @@ class TestBulkAddProhibitedProjectName:
                 == 0
             )
 
-    def test_adds_prohibited_project_name(self, db_request):
+    def test_adds_prohibited_project_name(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.POST["project"] = "foo"
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
         views.add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Prohibited Project Name 'foo'", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Prohibited Project Name 'foo'", queue="success"
+        )
 
         prohibited_project_name = (
             db_request.db.query(ProhibitedProjectName)
@@ -350,14 +338,12 @@ class TestBulkAddProhibitedProjectName:
         assert prohibited_project_name.prohibited_by == db_request.user
         assert prohibited_project_name.comment == "This is a comment"
 
-    def test_adds_prohibited_project_name_with_deletes(self, db_request):
+    def test_adds_prohibited_project_name_with_deletes(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.POST["project"] = "foo"
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
         project = ProjectFactory.create(name="foo")
@@ -367,9 +353,9 @@ class TestBulkAddProhibitedProjectName:
 
         views.add_prohibited_project_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Deleted the project 'foo'", queue="success"),
-            pretend.call("Prohibited Project Name 'foo'", queue="success"),
+        assert db_request.session.flash.call_args_list == [
+            mocker.call("Deleted the project 'foo'", queue="success"),
+            mocker.call("Prohibited Project Name 'foo'", queue="success"),
         ]
 
         prohibited_project_name = (
@@ -386,11 +372,11 @@ class TestBulkAddProhibitedProjectName:
 
 
 class TestRemoveProhibitedProjectName:
-    def test_no_prohibited_project_name_id(self):
-        request = pretend.stub(POST={})
+    def test_no_prohibited_project_name_id(self, pyramid_request):
+        pyramid_request.POST = {}
 
         with pytest.raises(HTTPBadRequest):
-            views.remove_prohibited_project_names(request)
+            views.remove_prohibited_project_names(pyramid_request)
 
     def test_prohibited_project_name_id_not_exist(self, db_request):
         db_request.POST["prohibited_project_name_id"] = str(uuid.uuid4())
@@ -656,8 +642,10 @@ class TestUltranormReleaseProjectName:
 
         assert isinstance(result, HTTPSeeOther)
         assert db_request.session.pop_flash("error") == [
-            "'brand-new-project' has no ultranormalization conflict. "
-            "No admin override needed."
+            (
+                "'brand-new-project' has no ultranormalization conflict. "
+                "No admin override needed."
+            )
         ]
 
     def test_no_username(self, db_request):
@@ -691,8 +679,10 @@ class TestUltranormReleaseProjectName:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/admin/projects/myproject/"
         assert db_request.session.pop_flash("success") == [
-            "'myproject' provisioned to 'methodman' "
-            "(ultranorm conflict with 'my-project')."
+            (
+                "'myproject' provisioned to 'methodman' "
+                "(ultranorm conflict with 'my-project')."
+            )
         ]
 
         project = db_request.db.query(Project).filter(Project.name == "myproject").one()

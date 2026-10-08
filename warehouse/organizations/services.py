@@ -184,7 +184,7 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
-        self.db.flush()  # generate organization.id # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate organization.id
 
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
@@ -541,7 +541,7 @@ class DatabaseOrganizationService:
         organization.name = name
 
         try:
-            self.db.flush()  # organization.normalized_name  # ast-grep-ignore: db-flush
+            self.db.flush()  # ast-grep-ignore: db-flush -- organization.normalized_name
             self.add_catalog_entry(organization_id)
         except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
@@ -613,7 +613,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        self.db.flush()  # generate server ids  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate server ids
 
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization_project.organization)

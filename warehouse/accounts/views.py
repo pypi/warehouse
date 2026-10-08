@@ -1955,7 +1955,7 @@ class ManageAccountPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # generate id  # ast-grep-ignore: db-flush
+            self.request.db.flush()  # ast-grep-ignore: db-flush -- generate id
         except UniqueViolation:
             # The DB unique constraint covers (repo, owner, workflow,
             # environment) but not project_name, so this fires when another

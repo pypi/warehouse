@@ -4,7 +4,6 @@ import datetime
 
 from collections import OrderedDict
 
-import pretend
 import pypi_attestations
 import pytest
 
@@ -214,17 +213,15 @@ class TestProject:
         project = DBProjectFactory.create()
         assert project.documentation_url is None
 
-    def test_doc_url(self, pyramid_config, db_request):
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/docs/url/"
+    def test_doc_url(self, pyramid_config, db_request, mocker):
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/the/docs/url/"
         )
 
         project = DBProjectFactory.create(has_docs=True)
 
         assert project.documentation_url == "/the/docs/url/"
-        assert db_request.route_url.calls == [
-            pretend.call("legacy.docs", project=project.name)
-        ]
+        route_url.assert_called_once_with("legacy.docs", project=project.name)
 
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
@@ -1394,23 +1391,31 @@ class TestRelease:
         [
             (
                 "https://github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
-                "type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                    "type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/tree/main",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             ("https://github.com/pypa/", None),
             ("https://github.com/sponsors/pypa/", None),
@@ -1419,13 +1424,17 @@ class TestRelease:
             ("incorrect url", None),
             (
                 "https://www.github.com/pypi/warehouse.git",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse.git/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
         ],
     )

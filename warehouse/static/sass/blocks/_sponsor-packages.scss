@@ -31,7 +31,7 @@
 
 .sponsor-packages {
   display: grid;
-  grid-gap: grid.$spacing-unit;
+  gap: grid.$spacing-unit;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   margin: (grid.$spacing-unit * 1.5) 0 (grid.$spacing-unit * 2);
 

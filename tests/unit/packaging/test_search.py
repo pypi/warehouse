@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-
-import pretend
+import types
 
 from warehouse.packaging.search import Project
 
 
 def test_build_search():
-    release = pretend.stub(
+    release = types.SimpleNamespace(
         name="Foobar",
         normalized_name="foobar",
         summary="This is my summary",

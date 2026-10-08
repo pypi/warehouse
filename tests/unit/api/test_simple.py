@@ -53,14 +53,18 @@ class TestContentNegotiation:
                 simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
             (
-                f"{simple.MIME_TEXT_HTML}, {simple.MIME_PYPI_SIMPLE_V1_HTML}, "
-                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                (
+                    f"{simple.MIME_TEXT_HTML}, {simple.MIME_PYPI_SIMPLE_V1_HTML}, "
+                    f"{simple.MIME_PYPI_SIMPLE_V1_JSON}"
+                ),
                 simple.MIME_TEXT_HTML,
             ),
             (
-                f"{simple.MIME_TEXT_HTML};q=0.01, "
-                f"{simple.MIME_PYPI_SIMPLE_V1_HTML};q=0.2, "
-                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                (
+                    f"{simple.MIME_TEXT_HTML};q=0.01, "
+                    f"{simple.MIME_PYPI_SIMPLE_V1_HTML};q=0.2, "
+                    f"{simple.MIME_PYPI_SIMPLE_V1_JSON}"
+                ),
                 simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
         ],

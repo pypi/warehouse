@@ -593,6 +593,15 @@ class RegistrationForm(  # type: ignore[misc]
         ]
     )
     g_recaptcha_response = wtforms.StringField()
+    acceptable_use = wtforms.BooleanField(
+        validators=[
+            wtforms.validators.DataRequired(
+                message=_(
+                    "You must agree to the Terms of Service and Acceptable Use Policy."
+                )
+            )
+        ]
+    )
 
     def __init__(self, *args, captcha_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)

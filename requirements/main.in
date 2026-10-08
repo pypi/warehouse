@@ -1,4 +1,8 @@
-alembic>=1.18.5
+# NOTE: pyramid-components is a runtime dependency of warehouse.admin, but it
+#       lives in this repo (./pyramid_components) rather than on an index, so it
+#       cannot be pinned here: pip-compile has no hashes for a local path. The
+#       Dockerfile installs it editable.
+alembic>=1.20.0
 alembic-postgresql-enum
 Automat
 argon2-cffi
@@ -10,8 +14,8 @@ celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
-cryptography>=48.0.1
-datadog>=0.52.2
+cryptography>=50.0.2
+datadog>=0.55.0
 disposable-email-domains
 dnspython
 email-validator
@@ -20,7 +24,6 @@ github-reserved-names>=2026.6.1
 google-cloud-bigquery
 google-cloud-storage
 hiredis
-html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
@@ -33,12 +36,12 @@ msgpack
 natsort
 nh3
 opensearch-py
-packaging>=26.2
+packaging>=26.3
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-platformdirs>=4.10.0
+platformdirs>=4.12.2
 premailer
 psycopg[binary]
 pydantic
@@ -55,13 +58,15 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-PyJWT[crypto]>=2.13.0
+PyJWT[crypto]>=2.15.1
 readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0
 rfc3986
 sentry-sdk
-pypi-attestations
+# TODO: 0.0.30 adds CircleCIPublisher to the Publisher union, which the
+# exhaustive match in warehouse/attestations/models.py has no arm for.
+pypi-attestations<0.0.30
 sqlalchemy[asyncio]
 stdlib-list
 stripe

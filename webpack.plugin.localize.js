@@ -127,7 +127,7 @@ class WebpackLocalisationPlugin {
           statement.declarations[0].id.name === "messagesAccessLocaleData") {
           const initData = statement.declarations[0].init;
           const dep = new ConstDependency(JSON.stringify(self.localeData), initData.range);
-          dep.loc = initData.loc;
+          dep.loc = parser.getLocation(initData);
           parser.state.current.addDependency(dep);
           return true;
 
@@ -142,7 +142,7 @@ class WebpackLocalisationPlugin {
   return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
 }`;
           const dep = new ConstDependency(newValue, initData.range);
-          dep.loc = initData.loc;
+          dep.loc = parser.getLocation(initData);
           parser.state.current.addDependency(dep);
           return true;
 

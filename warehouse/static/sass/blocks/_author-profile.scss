@@ -56,13 +56,13 @@
 
   &__info {
     padding-top: grid.$spacing-unit;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   &__name {
     @include typography.h2;
     padding: 0 0 grid.$half-spacing-unit;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     @media only screen and (max-width: breakpoints.$desktop) {
       border-top: 0;
@@ -73,12 +73,12 @@
 
   &__meta {
     margin-bottom: grid.$spacing-unit;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   &__metadiv {
     margin-bottom: grid.$half-spacing-unit;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   &__edit-button {
