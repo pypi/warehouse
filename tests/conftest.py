@@ -46,6 +46,8 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.oauth import IOAuthProviderService, NullGitHubOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.api.maintainer import IApiKeyService
+from warehouse.api.maintainer._services import DatabaseApiKeyService
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.cache import services as cache_services
@@ -218,6 +220,7 @@ def pyramid_services(
     activestate_oidc_service,
     integrity_service,
     macaroon_service,
+    api_key_service,
     helpdesk_service,
     notification_service,
     query_results_cache_service,
@@ -247,6 +250,7 @@ def pyramid_services(
     )
     services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
+    services.register_service(api_key_service, IApiKeyService, None)
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
     services.register_service(query_results_cache_service, IQueryResultsCache)
@@ -566,6 +570,11 @@ def integrity_service(db_session):
 @pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
+
+
+@pytest.fixture
+def api_key_service(db_session):
+    return DatabaseApiKeyService(db_session)
 
 
 @pytest.fixture
