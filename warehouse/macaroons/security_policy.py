@@ -9,6 +9,7 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer._services import API_KEY_PREFIX
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
@@ -66,15 +67,20 @@ def _extract_http_macaroon(request):
 
     auth_method = auth_method.lower()
 
+    if auth_method == "basic":
+        macaroon = _extract_basic_macaroon(auth)
+    elif auth_method in ["token", "bearer"]:
+        macaroon = auth
+    else:
+        macaroon = None
+
+    # Maintainer API keys belong to ApiKeySecurityPolicy, never this one.
+    if macaroon is not None and macaroon.startswith(API_KEY_PREFIX):
+        return None
+
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.macaroon.auth_method", tags=[f"method:{auth_method}"])
-
-    if auth_method == "basic":
-        return _extract_basic_macaroon(auth)
-    if auth_method in ["token", "bearer"]:
-        return auth
-
-    return None
+    return macaroon
 
 
 @implementer(ISecurityPolicy)
