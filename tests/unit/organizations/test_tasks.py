@@ -226,8 +226,20 @@ class TestUpdateOrganizationSubscriptionUsage:
         # Only the active subscription is reported; the canceled one is skipped.
         create_usage_record.assert_called_once()
 
+    @pytest.mark.parametrize(
+        "error",
+        [
+            stripe.error.InvalidRequestError(
+                "Cannot create the usage record because the subscription "
+                "has been canceled.",
+                None,
+            ),
+            # Not transient, but not an InvalidRequestError either.
+            stripe.error.AuthenticationError("Invalid API key"),
+        ],
+    )
     def test_continues_when_a_subscription_fails(
-        self, db_request, billing_service, metrics, mocker
+        self, db_request, billing_service, metrics, mocker, error
     ):
         # First usage report raises; the batch must still report the second org.
         for _ in range(2):
@@ -256,11 +268,7 @@ class TestUpdateOrganizationSubscriptionUsage:
             billing_service,
             "create_or_update_usage_record",
             side_effect=[
-                stripe.error.InvalidRequestError(
-                    "Cannot create the usage record because the subscription "
-                    "has been canceled.",
-                    None,
-                ),
+                error,
                 {"subscription_item_id": "si_1234", "organization_member_count": "1"},
             ],
         )
@@ -272,7 +280,7 @@ class TestUpdateOrganizationSubscriptionUsage:
         assert create_usage_record.call_count == 2
         increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.error",
-            tags=["error_type:InvalidRequestError"],
+            tags=[f"error_type:{error.__class__.__name__}"],
         )
         increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.updated"

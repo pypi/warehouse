@@ -105,9 +105,9 @@ def update_organziation_subscription_usage_record(request):
             # Abort and retry the whole run rather than silently reporting no
             # usage for everyone.
             raise RetryableException from exc
-        except stripe.error.InvalidRequestError as exc:
+        except stripe.error.StripeError as exc:
             # Skip a single bad subscription (e.g. canceled on Stripe, stale
-            # locally).
+            # locally) so one failure can't block usage reporting for the rest.
             logger.exception(
                 "Failed to update usage record",
                 organization_name=org_subscription.organization.name,
