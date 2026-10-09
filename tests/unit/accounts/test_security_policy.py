@@ -1,20 +1,55 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import base64
+import types
+
 import pytest
 
 from pyramid.authorization import Allow
 from pyramid.exceptions import HTTPForbidden
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.testing import DummySecurityPolicy
+from sqlalchemy import sql
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import UserContext, security_policy
-from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import DisableReason
+from warehouse.ip_addresses.models import BanReason
 from warehouse.predicates import AuthMethodsPredicate
+from warehouse.sessions import Session
 from warehouse.utils.security_policy import AuthenticationMethod
 
-from ...common.constants import REMOTE_ADDR
+from ...common.db.accounts import UserFactory
+
+UPLOAD_ROUTE = types.SimpleNamespace(
+    name="forklift.legacy.file_upload",
+    predicates=[AuthMethodsPredicate({"basic-auth", "macaroon"}, None)],
+)
+
+
+def _basic_auth(username, password):
+    token = base64.b64encode(f"{username}:{password}".encode()).decode()
+    return f"Basic {token}"
+
+
+@pytest.fixture
+def vary_spies(mocker):
+    """
+    Spy on the ``Vary`` callback a policy registers, returning a callable
+    that asserts it was registered once for ``header`` on ``request``.
+    """
+    add_vary_cb = mocker.spy(security_policy, "add_vary_callback")
+
+    def track(request):
+        add_response_callback = mocker.spy(request, "add_response_callback")
+
+        def assert_vary(header):
+            add_vary_cb.assert_called_once_with(header)
+            add_response_callback.assert_called_once_with(add_vary_cb.spy_return)
+
+        return assert_vary
+
+    return track
 
 
 class TestBasicAuthSecurityPolicy:
@@ -24,203 +59,117 @@ class TestBasicAuthSecurityPolicy:
             security_policy.BasicAuthSecurityPolicy,
         )
 
-    def test_noops(self):
+    def test_noops(self, mocker):
         """Basically, anything that isn't `identity()` is a no-op."""
         policy = security_policy.BasicAuthSecurityPolicy()
         with pytest.raises(NotImplementedError):
-            policy.authenticated_userid(pretend.stub())
+            policy.authenticated_userid(mocker.sentinel.request)
         with pytest.raises(NotImplementedError):
-            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+            policy.permits(
+                mocker.sentinel.request,
+                mocker.sentinel.context,
+                mocker.sentinel.permission,
+            )
 
         # These are no-ops, but they don't raise, used in MultiSecurityPolicy
-        assert policy.forget(pretend.stub()) == []
-        assert policy.remember(pretend.stub(), pretend.stub()) == []
+        assert policy.forget(mocker.sentinel.request) == []
+        assert policy.remember(mocker.sentinel.request, mocker.sentinel.userid) == []
 
-    def test_identity_no_credentials(self, monkeypatch):
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: None)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
+    def test_identity_no_credentials(self, pyramid_request, vary_spies):
+        assert_vary = vary_spies(pyramid_request)
+        pyramid_request.matched_route = UPLOAD_ROUTE
 
         policy = security_policy.BasicAuthSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(pyramid_request) is None
+        assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
+        assert_vary("Authorization")
 
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload",
-                predicates=[
-                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
-                ],
-            ),
-        )
-
-        assert policy.identity(request) is None
-        assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert add_vary_cb.calls == [pretend.call("Authorization")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_credentials_fail(self, monkeypatch):
-        creds = (pretend.stub(), pretend.stub())
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
+    def test_identity_credentials_fail(self, pyramid_request, vary_spies, mocker):
+        assert_vary = vary_spies(pyramid_request)
+        pyramid_request.matched_route = UPLOAD_ROUTE
+        pyramid_request.headers["Authorization"] = _basic_auth("user", "password")
+        pyramid_request.help_url = mocker.Mock(return_value="/help")
 
         policy = security_policy.BasicAuthSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            help_url=lambda _anchor=None: "/help",
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload",
-                predicates=[
-                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
-                ],
-            ),
-        )
 
         with pytest.raises(HTTPForbidden):
-            policy.identity(request)
-        assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert add_vary_cb.calls == [pretend.call("Authorization")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+            policy.identity(pyramid_request)
+        assert_vary("Authorization")
 
     @pytest.mark.parametrize(
-        "fake_request",
-        [
-            pretend.stub(
-                matched_route=None,
-                banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr=REMOTE_ADDR,
-            ),
-            pretend.stub(
-                matched_route=pretend.stub(name="an.invalid.route", predicates=[]),
-                banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr=REMOTE_ADDR,
-            ),
-        ],
+        "matched_route",
+        [None, types.SimpleNamespace(name="an.invalid.route", predicates=[])],
     )
-    def test_invalid_request_fail(self, monkeypatch, fake_request):
-        creds = (pretend.stub(), pretend.stub())
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
-        policy = security_policy.BasicAuthSecurityPolicy()
-        fake_request.add_response_callback = pretend.call_recorder(lambda cb: None)
-
-        assert policy.identity(fake_request) is None
-
-    def test_identity(self, monkeypatch):
-        creds = ("__token__", pretend.stub())
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
+    def test_invalid_request_fail(self, pyramid_request, matched_route):
+        pyramid_request.matched_route = matched_route
+        pyramid_request.headers["Authorization"] = _basic_auth("user", "password")
 
         policy = security_policy.BasicAuthSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(pyramid_request) is None
 
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            help_url=lambda _anchor=None: "/help",
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload",
-                predicates=[
-                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
-                ],
-            ),
-        )
+    def test_identity(self, pyramid_request, vary_spies):
+        assert_vary = vary_spies(pyramid_request)
+        pyramid_request.matched_route = UPLOAD_ROUTE
+        pyramid_request.headers["Authorization"] = _basic_auth("__token__", "pypi-")
 
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert add_vary_cb.calls == [pretend.call("Authorization")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+        policy = security_policy.BasicAuthSecurityPolicy()
+
+        assert policy.identity(pyramid_request) is None
+        assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
+        assert_vary("Authorization")
 
 
 class TestSessionSecurityPolicy:
+    @pytest.fixture
+    def session_request(self, db_request):
+        db_request.session = Session()
+        db_request.matched_route = types.SimpleNamespace(
+            name="a.permitted.route", predicates=[]
+        )
+        return db_request
+
+    @pytest.fixture
+    def user(self, session_request):
+        user = UserFactory.create(clear_pwd="password")
+        session_request.session["auth.userid"] = str(user.id)
+        return user
+
     def test_verify(self):
         assert verifyClass(
             ISecurityPolicy,
             security_policy.SessionSecurityPolicy,
         )
 
-    def test_noops(self):
+    def test_noops(self, mocker):
         policy = security_policy.SessionSecurityPolicy()
         with pytest.raises(NotImplementedError):
-            policy.authenticated_userid(pretend.stub())
+            policy.authenticated_userid(mocker.sentinel.request)
 
-    def test_forget_and_remember(self, monkeypatch):
-        request = pretend.stub()
-        userid = pretend.stub()
-        forgets = pretend.stub()
-        remembers = pretend.stub()
-        session_helper_obj = pretend.stub(
-            forget=pretend.call_recorder(lambda r, **kw: forgets),
-            remember=pretend.call_recorder(lambda r, uid, **kw: remembers),
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
-
+    def test_forget_and_remember(self, session_request, mocker):
         policy = security_policy.SessionSecurityPolicy()
-        assert session_helper_cls.calls == [pretend.call()]
+        remember = mocker.spy(policy._session_helper, "remember")
+        forget = mocker.spy(policy._session_helper, "forget")
 
-        assert policy.forget(request, foo=None) == forgets
-        assert session_helper_obj.forget.calls == [pretend.call(request, foo=None)]
+        assert policy.remember(session_request, "some-user-id", foo=None) == []
+        assert session_request.session["auth.userid"] == "some-user-id"
+        remember.assert_called_once_with(session_request, "some-user-id", foo=None)
 
-        assert policy.remember(request, userid, foo=None) == remembers
-        assert session_helper_obj.remember.calls == [
-            pretend.call(request, userid, foo=None)
-        ]
+        assert policy.forget(session_request, foo=None) == []
+        assert "auth.userid" not in session_request.session
+        forget.assert_called_once_with(session_request, foo=None)
 
-    def test_identity_missing_route(self, monkeypatch):
-        session_helper_obj = pretend.stub()
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    @pytest.mark.usefixtures("user")
+    def test_identity_missing_route(self, session_request, vary_spies):
+        assert_vary = vary_spies(session_request)
+        session_request.matched_route = None
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=None,
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert_vary("Cookie")
 
     @pytest.mark.parametrize(
         "route_name",
@@ -229,388 +178,141 @@ class TestSessionSecurityPolicy:
             "api.simple.index",
         ],
     )
-    def test_identity_skips_api_prefix_routes(self, route_name, monkeypatch):
+    @pytest.mark.usefixtures("user")
+    def test_identity_skips_api_prefix_routes(
+        self, session_request, vary_spies, route_name
+    ):
         # api.* routes have no session middleware installed; skipping is an
         # infrastructure constraint, not a policy decision.
-        session_helper_obj = pretend.stub()
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+        assert_vary = vary_spies(session_request)
+        session_request.matched_route = types.SimpleNamespace(name=route_name)
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert_vary("Cookie")
 
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name=route_name),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_skips_when_auth_methods_excludes_session(self, monkeypatch):
-        session_helper_obj = pretend.stub()
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    @pytest.mark.usefixtures("user")
+    def test_identity_skips_when_auth_methods_excludes_session(
+        self, session_request, vary_spies
+    ):
+        assert_vary = vary_spies(session_request)
+        session_request.matched_route = UPLOAD_ROUTE
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert_vary("Cookie")
 
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload",
-                predicates=[
-                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
-                ],
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_no_userid(self, monkeypatch):
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: None)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    def test_identity_no_userid(self, session_request, vary_spies):
+        assert_vary = vary_spies(session_request)
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert session_request._unauthenticated_userid is None
+        assert_vary("Cookie")
 
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_no_user(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    def test_identity_no_user(self, session_request, user_service, vary_spies, mocker):
+        assert_vary = vary_spies(session_request)
+        get_user = mocker.spy(user_service, "get_user")
+        userid = "00000000-0000-0000-0000-000000000000"
+        session_request.session["auth.userid"] = userid
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert session_request._unauthenticated_userid == userid
+        get_user.assert_called_once_with(userid)
+        assert_vary("Cookie")
 
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert user_service.get_user.calls == [pretend.call(userid)]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_password_outdated(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    def test_identity_password_outdated(self, session_request, user, vary_spies):
+        assert_vary = vary_spies(session_request)
+        session_request.session.record_password_timestamp(0)
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        user = pretend.stub()
-        timestamp = pretend.stub()
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-            is_disabled=lambda uid: (False, None),
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            session=pretend.stub(
-                password_outdated=pretend.call_recorder(lambda ts: True),
-                invalidate=pretend.call_recorder(lambda: None),
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert user_service.get_user.calls == [pretend.call(userid)]
-        assert request.session.password_outdated.calls == [pretend.call(timestamp)]
-        assert user_service.get_password_timestamp.calls == [pretend.call(userid)]
-        assert request.session.invalidate.calls == [pretend.call()]
-        assert request.session.flash.calls == [
-            pretend.call("Session invalidated by password change", queue="error")
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert "auth.userid" not in session_request.session
+        assert session_request.session.peek_flash(queue="error") == [
+            {"msg": "Session invalidated by password change", "safe": False}
         ]
+        assert_vary("Cookie")
 
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_is_disabled_frozen(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    @pytest.mark.parametrize(
+        ("user_kwargs", "message"),
+        [
+            (
+                {"is_frozen": True},
+                (
+                    "Your account has been suspended. "
+                    "Please contact security@pypi.org for assistance."
+                ),
+            ),
+            (
+                {"password": "!", "disabled_for": DisableReason.CompromisedPassword},
+                "Session invalidated",
+            ),
+        ],
+    )
+    def test_identity_is_disabled(
+        self, session_request, user, vary_spies, user_kwargs, message
+    ):
+        assert_vary = vary_spies(session_request)
+        for attr, value in user_kwargs.items():
+            setattr(user, attr, value)
+        # An outdated password would also invalidate the session; the disabled
+        # message proves the disabled check runs first.
+        session_request.session.record_password_timestamp(0)
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        user = pretend.stub()
-        timestamp = pretend.stub()
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-            is_disabled=pretend.call_recorder(
-                lambda uid: (True, DisableReason.AccountFrozen)
-            ),
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            session=pretend.stub(
-                password_outdated=pretend.call_recorder(lambda ts: True),
-                invalidate=pretend.call_recorder(lambda: None),
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert user_service.get_user.calls == [pretend.call(userid)]
-        assert request.session.password_outdated.calls == []
-        assert user_service.get_password_timestamp.calls == []
-        assert user_service.is_disabled.calls == [pretend.call(userid)]
-        assert request.session.invalidate.calls == [pretend.call()]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Your account has been suspended. "
-                "Please contact security@pypi.org for assistance.",
-                queue="error",
-            )
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert "auth.userid" not in session_request.session
+        assert session_request.session.peek_flash(queue="error") == [
+            {"msg": message, "safe": False}
         ]
+        assert_vary("Cookie")
 
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_is_disabled_not_frozen(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
+    def test_identity(self, session_request, user, user_service, vary_spies):
+        assert_vary = vary_spies(session_request)
+        session_request.session.record_password_timestamp(
+            user_service.get_password_timestamp(user.id)
         )
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+        identity = policy.identity(session_request)
+        assert identity.user is user
+        assert identity.macaroon is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert session_request.session["auth.userid"] == str(user.id)
+        assert_vary("Cookie")
 
-        user = pretend.stub()
-        timestamp = pretend.stub()
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-            is_disabled=pretend.call_recorder(
-                lambda uid: (True, DisableReason.CompromisedPassword)
-            ),
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            session=pretend.stub(
-                password_outdated=pretend.call_recorder(lambda ts: True),
-                invalidate=pretend.call_recorder(lambda: None),
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert user_service.get_user.calls == [pretend.call(userid)]
-        assert request.session.password_outdated.calls == []
-        assert user_service.get_password_timestamp.calls == []
-        assert user_service.is_disabled.calls == [pretend.call(userid)]
-        assert request.session.invalidate.calls == [pretend.call()]
-        assert request.session.flash.calls == [
-            pretend.call("Session invalidated", queue="error")
-        ]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
+    @pytest.mark.usefixtures("user")
+    def test_identity_ip_banned(
+        self, session_request, user_service, vary_spies, mocker
+    ):
+        assert_vary = vary_spies(session_request)
+        get_user = mocker.spy(user_service, "get_user")
+        ip_address = session_request.ip_address
+        ip_address.is_banned = True
+        ip_address.ban_reason = BanReason.AUTHENTICATION_ATTEMPTS
+        ip_address.ban_date = sql.func.now()
 
         policy = security_policy.SessionSecurityPolicy()
 
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        user = pretend.stub()
-        timestamp = pretend.stub()
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-            is_disabled=lambda uid: (False, None),
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            session=pretend.stub(
-                password_outdated=pretend.call_recorder(lambda ts: False)
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request).user is user
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert request.session.password_outdated.calls == [pretend.call(timestamp)]
-        assert user_service.get_password_timestamp.calls == [pretend.call(userid)]
-        assert user_service.get_user.calls == [pretend.call(userid)]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_ip_banned(self, monkeypatch):
-        userid = pretend.stub()
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: userid)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
-
-        policy = security_policy.SessionSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        user = pretend.stub()
-        timestamp = pretend.stub()
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
-            find_service=pretend.call_recorder(lambda i, **kw: user_service),
-            session=pretend.stub(
-                password_outdated=pretend.call_recorder(lambda ts: False)
-            ),
-            banned=pretend.stub(by_ip=lambda ip_address: True),
-            remote_addr=REMOTE_ADDR,
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == []
-        assert session_helper_cls.calls == [pretend.call()]
-        assert request.find_service.calls == []
-        assert request.session.password_outdated.calls == []
-        assert user_service.get_password_timestamp.calls == []
-        assert user_service.get_user.calls == []
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+        assert policy.identity(session_request) is None
+        assert session_request.authentication_method == AuthenticationMethod.SESSION
+        assert session_request._unauthenticated_userid is None
+        get_user.assert_not_called()
+        assert_vary("Cookie")
 
 
 @pytest.mark.parametrize(
@@ -618,101 +320,52 @@ class TestSessionSecurityPolicy:
     [security_policy.SessionSecurityPolicy],
 )
 class TestPermits:
-    @pytest.mark.parametrize(
-        ("principals", "expected"), [("user:5", True), ("user:1", False)]
-    )
-    def test_acl(self, monkeypatch, policy_class, principals, expected):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda flag: False),
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: principals,
-                    has_primary_verified_email=True,
-                    has_two_factor=True,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(name="random.route"),
+    @pytest.fixture
+    def permits(self, pyramid_config, pyramid_request, policy_class):
+        """
+        Check ``permission`` for ``user`` on a route named ``route``, against a
+        context that grants ``myperm`` to ``allowed_user`` (``user`` by default).
+        """
+
+        def _permits(user, route, allowed_user=None):
+            pyramid_config.set_security_policy(
+                DummySecurityPolicy(identity=UserContext(user=user, macaroon=None))
+            )
+            pyramid_request.matched_route = route
+            allowed_user = allowed_user or user
+            context = types.SimpleNamespace(
+                __acl__=[(Allow, f"user:{allowed_user.id}", "myperm")]
+            )
+            return policy_class().permits(pyramid_request, context, "myperm")
+
+        return _permits
+
+    @pytest.mark.parametrize("is_allowed_user", [True, False])
+    def test_acl(self, permits, is_allowed_user):
+        user = UserFactory.create(with_verified_primary_email=True)
+        other = UserFactory.create()
+        result = permits(
+            user,
+            types.SimpleNamespace(name="random.route"),
+            allowed_user=user if is_allowed_user else other,
         )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+        assert bool(result) == is_allowed_user
 
-        policy = policy_class()
-        assert bool(policy.permits(request, context, "myperm")) == expected
+    def test_permits_with_unverified_email(self, permits):
+        user = UserFactory.create()
+        assert not permits(user, types.SimpleNamespace(name="manage.projects"))
 
-    def test_permits_with_unverified_email(self, monkeypatch, policy_class):
-        request = pretend.stub(
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: ["user:5"],
-                    has_primary_verified_email=False,
-                    has_two_factor=False,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+    def test_permits_manage_projects_with_2fa(self, permits):
+        user = UserFactory.create(with_verified_primary_email=True)
+        assert permits(user, types.SimpleNamespace(name="manage.projects"))
 
-        policy = policy_class()
-        assert not policy.permits(request, context, "myperm")
+    def test_deny_manage_projects_without_2fa(self, permits):
+        user = UserFactory.create(with_verified_primary_email=True, totp_secret=None)
+        assert not permits(user, types.SimpleNamespace(name="manage.projects"))
 
-    def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
-        request = pretend.stub(
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: ["user:5"],
-                    has_primary_verified_email=True,
-                    has_two_factor=True,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert policy.permits(request, context, "myperm")
-
-    def test_deny_manage_projects_without_2fa(self, monkeypatch, policy_class):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda flag: False),
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: ["user:5"],
-                    has_primary_verified_email=True,
-                    has_two_factor=False,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert not policy.permits(request, context, "myperm")
-
-    def test_deny_forklift_file_upload_without_2fa(self, monkeypatch, policy_class):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda flag: False),
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: ["user:5"],
-                    has_primary_verified_email=True,
-                    has_two_factor=False,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload",
-                predicates=[
-                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
-                ],
-            ),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert not policy.permits(request, context, "myperm")
+    def test_deny_forklift_file_upload_without_2fa(self, permits):
+        user = UserFactory.create(with_verified_primary_email=True, totp_secret=None)
+        assert not permits(user, UPLOAD_ROUTE)
 
     @pytest.mark.parametrize(
         "matched_route",
@@ -725,22 +378,6 @@ class TestPermits:
             "manage.account.webauthn-provision.validate",
         ],
     )
-    def test_permits_2fa_routes_without_2fa(
-        self, monkeypatch, policy_class, matched_route
-    ):
-        request = pretend.stub(
-            identity=UserContext(
-                user=pretend.stub(
-                    __principals__=lambda: ["user:5"],
-                    has_primary_verified_email=True,
-                    has_two_factor=False,
-                ),
-                macaroon=None,
-            ),
-            matched_route=pretend.stub(name=matched_route),
-        )
-
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert policy.permits(request, context, "myperm")
+    def test_permits_2fa_routes_without_2fa(self, permits, matched_route):
+        user = UserFactory.create(with_verified_primary_email=True, totp_secret=None)
+        assert permits(user, types.SimpleNamespace(name=matched_route))
