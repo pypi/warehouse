@@ -379,6 +379,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.activity",
+        "/admin/projects/{project_name}/activity/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.set_upload_limit",
         "/admin/projects/{project_name}/set_upload_limit/",
         factory="warehouse.packaging.models:ProjectFactory",
