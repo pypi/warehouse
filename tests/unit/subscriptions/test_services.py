@@ -6,6 +6,7 @@ import types
 import pytest
 import stripe
 
+from sqlalchemy import update
 from zope.interface.verify import verifyClass
 
 from warehouse.organizations.models import (
@@ -15,6 +16,7 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions import services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
+    StripeSubscription,
     StripeSubscriptionPrice,
     StripeSubscriptionPriceInterval,
     StripeSubscriptionStatus,
@@ -129,6 +131,18 @@ class TestMockStripeBillingService:
 
         assert customer is not None
         assert customer["id"]
+
+    def test_list_subscriptions(self, billing_service, mocker):
+        # status="all" is required: the list endpoint omits canceled
+        # subscriptions by default, and those are what reconciliation looks for.
+        list_subscriptions = mocker.patch.object(
+            billing_service.api.Subscription, "list"
+        )
+
+        billing_service.list_subscriptions()
+
+        list_subscriptions.assert_called_once_with(status="all", limit=100)
+        list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
 
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
@@ -516,6 +530,31 @@ class TestStripeSubscriptionService:
         )
 
         assert subscription.status == StripeSubscriptionStatus.Active.value
+
+    def test_sync_subscription_status_skips_concurrent_transition(
+        self, subscription_service, db_request, mocker
+    ):
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        subscription = org_subscription.subscription
+        record_event = mocker.patch.object(
+            org_subscription.organization, "record_event", autospec=True
+        )
+        # Another writer (e.g. the webhook) commits the same transition behind
+        # the session's back, leaving our loaded instance stale.
+        db_request.db.execute(
+            update(StripeSubscription)
+            .where(StripeSubscription.id == subscription.id)
+            .values(status=StripeSubscriptionStatus.PastDue),
+            execution_options={"synchronize_session": False},
+        )
+        assert subscription.status == StripeSubscriptionStatus.Active
+
+        changed = subscription_service.sync_subscription_status(
+            subscription.id, StripeSubscriptionStatus.PastDue, request=db_request
+        )
+
+        assert changed is False
+        record_event.assert_not_called()
 
     def test_delete_subscription(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
