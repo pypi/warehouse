@@ -277,6 +277,11 @@ def includeme(config):
         "/admin/ip-addresses/{ip_address}/unban",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.ip_address.reset_notfound_ratelimit",
+        "/admin/ip-addresses/{ip_address}/reset-notfound-ratelimit",
+        domain=warehouse,
+    )
 
     # Project related Admin pages
     config.add_route("admin.project.list", "/admin/projects/", domain=warehouse)

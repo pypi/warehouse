@@ -359,6 +359,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
             "10 per day"
         ),
         "warehouse.search.ratelimit_string": "5 per second",
+        "warehouse.notfound.ip_ratelimit_string": "50 per 5 minutes",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "integrity.backend": "warehouse.attestations.services.IntegrityService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
@@ -435,6 +436,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
             mocker.call("pyramid_retry"),
             mocker.call("pyramid_tm"),
             mocker.call(".rate_limiting"),
+            mocker.call(".rate_limiting.notfound"),
             mocker.call(".legacy.api.xmlrpc"),
             mocker.call(".legacy.api.xmlrpc.cache"),
             mocker.call("pyramid_rpc.xmlrpc"),

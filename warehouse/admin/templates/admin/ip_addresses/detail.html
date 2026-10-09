@@ -4,11 +4,11 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% block title %}{{ ip_address }}{% endblock %}
+{% block title %}{{ ip }}{% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{{ request.route_path('admin.ip_address.list') }}">IP Addresses</a></li>
-  <li class="breadcrumb-item active">{{ ip_address }}</li>
+  <li class="breadcrumb-item active">{{ ip }}</li>
 {% endblock %}
 
 {% block content %}
@@ -17,6 +17,11 @@
     <h3 class="card-title"><code>IpAddress</code> Record</h3>
   </div> <!-- /.card-header -->
 
+  {% if ip_address is none %}
+  <div class="card-body">
+    No <code>IpAddress</code> record for {{ ip }}.
+  </div> <!-- /.card-body -->
+  {% else %}
   <div class="card-body">
     <dl class="row">
       <dt class="col-sm-4">IP Address:</dt>
@@ -56,6 +61,43 @@
     {% endif %}
     {% endif %}
   </div> <!-- /.card-footer -->
+  {% endif %}
+</div> <!-- /.card -->
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">404 Rate Limit</h3>
+  </div> <!-- /.card-header -->
+
+  <div class="card-body">
+    {% for window in notfound_ratelimits %}
+    <dl class="row">
+      <dt class="col-sm-4">Currently rate limited?</dt>
+      <dd class="col-sm-8">{% if window.remaining <= 0 %}<i class="fa fa-check text-red"></i> Yes{% else %}No{% endif %}</dd>
+
+      <dt class="col-sm-4">Limit:</dt>
+      <dd class="col-sm-8">{{ window.amount }} per {{ window.window_seconds }} seconds</dd>
+
+      <dt class="col-sm-4">Remaining:</dt>
+      <dd class="col-sm-8">{{ window.remaining }}</dd>
+
+      {% if window.remaining < window.amount %}
+      <dt class="col-sm-4">Resets in:</dt>
+      <dd class="col-sm-8">{{ window.resets_in_seconds }} seconds</dd>
+      {% endif %}
+    </dl>
+    {% else %}
+    Rate limit state is unavailable.
+    {% endfor %}
+  </div> <!-- /.card-body -->
+  {% if notfound_ratelimits and request.has_permission(Permissions.AdminIpAddressesWrite) %}
+  <div class="card-footer">
+    <form method="POST" action="{{ request.route_path('admin.ip_address.reset_notfound_ratelimit', ip_address=ip) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <button type="submit" class="btn btn-warning">Reset 404 rate limit</button>
+    </form>
+  </div> <!-- /.card-footer -->
+  {% endif %}
 </div> <!-- /.card -->
 
   <div class="card">

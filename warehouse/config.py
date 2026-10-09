@@ -626,6 +626,12 @@ def configure(settings=None):
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
     )
+    maybe_set(
+        settings,
+        "warehouse.notfound.ip_ratelimit_string",
+        "NOTFOUND_RATELIMIT_STRING",
+        default="50 per 5 minutes",
+    )
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
@@ -838,6 +844,7 @@ def configure(settings=None):
 
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
+    config.include(".rate_limiting.notfound")
 
     # Register our XMLRPC service
     config.include(".legacy.api.xmlrpc")
