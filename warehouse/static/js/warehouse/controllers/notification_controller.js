@@ -26,14 +26,14 @@ export default class extends Controller {
 
   initialize() {
     const notificationId = this._getNotificationId();
-    const isDismissable = this.notificationTarget.classList.contains("notification-bar--dismissable");
+    const isDismissable = this.notificationTarget.classList.contains("banner--dismissable");
 
     // Show the notification if:
     // - the notification is ephemeral, i.e. it has no notification ID
     // - it's not ephemeral and is not dismissable
     // - it's not ephemeral, is dismissable and the user has not dismissed it yet
     if (!notificationId || (isDismissable && !localStorage.getItem(notificationId))) {
-      this.notificationTarget.classList.add("notification-bar--visible");
+      this.notificationTarget.classList.add("banner--visible");
     }
   }
 
@@ -42,7 +42,7 @@ export default class extends Controller {
     if (notificationId) {
       localStorage.setItem(notificationId, 1);
     }
-    this.notificationTarget.classList.remove("notification-bar--visible");
+    this.notificationTarget.classList.remove("banner--visible");
     positionWarning();
   }
 }
