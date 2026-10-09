@@ -23,8 +23,7 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
-    # Placeholder for the Maintainer API, the key-authenticated surface kept
-    # distinct from Upload API Tokens (macaroons). No policy implements it yet.
+    # Maintainer API keys, kept distinct from Upload API Tokens (macaroons).
     API_KEY = "api-key"
 
 
@@ -42,6 +41,7 @@ PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
     # Transitional: move to the Maintainer API, then delete.
     Permissions.APIEcho: frozenset({AuthenticationMethod.MACAROON}),
     Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.ProjectsYank: frozenset({AuthenticationMethod.API_KEY}),
 }
 
 

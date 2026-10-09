@@ -573,6 +573,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.ProjectsRead,
                     Permissions.ProjectsUpload,
                     Permissions.ProjectsWrite,
+                    Permissions.ProjectsYank,
                 ]
             else:
                 current_permissions = [Permissions.ProjectsUpload]
