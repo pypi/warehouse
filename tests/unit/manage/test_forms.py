@@ -491,16 +491,19 @@ class TestProvisionTOTPForm:
         assert form.validate(), str(form.errors)
 
     @pytest.mark.parametrize(
-        ("exception", "expected_error"),
+        ("exception", "expected_error", "expected_failure"),
         [
-            (otp.InvalidTOTPError, "Invalid TOTP code. Try again?"),
+            (otp.InvalidTOTPError, "Invalid TOTP code. Try again?", "invalid"),
             (
                 otp.OutOfSyncTOTPError,
                 "Invalid TOTP code. Your device time may be out of sync.",
+                "out_of_sync",
             ),
         ],
     )
-    def test_verify_totp_invalid(self, monkeypatch, exception, expected_error):
+    def test_verify_totp_invalid(
+        self, monkeypatch, exception, expected_error, expected_failure
+    ):
         monkeypatch.setattr(otp, "verify_totp", pretend.raiser(exception))
 
         form = forms.ProvisionTOTPForm(
@@ -508,6 +511,15 @@ class TestProvisionTOTPForm:
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == expected_error
+        assert form.totp_failure == expected_failure
+
+    def test_verify_totp_malformed(self):
+        form = forms.ProvisionTOTPForm(
+            formdata=MultiDict({"totp_value": "12345"}),
+            totp_secret=otp.generate_totp_secret(),
+        )
+        assert not form.validate()
+        assert form.totp_failure == "malformed"
 
 
 class TestDeleteWebAuthnForm:
