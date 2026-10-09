@@ -30,6 +30,8 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from urllib3.exceptions import LocationParseError
+from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
@@ -329,6 +331,22 @@ class OrganizationMixin:
     description: Mapped[str] = mapped_column(
         comment="Description of the business or project the organization represents",
     )
+
+    @property
+    def suggested_email_domain(self) -> str:
+        """
+        Suggested email domain extracted from link_url for admin display.
+        """
+        if not self.link_url:
+            return "NONE"
+        try:
+            parsed = parse_url(self.link_url.strip())
+        except LocationParseError:
+            return "NONE"
+
+        if not parsed.host:
+            return "NONE"
+        return parsed.host.removeprefix("www.")
 
 
 # TODO: Determine if this should also utilize SitemapMixin

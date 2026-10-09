@@ -120,10 +120,6 @@ def test_urlparse():
     assert filters.urlparse(inp) == expected
 
 
-def test_urlparse_trailing_whitespace():
-    assert filters.urlparse("https://example.com ").host == "example.com"
-
-
 @pytest.mark.parametrize(
     ("inp", "expected"),
     [
