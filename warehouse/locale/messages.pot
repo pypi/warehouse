@@ -2816,7 +2816,7 @@ msgstr ""
 msgid "How can I contact you?"
 msgstr ""
 
-#: warehouse/templates/email/password-compromised/body.html:24
+#: warehouse/templates/email/password-compromised/body.html:23
 #, python-format
 msgid ""
 "For more information, you can email %(email_address)s to communicate with"
@@ -2863,7 +2863,7 @@ msgid ""
 "or sent to HaveIBeenPwned."
 msgstr ""
 
-#: warehouse/templates/email/password-compromised-hibp/body.html:30
+#: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, python-format
 msgid ""
 "For more information, see our <a href=\"%(faq_url)s\">FAQ</a>. For help, "

@@ -15,7 +15,5 @@ In the future, you can automatically trust new devices without needing email
 verification by using a security device as your 2FA method. See
 {{ request.help_url(_anchor='utfkey') }} for more details.
 
-{% include "email/includes/account-help.txt" +%}
-
 If you did not initiate this login, you can email admin@pypi.org to
 communicate with the PyPI administrators.

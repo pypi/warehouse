@@ -30,9 +30,7 @@ yourself familiar with good password practices.{% endtrans %}
 {% trans %}We use a free security service from HaveIBeenPwned. When registering, authenticating, or
 updating your password, we generate a SHA1 hash of your password and use the first 5
 characters of the hash to decide if the password is compromised. The plaintext password
-is never stored by PyPI or sent to HaveIBeenPwned.{% endtrans +%}
-
-{% include "email/includes/account-help.txt" +%}
+is never stored by PyPI or sent to HaveIBeenPwned.{% endtrans %}
 
 {% trans help_url=request.help_url(_anchor='compromised-password'), email_address='admin@pypi.org' %}For more information, see {{ help_url }}. For
 help, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}

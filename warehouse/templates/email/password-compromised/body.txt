@@ -20,9 +20,7 @@ reduce the risk for PyPI and its users.{% endtrans %}
 To regain access to your account, reset your password on PyPI ({{ url }}).{% endtrans %}
 
 
-# {% trans %}How can I contact you?{% endtrans +%}
-
-{% include "email/includes/account-help.txt" +%}
+# {% trans %}How can I contact you?{% endtrans %}
 
 {% trans email_address='admin@pypi.org' %}For more information, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}
