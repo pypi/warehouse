@@ -2327,15 +2327,15 @@ msgid ""
 "<strong>%(username)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/account-association-added/body.html:8
-#: warehouse/templates/email/account-association-removed/body.html:8
+#: warehouse/templates/email/account-association-added/body.html:9
+#: warehouse/templates/email/account-association-removed/body.html:9
 #: warehouse/templates/email/account-deleted/body.html:8
-#: warehouse/templates/email/password-change/body.html:8
-#: warehouse/templates/email/primary-email-change/body.html:8
-#: warehouse/templates/email/recovery-code-used/body.html:10
-#: warehouse/templates/email/recovery-codes-generated/body.html:10
-#: warehouse/templates/email/two-factor-added/body.html:8
-#: warehouse/templates/email/two-factor-removed/body.html:8
+#: warehouse/templates/email/password-change/body.html:9
+#: warehouse/templates/email/primary-email-change/body.html:9
+#: warehouse/templates/email/recovery-code-used/body.html:11
+#: warehouse/templates/email/recovery-codes-generated/body.html:11
+#: warehouse/templates/email/two-factor-added/body.html:9
+#: warehouse/templates/email/two-factor-removed/body.html:9
 #, python-format
 msgid ""
 "If you did not make this change, you can email <a "
@@ -2459,6 +2459,16 @@ msgid ""
 "organization"
 msgstr ""
 
+#: warehouse/templates/email/includes/account-help.html:3
+#, python-format
+msgid ""
+"If you have forgotten your password, you can <a "
+"href=\"%(reset_href)s\">reset your password</a>. If you have lost access "
+"to your two-factor authentication method and recovery codes, follow the "
+"<a href=\"%(recovery_href)s\">account recovery steps</a> to open an issue"
+" on our support tracker instead of emailing the PyPI administrators."
+msgstr ""
+
 #: warehouse/templates/email/new-email-added/body.html:5
 #, python-format
 msgid ""
@@ -2466,7 +2476,7 @@ msgid ""
 "to your account."
 msgstr ""
 
-#: warehouse/templates/email/new-email-added/body.html:8
+#: warehouse/templates/email/new-email-added/body.html:9
 #, python-format
 msgid ""
 "If you did not make this change, you can email <a "
