@@ -1,6 +1,9 @@
 # Billing
 
-A company organization needs a Stripe subscription or a manual activation.
+To be in good standing, a company organization must be active. It must also
+have a subscription with the status `active` or `trialing`, or a manual
+activation that is not expired.
+
 Stripe owns the subscription status. Warehouse keeps a copy in
 `StripeSubscription.status`, so it does not call Stripe on every request.
 
