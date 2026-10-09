@@ -552,7 +552,6 @@ For example, here is what a withdrawn vulnerability might look like:
 
 
 [Index API]: ./index-api.md
-[`package_roles`]: https://dev.pypi.org/api-reference/xml-rpc/#package_rolespackage_name
 [known vulnerabilities]: https://github.com/pypa/advisory-database
 [Core Metadata]: https://packaging.python.org/en/latest/specifications/core-metadata/
 [PEP 658]: https://peps.python.org/pep-0658/
