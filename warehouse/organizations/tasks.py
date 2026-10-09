@@ -146,6 +146,16 @@ def reconcile_stripe_status(request):
     except TRANSIENT_STRIPE_ERRORS as exc:
         raise RetryableException from exc
 
+    # A key for the wrong Stripe account or mode matches none of our ids. Fail
+    # loudly rather than skipping every row and reconciling nothing.
+    if organization_subscriptions and not any(
+        org_subscription.subscription.subscription_id in remote_statuses
+        for org_subscription in organization_subscriptions
+    ):
+        raise RuntimeError(
+            f"None of {len(organization_subscriptions)} subscriptions found on Stripe"
+        )
+
     for org_subscription in organization_subscriptions:
         subscription = org_subscription.subscription
         remote_status = remote_statuses.get(subscription.subscription_id)

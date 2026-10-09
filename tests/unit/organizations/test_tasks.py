@@ -452,6 +452,27 @@ class TestReconcileStripeStatus:
             "warehouse.organizations.subscription.status.reconcile.missing"
         )
 
+    def test_raises_when_no_subscription_found_on_stripe(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        # A key for the wrong account or mode matches nothing; that must fail the
+        # run instead of quietly skipping every row.
+        self._make_org_subscription()
+        self._make_org_subscription()
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=[
+                {"id": "sub_other", "status": StripeSubscriptionStatus.Active.value}
+            ],
+        )
+
+        with pytest.raises(RuntimeError, match="None of 2 subscriptions"):
+            reconcile_stripe_status(db_request)
+
+        sync_status.assert_not_called()
+
     def test_skips_unknown_status(
         self, db_request, billing_service, subscription_service, metrics, mocker
     ):
