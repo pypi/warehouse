@@ -1515,8 +1515,12 @@ class TestProvisionTOTP:
             POST={"totp_value": "123456"},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
+                has_totp_secret=lambda: True,
                 get_totp_secret=lambda: b"secret",
                 clear_totp_secret=lambda: None,
+            ),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
@@ -1574,14 +1578,45 @@ class TestProvisionTOTP:
         assert send_email.calls == [
             pretend.call(request, request.user, method="totp"),
         ]
+        assert request.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.manage.account.totp_provision",
+                tags=["result:success", "session_secret:present"],
+            )
+        ]
 
-    def test_validate_totp_provision_invalid_form(self, monkeypatch):
+    @pytest.mark.parametrize(
+        ("totp_failure", "expected_result"),
+        [
+            ("invalid", "invalid"),
+            ("out_of_sync", "out_of_sync"),
+            ("malformed", "malformed"),
+            # Validation stopped before the code was checked, e.g. empty input.
+            (None, "malformed"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        ("has_totp_secret", "expected_session_secret"),
+        [(True, "present"), (False, "missing")],
+    )
+    def test_validate_totp_provision_invalid_form(
+        self,
+        monkeypatch,
+        totp_failure,
+        expected_result,
+        has_totp_secret,
+        expected_session_secret,
+    ):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
             POST={},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
+                has_totp_secret=lambda: has_totp_secret,
                 get_totp_secret=lambda: b"secret",
+            ),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1596,7 +1631,9 @@ class TestProvisionTOTP:
         )
 
         provision_totp_obj = pretend.stub(
-            validate=lambda: False, totp_value=pretend.stub(data="123456")
+            validate=lambda: False,
+            totp_value=pretend.stub(data="123456"),
+            totp_failure=totp_failure,
         )
         provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
@@ -1612,6 +1649,15 @@ class TestProvisionTOTP:
         result = view.validate_totp_provision()
 
         assert request.session.flash.calls == []
+        assert request.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.manage.account.totp_provision",
+                tags=[
+                    f"result:{expected_result}",
+                    f"session_secret:{expected_session_secret}",
+                ],
+            )
+        ]
         assert result == {
             "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
