@@ -8,7 +8,6 @@ from pyramid.response import Response
 from pyramid.tweens import EXCVIEW
 
 from warehouse.rate_limiting import notfound
-from warehouse.rate_limiting.headers import RateLimitSnapshot
 
 
 def _tween(status):
@@ -37,13 +36,8 @@ class TestNotFoundRateLimitTween:
         metrics.increment.assert_called_once_with(
             "warehouse.ratelimit.hit", tags=["limiter:notfound.ip"]
         )
-        assert pyramid_request._rate_limit_snapshots == [
-            RateLimitSnapshot(
-                name="notfound",
-                partition_key="ip",
-                stats=notfound_ratelimit_service.get_window_stats.return_value,
-            )
-        ]
+        # Cached 404s are shared across clients, so no RateLimit headers.
+        assert not hasattr(pyramid_request, "_rate_limit_snapshots")
         assert caplog.records == []
 
     @pytest.mark.parametrize(("sample", "logged"), [(0, True), (1, False)])
@@ -114,5 +108,4 @@ def test_includeme(mocker):
     config.add_tween.assert_called_once_with(
         "warehouse.rate_limiting.notfound.notfound_ratelimit_tween_factory",
         over=EXCVIEW,
-        under="warehouse.rate_limiting.headers.rate_limit_headers_tween_factory",
     )

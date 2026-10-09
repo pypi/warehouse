@@ -5,6 +5,10 @@ Count 404 responses per client IP.
 
 This is observation only: nothing is blocked while we learn the traffic shape.
 Once the limit is tuned, blocking can be enabled here.
+
+No RateLimit headers go on these responses. The CDN caches 404s and would
+serve one client's remaining budget to every other client asking for the
+same URL.
 """
 
 import ipaddress
@@ -15,7 +19,6 @@ from secrets import randbelow
 from pyramid.tweens import EXCVIEW
 
 from warehouse.metrics import IMetricsService
-from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 logger = logging.getLogger(__name__)
@@ -42,16 +45,8 @@ def notfound_ratelimit_tween_factory(handler, registry):
         ratelimiter = request.find_service(
             IRateLimiter, name="notfound.ip", context=None
         )
-        allowed = ratelimiter.hit(client_ip)
-        record_rate_limit(
-            request,
-            "notfound",
-            ratelimiter,
-            identifiers=(client_ip,),
-            partition_key="ip",
-        )
         metrics.increment("warehouse.ratelimit.hit", tags=["limiter:notfound.ip"])
-        if not allowed:
+        if not ratelimiter.hit(client_ip):
             metrics.increment(
                 "warehouse.ratelimit.exceeded", tags=["limiter:notfound.ip"]
             )
@@ -74,10 +69,8 @@ def includeme(config):
         config.registry.settings.get("warehouse.notfound.ip_ratelimit_string"),
         "notfound.ip",
     )
-    # Sit above the exception view so raised and returned 404s look the same,
-    # and below the headers tween so the recorded snapshot gets rendered.
+    # Sit above the exception view so raised and returned 404s look the same.
     config.add_tween(
         "warehouse.rate_limiting.notfound.notfound_ratelimit_tween_factory",
         over=EXCVIEW,
-        under="warehouse.rate_limiting.headers.rate_limit_headers_tween_factory",
     )
