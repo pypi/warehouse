@@ -108,6 +108,9 @@ _error_message_order = ["metadata-version", "name", "version"]
 
 _dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.IGNORECASE)
 
+# Detect encoded-word syntax without decoding untrusted metadata.
+_MIME_ENCODED_WORD_RE = re.compile(r"=\?[^?\s]+\?[bq]\?[^?\s]+\?=", re.IGNORECASE)
+
 
 def _construct_dependencies(meta: metadata.Metadata, types):
     for name, kind in types.items():
@@ -1813,6 +1816,13 @@ def file_upload(request):
     request.metrics.increment(
         "warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"]
     )
+
+    # Measure encoded credits before deciding whether to reject them.
+    for field in ("author", "author_email", "maintainer", "maintainer_email"):
+        if _MIME_ENCODED_WORD_RE.search(getattr(meta, field) or ""):
+            request.metrics.increment(
+                "warehouse.upload.metadata.encoded_credits", tags=[f"field:{field}"]
+            )
 
     # Dispatch our task to sync this to cache as soon as possible
     request.task(sync_file_to_cache).delay(file_.id)
