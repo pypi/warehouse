@@ -221,6 +221,12 @@ def includeme(config):
         "warehouse.account.password_reset_ratelimit_string"
     )
     config.register_rate_limiter(password_reset_ratelimit_string, "password.reset")
+    password_reset_ip_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.password_reset_ip_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        password_reset_ip_ratelimit_string, "password.reset.ip"
+    )
     verify_email_ratelimit_string = config.registry.settings.get(
         "warehouse.account.verify_email_ratelimit_string"
     )

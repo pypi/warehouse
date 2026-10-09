@@ -122,6 +122,7 @@ def config(mocker):
             "warehouse.account.email_reputation_ratelimit_string": "100 per hour",
             "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
             "warehouse.account.password_reset_ratelimit_string": "5 per day",
+            "warehouse.account.password_reset_ip_ratelimit_string": "10 per hour",
             "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
             "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
             "github.oauth.backend": accounts.NullGitHubOAuthClient,
@@ -195,6 +196,7 @@ def test_includeme(config, mocker):
         mocker.call("5 per 5 minutes, 20 per hour", "email.change"),
         mocker.call("100 per hour", "email.reputation"),
         mocker.call("5 per day", "password.reset"),
+        mocker.call("10 per hour", "password.reset.ip"),
         mocker.call("3 per 6 hours", "email.verify"),
         mocker.call("100 per hour", "accounts.search"),
         mocker.call("10 per 5 minutes, 30 per hour", "accounts.register"),

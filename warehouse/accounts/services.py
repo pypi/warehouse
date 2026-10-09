@@ -1019,6 +1019,9 @@ def database_login_factory(context, request):
             "password.reset": request.find_service(
                 IRateLimiter, name="password.reset", context=None
             ),
+            "password.reset.ip": request.find_service(
+                IRateLimiter, name="password.reset.ip", context=None
+            ),
         },
     )
 

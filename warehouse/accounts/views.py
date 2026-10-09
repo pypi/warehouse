@@ -840,6 +840,18 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
+        # Charged before the user lookup: the per-user limit below never sees
+        # one address mailing resets to many accounts.
+        if not user_service.ratelimiters["password.reset.ip"].hit(request.remote_addr):
+            request.response.status = 429
+            form.form_errors.append(
+                request._(
+                    "Too many password reset requests from your network. "
+                    "Please try again later."
+                )
+            )
+            return {"form": form}
+
         form_field_input = form.username_or_email.data
 
         requested_email = None
