@@ -20,10 +20,15 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
 )
-from tests.common.db.organizations import OrganizationOIDCIssuerFactory
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationOIDCIssuerFactory,
+    OrganizationRoleFactory,
+)
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
-from warehouse.organizations.models import OIDCIssuerType
+from warehouse.organizations.models import OIDCIssuerType, OrganizationRoleType
+from warehouse.packaging.models import Project
 
 from ...common.constants import (
     DUMMY_ACTIVESTATE_OIDC_JWT,
@@ -736,3 +741,108 @@ def test_trusted_publisher_upload_ok_custom_issuer(
     assert len(project.releases) == 1
     release = project.releases[0]
     assert release.files.count() == 1
+
+
+def _token_credentials(user, macaroon_caveats):
+    """Return Basic auth credentials for a new API token with the given caveats."""
+    dm = MacaroonFactory.create(user_id=user.id, caveats=macaroon_caveats)
+    macaroon = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        macaroon.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{macaroon.serialize()}"
+    return base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode()
+
+
+def _upload_sampleproject_to_organization(webtest, credentials, organization, status):
+    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    return webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={"Authorization": f"Basic {credentials}"},
+        params={
+            "name": "sampleproject",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+            "organization": organization,
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=status,
+    )
+
+
+# "UNKNOWN" checks that the sanitize decorator doesn't drop the organization field,
+# as it does for metadata fields with that value.
+@pytest.mark.parametrize("organization_name", ["example-org", "UNKNOWN"])
+def test_organization_owner_creates_project_in_organization(webtest, organization_name):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    organization = OrganizationFactory.create(name=organization_name)
+    OrganizationRoleFactory.create(
+        organization=organization, user=user, role_name=OrganizationRoleType.Owner
+    )
+    credentials = _token_credentials(user, [caveats.RequestUser(user_id=str(user.id))])
+
+    _upload_sampleproject_to_organization(
+        webtest, credentials, organization_name, HTTPStatus.OK
+    )
+
+    project = (
+        webtest.extra_environ["warehouse.db_session"]
+        .query(Project)
+        .filter_by(name="sampleproject")
+        .one()
+    )
+    assert project.organization == organization
+    assert [release.version for release in project.releases] == ["3.0.0"]
+    # The uploader manages the project through their organization ownership.
+    assert user.projects == []
+
+
+def test_project_scoped_token_cannot_create_project_in_organization(webtest):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    organization = OrganizationFactory.create(name="example-org")
+    OrganizationRoleFactory.create(
+        organization=organization, user=user, role_name=OrganizationRoleType.Owner
+    )
+    other_project = ProjectFactory.create(name="otherproject")
+    RoleFactory.create(user=user, project=other_project, role_name="Owner")
+    credentials = _token_credentials(
+        user,
+        [
+            caveats.ProjectName(normalized_names=["otherproject"]),
+            caveats.ProjectID(project_ids=[str(other_project.id)]),
+        ],
+    )
+
+    response = _upload_sampleproject_to_organization(
+        webtest, credentials, "example-org", HTTPStatus.FORBIDDEN
+    )
+
+    # The reason is repeated once for each ACL entry that was checked.
+    assert response.status.startswith(
+        "403 Invalid API Token: project-scoped token is not valid for project: "
+        "'sampleproject'"
+    )
+    # There's no check that the project was rolled back: the test harness disables
+    # pyramid_tm, so the rejected request's transaction isn't aborted here.
+
+
+def test_organization_with_nul_character_does_not_exist(webtest):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    credentials = _token_credentials(user, [caveats.RequestUser(user_id=str(user.id))])
+
+    # The sanitize decorator escapes the NUL before the form validates it.
+    response = _upload_sampleproject_to_organization(
+        webtest, credentials, "example\x00org", HTTPStatus.BAD_REQUEST
+    )
+
+    assert response.status == "400 Organization 'example\\\\x00org' does not exist."

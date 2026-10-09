@@ -53,6 +53,9 @@ from warehouse.forklift.decorators import ensure_uploads_allowed, sanitize
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.forklift.utils import _exc_with_message
 from warehouse.macaroons.models import Macaroon
+from warehouse.manage.views.view_helpers import add_organization_project_and_notify
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import Organization, OrganizationRoleType
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -531,6 +534,76 @@ def _ensure_user_can_upload(request: Request) -> None:
         ) from None
 
 
+def _get_organization_by_name(request: Request, organization_name: str) -> Organization:
+    """Look up an organization named in an upload, by any of its current or past names.
+
+    Organization names are public, so saying that one doesn't exist discloses nothing.
+    """
+    organization_service = request.find_service(IOrganizationService, context=None)
+    organization = organization_service.get_organization_by_name(organization_name)
+
+    if organization is None:
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:org-not-found"]
+        )
+        raise _exc_with_message(
+            HTTPBadRequest, f"Organization {organization_name!r} does not exist."
+        )
+
+    return organization
+
+
+def _get_organization_for_new_project(
+    request: Request, organization_name: str
+) -> Organization:
+    """Resolve and authorize the organization a new project will be created in.
+
+    Only organization Owners may create projects this way: a project created in
+    an organization has no user roles, and the Project ACL grants organization
+    Owners (but not Managers) access to it, so anyone else would be locked out of
+    the project they just created. We check the role directly rather than via
+    ``request.has_permission()``, since upload tokens can only ever grant
+    ``ProjectsUpload``.
+
+    The role check comes before the standing check, so that the standing of an
+    organization isn't disclosed to non-owners.
+    """
+    organization = _get_organization_by_name(request, organization_name)
+
+    organization_service = request.find_service(IOrganizationService, context=None)
+    role = organization_service.get_organization_role_by_user(
+        organization.id, request.user.id
+    )
+    if role is None or role.role_name != OrganizationRoleType.Owner:
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:org-permission-denied"]
+        )
+        raise _exc_with_message(
+            HTTPForbidden,
+            (
+                f"The user {request.user.username!r} isn't allowed to create "
+                f"projects in organization {organization.name!r}. Only "
+                "organization owners can create new projects when uploading."
+            ),
+        )
+
+    if not organization.is_in_good_standing():
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:org-not-active"]
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                f"Organization {organization.name!r} is inactive. "
+                "This may be due to inactive billing for Company Organizations, "
+                "or administrator intervention for Community Organizations. "
+                "Please contact support+orgs@pypi.org."
+            ),
+        )
+
+    return organization
+
+
 def _close_upload_tempfiles(request):
     # WebOb's multipart parsing creates two tempfiles when the body is large
     # enough to exceed ``request_body_tempfile_limit``: one buffering the raw
@@ -712,11 +785,23 @@ def file_upload(request):
         # so we don't leave an empty project record behind on rejection.
         _ensure_user_can_upload(request)
 
+        # If an organization was named, the new project is created in it, is
+        # metered against the organization's rate limit, and gets no user roles.
+        organization = (
+            _get_organization_for_new_project(request, form.organization.data)
+            if form.organization.data
+            else None
+        )
+
         # We attempt to create the project.
         project_service = request.find_service(IProjectService)
         try:
             project = project_service.create_project(
-                form.name.data, request.user, request
+                form.name.data,
+                request.user,
+                request,
+                creator_is_owner=organization is None,
+                organization_id=None if organization is None else organization.id,
             )
         except HTTPException as exc:
             request.metrics.increment(
@@ -730,9 +815,17 @@ def file_upload(request):
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
 
-    # Check that the identity has permission to do things to this project, if this
-    # is a new project this will act as a sanity check for the role we just
-    # added above.
+        # `create_project()` already linked the project to the organization, so
+        # only record the events and notify the owners here.
+        if organization is not None:
+            add_organization_project_and_notify(
+                request, organization, project, link=False
+            )
+
+    # Check that the identity has permission to do things to this project. If this
+    # is a new project, this also acts as a sanity check on the access we just set
+    # up: the Owner role added for the uploader, or for a project created in an
+    # organization, the uploader's Owner role in that organization.
     allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
@@ -768,9 +861,26 @@ def file_upload(request):
 
     _ensure_user_can_upload(request)
 
+    # Naming an organization asserts that the project belongs to it; it never moves
+    # the project. This comes after the permission check, so that it can't be used
+    # to probe which organization owns a project. A project created above passes.
+    if form.organization.data:
+        organization = _get_organization_by_name(request, form.organization.data)
+        if project.organization is None or project.organization.id != organization.id:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:org-mismatch"]
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    f"Project {project.name!r} is not owned by organization "
+                    f"{organization.name!r}."
+                ),
+            )
+
     # If organization owned project, check if the organization is active.
     # Inactive organizations cannot upload new releases to their projects.
-    if project.organization and not project.organization.good_standing:
+    if project.organization and not project.organization.is_in_good_standing():
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:org-not-active"]
         )
