@@ -151,7 +151,7 @@ submitted_from | IP Address
 
 and with the exception of the `submitted_by` (PyPI username)
 and `submitted_from` (IP Address) columns
-are publicly available via our [XMLRPC API](https://warehouse.pypa.io/api-reference/xml-rpc.html#changelog-since-with-ids-false).
+are publicly available via our [XMLRPC API](https://dev.pypi.org/api-reference/xml-rpc/#changelogsince-with_idsfalse).
 
 #### 3b. User events
 

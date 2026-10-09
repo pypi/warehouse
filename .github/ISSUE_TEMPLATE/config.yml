@@ -12,7 +12,7 @@ contact_links:
     url: https://docs.pypi.org/
     about: Official PyPI documentation. Please check here before opening an issue.
   - name: PyPI Developer Documentation
-    url: https://warehouse.pypa.io/
+    url: https://dev.pypi.org/
     about: Documentation for developers working on PyPI.
   - name: "(Maintainers Only) Blank issue"
     url: https://github.com/pypi/warehouse/issues/new

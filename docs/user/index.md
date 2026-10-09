@@ -4,7 +4,7 @@ PyPI is the official repository of packages for Python.
 This user documentation is aimed at users who use the PyPI website.
 
 To view the developer documentation, visit the
-[Warehouse documentation](https://warehouse.pypa.io).
+[Warehouse developer documentation](https://dev.pypi.org).
 
 ## Help
 

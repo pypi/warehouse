@@ -41,13 +41,13 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
-.. _`our development roadmap`: https://warehouse.pypa.io/roadmap/
-.. _`architectural overview`: https://warehouse.pypa.io/application/
-.. _`documentation`: https://warehouse.pypa.io
-.. _`Getting started`: https://warehouse.pypa.io/development/getting-started/
+.. _`our development roadmap`: https://dev.pypi.org/roadmap/
+.. _`architectural overview`: https://dev.pypi.org/application/
+.. _`documentation`: https://dev.pypi.org
+.. _`Getting started`: https://dev.pypi.org/development/getting-started/
 .. _`Github issue tracker`: https://github.com/pypi/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
-.. _`Running tests and linters section`: https://warehouse.pypa.io/development/getting-started/#running-tests-and-linters
+.. _`Running tests and linters section`: https://dev.pypi.org/development/getting-started/#running-tests-and-linters
 .. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
 .. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`PyPA Discord`: https://discord.gg/pypa
