@@ -5,6 +5,7 @@ import types
 
 import pytest
 
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
 from pyramid.testing import DummySecurityPolicy
@@ -118,10 +119,6 @@ class TestApiKeySecurityPolicy:
         [
             pytest.param(None, id="unknown"),
             pytest.param({"revoked": datetime.datetime.now()}, id="revoked"),
-            pytest.param(
-                {"expires": datetime.datetime.now() - datetime.timedelta(days=1)},
-                id="expired",
-            ),
         ],
     )
     def test_identity_invalid_key(self, db_request, api_key_kwargs):
@@ -134,6 +131,23 @@ class TestApiKeySecurityPolicy:
 
         assert policy.identity(db_request) is None
         assert db_request.authentication_method == AuthenticationMethod.API_KEY
+
+    def test_identity_expired_key(self, db_request):
+        """An expired key says so, instead of falling through to a bare 403."""
+        policy = security_policy.ApiKeySecurityPolicy()
+        db_request.matched_route = _route("api-key")
+        raw_key = generate_api_key()
+        expires = datetime.datetime(2026, 1, 1)
+        ApiKeyFactory.create(hashed_key=hash_api_key(raw_key), expires=expires)
+        db_request.headers["Authorization"] = f"Bearer {raw_key}"
+
+        with pytest.raises(HTTPUnauthorized) as excinfo:
+            policy.identity(db_request)
+
+        assert excinfo.value.headers["WWW-Authenticate"] == (
+            'Bearer error="invalid_token", '
+            'error_description="API key expired at 2026-01-01T00:00:00"'
+        )
 
     def test_identity_disabled_user(self, db_request, api_key_service, mocker):
         """A frozen user's key is rejected and its use is not recorded."""

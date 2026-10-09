@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pyramid.authorization import ACLHelper
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.api.maintainer._errors import InvalidApiKeyError
+from warehouse.api.maintainer._errors import ExpiredApiKeyError, InvalidApiKeyError
 from warehouse.api.maintainer._interfaces import IApiKeyService
 from warehouse.api.maintainer._models import ApiKeyScope
 from warehouse.api.maintainer._services import API_KEY_PREFIX
@@ -62,6 +63,16 @@ class ApiKeySecurityPolicy:
         api_key_service = request.find_service(IApiKeyService, context=None)
         try:
             api_key = api_key_service.verify(raw_key)
+        except ExpiredApiKeyError as exc:
+            # Only a caller holding the full key gets here, so saying why leaks
+            # nothing, and matches the "token is expired" macaroon denial.
+            raise HTTPUnauthorized(
+                headers={
+                    "WWW-Authenticate": (
+                        f'Bearer error="invalid_token", error_description="{exc}"'
+                    )
+                },
+            )
         except InvalidApiKeyError:
             return None
 
