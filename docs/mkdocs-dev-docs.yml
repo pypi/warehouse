@@ -105,6 +105,7 @@ nav:
       - Email: development/email.md
       - Account Associations: development/account-associations.md
       - Token Scanning: development/token-scanning.md
+      - Billing: development/billing.md
       - Documentation: development/documentation.md
   - Warehouse codebase: application.md
   - System Architecture: architecture.md
