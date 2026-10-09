@@ -1,8 +1,67 @@
-.git/*
-.stylelintcache
-node_modules
-dev/*
-**/*.pyc
-htmlcov
-warehouse/static/dist
+# Keep the VCS files out of the build context
+.git
+.git-blame-ignore-revs
+.gitattributes
+.gitignore
+.mailmap
+
+# Keep local editor files out of the build context
+.idea
+.vscode
+**/.editorconfig
+
+# Keep various state/cache/etc directories out of the build context
+.cache
+.envrc
+.state
 .venv
+.coverage
+.coverage.*
+coverage
+htmlcov
+node_modules
+docs/.cache
+docs/blog/_build
+docs/dev/_build
+docs/user/_build
+warehouse/admin/static/dist
+warehouse/static/dist
+**/__pycache__
+*.pyc
+
+# Keep development only files out of the build context
+.dockerignore
+.github
+.pre-commit-config.yaml
+.python-version
+.readthedocs.yml
+.stylelintrc.json
+.weblate.ini
+CONTRIBUTING.rst
+Dockerfile
+README.rst
+babel.cfg
+bin
+depot.json
+dev
+development.ini
+docker-compose.*.yml
+docker-compose.override.yaml-sample
+docker-compose.yml
+pyproject.toml
+requirements.txt
+requirements/*.in
+setup.cfg
+sitecustomize.py
+tests
+# `tests` above is root-anchored (Docker matches single-component patterns
+# against the whole relative path), so the sibling project needs its own entry.
+# Its README.md and LICENSE stay in the context: `readme` and `license-files` in
+# its pyproject reference them, so the editable install needs both.
+pyramid_components/tests
+pyramid_components/CHANGELOG.md
+**/Makefile
+
+# Not development only files, we use them in the container build/release/runtime
+!bin/docker
+!bin/release

@@ -2,7 +2,6 @@
 
 import uuid
 
-import pretend
 import pytest
 
 from pyramid.authorization import Authenticated
@@ -26,12 +25,12 @@ from warehouse.organizations.models import OIDCIssuerType
 from warehouse.utils.security_policy import principals_for
 
 
-def test_find_publisher_by_issuer_bad_issuer_url():
-    session = pretend.stub(scalar=lambda *stmt: None)
-
+def test_find_publisher_by_issuer_bad_issuer_url(mocker):
     with pytest.raises(errors.InvalidPublisherError):
         utils.find_publisher_by_issuer(
-            session, "https://fake-issuer.url", pretend.stub()
+            mocker.sentinel.session,
+            "https://fake-issuer.url",
+            mocker.sentinel.signed_claims,
         )
 
 
@@ -39,29 +38,21 @@ def test_find_publisher_by_issuer_bad_issuer_url():
     ("issuer_url", "publisher_cls_dict"), OIDC_PUBLISHER_CLASSES.items()
 )
 def test_find_publisher_by_issuer_checks_claims_existence(
-    monkeypatch, issuer_url, publisher_cls_dict
+    monkeypatch, mocker, issuer_url, publisher_cls_dict
 ):
-    publisher_cls = pretend.stub(
-        check_claims_existence=pretend.call_recorder(lambda x: None),
-        lookup_by_claims=pretend.call_recorder(lambda x, y: None),
-    )
+    publisher_cls = mocker.create_autospec(publisher_cls_dict[False])
     monkeypatch.setattr(
         utils,
         "OIDC_PUBLISHER_CLASSES",
         {issuer_url: {False: publisher_cls, True: publisher_cls}},
     )
 
-    signed_claims = {
-        claim_name: "fake"
-        for claim_name in publisher_cls_dict[False].all_known_claims()
-    }
-    session = pretend.stub()
+    signed_claims = dict.fromkeys(publisher_cls_dict[False].all_known_claims(), "fake")
+    session = mocker.sentinel.session
     utils.find_publisher_by_issuer(session, issuer_url, signed_claims)
 
-    assert publisher_cls.check_claims_existence.calls == [pretend.call(signed_claims)]
-    assert publisher_cls.lookup_by_claims.calls == [
-        pretend.call(session, signed_claims)
-    ]
+    publisher_cls.check_claims_existence.assert_called_once_with(signed_claims)
+    publisher_cls.lookup_by_claims.assert_called_once_with(session, signed_claims)
 
 
 @pytest.mark.parametrize(
@@ -91,9 +82,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         environment="some_environment",  # Environment set
     )
 
-    signed_claims = {
-        claim_name: "fake" for claim_name in GitHubPublisher.all_known_claims()
-    }
+    signed_claims = dict.fromkeys(GitHubPublisher.all_known_claims(), "fake")
     signed_claims.update(
         {
             "repository": "foo/bar",
@@ -138,9 +127,7 @@ def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
         environment="some_environment",  # Environment set
     )
 
-    signed_claims = {
-        claim_name: "fake" for claim_name in GitLabPublisher.all_known_claims()
-    }
+    signed_claims = dict.fromkeys(GitLabPublisher.all_known_claims(), "fake")
 
     signed_claims.update(
         {
@@ -181,9 +168,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
         sub="some-subject",  # Subject set
     )
 
-    signed_claims = {
-        claim_name: "fake" for claim_name in GooglePublisher.all_known_claims()
-    }
+    signed_claims = dict.fromkeys(GooglePublisher.all_known_claims(), "fake")
 
     signed_claims.update(
         {
@@ -274,9 +259,7 @@ def test_find_publisher_by_issuer_activestate(
         actor="fakeuser3",
     )
 
-    signed_claims = {
-        claim_name: "fake" for claim_name in ActiveStatePublisher.all_known_claims()
-    }
+    signed_claims = dict.fromkeys(ActiveStatePublisher.all_known_claims(), "fake")
 
     signed_claims.update(
         {
@@ -299,8 +282,9 @@ def test_find_publisher_by_issuer_activestate(
 
 
 def test_oidc_context_principals():
+    publisher = GitHubPublisherFactory.build(id=17)
     assert principals_for(
-        utils.PublisherTokenContext(publisher=pretend.stub(id=17), claims=None)
+        utils.PublisherTokenContext(publisher=publisher, claims=None)
     ) == [
         Authenticated,
         "oidc:17",
@@ -335,9 +319,7 @@ def test_find_publisher_by_issuer_with_custom_issuer(db_request):
     )
 
     # Create signed claims that would come from the custom GitLab instance
-    signed_claims = {
-        claim_name: "fake" for claim_name in GitLabPublisher.all_known_claims()
-    }
+    signed_claims = dict.fromkeys(GitLabPublisher.all_known_claims(), "fake")
     signed_claims.update(
         {
             "iss": custom_issuer_url,

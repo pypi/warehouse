@@ -4,19 +4,22 @@ from __future__ import annotations
 
 import functools
 import hashlib
-import logging
 import time
 import typing
 import urllib.parse
+
+from typing import Self
 
 import celery
 import celery.app.backends
 import celery.backends.redis
 import pyramid.scripting
 import pyramid_retry
+import structlog
 import transaction
 import venusian
 
+from celery import signals
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
@@ -29,12 +32,17 @@ if typing.TYPE_CHECKING:
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES["rediss"] = (
-    "warehouse.tasks:TLSRedisBackend"  # noqa
-)
+celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend"
 
 
-logger = logging.getLogger(__name__)
+def on_task_prerun(sender, task_id, task, **kwargs) -> None:
+    """Bind task metadata into contextvars for all logs within the task."""
+    structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
+
+
+def on_task_postrun(sender, task_id, task, **kwargs) -> None:
+    """Clear contextvars so nothing leaks into the next task on this worker."""
+    structlog.contextvars.clear_contextvars()
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -53,7 +61,7 @@ class WarehouseTask(celery.Task):
     __header__: typing.Callable
     _wh_original_run: typing.Callable
 
-    def __new__(cls, *args, **kwargs) -> WarehouseTask:
+    def __new__(cls, *args, **kwargs) -> Self:
         """
         Override to wrap the `run` method of the task with a new method that
         will handle exceptions from the task and retry them if they're retryable.
@@ -99,7 +107,7 @@ class WarehouseTask(celery.Task):
         create a fake one here. This is necessary as a lot of our code assumes
         that there's a Pyramid request object available.
         """
-        return super().__call__(*(self.get_request(),) + args, **kwargs)
+        return super().__call__(*(self.get_request(), *args), **kwargs)
 
     def get_request(self) -> Request:
         """
@@ -122,6 +130,9 @@ class WarehouseTask(celery.Task):
             env["request"].remote_addr_hashed = hashlib.sha256(
                 ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
             ).hexdigest()
+            # The request id joins the task_id/task_name bound at prerun, and
+            # is cleared with them at postrun.
+            structlog.contextvars.bind_contextvars(**{"request.id": env["request"].id})
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]  # type: ignore[attr-defined]
@@ -163,6 +174,8 @@ class WarehouseTask(celery.Task):
         request.tm.get().addAfterCommitHook(
             self._after_commit_hook, args=args, kws=kwargs
         )
+
+        return None
 
     def retry(self, *args, **kwargs):
         """
@@ -262,7 +275,7 @@ def includeme(config: Configurator) -> None:
     # Only redis is supported as a broker
     assert broker_url.startswith("redis")
 
-    parsed_url = urllib.parse.urlparse(  # noqa: WH001, going to urlunparse this
+    parsed_url = urllib.parse.urlparse(  # noqa: TID251, going to urlunparse this
         broker_url
     )
     parsed_query = urllib.parse.parse_qs(parsed_url.query)
@@ -274,10 +287,9 @@ def includeme(config: Configurator) -> None:
     for key, value in parsed_query.copy().items():
         if key.startswith("ssl_"):
             continue
-        else:
-            if key in celery_transport_options:
-                broker_transport_options[key] = celery_transport_options[key](value[0])
-            del parsed_query[key]
+        if key in celery_transport_options:
+            broker_transport_options[key] = celery_transport_options[key](value[0])
+        del parsed_query[key]
 
     parsed_url = parsed_url._replace(
         query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")
@@ -302,9 +314,15 @@ def includeme(config: Configurator) -> None:
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
         # Silence deprecation warning on startup
         broker_connection_retry_on_startup=False,
+        # Keep the logging configured by warehouse.logging instead of letting
+        # celery replace the root logger's handlers at worker boot.
+        worker_hijack_root_logger=False,
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
+
+    signals.task_prerun.connect(on_task_prerun)
+    signals.task_postrun.connect(on_task_postrun)
 
     config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 

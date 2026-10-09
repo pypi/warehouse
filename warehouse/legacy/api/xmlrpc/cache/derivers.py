@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import orjson
+import json
 
 from warehouse.legacy.api.xmlrpc.cache import interfaces
 
@@ -21,19 +21,19 @@ def cached_return_view(view, info):
             except LookupError:
                 return view(context, request)
             try:
-                key = orjson.dumps(request.rpc_args[slice_obj])
+                key = json.dumps(request.rpc_args[slice_obj], separators=(",", ":"))
                 _tag = tag
                 if arg_index is not None:
                     _tag = tag % (tag_processor(str(request.rpc_args[arg_index])))
                 return service.fetch(view, (context, request), {}, key, _tag, expires)
-            except (interfaces.CacheError, IndexError):
+            except interfaces.CacheError, IndexError:
                 return view(context, request)
 
         return wrapper_view
     return view
 
 
-cached_return_view.options = [  # type: ignore
+cached_return_view.options = [  # type: ignore[attr-defined]
     "xmlrpc_cache",
     "xmlrpc_cache_tag",
     "xmlrpc_cache_expires",

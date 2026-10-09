@@ -5,7 +5,6 @@ from __future__ import annotations
 import typing
 
 import markupsafe
-import structlog
 import wtforms
 
 from warehouse.i18n import localize as _
@@ -15,14 +14,11 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
-    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.utils.project import PROJECT_NAME_RE
 
 if typing.TYPE_CHECKING:
     from warehouse.accounts.models import User
-
-log = structlog.get_logger()
 
 
 class PendingPublisherMixin:
@@ -52,7 +48,7 @@ class PendingPublisherMixin:
             # link to the project settings that the user can modify.
             if self._user in e.existing_project.owners:
                 # Mixin doesn't inherit from wtforms.Form but composed classes do
-                url_params = {name: value for name, value in self.data.items() if value}  # type: ignore[attr-defined] # noqa: E501
+                url_params = {name: value for name, value in self.data.items() if value}  # type: ignore[attr-defined]
                 url_params["provider"] = {self.provider}
                 url = self._route_url(
                     "manage.project.settings.publishing",
@@ -63,7 +59,7 @@ class PendingPublisherMixin:
                 # We mark the error message as safe, so that the HTML hyperlink is
                 # not escaped by Jinja
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(
+                    markupsafe.Markup(  # noqa: S704
                         _(
                             "This project already exists: use the project's "
                             "publishing settings <a href='${url}'>here</a> to "
@@ -72,10 +68,7 @@ class PendingPublisherMixin:
                         )
                     )
                 )
-            else:
-                raise wtforms.validators.ValidationError(
-                    _("This project already exists.")
-                )
+            raise wtforms.validators.ValidationError(_("This project already exists."))
 
         except ProjectNameUnavailableProhibitedError:
             raise wtforms.validators.ValidationError(
@@ -92,18 +85,6 @@ class PendingPublisherMixin:
                     " standard library module name)"
                 )
             )
-        # TODO: Cover with testing and remove pragma
-        except ProjectNameUnavailableTypoSquattingError as exc:  # pragma: no cover
-            # TODO: raise with an appropriate message when we're ready to implement
-            #  or combine with `ProjectNameUnavailableSimilarError`
-            # TODO: This is an attempt at structlog, since `request.log` isn't in scope.
-            #  We should be able to use `log` instead, but doesn't have the same output
-            log.error(
-                "Typo-squatting error raised but not handled in form validation",
-                check_name=exc.check_name,
-                existing_project_name=exc.existing_project_name,
-            )
-            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover

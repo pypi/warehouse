@@ -2,69 +2,112 @@
 
 import datetime
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
-from warehouse.packaging.models import Classifier
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting import RateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
-    ReleaseFactory,
     RoleFactory,
 )
 
 
+class TestSubmitXMLRPCMetrics:
+    def test_stashes_call_for_access_log(self, pyramid_request, metrics, mocker):
+        def view(context, request):
+            return "result"
+
+        wrapped = xmlrpc.submit_xmlrpc_metrics(method="browse")(view)
+        pyramid_request.rpc_args = (["Framework :: Django"],)
+
+        assert wrapped(mocker.sentinel.context, pyramid_request) == "result"
+        assert pyramid_request.environ["warehouse.xmlrpc.method"] == "browse"
+        assert (
+            pyramid_request.environ["warehouse.xmlrpc.args"]
+            == '[["Framework :: Django"]]'
+        )
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.call", tags=["rpc_method:browse"]
+        )
+
+    def test_truncates_logged_args(self, pyramid_request, metrics, mocker):
+        wrapped = xmlrpc.submit_xmlrpc_metrics(method="browse")(lambda c, r: None)
+        pyramid_request.rpc_args = (["x" * 500],)
+
+        wrapped(mocker.sentinel.context, pyramid_request)
+
+        assert (
+            len(pyramid_request.environ["warehouse.xmlrpc.args"])
+            == xmlrpc.XMLRPC_LOGGED_ARGS_LENGTH
+        )
+
+
 class TestRateLimiting:
-    def test_ratelimiting_pass(self, pyramid_services, pyramid_request, metrics):
+    def test_ratelimiting_pass(
+        self, pyramid_services, pyramid_request, metrics, mocker
+    ):
         def view(context, request):
             return None
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
-        )
+        stats = [
+            WindowStats(
+                amount=3600, window_seconds=3600, remaining=42, resets_in_seconds=10
+            )
+        ]
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = True
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = None
+        fake_rate_limiter.get_window_stats.return_value = stats
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
-        ratelimited_view(context, pyramid_request)
+        ratelimited_view(mocker.sentinel.context, pyramid_request)
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.hit", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.hit", tags=[]
+        )
+        snapshots = pyramid_request._rate_limit_snapshots
+        assert [s.name for s in snapshots] == ["xmlrpc.client"]
+        assert snapshots[0].partition_key == "ip"
+        assert snapshots[0].stats is stats
 
-    def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
+    def test_ratelimiting_block(
+        self, pyramid_services, pyramid_request, metrics, mocker
+    ):
         def view(context, request):
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: False, hit=lambda *a: True, resets_in=lambda *a: None
-        )
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = False
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = None
+        fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(context, pyramid_request)
+            ratelimited_view(mocker.sentinel.context, pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
             "were too many requests by the client."
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.exceeded", tags=[]
+        )
 
     @pytest.mark.parametrize(
         ("resets_in_delta", "expected"),
@@ -74,24 +117,29 @@ class TestRateLimiting:
         ],
     )
     def test_ratelimiting_block_with_hint(
-        self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
+        self,
+        pyramid_services,
+        pyramid_request,
+        metrics,
+        mocker,
+        resets_in_delta,
+        expected,
     ):
         def view(context, request):
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: False,
-            hit=lambda *a: True,
-            resets_in=lambda *a: resets_in_delta,
-        )
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = False
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = resets_in_delta
+        fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(context, pyramid_request)
+            ratelimited_view(mocker.sentinel.context, pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
@@ -99,9 +147,9 @@ class TestRateLimiting:
             f"{expected} seconds."
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.exceeded", tags=[]
+        )
 
 
 class TestSearch:
@@ -118,12 +166,12 @@ class TestSearch:
 
         assert exc.value.faultString == (
             "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
-            f"Please use https://{domain if domain else 'example.org'}/search "
+            f"Please use https://{domain or 'example.org'}/search "
             "(via a browser) instead. See "
-            "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+            "https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
             "for more information."
         )
-        assert metrics.increment.calls == []
+        metrics.increment.assert_not_called()
 
 
 def test_list_packages(pyramid_request):
@@ -133,7 +181,7 @@ def test_list_packages(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC list_packages method. "
         "Use Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -178,7 +226,7 @@ def test_top_packages(num, pyramid_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been removed. Use BigQuery instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -194,7 +242,7 @@ def test_package_urls(domain, db_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been deprecated. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -210,7 +258,7 @@ def test_package_data(domain, db_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been deprecated. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -222,7 +270,7 @@ def test_package_releases(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC package_releases method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -234,7 +282,7 @@ def test_release_data(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC release_data method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -246,7 +294,7 @@ def test_release_urls(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC release_urls method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -314,60 +362,16 @@ def test_changelog(pyramid_request):
     )
 
 
-def test_browse(db_request):
-    classifiers = [
-        Classifier(classifier="Environment :: Other Environment"),
-        Classifier(classifier="Development Status :: 5 - Production/Stable"),
-        Classifier(classifier="Programming Language :: Python"),
-    ]
-    for classifier in classifiers:
-        db_request.db.add(classifier)
+def test_browse(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.browse(pyramid_request, ["Environment :: Other Environment"])
 
-    projects = ProjectFactory.create_batch(3)
-    releases = []
-    for project in projects:
-        releases.extend(
-            ReleaseFactory.create_batch(
-                10, project=project, _classifiers=[classifiers[0]]
-            )
-        )
-
-    releases = sorted(releases, key=lambda x: (x.project.name, x.version))
-
-    expected_release = releases[0]
-    expected_release._classifiers = classifiers
-
-    assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
-        (r.project.name, r.version) for r in releases
-    }
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
-        )
-    ) == {(expected_release.project.name, expected_release.version)}
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC browse method. "
+        "Use BigQuery instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "for more information."
+    )
 
 
 def test_multicall(pyramid_request):

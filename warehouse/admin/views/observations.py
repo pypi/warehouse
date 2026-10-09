@@ -1,34 +1,256 @@
 # SPDX-License-Identifier: Apache-2.0
 
-"""Admin Views related to Observations"""
+"""Admin Views related to Observations
+
+The observations list is a Tabulator table fed by a JSON endpoint speaking
+Tabulator's remote pagination/sort/filter protocol, mirroring
+warehouse.admin.views.journals.
+"""
 
 from __future__ import annotations
 
 import re
 
-from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+import packaging.utils
+
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from warehouse.accounts.models import User
+from warehouse.admin.views.helpers import (
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    TabulatorParams,
+    execute_bounded,
+    parse_days_param,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
-from warehouse.observations.models import Observation, Observer
+from warehouse.cache.http import add_vary
+from warehouse.observations.models import (
+    OBSERVATION_KIND_MAP,
+    Observation,
+    ObservationKind,
+    Observer,
+)
 from warehouse.observations.utils import calc_accuracy, classify_observation
 from warehouse.packaging.models import JournalEntry
 
 if TYPE_CHECKING:
-    from pyramid.request import Request
+    from typing import Any
+    from uuid import UUID
 
-# Valid time periods for filtering
-ALLOWED_DAYS = (30, 60, 90)
-DEFAULT_DAYS = 30
+    from pyramid.request import Request
+    from sqlalchemy import Select
+    from sqlalchemy.sql import ColumnElement
 
 # Pattern to extract project name from related_name repr string
 # Format: Project(id=..., name='project-name', ...)
 _PROJECT_NAME_PATTERN = re.compile(r"name='([^']+)'")
+
+_KIND_TO_ADMIN_ROUTE: dict[str, str] = {
+    "is_malware": "admin.project.detail",
+    "is_dependency_confusion": "admin.project.detail",
+    "is_spam": "admin.project.detail",
+    "is_typosnyper_match": "admin.project.detail",
+    "something_else": "admin.project.detail",
+    "account_abuse": "admin.user.detail",
+    "account_recovery": "admin.user.detail",
+    "account_export": "admin.user.detail",
+    "email_unverified": "admin.user.detail",
+    "information_request": "admin.organization_application.detail",
+    "admin_note": "admin.organization_application.detail",
+}
+
+# Allowlist of Tabulator `sort[0][field]` values that may drive ORDER BY.
+# Every entry's name is also a column attribute on the concrete tables.
+_SORTABLE_FIELDS: frozenset[str] = frozenset({"created", "kind"})
+
+# `kind` comes from the dropdown and is checked against OBSERVATION_KIND_MAP
+# in `_parse_params`; `summary` is free text matched against both the summary
+# and the related object's name.
+_FILTER_FIELDS: frozenset[str] = frozenset({"kind", "summary"})
+
+_OBSERVATION_TABLE_NAMES: tuple[str, ...] = tuple(
+    cls.__tablename__ for cls in Observation.__subclasses__()
+)
+
+
+def _base_and_conditions(
+    params: TabulatorParams,
+) -> tuple[type[Observation], list[ColumnElement[bool]]]:
+    """Pick the query target and build the WHERE conditions for a request.
+
+    Always the polymorphic union over every *_observations table. A kind does
+    not pin down a table: the admin release page offers every ObservationKind,
+    so an "Is Malware" report can sit in release_observations as readily as in
+    project_observations, and narrowing to one of them would drop the other
+    from a filtered page while the unfiltered list still showed it.
+    """
+    base: type[Observation] = Observation
+    conditions: list[ColumnElement[bool]] = []
+    kind_filter = params.filters.get("kind")
+    if kind_filter:
+        conditions.append(base.kind == kind_filter)
+    search_value = params.filters.get("summary")
+    if search_value:
+        # autoescape, or a summary containing a literal % or _ silently
+        # searches for a wildcard instead.
+        conditions.append(
+            or_(
+                base.summary.icontains(search_value, autoescape=True),
+                base.related_name.icontains(search_value, autoescape=True),
+            )
+        )
+    return base, conditions
+
+
+def _build_observations_query(params: TabulatorParams) -> Select[Any]:
+    """Build the page SELECT, fetching one extra row to detect a next page.
+
+    Neither sortable column is unique — `created` is a transaction-scoped
+    `now()`, so rows written together tie exactly, and `kind` has a handful of
+    values across the whole table. Paging is LIMIT/OFFSET over independent
+    statements, so without a unique tiebreak PostgreSQL may order a tied group
+    differently per page, repeating some rows and skipping others.
+    """
+    base, conditions = _base_and_conditions(params)
+    sort_col = getattr(base, params.sort_field)
+    descending = params.sort_dir == "desc"
+    order_by = (
+        sort_col.desc() if descending else sort_col.asc(),
+        base.id.desc() if descending else base.id.asc(),
+    )
+
+    return (
+        select(
+            base.id,
+            base.created,
+            base.kind,
+            base.summary,
+            base.related_name,
+            base.related_id,
+            base.observer_id,
+        )
+        .where(*conditions)
+        .order_by(*order_by)
+        .limit(params.size + 1)
+        .offset(params.offset)
+    )
+
+
+def _resolve_observers(
+    request: Request, observer_ids: set[UUID]
+) -> dict[UUID, str | None]:
+    if not observer_ids:
+        return {}
+    stmt = (
+        select(Observer.id, User.username)
+        .select_from(Observer)
+        .outerjoin(User, User.observer_association_id == Observer._association_id)
+        .where(Observer.id.in_(observer_ids))
+    )
+    return {row.id: row.username for row in request.db.execute(stmt).all()}
+
+
+def _build_related_link(
+    request: Request,
+    kind: str,
+    parsed_name: str | None,
+    related_id: UUID | None,
+) -> str | None:
+    """Build the admin URL for an observation's related object, or None."""
+    if related_id is None:
+        return None
+    route = _KIND_TO_ADMIN_ROUTE.get(kind)
+    if route is None:  # pragma: no cover -- every ObservationKind has a mapping
+        return None
+    if route == "admin.project.detail":
+        if not parsed_name:
+            return None
+        return request.route_path(
+            route, project_name=packaging.utils.canonicalize_name(parsed_name)
+        )
+    if route == "admin.user.detail":
+        if not parsed_name:
+            return None
+        return request.route_path(route, username=parsed_name)
+    if route == "admin.organization_application.detail":
+        return request.route_path(route, organization_application_id=str(related_id))
+    return None  # pragma: no cover -- all routes covered above
+
+
+def _parse_params(request: Request) -> TabulatorParams:
+    """Parse this view's Tabulator params, validating the kind value.
+
+    The shared parser allowlists field names, not values, so an unknown kind
+    would otherwise scan every observation table to return nothing, and say so
+    with an empty table rather than with the typo that caused it.
+    """
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="created",
+        filter_fields=_FILTER_FIELDS,
+    )
+    kind = params.filters.get("kind")
+    if kind is not None and kind not in OBSERVATION_KIND_MAP:
+        raise HTTPBadRequest(f"Unknown observation kind {kind!r}.")
+    return params
+
+
+def _render_tabulator_payload(request: Request) -> dict[str, Any]:
+    """Execute the page query and shape Tabulator's expected response."""
+    params = _parse_params(request)
+    stmt = _build_observations_query(params)
+    rows = execute_bounded(request, stmt, timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS)
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=_OBSERVATION_TABLE_NAMES
+    )
+
+    observer_usernames = _resolve_observers(
+        request, {row.observer_id for row in page_rows}
+    )
+
+    data: list[dict[str, Any]] = []
+    for row in page_rows:
+        parsed_name = _parse_project_name_from_repr(row.related_name)
+        display = parsed_name or row.related_name
+        related_link = _build_related_link(
+            request, row.kind, parsed_name, row.related_id
+        )
+
+        username = observer_usernames.get(row.observer_id)
+        observer_link = (
+            request.route_path("admin.user.detail", username=username)
+            if username
+            else None
+        )
+
+        kind_display = (
+            OBSERVATION_KIND_MAP[row.kind].value[1]
+            if row.kind in OBSERVATION_KIND_MAP
+            else row.kind
+        )
+
+        data.append(
+            {
+                "created": row.created.isoformat() if row.created else None,
+                "kind": row.kind,
+                "kind_display": kind_display,
+                "related": display,
+                "related_link": related_link,
+                "summary": row.summary,
+                "observer": username or "",
+                "observer_link": observer_link,
+            }
+        )
+
+    return {**pagination, "data": data}
 
 
 def _calc_stats(times: list) -> dict | None:
@@ -55,15 +277,6 @@ def _calc_median(values: list) -> float | None:
     return round(values[len(values) // 2], 1)
 
 
-def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) -> int:
-    """Parse and validate the days query parameter."""
-    try:
-        days = int(request.params.get("days", DEFAULT_DAYS))
-        return days if days in allowed else DEFAULT_DAYS
-    except (ValueError, TypeError):
-        return DEFAULT_DAYS
-
-
 def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list:
     """
     Fetch all malware observations with all fields needed by stats functions.
@@ -88,33 +301,31 @@ def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list
 @view_config(
     route_name="admin.observations.list",
     renderer="warehouse.admin:templates/admin/observations/list.html",
+    accept="text/html",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
 )
-def observations_list(request):
-    """
-    List all Observations.
+def observations_list(request: Request) -> dict[str, Any]:
+    return {"observation_kinds": list(ObservationKind)}
 
-    TODO: Should we filter server-side by `kind`, or in the template?
-     Currently the server returns all observations, and then we group them by kind
-     for display in the template.
 
-    TODO: Paginate this view, not worthwhile just yet.
-    """
-
-    observations = (
-        request.db.query(Observation).order_by(Observation.created.desc()).all()
-    )
-
-    # Group observations by kind
-    grouped_observations = defaultdict(list)
-    for observation in observations:
-        grouped_observations[observation.kind].append(observation)
-
-    return {"kind_groups": grouped_observations}
+@view_config(
+    route_name="admin.observations.list",
+    renderer="json",
+    accept="application/json",
+    decorator=[add_vary("Accept")],
+    permission=Permissions.AdminObservationsRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def observations_list_json(request: Request) -> dict[str, Any]:
+    return _render_tabulator_payload(request)
 
 
 def _get_corroboration_stats(observations: list) -> tuple[dict, dict]:
@@ -326,7 +537,7 @@ def _parse_removal_time(actions: dict | None) -> datetime | None:
         if action_data.get("action") != "remove_malware":
             continue
 
-        removal_dt = datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
+        removal_dt = datetime.fromtimestamp(int(timestamp), tz=UTC)
         removal_dt = removal_dt.replace(tzinfo=None)  # naive for DB comparison
         if removal_time is None or removal_dt < removal_time:
             removal_time = removal_dt
@@ -379,20 +590,18 @@ def _get_timeline_data(request: Request, observations: list) -> dict:
                 "project_created": None,  # Looked up from JournalEntry
                 "first_report": obs.report_created,
                 "quarantine_time": None,
-                "removal_time": _parse_removal_time(obs.actions),
+                "removal_time": None,
             }
-        else:
-            # Track the earliest report
-            if obs.report_created < project_data[key]["first_report"]:
-                project_data[key]["first_report"] = obs.report_created
-            # Track the earliest removal - only parse if we might update
-            current_removal = project_data[key]["removal_time"]
-            if obs.actions:  # Only parse if actions exist
-                obs_removal = _parse_removal_time(obs.actions)
-                if obs_removal and (
-                    current_removal is None or obs_removal < current_removal
-                ):
-                    project_data[key]["removal_time"] = obs_removal
+
+        entry = project_data[key]
+        # Track the earliest report
+        entry["first_report"] = min(entry["first_report"], obs.report_created)
+        # Track the earliest removal across all observations for this project
+        obs_removal = _parse_removal_time(obs.actions)
+        if obs_removal and (
+            entry["removal_time"] is None or obs_removal < entry["removal_time"]
+        ):
+            entry["removal_time"] = obs_removal
 
     if not project_names:
         return project_data
@@ -631,8 +840,8 @@ def _get_timeline_trends(project_data: dict) -> dict[str, list]:
 )
 def observations_insights(request: Request):
     """Display report quality insights and response timeline metrics."""
-    days = _parse_days_param(request)
-    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
+    days = parse_days_param(request)
+    cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
 
     observations = _fetch_malware_observations(request, cutoff_date)
 

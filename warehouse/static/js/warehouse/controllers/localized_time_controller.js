@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 import { Controller } from "@hotwired/stimulus";
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import format from "date-fns/format";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { format } from "date-fns/format";
 
 export default class extends Controller {
 

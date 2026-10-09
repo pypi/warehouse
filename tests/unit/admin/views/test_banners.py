@@ -3,7 +3,6 @@
 import datetime
 import uuid
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
@@ -56,13 +55,13 @@ class TestCreateBanner:
         assert isinstance(result["form"], views.BannerForm)
         assert result["form"].errors
 
-    def test_create_banner(self, db_request, banner_data):
+    def test_create_banner(self, db_request, banner_data, mocker):
         db_request.method = "POST"
         db_request.POST = MultiDict(banner_data)
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/admin/banners/"
         )
-        db_request.route_url = pretend.call_recorder(lambda r: "/admin/banners/")
 
         assert db_request.db.query(Banner).count() == 0
         resp = views.create_banner(db_request)
@@ -70,10 +69,10 @@ class TestCreateBanner:
 
         assert resp.status_code == 303
         assert resp.location == "/admin/banners/"
-        assert db_request.session.flash.calls == [
-            pretend.call("Added new banner 'Sample Banner'", queue="success")
-        ]
-        assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
+        db_request.session.flash.assert_called_once_with(
+            "Added new banner 'Sample Banner'", queue="success"
+        )
+        db_request.route_url.assert_called_once_with("admin.banner.list")
 
 
 class TestEditBanner:
@@ -94,7 +93,7 @@ class TestEditBanner:
         with pytest.raises(HTTPNotFound):
             views.edit_banner(db_request)
 
-    def test_update_banner(self, db_request, banner_data):
+    def test_update_banner(self, db_request, mocker):
         banner = BannerFactory.create(fa_icon="custom")
         assert banner.is_live
         form = views.BannerForm(MultiDict(), banner)
@@ -105,12 +104,13 @@ class TestEditBanner:
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/banners/{banner.id}/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value=f"/admin/banners/{banner.id}/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.edit_banner(db_request)
         db_banner = db_request.db.query(Banner).filter(Banner.id == banner.id).one()
@@ -119,9 +119,9 @@ class TestEditBanner:
         assert resp.location == f"/admin/banners/{banner.id}/"
         assert db_banner.name == "New Name"
         assert db_banner.fa_icon == "custom"  # keep previous value
-        assert db_request.session.flash.calls == [
-            pretend.call("Banner updated", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Banner updated", queue="success"
+        )
 
     def test_form_errors_if_invalid_post_data(self, db_request):
         banner = BannerFactory.create()
@@ -136,7 +136,7 @@ class TestEditBanner:
         result = views.edit_banner(db_request)
 
         assert "end" in result["form"].errors
-        assert "New name" == result["form"].data["name"]
+        assert result["form"].data["name"] == "New name"
 
 
 class TestDeleteBanner:
@@ -146,15 +146,15 @@ class TestDeleteBanner:
         with pytest.raises(HTTPNotFound):
             views.delete_banner(db_request)
 
-    def test_delete_banner(self, db_request):
+    def test_delete_banner(self, db_request, mocker):
         banner = BannerFactory.create()
         db_request.matchdict["banner_id"] = banner.id
         db_request.params = {"banner": banner.name}
         db_request.method = "POST"
-        db_request.route_url = pretend.call_recorder(lambda s: "/admin/banners/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/admin/banners/"
         )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.delete_banner(db_request)
         with pytest.raises(NoResultFound):
@@ -162,34 +162,37 @@ class TestDeleteBanner:
 
         assert resp.status_code == 303
         assert resp.location == "/admin/banners/"
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Deleted banner {banner.name}", queue="success")
-        ]
-        assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
+        db_request.session.flash.assert_called_once_with(
+            f"Deleted banner {banner.name}", queue="success"
+        )
+        db_request.route_url.assert_called_once_with("admin.banner.list")
 
-    def test_do_not_delete_banner_if_invalid_confirmation_param(self, db_request):
+    def test_do_not_delete_banner_if_invalid_confirmation_param(
+        self, db_request, mocker
+    ):
         banner = BannerFactory.create()
         db_request.matchdict["banner_id"] = banner.id
         db_request.params = {"banner": "not the banner name"}
         db_request.method = "POST"
-        db_request.route_url = pretend.call_recorder(
-            lambda s, banner_id: f"/admin/banners/{banner_id}"
+        mocker.patch.object(
+            db_request,
+            "route_url",
+            autospec=True,
+            side_effect=lambda s, banner_id: f"/admin/banners/{banner_id}",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.delete_banner(db_request)
         banner = db_request.db.query(Banner).filter(Banner.id == banner.id).one()
 
         assert resp.status_code == 303
         assert resp.location == f"/admin/banners/{banner.id}"
-        assert db_request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error")
-        ]
-        assert db_request.route_url.calls == [
-            pretend.call("admin.banner.edit", banner_id=banner.id)
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Wrong confirmation input", queue="error"
+        )
+        db_request.route_url.assert_called_once_with(
+            "admin.banner.edit", banner_id=banner.id
+        )
 
 
 class TestPreviewBanner:

@@ -83,7 +83,7 @@ class TestValidation:
         monkeypatch.setattr(
             packaging.metadata,
             "_VALID_METADATA_VERSIONS",
-            packaging.metadata._VALID_METADATA_VERSIONS + ["100000.0"],
+            [*packaging.metadata._VALID_METADATA_VERSIONS, "100000.0"],
         )
 
         # Make sure that our monkeypatching worked
@@ -178,7 +178,7 @@ class TestValidation:
     def test_deprecated_classifiers_with_replacement(self, backfill):
         data = (
             b"Metadata-Version: 2.1\nName: spam\nVersion: 2.0\n"
-            b"Classifier: Natural Language :: Ukranian\n"
+            b"Classifier: Natural Language :: Ukranian\n"  # codespell:ignore
         )
 
         if not backfill:
@@ -187,7 +187,9 @@ class TestValidation:
             _assert_invalid_metadata(excinfo.value, "classifier")
         else:
             meta = metadata.parse(data, backfill=True)
-            assert meta.classifiers == ["Natural Language :: Ukranian"]
+            assert meta.classifiers == [
+                "Natural Language :: Ukranian"  # codespell:ignore
+            ]
 
     @pytest.mark.parametrize("backfill", [True, False])
     def test_deprecated_classifiers_no_replacement(self, backfill):
@@ -320,6 +322,91 @@ class TestValidation:
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, "dynamic")
+
+
+class TestValidateArtifactDependencies:
+    @pytest.mark.parametrize(
+        "content",
+        [
+            b"",
+            b"Fake metadata",
+            (
+                b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+                b'Requires-Dist: foo>=1.0 ; extra == "dev"\nProvides-Dist: bar\n'
+            ),
+        ],
+    )
+    def test_valid(self, content):
+        metadata.validate_artifact_dependencies(content)
+
+    @pytest.mark.parametrize(
+        ("header", "field"),
+        [
+            ("Requires-Dist", "requires-dist"),
+            ("Provides-Dist", "provides-dist"),
+            ("Obsoletes-Dist", "obsoletes-dist"),
+        ],
+    )
+    def test_invalid_direct_dependency(self, header, field):
+        content = (
+            "Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            f'{header}: foo @ https://example.com/foo-1.0.tar.gz ; extra == "dev"\n'
+        ).encode()
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == field
+
+    def test_unknown_header_does_not_mask_direct_dependency(self):
+        """
+        parse_email, unlike Metadata.from_email, still yields the dependency
+        fields when the file also carries a header it does not recognize.
+        """
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\nX-Custom: 1\n"
+            b"Requires-Dist: evil @ https://example.com/e.tar.gz\n"
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+
+    @pytest.mark.parametrize(
+        "req_str",
+        [
+            "not a requirement !!",
+            # Deep marker nesting overflows the requirement parser's recursion.
+            "foo ; " + "(" * 2000 + 'os_name == "a"' + ")" * 2000,
+        ],
+    )
+    def test_invalid_requirement(self, req_str):
+        """
+        An unparsable requirement is rejected, matching the form path, with a
+        single-line reason.
+        """
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            + f"Requires-Dist: {req_str}\n".encode()
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+        message = str(excinfo.value)
+        assert "is invalid: " in message
+        assert "\n" not in message
+
+    def test_undecodable_field_fails_closed(self):
+        """
+        One non-UTF-8 byte makes parse_email set the whole field aside as
+        unparsed; that must not read as "no dependencies".
+        """
+        content = (
+            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+            b"Requires-Dist: evil @ https://example.com/e.tar.gz\n"
+            b'Requires-Dist: ok ; platform_release == "\xff"\n'
+        )
+        with pytest.raises(metadata.InvalidMetadata) as excinfo:
+            metadata.validate_artifact_dependencies(content)
+        assert excinfo.value.field == "requires-dist"
+        assert "could not be parsed" in str(excinfo.value)
 
 
 class TestFromFormData:

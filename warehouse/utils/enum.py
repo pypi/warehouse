@@ -5,7 +5,7 @@ import enum
 from typing import Self
 
 
-class StrLabelEnum(str, enum.Enum):
+class StrLabelEnum(enum.StrEnum):
     """Base class for Enum with string value and display label."""
 
     label: str

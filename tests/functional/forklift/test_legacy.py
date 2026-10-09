@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import hashlib
+import io
 import json
+import tarfile
 
 from http import HTTPStatus
 from pathlib import Path
@@ -17,13 +20,16 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
 )
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
+from warehouse.organizations.models import OIDCIssuerType
 
 from ...common.constants import (
     DUMMY_ACTIVESTATE_OIDC_JWT,
     DUMMY_GITHUB_OIDC_JWT,
     DUMMY_GITLAB_OIDC_JWT,
+    DUMMY_GITLAB_SELF_MANAGED_OIDC_JWT,
     DUMMY_GOOGLE_OIDC_JWT,
 )
 from ...common.db.accounts import UserFactory
@@ -32,6 +38,28 @@ from ...common.db.macaroons import MacaroonFactory
 _HERE = Path(__file__).parent
 _ASSETS = _HERE.parent / "_fixtures"
 assert _ASSETS.is_dir()
+
+
+def _make_sparse_sdist(tar_format):
+    sdist = io.BytesIO()
+    with tarfile.open(fileobj=sdist, mode="w:gz", format=tar_format) as tar:
+        pkg_info = b"Metadata-Version: 2.1\nName: sampleproject\nVersion: 1.0\n"
+        info = tarfile.TarInfo(name="sampleproject-1.0/PKG-INFO")
+        info.size = len(pkg_info)
+        tar.addfile(info, io.BytesIO(pkg_info))
+
+        info = tarfile.TarInfo(name="sampleproject-1.0/sparse.dat")
+        if tar_format == tarfile.PAX_FORMAT:
+            info.size = 1
+            info.pax_headers = {
+                "GNU.sparse.map": "0,1",
+                "GNU.sparse.size": "10",
+            }
+        else:
+            info.type = tarfile.GNUTYPE_SPARSE
+            info.size = 0
+        tar.addfile(info, io.BytesIO(b"x"))
+    return sdist.getvalue()
 
 
 def test_incorrect_post_redirect(webtest):
@@ -137,6 +165,59 @@ def test_file_upload(webtest, upload_url, additional_data):
     assert release.version == "3.0.0"
 
 
+@pytest.mark.parametrize(
+    "tar_format",
+    [
+        pytest.param(tarfile.PAX_FORMAT, id="pax"),
+        pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+    ],
+)
+def test_sparse_sdist_upload_rejected(webtest, tar_format):
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+    )
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+
+    dm = MacaroonFactory.create(
+        user_id=user.id,
+        caveats=[caveats.RequestUser(user_id=str(user.id))],
+    )
+    macaroon = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        macaroon.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{macaroon.serialize()}"
+    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
+        "utf-8"
+    )
+
+    content = _make_sparse_sdist(tar_format)
+    response = webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={"Authorization": f"Basic {credentials}"},
+        params={
+            "name": "sampleproject",
+            "sha256_digest": hashlib.sha256(content).hexdigest(),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "1.0",
+        },
+        upload_files=[("content", "sampleproject-1.0.tar.gz", content)],
+        status=HTTPStatus.BAD_REQUEST,
+    )
+
+    assert response.status == (
+        "400 Invalid distribution file. tar archive not accepted: Sparse members are "
+        "not allowed. See https://docs.pypi.org/archives for more information"
+    )
+
+
 def test_duplicate_file_upload_error(webtest):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
 
@@ -211,17 +292,13 @@ def test_duplicate_file_upload_error(webtest):
     assert "File already exists" in resp.body.decode()
 
 
-def test_typo_check_name_upload_passes(webtest, monkeypatch):
+def test_typo_check_name_upload_passes(webtest):
     """
-    Test not blocking the upload of a release with a typo in the project name,
-    and emits a notification to the admins.
-    """
-    # TODO: Replace with a better way to generate corpus
-    monkeypatch.setattr(
-        "warehouse.packaging.typosnyper._TOP_PROJECT_NAMES",
-        {"wutang", "requests"},
-    )
+    Test not blocking the upload of a release with a typo in the project name.
 
+    The typo checks themselves run in a post-commit task, so they don't execute
+    here - what this guards is that nothing on the upload path rejects the name.
+    """
     # Set up user, credentials
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     # Construct the macaroon
@@ -578,3 +655,84 @@ def test_trusted_publisher_upload_fails_wrong_publisher(
             "(Publisher with matching claims was not found)",
         }
     ]
+
+
+@pytest.mark.parametrize(
+    ("publisher_factory", "publisher_data", "issuer_type", "issuer_url", "oidc_jwt"),
+    [
+        (
+            GitLabPublisherFactory,
+            {
+                "namespace": "foo",
+                "project": "bar",
+                "workflow_filepath": ".gitlab-ci.yml",
+                "environment": "",
+            },
+            OIDCIssuerType.GitLab,
+            "https://gitlab.example.com",
+            DUMMY_GITLAB_SELF_MANAGED_OIDC_JWT,
+        ),
+    ],
+)
+@pytest.mark.usefixtures("_enable_all_oidc_providers")
+def test_trusted_publisher_upload_ok_custom_issuer(
+    webtest,
+    publisher_factory,
+    publisher_data,
+    issuer_type,
+    issuer_url,
+    oidc_jwt,
+):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+
+    # Register the custom issuer URL with an organization
+    OrganizationOIDCIssuerFactory.create(
+        issuer_type=issuer_type,
+        issuer_url=issuer_url,
+        created_by=user,
+    )
+
+    publisher_factory.create(
+        projects=[project],
+        issuer_url=issuer_url,
+        **publisher_data,
+    )
+
+    response = webtest.post_json(
+        "/_/oidc/mint-token",
+        params={
+            "token": oidc_jwt,
+        },
+        status=HTTPStatus.OK,
+    )
+
+    assert "success" in response.json
+    assert response.json["success"]
+    assert "token" in response.json
+    pypi_token = response.json["token"]
+    assert pypi_token.startswith("pypi-")
+
+    with open(_ASSETS / "sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    webtest.set_authorization(("Basic", ("__token__", pypi_token)))
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        params={
+            "name": "sampleproject",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=HTTPStatus.OK,
+    )
+
+    assert len(project.releases) == 1
+    release = project.releases[0]
+    assert release.files.count() == 1

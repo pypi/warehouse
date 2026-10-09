@@ -6,7 +6,7 @@ import json
 import typing
 
 from base64 import b64encode
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from textwrap import dedent
 
 from humanize import naturaldate, naturaltime
@@ -84,8 +84,9 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         Summary: {model.summary}
         Model Name: {model.__class__.__name__}
 
-        Project URL: {request.route_url(
-        'packaging.project', name=target_name, _host=warehouse_domain)}
+        Project URL: {
+        request.route_url("packaging.project", name=target_name, _host=warehouse_domain)
+    }
         """)
     for owner in model.related.owners:
         username = owner.username
@@ -99,10 +100,13 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         convo_text += dedent(f"""
             Inspector URL: {model.payload.get("inspector_url")}
 
-            Malware Reports URL: {request.route_url(
-            "admin.malware_reports.project.list",
-            project_name=target_name,
-            _host=warehouse_domain)}
+            Malware Reports URL: {
+            request.route_url(
+                "admin.malware_reports.project.list",
+                project_name=target_name,
+                _host=warehouse_domain,
+            )
+        }
             """)
 
     helpdesk_service = request.find_service(IHelpDeskService)
@@ -162,7 +166,8 @@ def evaluate_project_for_quarantine(
     - Observed Project is not already quarantined
     - EITHER:
       - Trusted observer (`User.is_observer`) reports a young project (<24h old)
-      - OR: Project has at least 2 Observations, at least 1 by `User.is_observer`
+      - OR: Project has at least 2 malware Observations, at least 1 by
+        `User.is_observer`
     """
     # Fetch the Observation from the database, load the related Project
     observation = request.db.get(Observation, observation_id)
@@ -190,15 +195,21 @@ def evaluate_project_for_quarantine(
     reporter = observation.observer.parent
     # Note: project.created is a naive UTC datetime from the database
     project_is_young = project.created is not None and (
-        datetime.now(timezone.utc) - project.created.replace(tzinfo=timezone.utc)
+        datetime.now(UTC) - project.created.replace(tzinfo=UTC)
     ) < timedelta(hours=24)
     if reporter.is_observer and project_is_young:
         logger.info(
             "Auto-quarantining young project (<24h) reported by trusted observer."
         )
     else:
-        # Corroboration required: 2+ observers, at least 1 trusted
-        observer_users = {obs.observer.parent for obs in project.observations}
+        # Corroboration required: 2+ observers, at least 1 trusted.
+        # Only malware reports corroborate a malware report - observations of
+        # other kinds, including system-generated ones, must not tip the count.
+        observer_users = {
+            obs.observer.parent
+            for obs in project.observations
+            if OBSERVATION_KIND_MAP[obs.kind] == ObservationKind.IsMalware
+        }
         if len(observer_users) < 2:
             logger.info("Project has fewer than 2 observers. Not quarantining.")
             return
@@ -217,8 +228,9 @@ def evaluate_project_for_quarantine(
         name=project.normalized_name,
         _host=warehouse_domain,
     )
-    last_published_date = naturaldate(project.latest_version.created)
-    last_published_time = naturaltime(project.latest_version.created)
+    last_release = project.latest_version or project.all_versions[0]  # only yanked
+    last_published_date = naturaldate(last_release.created)
+    last_published_time = naturaltime(last_release.created)
     first_published_date = naturaldate(project.created)
     first_published_time = naturaltime(project.created)
     malware_reports_url = request.route_url(

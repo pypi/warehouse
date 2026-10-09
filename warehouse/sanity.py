@@ -21,7 +21,7 @@ def junk_encoding(request):
 
     # Look for invalid bytes in a path.
     try:
-        request.path_info
+        request.path_info  # noqa: B018
     except UnicodeDecodeError:
         raise HTTPBadRequest("Invalid bytes in URL.")
 

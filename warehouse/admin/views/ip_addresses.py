@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import typing
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import UserUniqueLogin
 from warehouse.authnz import Permissions
@@ -62,6 +63,7 @@ def ip_address_detail(request: Request) -> dict[str, IpAddress]:
 
     unique_logins = (
         request.db.query(UserUniqueLogin)
+        .options(joinedload(UserUniqueLogin.user))
         .filter(UserUniqueLogin.ip_address == ip_address)
         .order_by(UserUniqueLogin.created.desc())
         .all()
@@ -93,7 +95,7 @@ def ban_ip(request: Request):
     else:
         ip_address.is_banned = True
         ip_address.ban_reason = BanReason.ADMINISTRATIVE
-        ip_address.ban_date = datetime.utcnow()
+        ip_address.ban_date = datetime.now(UTC)
         request.session.flash(
             f"Banned IP address {ip_address.ip_address}", queue="success"
         )

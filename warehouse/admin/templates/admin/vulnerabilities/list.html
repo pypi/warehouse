@@ -1,0 +1,106 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Vulnerabilities{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">Observations</li>
+  <li class="breadcrumb-item active">Vulnerabilities</li>
+{% endblock %}
+
+{% block content %}
+{% set perms_write = request.has_permission(Permissions.AdminVulnerabilitiesWrite) %}
+
+<div class="card">
+  <div class="card-body">
+    <form>
+      <div class="input-group input-group-lg">
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search id / source / aliases (use % for wildcards)"{% if query %} value="{{ query }}"{% endif %}>
+        <div class="input-group-btn input-group-append">
+          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>ID</th>
+          <th>Summary</th>
+          <th>Aliases</th>
+          <th>Withdrawn</th>
+          <th>Affected releases</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vulnerability in vulnerabilities %}
+          <tr>
+            <td>{{ vulnerability.source }}</td>
+            <td>
+              <a href="{{ request.route_path('admin.vulnerabilities.detail', source=vulnerability.source, id=vulnerability.id) }}">
+                {{ vulnerability.id }}
+              </a>
+            </td>
+            <td>{{ vulnerability.summary or "" }}</td>
+            <td>{{ (vulnerability.aliases or []) | join(", ") }}</td>
+            <td>{% if vulnerability.withdrawn %}{{ vulnerability.withdrawn|format_datetime() }}{% endif %}</td>
+            <td>{{ release_counts.get((vulnerability.source, vulnerability.id), 0) }}</td>
+            <td>
+              <a class="btn btn-primary btn-sm" href="{{ request.route_path('admin.vulnerabilities.detail', source=vulnerability.source, id=vulnerability.id) }}">
+                <i class="fa fa-eye"></i> View
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="text-center">No vulnerabilities found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="card-footer">
+      <div class="col-sm-5">{{ pagination.summary(vulnerabilities) }}</div>
+      <div class="col-sm-7">
+        <div class="float-right">{{ pagination.paginate(vulnerabilities) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if query %}
+<div class="card card-danger">
+  <div class="card-header">
+    <h3 class="card-title">Bulk delete matching vulnerabilities</h3>
+  </div>
+  <form method="POST" action="{{ request.route_path('admin.vulnerabilities.bulk_delete') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <input name="q" type="hidden" value="{{ query }}">
+    <div class="card-body">
+      <p>
+        This will delete <strong>{{ vulnerabilities.item_count }}</strong> vulnerability record(s) matching
+        <code>{{ query }}</code> and cascade-remove every associated
+        <code>release_vulnerabilities</code> row.
+      </p>
+      <div class="form-group">
+        <label for="bulkConfirm">Type the exact filter above to confirm:</label>
+        <input name="confirm" id="bulkConfirm" class="form-control" autocomplete="off" {{ "disabled" if not perms_write }}>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-danger float-right" title="{{ 'Requires admin privileges' if not perms_write }}" {{ "disabled" if not perms_write }}>
+        <i class="fa fa-trash"></i> Delete {{ vulnerabilities.item_count }} vulnerabilities
+      </button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% endblock content %}

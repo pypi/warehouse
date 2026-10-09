@@ -4,11 +4,12 @@ import datetime
 import json
 import uuid
 
+from types import SimpleNamespace
+
 import freezegun
 import pretend
 import pytest
 
-from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -17,13 +18,22 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
-from sqlalchemy.exc import NoResultFound
+from pyramid.interfaces import ISecurityPolicy
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
+from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
 from warehouse.accounts import views
+from warehouse.accounts.forms import (
+    LoginForm,
+    RecoveryCodeAuthenticationForm,
+    RegistrationForm,
+    RequestPasswordResetForm,
+    ResetPasswordForm,
+    TOTPAuthenticationForm,
+)
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IPasswordBreachedService,
@@ -42,6 +52,7 @@ from warehouse.accounts.models import (
     UniqueLoginStatus,
     UserUniqueLogin,
 )
+from warehouse.accounts.services import NullPasswordBreachedService, TokenService
 from warehouse.accounts.views import (
     REMEMBER_DEVICE_COOKIE,
     two_factor_and_totp_validate,
@@ -64,12 +75,17 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Role, RoleInvitation
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.sessions import Session
+from warehouse.utils.security_policy import MultiSecurityPolicy
 
 from ...common.db.accounts import (
     EmailFactory,
+    RecoveryCodeFactory,
     UserFactory,
     UserUniqueLoginFactory,
+    WebAuthnFactory,
 )
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
@@ -127,11 +143,14 @@ class TestFailedLoginView:
 
 
 class TestUserProfile:
-    def test_user_redirects_username(self, db_request):
+    def test_user_redirects_username(self, db_request, mocker):
         user = UserFactory.create()
 
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/user/the-redirect/",
         )
         # Intentionally swap the case of the username to trigger the redirect
         db_request.matchdict = {"username": user.username.swapcase()}
@@ -140,9 +159,7 @@ class TestUserProfile:
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
-        ]
+        db_request.current_route_path.assert_called_once_with(username=user.username)
 
     def test_returns_user(self, db_request):
         user = UserFactory.create()
@@ -202,32 +219,108 @@ class TestUserProfile:
         assert len(resp["archived_projects"]) == 1
 
 
+@pytest.fixture
+def auth_token_services(pyramid_services):
+    """
+    Register a real ``TokenService`` per login token name, each with its own
+    salt as in production, so a token read under the wrong name fails.
+    """
+    services = {
+        name: TokenService(secret="secret", salt=name, max_age=21600)
+        for name in ("two_factor", "remember_device", "confirm_login")
+    }
+    for name, service in services.items():
+        pyramid_services.register_service(service, ITokenService, None, name=name)
+    return services
+
+
+@pytest.fixture
+def two_factor_token_service(auth_token_services):
+    return auth_token_services["two_factor"]
+
+
+@pytest.fixture
+def remember_device_token_service(auth_token_services):
+    return auth_token_services["remember_device"]
+
+
+@pytest.fixture
+def confirm_login_token_service(auth_token_services):
+    return auth_token_services["confirm_login"]
+
+
+@pytest.fixture
+def two_factor_user(db_session):
+    """
+    A TOTP-enabled user whose last login predates any token signed in the test.
+    """
+    return UserFactory.create(
+        last_login=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+    )
+
+
+@pytest.fixture
+def breach_service(pyramid_services):
+    service = NullPasswordBreachedService()
+    pyramid_services.register_service(service, IPasswordBreachedService, None)
+    return service
+
+
+@pytest.fixture
+def password_reset_token(token_service):
+    """Sign a password-reset token for ``user`` with the real token service."""
+
+    def _make(user, *, last_login=None, password_date=None):
+        return token_service.dumps(
+            {
+                "action": "password-reset",
+                "user.id": user.id,
+                "user.last_login": (
+                    user.last_login if last_login is None else last_login
+                ),
+                "user.password_date": (
+                    user.password_date if password_date is None else password_date
+                ),
+            }
+        )
+
+    return _make
+
+
+@pytest.fixture
+def invite_request(db_request, mocker):
+    """A POST request answering an invitation, redirecting to ``/``."""
+    db_request.method = "POST"
+    db_request.remote_addr = "192.168.1.1"
+    mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
+    mocker.spy(db_request.session, "flash")
+    return db_request
+
+
 class TestAccountsSearch:
-    def test_unauthenticated_raises_401(self):
-        pyramid_request = pretend.stub(user=None)
+    def test_unauthenticated_raises_401(self, pyramid_request):
         with pytest.raises(HTTPUnauthorized):
             views.accounts_search(pyramid_request)
 
-    def test_no_query_string_raises_400(self):
-        pyramid_request = pretend.stub(user=pretend.stub(), params=MultiDict({}))
+    def test_no_query_string_raises_400(self, pyramid_request):
+        pyramid_request.user = UserFactory.build()
+        pyramid_request.params = MultiDict({})
         with pytest.raises(HTTPBadRequest):
             views.accounts_search(pyramid_request)
 
-    def test_returns_users_with_prefix(self, db_request, user_service):
+    def test_returns_users_with_prefix(
+        self, db_request, pyramid_services, ratelimit_service
+    ):
         foo = UserFactory.create(username="foo")
         bas = [
             UserFactory.create(username="bar"),
             UserFactory.create(username="baz"),
         ]
 
-        db_request.user = pretend.stub()
-        db_request.find_service = lambda svc, **kw: {
-            IUserService: user_service,
-            IRateLimiter: pretend.stub(
-                test=pretend.call_recorder(lambda ip_address: True),
-                hit=pretend.call_recorder(lambda ip_address: None),
-            ),
-        }[svc]
+        db_request.user = foo
+        pyramid_services.register_service(
+            ratelimit_service, IRateLimiter, None, name="accounts.search"
+        )
 
         db_request.params = MultiDict({"username": "f"})
         result = views.accounts_search(db_request)
@@ -241,247 +334,199 @@ class TestAccountsSearch:
         with pytest.raises(HTTPNotFound):
             views.accounts_search(db_request)
 
-    def test_when_rate_limited(self, db_request):
-        search_limiter = pretend.stub(
-            test=pretend.call_recorder(lambda ip_address: False),
+    def test_when_rate_limited(
+        self, db_request, pyramid_services, user_service, mocker
+    ):
+        search_limiter = DummyRateLimiter()
+        mocker.patch.object(search_limiter, "test", autospec=True, return_value=False)
+        pyramid_services.register_service(
+            search_limiter, IRateLimiter, None, name="accounts.search"
         )
-        db_request.user = pretend.stub()
-        db_request.find_service = lambda svc, **kw: {
-            IRateLimiter: search_limiter,
-        }[svc]
+        mocker.spy(user_service, "get_users_by_prefix")
+        db_request.user = UserFactory.build()
 
         db_request.params = MultiDict({"username": "foo"})
         result = views.accounts_search(db_request)
 
-        assert search_limiter.test.calls == [pretend.call(db_request.ip_address)]
+        search_limiter.test.assert_called_once_with(db_request.ip_address)
+        user_service.get_users_by_prefix.assert_not_called()
         assert result == {"users": []}
 
 
 class TestLogin:
+    @pytest.fixture
+    def form_class(self, mocker):
+        return mocker.create_autospec(LoginForm)
+
+    @pytest.fixture
+    def valid_form(self, form_class):
+        form_class.return_value.validate.return_value = True
+        return form_class.return_value
+
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_form(self, pyramid_request, pyramid_services, next_url):
-        user_service = pretend.stub()
-        breach_service = pretend.stub()
-
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
-
-        form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-
+    def test_get_returns_form(
+        self, pyramid_request, user_service, breach_service, form_class, next_url
+    ):
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
 
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert result == {
-            "form": form_obj,
+            "form": form_class.return_value,
             "redirect": {"field": "next", "data": next_url},
         }
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                user_service=user_service,
-                breach_service=breach_service,
-                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-            )
-        ]
+        form_class.assert_called_once_with(
+            pyramid_request.POST,
+            request=pyramid_request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+        )
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_post_invalid_returns_form(
-        self, pyramid_request, pyramid_services, metrics, next_url
+        self,
+        pyramid_request,
+        user_service,
+        breach_service,
+        form_class,
+        metrics,
+        next_url,
     ):
-        user_service = pretend.stub()
-        breach_service = pretend.stub()
-
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
-
         pyramid_request.method = "POST"
         if next_url is not None:
             pyramid_request.POST["next"] = next_url
-        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = False
 
         result = views.login(pyramid_request, _form_class=form_class)
-        assert metrics.increment.calls == []
+        metrics.increment.assert_not_called()
 
         assert result == {
             "form": form_obj,
             "redirect": {"field": "next", "data": next_url},
         }
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                user_service=user_service,
-                breach_service=breach_service,
-                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-            )
-        ]
-        assert form_obj.validate.calls == [pretend.call()]
+        form_class.assert_called_once_with(
+            pyramid_request.POST,
+            request=pyramid_request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+        )
+        form_obj.validate.assert_called_once_with()
 
     @pytest.mark.parametrize("with_user", [True, False])
     def test_post_validate_redirects(
-        self, monkeypatch, db_request, pyramid_services, metrics, with_user
+        self,
+        db_request,
+        user_service,
+        breach_service,
+        form_class,
+        valid_form,
+        metrics,
+        with_user,
+        mocker,
     ):
-        remember = pretend.call_recorder(lambda request, user_id: [])
-        monkeypatch.setattr(views, "remember", remember)
-
-        new_session = {}
-
-        user_id = uuid.uuid4()
-        user = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        remember = mocker.patch.object(
+            views, "remember", autospec=True, return_value=[]
         )
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user_id),
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-            get_user=pretend.call_recorder(lambda userid: user),
-            has_two_factor=lambda userid: False,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
-        )
-        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
+        user = UserFactory.create(
+            totp_secret=None, with_terms_of_service_agreement=True
         )
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
+        mocker.spy(user_service, "find_userid")
+        mocker.spy(user_service, "update_user")
 
         db_request.method = "POST"
-        db_request.session = pretend.stub(
-            items=lambda: [("a", "b"), ("foo", "bar")],
-            update=new_session.update,
-            invalidate=pretend.call_recorder(lambda: None),
-            new_csrf_token=pretend.call_recorder(lambda: None),
-        )
+        db_request.session = Session({"a": "b", "foo": "bar"})
+        for method in ("invalidate", "new_csrf_token", "record_auth_timestamp"):
+            mocker.spy(db_request.session, method)
 
         db_request._unauthenticated_userid = str(uuid.uuid4()) if with_user else None
 
-        db_request.registry.settings = {"sessions.secret": "dummy_secret"}
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        db_request.session.record_password_timestamp = lambda timestamp: None
+        db_request.registry.settings = {
+            "sessions.secret": "dummy_secret",
+            "terms.revision": "initial",
+        }
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data="theuser"),
-            password=pretend.stub(data="password"),
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        valid_form.username.data = user.username
 
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
 
         now = datetime.datetime.now(datetime.UTC)
 
         with freezegun.freeze_time(now):
             result = views.login(db_request, _form_class=form_class)
 
-        assert metrics.increment.calls == []
+        metrics.increment.assert_not_called()
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        db_request.route_path.assert_called_once_with("manage.projects")
         assert result.headers["Location"] == "/the-redirect"
         assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
 
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                request=db_request,
-                user_service=user_service,
-                breach_service=breach_service,
-                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-            )
-        ]
-        assert form_obj.validate.calls == [pretend.call()]
+        form_class.assert_called_once_with(
+            db_request.POST,
+            request=db_request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+        )
+        valid_form.validate.assert_called_once_with()
 
-        assert user_service.find_userid.calls == [pretend.call("theuser")]
-        assert user_service.update_user.calls == [pretend.call(user_id, last_login=now)]
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.LoginSuccess,
-                request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
-            )
-        ]
+        user_service.find_userid.assert_called_once_with(user.username)
+        user_service.update_user.assert_called_once_with(user.id, last_login=now)
+        user.record_event.assert_called_once_with(
+            tag=EventTag.Account.LoginSuccess,
+            request=db_request,
+            additional={"two_factor_method": None, "two_factor_label": None},
+        )
 
+        kept_session = {
+            key: value
+            for key, value in db_request.session.items()
+            if key in ("a", "foo")
+        }
         if with_user:
-            assert new_session == {}
+            assert kept_session == {}
         else:
-            assert new_session == {"a": "b", "foo": "bar"}
+            assert kept_session == {"a": "b", "foo": "bar"}
 
-        assert remember.calls == [pretend.call(db_request, str(user_id))]
-        assert db_request.session.invalidate.calls == [pretend.call()]
-        assert db_request.session.new_csrf_token.calls == [pretend.call()]
-        assert db_request.session.record_auth_timestamp.calls == [pretend.call()]
+        remember.assert_called_once_with(db_request, str(user.id))
+        db_request.session.invalidate.assert_called_once_with()
+        db_request.session.new_csrf_token.assert_called_once_with()
+        db_request.session.record_auth_timestamp.assert_called_once_with()
 
-    def test_post_validate_flash_tos(self, db_request, pyramid_services):
-        user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: user),
-            find_userid=pretend.call_recorder(lambda username: user.id),
-            update_user=lambda *a, **k: None,
-            has_two_factor=lambda userid: False,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: True,
-            record_tos_engagement=pretend.call_recorder(
-                lambda userid, revision, engagement: None
-            ),
-        )
-        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
-
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
+    def test_post_validate_flash_tos(
+        self, db_request, user_service, breach_service, form_class, valid_form, mocker
+    ):
+        user = UserFactory.create(totp_secret=None)
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
+        mocker.spy(user_service, "record_tos_engagement")
 
         db_request.method = "POST"
-
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        db_request.session.record_password_timestamp = lambda timestamp: None
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        security_policy = pretend.stub(
-            identity=lambda r: None,
-            remember=lambda r, u, **kw: [],
-            reset=pretend.call_recorder(lambda r: None),
-        )
-        db_request.registry.queryUtility = lambda iface: security_policy
+        db_request.session = Session()
+        mocker.spy(db_request.session, "flash")
         db_request.registry.settings = {"terms.revision": "the-revision"}
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data="theuser"),
-            password=pretend.stub(data="password"),
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
         views.login(db_request, _form_class=form_class)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Please review our updated "
-                    '<a href="/the-redirect">'
-                    "Terms of Service</a>."
-                ),
-                safe=True,
-            )
-        ]
-        assert user_service.record_tos_engagement.calls == [
-            pretend.call(user.id, "the-revision", TermsOfServiceEngagement.Flashed)
-        ]
+        db_request.session.flash.assert_called_once_with(
+            ('Please review our updated <a href="/the-redirect">Terms of Service</a>.'),
+            safe=True,
+        )
+        user_service.record_tos_engagement.assert_called_once_with(
+            user.id, "the-revision", TermsOfServiceEngagement.Flashed
+        )
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
@@ -490,116 +535,92 @@ class TestLogin:
         [("/security/", "/security/"), ("http://example.com", "/the-redirect")],
     )
     def test_post_validate_no_redirects(
-        self, db_request, pyramid_services, expected_next_url, observed_next_url
+        self,
+        db_request,
+        pyramid_config,
+        breach_service,
+        form_class,
+        valid_form,
+        expected_next_url,
+        observed_next_url,
+        mocker,
     ):
-        user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: user),
-            find_userid=pretend.call_recorder(lambda username: user.id),
-            update_user=lambda *a, **k: None,
-            has_two_factor=lambda userid: False,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
+        user = UserFactory.create(
+            totp_secret=None, with_terms_of_service_agreement=True
         )
-        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
-
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         db_request.method = "POST"
         db_request.POST["next"] = expected_next_url
+        db_request.session = Session()
+        db_request.registry.settings = {"terms.revision": "initial"}
+        mocker.spy(db_request.session, "record_auth_timestamp")
 
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        db_request.session.record_password_timestamp = lambda timestamp: None
+        security_policy = MultiSecurityPolicy([])
+        mocker.spy(security_policy, "reset")
+        pyramid_config.set_security_policy(security_policy)
 
-        security_policy = pretend.stub(
-            identity=lambda r: None,
-            remember=lambda r, u, **kw: [],
-            reset=pretend.call_recorder(lambda r: None),
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.registry.queryUtility = lambda iface: security_policy
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data="theuser"),
-            password=pretend.stub(data="password"),
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
         result = views.login(db_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.LoginSuccess,
-                request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
-            )
-        ]
-        assert db_request.session.record_auth_timestamp.calls == [pretend.call()]
-        assert security_policy.reset.calls == [pretend.call(db_request)]
+        user.record_event.assert_called_once_with(
+            tag=EventTag.Account.LoginSuccess,
+            request=db_request,
+            additional={"two_factor_method": None, "two_factor_label": None},
+        )
+        db_request.session.record_auth_timestamp.assert_called_once_with()
+        security_policy.reset.assert_called_once_with(db_request)
 
-    def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(user=pretend.stub())
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+    def test_redirect_authenticated_user(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         result = views.login(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     def test_two_factor_auth(
-        self, monkeypatch, pyramid_request, redirect_url, token_service
+        self,
+        db_request,
+        two_factor_token_service,
+        breach_service,
+        form_class,
+        valid_form,
+        redirect_url,
+        mocker,
     ):
-        token_service.dumps = lambda d: "fake_token"
+        user = UserFactory.create()
+        mocker.spy(two_factor_token_service, "dumps")
 
-        monkeypatch.setattr(
-            views, "_check_remember_device_token", lambda *a, **kw: False
-        )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            update_user=lambda *a, **k: None,
-            has_two_factor=lambda userid: True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        breach_service = pretend.stub(check_password=lambda pw: False)
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-            IPasswordBreachedService: breach_service,
-        }[interface]
-
-        pyramid_request.method = "POST"
+        db_request.method = "POST"
         if redirect_url:
-            pyramid_request.POST["next"] = redirect_url
+            db_request.POST["next"] = redirect_url
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data="theuser"),
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/two-factor",
         )
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda a, **kw: "/account/two-factor"
-        )
-        pyramid_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: {"userid": 1}[k])
-        )
-        result = views.login(pyramid_request, _form_class=form_class)
+        result = views.login(db_request, _form_class=form_class)
 
-        token_expected_data = {"userid": 1}
+        token_expected_data = {"userid": user.id}
         if redirect_url:
             token_expected_data["redirect_to"] = redirect_url
 
+        two_factor_token_service.dumps.assert_called_once_with(token_expected_data)
+        db_request.route_path.assert_called_once_with(
+            "accounts.two-factor", _query=two_factor_token_service.dumps.spy_return
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headerlist == [
             ("Content-Type", "text/html; charset=UTF-8"),
@@ -608,29 +629,20 @@ class TestLogin:
         ]
 
     def test_login_with_remembered_device_confirms_unique_login(
-        self, monkeypatch, db_request, pyramid_services
+        self,
+        db_request,
+        remember_device_token_service,
+        breach_service,
+        form_class,
+        valid_form,
+        mocker,
     ):
-        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
-        monkeypatch.setattr(views, "remember", remember)
-        monkeypatch.setattr(views, "_check_remember_device_token", lambda r, uid: True)
-
-        user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.id),
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-            get_user=pretend.call_recorder(lambda userid: user),
-            has_two_factor=lambda userid: True,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
+        mocker.patch.object(
+            views, "remember", autospec=True, return_value=[("foo", "bar")]
         )
-        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
+        user = UserFactory.create(with_terms_of_service_agreement=True)
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         UserUniqueLoginFactory.create(
             user=user,
@@ -638,24 +650,20 @@ class TestLogin:
             status=UniqueLoginStatus.PENDING,
         )
 
+        db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps({"user_id": user.id})
+        )
         db_request.method = "POST"
-        db_request.session = pretend.stub(
-            items=lambda: [],
-            update=lambda d: None,
-            invalidate=pretend.call_recorder(lambda: None),
-            new_csrf_token=pretend.call_recorder(lambda: None),
-            record_auth_timestamp=pretend.call_recorder(lambda: None),
-            record_password_timestamp=lambda ts: None,
-        )
-        db_request.registry.settings = {"sessions.secret": "dummy_secret"}
+        db_request.session = Session()
+        db_request.registry.settings = {
+            "sessions.secret": "dummy_secret",
+            "terms.revision": "initial",
+        }
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=user.username),
-            password=pretend.stub(data="password"),
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
         views.login(db_request, _form_class=form_class)
 
@@ -666,27 +674,17 @@ class TestLogin:
         )
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
 
-    def test_login_updates_last_used(self, monkeypatch, db_request, pyramid_services):
-        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
-        monkeypatch.setattr(views, "remember", remember)
-
-        user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.id),
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-            get_user=pretend.call_recorder(lambda userid: user),
-            has_two_factor=lambda userid: False,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
+    def test_login_updates_last_used(
+        self, db_request, breach_service, form_class, valid_form, mocker
+    ):
+        mocker.patch.object(
+            views, "remember", autospec=True, return_value=[("foo", "bar")]
         )
-        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(user_service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
+        user = UserFactory.create(
+            totp_secret=None, with_terms_of_service_agreement=True
         )
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         # Create a unique login with a timestamp in the distant past.
         past_timestamp = datetime.datetime(1970, 1, 1)
@@ -698,23 +696,16 @@ class TestLogin:
         )
 
         db_request.method = "POST"
-        db_request.session = pretend.stub(
-            items=lambda: [],
-            update=lambda d: None,
-            invalidate=pretend.call_recorder(lambda: None),
-            new_csrf_token=pretend.call_recorder(lambda: None),
-            record_auth_timestamp=pretend.call_recorder(lambda: None),
-            record_password_timestamp=lambda ts: None,
-        )
-        db_request.registry.settings = {"sessions.secret": "dummy_secret"}
+        db_request.session = Session()
+        db_request.registry.settings = {
+            "sessions.secret": "dummy_secret",
+            "terms.revision": "initial",
+        }
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=user.username),
-            password=pretend.stub(data="password"),
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
         # Simulate the login.
         views.login(db_request, _form_class=form_class)
@@ -724,44 +715,32 @@ class TestLogin:
 
 
 class TestTwoFactor:
-    def test_get_two_factor_data_invalid_after_login(self, pyramid_request):
+    @pytest.fixture
+    def form_class(self, mocker):
+        return mocker.create_autospec(TOTPAuthenticationForm)
+
+    def test_get_two_factor_data_invalid_after_login(
+        self, db_request, two_factor_token_service
+    ):
         sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(seconds=30)
-        last_login_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(
-            seconds=1
+        user = UserFactory.create(
+            last_login=datetime.datetime.now(datetime.UTC)
+            - datetime.timedelta(seconds=1)
         )
 
-        query_params = {"userid": 1}
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, sign_time)
+        with freezegun.freeze_time(sign_time):
+            db_request.query_string = two_factor_token_service.dumps(
+                {"userid": user.id}
             )
-        )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(last_login=last_login_time)
-            ),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda uid: True,
-            has_webauthn=lambda uid: False,
-            has_recovery_codes=lambda uid: False,
-        )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.query_string = pretend.stub()
 
         with pytest.raises(TokenInvalid):
-            views._get_two_factor_data(pyramid_request)
+            views._get_two_factor_data(db_request)
 
     def test_two_factor_and_totp_validate_redirect_to_account_login(
         self,
         db_request,
-        token_service,
-        user_service,
+        two_factor_token_service,
+        mocker,
     ):
         """
         Checks redirect to the login page if the 2fa login got expired.
@@ -790,435 +769,297 @@ class TestTwoFactor:
         db_request.db.expunge(user)
         del user
 
-        token = token_service.dumps(token_data)
+        token = two_factor_token_service.dumps(token_data)
         db_request.query_string = token
-        db_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        db_request.route_path = pretend.call_recorder(lambda name: "/account/login/")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/account/login/"
+        )
 
         two_factor_and_totp_validate(db_request)
         # This view is redirected to only during a TokenException recovery
         # which is called in two instances:
         # 1. No userid in token
         # 2. The token has expired
-        assert db_request.route_path.calls == [pretend.call("accounts.login")]
+        db_request.route_path.assert_called_once_with("accounts.login")
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_totp_form(self, pyramid_request, redirect_url):
-        query_params = {"userid": 1}
+    def test_get_returns_totp_form(
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        form_class,
+        redirect_url,
+        mocker,
+    ):
+        query_params = {"userid": two_factor_user.id}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
 
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+        db_request.query_string = two_factor_token_service.dumps(query_params)
+        mocker.spy(two_factor_token_service, "loads")
+        db_request.registry.settings = {"remember_device.days": 30}
+
+        result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
         )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda uid: True,
-            has_webauthn=lambda uid: False,
-            has_recovery_codes=lambda uid: False,
+        assert result == {
+            "totp_form": form_class.return_value,
+            "remember_device_days": 30,
+        }
+        form_class.assert_called_once_with(
+            db_request.POST,
+            request=db_request,
+            user_id=str(two_factor_user.id),
+            user_service=user_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
         )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.registry.settings = {"remember_device.days": 30}
-        pyramid_request.query_string = pretend.stub()
-
-        form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
-
-        result = views.two_factor_and_totp_validate(
-            pyramid_request, _form_class=form_class
-        )
-
-        assert token_service.loads.calls == [
-            pretend.call(pyramid_request.query_string, return_timestamp=True)
-        ]
-        assert result == {"totp_form": form_obj, "remember_device_days": 30}
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                user_id=1,
-                user_service=user_service,
-                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-            )
-        ]
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_webauthn(self, pyramid_request, redirect_url):
-        query_params = {"userid": 1}
+    def test_get_returns_webauthn(
+        self,
+        db_request,
+        two_factor_token_service,
+        two_factor_user,
+        form_class,
+        redirect_url,
+        mocker,
+    ):
+        two_factor_user.totp_secret = None
+        WebAuthnFactory.create(user=two_factor_user)
+        query_params = {"userid": two_factor_user.id}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
 
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+        db_request.query_string = two_factor_token_service.dumps(query_params)
+        mocker.spy(two_factor_token_service, "loads")
+        db_request.registry.settings = {"remember_device.days": 30}
+
+        result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
         )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda uid: False,
-            has_webauthn=lambda uid: True,
-            has_recovery_codes=lambda uid: False,
-        )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.registry.settings = {"remember_device.days": 30}
-        pyramid_request.query_string = pretend.stub()
-
-        result = views.two_factor_and_totp_validate(
-            pyramid_request, _form_class=pretend.stub()
-        )
-
-        assert token_service.loads.calls == [
-            pretend.call(pyramid_request.query_string, return_timestamp=True)
-        ]
         assert result == {"has_webauthn": True, "remember_device_days": 30}
+        form_class.assert_not_called()
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_recovery_code_status(self, pyramid_request, redirect_url):
-        query_params = {"userid": 1}
+    def test_get_returns_recovery_code_status(
+        self,
+        db_request,
+        two_factor_token_service,
+        two_factor_user,
+        form_class,
+        redirect_url,
+        mocker,
+    ):
+        two_factor_user.totp_secret = None
+        RecoveryCodeFactory.create(user=two_factor_user)
+        query_params = {"userid": two_factor_user.id}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
 
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+        db_request.query_string = two_factor_token_service.dumps(query_params)
+        mocker.spy(two_factor_token_service, "loads")
+        db_request.registry.settings = {"remember_device.days": 30}
+
+        result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
         )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda uid: False,
-            has_webauthn=lambda uid: False,
-            has_recovery_codes=lambda uid: True,
-        )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.registry.settings = {"remember_device.days": 30}
-        pyramid_request.query_string = pretend.stub()
-
-        result = views.two_factor_and_totp_validate(
-            pyramid_request, _form_class=pretend.stub()
-        )
-
-        assert token_service.loads.calls == [
-            pretend.call(pyramid_request.query_string, return_timestamp=True)
-        ]
         assert result == {"has_recovery_codes": True, "remember_device_days": 30}
+        form_class.assert_not_called()
 
-    @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
+    @pytest.mark.parametrize("redirect_url", ["/test_redirect_url", None])
     @pytest.mark.parametrize("has_recovery_codes", [True, False])
     @pytest.mark.parametrize("remember_device", [True, False])
     def test_totp_auth(
         self,
-        monkeypatch,
         db_request,
+        two_factor_token_service,
+        form_class,
         redirect_url,
         has_recovery_codes,
         remember_device,
-        make_email_renderers,
-        metrics,
+        mocker,
     ):
-        make_email_renderers("unrecognized-login")
-        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
-        monkeypatch.setattr(views, "remember", remember)
-
-        _remember_device = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_remember_device", _remember_device)
+        remember = mocker.patch.object(
+            views, "remember", autospec=True, return_value=[("foo", "bar")]
+        )
+        _remember_device = mocker.patch.object(views, "_remember_device", autospec=True)
+        send_email = mocker.patch.object(
+            views, "send_recovery_code_reminder_email", autospec=True
+        )
 
         user = UserFactory.create(
             with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
             username="testuser",
             name="Test User",
             last_login=(
                 datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
             ),
         )
-        monkeypatch.setattr(
-            type(user),
-            "has_recovery_codes",
-            property(lambda u: has_recovery_codes),
+        if has_recovery_codes:
+            RecoveryCodeFactory.create(user=user)
+        # A confirmed login from this IP makes the device known.
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=db_request.ip_address,
+            status=UniqueLoginStatus.CONFIRMED,
         )
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_id = user.id
-        query_params = {"userid": str(user_id)}
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
+
+        query_params = {"userid": user.id}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
-
-        two_factor_token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
-        )
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.id),
-            get_user=pretend.call_recorder(lambda userid: user),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda userid: True,
-            has_webauthn=lambda userid: False,
-            has_recovery_codes=lambda userid: has_recovery_codes,
-            check_totp_value=lambda userid, totp_value: True,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
-        )
-
-        new_session = {}
-
-        db_request.find_service = lambda interface, **kwargs: {
-            ITokenService: two_factor_token_service,
-            IUserService: user_service,
-        }[interface]
+        db_request.query_string = two_factor_token_service.dumps(query_params)
 
         db_request.method = "POST"
-        db_request.session = pretend.stub(
-            items=lambda: [("a", "b"), ("foo", "bar")],
-            update=new_session.update,
-            invalidate=pretend.call_recorder(lambda: None),
-            new_csrf_token=pretend.call_recorder(lambda: None),
-            get_password_timestamp=lambda userid: 0,
-        )
+        db_request.session = Session({"a": "b", "foo": "bar"})
+        for method in ("invalidate", "new_csrf_token", "record_auth_timestamp"):
+            mocker.spy(db_request.session, method)
+        db_request.registry.settings = {
+            "remember_device.days": 30,
+            "terms.revision": "initial",
+        }
 
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        db_request.session.record_password_timestamp = lambda timestamp: None
-        db_request.registry.settings = {"remember_device.days": 30}
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            totp_value=pretend.stub(data="test-otp-secret"),
-            remember_device=pretend.stub(data=remember_device),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = True
+        form_obj.totp_value.data = "test-otp-secret"
+        form_obj.remember_device.data = remember_device
         db_request.user = user
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_recovery_code_reminder_email", send_email)
 
         result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
 
-        token_expected_data = {"userid": str(user.id)}
-        if redirect_url:
-            token_expected_data["redirect_to"] = redirect_url
-
         assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == (redirect_url or "/")
 
-        assert remember.calls == [pretend.call(db_request, str(user.id))]
-        assert db_request.session.invalidate.calls == [pretend.call()]
-        assert db_request.session.new_csrf_token.calls == [pretend.call()]
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.LoginSuccess,
-                request=db_request,
-                additional={"two_factor_method": "totp", "two_factor_label": "totp"},
+        remember.assert_called_once_with(db_request, str(user.id))
+        db_request.session.invalidate.assert_called_once_with()
+        db_request.session.new_csrf_token.assert_called_once_with()
+        user.record_event.assert_called_once_with(
+            tag=EventTag.Account.LoginSuccess,
+            request=db_request,
+            additional={"two_factor_method": "totp", "two_factor_label": "totp"},
+        )
+        db_request.session.record_auth_timestamp.assert_called_once_with()
+        if has_recovery_codes:
+            send_email.assert_not_called()
+        else:
+            send_email.assert_called_once_with(db_request, user)
+
+        if remember_device:
+            _remember_device.assert_called_once_with(
+                db_request, result, str(user.id), "totp"
             )
-        ]
-        assert db_request.session.record_auth_timestamp.calls == [pretend.call()]
-        assert send_email.calls == (
-            [] if has_recovery_codes else [pretend.call(db_request, user)]
+        else:
+            _remember_device.assert_not_called()
+
+    def test_totp_auth_already_authed(self, pyramid_request, pyramid_config, mocker):
+        pyramid_config.testing_securitypolicy(identity=UserFactory.build())
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
         )
 
-        assert _remember_device.calls == (
-            []
-            if not remember_device
-            else [pretend.call(db_request, result, str(user.id), "totp")]
-        )
+        result = views.two_factor_and_totp_validate(pyramid_request)
 
-    def test_totp_auth_already_authed(self):
-        request = pretend.stub(
-            identity=pretend.stub(),
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-        )
-        result = views.two_factor_and_totp_validate(request)
-
-        assert request.route_path.calls == [pretend.call("manage.projects")]
+        pyramid_request.route_path.assert_called_once_with("manage.projects")
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_totp_form_invalid(self):
-        token_data = {"userid": 1}
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    token_data,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+    def test_totp_form_invalid(
+        self, db_request, two_factor_token_service, two_factor_user, form_class, mocker
+    ):
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id}
         )
+        mocker.spy(two_factor_token_service, "loads")
+        db_request.method = "POST"
+        db_request.registry.settings = {"remember_device.days": 30}
 
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            has_totp=lambda userid: True,
-            has_webauthn=lambda userid: False,
-            has_recovery_codes=lambda userid: False,
-            check_totp_value=lambda userid, totp_value: False,
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = False
+        form_obj.totp_value.data = "test-otp-secret"
+
+        result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
         )
-
-        request = pretend.stub(
-            POST={},
-            method="POST",
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            identity=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
-            query_string=pretend.stub(),
-            registry=pretend.stub(settings={"remember_device.days": 30}),
-        )
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: False),
-            totp_value=pretend.stub(data="test-otp-secret"),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-
-        result = views.two_factor_and_totp_validate(request, _form_class=form_class)
-
-        assert token_service.loads.calls == [
-            pretend.call(request.query_string, return_timestamp=True)
-        ]
         assert result == {"totp_form": form_obj, "remember_device_days": 30}
+        assert form_obj.totp_value.data == ""
 
-    def test_two_factor_token_missing_userid(self, pyramid_request):
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda *a, **kw: ({}, None))
-        )
+    def test_two_factor_token_missing_userid(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        pyramid_request.query_string = two_factor_token_service.dumps({})
+        mocker.spy(two_factor_token_service, "loads")
 
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
         )
-        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service
-        }[interface]
-        pyramid_request.query_string = pretend.stub()
 
         result = views.two_factor_and_totp_validate(pyramid_request)
 
-        assert token_service.loads.calls == [
-            pretend.call(pyramid_request.query_string, return_timestamp=True)
-        ]
-        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
+        two_factor_token_service.loads.assert_called_once_with(
+            pyramid_request.query_string, return_timestamp=True
+        )
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
+        )
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_two_factor_token_invalid(self, pyramid_request):
-        token_service = pretend.stub(loads=pretend.raiser(TokenException))
+    def test_two_factor_token_invalid(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        pyramid_request.query_string = "not-a-valid-token"
 
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
         )
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service
-        }[interface]
-        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
 
         result = views.two_factor_and_totp_validate(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
+        )
 
     def test_two_factor_and_totp_validate_device_not_known(
-        self, db_request, token_service
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        mocker,
     ):
-        user = UserFactory.create()
-        token_data = {"userid": str(user.id)}
-        token_service.loads = pretend.call_recorder(
-            lambda *args, **kwargs: (
-                token_data,
-                datetime.datetime.now(datetime.UTC),
-            )
+        mocker.patch.object(
+            user_service, "device_is_known", autospec=True, return_value=False
         )
-        user_service = pretend.stub(
-            get_user=lambda userid: user,
-            has_totp=lambda uid: True,
-            has_webauthn=lambda uid: False,
-            has_recovery_codes=lambda uid: False,
-            device_is_known=lambda *a: False,
-            check_totp_value=lambda userid, totp_value: True,
+        mocker.patch.object(
+            user_service, "check_totp_value", autospec=True, return_value=True
         )
-
-        db_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        db_request.route_path = pretend.call_recorder(
-            lambda name: "/account/confirm-login/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/confirm-login/",
         )
-        db_request.query_string = token_service.dumps(token_data)
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id}
+        )
 
         db_request.registry.settings = {"remember_device.days": 30}
         db_request.method = "POST"
@@ -1226,444 +1067,364 @@ class TestTwoFactor:
         result = two_factor_and_totp_validate(db_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("accounts.confirm-login")]
+        db_request.route_path.assert_called_once_with("accounts.confirm-login")
+        user_service.device_is_known.assert_called_once_with(
+            str(two_factor_user.id), db_request, "totp"
+        )
 
 
 class TestWebAuthn:
-    def test_webauthn_get_options_already_authenticated(self):
-        request = pretend.stub(user=pretend.stub(), _=lambda a: a)
-
-        result = views.webauthn_authentication_options(request)
-
-        assert result == {"fail": {"errors": ["Already authenticated"]}}
-
-    def test_webauthn_get_options_invalid_token(self, monkeypatch, pyramid_request):
-        _get_two_factor_data = pretend.raiser(TokenException)
-        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
-
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+    def test_webauthn_get_options_already_authenticated(self, pyramid_request):
+        pyramid_request.user = UserFactory.build()
 
         result = views.webauthn_authentication_options(pyramid_request)
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
-        assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
-
-    def test_webauthn_get_options(self, monkeypatch):
-        _get_two_factor_data = pretend.call_recorder(
-            lambda r: {"redirect_to": "foobar", "userid": 1}
-        )
-        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
-
-        user_service = pretend.stub(
-            get_webauthn_assertion_options=lambda *a, **kw: {"not": "real"}
-        )
-
-        request = pretend.stub(
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-            ),
-            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
-            domain=pretend.stub(),
-            user=None,
-            find_service=lambda interface, **kwargs: user_service,
-        )
-
-        result = views.webauthn_authentication_options(request)
-
-        assert _get_two_factor_data.calls == [pretend.call(request)]
-        assert result == {"not": "real"}
-
-    def test_webauthn_validate_already_authenticated(self):
-        # TODO: Determine why we can't use `request.user` here.
-        request = pretend.stub(identity=pretend.stub())
-        result = views.webauthn_authentication_validate(request)
-
         assert result == {"fail": {"errors": ["Already authenticated"]}}
 
-    def test_webauthn_validate_invalid_token(self, monkeypatch, pyramid_request):
-        _get_two_factor_data = pretend.raiser(TokenException)
-        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+    def test_webauthn_get_options_invalid_token(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        pyramid_request.query_string = "not-a-valid-token"
+        mocker.spy(pyramid_request.session, "flash")
 
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        result = views.webauthn_authentication_options(pyramid_request)
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
         )
+        assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
+
+    def test_webauthn_get_options(
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        mocker,
+    ):
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id, "redirect_to": "foobar"}
+        )
+        db_request.session = Session()
+        mocker.spy(views, "_get_two_factor_data")
+        mocker.spy(user_service, "get_webauthn_assertion_options")
+
+        result = views.webauthn_authentication_options(db_request)
+
+        views._get_two_factor_data.assert_called_once_with(db_request)
+        user_service.get_webauthn_assertion_options.assert_called_once_with(
+            str(two_factor_user.id),
+            challenge=db_request.session.get_webauthn_challenge(),
+            rp_id=db_request.domain,
+        )
+        assert result == user_service.get_webauthn_assertion_options.spy_return
+
+    def test_webauthn_validate_already_authenticated(
+        self, pyramid_request, pyramid_config
+    ):
+        pyramid_config.testing_securitypolicy(identity=UserFactory.build())
 
         result = views.webauthn_authentication_validate(pyramid_request)
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
+        assert result == {"fail": {"errors": ["Already authenticated"]}}
+
+    def test_webauthn_validate_invalid_token(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        pyramid_request.query_string = "not-a-valid-token"
+        mocker.spy(pyramid_request.session, "flash")
+
+        result = views.webauthn_authentication_validate(pyramid_request)
+
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
+        )
         assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
 
-    def test_webauthn_validate_invalid_form(self, monkeypatch):
-        _get_two_factor_data = pretend.call_recorder(
-            lambda r: {"redirect_to": "foobar", "userid": 1}
+    def test_webauthn_validate_invalid_form(
+        self, db_request, two_factor_token_service, two_factor_user, mocker
+    ):
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id, "redirect_to": "foobar"}
         )
-        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+        db_request.POST = MultiDict()
+        db_request.session = Session()
+        mocker.spy(views, "_get_two_factor_data")
+        mocker.spy(db_request.session, "get_webauthn_challenge")
+        mocker.spy(db_request.session, "clear_webauthn_challenge")
 
-        request = pretend.stub(
-            # TODO: Determine why we can't use `request.user` here.
-            identity=None,
-            POST={},
-            session=pretend.stub(
-                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
-            ),
-            find_service=lambda *a, **kw: pretend.stub(),
-            host_url=pretend.stub(),
-            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
-            rp_id=pretend.stub(),
-            domain=pretend.stub(),
-        )
+        result = views.webauthn_authentication_validate(db_request)
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: False),
-            credential=pretend.stub(errors=["Fake validation failure"]),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-        monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
+        views._get_two_factor_data.assert_called_once_with(db_request)
+        db_request.session.get_webauthn_challenge.assert_called_once_with()
+        db_request.session.clear_webauthn_challenge.assert_called_once_with()
 
-        result = views.webauthn_authentication_validate(request)
-
-        assert _get_two_factor_data.calls == [pretend.call(request)]
-        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
-        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
-
-        assert result == {"fail": {"errors": ["Fake validation failure"]}}
+        assert result == {"fail": {"errors": ["This field is required."]}}
 
     @pytest.mark.parametrize("has_recovery_codes", [True, False])
     @pytest.mark.parametrize("remember_device", [True, False])
     def test_webauthn_validate(
-        self, monkeypatch, pyramid_request, has_recovery_codes, remember_device
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        has_recovery_codes,
+        remember_device,
+        mocker,
     ):
-        _get_two_factor_data = pretend.call_recorder(
-            lambda r: {"redirect_to": "foobar", "userid": 1}
-        )
-        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
-
-        _login_user = pretend.call_recorder(lambda *a, **kw: pretend.stub())
-        monkeypatch.setattr(views, "_login_user", _login_user)
-
-        _remember_device = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_remember_device", _remember_device)
-
-        user = pretend.stub(
-            webauthn=pretend.stub(sign_count=pretend.stub()),
-            has_recovery_codes=has_recovery_codes,
+        _login_user = mocker.patch.object(views, "_login_user", autospec=True)
+        _remember_device = mocker.patch.object(views, "_remember_device", autospec=True)
+        send_email = mocker.patch.object(
+            views, "send_recovery_code_reminder_email", autospec=True
         )
 
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-            get_webauthn_by_credential_id=pretend.call_recorder(
-                lambda *a: pretend.stub(label="webauthn_label")
-            ),
+        user = two_factor_user
+        if has_recovery_codes:
+            RecoveryCodeFactory.create(user=user)
+        webauthn = WebAuthnFactory.create(
+            user=user,
+            label="webauthn_label",
+            credential_id=bytes_to_base64url(b"credential"),
+            sign_count=0,
         )
-        pyramid_request.session = pretend.stub(
-            get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-            clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": user.id, "redirect_to": "/foobar"}
         )
-        pyramid_request.find_service = lambda *a, **kw: user_service
-        pyramid_request.user = user
+        db_request.session = Session()
+        mocker.spy(views, "_get_two_factor_data")
+        mocker.spy(db_request.session, "get_webauthn_challenge")
+        mocker.spy(db_request.session, "clear_webauthn_challenge")
+        db_request.user = user
 
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            credential=pretend.stub(errors=["Fake validation failure"]),
-            validated_credential=VerifiedAuthentication(
-                credential_id=b"",
-                new_sign_count=1,
-                credential_device_type="single_device",
-                credential_backed_up=False,
-                user_verified=False,
-            ),
-            remember_device=pretend.stub(data=remember_device),
+        form_class = mocker.patch.object(
+            views, "WebAuthnAuthenticationForm", autospec=True
         )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-        monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = True
+        form_obj.validated_credential = VerifiedAuthentication(
+            credential_id=b"credential",
+            new_sign_count=1,
+            credential_device_type="single_device",
+            credential_backed_up=False,
+            user_verified=False,
+        )
+        form_obj.remember_device.data = remember_device
 
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_recovery_code_reminder_email", send_email)
+        result = views.webauthn_authentication_validate(db_request)
 
-        result = views.webauthn_authentication_validate(pyramid_request)
+        views._get_two_factor_data.assert_called_once_with(db_request)
+        form_class.assert_called_once_with(
+            db_request.POST,
+            request=db_request,
+            user_id=str(user.id),
+            user_service=user_service,
+            challenge=db_request.session.get_webauthn_challenge.spy_return,
+            origin=db_request.host_url,
+            rp_id=db_request.domain,
+        )
+        _login_user.assert_called_once_with(
+            db_request, str(user.id), "webauthn", two_factor_label="webauthn_label"
+        )
+        assert webauthn.sign_count == 1
+        db_request.session.get_webauthn_challenge.assert_called_once_with()
+        db_request.session.clear_webauthn_challenge.assert_called_once_with()
+        if has_recovery_codes:
+            send_email.assert_not_called()
+        else:
+            send_email.assert_called_once_with(db_request, user)
 
-        assert _get_two_factor_data.calls == [pretend.call(pyramid_request)]
-        assert _login_user.calls == [
-            pretend.call(
-                pyramid_request,
-                1,
-                "webauthn",
-                two_factor_label="webauthn_label",
+        if remember_device:
+            _remember_device.assert_called_once_with(
+                db_request, db_request.response, str(user.id), "webauthn"
             )
-        ]
-        assert pyramid_request.session.get_webauthn_challenge.calls == [pretend.call()]
-        assert pyramid_request.session.clear_webauthn_challenge.calls == [
-            pretend.call()
-        ]
-        assert send_email.calls == (
-            [] if has_recovery_codes else [pretend.call(pyramid_request, user)]
-        )
-
-        assert _remember_device.calls == (
-            []
-            if not remember_device
-            else [
-                pretend.call(pyramid_request, pyramid_request.response, 1, "webauthn")
-            ]
-        )
+        else:
+            _remember_device.assert_not_called()
 
         assert result == {
             "success": "Successful WebAuthn assertion",
-            "redirect_to": "foobar",
+            "redirect_to": "/foobar",
         }
 
 
 class TestRememberDevice:
-    def test_check_remember_device_token_valid(self):
-        token_service = pretend.stub(loads=lambda *a: {"user_id": str(1)})
-        request = pretend.stub(
-            cookies=pretend.stub(get=lambda *a, **kw: "token"),
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-            }[interface],
+    def test_check_remember_device_token_valid(
+        self, pyramid_request, remember_device_token_service
+    ):
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps({"user_id": 1})
         )
-        assert views._check_remember_device_token(request, 1)
+        assert views._check_remember_device_token(pyramid_request, 1)
 
-    def test_check_remember_device_token_invalid_no_cookie(self):
-        request = pretend.stub(
-            cookies=pretend.stub(get=lambda *a, **kw: ""),
-        )
-        assert not views._check_remember_device_token(request, 1)
+    def test_check_remember_device_token_invalid_no_cookie(self, pyramid_request):
+        assert not views._check_remember_device_token(pyramid_request, 1)
 
-    def test_check_remember_device_token_invalid_bad_token(self):
-        token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        request = pretend.stub(
-            cookies=pretend.stub(get=lambda *a, **kw: "token"),
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-            }[interface],
-        )
-        assert not views._check_remember_device_token(request, 1)
+    def test_check_remember_device_token_invalid_bad_token(
+        self, pyramid_request, remember_device_token_service
+    ):
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = "token"
+        assert not views._check_remember_device_token(pyramid_request, 1)
 
-    def test_check_remember_device_token_invalid_wrong_user(self):
-        token_service = pretend.stub(loads=lambda *a: {"user_id": str(999)})
-        request = pretend.stub(
-            cookies=pretend.stub(get=lambda *a, **kw: "token"),
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-            }[interface],
+    def test_check_remember_device_token_invalid_wrong_user(
+        self, pyramid_request, remember_device_token_service
+    ):
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps({"user_id": 999})
         )
-        assert not views._check_remember_device_token(request, 1)
+        assert not views._check_remember_device_token(pyramid_request, 1)
 
-    def test_remember_device(self):
-        token_service = pretend.stub(dumps=lambda *a: "token_data")
-        pyramid_request = pretend.stub(
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-            }[interface],
-            scheme="https",
-            route_path=lambda *a, **kw: "/accounts/login",
-            user=pretend.stub(
-                record_event=pretend.call_recorder(lambda *a, **kw: None)
-            ),
-            registry=pretend.stub(
-                settings={
-                    "remember_device.seconds": datetime.timedelta(
-                        days=30
-                    ).total_seconds()
-                }
-            ),
+    def test_remember_device(
+        self, pyramid_request, remember_device_token_service, mocker
+    ):
+        mocker.spy(remember_device_token_service, "dumps")
+        pyramid_request.scheme = "https"
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/accounts/login"
         )
-        response = pretend.stub(set_cookie=pretend.call_recorder(lambda *a, **kw: None))
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(pyramid_request.user, "record_event", autospec=True)
+        pyramid_request.registry.settings = {
+            "remember_device.seconds": datetime.timedelta(days=30).total_seconds()
+        }
+        response = pyramid_request.response
+        mocker.spy(response, "set_cookie")
 
         views._remember_device(pyramid_request, response, 1, "webauthn")
 
-        assert response.set_cookie.calls == [
-            pretend.call(
-                REMEMBER_DEVICE_COOKIE,
-                "token_data",
-                max_age=datetime.timedelta(days=30).total_seconds(),
-                httponly=True,
-                secure=True,
-                samesite=b"strict",
-                path="/accounts/login",
-            )
-        ]
+        remember_device_token_service.dumps.assert_called_once_with({"user_id": "1"})
+        response.set_cookie.assert_called_once_with(
+            REMEMBER_DEVICE_COOKIE,
+            remember_device_token_service.dumps.spy_return,
+            max_age=datetime.timedelta(days=30).total_seconds(),
+            httponly=True,
+            secure=True,
+            samesite=b"strict",
+            path="/accounts/login",
+        )
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
+        pyramid_request.user.record_event.assert_called_once_with(
+            tag=EventTag.Account.TwoFactorDeviceRemembered,
+            request=pyramid_request,
+            additional={"two_factor_method": "webauthn"},
+        )
 
 
 class TestRecoveryCode:
-    def test_already_authenticated(self):
-        request = pretend.stub(
-            user=pretend.stub(),
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-        )
-        result = views.recovery_code(request)
+    @pytest.fixture
+    def form_class(self, mocker):
+        return mocker.create_autospec(RecoveryCodeAuthenticationForm)
 
-        assert request.route_path.calls == [pretend.call("manage.projects")]
+    def test_already_authenticated(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
+        )
+
+        result = views.recovery_code(pyramid_request)
+
+        pyramid_request.route_path.assert_called_once_with("manage.projects")
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_two_factor_token_invalid(self, pyramid_request):
-        token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+    def test_two_factor_token_invalid(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        pyramid_request.query_string = "not-a-valid-token"
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
         )
-        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service
-        }[interface]
 
         result = views.recovery_code(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         assert result.headers["Location"] == "redirect_to"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
-
-    def test_get_returns_form(self, pyramid_request):
-        query_params = {"userid": 1}
-
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
         )
 
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda uid: True,
-            has_webauthn=lambda uid: False,
-            has_recovery_codes=lambda uid: False,
-        )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.query_string = pretend.stub()
-
-        form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
-
-        result = views.recovery_code(pyramid_request, _form_class=form_class)
-
-        assert token_service.loads.calls == [
-            pretend.call(pyramid_request.query_string, return_timestamp=True)
-        ]
-        assert result == {"form": form_obj}
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                user_id=1,
-                user_service=user_service,
-            )
-        ]
-
-    @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_recovery_code_auth_with_confirmed_unique_login(
-        self, monkeypatch, db_request, redirect_url
+    def test_get_returns_form(
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        form_class,
+        mocker,
     ):
-        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
-        monkeypatch.setattr(views, "remember", remember)
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id}
+        )
+        mocker.spy(two_factor_token_service, "loads")
+
+        result = views.recovery_code(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
+        )
+        assert result == {"form": form_class.return_value}
+        form_class.assert_called_once_with(
+            db_request.POST,
+            request=db_request,
+            user_id=str(two_factor_user.id),
+            user_service=user_service,
+        )
+
+    @pytest.mark.parametrize("redirect_url", ["/test_redirect_url", None])
+    def test_recovery_code_auth_with_confirmed_unique_login(
+        self, db_request, two_factor_token_service, form_class, redirect_url, mocker
+    ):
+        remember = mocker.patch.object(
+            views, "remember", autospec=True, return_value=[("foo", "bar")]
+        )
 
         user = UserFactory.create(
+            with_terms_of_service_agreement=True,
             last_login=(
                 datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
             ),
         )
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_id = user.id
+        # A confirmed login from this IP makes the device known.
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=db_request.ip_address,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
-        query_params = {"userid": str(user_id)}
+        query_params = {"userid": user.id}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
-
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    query_params,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
-        )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user_id),
-            get_user=pretend.call_recorder(lambda userid: user),
-            update_user=lambda *a, **k: None,
-            has_recovery_codes=lambda userid: True,
-            check_recovery_code=lambda userid, recovery_code_value: True,
-            get_password_timestamp=lambda userid: 0,
-            needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
-        )
-
-        new_session = {}
-
-        db_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
+        db_request.query_string = two_factor_token_service.dumps(query_params)
 
         db_request.method = "POST"
-        db_request.session = pretend.stub(
-            items=lambda: [("a", "b"), ("foo", "bar")],
-            update=new_session.update,
-            invalidate=pretend.call_recorder(lambda: None),
-            new_csrf_token=pretend.call_recorder(lambda: None),
-            flash=pretend.call_recorder(lambda message, queue: None),
-        )
+        db_request.session = Session({"a": "b", "foo": "bar"})
+        for method in (
+            "invalidate",
+            "new_csrf_token",
+            "record_auth_timestamp",
+            "flash",
+        ):
+            mocker.spy(db_request.session, method)
+        db_request.registry.settings = {"terms.revision": "initial"}
 
-        db_request.set_property(
-            lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
-        )
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        db_request.session.record_password_timestamp = lambda timestamp: None
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            recovery_code_value=pretend.stub(data="recovery-code"),
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
-        db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        form_class.return_value.validate.return_value = True
+        form_class.return_value.recovery_code_value.data = "recovery-code"
 
         result = views.recovery_code(db_request, _form_class=form_class)
 
-        token_expected_data = {"userid": str(user_id)}
-        if redirect_url:
-            token_expected_data["redirect_to"] = redirect_url
-
         assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == (redirect_url or "/")
         assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
 
-        assert remember.calls == [pretend.call(db_request, str(user_id))]
-        assert db_request.session.invalidate.calls == [pretend.call()]
-        assert db_request.session.new_csrf_token.calls == [pretend.call()]
-        assert user.record_event.calls == [
-            pretend.call(
+        remember.assert_called_once_with(db_request, str(user.id))
+        db_request.session.invalidate.assert_called_once_with()
+        db_request.session.new_csrf_token.assert_called_once_with()
+        assert user.record_event.call_args_list == [
+            mocker.call(
                 tag=EventTag.Account.LoginSuccess,
                 request=db_request,
                 additional={
@@ -1671,125 +1432,91 @@ class TestRecoveryCode:
                     "two_factor_label": None,
                 },
             ),
-            pretend.call(
+            mocker.call(
                 tag=EventTag.Account.RecoveryCodesUsed,
                 request=db_request,
             ),
         ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Recovery code accepted. The supplied code cannot be used again.",
-                queue="success",
-            )
-        ]
-        assert db_request.session.record_auth_timestamp.calls == [pretend.call()]
-
-    def test_recovery_code_form_invalid(self):
-        token_data = {"userid": 1}
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda *args, **kwargs: (
-                    token_data,
-                    datetime.datetime.now(datetime.UTC),
-                )
-            )
+        db_request.session.flash.assert_called_once_with(
+            "Recovery code accepted. The supplied code cannot be used again.",
+            queue="success",
         )
+        db_request.session.record_auth_timestamp.assert_called_once_with()
 
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(
-                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                    )
-                )
-            ),
-            has_recovery_codes=lambda userid: True,
-            check_recovery_code=lambda userid, recovery_code_value: False,
+    def test_recovery_code_form_invalid(
+        self, db_request, two_factor_token_service, two_factor_user, form_class, mocker
+    ):
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id}
         )
+        mocker.spy(two_factor_token_service, "loads")
+        db_request.method = "POST"
 
-        request = pretend.stub(
-            POST={},
-            method="POST",
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
-            query_string=pretend.stub(),
-            # registry=pretend.stub(settings={"remember_device.days": 30}),
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = False
+        form_obj.recovery_code_value.data = "invalid-recovery-code"
+
+        result = views.recovery_code(db_request, _form_class=form_class)
+
+        two_factor_token_service.loads.assert_called_once_with(
+            db_request.query_string, return_timestamp=True
         )
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: False),
-            recovery_code_value=pretend.stub(data="invalid-recovery-code"),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-
-        result = views.recovery_code(request, _form_class=form_class)
-
-        assert token_service.loads.calls == [
-            pretend.call(request.query_string, return_timestamp=True)
-        ]
         assert result == {"form": form_obj}
+        assert form_obj.recovery_code_value.data == ""
 
-    def test_recovery_code_auth_invalid_token(self, pyramid_request):
-        token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+    def test_recovery_code_auth_invalid_token(
+        self, pyramid_request, two_factor_token_service, mocker
+    ):
+        mocker.patch.object(
+            two_factor_token_service, "loads", autospec=True, side_effect=TokenException
         )
-        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service
-        }[interface]
+        mocker.spy(pyramid_request.session, "flash")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="redirect_to"
+        )
 
         result = views.recovery_code(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         assert result.headers["Location"] == "redirect_to"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
-
-    def test_recovery_code_device_not_known(self, db_request, token_service):
-        user = UserFactory.create()
-        token_data = {"userid": str(user.id)}
-        token_service.loads = pretend.call_recorder(
-            lambda *args, **kwargs: (
-                token_data,
-                datetime.datetime.now(datetime.UTC),
-            )
-        )
-        user_service = pretend.stub(
-            get_user=lambda userid: user,
-            has_recovery_codes=lambda userid: True,
-            check_recovery_code=lambda userid, recovery_code_value: True,
-            device_is_known=lambda *a: False,
+        pyramid_request.session.flash.assert_called_once_with(
+            "Invalid or expired two factor login.", queue="error"
         )
 
-        db_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-        db_request.route_path = pretend.call_recorder(
-            lambda name: "/account/confirm-login/"
+    def test_recovery_code_device_not_known(
+        self,
+        db_request,
+        two_factor_token_service,
+        user_service,
+        two_factor_user,
+        form_class,
+        mocker,
+    ):
+        mocker.patch.object(
+            user_service, "device_is_known", autospec=True, return_value=False
         )
-        db_request.query_string = token_service.dumps(token_data)
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/confirm-login/",
+        )
+        db_request.query_string = two_factor_token_service.dumps(
+            {"userid": two_factor_user.id}
+        )
         db_request.method = "POST"
-        db_request.POST = MultiDict({"recovery_code_value": "test-recovery-code"})
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            recovery_code_value=pretend.stub(data="test-recovery-code"),
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        form_class.return_value.validate.return_value = True
+        form_class.return_value.recovery_code_value.data = "test-recovery-code"
 
         result = views.recovery_code(db_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("accounts.confirm-login")]
+        assert result.headers["Location"] == "/account/confirm-login/"
+        db_request.route_path.assert_called_once_with("accounts.confirm-login")
+        user_service.device_is_known.assert_called_once_with(
+            str(two_factor_user.id), db_request, two_factor_method="recovery-code"
+        )
 
 
 class TestLogout:
@@ -1798,46 +1525,47 @@ class TestLogout:
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = UserFactory.build()
 
         assert views.logout(pyramid_request) == {
             "redirect": {"field": "next", "data": next_url or "/"}
         }
 
-    def test_post_forgets_user(self, monkeypatch, pyramid_request):
-        forget = pretend.call_recorder(lambda request: [("foo", "bar")])
-        monkeypatch.setattr(views, "forget", forget)
+    def test_post_forgets_user(self, pyramid_request, mocker):
+        forget = mocker.patch.object(
+            views, "forget", autospec=True, return_value=[("foo", "bar")]
+        )
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
-        pyramid_request.session = pretend.stub(
-            invalidate=pretend.call_recorder(lambda: None)
-        )
+        mocker.spy(pyramid_request.session, "invalidate")
 
-        security_policy = pretend.stub(
-            reset=pretend.call_recorder(lambda r: None),
-        )
-        pyramid_request.registry.queryUtility = lambda iface: security_policy
+        security_policy = mocker.create_autospec(MultiSecurityPolicy, instance=True)
+        pyramid_request.registry.registerUtility(security_policy, ISecurityPolicy)
 
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert result.headers["foo"] == "bar"
-        assert forget.calls == [pretend.call(pyramid_request)]
-        assert pyramid_request.session.invalidate.calls == [pretend.call()]
-        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
+        forget.assert_called_once_with(pyramid_request)
+        pyramid_request.session.invalidate.assert_called_once_with()
+        security_policy.reset.assert_called_once_with(pyramid_request)
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
         ("expected_next_url", "observed_next_url"),
-        [("/security/", "/security/"), ("http://example.com", "/")],
+        [
+            ("/security/", "/security/"),
+            ("http://example.com", "/"),
+            ("\n/example.com/", "/"),
+        ],
     )
     def test_post_redirects_user(
         self, pyramid_request, expected_next_url, observed_next_url
     ):
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
 
@@ -1850,7 +1578,11 @@ class TestLogout:
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
         ("expected_next_url", "observed_next_url"),
-        [("/security/", "/security/"), ("http://example.com", "/")],
+        [
+            ("/security/", "/security/"),
+            ("http://example.com", "/"),
+            ("\n/example.com/", "/"),
+        ],
     )
     def test_get_redirects_anonymous_user(
         self, pyramid_request, expected_next_url, observed_next_url
@@ -1866,83 +1598,77 @@ class TestLogout:
 
 
 class TestRegister:
-    def test_get(self, db_request):
-        form_inst = pretend.stub()
-        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
-        db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-            )
-        )
-        result = views.register(db_request, _form_class=form)
-        assert result["form"] is form_inst
+    def test_get(self, db_request, pyramid_services, mocker):
+        self._register_form_services(pyramid_services)
+        form_class = mocker.create_autospec(RegistrationForm)
 
-    def test_redirect_authenticated_user(self, pyramid_request):
-        pyramid_request.user = pretend.stub()
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        result = views.register(db_request, _form_class=form_class)
+
+        assert result["form"] is form_class.return_value
+
+    def test_redirect_authenticated_user(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         result = views.register(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_register_honeypot(self, db_request, monkeypatch):
+    def test_register_honeypot(self, db_request, user_service, metrics, mocker):
         db_request.method = "POST"
-        create_user = pretend.call_recorder(lambda *args, **kwargs: None)
-        add_email = pretend.call_recorder(lambda *args, **kwargs: None)
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        mocker.spy(user_service, "create_user")
+        mocker.spy(user_service, "add_email")
+        mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
         db_request.POST = {"confirm_form": "fuzzywuzzy@bears.com"}
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
+        )
 
         result = views.register(db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert create_user.calls == []
-        assert add_email.calls == []
-        assert send_email.calls == []
-
-    def test_register_redirect(self, db_request, monkeypatch):
-        db_request.method = "POST"
-
-        record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user = UserFactory.create()
-        user.record_event = record_event
-        email = pretend.stub()
-        create_user = pretend.call_recorder(lambda *args, **kwargs: user)
-        add_email = pretend.call_recorder(lambda *args, **kwargs: email)
-        db_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
+        user_service.create_user.assert_not_called()
+        user_service.add_email.assert_not_called()
+        send_email.assert_not_called()
+        metrics.increment.assert_called_once_with(
+            "warehouse.accounts.register", tags=["outcome:honeypot"]
         )
-        db_request.session.record_password_timestamp = lambda ts: None
 
-        def _find_service(service=None, name=None, context=None):
-            key = service or name
-            return {
-                IUserService: pretend.stub(
-                    username_is_prohibited=lambda a: False,
-                    find_userid=pretend.call_recorder(lambda _: None),
-                    find_userid_by_email=pretend.call_recorder(lambda _: None),
-                    update_user=lambda *args, **kwargs: None,
-                    create_user=create_user,
-                    get_user=lambda userid: user,
-                    add_email=add_email,
-                    check_password=lambda pw, tags=None: False,
-                    get_password_timestamp=lambda uid: 0,
-                    needs_tos_flash=(lambda userid, revision: False),
-                    record_tos_engagement=(lambda uid, revision, engagement: None),
-                ),
-                IPasswordBreachedService: pretend.stub(
-                    check_password=lambda pw, tags=None: False,
-                ),
-                IRateLimiter: pretend.stub(hit=lambda user_id: None),
-                "csp": pretend.stub(merge=lambda *a, **kw: {}),
-                ICaptchaService: pretend.stub(
-                    csp_policy={}, enabled=True, verify_response=lambda a: True
-                ),
-            }[key]
+    def test_register_counts_an_authenticated_post(self, db_request, metrics):
+        """Every POST lands in exactly one outcome, so the tags sum to attempts."""
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.route_path = lambda name: "/the-redirect"
 
-        db_request.find_service = pretend.call_recorder(_find_service)
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        assert isinstance(views.register(db_request), HTTPSeeOther)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:authenticated"]
+        )
+
+    def _register_form_services(self, pyramid_services, *, captcha_enabled=False):
+        """Register the services `register()` needs to build its form."""
+        pyramid_services.register_service(
+            NullPasswordBreachedService(), IPasswordBreachedService, None, name=""
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(
+                enabled=captcha_enabled,
+                csp_policy={},
+                verify_response=lambda response: None,
+            ),
+            ICaptchaService,
+            None,
+            name="captcha",
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
+        )
+
+    def _post_a_registration(self, db_request):
+        """Fill in a POST body that would otherwise pass form validation."""
+        db_request.method = "POST"
         db_request.POST.update(
             {
                 "username": "username_value",
@@ -1950,95 +1676,244 @@ class TestRegister:
                 "password_confirm": "MyStr0ng!shP455w0rd",
                 "email": "foo@bar.com",
                 "full_name": "full_name",
-                "g_recaptcha_response": "captchavalue",
+                "acceptable_use": "y",
             }
         )
 
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+    @pytest.mark.parametrize(
+        ("resets_in", "retry_after", "message"),
+        [
+            (
+                datetime.timedelta(seconds=3300),
+                "3300",
+                (
+                    "Too many registration attempts from your network. Please try "
+                    "again in 55 minutes."
+                ),
+            ),
+            (
+                None,
+                None,
+                (
+                    "Too many registration attempts from your network. Please try "
+                    "again later."
+                ),
+            ),
+        ],
+    )
+    def test_register_ratelimited(
+        self,
+        db_request,
+        pyramid_services,
+        metrics,
+        ratelimit_service,
+        mocker,
+        resets_in,
+        retry_after,
+        message,
+    ):
+        """A denied attempt returns 429 with a form error and the typed values
+        intact.
+        """
+        self._register_form_services(pyramid_services)
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
+        mocker.patch.object(ratelimit_service, "resets_in", return_value=resets_in)
+        self._post_a_registration(db_request)
 
         result = views.register(db_request)
 
+        assert db_request.response.status_int == 429
+        # The typed values survive, so the user is not asked to start over.
+        assert result["form"].email.data == "foo@bar.com"
+        assert result["form"].username.data == "username_value"
+        # Only the form-level key: the limiter runs before validate(), so no
+        # per-field errors appear.
+        assert result["form"].errors == {"": [message]}
+        # Asserted on the raw header: WebOb's `retry_after` getter parses it
+        # back into an absolute datetime.
+        assert db_request.response.headers.get("Retry-After") == retry_after
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ratelimited"]
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register.ratelimited", tags=["ratelimiter:ip"]
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize("remote_addr", [None, ""])
+    def test_register_skips_the_limiter_without_a_remote_addr(
+        self, db_request, pyramid_services, metrics, ratelimit_service, remote_addr
+    ):
+        """An unkeyable request is not metered into one bucket shared by all.
+
+        Gunicorn on a unix socket sends '' as REMOTE_ADDR, not None, so both
+        are exercised here.
+        """
+        self._register_form_services(pyramid_services)
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+        db_request.remote_addr = remote_addr
+
+        views.register(db_request)
+
+        assert ratelimit_service.hit.call_count == 0
+        # Counted, so a limiter that has stopped running is not silent.
+        metrics.increment.assert_any_call("warehouse.accounts.register.unmetered")
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_register_counts_invalid_attempts(
+        self, db_request, pyramid_services, metrics, ratelimit_service
+    ):
+        """A failed attempt is charged, since validation costs DNS either way."""
+        self._register_form_services(pyramid_services)
+
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+
+        result = views.register(db_request)
+
+        assert result["form"].errors
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:invalid"]
+        )
+
+    def test_register_does_not_count_page_loads(
+        self, db_request, pyramid_services, metrics, ratelimit_service
+    ):
+        """A GET is a page view, so it is neither counted nor charged."""
+        self._register_form_services(pyramid_services)
+
+        views.register(db_request)
+
+        assert ratelimit_service.hit.call_count == 0
+        assert not [
+            call
+            for call in metrics.increment.call_args_list
+            if call.args == ("warehouse.accounts.register",)
+        ]
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_register_redirect(
+        self,
+        db_request,
+        pyramid_services,
+        user_service,
+        metrics,
+        ratelimit_service,
+        mocker,
+    ):
+        self._register_form_services(pyramid_services, captcha_enabled=True)
+        register_limiter = DummyRateLimiter()
+        mocker.spy(register_limiter, "hit")
+        pyramid_services.register_service(
+            register_limiter, IRateLimiter, None, name="accounts.register"
+        )
+        mocker.spy(user_service, "create_user")
+        mocker.spy(user_service, "add_email")
+        record_event = mocker.patch(
+            "warehouse.accounts.models.HasEvents.record_event", autospec=True
+        )
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
+        )
+        mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
+        db_request.session = Session()
+        db_request.registry.settings = {"terms.revision": "initial"}
+        self._post_a_registration(db_request)
+        db_request.POST.update({"g-recaptcha-response": "captchavalue"})
+
+        result = views.register(db_request)
+
+        user = user_service.create_user.spy_return
+        email = user_service.add_email.spy_return
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
-        assert create_user.calls == [
-            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
-        ]
-        assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
-        assert send_email.calls == [pretend.call(db_request, (user, email))]
-        assert record_event.calls == [
-            pretend.call(
+        user_service.create_user.assert_called_once_with(
+            "username_value", "full_name", "MyStr0ng!shP455w0rd"
+        )
+        user_service.add_email.assert_called_once_with(
+            user.id, "foo@bar.com", primary=True
+        )
+        send_email.assert_called_once_with(db_request, (user, email))
+        assert record_event.call_args_list == [
+            mocker.call(
+                user,
                 tag=EventTag.Account.AccountCreate,
                 request=db_request,
                 additional={"email": "foo@bar.com"},
             ),
-            pretend.call(
+            mocker.call(
+                user,
                 tag=EventTag.Account.LoginSuccess,
                 request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
+                additional={
+                    "two_factor_method": "registration",
+                    "two_factor_label": None,
+                },
             ),
         ]
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ok"]
+        )
+        # Successes stay charged against the register limiter, keyed by IP;
+        # the verification email is charged against email.verify, by user.
+        register_limiter.hit.assert_called_once_with(db_request.remote_addr)
+        ratelimit_service.hit.assert_called_once_with(user.id)
 
-    def test_register_fails_with_admin_flag_set(self, db_request):
+    def test_register_fails_with_admin_flag_set(self, db_request, metrics, mocker):
         # This flag was already set via migration, just need to enable it
         flag = db_request.db.get(
             AdminFlag, AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION.value
         )
         flag.enabled = True
 
-        db_request.method = "POST"
+        self._post_a_registration(db_request)
 
-        db_request.POST.update(
-            {
-                "username": "username_value",
-                "password": "MyStr0ng!shP455w0rd",
-                "password_confirm": "MyStr0ng!shP455w0rd",
-                "email": "foo@bar.com",
-                "full_name": "full_name",
-            }
-        )
-
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
 
         result = views.register(db_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "New user registration temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "New user registration temporarily disabled. "
+            "See https://pypi.org/help#admin-intervention for details.",
+            queue="error",
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:disabled"]
+        )
 
 
 class TestRequestPasswordReset:
-    def test_get(self, pyramid_request, user_service):
-        form_inst = pretend.stub()
-        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: user_service
-        )
-        pyramid_request.POST = pretend.stub()
+    @pytest.fixture
+    def form_class(self, mocker):
+        form_class = mocker.create_autospec(RequestPasswordResetForm)
+        form_class.return_value.validate.return_value = True
+        return form_class
+
+    @pytest.fixture
+    def reset_limiter(self, user_service):
+        """The ``DummyRateLimiter`` the real user service hands out by default."""
+        return user_service.ratelimiters["password.reset"]
+
+    def test_get(self, pyramid_request, user_service, mocker):
+        form_class = mocker.create_autospec(RequestPasswordResetForm)
+        mocker.spy(pyramid_request, "find_service")
+
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
-        assert result["form"] is form_inst
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
-        ]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
-        ]
+
+        assert result["form"] is form_class.return_value
+        form_class.assert_called_once_with(
+            pyramid_request.POST, user_service=user_service
+        )
+        pyramid_request.find_service.assert_called_once_with(IUserService, context=None)
 
     def test_request_password_reset(
-        self,
-        monkeypatch,
-        pyramid_request,
-        user_service,
-        token_service,
-        mocker,
+        self, pyramid_request, user_service, token_service, form_class, mocker
     ):
         user = UserFactory.create(with_verified_primary_email=True)
         mock_record_event = mocker.patch(
@@ -2047,249 +1922,123 @@ class TestRequestPasswordReset:
             return_value=True,
         )
         pyramid_request.method = "POST"
-        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: user)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-                ITokenService: token_service,
-            }[interface]
-        )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=user.username),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        n_hours = token_service.max_age // 60 // 60
-        send_password_reset_email = pretend.call_recorder(
-            lambda *args, **kwargs: {"n_hours": n_hours}
-        )
-        monkeypatch.setattr(
-            views, "send_password_reset_email", send_password_reset_email
+        mocker.spy(user_service, "get_user_by_username")
+        mocker.spy(pyramid_request, "find_service")
+        form_class.return_value.username_or_email.data = user.username
+        send_password_reset_email = mocker.patch.object(
+            views, "send_password_reset_email", autospec=True
         )
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert result == {"n_hours": n_hours}
-        assert user_service.get_user_by_username.calls == [pretend.call(user.username)]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(ITokenService, name="password"),
+        assert result == {"n_hours": token_service.max_age // 60 // 60}
+        user_service.get_user_by_username.assert_called_once_with(user.username)
+        assert pyramid_request.find_service.call_args_list == [
+            mocker.call(IUserService, context=None),
+            mocker.call(ITokenService, name="password"),
         ]
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
-        ]
-        assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, (user, user.primary_email))
-        ]
+        form_class.return_value.validate.assert_called_once_with()
+        form_class.assert_called_once_with(
+            pyramid_request.POST, user_service=user_service
+        )
+        send_password_reset_email.assert_called_once_with(
+            pyramid_request, (user, user.primary_email)
+        )
         mock_record_event.assert_called_once_with(
             user,
             tag=EventTag.Account.PasswordResetRequest,
             request=pyramid_request,
         )
 
+    @pytest.mark.parametrize(
+        ("emails", "requested"),
+        [
+            (["foo@example.com"], "foo@example.com"),
+            (["foo@example.com", "other@example.com"], "other@example.com"),
+        ],
+    )
     def test_request_password_reset_with_email(
-        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
+        self,
+        pyramid_request,
+        user_service,
+        token_service,
+        form_class,
+        reset_limiter,
+        emails,
+        requested,
+        mocker,
     ):
-        stub_user = pretend.stub(
-            id=uuid.uuid4(),
-            email="foo@example.com",
-            emails=[pretend.stub(email="foo@example.com", verified=True)],
-            can_reset_password=True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        user = UserFactory.create()
+        for address in emails:
+            EmailFactory.create(user=user, email=address, verified=True)
+        requested_email = next(e for e in user.emails if e.email == requested)
+        mock_record_event = mocker.patch(
+            "warehouse.accounts.models.HasEvents.record_event", autospec=True
         )
         pyramid_request.method = "POST"
-        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.ratelimiters = {
-            "password.reset": pretend.stub(
-                test=pretend.call_recorder(lambda *a, **kw: True),
-                hit=pretend.call_recorder(lambda *a, **kw: None),
-            )
-        }
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-                ITokenService: token_service,
-            }[interface]
-        )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.email),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        n_hours = token_service.max_age // 60 // 60
-        send_password_reset_email = pretend.call_recorder(
-            lambda *args, **kwargs: {"n_hours": n_hours}
-        )
-        monkeypatch.setattr(
-            views, "send_password_reset_email", send_password_reset_email
+        mocker.spy(user_service, "get_user_by_username")
+        mocker.spy(user_service, "get_user_by_email")
+        mocker.spy(reset_limiter, "test")
+        mocker.spy(reset_limiter, "hit")
+        mocker.spy(pyramid_request, "find_service")
+        form_class.return_value.username_or_email.data = requested
+        send_password_reset_email = mocker.patch.object(
+            views, "send_password_reset_email", autospec=True
         )
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert result == {"n_hours": n_hours}
-        assert user_service.get_user_by_username.calls == [
-            pretend.call(stub_user.email)
+        assert result == {"n_hours": token_service.max_age // 60 // 60}
+        user_service.get_user_by_username.assert_called_once_with(requested)
+        user_service.get_user_by_email.assert_called_once_with(requested)
+        assert pyramid_request.find_service.call_args_list == [
+            mocker.call(IUserService, context=None),
+            mocker.call(ITokenService, name="password"),
         ]
-        assert user_service.get_user_by_email.calls == [pretend.call(stub_user.email)]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(ITokenService, name="password"),
-        ]
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
-        ]
-        assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, (stub_user, stub_user.emails[0]))
-        ]
-        assert stub_user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordResetRequest,
-                request=pyramid_request,
-            )
-        ]
-        assert user_service.ratelimiters["password.reset"].test.calls == [
-            pretend.call(stub_user.id)
-        ]
-        assert user_service.ratelimiters["password.reset"].hit.calls == [
-            pretend.call(stub_user.id)
-        ]
-
-    def test_request_password_reset_with_non_primary_email(
-        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
-    ):
-        stub_user = pretend.stub(
-            id=uuid.uuid4(),
-            email="foo@example.com",
-            emails=[
-                pretend.stub(email="foo@example.com", verified=True),
-                pretend.stub(email="other@example.com", verified=True),
-            ],
-            can_reset_password=True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        form_class.return_value.validate.assert_called_once_with()
+        form_class.assert_called_once_with(
+            pyramid_request.POST, user_service=user_service
         )
-        pyramid_request.method = "POST"
-        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.ratelimiters = {
-            "password.reset": pretend.stub(
-                test=pretend.call_recorder(lambda *a, **kw: True),
-                hit=pretend.call_recorder(lambda *a, **kw: None),
-            )
-        }
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-                ITokenService: token_service,
-            }[interface]
+        send_password_reset_email.assert_called_once_with(
+            pyramid_request, (user, requested_email)
         )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data="other@example.com"),
-            validate=pretend.call_recorder(lambda: True),
+        mock_record_event.assert_called_once_with(
+            user,
+            tag=EventTag.Account.PasswordResetRequest,
+            request=pyramid_request,
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        n_hours = token_service.max_age // 60 // 60
-        send_password_reset_email = pretend.call_recorder(
-            lambda *args, **kwargs: {"n_hours": n_hours}
-        )
-        monkeypatch.setattr(
-            views, "send_password_reset_email", send_password_reset_email
-        )
-
-        result = views.request_password_reset(pyramid_request, _form_class=form_class)
-
-        assert result == {"n_hours": n_hours}
-        assert user_service.get_user_by_username.calls == [
-            pretend.call("other@example.com")
-        ]
-        assert user_service.get_user_by_email.calls == [
-            pretend.call("other@example.com")
-        ]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(ITokenService, name="password"),
-        ]
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
-        ]
-        assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, (stub_user, stub_user.emails[1]))
-        ]
-        assert stub_user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordResetRequest,
-                request=pyramid_request,
-            )
-        ]
-        assert user_service.ratelimiters["password.reset"].test.calls == [
-            pretend.call(stub_user.id)
-        ]
-        assert user_service.ratelimiters["password.reset"].hit.calls == [
-            pretend.call(stub_user.id)
-        ]
+        reset_limiter.test.assert_called_once_with(user.id)
+        reset_limiter.hit.assert_called_once_with(user.id)
 
     def test_too_many_password_reset_requests(
-        self,
-        monkeypatch,
-        pyramid_request,
-        pyramid_config,
-        user_service,
+        self, pyramid_request, user_service, form_class, reset_limiter, mocker
     ):
-        stub_user = pretend.stub(
-            id=uuid.uuid4(),
-            email="foo@example.com",
-            emails=[pretend.stub(email="foo@example.com", verified=True)],
-            can_reset_password=True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
+        user = UserFactory.create()
+        EmailFactory.create(user=user, email="foo@example.com", verified=True)
         pyramid_request.method = "POST"
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.ratelimiters = {
-            "password.reset": pretend.stub(
-                test=pretend.call_recorder(lambda *a, **kw: False),
-                resets_in=pretend.call_recorder(lambda *a, **kw: 600),
-            )
-        }
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-            }[interface]
-        )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.email),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        mocker.spy(user_service, "get_user_by_username")
+        mocker.spy(user_service, "get_user_by_email")
+        mocker.patch.object(reset_limiter, "test", autospec=True, return_value=False)
+        mocker.patch.object(reset_limiter, "resets_in", autospec=True, return_value=600)
+        mocker.spy(pyramid_request, "find_service")
+        form_class.return_value.username_or_email.data = "foo@example.com"
 
         with pytest.raises(TooManyPasswordResetRequests):
             views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert user_service.get_user_by_username.calls == [
-            pretend.call(stub_user.email)
-        ]
-        assert user_service.get_user_by_email.calls == [pretend.call(stub_user.email)]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-        ]
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
-        ]
-        assert user_service.ratelimiters["password.reset"].test.calls == [
-            pretend.call(stub_user.id)
-        ]
-        assert user_service.ratelimiters["password.reset"].resets_in.calls == [
-            pretend.call(stub_user.id)
-        ]
+        user_service.get_user_by_username.assert_called_once_with("foo@example.com")
+        user_service.get_user_by_email.assert_called_once_with("foo@example.com")
+        pyramid_request.find_service.assert_called_once_with(IUserService, context=None)
+        form_class.return_value.validate.assert_called_once_with()
+        form_class.assert_called_once_with(
+            pyramid_request.POST, user_service=user_service
+        )
+        reset_limiter.test.assert_called_once_with(user.id)
+        reset_limiter.resets_in.assert_called_once_with(user.id)
 
-    def test_password_reset_prohibited(self, pyramid_request, user_service, mocker):
+    def test_password_reset_prohibited(
+        self, pyramid_request, token_service, form_class, mocker
+    ):
         user = UserFactory.create(
             with_verified_primary_email=True,
             prohibit_password_reset=True,
@@ -2299,28 +2048,19 @@ class TestRequestPasswordReset:
             autospec=True,
             return_value=True,
         )
+        send_password_reset_email = mocker.patch.object(
+            views, "send_password_reset_email", autospec=True
+        )
         pyramid_request.method = "POST"
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: user)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-            }[interface]
-        )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=user.username),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class.return_value.username_or_email.data = user.username
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert result.headers["Location"] == "/the-redirect"
+        # Response must be indistinguishable from a normal user reset
+        assert result == {"n_hours": token_service.max_age // 60 // 60}
+        assert not isinstance(result, HTTPSeeOther)
 
+        send_password_reset_email.assert_not_called()
         mock_record_event.assert_called_once_with(
             user,
             tag=EventTag.Account.PasswordResetAttempt,
@@ -2328,31 +2068,24 @@ class TestRequestPasswordReset:
         )
 
     def test_password_reset_with_nonexistent_email(
-        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
+        self, pyramid_request, user_service, form_class, mocker
     ):
         pyramid_request.method = "POST"
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: None)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-                ITokenService: token_service,
-            }[interface]
-        )
-        form_obj = pretend.stub(
-            username_or_email=pretend.stub(data="foo@bar.net"),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        mocker.spy(user_service, "get_user_by_username")
+        mocker.spy(user_service, "get_user_by_email")
+        form_class.return_value.username_or_email.data = "foo@bar.net"
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
         assert result == {"n_hours": 6}
+        user_service.get_user_by_username.assert_called_once_with("foo@bar.net")
+        user_service.get_user_by_email.assert_called_once_with("foo@bar.net")
 
-    def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(user=pretend.stub())
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+    def test_redirect_authenticated_user(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         result = views.request_password_reset(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -2395,223 +2128,148 @@ class TestRequestPasswordReset:
         mock_send_email.assert_called_once_with(
             db_request, (unverified_email.user, unverified_email)
         )
-        assert db_request.log.warning.calls == [
-            pretend.call(
-                "User requested password reset for unverified email",
-                username=unverified_email.user.username,
-                email_address=unverified_email.email,
-            )
-        ]
+        db_request.log.warning.assert_called_once_with(
+            "User requested password reset for unverified email",
+            username=unverified_email.user.username,
+            email_address=unverified_email.email,
+        )
 
 
 class TestResetPassword:
+    @pytest.fixture
+    def form_class(self, mocker):
+        return mocker.create_autospec(ResetPasswordForm)
+
+    @pytest.fixture
+    def reset_limiter(self, pyramid_services, ratelimit_service):
+        pyramid_services.register_service(
+            ratelimit_service, IRateLimiter, None, name="password.reset"
+        )
+        return ratelimit_service
+
+    @pytest.fixture
+    def error_request(self, pyramid_request, breach_service, mocker):
+        """A request whose token check fails before the form is built."""
+        pyramid_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/"
+        )
+        mocker.spy(pyramid_request.session, "flash")
+        return pyramid_request
+
     @pytest.mark.parametrize("dates_utc", [True, False])
-    def test_get(self, db_request, user_service, token_service, dates_utc):
+    def test_get(
+        self,
+        db_request,
+        user_service,
+        token_service,
+        breach_service,
+        form_class,
+        password_reset_token,
+        dates_utc,
+        mocker,
+    ):
         user = UserFactory.create()
-        form_inst = pretend.stub()
-        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
-
-        breach_service = pretend.stub(check_password=lambda pw: False)
-
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        last_login = str(
+        last_login = (
             user.last_login if dates_utc else user.last_login.replace(tzinfo=None)
         )
-        password_date = str(
+        password_date = (
             user.password_date if dates_utc else user.password_date.replace(tzinfo=None)
         )
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "password-reset",
-                "user.id": str(user.id),
-                "user.last_login": last_login,
-                "user.password_date": password_date,
-            }
+        token = password_reset_token(
+            user, last_login=last_login, password_date=password_date
         )
-        db_request.find_service = pretend.call_recorder(
-            lambda interface, **kwargs: {
-                IUserService: user_service,
-                ITokenService: token_service,
-                IPasswordBreachedService: breach_service,
-            }[interface]
-        )
+        db_request.GET.update({"token": token})
+        mocker.spy(token_service, "loads")
+        mocker.spy(db_request, "find_service")
 
         result = views.reset_password(db_request, _form_class=form_class)
 
-        assert result["form"] is form_inst
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                username=user.username,
-                full_name=user.name,
-                email=user.email,
-                user_service=user_service,
-                breach_service=breach_service,
-            )
-        ]
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-            pretend.call(ITokenService, name="password"),
-        ]
-
-    def test_reset_password(self, monkeypatch, db_request, user_service, token_service):
-        user = UserFactory.create()
-        db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY"})
-        form_obj = pretend.stub(
-            new_password=pretend.stub(data="password_value"),
-            validate=pretend.call_recorder(lambda *args: True),
+        assert result["form"] is form_class.return_value
+        form_class.assert_called_once_with(
+            db_request.POST,
+            username=user.username,
+            full_name=user.name,
+            email=user.email,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-
-        form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
-
-        breach_service = pretend.stub(check_password=lambda pw: False)
-
-        ratelimiter_service = pretend.stub(
-            clear=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-
-        db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "password-reset",
-                "user.id": str(user.id),
-                "user.last_login": str(user.last_login),
-                "user.password_date": str(user.password_date),
-            }
-        )
-        user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.find_service = pretend.call_recorder(
-            lambda interface, **kwargs: {
-                IUserService: user_service,
-                ITokenService: token_service,
-                IPasswordBreachedService: breach_service,
-                IRateLimiter: ratelimiter_service,
-            }[interface]
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        now = datetime.datetime.now(datetime.UTC)
-
-        with freezegun.freeze_time(now):
-            result = views.reset_password(db_request, _form_class=form_class)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/account/login"
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                username=user.username,
-                full_name=user.name,
-                email=user.email,
-                user_service=user_service,
-                breach_service=breach_service,
-            )
-        ]
-        assert db_request.route_path.calls == [pretend.call("accounts.login")]
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert user_service.update_user.calls == [
-            pretend.call(user.id, password=form_obj.new_password.data)
-        ]
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert db_request.session.flash.calls == [
-            pretend.call("You have reset your password", queue="success")
-        ]
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-            pretend.call(ITokenService, name="password"),
-            pretend.call(IRateLimiter, name="password.reset"),
-        ]
-        assert ratelimiter_service.clear.calls == [
-            pretend.call(user.id),
+        token_service.loads.assert_called_once_with(token)
+        assert db_request.find_service.call_args_list == [
+            mocker.call(IUserService, context=None),
+            mocker.call(IPasswordBreachedService, context=None),
+            mocker.call(ITokenService, name="password"),
         ]
 
-    def test_reset_password_with_no_last_login_succeeds(
-        self, monkeypatch, db_request, user_service, token_service
+    @pytest.mark.parametrize("never_logged_in", [False, True])
+    def test_reset_password(
+        self,
+        db_request,
+        user_service,
+        token_service,
+        breach_service,
+        reset_limiter,
+        form_class,
+        password_reset_token,
+        never_logged_in,
+        mocker,
     ):
-        user = UserFactory.create(last_login=None, password_date=None)
-        # unclear why factory doesn't accept the None above
-        user.last_login = user.password_date = None
-        assert user.last_login is None
-        assert user.password_date is None
-
+        user = UserFactory.create()
+        if never_logged_in:
+            # The factory always fills these in, so clear them afterwards.
+            user.last_login = user.password_date = None
+            min_date = datetime.datetime.min.replace(tzinfo=datetime.UTC)
+            token = password_reset_token(
+                user, last_login=min_date, password_date=min_date
+            )
+        else:
+            token = password_reset_token(user)
         db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY"})
-        form_obj = pretend.stub(
-            new_password=pretend.stub(data="password_value"),
-            validate=pretend.call_recorder(lambda *args: True),
+        db_request.POST.update({"token": token})
+        form_obj = form_class.return_value
+        form_obj.validate.return_value = True
+        form_obj.new_password.data = "password_value"
+
+        send_email = mocker.patch.object(
+            views, "send_password_change_email", autospec=True
         )
-        form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
-        breach_service = pretend.stub(check_password=lambda pw: False)
-        ratelimiter_service = pretend.stub(
-            clear=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/account/login"
         )
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-        db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "password-reset",
-                "user.id": str(user.id),
-                "user.last_login": str(
-                    datetime.datetime.min.replace(tzinfo=datetime.UTC)
-                ),
-                "user.password_date": str(
-                    datetime.datetime.min.replace(tzinfo=datetime.UTC)
-                ),
-            }
-        )
-        user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.find_service = pretend.call_recorder(
-            lambda interface, **kwargs: {
-                IUserService: user_service,
-                ITokenService: token_service,
-                IPasswordBreachedService: breach_service,
-                IRateLimiter: ratelimiter_service,
-            }[interface]
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(token_service, "loads")
+        mocker.spy(user_service, "update_user")
+        mocker.spy(db_request, "find_service")
+        mocker.spy(db_request.session, "flash")
 
         result = views.reset_password(db_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/account/login"
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                username=user.username,
-                full_name=user.name,
-                email=user.email,
-                user_service=user_service,
-                breach_service=breach_service,
-            )
+        form_obj.validate.assert_called_once_with()
+        form_class.assert_called_once_with(
+            db_request.POST,
+            username=user.username,
+            full_name=user.name,
+            email=user.email,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+        db_request.route_path.assert_called_once_with("accounts.login")
+        token_service.loads.assert_called_once_with(token)
+        user_service.update_user.assert_called_once_with(
+            user.id, password="password_value"
+        )
+        send_email.assert_called_once_with(db_request, user)
+        db_request.session.flash.assert_called_once_with(
+            "You have reset your password", queue="success"
+        )
+        assert db_request.find_service.call_args_list == [
+            mocker.call(IUserService, context=None),
+            mocker.call(IPasswordBreachedService, context=None),
+            mocker.call(ITokenService, name="password"),
+            mocker.call(IRateLimiter, name="password.reset"),
         ]
-        assert db_request.route_path.calls == [pretend.call("accounts.login")]
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert user_service.update_user.calls == [
-            pretend.call(user.id, password=form_obj.new_password.data)
-        ]
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert db_request.session.flash.calls == [
-            pretend.call("You have reset your password", queue="success")
-        ]
-        assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-            pretend.call(ITokenService, name="password"),
-            pretend.call(IRateLimiter, name="password.reset"),
-        ]
-        assert ratelimiter_service.clear.calls == [
-            pretend.call(user.id),
-        ]
+        reset_limiter.clear.assert_called_once_with(user.id)
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -2621,150 +2279,109 @@ class TestResetPassword:
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
-    def test_reset_password_loads_failure(self, pyramid_request, exception, message):
-        def loads(token):
-            raise exception
+    def test_reset_password_loads_failure(
+        self, error_request, token_service, exception, message, mocker
+    ):
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
+        )
 
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: pretend.stub(),
-            ITokenService: pretend.stub(loads=loads),
-            IPasswordBreachedService: pretend.stub(),
-        }[interface]
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        views.reset_password(error_request)
 
-        views.reset_password(pyramid_request)
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        error_request.route_path.assert_called_once_with(
+            "accounts.request-password-reset"
+        )
+        error_request.session.flash.assert_called_once_with(message, queue="error")
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
+    def test_reset_password_invalid_action(self, error_request, token_service):
+        error_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
 
-    def test_reset_password_invalid_action(self, pyramid_request):
-        data = {"action": "invalid-action"}
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda token: data))
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: pretend.stub(),
-            ITokenService: token_service,
-            IPasswordBreachedService: pretend.stub(),
-        }[interface]
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        views.reset_password(error_request)
 
-        views.reset_password(pyramid_request)
+        error_request.route_path.assert_called_once_with(
+            "accounts.request-password-reset"
+        )
+        error_request.session.flash.assert_called_once_with(
+            "Invalid token: not a password reset token", queue="error"
+        )
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: not a password reset token", queue="error")
-        ]
+    def test_reset_password_invalid_user(
+        self, error_request, token_service, user_service, mocker
+    ):
+        user_id = "8ad1a4ac-e016-11e6-bf01-fe55135034f3"
+        error_request.GET["token"] = token_service.dumps(
+            {"action": "password-reset", "user.id": user_id}
+        )
+        mocker.spy(user_service, "get_user")
 
-    def test_reset_password_invalid_user(self, pyramid_request):
-        data = {
-            "action": "password-reset",
-            "user.id": "8ad1a4ac-e016-11e6-bf01-fe55135034f3",
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda token: data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service,
-            ITokenService: token_service,
-            IPasswordBreachedService: pretend.stub(),
-        }[interface]
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        views.reset_password(error_request)
 
-        views.reset_password(pyramid_request)
+        error_request.route_path.assert_called_once_with(
+            "accounts.request-password-reset"
+        )
+        error_request.session.flash.assert_called_once_with(
+            "Invalid token: user not found", queue="error"
+        )
+        user_service.get_user.assert_called_once_with(uuid.UUID(user_id))
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: user not found", queue="error")
-        ]
-        assert user_service.get_user.calls == [pretend.call(uuid.UUID(data["user.id"]))]
-
-    def test_reset_password_last_login_changed(self, pyramid_request):
+    def test_reset_password_last_login_changed(
+        self, error_request, password_reset_token
+    ):
         now = datetime.datetime.now(datetime.UTC)
         later = now + datetime.timedelta(hours=1)
-        data = {
-            "action": "password-reset",
-            "user.id": "8ad1a4ac-e016-11e6-bf01-fe55135034f3",
-            "user.last_login": str(now),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda token: data))
-        user = pretend.stub(last_login=later, username="time-traveler")
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service,
-            ITokenService: token_service,
-            IPasswordBreachedService: pretend.stub(),
-        }[interface]
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        user = UserFactory.create(last_login=later, username="time-traveler")
+        error_request.GET["token"] = password_reset_token(user, last_login=now)
 
-        views.reset_password(pyramid_request)
+        views.reset_password(error_request)
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: user has logged in since this token was requested",
-                queue="error",
-            )
-        ]
+        error_request.route_path.assert_called_once_with(
+            "accounts.request-password-reset"
+        )
+        error_request.session.flash.assert_called_once_with(
+            "Invalid token: user has logged in since this token was requested",
+            queue="error",
+        )
 
-    def test_reset_password_password_date_changed(self, pyramid_request):
+    def test_reset_password_password_date_changed(
+        self, error_request, password_reset_token
+    ):
         now = datetime.datetime.now(datetime.UTC)
         later = now + datetime.timedelta(hours=1)
-        data = {
-            "action": "password-reset",
-            "user.id": "8ad1a4ac-e016-11e6-bf01-fe55135034f3",
-            "user.last_login": str(now),
-            "user.password_date": str(now),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda token: data))
-        user = pretend.stub(last_login=now, password_date=later)
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service,
-            ITokenService: token_service,
-            IPasswordBreachedService: pretend.stub(),
-        }[interface]
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        user = UserFactory.create(last_login=now)
+        user.password_date = later
+        error_request.GET["token"] = password_reset_token(user, password_date=now)
 
-        views.reset_password(pyramid_request)
+        views.reset_password(error_request)
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: password has already been changed since this "
-                "token was requested",
-                queue="error",
-            )
-        ]
+        error_request.route_path.assert_called_once_with(
+            "accounts.request-password-reset"
+        )
+        error_request.session.flash.assert_called_once_with(
+            "Invalid token: password has already been changed since this "
+            "token was requested",
+            queue="error",
+        )
 
-    def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(user=pretend.stub())
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+    def test_redirect_authenticated_user(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
         result = views.reset_password(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
 
 class TestVerifyEmail:
+    @pytest.fixture
+    def error_request(self, db_request, mocker):
+        """A request whose verification fails and redirects to the account page."""
+        db_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(db_request, "route_path", autospec=True, return_value="/")
+        mocker.spy(db_request.session, "flash")
+        return db_request
+
     @pytest.mark.parametrize(
         ("is_primary", "confirm_message"),
         [
@@ -2823,77 +2440,59 @@ class TestVerifyEmail:
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
-    def test_verify_email_loads_failure(self, pyramid_request, exception, message):
-        def loads(token):
-            raise exception
-
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(loads=loads)
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        views.verify_email(pyramid_request)
-
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
-
-    def test_verify_email_invalid_action(self, pyramid_request):
-        data = {"action": "invalid-action"}
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(
-            loads=lambda a: data
+    def test_verify_email_loads_failure(
+        self, error_request, token_service, exception, message, mocker
+    ):
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
         )
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        views.verify_email(pyramid_request)
+        views.verify_email(error_request)
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: not an email verification token", queue="error"
-            )
-        ]
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        error_request.route_path.assert_called_once_with("manage.account")
+        error_request.session.flash.assert_called_once_with(message, queue="error")
 
-    def test_verify_email_not_found(self, pyramid_request):
-        data = {"action": "email-verify", "email.id": "invalid"}
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(
-            loads=lambda a: data
+    def test_verify_email_invalid_action(self, error_request, token_service):
+        error_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
+
+        views.verify_email(error_request)
+
+        error_request.route_path.assert_called_once_with("manage.account")
+        error_request.session.flash.assert_called_once_with(
+            "Invalid token: not an email verification token", queue="error"
         )
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        def raise_no_result(*a):
-            raise NoResultFound
+    def test_verify_email_not_found(self, error_request, token_service):
+        """An email that belongs to someone else is not found for this user."""
+        error_request.user = UserFactory.create()
+        other_email = EmailFactory.create(verified=False)
+        error_request.GET["token"] = token_service.dumps(
+            {"action": "email-verify", "email.id": other_email.id}
+        )
 
-        pyramid_request.db = pretend.stub(query=raise_no_result)
+        views.verify_email(error_request)
 
-        views.verify_email(pyramid_request)
+        error_request.route_path.assert_called_once_with("manage.account")
+        error_request.session.flash.assert_called_once_with(
+            "Email not found", queue="error"
+        )
+        assert not other_email.verified
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Email not found", queue="error")
-        ]
-
-    def test_verify_email_already_verified(self, db_request):
+    def test_verify_email_already_verified(self, error_request, token_service):
         user = UserFactory()
         email = EmailFactory(user=user, verified=True)
-        data = {"action": "email-verify", "email.id": email.id}
-        db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub(loads=lambda a: data)
-        db_request.params = {"token": "RANDOM_KEY"}
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        error_request.user = user
+        error_request.GET["token"] = token_service.dumps(
+            {"action": "email-verify", "email.id": email.id}
+        )
 
-        views.verify_email(db_request)
+        views.verify_email(error_request)
 
-        assert db_request.route_path.calls == [pretend.call("manage.account")]
-        assert db_request.session.flash.calls == [
-            pretend.call("Email already verified", queue="error")
-        ]
+        error_request.route_path.assert_called_once_with("manage.account")
+        error_request.session.flash.assert_called_once_with(
+            "Email already verified", queue="error"
+        )
 
     def test_verify_email_with_existing_2fa(self, mocker, db_request):
         user = UserFactory(is_active=False, totp_secret=b"secret")
@@ -2917,113 +2516,110 @@ class TestVerifyEmail:
 
 
 class TestVerifyOrganizationRole:
-    @pytest.mark.parametrize(
-        "desired_role", ["Member", "Manager", "Owner", "Billing Manager"]
-    )
-    def test_verify_organization_role(
-        self, db_request, token_service, monkeypatch, desired_role
-    ):
-        organization = OrganizationFactory.create()
-        user = UserFactory.create()
-        OrganizationInvitationFactory.create(
-            organization=organization,
-            user=user,
-            token="RANDOM_KEY",
-        )
+    @pytest.fixture
+    def organization(self, db_session):
+        return OrganizationFactory.create()
+
+    @pytest.fixture
+    def owner_user(self, organization):
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
             organization=organization,
             user=owner_user,
             role_name=OrganizationRoleType.Owner,
         )
+        return owner_user
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
+    @pytest.fixture
+    def invite_token(self, token_service, organization, owner_user):
+        """Sign an organization invitation token for ``user``, sent by the owner."""
+
+        def _make(user, desired_role="Manager"):
+            return token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": desired_role,
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": owner_user.id,
+                }
+            )
+
+        return _make
+
+    @pytest.mark.parametrize(
+        "desired_role", ["Member", "Manager", "Owner", "Billing Manager"]
+    )
+    def test_verify_organization_role(
+        self,
+        invite_request,
+        organization,
+        owner_user,
+        invite_token,
+        mocker,
+        desired_role,
+    ):
+        user = UserFactory.create()
+        token = invite_token(user, desired_role)
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+            token=token,
         )
 
-        organization_member_added_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        invite_request.user = user
+        invite_request.GET["token"] = token
+
+        organization_member_added_email = mocker.patch.object(
+            views, "send_organization_member_added_email", autospec=True
         )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_added_email",
-            organization_member_added_email,
-        )
-        added_as_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_added_as_organization_member_email",
-            added_as_organization_member_email,
+        added_as_organization_member_email = mocker.patch.object(
+            views, "send_added_as_organization_member_email", autospec=True
         )
 
-        result = views.verify_organization_role(db_request)
+        result = views.verify_organization_role(invite_request)
 
-        db_request.db.flush()
+        invite_request.db.flush()
 
         assert not (
-            db_request.db.query(OrganizationInvitation)
+            invite_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == user)
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
         assert (
-            db_request.db.query(OrganizationRole)
+            invite_request.db.query(OrganizationRole)
             .filter(
                 OrganizationRole.organization == organization,
                 OrganizationRole.user == user,
             )
             .one()
         )
-        assert organization_member_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                submitter=owner_user,
-                organization_name=organization.name,
-                role=desired_role,
-            )
-        ]
-        assert added_as_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=owner_user,
-                organization_name=organization.name,
-                role=desired_role,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                (
-                    f"You are now {desired_role} of the "
-                    f"'{organization.name}' organization."
-                ),
-                queue="success",
-            )
-        ]
+        organization_member_added_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            submitter=owner_user,
+            organization_name=organization.name,
+            role=desired_role,
+        )
+        added_as_organization_member_email.assert_called_once_with(
+            invite_request,
+            user,
+            submitter=owner_user,
+            organization_name=organization.name,
+            role=desired_role,
+        )
+        invite_request.session.flash.assert_called_once_with(
+            (f"You are now {desired_role} of the '{organization.name}' organization."),
+            queue="success",
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.organization.roles",
-                organization_name=organization.normalized_name,
-            )
-        ]
+        invite_request.route_path.assert_called_once_with(
+            "manage.organization.roles",
+            organization_name=organization.normalized_name,
+        )
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -3034,193 +2630,106 @@ class TestVerifyOrganizationRole:
         ],
     )
     def test_verify_organization_role_loads_failure(
-        self, db_request, token_service, exception, message
+        self, invite_request, token_service, exception, message, mocker
     ):
-        def loads(token):
-            raise exception
+        invite_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
+        )
 
-        db_request.params = {"token": "RANDOM_KEY"}
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = loads
+        views.verify_organization_role(invite_request)
 
-        views.verify_organization_role(db_request)
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        invite_request.route_path.assert_called_once_with("manage.organizations")
+        invite_request.session.flash.assert_called_once_with(message, queue="error")
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-        assert db_request.session.flash.calls == [pretend.call(message, queue="error")]
+    def test_verify_email_invalid_action(self, invite_request, token_service):
+        invite_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
 
-    def test_verify_email_invalid_action(self, db_request, token_service):
-        data = {"action": "invalid-action"}
-        db_request.params = {"token": "RANDOM_KEY"}
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = lambda a: data
+        views.verify_organization_role(invite_request)
 
-        views.verify_organization_role(db_request)
+        invite_request.route_path.assert_called_once_with("manage.organizations")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: not an organization invitation token", queue="error"
+        )
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: not an organization invitation token", queue="error"
-            )
-        ]
-
-    def test_verify_organization_role_revoked(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_organization_role_revoked(self, invite_request, invite_token):
         user = UserFactory.create()
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation no longer exists.",
+            queue="error",
         )
-
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Organization invitation no longer exists.",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
     def test_verify_organization_role_declined(
-        self, db_request, token_service, monkeypatch
+        self, invite_request, organization, owner_user, invite_token, mocker
     ):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
         user = UserFactory.create()
+        token = invite_token(user)
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
-            token="RANDOM_KEY",
-        )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+            token=token,
         )
         message = "Some reason to decline."
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.POST.update(
-            {"token": "RANDOM_KEY", "decline": "Decline", "message": message}
-        )
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
+        invite_request.user = user
+        invite_request.POST.update(
+            {"token": token, "decline": "Decline", "message": message}
         )
 
-        organization_member_invite_declined_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        organization_member_invite_declined_email = mocker.patch.object(
+            views, "send_organization_member_invite_declined_email", autospec=True
         )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_invite_declined_email",
-            organization_member_invite_declined_email,
-        )
-        declined_as_invited_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_declined_as_invited_organization_member_email",
-            declined_as_invited_organization_member_email,
+        declined_as_invited_organization_member_email = mocker.patch.object(
+            views, "send_declined_as_invited_organization_member_email", autospec=True
         )
 
-        result = views.verify_organization_role(db_request)
+        result = views.verify_organization_role(invite_request)
 
         assert not (
-            db_request.db.query(OrganizationInvitation)
+            invite_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == user)
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
-        assert organization_member_invite_declined_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                organization_name=organization.name,
-                message=message,
-            )
-        ]
-        assert declined_as_invited_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                organization_name=organization.name,
-            )
-        ]
+        organization_member_invite_declined_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            organization_name=organization.name,
+            message=message,
+        )
+        declined_as_invited_organization_member_email.assert_called_once_with(
+            invite_request,
+            user,
+            organization_name=organization.name,
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-    def test_verify_fails_with_different_user(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_fails_with_different_user(self, invite_request, invite_token):
         user = UserFactory.create()
-        user_2 = UserFactory.create()
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = UserFactory.create()
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation is not valid.", queue="error"
         )
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-        db_request.user = user_2
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Organization invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-
-    def test_verify_fails_with_token_mismatch(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_fails_with_token_mismatch(
+        self, invite_request, organization, invite_token
+    ):
         user = UserFactory.create()
         # Create invitation with a different token than what's in the request
         OrganizationInvitationFactory.create(
@@ -3228,184 +2737,150 @@ class TestVerifyOrganizationRole:
             user=user,
             token="WRONG_TOKEN",
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_organization_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation is not valid.", queue="error"
         )
+        invite_request.route_path.assert_called_once_with("manage.organizations")
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        views.verify_organization_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Organization invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
-
-    def test_verify_role_get_confirmation(self, db_request, token_service):
-        desired_role = "Manager"
-        organization = OrganizationFactory.create()
+    def test_verify_role_get_confirmation(
+        self, invite_request, organization, invite_token
+    ):
         user = UserFactory.create()
+        token = invite_token(user)
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
-            token="RANDOM_KEY",
-        )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=owner_user,
-            role_name=OrganizationRoleType.Owner,
+            token=token,
         )
 
-        db_request.user = user
-        db_request.method = "GET"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
+        invite_request.user = user
+        invite_request.method = "GET"
+        invite_request.GET["token"] = token
 
-        roles = views.verify_organization_role(db_request)
+        roles = views.verify_organization_role(invite_request)
 
         assert roles == {
             "organization_name": organization.name,
-            "desired_role": desired_role,
+            "desired_role": "Manager",
         }
 
 
 class TestVerifyProjectRole:
+    @pytest.fixture
+    def project(self, db_session):
+        return ProjectFactory.create()
+
+    @pytest.fixture
+    def invite_token(self, token_service, project):
+        """
+        Sign a project role invitation token for ``user``, sent by
+        ``submitter`` (``user`` themselves by default).
+        """
+
+        def _make(user, desired_role="Maintainer", submitter=None):
+            return token_service.dumps(
+                {
+                    "action": "email-project-role-verify",
+                    "desired_role": desired_role,
+                    "user_id": user.id,
+                    "project_id": project.id,
+                    "submitter_id": (submitter or user).id,
+                }
+            )
+
+        return _make
+
     @pytest.mark.parametrize("desired_role", ["Maintainer", "Owner"])
     def test_verify_project_role(
-        self, db_request, user_service, token_service, monkeypatch, desired_role
+        self,
+        invite_request,
+        project,
+        invite_token,
+        user_service,
+        mocker,
+        desired_role,
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
+        token = invite_token(user, desired_role, submitter=owner_user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": desired_role,
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.GET["token"] = token
+        mocker.spy(invite_request, "find_service")
+        mocker.spy(user_service, "get_user")
 
-        collaborator_added_email = pretend.call_recorder(lambda *args, **kwargs: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_added_email", collaborator_added_email
+        collaborator_added_email = mocker.patch.object(
+            views, "send_collaborator_added_email", autospec=True
         )
-        added_as_collaborator_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views, "send_added_as_collaborator_email", added_as_collaborator_email
+        added_as_collaborator_email = mocker.patch.object(
+            views, "send_added_as_collaborator_email", autospec=True
         )
 
-        result = views.verify_project_role(db_request)
+        result = views.verify_project_role(invite_request)
 
-        db_request.db.flush()
+        invite_request.db.flush()
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email"),
-            pretend.call(IUserService, context=None),
+        assert invite_request.find_service.call_args_list == [
+            mocker.call(ITokenService, name="email"),
+            mocker.call(IUserService, context=None),
         ]
-
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert user_service.get_user.calls == [
-            pretend.call(user.id),
-            pretend.call(db_request.user.id),
+        # The token service stringifies its payload, so ids come back as str.
+        assert user_service.get_user.call_args_list == [
+            mocker.call(str(user.id)),
+            mocker.call(str(owner_user.id)),
         ]
 
         assert not (
-            db_request.db.query(RoleInvitation)
+            invite_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
             .filter(RoleInvitation.project == project)
             .one_or_none()
         )
         assert (
-            db_request.db.query(Role)
+            invite_request.db.query(Role)
             .filter(Role.project == project, Role.user == user)
             .one()
         )
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"You are now {desired_role} of the '{project.name}' project.",
-                queue="success",
-            )
-        ]
+        invite_request.session.flash.assert_called_once_with(
+            f"You are now {desired_role} of the '{project.name}' project.",
+            queue="success",
+        )
 
-        assert collaborator_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=desired_role,
-            )
-        ]
-        assert added_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=desired_role,
-            )
-        ]
+        collaborator_added_email.assert_called_once_with(
+            invite_request,
+            {owner_user},
+            user=user,
+            submitter=owner_user,
+            project_name=project.name,
+            role=desired_role,
+        )
+        added_as_collaborator_email.assert_called_once_with(
+            invite_request,
+            user,
+            submitter=owner_user,
+            project_name=project.name,
+            role=desired_role,
+        )
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [
-            (
-                pretend.call("manage.project.roles", project_name=project.name)
-                if desired_role == "Owner"
-                else pretend.call("packaging.project", name=project.name)
+        if desired_role == "Owner":
+            invite_request.route_path.assert_called_once_with(
+                "manage.project.roles", project_name=project.name
             )
-        ]
+        else:
+            invite_request.route_path.assert_called_once_with(
+                "packaging.project", name=project.name
+            )
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -3416,263 +2891,119 @@ class TestVerifyProjectRole:
         ],
     )
     def test_verify_project_role_loads_failure(
-        self, pyramid_request, exception, message
+        self, invite_request, token_service, exception, message, mocker
     ):
-        def loads(token):
-            raise exception
-
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(loads=loads)
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        views.verify_project_role(pyramid_request)
-
-        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
-
-    def test_verify_email_invalid_action(self, pyramid_request):
-        data = {"action": "invalid-action"}
-        pyramid_request.find_service = lambda *a, **kw: pretend.stub(
-            loads=lambda a: data
+        invite_request.GET["token"] = "RANDOM_KEY"
+        mocker.patch.object(
+            token_service, "loads", autospec=True, side_effect=exception
         )
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        views.verify_project_role(pyramid_request)
+        views.verify_project_role(invite_request)
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Invalid token: not a collaboration invitation token", queue="error"
-            )
-        ]
+        token_service.loads.assert_called_once_with("RANDOM_KEY")
+        invite_request.route_path.assert_called_once_with("manage.projects")
+        invite_request.session.flash.assert_called_once_with(message, queue="error")
 
-    def test_verify_project_role_revoked(self, db_request, user_service, token_service):
-        project = ProjectFactory.create()
+    def test_verify_email_invalid_action(self, invite_request, token_service):
+        invite_request.GET["token"] = token_service.dumps({"action": "invalid-action"})
+
+        views.verify_project_role(invite_request)
+
+        invite_request.route_path.assert_called_once_with("manage.projects")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: not a collaboration invitation token", queue="error"
+        )
+
+    def test_verify_project_role_revoked(self, invite_request, invite_token):
         user = UserFactory.create()
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation no longer exists.",
+            queue="error",
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Role invitation no longer exists.",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
-
-    def test_verify_project_role_declined(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_project_role_declined(self, invite_request, project, invite_token):
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
+        token = invite_token(user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.POST.update({"token": token, "decline": "Decline"})
 
-        result = views.verify_project_role(db_request)
+        result = views.verify_project_role(invite_request)
 
         assert not (
-            db_request.db.query(RoleInvitation)
+            invite_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
             .filter(RoleInvitation.project == project)
             .one_or_none()
         )
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-    def test_verify_fails_with_different_user(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_fails_with_different_user(self, invite_request, invite_token):
         user = UserFactory.create()
-        user_2 = UserFactory.create()
 
-        db_request.user = user_2
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = UserFactory.create()
+        invite_request.GET["token"] = invite_token(user)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation is not valid.", queue="error"
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Role invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
     def test_verify_fails_with_token_mismatch(
-        self, db_request, user_service, token_service
+        self, invite_request, project, invite_token
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
         # Create invitation with a different token than what's in the request
         RoleInvitationFactory.create(user=user, project=project, token="WRONG_TOKEN")
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
 
-        views.verify_project_role(db_request)
+        views.verify_project_role(invite_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Role invitation is not valid.", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        invite_request.session.flash.assert_called_once_with(
+            "Role invitation is not valid.", queue="error"
+        )
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
     def test_verify_fails_with_missing_project(
-        self, db_request, user_service, token_service
+        self, invite_request, project, invite_token
     ):
-        project = ProjectFactory.create()
         user = UserFactory.create()
 
-        db_request.user = user
-        db_request.method = "POST"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
+        invite_request.user = user
+        invite_request.GET["token"] = invite_token(user)
+
+        invite_request.db.delete(project)
+
+        views.verify_project_role(invite_request)
+
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid token: project does not exist", queue="error"
         )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.route_path.assert_called_once_with("manage.projects")
 
-        db_request.db.delete(project)
-
-        views.verify_project_role(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid token: project does not exist", queue="error")
-        ]
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
-
-    def test_verify_role_get_confirmation(
-        self, db_request, user_service, token_service
-    ):
-        project = ProjectFactory.create()
+    def test_verify_role_get_confirmation(self, invite_request, project, invite_token):
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
+        token = invite_token(user)
+        RoleInvitationFactory.create(user=user, project=project, token=token)
 
-        db_request.user = user
-        db_request.method = "GET"
-        db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
-        token_service.loads = pretend.call_recorder(
-            lambda token: {
-                "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
-                "user_id": user.id,
-                "project_id": project.id,
-                "submitter_id": db_request.user.id,
-            }
-        )
-        user_service.get_user = pretend.call_recorder(lambda user_id: user)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.user = user
+        invite_request.method = "GET"
+        invite_request.GET["token"] = token
 
-        roles = views.verify_project_role(db_request)
+        roles = views.verify_project_role(invite_request)
 
         assert roles == {
             "project_name": project.name,
@@ -3681,132 +3012,217 @@ class TestVerifyProjectRole:
 
 
 class TestViewTermsOfService:
-    def test_view_terms_of_service_no_user(self):
-        user_service = pretend.stub(
-            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request = pretend.stub(
-            user=None,
-            find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
-        )
-        result = views.view_terms_of_service(pyramid_request)
-        assert isinstance(result, HTTPSeeOther)
-        assert (
-            result.headers["Location"]
-            == "https://policies.python.org/pypi.org/Terms-of-Service/"
-        )
-        assert user_service.record_tos_engagement.calls == []
+    def test_view_terms_of_service_no_user(self, pyramid_request, user_service, mocker):
+        pyramid_request.user = None
+        mocker.spy(user_service, "record_tos_engagement")
 
-    def test_view_terms_of_service(self):
-        user_service = pretend.stub(
-            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request = pretend.stub(
-            user=pretend.stub(id="user-id"),
-            find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
-        )
         result = views.view_terms_of_service(pyramid_request)
+
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.headers["Location"]
             == "https://policies.python.org/pypi.org/Terms-of-Service/"
         )
-        assert user_service.record_tos_engagement.calls == [
-            pretend.call("user-id", "the-revision", TermsOfServiceEngagement.Viewed)
-        ]
+        user_service.record_tos_engagement.assert_not_called()
+
+    def test_view_terms_of_service(self, db_request, user_service, mocker):
+        db_request.user = UserFactory.create()
+        db_request.registry.settings = {"terms.revision": "the-revision"}
+        mocker.spy(user_service, "record_tos_engagement")
+
+        result = views.view_terms_of_service(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == "https://policies.python.org/pypi.org/Terms-of-Service/"
+        )
+        user_service.record_tos_engagement.assert_called_once_with(
+            db_request.user.id, "the-revision", TermsOfServiceEngagement.Viewed
+        )
 
 
 class TestProfileCallout:
-    def test_profile_callout_returns_user(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_profile_callout_returns_user(self, mocker):
+        user = UserFactory.build()
 
-        assert views.profile_callout(user, request) == {"user": user}
+        assert views.profile_callout(user, mocker.sentinel.request) == {"user": user}
 
 
 class TestEditProfileButton:
-    def test_edit_profile_button(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_edit_profile_button(self, mocker):
+        user = UserFactory.build()
 
-        assert views.edit_profile_button(user, request) == {"user": user}
+        assert views.edit_profile_button(user, mocker.sentinel.request) == {
+            "user": user
+        }
 
 
 class TestProfilePublicEmail:
-    def test_profile_public_email_returns_user(self):
-        user = pretend.stub()
-        request = pretend.stub()
+    def test_profile_public_email_returns_user(self, mocker):
+        user = UserFactory.build()
 
-        assert views.profile_public_email(user, request) == {"user": user}
+        assert views.profile_public_email(user, mocker.sentinel.request) == {
+            "user": user
+        }
 
 
 class TestReAuthentication:
+    @pytest.fixture
+    def reauth_request(self, db_request, mocker):
+        """A request from a logged-in user, with a real warehouse session."""
+        db_request.user = UserFactory.create()
+        db_request.session = Session()
+        mocker.spy(db_request.session, "record_auth_timestamp")
+        mocker.spy(db_request.session, "record_password_timestamp")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        return db_request
+
+    @pytest.fixture
+    def form_class(self, mocker):
+        """An autospec'd ``ReAuthenticateForm`` that validates."""
+        form_class = mocker.create_autospec(views.ReAuthenticateForm)
+        form_class.return_value.validate.return_value = True
+        return form_class
+
     @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
-    def test_reauth(self, monkeypatch, pyramid_request, pyramid_services, next_route):
-        user_service = pretend.stub(get_password_timestamp=lambda uid: 0)
-        response = pretend.stub()
+    def test_reauth(self, reauth_request, user_service, form_class, next_route):
+        reauth_request.matched_route = SimpleNamespace(name="manage.account")
+        reauth_request.matchdict = {"foo": "bar"}
+        reauth_request.GET = MultiDict({"baz": "bar"})
 
-        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
-
-        pyramid_services.register_service(user_service, IUserService, None)
-
-        pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
-        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
-            lambda *args: None
-        )
-        pyramid_request.session.record_password_timestamp = lambda ts: None
-        pyramid_request.user = pretend.stub(id=pretend.stub, username=pretend.stub())
-        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
-        pyramid_request.matchdict = {"foo": "bar"}
-        pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
-
-        form_obj = pretend.stub(
-            next_route=pretend.stub(data=next_route),
-            next_route_matchdict=pretend.stub(data="{}"),
-            next_route_query=pretend.stub(data="{}"),
-            validate=lambda: True,
-        )
-        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        form = form_class.return_value
+        form.next_route.data = next_route
+        form.next_route_matchdict.data = "{}"
+        form.next_route_query.data = "{}"
 
         if next_route is not None:
-            pyramid_request.method = "POST"
-            pyramid_request.POST["next_route"] = next_route
-            pyramid_request.POST["next_route_matchdict"] = "{}"
-            pyramid_request.POST["next_route_query"] = "{}"
+            reauth_request.method = "POST"
+            reauth_request.POST["next_route"] = next_route
+            reauth_request.POST["next_route_matchdict"] = "{}"
+            reauth_request.POST["next_route_query"] = "{}"
 
-        _ = views.reauthenticate(pyramid_request, _form_class=form_class)
+        result = views.reauthenticate(reauth_request, _form_class=form_class)
 
-        assert pyramid_request.session.record_auth_timestamp.calls == (
-            [pretend.call()] if next_route is not None else []
-        )
-        assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                request=pyramid_request,
-                username=pyramid_request.user.username,
-                next_route=pyramid_request.matched_route.name,
-                next_route_matchdict=json.dumps(pyramid_request.matchdict),
-                next_route_query=json.dumps(pyramid_request.GET.mixed()),
-                action="reauthenticate",
-                user_service=user_service,
-                check_password_metrics_tags=[
-                    "method:reauth",
-                    "auth_method:reauthenticate_form",
-                ],
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        if next_route is not None:
+            reauth_request.route_path.assert_called_once_with(next_route, _query={})
+            reauth_request.session.record_auth_timestamp.assert_called_once_with()
+            reauth_request.session.record_password_timestamp.assert_called_once_with(
+                user_service.get_password_timestamp(reauth_request.user.id)
             )
-        ]
+        else:
+            reauth_request.route_path.assert_called_once_with("manage.projects")
+            reauth_request.session.record_auth_timestamp.assert_not_called()
+            reauth_request.session.record_password_timestamp.assert_not_called()
+        form_class.assert_called_once_with(
+            reauth_request.POST,
+            request=reauth_request,
+            user_id=reauth_request.user.id,
+            next_route="manage.account",
+            next_route_matchdict=json.dumps({"foo": "bar"}),
+            next_route_query=json.dumps({"baz": "bar"}),
+            action="reauthenticate",
+            user_service=user_service,
+            check_password_metrics_tags=[
+                "method:reauth",
+                "auth_method:reauthenticate_form",
+            ],
+        )
 
-    def test_reauth_no_user(self, monkeypatch, pyramid_request):
+    def test_reauth_no_user(self, pyramid_request, mocker):
         pyramid_request.user = None
-        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
 
         result = views.reauthenticate(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_reauth_rejects_different_users_password(
+        self, reauth_request, user_service, mocker
+    ):
+        """Bob's valid password must not reauthenticate Alice's session."""
+        alice = reauth_request.user
+        UserFactory.create(username="bob", clear_pwd="bob-password")
+        mocker.spy(user_service, "check_password")
+        mocker.spy(user_service, "find_userid")
+        mocker.spy(alice, "record_event")
+
+        reauth_request.method = "POST"
+        reauth_request.POST = MultiDict(
+            {
+                "username": "bob",
+                "password": "bob-password",
+                "next_route": "manage.account.publishing",
+                "next_route_matchdict": "{}",
+                "next_route_query": "{}",
+            }
+        )
+        reauth_request.matched_route = SimpleNamespace(name="manage.account.publishing")
+        reauth_request.matchdict = {}
+        reauth_request.GET = MultiDict()
+
+        result = views.reauthenticate(reauth_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        reauth_request.route_path.assert_called_once_with(
+            "manage.account.publishing", _query={}
+        )
+        # check_password appends its mechanism tag to the caller's list in place.
+        user_service.check_password.assert_called_once_with(
+            alice.id,
+            "bob-password",
+            tags=[
+                "method:reauth",
+                "auth_method:reauthenticate_form",
+                "mechanism:check_password",
+            ],
+        )
+        user_service.find_userid.assert_not_called()
+        alice.record_event.assert_called_once_with(
+            tag="account:reauthenticate:failure",
+            request=reauth_request,
+            additional={"reason": "invalid_password"},
+        )
+        reauth_request.session.record_auth_timestamp.assert_not_called()
+        reauth_request.session.record_password_timestamp.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("next_route_matchdict", "next_route_query"),
+        [
+            ("invalid_json", "{}"),
+            ("{}", "invalid_json"),
+            ("{'single': 'quotes'}", "{}"),
+            ("123", "{}"),
+            ("{}", "123"),
+            ("[1, 2]", "{}"),
+            ("{}", "[1, 2]"),
+            ("true", "{}"),
+            ("{}", '"string"'),
+        ],
+    )
+    def test_reauth_invalid_json_raises_400(
+        self, reauth_request, form_class, next_route_matchdict, next_route_query
+    ):
+        reauth_request.matched_route = SimpleNamespace(name="manage.account")
+        reauth_request.matchdict = {}
+        reauth_request.GET = MultiDict()
+
+        form = form_class.return_value
+        form.next_route.data = "/manage/accounts"
+        form.next_route_matchdict.data = next_route_matchdict
+        form.next_route_query.data = next_route_query
+
+        with pytest.raises(HTTPBadRequest):
+            views.reauthenticate(reauth_request, _form_class=form_class)
 
 
 class TestManageAccountPublishingViews:
@@ -3870,8 +3286,7 @@ class TestManageAccountPublishingViews:
 
             if name == "user_oidc.publisher.register":
                 return user_rate_limiter
-            else:
-                return ip_rate_limiter
+            return ip_rate_limiter
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),
@@ -3915,7 +3330,7 @@ class TestManageAccountPublishingViews:
     def test_manage_publishing(self, metrics, monkeypatch):
         route_url = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(),
+            user=pretend.stub(id=pretend.stub()),
             route_url=route_url,
             registry=pretend.stub(
                 settings={
@@ -3929,6 +3344,7 @@ class TestManageAccountPublishingViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
+            db=pretend.stub(scalars=lambda *a, **kw: pretend.stub(all=lambda: [])),
             POST=pretend.stub(),
         )
 
@@ -3974,6 +3390,7 @@ class TestManageAccountPublishingViews:
                 "Google": False,
                 "ActiveState": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4009,7 +3426,10 @@ class TestManageAccountPublishingViews:
         project_service = pretend.stub(check_project_name=lambda name: None)
         pyramid_request.find_service = lambda _, **kw: project_service
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4062,6 +3482,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4136,7 +3557,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4191,6 +3615,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4203,10 +3628,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4283,6 +3704,10 @@ class TestManageAccountPublishingViews:
         )
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=False,
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False),
@@ -4331,6 +3756,7 @@ class TestManageAccountPublishingViews:
                 "Google": False,
                 "ActiveState": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4343,10 +3769,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4489,14 +3911,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4539,6 +3953,10 @@ class TestManageAccountPublishingViews:
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.registry = pretend.stub(
             settings={
@@ -4613,6 +4031,7 @@ class TestManageAccountPublishingViews:
         db_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=uuid.uuid4(),
         )
         db_request.registry = pretend.stub(
             settings={
@@ -4849,10 +4268,133 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        (
+            "view_name",
+            "publisher_name",
+            "publisher_class",
+            "make_publisher",
+            "post_body",
+        ),
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+                PendingGitHubPublisher,
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-other-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-owner-id",
+                    workflow_filename="some-workflow-filename.yml",
+                    environment="some-environment",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "owner": "some-owner",
+                        "repository": "some-repository",
+                        "workflow_filename": "some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+                PendingGitLabPublisher,
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-other-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-workflow-filename.yml",
+                    environment="some-environment",
+                    issuer_url="https://gitlab.com",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
+                    }
+                ),
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                PendingGooglePublisher,
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-other-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+                PendingActiveStatePublisher,
+                lambda user_id: PendingActiveStatePublisher(
+                    project_name="some-other-project-name",
+                    added_by_id=user_id,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_uniqueviolation(
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        publisher_name,
+        publisher_class,
+        make_publisher,
+        post_body,
+    ):
+        """A UniqueViolation raised by the INSERT during ``flush()`` means
+        another pending publisher already exists for the same external
+        identity tuple but with a different ``project_name``. The early
+        duplicate-check query keys on ``project_name`` so it misses that row,
+        but the DB unique constraint does not, so the insert fails.
+
+        Surface the conflict to the user instead of silently redirecting as if
+        the registration succeeded -- and crucially, roll back the now-aborted
+        transaction so the session stays usable for the rest of the request
+        (template rendering, the end-of-request commit). Regression test for
+        GH-20006.
+        """
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
+        # A pending publisher with the same external identity but a *different*
+        # project_name. flush()-ing it sends the INSERT to the DB so the next
+        # conflicting insert raises a real UniqueViolation.
+        existing_publisher = make_publisher(db_request.user.id)
+        db_request.db.add(existing_publisher)
+        db_request.db.flush()
 
         db_request.registry = pretend.stub(
             settings={
@@ -4862,15 +4404,10 @@ class TestManageAccountPublishingViews:
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
-        db_request.POST = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repository",
-                "workflow_filename": "some-workflow-filename.yml",
-                "environment": "some-environment",
-                "project_name": "some-project-name",
-            }
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.POST = post_body
 
         view = views.ManageAccountPublishingViews(db_request)
 
@@ -4878,6 +4415,16 @@ class TestManageAccountPublishingViews:
             views.PendingGitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
         )
 
         monkeypatch.setattr(
@@ -4887,8 +4434,24 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        resp = view.add_pending_github_oidc_publisher()
-        assert isinstance(resp, HTTPSeeOther)
+        assert getattr(view, view_name)() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+        ]
+        # The conflicting INSERT left the transaction aborted. Without an
+        # explicit rollback in the handler this query raises PendingRollbackError
+        # -- which is what surfaces to the user as a 500/503 once the template
+        # tries to render the user's existing pending publishers. The rollback
+        # also discards this request's uncommitted work, including the
+        # pre-existing publisher created above, so the count is 0.
+        assert db_request.db.query(publisher_class).count() == 0
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),
@@ -5054,7 +4617,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -5107,6 +4673,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -5429,19 +4996,48 @@ class TestManageAccountPublishingViews:
 
 
 class TestConfirmLogin:
-    def test_already_logged_in(self, pyramid_request):
-        pyramid_request.user = UserFactory.create()
-        pyramid_request.route_path = pretend.call_recorder(lambda route: f"/{route}")
+    @pytest.fixture
+    def confirm_request(self, db_request, confirm_login_token_service, mocker):
+        """An anonymous request carrying a token, redirecting to ``/<route>``."""
+        db_request.user = None
+        db_request.params = {"token": "foo"}
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
+        )
+        mocker.spy(db_request.session, "flash")
+        return db_request
+
+    @pytest.fixture
+    def confirm_token(self, confirm_login_token_service):
+        """Sign a login-confirmation token for ``user``."""
+
+        def _make(user, unique_login_id):
+            return confirm_login_token_service.dumps(
+                {
+                    "action": "login-confirmation",
+                    "user.id": user.id,
+                    "user.last_login": user.last_login.isoformat(),
+                    "unique_login_id": unique_login_id,
+                }
+            )
+
+        return _make
+
+    def test_already_logged_in(self, pyramid_request, mocker):
+        pyramid_request.user = UserFactory.build()
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
+        )
         result = views.confirm_login(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/index"
-        assert pyramid_request.route_path.calls == [pretend.call("index")]
+        pyramid_request.route_path.assert_called_once_with("index")
 
     def test_no_token(self, pyramid_request):
         pyramid_request.user = None
         pyramid_request.params = {}
         result = views.confirm_login(pyramid_request)
-        assert result == {}
+        assert result == {"repeat_window_minutes": 15}
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -5451,170 +5047,98 @@ class TestConfirmLogin:
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
-    def test_token_error(self, pyramid_request, exception, message):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_service = pretend.stub(loads=pretend.raiser(exception))
-        user_service = pretend.stub()
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
+    def test_token_error(
+        self, confirm_request, confirm_login_token_service, exception, message, mocker
+    ):
+        mocker.patch.object(
+            confirm_login_token_service, "loads", autospec=True, side_effect=exception
+        )
 
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(message, queue="error")
-        ]
+        confirm_login_token_service.loads.assert_called_once_with("foo")
+        confirm_request.session.flash.assert_called_once_with(message, queue="error")
 
-    def test_invalid_action(self, pyramid_request):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_data = {"action": "wrong-action"}
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub()
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
+    def test_invalid_action(self, confirm_request, confirm_login_token_service):
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {"action": "wrong-action"}
+        )
 
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: not a login confirmation token", queue="error")
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid token: not a login confirmation token", queue="error"
+        )
 
-    def test_user_not_found(self, pyramid_request):
-        pyramid_request.user = None
-        pyramid_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(uuid.uuid4()),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
+    def test_user_not_found(
+        self, confirm_request, confirm_login_token_service, user_service, mocker
+    ):
+        missing_id = uuid.uuid4()
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {"action": "login-confirmation", "user.id": missing_id}
+        )
+        mocker.spy(user_service, "get_user")
 
-        pyramid_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(pyramid_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid token: user not found", queue="error")
-        ]
+        user_service.get_user.assert_called_once_with(missing_id)
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid token: user not found", queue="error"
+        )
 
-    def test_unique_login_not_found(self, db_request):
+    def test_unique_login_not_found(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
-        db_request.user = None
-        db_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": str(uuid.uuid4()),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+        confirm_request.params["token"] = confirm_token(user, uuid.uuid4())
 
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid login attempt.", queue="error")
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid login attempt.", queue="error"
+        )
 
-    def test_ip_address_mismatch(self, db_request):
+    def test_ip_address_mismatch(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
         unique_login = UserUniqueLoginFactory.create(user=user, ip_address=ip_address)
-        db_request.user = None
-        db_request.params = {"token": "foo"}
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": unique_login.id,
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
 
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Device details didn't match, please try again from the device you "
-                "originally used to log in.",
-                queue="error",
-            )
-        ]
+        confirm_request.session.flash.assert_called_once_with(
+            "Device details didn't match, please try again from the device you "
+            "originally used to log in.",
+            queue="error",
+        )
 
-    def test_success(self, monkeypatch, db_request):
+    def test_success(self, confirm_request, confirm_token, mocker):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         unique_login = UserUniqueLoginFactory.create(
             user=user,
-            ip_address=db_request.ip_address,
+            ip_address=confirm_request.ip_address,
         )
-        db_request.user = None
-        db_request.params = {"token": "foo"}
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
 
-        token_data = {
-            "action": "login-confirmation",
-            "user.id": str(user.id),
-            "user.last_login": user.last_login.isoformat(),
-            "unique_login_id": str(unique_login.id),
-        }
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda t: token_data))
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
-
-        db_request.find_service = lambda interface, name=None, **kwargs: {
-            ITokenService: {"confirm_login": token_service},
-            IUserService: {None: user_service},
-        }[interface][name]
-
-        _login_user = pretend.call_recorder(lambda request, userid: [("foo", "bar")])
-        monkeypatch.setattr(views, "_login_user", _login_user)
-        _set_userid_insecure_cookie = pretend.call_recorder(lambda resp, userid: None)
-        monkeypatch.setattr(
-            views, "_set_userid_insecure_cookie", _set_userid_insecure_cookie
+        _login_user = mocker.patch.object(views, "_login_user", autospec=True)
+        _set_userid_insecure_cookie = mocker.patch.object(
+            views, "_set_userid_insecure_cookie", autospec=True
         )
 
-        db_request.route_path = pretend.call_recorder(lambda r: f"/{r}")
-
-        result = views.confirm_login(db_request)
+        result = views.confirm_login(confirm_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.projects"
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
-        assert _login_user.calls == [pretend.call(db_request, user.id)]
-        assert _set_userid_insecure_cookie.calls == [pretend.call(result, user.id)]
+        _login_user.assert_called_once_with(
+            confirm_request, user.id, two_factor_method="email-confirmation"
+        )
+        _set_userid_insecure_cookie.assert_called_once_with(result, user.id)

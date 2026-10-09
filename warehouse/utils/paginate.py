@@ -30,11 +30,10 @@ class _OpenSearchWrapper:
             raise RuntimeError("Cannot reslice after having already sliced.")
         self.results = self.query[range].execute()
 
-        if hasattr(self.results, "suggest"):
-            if self.results.suggest.name_suggestion:
-                suggestion = self.results.suggest.name_suggestion[0]
-                if suggestion.options:
-                    self.best_guess = suggestion.options[0]
+        if hasattr(self.results, "suggest") and self.results.suggest.name_suggestion:
+            suggestion = self.results.suggest.name_suggestion[0]
+            if suggestion.options:
+                self.best_guess = suggestion.options[0]
 
         return list(self.results)
 
@@ -46,7 +45,7 @@ class _OpenSearchWrapper:
         return min(self.results.hits.total["value"], self.max_results)
 
 
-def OpenSearchPage(*args, **kwargs):  # noqa
+def OpenSearchPage(*args, **kwargs):  # noqa: N802
     kwargs.setdefault("wrapper_class", _OpenSearchWrapper)
     return Page(*args, **kwargs)
 

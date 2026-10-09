@@ -19,7 +19,7 @@ _CONSECUTIVE_SPECIAL_CHARACTERS = re.compile(r"(?!.*[._-]{2})")
 
 def ends_with_atom_or_git(form: wtforms.Form, field: wtforms.Field) -> None:
     field_value = typing.cast(str, field.data).lower()
-    if field_value.endswith(".atom") or field_value.endswith(".git"):
+    if field_value.endswith((".atom", ".git")):
         raise wtforms.validators.ValidationError(_("Name ends with .git or .atom"))
 
 
@@ -104,9 +104,7 @@ class GitLabPublisherBase(wtforms.Form):
     def validate_workflow_filepath(self, field: wtforms.Field) -> None:
         workflow_filepath = field.data
 
-        if not (
-            workflow_filepath.endswith(".yml") or workflow_filepath.endswith(".yaml")
-        ):
+        if not (workflow_filepath.endswith((".yml", ".yaml"))):
             raise wtforms.validators.ValidationError(
                 _("Top-level pipeline file path must end with .yml or .yaml")
             )
@@ -128,7 +126,7 @@ class GitLabPublisherBase(wtforms.Form):
 
 
 class PendingGitLabPublisherForm(GitLabPublisherBase, PendingPublisherMixin):
-    __params__ = GitLabPublisherBase.__params__ + ["project_name"]
+    __params__ = [*GitLabPublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

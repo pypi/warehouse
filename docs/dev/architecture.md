@@ -104,6 +104,13 @@ C4Container
   Rel(fastly, web_app, "proxies traffic to", "HTTPS")
 ```
 
+#### Health checks
+
+`/_health/` accepts suffixes such as `/_health/web` and `/_health/api`.
+All use the same database check (`SELECT 1`) and return `OK` when it succeeds.
+The suffix does not select a process; the ingress rules must do that.
+Deploy suffix support before changing ingress or Fastly health checks.
+
 #### Web Container Diagram - `web_uploads`
 
 Here we show how a user might upload a file to the Warehouse.

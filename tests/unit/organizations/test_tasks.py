@@ -2,7 +2,10 @@
 
 import datetime
 
-import pretend
+import pytest
+import stripe
+
+from pyramid_retry import RetryableException
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
@@ -11,19 +14,22 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRoleType,
+    OrganizationType,
 )
 from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
+    notify_organizations_requiring_subscription,
+    reconcile_stripe_status,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
-from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationManualActivationFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
@@ -40,60 +46,54 @@ from ...common.db.subscriptions import (
 
 class TestUpdateInvitationStatus:
     def test_update_invitation_status(
-        self, db_request, user_service, organization_service
+        self, db_request, user_service, organization_service, token_service, mocker
     ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=pretend.raiser(TokenExpired))
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", side_effect=TokenExpired)
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Expired
 
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"organization_name": invite.organization.name},
-            )
-        ]
-        assert organization.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Organization.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"target_user_id": str(invite.user.id)},
-            )
-        ]
+        user_event.assert_called_once_with(
+            tag=EventTag.Account.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"organization_name": invite.organization.name},
+        )
+        org_event.assert_called_once_with(
+            tag=EventTag.Organization.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"target_user_id": str(invite.user.id)},
+        )
 
-    def test_no_updates(self, db_request, user_service, organization_service):
+    def test_no_updates(
+        self, db_request, user_service, organization_service, token_service, mocker
+    ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=lambda token: {})
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", return_value={})
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Pending
 
-        assert user.record_event.calls == []
-        assert organization.record_event.calls == []
+        user_event.assert_not_called()
+        org_event.assert_not_called()
 
 
 class TestDeleteOrganizationApplications:
@@ -146,7 +146,9 @@ class TestDeleteOrganizationApplications:
 
 
 class TestUpdateOrganizationSubscriptionUsage:
-    def test_update_organization_subscription_usage_record(self, db_request):
+    def test_update_organization_subscription_usage_record(
+        self, db_request, billing_service, mocker
+    ):
         # Setup an organization with an active subscription
         organization = OrganizationFactory.create()
         owner_user = UserFactory.create()
@@ -210,22 +212,397 @@ class TestUpdateOrganizationSubscriptionUsage:
         )
         StripeSubscriptionItemFactory.create(subscription=subscription)
 
-        create_or_update_usage_record = pretend.call_recorder(
-            lambda *a, **kw: {
+        create_usage_record = mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            return_value={
                 "subscription_item_id": "si_1234",
                 "organization_member_count": "5",
-            }
-        )
-        billing_service = pretend.stub(
-            create_or_update_usage_record=create_or_update_usage_record,
-        )
-
-        db_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: billing_service
+            },
         )
 
         update_organziation_subscription_usage_record(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(IBillingService, context=None)
+        # Only the active subscription is reported; the canceled one is skipped.
+        create_usage_record.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            stripe.error.InvalidRequestError(
+                "Cannot create the usage record because the subscription "
+                "has been canceled.",
+                None,
+            ),
+            # Not transient, but not an InvalidRequestError either.
+            stripe.error.AuthenticationError("Invalid API key"),
+        ],
+    )
+    def test_continues_when_a_subscription_fails(
+        self, db_request, billing_service, metrics, mocker, error
+    ):
+        # First usage report raises; the batch must still report the second org.
+        for _ in range(2):
+            organization = OrganizationFactory.create()
+            OrganizationRoleFactory(
+                organization=organization,
+                user=UserFactory.create(),
+                role_name=OrganizationRoleType.Owner,
+            )
+            stripe_customer = StripeCustomerFactory.create()
+            OrganizationStripeCustomerFactory.create(
+                organization=organization, customer=stripe_customer
+            )
+            subscription_price = StripeSubscriptionPriceFactory.create(
+                subscription_product=StripeSubscriptionProductFactory.create()
+            )
+            subscription = StripeSubscriptionFactory.create(
+                customer=stripe_customer, subscription_price=subscription_price
+            )
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+            StripeSubscriptionItemFactory.create(subscription=subscription)
+
+        create_usage_record = mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=[
+                error,
+                {"subscription_item_id": "si_1234", "organization_member_count": "1"},
+            ],
+        )
+        increment = mocker.spy(metrics, "increment")
+
+        update_organziation_subscription_usage_record(db_request)
+
+        # Both subscriptions are attempted even though the first one raised.
+        assert create_usage_record.call_count == 2
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.error",
+            tags=[f"error_type:{error.__class__.__name__}"],
+        )
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.updated"
+        )
+
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, mocker
+    ):
+        # A transient failure (rate limit, connection) must abort the run
+        # so it retries, rather than being swallowed as a per-subscription skip.
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        StripeSubscriptionItemFactory.create(subscription=org_subscription.subscription)
+
+        mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=stripe.error.RateLimitError("Too many requests"),
+        )
+
+        with pytest.raises(RetryableException):
+            update_organziation_subscription_usage_record(db_request)
+
+
+class TestReconcileStripeStatus:
+    @staticmethod
+    def _make_org_subscription():
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        return org_subscription.organization, org_subscription.subscription
+
+    @staticmethod
+    def _remote(*subscriptions):
+        return [
+            {"id": subscription.subscription_id, "status": status}
+            for subscription, status in subscriptions
         ]
+
+    def test_syncs_status_from_stripe(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.PastDue.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.PastDue.value
+        record_event.assert_called_once_with(
+            tag=EventTag.Organization.SubscriptionStatusChange,
+            request=db_request,
+            additional={
+                "subscription_id": subscription.subscription_id,
+                "previous_status": StripeSubscriptionStatus.Active.value,
+                "status": StripeSubscriptionStatus.PastDue.value,
+            },
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconciled",
+            tags=["status:past_due"],
+        )
+
+    def test_no_change_when_status_matches(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Active.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert sync_status.spy_return is False
+        record_event.assert_not_called()
+
+    def test_records_cancel_when_canceled_on_stripe(
+        self, db_request, billing_service, mocker
+    ):
+        # Cancellation is detected from the fetched status, mirroring the
+        # customer.subscription.deleted webhook handler.
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Canceled.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.Canceled.value
+        record_event.assert_called_once_with(
+            tag=EventTag.Organization.SubscriptionCancel,
+            request=db_request,
+            additional={"subscription_id": subscription.subscription_id},
+        )
+
+    def test_skips_locally_canceled_subscription(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        # Stripe never reactivates a canceled subscription, so canceled rows are
+        # excluded up front instead of being re-checked every run.
+        organization, subscription = self._make_org_subscription()
+        subscription.status = StripeSubscriptionStatus.Canceled
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Active.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        sync_status.assert_not_called()
+        record_event.assert_not_called()
+        assert subscription.status == StripeSubscriptionStatus.Canceled
+
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, mocker
+    ):
+        self._make_org_subscription()
+
+        # Paging is lazy, so a transient error surfaces while the results are
+        # being consumed rather than when list_subscriptions is called.
+        def pages():
+            yield {"id": "sub_first", "status": StripeSubscriptionStatus.Active.value}
+            raise stripe.error.RateLimitError("Too many requests")
+
+        mocker.patch.object(billing_service, "list_subscriptions", side_effect=pages)
+
+        with pytest.raises(RetryableException):
+            reconcile_stripe_status(db_request)
+
+    def test_skips_subscription_missing_from_stripe(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        # An id Stripe has no record of must be left alone rather than canceled,
+        # so a mode/account-mismatched key can't mass-cancel every subscription.
+        _, missing_subscription = self._make_org_subscription()
+        _, known_subscription = self._make_org_subscription()
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (known_subscription, StripeSubscriptionStatus.Canceled.value)
+            ),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert missing_subscription.status == StripeSubscriptionStatus.Active.value
+        assert known_subscription.status == StripeSubscriptionStatus.Canceled.value
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconcile.missing"
+        )
+
+    def test_raises_when_no_subscription_found_on_stripe(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        # A key for the wrong account or mode matches nothing; that must fail the
+        # run instead of quietly skipping every row.
+        self._make_org_subscription()
+        self._make_org_subscription()
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=[
+                {"id": "sub_other", "status": StripeSubscriptionStatus.Active.value}
+            ],
+        )
+
+        with pytest.raises(RuntimeError, match="None of 2 subscriptions"):
+            reconcile_stripe_status(db_request)
+
+        sync_status.assert_not_called()
+
+    def test_skips_unknown_status(
+        self, db_request, billing_service, subscription_service, metrics, mocker
+    ):
+        _, subscription = self._make_org_subscription()
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote((subscription, "bogus")),
+        )
+
+        reconcile_stripe_status(db_request)
+
+        sync_status.assert_not_called()
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconcile.skipped",
+            tags=["remote_status:bogus"],
+        )
+        assert subscription.status == StripeSubscriptionStatus.Active.value
+
+
+class TestNotifyOrganizationsRequiringSubscription:
+    def test_notifies_owners_of_company_orgs_not_in_good_standing(
+        self, db_request, mocker
+    ):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        owner1 = UserFactory.create()
+        owner2 = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=owner1, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationRoleFactory.create(
+            organization=organization, user=owner2, role_name=OrganizationRoleType.Owner
+        )
+        # A non-owner member should not be notified.
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Member,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        assert send_email.call_count == 2
+        send_email.assert_any_call(
+            db_request, owner1, organization_name=organization.name
+        )
+        send_email.assert_any_call(
+            db_request, owner2, organization_name=organization.name
+        )
+
+    def test_skips_good_standing_non_company_and_inactive_orgs(
+        self, db_request, mocker
+    ):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        # Company org in good standing via an active manual activation.
+        good_standing = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        OrganizationManualActivationFactory.create(organization=good_standing)
+        OrganizationRoleFactory.create(
+            organization=good_standing,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Community org (only Company orgs require a subscription).
+        community = OrganizationFactory.create(
+            orgtype=OrganizationType.Community, is_active=True
+        )
+        OrganizationRoleFactory.create(
+            organization=community,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Inactive Company org.
+        inactive = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=False
+        )
+        OrganizationRoleFactory.create(
+            organization=inactive,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()
+
+    def test_skips_recently_approved_orgs_within_grace_period(self, db_request, mocker):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company,
+            is_active=True,
+            created=datetime.datetime.now(datetime.UTC),
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()
+
+    def test_handles_company_org_without_owners(self, db_request, mocker):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        OrganizationFactory.create(orgtype=OrganizationType.Company, is_active=True)
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()

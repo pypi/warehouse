@@ -4,12 +4,6 @@ from zope.interface import Interface
 
 
 class IMacaroonService(Interface):
-    def find_from_raw(raw_macaroon):
-        """
-        Returns a macaroon model from the DB from a raw macaroon, or raises
-        InvalidMacaroon if not found or for malformed macaroons.
-        """
-
     def find_macaroon(macaroon_id):
         """
         Returns a macaroon model from the DB by its identifier.
@@ -30,6 +24,19 @@ class IMacaroonService(Interface):
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
 
+    def verify_signature_only(raw_macaroon):
+        """
+        Returns a macaroon model from the DB if the given raw (serialized)
+        macaroon exists and has a valid signature.
+
+        **NOTE**: this API is not a substitute for `verify`; most
+        users should call `verify` to validate both the signature
+        *and* the macaroon's caveats relative to the request.
+
+        Raises InvalidMacaroonError if the macaroon has an invalid
+        signature.
+        """
+
     def create_macaroon(
         location,
         description,
@@ -37,7 +44,7 @@ class IMacaroonService(Interface):
         *,
         user_id=None,
         oidc_publisher_id=None,
-        additional=None
+        additional=None,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.

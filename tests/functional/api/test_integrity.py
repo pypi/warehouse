@@ -36,6 +36,7 @@ def test_provenance_available(webtest):
         f"/integrity/{project.name}/{release.version}/{file_.filename}/provenance",
         status=HTTPStatus.OK,
     )
+    assert not response.body.endswith(b"\n")
     assert response.json
     assert "attestation_bundles" in response.json
     attestation_bundles = response.json["attestation_bundles"]

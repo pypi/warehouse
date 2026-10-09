@@ -8,8 +8,11 @@ from warehouse.packaging.typosnyper import typo_check_name
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
+        ("x", None),  # Pass, too short
         ("numpy", None),  # Pass, no typos, exists
         ("NuMpy", None),  # Pass, same as `numpy` after canonicalization
+        ("beeware-ext", None),  # Pass, repeated_characters not in corpus
+        ("python-dateutil", None),  # Pass, swapped_words same as original
         ("nuumpy", ("repeated_characters", "numpy")),
         ("reequests", ("repeated_characters", "requests")),
         ("sphnx", ("omitted_characters", "sphinx")),
@@ -19,7 +22,6 @@ from warehouse.packaging.typosnyper import typo_check_name
         ("dateutil-python", ("swapped_words", "python-dateutil")),
         ("numpi", ("common_typos", "numpy")),
         ("requestz", ("common_typos", "requests")),
-        ("python-dateutil", None),  # Pass, swapped_words same as original
     ],
 )
 def test_typo_check_name(name, expected):

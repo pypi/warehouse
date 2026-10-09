@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import datetime
 import itertools
+
+from typing import Any, NamedTuple
 
 from pyramid.view import view_config
 from sqlalchemy import func, or_
@@ -16,7 +17,9 @@ AGE_BEFORE_INDEX = datetime.timedelta(days=14)
 SITEMAP_MAXSIZE = 50000
 
 
-Bucket = collections.namedtuple("Bucket", ["name", "modified"])
+class Bucket(NamedTuple):
+    name: Any
+    modified: Any
 
 
 class BucketTooSmallError(ValueError):

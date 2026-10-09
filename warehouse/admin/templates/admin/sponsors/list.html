@@ -16,29 +16,35 @@
     <a class="btn btn-primary" href="{{ request.route_path('admin.sponsor.create') }}"><i class="fa fa-plus"></i> Create Sponsor</a>
   </div>
   {% endif %}
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover table-striped">
-      <thead>
-      <tr>
-        <th>Active?</th>
-        <th>Name</th>
-        <th>Visibility</th>
-      </tr>
-      </thead>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="sponsors" class="table table-hover table-striped">
+        <thead>
+        <tr>
+          <th class="active">Active?</th>
+          <th class="name">Name</th>
+          <th class="level-name">Level</th>
+          <th class="level-order">Order</th>
+          <th class="visibility">Visibility</th>
+        </tr>
+        </thead>
 
-      <tbody>
-      {% for sponsor in sponsors %}
-      <tr>
-        <td><i class="fa {% if sponsor.is_active %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
-        <td>
-          <a href="{{ request.route_path('admin.sponsor.edit', sponsor_id=sponsor.id) }}">{{ sponsor.name }}</a>
-        </td>
-        <td>{{ sponsor.visibility }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-
+        <tbody>
+        {% for sponsor in sponsors %}
+        <tr>
+          <td><i class="fa {% if sponsor.is_active %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
+          <td>
+            <a href="{{ request.route_path('admin.sponsor.edit', sponsor_id=sponsor.id) }}">{{ sponsor.name }}</a>
+          </td>
+          {# data-order values ensure sponsors without a level sort to the bottom #}
+          <td data-order="{{ sponsor.level_name or 'zzz' }}">{{ sponsor.level_name or '' }}</td>
+          <td data-order="{{ sponsor.level_order or 999 }}">{{ sponsor.level_order or '' }}</td>
+          <td>{{ sponsor.visibility }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock content %}

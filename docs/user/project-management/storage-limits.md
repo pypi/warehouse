@@ -11,7 +11,7 @@ for the entire project.
 You can see your project's current size and storage limits on
 the project settings page (`https://pypi.org/manage/project/YOUR-PROJECT/settings/`):
 
-![](/assets/project-size-and-limits.png)
+![](../assets/project-size-and-limits.png)
 
 ## File size limits
 

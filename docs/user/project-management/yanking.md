@@ -35,12 +35,12 @@ To yank a release, go to the release management page for your project:
 
 Click on the `Options` button next to the release you wish to yank, then click `Yank`:
 
-![](/assets/release-options-yank.png)
+![](../assets/release-options-yank.png)
 
 A modal dialogue will appear, asking you to confirm the yank and provide an
 optional reason for yanking:
 
-![](/assets/yank-confirm-modal.png)
+![](../assets/yank-confirm-modal.png)
 
 The reason, if provided, will be displayed on the release page as well
 as in the [index APIs](../api/index-api.md) used by installers.

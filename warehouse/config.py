@@ -9,9 +9,8 @@ import secrets
 import shlex
 
 from datetime import timedelta
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
-import orjson
 import platformdirs
 import transaction
 
@@ -29,9 +28,13 @@ from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class Environment(str, enum.Enum):
+class Environment(enum.StrEnum):
     production = "production"
     development = "development"
+
+
+def _json_dumps_with_newline(value, **kwargs):
+    return json.dumps(value, **kwargs) + "\n"
 
 
 class Configurator(_Configurator):
@@ -44,8 +47,8 @@ class Configurator(_Configurator):
         app = super().make_wsgi_app(*args, **kwargs)
 
         # Look to see if we have any WSGI middlewares configured.
-        for middleware, args, kw in self.get_settings()["wsgi.middlewares"]:
-            app = middleware(app, *args, **kw)
+        for middleware, a, kw in self.get_settings()["wsgi.middlewares"]:
+            app = middleware(app, *a, **kw)
 
         # Finally, return our now wrapped app
         return app
@@ -71,6 +74,7 @@ class RootFactory:
                 Permissions.AdminIpAddressesRead,
                 Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsInspect,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
@@ -84,6 +88,7 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -98,6 +103,10 @@ class RootFactory:
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
+                Permissions.AdminVulnerabilitiesRead,
+                Permissions.AdminVulnerabilitiesWrite,
             ),
         ),
         (
@@ -119,6 +128,7 @@ class RootFactory:
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -129,6 +139,7 @@ class RootFactory:
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
             ),
         ),
         (
@@ -203,7 +214,7 @@ def require_https_tween_factory(handler, registry):
     def require_https_tween(request):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
-        if request.params.get(":action", None) and request.scheme != "https":
+        if ":action" in request.params and request.scheme != "https":
             resp = HTTPForbidden(body="SSL is required.", content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
@@ -215,9 +226,7 @@ def require_https_tween_factory(handler, registry):
 
 
 def activate_hook(request):
-    if request.path.startswith(("/_debug_toolbar/", "/static/")):
-        return False
-    return True
+    return not request.path.startswith(("/_debug_toolbar/", "/static/"))
 
 
 def template_view(config, name, route, template, route_kw=None, view_kw=None):
@@ -243,10 +252,10 @@ def maybe_set(settings, name, envvar, coercer=None, default=None):
 def maybe_set_compound(settings, base, name, envvar):
     if envvar in os.environ:
         value = shlex.split(os.environ[envvar])
-        kwargs = {k: v for k, v in (i.split("=") for i in value[1:])}
-        settings[".".join([base, name])] = value[0]
+        kwargs = dict(i.split("=") for i in value[1:])
+        settings[f"{base}.{name}"] = value[0]
         for key, value in kwargs.items():
-            settings[".".join([base, key])] = value
+            settings[f"{base}.{key}"] = value
 
 
 def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
@@ -260,7 +269,7 @@ def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None)
         value = os.environ[envvar]
         if coercer is not None:
             value = coercer(value)
-        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
+        parsed_url = urlparse(value)
         parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
         value = urlunparse(parsed_url)
         settings.setdefault(name, value)
@@ -276,28 +285,26 @@ def reject_duplicate_post_keys_view(view, info):
     if info.options.get("permit_duplicate_post_keys") or info.exception_only:
         return view
 
-    else:
-        # If this isn't an exception or hasn't been permitted to have duplicate
-        # POST keys, wrap the view with a check
+    # If this isn't an exception or hasn't been permitted to have duplicate
+    # POST keys, wrap the view with a check
 
-        @functools.wraps(view)
-        def wrapped(context, request):
-            if request.POST:
-                # Determine if there are any duplicate keys
-                keys = list(request.POST.keys())
-                if len(keys) != len(set(keys)):
-                    return HTTPBadRequest(
-                        "POST body may not contain duplicate keys "
-                        f"(URL: {request.url!r})"
-                    )
+    @functools.wraps(view)
+    def wrapped(context, request):
+        if request.POST:
+            # Determine if there are any duplicate keys
+            keys = list(request.POST.keys())
+            if len(keys) != len(set(keys)):
+                return HTTPBadRequest(
+                    f"POST body may not contain duplicate keys (URL: {request.url!r})"
+                )
 
-            # Casting succeeded, so just return the regular view
-            return view(context, request)
+        # Casting succeeded, so just return the regular view
+        return view(context, request)
 
-        return wrapped
+    return wrapped
 
 
-reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore[attr-defined]
 
 
 def configure(settings=None):
@@ -461,7 +468,14 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(
+        settings,
+        "email_reputation",
+        "backend",
+        "EMAIL_REPUTATION_BACKEND",
+    )
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
+    maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -548,6 +562,18 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.email_change_ratelimit_string",
+        "EMAIL_CHANGE_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_reputation_ratelimit_string",
+        "EMAIL_REPUTATION_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
@@ -557,6 +583,12 @@ def configure(settings=None):
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.register_ratelimit_string",
+        "REGISTER_RATELIMIT_STRING",
+        default="10 per 5 minutes, 30 per hour",
     )
     maybe_set(
         settings,
@@ -584,6 +616,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_organization_ratelimit_string",
+        "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
+        default="10 per day",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
@@ -599,6 +637,11 @@ def configure(settings=None):
         coercer=int,
         default=3,
     )
+    maybe_set(
+        settings,
+        "warehouse.organizations.service_agreement_survey_url",
+        "ORGANIZATION_SERVICE_AGREEMENT_SURVEY_URL",
+    )
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -610,7 +653,7 @@ def configure(settings=None):
         settings.setdefault(
             "debugtoolbar.panels",
             [
-                ".".join(["pyramid_debugtoolbar.panels", panel])
+                f"pyramid_debugtoolbar.panels.{panel}"
                 for panel in [
                     "versions.VersionDebugPanel",
                     "settings.SettingsDebugPanel",
@@ -713,6 +756,7 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
+    filters.setdefault("natsort", "natsort:natsorted")
     filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
@@ -740,6 +784,7 @@ def configure(settings=None):
     jglobals.setdefault(
         "OrganizationType", "warehouse.organizations.models:OrganizationType"
     )
+    jglobals.setdefault("RateLimitPeriod", "warehouse.constants:RateLimitPeriod")
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
@@ -753,13 +798,25 @@ def configure(settings=None):
     config.add_jinja2_search_path("warehouse:templates", name=".txt")
     config.add_jinja2_search_path("warehouse:templates", name=".xml")
 
-    # We want to configure our JSON renderer to sort the keys, and also to use
-    # an ultra compact serialization format.
+    # Configure the default JSON renderer to sort keys and use compact output.
     config.add_renderer(
         "json",
         renderers.JSON(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+    )
+
+    # Match the behavior of the previous serializer (orjson).
+    config.add_renderer(
+        "json-with-newline",
+        renderers.JSON(
+            serializer=_json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ),
     )
 
@@ -939,8 +996,9 @@ def configure(settings=None):
     # Add our extensions to Request
     config.include(".utils.wsgi")
 
-    # We want Sentry to be the last things we add here so that it's the outer
-    # most WSGI middleware.
+    # Initialize Sentry for exception capture. PyramidIntegration wraps
+    # Pyramid's Router with SentryWsgiMiddleware internally, so include
+    # order here no longer affects WSGI middleware nesting.
     config.include(".sentry")
 
     # Register Content-Security-Policy service

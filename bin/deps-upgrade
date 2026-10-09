@@ -57,6 +57,7 @@ pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=req
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/main.txt requirements/main.in
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/lint.txt requirements/lint.in
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/tests.txt requirements/tests.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/dev.txt requirements/dev.in
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-dev.txt requirements/docs-dev.in
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-user.txt requirements/docs-user.in
 pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-blog.txt requirements/docs-blog.in

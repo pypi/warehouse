@@ -1,0 +1,11 @@
+id: no-sqla-backref
+language: python
+
+severity: error
+message: Use of legacy backref keyword
+note: Use back_populates with an explicitly configured relationship
+
+rule:
+  pattern:
+    context: relationship(backref=$R)
+    selector: keyword_argument

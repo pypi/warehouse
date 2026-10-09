@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from warehouse import static
 
@@ -50,102 +50,86 @@ class TestImmutableManifestFiles:
 
 
 class TestCreateWhitenoise:
-    def test_no_config(self):
-        app = pretend.stub()
-        config = pretend.stub(registry=pretend.stub(settings={}))
-        assert static._create_whitenoise(app, config) is app
+    def test_no_config(self, pyramid_config, mocker):
+        app = mocker.sentinel.app
+        assert static._create_whitenoise(app, pyramid_config) is app
 
-    def test_creates(self, monkeypatch):
-        app = pretend.stub()
-        config = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "whitenoise": {"autorefresh": False},
-                    "whitenoise.files": [("/foo/", {"prefix": "/static/"})],
-                    "whitenoise.manifests": [("/manifest.json", "/static/")],
-                }
-            )
+    def test_creates(self, pyramid_config, mocker):
+        app = mocker.sentinel.app
+        pyramid_config.registry.settings.update(
+            {
+                "whitenoise": {"autorefresh": False},
+                "whitenoise.files": [("/foo/", {"prefix": "/static/"})],
+                "whitenoise.manifests": [("/manifest.json", "/static/")],
+            }
         )
 
-        file_test_obj = pretend.stub(
-            add_manifest=pretend.call_recorder(lambda *a, **kw: None)
+        file_test_cls = mocker.patch.object(
+            static, "ImmutableManifestFiles", autospec=True
         )
-        file_test_cls = pretend.call_recorder(lambda: file_test_obj)
-        monkeypatch.setattr(static, "ImmutableManifestFiles", file_test_cls)
+        whitenoise_cls = mocker.patch.object(static, "WhiteNoise", autospec=True)
 
-        whitenoise_obj = pretend.stub(
-            add_files=pretend.call_recorder(lambda path, prefix: None)
+        static._create_whitenoise(app, pyramid_config)
+
+        whitenoise_cls.assert_called_once_with(
+            app, autorefresh=False, immutable_file_test=file_test_cls.return_value
         )
-        whitenoise_cls = pretend.call_recorder(lambda app, **kw: whitenoise_obj)
-        monkeypatch.setattr(static, "WhiteNoise", whitenoise_cls)
-
-        static._create_whitenoise(app, config)
-
-        assert whitenoise_cls.calls == [
-            pretend.call(app, autorefresh=False, immutable_file_test=file_test_obj)
-        ]
-        assert whitenoise_obj.add_files.calls == [
-            pretend.call("/foo", prefix="/static/")
-        ]
-        assert file_test_cls.calls == [pretend.call()]
-        assert file_test_obj.add_manifest.calls == [
-            pretend.call("/manifest.json", "/static/")
-        ]
-
-    def test_whitenoise_serve_static(self):
-        config = pretend.stub(
-            action=pretend.call_recorder(lambda t, f: f()),
-            registry=pretend.stub(settings={}),
+        whitenoise_cls.return_value.add_files.assert_called_once_with(
+            "/foo", prefix="/static/"
         )
+        file_test_cls.assert_called_once_with()
+        file_test_cls.return_value.add_manifest.assert_called_once_with(
+            "/manifest.json", "/static/"
+        )
+
+    def test_whitenoise_serve_static(self, mocker):
+        config = mocker.Mock(spec=["action", "registry"])
+        config.registry = types.SimpleNamespace(settings={})
+        config.action.side_effect = lambda token, callback: callback()
         kwargs = {"foo": "bar"}
 
         static.whitenoise_serve_static(config, **kwargs)
 
         assert config.registry.settings["whitenoise"] == kwargs
-        assert len(config.action.calls) == 1
+        assert config.action.call_count == 1
 
-    def test_whitenoise_add_files(self):
-        config = pretend.stub(
-            action=pretend.call_recorder(lambda t, f: f()),
-            registry=pretend.stub(settings={}),
-        )
-        path = pretend.stub()
-        prefix = pretend.stub()
+    def test_whitenoise_add_files(self, mocker):
+        config = mocker.Mock(spec=["action", "registry"])
+        config.registry = types.SimpleNamespace(settings={})
+        config.action.side_effect = lambda token, callback: callback()
+        path = mocker.sentinel.path
+        prefix = mocker.sentinel.prefix
 
         static.whitenoise_add_files(config, path, prefix)
 
         assert config.registry.settings["whitenoise.files"] == [
             (path, {"prefix": prefix})
         ]
-        assert len(config.action.calls) == 1
+        assert config.action.call_count == 1
 
-    def test_whitenoise_add_manifest(self):
-        config = pretend.stub(
-            action=pretend.call_recorder(lambda t, f: f()),
-            registry=pretend.stub(settings={}),
-        )
-        manifest = pretend.stub()
-        prefix = pretend.stub()
+    def test_whitenoise_add_manifest(self, mocker):
+        config = mocker.Mock(spec=["action", "registry"])
+        config.registry = types.SimpleNamespace(settings={})
+        config.action.side_effect = lambda token, callback: callback()
+        manifest = mocker.sentinel.manifest
+        prefix = mocker.sentinel.prefix
 
         static.whitenoise_add_manifest(config, manifest, prefix)
 
         assert config.registry.settings["whitenoise.manifests"] == [(manifest, prefix)]
-        assert len(config.action.calls) == 1
+        assert config.action.call_count == 1
 
 
-def test_includeme():
-    config = pretend.stub(
-        add_wsgi_middleware=pretend.call_recorder(lambda *a, **kw: None),
-        add_directive=pretend.call_recorder(lambda name, callable: None),
-    )
+def test_includeme(mocker):
+    config = mocker.Mock(spec=["add_wsgi_middleware", "add_directive"])
 
     static.includeme(config)
 
-    assert config.add_wsgi_middleware.calls == [
-        pretend.call(static._create_whitenoise, config)
-    ]
-    assert config.add_directive.calls == [
-        pretend.call("whitenoise_serve_static", static.whitenoise_serve_static),
-        pretend.call("whitenoise_add_files", static.whitenoise_add_files),
-        pretend.call("whitenoise_add_manifest", static.whitenoise_add_manifest),
+    config.add_wsgi_middleware.assert_called_once_with(
+        static._create_whitenoise, config
+    )
+    assert config.add_directive.call_args_list == [
+        mocker.call("whitenoise_serve_static", static.whitenoise_serve_static),
+        mocker.call("whitenoise_add_files", static.whitenoise_add_files),
+        mocker.call("whitenoise_add_manifest", static.whitenoise_add_manifest),
     ]

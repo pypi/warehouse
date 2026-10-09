@@ -27,8 +27,6 @@ from warehouse.oidc.urls import verify_url_from_reference
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-    from warehouse.oidc.services import OIDCPublisherService
-
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
@@ -45,15 +43,14 @@ _WORKFLOW_FILENAME_RE = re.compile(
     )
     (?=@)               # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
 def _extract_workflow_filename(workflow_ref: str) -> str | None:
     if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_repository(
@@ -128,14 +125,16 @@ def _check_environment(
 
 
 def _check_event_name(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **kwargs
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
-    # Log the event name
-    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
-    publisher_service.metrics.increment(
-        "warehouse.oidc.claim", tags=["publisher:GitHub", f"event_name:{signed_claim}"]
-    )
-    # Always permit all event names for now
+    if signed_claim == "pull_request_target":
+        raise InvalidPublisherError(
+            "Publishing from a workflow invoked via 'pull_request_target' is "
+            "not supported."
+        )
     return True
 
 
@@ -189,6 +188,10 @@ class GitHubPublisherMixin:
         "check_run_id",
     }
 
+    __unchecked_prefixed_claims__ = {
+        "repo_property_",
+    }
+
     # Get the most specific publisher from a list of publishers,
     # where publishers constrained with an environment are more
     # specific than publishers not constrained on environment.
@@ -196,11 +199,12 @@ class GitHubPublisherMixin:
     def _get_publisher_for_environment(
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
-        if environment:
-            if specific_publisher := first_true(
+        if environment and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.environment == environment.lower()
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(
             publishers, pred=lambda p: p.environment == ""
@@ -231,8 +235,7 @@ class GitHubPublisherMixin:
 
         if publisher := cls._get_publisher_for_environment(publishers, environment):
             return publisher
-        else:
-            raise InvalidPublisherError("Publisher with matching claims was not found")
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def _workflow_slug(self) -> str:
@@ -277,11 +280,11 @@ class GitHubPublisherMixin:
         return GitHubIdentity(
             repository=self.repository,
             workflow=self.workflow_filename,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref": claims_obj.get("ref"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:

@@ -12,7 +12,7 @@ This login attempt was made from:
 - User agent: {{ user_agent }}
 
 In the future, you can automatically trust new devices without needing email
-verification by using a security device or passkey as your 2FA method. See
+verification by using a security device as your 2FA method. See
 {{ request.help_url(_anchor='utfkey') }} for more details.
 
 If you did not initiate this login, you can email admin@pypi.org to

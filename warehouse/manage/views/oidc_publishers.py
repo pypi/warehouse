@@ -232,7 +232,7 @@ class ManageOIDCPublisherViews:
             return self.default_response
 
         self.request.db.add(constrained_publisher)
-        self.request.db.flush()  # ensure constrained_publisher.id is available
+        self.request.db.flush()  # ast-grep-ignore: db-flush -- constrained_publisher.id
         self.project.oidc_publishers.append(constrained_publisher)
 
         self.project.record_event(

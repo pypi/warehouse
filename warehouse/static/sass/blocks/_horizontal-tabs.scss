@@ -1,12 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colors";
+
 .horizontal-tabs {
   margin-top: 30px;
 
   &__tabbar {
     overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
+    border: 1px solid colors.$border-color;
+    background-color: colors.$off-white;
 
     button {
       background-color: inherit;
@@ -18,12 +21,12 @@
       transition: 0.3s;
 
       &:hover {
-        background-color: #ddd;
+        background-color: color.adjust(colors.$off-white, $lightness: -10%);
       }
 
       &.is-active {
-        background-color: #006dad;
-        color: #fff;
+        background-color: colors.$primary-color;
+        color: colors.$white;
       }
     }
   }
@@ -31,7 +34,7 @@
   &__tabcontent {
     display: block;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid colors.$border-color;
     border-top: none;
 
     &.is-hidden {

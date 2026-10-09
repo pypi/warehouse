@@ -83,12 +83,46 @@ Purging the cache is not usually necessary when making frontend changes, unless
 it would be unacceptable for the site to simultaneously have an "old" version
 of some pages, but the "new" version of others.
 
+## Social preview cards
+
+`warehouse/static/images/og-card.png` and `og-card-test.png` are the
+1200x630 images served as `og:image` for link previews on social and chat
+platforms. Both are composed from `warehouse/static/images/logo-large.svg`,
+so they need regenerating if the logo changes.
+
+The dimensions are also declared in `base.html` as `og:image:width` and
+`og:image:height`, and
+`tests/functional/test_social_preview.py::test_preview_card_assets_match_the_declared_dimensions`
+fails if the files and the markup disagree.
+
+```console
+# PyPI
+rsvg-convert -h 400 warehouse/static/images/logo-large.svg -o /tmp/logo.png
+magick -size 1200x630 xc:white /tmp/logo.png -gravity center -composite \
+  -alpha off -depth 8 -strip warehouse/static/images/og-card.png
+
+# TestPyPI
+rsvg-convert -h 340 warehouse/static/images/logo-large.svg -o /tmp/logo.png
+magick -size 1200x630 xc:white \
+  /tmp/logo.png -gravity center -geometry +0-45 -composite \
+  -fill '#ffd43b' -draw 'rectangle 0,530 1200,630' \
+  -font /System/Library/Fonts/Helvetica.ttc -pointsize 56 -fill '#2b2b2b' \
+  -gravity south -annotate +0+22 'TESTPYPI' \
+  -alpha off -depth 8 -strip warehouse/static/images/og-card-test.png
+```
+
+`-alpha off -depth 8` keeps the files small; the artwork has no gradient
+needing 16 bits per channel and no transparency. ImageMagick will not resolve
+`-font Helvetica` by name, hence the explicit path. Helvetica ships with
+macOS; on Linux, point `-font` at a metric-compatible substitute such as
+Nimbus Sans, Liberation Sans, or Arimo.
+
 ## Browser Support
 
 We aim to support all major browsers. We also support one-back,
 and follow the `defaults` recommendation from `browserslist`.
 
-You can see the full list of supported browsers by running `npx browserslist`
+You can see the full list of supported browsers by running `npx browserslist@4.28.1`
 in the root of the project.
 
 ## HTML Code Style

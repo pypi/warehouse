@@ -271,7 +271,7 @@ below describe the setup process for each supported Trusted Publisher.
     dependencies to automatically build cross-platform wheels of your PyPI
     projects. Once you're set up on the Platform and have linked your PyPI project,
     you're ready to publish. For more information on getting started with
-    ActiveState, go [here](https://docs.activestate.com/platform/start/pypi/). To
+    ActiveState, go [here](https://docs.activestate.com/platform/open-source-collaboration/pypi/). To
     begin:
 
     Publish your package to ActiveState's catalog. This will allow
@@ -310,37 +310,20 @@ below describe the setup process for each supported Trusted Publisher.
         at_time = "PUBLISHED_TIMESTAMP"
 
         publish_receipt = pypi_publisher(
-          attempt = 1,
-          audience = "testpypi",
-          pypi_uri = "test.pypi.org",
-          src = wheels
+            attempt=1, audience="testpypi", pypi_uri="test.pypi.org", src=wheels
         )
-        runtime = state_tool_artifacts(
-          build_flags = [
-          ],
-          src = sources
-        )
+        runtime = state_tool_artifacts(build_flags=[], src=sources)
         sources = solve(
-          at_time = at_time,
-          platforms = [
-            "7c998ec2-7491-4e75-be4d-8885800ef5f2"
-          ],
-          requirements = [
-            Req(namespace = "language", name = "python", version = Eq(value="3.10.13")),
-            Req(namespace = "NAMESPACE", name = "PKG_NAME", version = Eq(value="VERSION"))
-          ],
-          solver_version = null
+            at_time=at_time,
+            platforms=["7c998ec2-7491-4e75-be4d-8885800ef5f2"],
+            requirements=[
+                Req(namespace="language", name="python", version=Eq(value="3.10.13")),
+                Req(namespace="NAMESPACE", name="PKG_NAME", version=Eq(value="VERSION")),
+            ],
+            solver_version=null,
         )
-        wheel_srcs = select_ingredient(
-          namespace = "NAMESPACE",
-          name = "PKG_NAME",
-          src = sources
-        )
-        wheels = make_wheel(
-          at_time = at_time,
-          python_version = "3.10.13",
-          src = wheel_srcs
-        )
+        wheel_srcs = select_ingredient(namespace="NAMESPACE", name="PKG_NAME", src=sources)
+        wheels = make_wheel(at_time=at_time, python_version="3.10.13", src=wheel_srcs)
 
         main = runtime
         ```
@@ -363,7 +346,7 @@ below describe the setup process for each supported Trusted Publisher.
         The strings after `platforms = [` are the UUIDs of the supported
         platforms you want to build a wheel for. A list of all supported platforms can
         be found
-        [here](https://docs.activestate.com/platform/updates/supported-platforms).
+        [here](https://docs.activestate.com/curated-catalog/FAQs/#what-operating-systems-are-supported).
         Select all applicable to your project from the list provided.
 
     !!! note

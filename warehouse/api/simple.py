@@ -45,8 +45,7 @@ def _select_content_type(request: Request) -> str:
         return MIME_TEXT_HTML
     # We've selected a list of acceptable offers, so we'll take
     # the first one as our return type.
-    else:
-        return offers[0][0]
+    return offers[0][0]
 
 
 @view_config(
@@ -68,7 +67,7 @@ def simple_index(request):
     request.response.content_type = _select_content_type(request)
     if request.response.content_type == MIME_PYPI_SIMPLE_V1_JSON:
         request.response.override_ttl = 30 * 60  # 30 minutes
-        request.override_renderer = "json"
+        request.override_renderer = "json-with-newline"
 
     # Apply CORS headers.
     request.response.headers.update(_CORS_HEADERS)
@@ -108,7 +107,7 @@ def simple_detail(project, request):
     # to return the correct content types.
     request.response.content_type = _select_content_type(request)
     if request.response.content_type == MIME_PYPI_SIMPLE_V1_JSON:
-        request.override_renderer = "json"
+        request.override_renderer = "json-with-newline"
 
     # Apply CORS headers.
     request.response.headers.update(_CORS_HEADERS)

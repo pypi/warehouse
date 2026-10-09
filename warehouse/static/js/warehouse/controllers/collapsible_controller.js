@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   /**
-   * Get element's collasped status from the cookie.
+   * Get element's collapsed status from the cookie.
    * @private
    */
   _getCollapsedCookie() {
@@ -26,14 +26,14 @@ export default class extends Controller {
 
   initialize() {
     switch (this._getCollapsedCookie()) {
-    case "1":
-      this.collapse();
-      break;
-    case "0":
-      this.expand();
-      break;
-    default:
-      this.save();
+      case "1":
+        this.collapse();
+        break;
+      case "0":
+        this.expand();
+        break;
+      default:
+        this.save();
     }
   }
 

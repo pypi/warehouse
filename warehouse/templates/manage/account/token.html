@@ -107,6 +107,16 @@
   </p>
 {% endif %}
 <p>
+  {% trans twine_docs_href='https://twine.readthedocs.io/en/stable/#authentication' %}
+  Twine also supports other ways to provide credentials, including keyring integration. See the <a href="{{ twine_docs_href }}">Twine authentication documentation</a> for details.
+{% endtrans %}
+</p>
+<p>
+  {% trans trusted_publishing_href='https://docs.pypi.org/trusted-publishers/' %}
+  When publishing from a supported automated environment, consider using <a href="{{ trusted_publishing_href }}">Trusted Publishing</a> instead of manually managing API tokens.
+{% endtrans %}
+</p>
+<p>
   {% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}
 </p>
 </section>

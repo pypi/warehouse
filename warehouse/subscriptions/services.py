@@ -10,6 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
@@ -44,11 +45,10 @@ class GenericBillingService:
         """
         Fetch the Checkout Session to based on the session_id passed to the success page
         """
-        checkout_session = self.api.checkout.Session.retrieve(
+        return self.api.checkout.Session.retrieve(
             session_id,
             expand=["customer", "line_items", "subscription"],
         )
-        return checkout_session
 
     def get_customer(self, subscription_id):
         """
@@ -59,6 +59,14 @@ class GenericBillingService:
             expand=["customer"],
         )
         return subscription.customer
+
+    def list_subscriptions(self):
+        """
+        Iterate over every Subscription resource from the Billing API
+
+        Need ``status="all"`` to get subs including canceled ones for reconciling.
+        """
+        return self.api.Subscription.list(status="all", limit=100).auto_paging_iter()
 
     def create_customer(self, name, description):
         """
@@ -82,7 +90,7 @@ class GenericBillingService:
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
         """
-        checkout_session = self.api.checkout.Session.create(
+        return self.api.checkout.Session.create(
             customer=customer_id,
             success_url=success_url,
             cancel_url=cancel_url,
@@ -94,17 +102,15 @@ class GenericBillingService:
             # https://dashboard.stripe.com/settings/tax/activate
             # automatic_tax={"enabled": True},
         )
-        return checkout_session
 
     def create_portal_session(self, customer_id, return_url):
         """
         Return customer portal session to allow customer to managing their subscription
         """
-        portal_session = self.api.billing_portal.Session.create(
+        return self.api.billing_portal.Session.create(
             customer=customer_id,
             return_url=return_url,
         )
-        return portal_session
 
     # See Stripe webhook documentation:
     # https://stripe.com/docs/api/webhook_endpoints/create#create_webhook_endpoint-enabled_events
@@ -133,8 +139,7 @@ class GenericBillingService:
             return self.update_product(
                 product["id"], name, description, tax_code, unit_label
             )
-        else:
-            return self.create_product(name, description, tax_code, unit_label)
+        return self.create_product(name, description, tax_code, unit_label)
 
     def create_product(self, name, description, tax_code, unit_label):
         """
@@ -293,10 +298,17 @@ class GenericBillingService:
 
     def cancel_subscription(self, subscription_id):
         """
-        Cancels a customer’s subscription immediately.
+        Cancels a customer's subscription immediately.
         The customer will not be charged again for the subscription.
         """
         return self.api.Subscription.delete(subscription_id)
+
+    def cancel_subscription_at_period_end(self, subscription_id):
+        """
+        Cancels a customer's subscription at the end of the current billing
+        period. The subscription remains active until then.
+        """
+        return self.api.Subscription.modify(subscription_id, cancel_at_period_end=True)
 
     def create_or_update_usage_record(
         self, subscription_item_id, organization_member_count
@@ -322,7 +334,7 @@ class MockStripeBillingService(GenericBillingService):
         stripe.api_version = request.registry.settings["billing.api_version"]
         stripe.api_key = "sk_test_123"
         publishable_key = "pk_test_123"
-        webhook_secret = "whsec_123"
+        webhook_secret = "whsec_123"  # noqa: S105
         domain = "localhost"
 
         return cls(stripe, publishable_key, webhook_secret, domain)
@@ -331,12 +343,14 @@ class MockStripeBillingService(GenericBillingService):
         # Mock Stripe doesn't return a customer_id so create a mock id by default
         customer = super().create_customer(name, description)
         customer["id"] = "mockcus_" + "".join(
-            random.choices(digits + ascii_letters, k=14)
+            random.choices(digits + ascii_letters, k=14)  # noqa: S311
         )
         return customer
 
-    def get_checkout_session(self, session_id, mock_checkout_session={}, **kwargs):
+    def get_checkout_session(self, session_id, mock_checkout_session=None, **kwargs):
         # Mock Stripe doesn't persist data so allow passing in a mock_checkout_session.
+        if mock_checkout_session is None:
+            mock_checkout_session = {}
         checkout_session = super().get_checkout_session(session_id)
         # Fill in customer ID, status, and subscription ID from mock_checkout_session.
         checkout_session["customer"]["id"] = mock_checkout_session.get(
@@ -392,7 +406,7 @@ class StripeSubscriptionService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return id
 
@@ -437,7 +451,7 @@ class StripeSubscriptionService:
 
         self.db.add(subscription)
         self.db.add(organization_subscription)
-        self.db.flush()  # flush db now so we have acccess to subscription.id
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription.id
 
         # Create new subscription item.
         subscription_item = StripeSubscriptionItem(
@@ -458,6 +472,47 @@ class StripeSubscriptionService:
         self.db.query(StripeSubscription).filter(
             StripeSubscription.id == id,
         ).update({StripeSubscription.status: status})
+
+    def sync_subscription_status(self, id, status, *, request):
+        """
+        Set a subscription's status, recording the organization event that
+        matches the transition, and return whether the status changed.
+        """
+        status = StripeSubscriptionStatus(status)
+        subscription = self.get_subscription(id)
+        previous_status = subscription.status
+        if previous_status == status:
+            return False
+
+        # make sure we don't record things twice
+        updated = (
+            self.db.query(StripeSubscription)
+            .filter(
+                StripeSubscription.id == id,
+                StripeSubscription.status == previous_status,
+            )
+            .update({StripeSubscription.status: status}, synchronize_session="fetch")
+        )
+        if not updated:
+            return False
+
+        if status == StripeSubscriptionStatus.Canceled:
+            subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionCancel,
+                request=request,
+                additional={"subscription_id": subscription.subscription_id},
+            )
+        else:
+            subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionStatusChange,
+                request=request,
+                additional={
+                    "subscription_id": subscription.subscription_id,
+                    "previous_status": previous_status.value,
+                    "status": status.value,
+                },
+            )
+        return True
 
     def delete_subscription(self, id):
         """
@@ -507,7 +562,7 @@ class StripeSubscriptionService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return id
 
@@ -540,7 +595,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(stripe_customer)
-        self.db.flush()  # flush db now so we have access to stripe_customer.id
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate stripe_customer.id
 
         return stripe_customer
 
@@ -586,7 +641,7 @@ class StripeSubscriptionService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return subscription_product_id
 
@@ -602,7 +657,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_product)
-        self.db.flush()  # flush db now so we have access to subscription_product.id
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription_product.id
 
         return subscription_product
 
@@ -684,7 +739,7 @@ class StripeSubscriptionService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return subscription_price_id
 
@@ -710,7 +765,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_price)
-        self.db.flush()  # flush db now so we have access to subscription_price.id
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription_price.id
 
         return subscription_price
 

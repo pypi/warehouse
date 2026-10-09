@@ -1,0 +1,47 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+{% endcsi %}
+{% if release.urls %}
+  {% include "warehouse:templates/includes/packaging/metadata/project-links.html" %}
+{% endif %}
+{% include "warehouse:templates/includes/packaging/metadata/key-dates.html" %}
+{% if project.organization %}
+  {% include "warehouse:templates/includes/packaging/metadata/organization.html" %}
+{% endif %}
+{% if maintainers %}
+  {% include "warehouse:templates/includes/packaging/metadata/maintainers.html" %}
+{% endif %}
+{% if release.has_meta and (release.author or release.author_email or release.maintainer or release.maintainer_email) %}
+  {% include "warehouse:templates/includes/packaging/metadata/credits.html" %}
+{% endif %}
+{% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
+  {% include "warehouse:templates/includes/packaging/metadata/github-statistics.html" %}
+{% endif %}
+{% if release.verified_gitlab_repository %}
+  {% include "warehouse:templates/includes/packaging/metadata/gitlab-statistics.html" %}
+{% endif %}
+{% if release.license_expression or license %}
+  {% include "warehouse:templates/includes/packaging/metadata/license.html" %}
+{% endif %}
+{% if release.requires_python %}
+  {% include "warehouse:templates/includes/packaging/metadata/requires-python.html" %}
+{% endif %}
+{% if release.provides_extra %}
+  {% include "warehouse:templates/includes/packaging/metadata/provides-extra.html" %}
+{% endif %}
+{% if release.keywords %}
+  {% include "warehouse:templates/includes/packaging/metadata/tags.html" %}
+{% endif %}
+{% if release.classifiers %}
+  {% include "warehouse:templates/includes/packaging/metadata/classifiers.html" %}
+{% endif %}
+<div class="sidebar-section">
+  {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
+  {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+</div>
+<div class="sidebar-section">
+  <a class="button button--full-width button--warning"
+     href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
+     rel="nofollow"
+     role="button">{% trans %}Report project as malware{% endtrans %}</a>
+</div>

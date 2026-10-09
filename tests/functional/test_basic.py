@@ -2,11 +2,25 @@
 
 import re
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from http import HTTPStatus
 
 import pytest
 import webtest
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/_health/", "/_health/web", "/_health/api", "/_health/other/nested/"],
+)
+def test_health(webtest, path):
+    response = webtest.get(path, status=HTTPStatus.OK)
+    assert response.content_type == "text/plain"
+    assert response.body == b"OK"
+
+
+def test_health_prefix_boundary(webtest):
+    webtest.get("/_healthcheck/api", status=HTTPStatus.NOT_FOUND)
 
 
 def test_funding_manifest_urls(app_config):
@@ -38,7 +52,7 @@ def test_security_txt(app_config):
     assert expires_match is not None
     expires_year = int(expires_match.group(1))
     expires_month = int(expires_match.group(2))
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     assert expires_year == now.year + 1
     assert expires_month == now.month
 
@@ -60,6 +74,7 @@ def test_robots_txt(app_config, domain, indexable):
             "Disallow: /simple/\n"
             "Disallow: /packages/\n"
             "Disallow: /_includes/authed/\n"
+            "Disallow: /project/*/submit-malware-report/\n"
             "Disallow: /pypi/*/json\n"
             "Disallow: /pypi/*/*/json\n"
             "Disallow: /pypi*?\n"
@@ -71,10 +86,20 @@ def test_robots_txt(app_config, domain, indexable):
         )
     else:
         assert body == (
-            "Sitemap: http://localhost/sitemap.xml\n\n"
-            "User-agent: *\n"
-            "Disallow: /\n"
+            "Sitemap: http://localhost/sitemap.xml\n\nUser-agent: *\nDisallow: /\n"
         )
+
+
+def test_organizations_landing_page(webtest):
+    resp = webtest.get("/organizations/", status=HTTPStatus.OK)
+    assert "https://example.com/service-agreement-survey" in resp.text
+    assert "/manage/organizations/" in resp.text
+
+
+def test_homepage_links_to_organizations(webtest):
+    resp = webtest.get("/", status=HTTPStatus.OK)
+    banner = resp.html.find("div", {"class": "homepage-banner"})
+    assert banner.find("a", href="/organizations/") is not None
 
 
 def test_non_existent_route_404(webtest):

@@ -115,6 +115,6 @@ Accept: application/vnd.pypi.integrity.v1+json
 
 [PEP 740]: https://peps.python.org/pep-0740/
 
-[publish attestation]: /attestations/publish/v1
+[publish attestation]: ../attestations/publish/v1.md
 
 [SLSA Provenance]: https://slsa.dev/spec/v1.0/provenance

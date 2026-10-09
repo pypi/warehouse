@@ -4,13 +4,13 @@
   A form with radio buttons controlling display of .radio-toggle elements.
 
   <form class="radio-toggle-form">
-    <input type="radio" data-target=".radio-toggle-0">
     <input type="radio" data-target=".radio-toggle-1">
-    <div class="radio-toggle radio-toggle-0">
-      <!-- Displays when [data-target=".radio-toggle-0"] is selected. -->
-    </div>
+    <input type="radio" data-target=".radio-toggle-2">
     <div class="radio-toggle radio-toggle-1">
       <!-- Displays when [data-target=".radio-toggle-1"] is selected. -->
+    </div>
+    <div class="radio-toggle radio-toggle-2">
+      <!-- Displays when [data-target=".radio-toggle-2"] is selected. -->
     </div>
   </form>
 

@@ -9,8 +9,7 @@ import PasswordStrengthGaugeController from "../../warehouse/static/js/warehouse
 const mockZxcvbn = jest.fn();
 
 jest.mock("@zxcvbn-ts/core", () => ({
-  zxcvbn: (...args) => mockZxcvbn(...args),
-  zxcvbnOptions: { setOptions: jest.fn() },
+  ZxcvbnFactory: jest.fn(() => ({ check: (...args) => mockZxcvbn(...args) })),
 }));
 describe("Password strength gauge controller", () => {
   beforeEach(() => {

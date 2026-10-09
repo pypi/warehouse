@@ -20,9 +20,8 @@ class TZDateTime(TypeDecorator):
     cache_ok = True
 
     def process_bind_param(self, value, dialect):
-        if value is not None:
-            if value.tzinfo:
-                value = value.astimezone(datetime.UTC).replace(tzinfo=None)
+        if value is not None and value.tzinfo:
+            value = value.astimezone(datetime.UTC).replace(tzinfo=None)
         return value
 
     def process_result_value(self, value, dialect):

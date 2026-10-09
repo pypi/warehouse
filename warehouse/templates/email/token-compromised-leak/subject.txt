@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Your API credentials from {{ request.registry.settings["site.name"] }} were found on a public webpage{% endblock %}
+{% block subject %}{% if admin_initiated %}A {{ request.registry.settings["site.name"] }} administrator revoked one of your API tokens{% else %}Your API credentials from {{ request.registry.settings["site.name"] }} were found on a public webpage{% endif %}{% endblock %}

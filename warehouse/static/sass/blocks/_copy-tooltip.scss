@@ -3,7 +3,8 @@
 // Copyright (c) 2016 GitHub Inc
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/grid";
 
 /*
@@ -26,8 +27,8 @@
 
 
 $tooltip-max-width: 250px !default;
-$tooltip-background-color: color.adjust(colours.$black, $alpha: -0.3) !default;
-$tooltip-text-color: colours.$white !default;
+$tooltip-background-color: color.adjust(colors.$black, $alpha: -0.3) !default;
+$tooltip-text-color: colors.$white !default;
 $tooltip-delay: 0.4s !default;
 $tooltip-duration: 0.1s !default;
 
@@ -43,6 +44,8 @@ $tooltip-duration: 0.1s !default;
   z-index: 1000000;
   display: none;
   padding: 5px 8px;
+  font-family: fonts.$base-font-family;
+  font-size: fonts.$base-font-size;
   font-weight: normal;
   -webkit-font-smoothing: subpixel-antialiased;
   color: $tooltip-text-color;
@@ -51,7 +54,7 @@ $tooltip-duration: 0.1s !default;
   text-shadow: none;
   text-transform: none;
   letter-spacing: normal;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   white-space: pre;
   pointer-events: none;
   background: $tooltip-background-color;

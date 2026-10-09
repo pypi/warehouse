@@ -1,11 +1,12 @@
-djlint
-flake8
-flake8-pytest-style
-pep8-naming
-black==26.1.0
-isort>=5.13.1
-pyupgrade
+ruff
+ast-grep-cli
+codespell
+# TODO: 1.40 onwards fixes indentation after multi-line `{% trans %}` blocks,
+# rewrites quotes inside template tags and adds H025, H036, H043, H046, H050
+# and H053. Upgrade in its own PR.
+djlint<1.40
 mypy
+tombi
 celery-types
 msgpack-types
 mypy-zope
@@ -14,13 +15,14 @@ types-babel
 boto3-stubs
 types-certifi
 types-first
-types-html5lib
+types-gunicorn
 types-itsdangerous
 types-passlib
+types-pyasn1
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.4.20260107
+types-requests
 types-stripe
 types-WTForms
 types-WebOb

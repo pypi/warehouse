@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-import pretend
 import pytest
 
 from warehouse.accounts import tasks
@@ -18,7 +17,7 @@ from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
-def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
+def test_notify_users_of_tos_update(db_request, user_service, mocker):
     db_request.registry.settings = {"terms.revision": "initial"}
     users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
     # Users we should not notify because they have already agreed to ToS
@@ -28,32 +27,28 @@ def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
     # Users we should not notify because they don't have a primary/verified email
     UserFactory.create_batch(7)
 
-    send_email = pretend.call_recorder(lambda request, user: None)
-    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
-
-    user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, engagement: None
+    send_email = mocker.patch.object(
+        tasks, "send_user_terms_of_service_updated", autospec=True
     )
+
+    record_tos_engagement = mocker.spy(user_service, "record_tos_engagement")
 
     notify_users_of_tos_update(db_request)
 
-    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
-        [pretend.call(db_request, u) for u in users_to_notify], key=lambda x: x.args[1]
-    )
-    assert sorted(
-        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
-    ) == sorted(
-        [
-            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
-            for u in users_to_notify
-        ],
-        key=lambda x: x.args[0],
-    )
+    expected = users_to_notify
+    assert send_email.call_count == len(expected)
+    assert {c.args for c in send_email.call_args_list} == {
+        (db_request, u) for u in expected
+    }
+    assert record_tos_engagement.call_count == len(expected)
+    assert {c.args for c in record_tos_engagement.call_args_list} == {
+        (u.id, "initial", TermsOfServiceEngagement.Notified) for u in expected
+    }
 
 
 @pytest.mark.parametrize("batch_size", [0, 10])
 def test_notify_users_of_tos_update_respects_batch_size(
-    db_request, batch_size, user_service, monkeypatch
+    db_request, batch_size, user_service, mocker
 ):
     db_request.registry.settings = {
         "terms.revision": "initial",
@@ -61,22 +56,19 @@ def test_notify_users_of_tos_update_respects_batch_size(
     }
     UserFactory.create_batch(max(1, batch_size * 2), with_verified_primary_email=True)
 
-    send_email = pretend.call_recorder(lambda request, user: None)
-    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
-
-    user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, engagement: None
+    send_email = mocker.patch.object(
+        tasks, "send_user_terms_of_service_updated", autospec=True
     )
+
+    record_tos_engagement = mocker.spy(user_service, "record_tos_engagement")
 
     notify_users_of_tos_update(db_request)
 
-    assert len(send_email.calls) == batch_size
-    assert len(user_service.record_tos_engagement.calls) == batch_size
+    assert send_email.call_count == batch_size
+    assert record_tos_engagement.call_count == batch_size
 
 
-def test_notify_users_of_tos_update_does_not_renotify(
-    db_request, user_service, monkeypatch
-):
+def test_notify_users_of_tos_update_does_not_renotify(db_request, user_service, mocker):
     db_request.registry.settings = {"terms.revision": "initial"}
     users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
     # Users we should not notify because they have already agreed to ToS
@@ -86,32 +78,27 @@ def test_notify_users_of_tos_update_does_not_renotify(
     # Users we should not notify because they don't have a primary/verified email
     UserFactory.create_batch(7)
 
-    send_email = pretend.call_recorder(lambda request, user: None)
-    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+    send_email = mocker.patch.object(
+        tasks, "send_user_terms_of_service_updated", autospec=True
+    )
 
     user_service.record_tos_engagement(
         users_to_notify[-1].id, "initial", TermsOfServiceEngagement.Notified
     )
 
-    user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, engagement: None
-    )
+    record_tos_engagement = mocker.spy(user_service, "record_tos_engagement")
 
     notify_users_of_tos_update(db_request)
 
-    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
-        [pretend.call(db_request, u) for u in users_to_notify[:-1]],
-        key=lambda x: x.args[1],
-    )
-    assert sorted(
-        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
-    ) == sorted(
-        [
-            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
-            for u in users_to_notify[:-1]
-        ],
-        key=lambda x: x.args[0],
-    )
+    expected = users_to_notify[:-1]
+    assert send_email.call_count == len(expected)
+    assert {c.args for c in send_email.call_args_list} == {
+        (db_request, u) for u in expected
+    }
+    assert record_tos_engagement.call_count == len(expected)
+    assert {c.args for c in record_tos_engagement.call_args_list} == {
+        (u.id, "initial", TermsOfServiceEngagement.Notified) for u in expected
+    }
 
 
 def _create_old_users_and_releases():
@@ -122,11 +109,11 @@ def _create_old_users_and_releases():
         ReleaseFactory.create(
             project=project,
             uploader=user,
-            created=datetime.now(timezone.utc) - timedelta(days=365 * 2 + 1),
+            created=datetime.now(UTC) - timedelta(days=365 * 2 + 1),
         )
 
 
-def test_compute_user_metrics(db_request, metrics):
+def test_compute_user_metrics(db_request, metrics, mocker):
     # Create an active user with no email
     UserFactory.create()
     # Create an inactive user
@@ -159,23 +146,21 @@ def test_compute_user_metrics(db_request, metrics):
 
     compute_user_metrics(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.users.count", 10),
-        pretend.call("warehouse.users.count", 9, tags=["active:true"]),
-        pretend.call(
-            "warehouse.users.count", 7, tags=["active:true", "verified:false"]
-        ),
-        pretend.call(
+    assert metrics.gauge.call_args_list == [
+        mocker.call("warehouse.users.count", 10),
+        mocker.call("warehouse.users.count", 9, tags=["active:true"]),
+        mocker.call("warehouse.users.count", 7, tags=["active:true", "verified:false"]),
+        mocker.call(
             "warehouse.users.count",
             5,
             tags=["active:true", "verified:false", "releases:true"],
         ),
-        pretend.call(
+        mocker.call(
             "warehouse.users.count",
             2,
             tags=["active:true", "verified:false", "releases:true", "window:2years"],
         ),
-        pretend.call(
+        mocker.call(
             "warehouse.users.count",
             2,
             tags=[
@@ -198,15 +183,15 @@ def test_update_email_domain_status(db_request, domain_status_service, mocker):
     )
     over_threshold = EmailFactory.create(
         email="me@over-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=90),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=90),
     )
     on_threshold = EmailFactory.create(
         email="me@on-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=30),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=30),
     )
     under_threshold = EmailFactory.create(
         email="me@under-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=1),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=1),
     )
 
     batch_update_email_domain_status(db_request)
@@ -244,7 +229,7 @@ def test_update_email_domain_status_retries_failures_in_7_days(
 
     # Timestamp should be set to ~23 days ago for retry in ~7 days
     assert fail_check.domain_last_checked is not None
-    expected_retry_date = (datetime.now(tz=timezone.utc) - timedelta(days=23)).date()
+    expected_retry_date = (datetime.now(tz=UTC) - timedelta(days=23)).date()
     assert fail_check.domain_last_checked.date() == expected_retry_date
     # Status should remain None since lookup returned None
     assert fail_check.domain_last_status is None
@@ -274,8 +259,6 @@ def test_unverify_emails_with_expired_domains(db_request, user_service):
     # Confirm that the observation was added to the "actor"
     assert admin_user.observer.observations[-1].kind == "email_unverified"
 
-    assert db_request.metrics.increment.calls == [
-        pretend.call(
-            "warehouse.emails.unverified", value=1, tags=["reason:domain_expired"]
-        )
-    ]
+    db_request.metrics.increment.assert_called_once_with(
+        "warehouse.emails.unverified", value=1, tags=["reason:domain_expired"]
+    )

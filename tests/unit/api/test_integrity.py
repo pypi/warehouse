@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from warehouse.api import integrity
+
+from ...common.db.packaging import FileFactory
 
 
 @pytest.mark.parametrize(
@@ -62,31 +63,31 @@ def test_select_content_type(db_request, accept, expected):
 )
 def test_provenance_for_file_bad_accept(db_request, content_type):
     db_request.accept = content_type
-    response = integrity.provenance_for_file(pretend.stub(), db_request)
+    response = integrity.provenance_for_file(None, db_request)
     assert response.status_code == 406
     assert response.json == {"message": "Request not acceptable"}
 
 
-def test_provenance_for_file_accept_multiple(db_request, monkeypatch):
+def test_provenance_for_file_accept_multiple(db_request):
     db_request.accept = "text/html, application/vnd.pypi.integrity.v1+json; q=0.9"
-    file = pretend.stub(provenance=None, filename="fake-1.2.3.tar.gz")
+    file = FileFactory.build(filename="fake-1.2.3.tar.gz")
 
     response = integrity.provenance_for_file(file, db_request)
     assert response.status_code == 404
     assert response.json == {"message": "No provenance available for fake-1.2.3.tar.gz"}
 
 
-def test_provenance_for_file_not_enabled(db_request, monkeypatch):
-    monkeypatch.setattr(db_request, "flags", pretend.stub(enabled=lambda *a: True))
+def test_provenance_for_file_not_enabled(db_request, mocker):
+    mocker.patch.object(db_request.flags, "enabled", return_value=True)
 
-    response = integrity.provenance_for_file(pretend.stub(), db_request)
+    response = integrity.provenance_for_file(None, db_request)
     assert response.status_code == 403
     assert response.json == {"message": "Attestations temporarily disabled"}
 
 
-def test_provenance_for_file_not_present(db_request, monkeypatch):
-    monkeypatch.setattr(db_request, "flags", pretend.stub(enabled=lambda *a: False))
-    file = pretend.stub(provenance=None, filename="fake-1.2.3.tar.gz")
+def test_provenance_for_file_not_present(db_request, mocker):
+    mocker.patch.object(db_request.flags, "enabled", return_value=False)
+    file = FileFactory.build(filename="fake-1.2.3.tar.gz")
 
     response = integrity.provenance_for_file(file, db_request)
     assert response.status_code == 404

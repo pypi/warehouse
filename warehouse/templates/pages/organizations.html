@@ -1,0 +1,95 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "base.html" %}
+{% block title %}
+  {% trans %}Organizations{% endtrans %}
+{% endblock %}
+{% block content %}
+  <div class="horizontal-section">
+    <div class="site-container">
+      <div class="heading-wsubtitle">
+        <h1 class="heading-wsubtitle__heading">{% trans %}PyPI Organizations{% endtrans %}</h1>
+        <p class="heading-wsubtitle__subtitle">{% trans %}Collaborate on your projects, as a team{% endtrans %}</p>
+      </div>
+      <p class="lede-paragraph">
+        {% trans %}Organizations let users from a company or community project assemble into teams and collaborate on projects, under a single unique brand on PyPI.{% endtrans %}
+      </p>
+      <ul class="hooray-list">
+        <li>{% trans %}Group your projects under one organization, with a shared organization profile{% endtrans %}</li>
+        <li>{% trans %}Create teams and manage who can publish, maintain, or view each project in one place{% endtrans %}</li>
+        <li>{% trans %}Give new maintainers the right permissions without assigning individual project roles{% endtrans %}</li>
+        <li>{% trans %}Set up trusted publishing for your organization's projects{% endtrans %}</li>
+        <li>{% trans %}Review your organization's history to see who changed what, and when{% endtrans %}</li>
+      </ul>
+      <p>
+        {% trans href='https://docs.pypi.org/organization-accounts/', title=gettext('External link') %}The features are the same for every organization. For full details, see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">organization accounts documentation</a>.{% endtrans %}
+      </p>
+      <div class="sponsor-packages">
+        <div class="sponsor-package">
+          <div class="sponsor-package__header">
+            <div class="sponsor-package__icon">
+              <i class="fas fa-users" aria-hidden="true"></i>
+            </div>
+            <h2>{% trans %}Community organization{% endtrans %}</h2>
+          </div>
+          <div class="sponsor-package__body">
+            <p>{% trans %}For community projects, maintained in the open by volunteers.{% endtrans %}</p>
+            <p>{% trans %}Non-profits, NGOs, schools, and other non-commercial groups belong here too; you do not need to be an informal project to qualify.{% endtrans %}</p>
+            <ul>
+              <li>{% trans %}All organization features, at no cost{% endtrans %}</li>
+              <li>{% trans %}No payment or billing information required{% endtrans %}</li>
+              <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
+            </ul>
+            <p>{% trans %}Free for qualifying community projects{% endtrans %}</p>
+          </div>
+          <div class="sponsor-package__button">
+            <a class="button button--primary"
+               href="{{ request.route_path('manage.organizations') }}">{% trans %}Create a community organization{% endtrans %}</a>
+          </div>
+        </div>
+        <div class="sponsor-package">
+          <div class="sponsor-package__header">
+            <div class="sponsor-package__icon">
+              <i class="fas fa-building" aria-hidden="true"></i>
+            </div>
+            <h2>{% trans %}Company organization{% endtrans %}</h2>
+          </div>
+          <div class="sponsor-package__body">
+            <p>{% trans %}For companies and other private organizations.{% endtrans %}</p>
+            <ul>
+              <li>{% trans %}All current organization features, on a monthly subscription{% endtrans %}</li>
+              <li>{% trans %}Billed monthly by card through Stripe{% endtrans %}</li>
+              <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
+            </ul>
+            <p>{% trans %}$5 per member, per month{% endtrans %}</p>
+          </div>
+          <div class="sponsor-package__button">
+            <a class="button button--primary"
+               href="{{ request.route_path('manage.organizations') }}">{% trans %}Apply for a company organization{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% set survey_url = request.registry.settings.get("warehouse.organizations.service_agreement_survey_url") %}
+  {% if survey_url %}
+    <div class="horizontal-section horizontal-section--grey horizontal-section--medium">
+      <div class="narrow-container">
+        <h2>{% trans %}Does your company need a PyPI service agreement?{% endtrans %}</h2>
+        <p>
+          {% trans %}Some companies need a formal agreement with PyPI covering support, availability, or compliance requirements. We are gathering interest to understand what companies need.{% endtrans %}
+        </p>
+        <p>{% trans %}Tell us about your requirements and we will be in touch as this work progresses.{% endtrans %}</p>
+        <p>
+          {% trans href='https://docs.pypi.org/organization-accounts/support/', title=gettext('External link') %}For help with an existing organization, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">organization accounts support</a>.{% endtrans %}
+        </p>
+        <p>
+          <a class="button button--primary"
+             href="{{ survey_url }}"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}PyPI Service Agreement Interest{% endtrans %}</a>
+        </p>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

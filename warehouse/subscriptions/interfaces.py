@@ -19,6 +19,11 @@ class IGenericBillingService(Interface):
         Fetch the Customer resource attached to the Subscription
         """
 
+    def list_subscriptions():
+        """
+        Iterate over every Subscription resource from the Billing API
+        """
+
     def create_customer(name, description):
         """
         Create the Customer resource via Billing API with the given name and description
@@ -134,8 +139,14 @@ class IGenericBillingService(Interface):
 
     def cancel_subscription(subscription_id):
         """
-        Cancels a customer’s subscription immediately.
+        Cancels a customer's subscription immediately.
         The customer will not be charged again for the subscription.
+        """
+
+    def cancel_subscription_at_period_end(subscription_id):
+        """
+        Cancels a customer's subscription at the end of the current billing
+        period. The subscription remains active until then.
         """
 
     def create_or_update_usage_record(subscription_item_id, organization_member_count):
@@ -173,6 +184,12 @@ class ISubscriptionService(Interface):
     def update_subscription_status(id, status):
         """
         Update the status of a subscription object by subscription.id
+        """
+
+    def sync_subscription_status(id, status, *, request):
+        """
+        Set a subscription's status, recording the organization event that
+        matches the transition, and return whether the status changed
         """
 
     def delete_subscription(id):
