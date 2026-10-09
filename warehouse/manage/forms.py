@@ -192,16 +192,20 @@ class ProvisionTOTPForm(TOTPValueMixin, wtforms.Form):
     def __init__(self, *args, totp_secret, **kwargs):
         super().__init__(*args, **kwargs)
         self.totp_secret = totp_secret
+        # start track of failure reason
+        self.totp_failure = None
 
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
         try:
             otp.verify_totp(self.totp_secret, totp_value)
         except otp.OutOfSyncTOTPError:
+            self.totp_failure = "out_of_sync"
             raise wtforms.validators.ValidationError(
                 "Invalid TOTP code. Your device time may be out of sync."
             )
         except otp.InvalidTOTPError:
+            self.totp_failure = "malformed" if field.errors else "invalid"
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
 
 
