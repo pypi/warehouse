@@ -10,7 +10,10 @@ import pytest
 
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
+from pyramid.exceptions import ConfigurationError
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.tweens import EXCVIEW
+from webob.multidict import MultiDict
 
 from warehouse import config
 from warehouse.authnz import Permissions
@@ -585,6 +588,33 @@ def test_configure(monkeypatch, mocker, settings, environment):
     ]
 
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
+
+
+@pytest.mark.parametrize("permit", ["versions", 42, {"versions", 1}])
+def test_reject_duplicate_post_keys_view_rejects_invalid_permit(permit, mocker):
+    info = mocker.Mock(
+        exception_only=False, options={"permit_duplicate_post_keys": permit}
+    )
+
+    with pytest.raises(ConfigurationError):
+        config.reject_duplicate_post_keys_view(mocker.sentinel.view, info)
+
+
+@pytest.mark.parametrize("permit", [None, False, "", set(), (), []])
+def test_reject_duplicate_post_keys_view_rejects_when_not_permitted(
+    permit, mocker, pyramid_request
+):
+    view = mocker.Mock()
+    info = mocker.Mock(
+        exception_only=False, options={"permit_duplicate_post_keys": permit}
+    )
+    derived_view = config.reject_duplicate_post_keys_view(view, info)
+
+    context = mocker.sentinel.context
+    pyramid_request.POST = MultiDict([("foo", "bar"), ("foo", "baz")])
+
+    assert isinstance(derived_view(context, pyramid_request), HTTPBadRequest)
+    view.assert_not_called()
 
 
 def test_root_factory_access_control_list():

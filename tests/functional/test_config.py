@@ -25,7 +25,13 @@ def test_rejects_duplicate_post_keys(webtest, socket_enabled):
     # Add multiple duplicate keys to the POST body, doesn't matter what they are
     body.add("foo", "bar")
     body.add("foo", "baz")
+    body.add("bar", "bar")
+    body.add("bar", "baz")
 
     resp = webtest.post("/account/login/", params=body, status=HTTPStatus.BAD_REQUEST)
     assert "POST body may not contain duplicate keys" in resp.body.decode()
-    assert "(URL: 'http://localhost/account/login/')" in resp.body.decode()
+    # Every duplicated key is reported, in sorted order.
+    assert (
+        "(duplicated: ['bar', 'foo'], URL: 'http://localhost/account/login/')"
+        in resp.body.decode()
+    )
