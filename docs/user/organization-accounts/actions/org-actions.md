@@ -109,6 +109,10 @@ the organization will appear under Your organizations.
 If the invitation has been declined, the Owners of the organization
 will be notified by email.
 
+If the user who sent the invitation has deleted their account, you cannot
+accept or decline it. Ask a remaining organization Owner to revoke the old
+invitation and send a new one.
+
 ---
 
 #### Rename an organization account
