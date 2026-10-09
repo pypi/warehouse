@@ -19,11 +19,12 @@
   </div>
 
   Modifiers:
-  - pre-release: Light blue background (dark text)
-  - archived: Light grey background (dark text)
-  - yanked: Dark grey background (white text)
-  - quarantined: Orange background (white text)
-  - late-files: Orange background (white text)
+    - pre-release: Light blue background (dark text)
+    - archived: Light grey background (dark text)
+    - yanked: Dark grey background (white text)
+    - quarantined: Orange background (white text)
+    - late-files: Orange background (white text)
+    - provenance-warning: Orange background (white text)
 */
 
 .project-status {
@@ -136,6 +137,10 @@
   }
 
   &--late-files {
+    background-color: colors.$warning-color;
+  }
+
+  &--provenance-warning {
     background-color: colors.$warning-color;
   }
 }

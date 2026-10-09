@@ -1,0 +1,97 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% set counts = release.provenance_status.counts %}
+{% set repo_inconsistent = counts.source_counts | length > 1 %}
+{% set config_inconsistent = counts.workflow_counts | length > 1 %}
+<div class="callout-block callout-block--warning">
+  <h3 class="callout-block__heading">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    {% trans %}Inconsistent provenance{% endtrans %}
+  </h3>
+  {% if repo_inconsistent and config_inconsistent %}
+    <p>{% trans %}The release files originate from multiple, inconsistent repositories and configurations.{% endtrans %}</p>
+  {% elif repo_inconsistent %}
+    <p>{% trans %}The release files originate from multiple, inconsistent repositories.{% endtrans %}</p>
+  {% elif config_inconsistent %}
+    <p>{% trans %}The release files originate from multiple, inconsistent configurations.{% endtrans %}</p>
+  {% endif %}
+  <p>{% trans %}While this could reflect a legitimate choice by the project maintainers, it may also indicate that the release has been compromised.{% endtrans %}</p>
+  {% if repo_inconsistent %}
+    {% set unknown_source_files = counts.total_files - (counts.source_counts.values() | sum) %}
+    <div class="provenance-diff provenance-diff--breakdown">
+      <p class="provenance-diff__title">
+        <i class="fa-solid fa-code" aria-hidden="true"></i>
+        {% trans %}Repository{% endtrans %}
+      </p>
+      <ul class="provenance-diff__rows">
+        {% for source, count in counts.source_counts.items() %}
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
+              {% trans count=count %}{{ count }} file
+            {% pluralize %}
+              {{ count }} files{% endtrans %}
+            </span>
+            <span class="provenance-diff__value">{{ source.identity }}</span>
+          </li>
+        {% endfor %}
+        {% if unknown_source_files > 0 %}
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
+              {% trans count=unknown_source_files %}{{ count }} file
+            {% pluralize %}
+              {{ count }} files{% endtrans %}
+            </span>
+            <span class="provenance-diff__value">
+              {% trans %}Unknown{% endtrans %}
+              <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
+            </span>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+  {% if config_inconsistent %}
+    {% set unknown_workflow_files = counts.total_files - (counts.workflow_counts.values() | sum) %}
+    <div class="provenance-diff provenance-diff--breakdown">
+      <p class="provenance-diff__title">
+        <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
+        {% trans %}Configuration{% endtrans %}
+      </p>
+      <ul class="provenance-diff__rows">
+        {% for workflow, count in counts.workflow_counts.items() %}
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
+              {% trans count=count %}{{ count }} file
+            {% pluralize %}
+              {{ count }} files{% endtrans %}
+            </span>
+            <span class="provenance-diff__value">{{ workflow }}</span>
+          </li>
+        {% endfor %}
+        {% if unknown_workflow_files > 0 %}
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
+              {% trans count=unknown_workflow_files %}{{ count }} file
+            {% pluralize %}
+              {{ count }} files{% endtrans %}
+            </span>
+            <span class="provenance-diff__value">
+              {% trans %}Unknown{% endtrans %}
+              <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
+            </span>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+  <div class="callout-block__footer">
+    <p>
+      {% if repo_inconsistent and config_inconsistent %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting each repository and configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% elif repo_inconsistent %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting each repository before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% elif config_inconsistent %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting each configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% endif %}
+    </p>
+  </div>
+</div>
