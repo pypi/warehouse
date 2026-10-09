@@ -456,7 +456,7 @@ class TestReconcileStripeStatus:
         self, db_request, billing_service, subscription_service, metrics, mocker
     ):
         _, subscription = self._make_org_subscription()
-        update_status = mocker.spy(subscription_service, "update_subscription_status")
+        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
         mocker.patch.object(
             billing_service,
             "list_subscriptions",
@@ -465,9 +465,10 @@ class TestReconcileStripeStatus:
 
         reconcile_stripe_status(db_request)
 
-        update_status.assert_not_called()
+        sync_status.assert_not_called()
         metrics.increment.assert_any_call(
-            "warehouse.organizations.subscription.status.reconcile.skipped"
+            "warehouse.organizations.subscription.status.reconcile.skipped",
+            tags=["remote_status:bogus"],
         )
         assert subscription.status == StripeSubscriptionStatus.Active.value
 

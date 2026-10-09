@@ -166,7 +166,8 @@ def reconcile_stripe_status(request):
                 status=remote_status,
             )
             request.metrics.increment(
-                "warehouse.organizations.subscription.status.reconcile.skipped"
+                "warehouse.organizations.subscription.status.reconcile.skipped",
+                tags=[f"remote_status:{remote_status}"],
             )
             continue
 
