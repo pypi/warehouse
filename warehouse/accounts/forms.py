@@ -647,6 +647,19 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
                 raise wtforms.validators.ValidationError(
                     markupsafe.Markup(self.breach_service.failure_message)  # noqa: S704
                 )
+            if is_disabled and disabled_for == DisableReason.AccountFrozen:
+                user = self.user_service.get_user(userid)
+                user.record_event(
+                    tag=EventTag.Account.LoginFailure,
+                    request=self.request,
+                    additional={"reason": "account_frozen"},
+                )
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "Your account has been suspended. "
+                        "Please contact security@pypi.org for assistance."
+                    )
+                )
             if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
