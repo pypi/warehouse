@@ -199,6 +199,9 @@ class Session(dict):
             totp_secret = self[self._totp_secret_key] = otp.generate_totp_secret()
         return totp_secret
 
+    def has_totp_secret(self):
+        return self.get(self._totp_secret_key) is not None
+
     def clear_totp_secret(self):
         self[self._totp_secret_key] = None
 
