@@ -7,6 +7,7 @@ from warehouse.organizations.services import database_organization_factory
 from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     notify_organizations_requiring_subscription,
+    reconcile_stripe_status,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -22,6 +23,11 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0), delete_declined_organization_applications
     )
+    # Scheduled an hour before update_organziation_subscription_usage_record
+    # (hour=0) so usage is usually reported against Stripe-synced status. Best
+    # effort only: nothing chains the two, so if reconcile exhausts its retries
+    # the usage task still runs against whatever status is stored.
+    config.add_periodic_task(crontab(minute=0, hour=23), reconcile_stripe_status)
     config.add_periodic_task(
         crontab(minute=0, hour=0), update_organziation_subscription_usage_record
     )
