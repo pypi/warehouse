@@ -15,7 +15,7 @@ import structlog
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from packaging.utils import canonicalize_name
 from requests.exceptions import RequestException
-from sqlalchemy import desc, func, nulls_last, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -373,10 +373,8 @@ def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
             .over(
                 partition_by=Release.project_id,
                 order_by=[
-                    nulls_last(
-                        Release.is_prerelease
-                    ),  # False first, True next, nulls last
-                    desc(Release._pypi_ordering),
+                    Release.is_prerelease.nulls_last(),  # False, True, then nulls
+                    Release._pypi_ordering.desc(),
                 ],
             )
             .label("rn"),

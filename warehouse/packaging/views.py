@@ -10,6 +10,7 @@ from pypi_attestations import (
 )
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -240,7 +241,7 @@ def release_detail(release, request):
             request.db.query(Role)
             .join(User)
             .filter(Role.project == project)
-            .distinct(User.username)
+            .ext(distinct_on(User.username))
             .order_by(User.username)
             .all()
         )
