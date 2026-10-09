@@ -330,8 +330,10 @@ class TestValidateArtifactDependencies:
         [
             b"",
             b"Fake metadata",
-            b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
-            b'Requires-Dist: foo>=1.0 ; extra == "dev"\nProvides-Dist: bar\n',
+            (
+                b"Metadata-Version: 2.4\nName: spam\nVersion: 1.0\n"
+                b'Requires-Dist: foo>=1.0 ; extra == "dev"\nProvides-Dist: bar\n'
+            ),
         ],
     )
     def test_valid(self, content):

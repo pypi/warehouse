@@ -1,0 +1,46 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/grid";
+
+/*
+  A vertical list of labeled checkboxes, such as the acknowledgment
+  checkboxes shown in delete confirmation modals.
+
+  <ul class="checkbox-list">
+    <li class="checkbox-list__item">
+      <label class="checkbox-list__label">
+        <input class="checkbox-list__input" type="checkbox">
+        <span class="checkbox-list__text">Label text</span>
+      </label>
+    </li>
+  </ul>
+*/
+
+.checkbox-list {
+  list-style-type: none;
+  margin: 0 0 grid.$half-spacing-unit;
+  padding: 0;
+
+  &__item {
+    margin-bottom: grid.$quarter-spacing-unit;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Doubled-up selectors to override `.modal__form label`/`input`'s font-weight/margin/width rules.
+  & &__label {
+    display: flex;
+    align-items: flex-start;
+    gap: grid.$quarter-spacing-unit;
+    font-weight: normal;
+  }
+
+  & &__input {
+    flex-shrink: 0;
+    width: auto;
+    min-width: auto;
+    margin: 4px 0 0;
+  }
+}

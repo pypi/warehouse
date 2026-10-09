@@ -1,3 +1,7 @@
+# NOTE: pyramid-components is a runtime dependency of warehouse.admin, but it
+#       lives in this repo (./pyramid_components) rather than on an index, so it
+#       cannot be pinned here: pip-compile has no hashes for a local path. The
+#       Dockerfile installs it editable.
 alembic>=1.20.0
 alembic-postgresql-enum
 Automat
@@ -10,8 +14,8 @@ celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
-cryptography>=50.0.1
-datadog>=0.54.0
+cryptography>=50.0.2
+datadog>=0.55.0
 disposable-email-domains
 dnspython
 email-validator
@@ -37,7 +41,7 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-platformdirs>=4.11.13
+platformdirs>=4.12.2
 premailer
 psycopg[binary]
 pydantic

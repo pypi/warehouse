@@ -8,8 +8,8 @@ def includeme(config):
     warehouse = config.get_settings().get("warehouse.domain")
     files_url = config.get_settings()["files.url"]
 
-    # Simple Route for health checks.
-    config.add_route("health", "/_health/")
+    # Suffixes let ingress route probes to independently served process types.
+    config.add_route("health", "/_health/*subpath")
 
     # Internal route to make it easier to force a particular status for
     # debugging HTTPException templates.

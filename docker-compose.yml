@@ -36,7 +36,7 @@ services:
         condition: service_started  # no healthcheck yet
 
   db:
-    image: postgres:17.5
+    image: postgres:17.11
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
