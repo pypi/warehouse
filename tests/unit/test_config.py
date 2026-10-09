@@ -350,6 +350,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.account.password_reset_ip_ratelimit_string": "10 per hour",
         "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",

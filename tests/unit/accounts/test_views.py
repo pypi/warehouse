@@ -1912,6 +1912,32 @@ class TestRequestPasswordReset:
         )
         pyramid_request.find_service.assert_called_once_with(IUserService, context=None)
 
+    def test_request_password_reset_ip_ratelimited(
+        self, pyramid_request, user_service, form_class, mocker
+    ):
+        ip_limiter = mocker.Mock(hit=mocker.Mock(return_value=False))
+        user_service.ratelimiters["password.reset.ip"] = ip_limiter
+        mocker.spy(user_service, "get_user_by_username")
+        send_password_reset_email = mocker.patch.object(
+            views, "send_password_reset_email", autospec=True
+        )
+        form_class.return_value.form_errors = []
+        pyramid_request.method = "POST"
+
+        result = views.request_password_reset(pyramid_request, _form_class=form_class)
+
+        assert result == {"form": form_class.return_value}
+        assert pyramid_request.response.status_code == 429
+        assert form_class.return_value.form_errors == [
+            (
+                "Too many password reset requests from your network. "
+                "Please try again later."
+            )
+        ]
+        ip_limiter.hit.assert_called_once_with(pyramid_request.remote_addr)
+        user_service.get_user_by_username.assert_not_called()
+        send_password_reset_email.assert_not_called()
+
     def test_request_password_reset(
         self, pyramid_request, user_service, token_service, form_class, mocker
     ):
