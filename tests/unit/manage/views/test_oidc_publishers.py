@@ -17,6 +17,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    CircleCIPublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
@@ -136,12 +137,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -151,6 +154,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
@@ -180,12 +184,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "CircleCI": True,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -195,6 +201,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -251,6 +258,19 @@ class TestManageOIDCPublisherViews:
                     "actor": "my_actor",
                 },
             ),
+            # All fields of CircleCI provider
+            (
+                "circleci_publisher_form",
+                {
+                    "provider": "circleci",
+                    "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                    "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                    "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                    "context_id": "00000000-0000-1000-8000-000000000004",
+                    "vcs_ref": "refs/heads/main",
+                    "vcs_origin": "https://github.com/my-org/my-repo",
+                },
+            ),
             # All fields of GitHub provider, case-insensitive
             (
                 "github_publisher_form",
@@ -290,12 +310,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -373,12 +395,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -426,12 +450,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": None,
         }
 
@@ -1092,6 +1118,33 @@ class TestManageOIDCPublisherViews:
                     actor_id="some-user-id",
                 ),
             ),
+            (
+                "add_circleci_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="CircleCI",
+                    publisher_url=lambda x=None: None,
+                    circleci_org_id="00000000-0000-1000-8000-000000000001",
+                    circleci_project_id="00000000-0000-1000-8000-000000000002",
+                    pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                    context_id="",
+                    vcs_ref="",
+                    vcs_origin="",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    circleci_org_id=pretend.stub(data=publisher.circleci_org_id),
+                    circleci_project_id=pretend.stub(
+                        data=publisher.circleci_project_id
+                    ),
+                    pipeline_definition_id=pretend.stub(
+                        data=publisher.pipeline_definition_id
+                    ),
+                    normalized_context_id=publisher.context_id,
+                    normalized_vcs_ref=publisher.vcs_ref,
+                    normalized_vcs_origin=publisher.vcs_origin,
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_preexisting(
@@ -1138,6 +1191,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
@@ -1241,6 +1295,27 @@ class TestManageOIDCPublisherViews:
                 ),
                 "ActiveState",
             ),
+            (
+                "add_circleci_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    circleci_org_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000001"
+                    ),
+                    circleci_project_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000002"
+                    ),
+                    pipeline_definition_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000003"
+                    ),
+                    normalized_context_id="",
+                    normalized_vcs_ref="",
+                    normalized_vcs_origin="",
+                    circleci_org_name=None,
+                    circleci_project_name=None,
+                ),
+                "CircleCI",
+            ),
         ],
     )
     def test_add_oidc_publisher_created(
@@ -1284,6 +1359,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
         monkeypatch.setattr(
             oidc_views,
             "send_trusted_publisher_added_email",
@@ -1426,6 +1502,27 @@ class TestManageOIDCPublisherViews:
                     }
                 ),
             ),
+            (
+                "add_circleci_oidc_publisher",
+                "CircleCI",
+                CircleCIPublisher(
+                    circleci_org_id="00000000-0000-1000-8000-000000000001",
+                    circleci_project_id="00000000-0000-1000-8000-000000000002",
+                    pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                    context_id="",
+                    vcs_ref="",
+                    vcs_origin="",
+                ),
+                MultiDict(
+                    {
+                        "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                        "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                        "pipeline_definition_id": (
+                            "00000000-0000-1000-8000-000000000003"
+                        ),
+                    }
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_already_registered_with_project(
@@ -1476,6 +1573,12 @@ class TestManageOIDCPublisherViews:
         )
 
         monkeypatch.setattr(
+            oidc_views.CircleCIPublisherForm,
+            "_lookup_project_metadata",
+            lambda *a: None,
+        )
+
+        monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
         monkeypatch.setattr(
@@ -1488,12 +1591,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
@@ -1573,12 +1678,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
@@ -1602,6 +1709,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_ratelimited(
@@ -1652,6 +1760,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_admin_disabled(
@@ -1695,6 +1804,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_invalid_form(
@@ -1721,6 +1831,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {
@@ -1728,6 +1839,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": publisher_form_obj,
             "google_publisher_form": publisher_form_obj,
             "activestate_publisher_form": publisher_form_obj,
+            "circleci_publisher_form": publisher_form_obj,
         }
         monkeypatch.setattr(
             oidc_views.ManageOIDCPublisherViews, "default_response", default_response
@@ -1776,6 +1888,14 @@ class TestManageOIDCPublisherViews:
                 activestate_project_name="some-project",
                 actor="some-user",
                 actor_id="some-user-id",
+            ),
+            CircleCIPublisher(
+                circleci_org_id="00000000-0000-1000-8000-000000000001",
+                circleci_project_id="00000000-0000-1000-8000-000000000002",
+                pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                context_id="",
+                vcs_ref="",
+                vcs_origin="",
             ),
         ],
     )
@@ -1891,6 +2011,14 @@ class TestManageOIDCPublisherViews:
                 activestate_project_name="some-project",
                 actor="some-user",
                 actor_id="some-user-id",
+            ),
+            CircleCIPublisher(
+                circleci_org_id="00000000-0000-1000-8000-000000000001",
+                circleci_project_id="00000000-0000-1000-8000-000000000002",
+                pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                context_id="",
+                vcs_ref="",
+                vcs_origin="",
             ),
         ],
     )

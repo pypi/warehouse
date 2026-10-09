@@ -58,6 +58,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingCircleCIPublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -4009,6 +4010,15 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_circleci_publisher_form_obj = pretend.stub()
+        pending_circleci_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_circleci_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingCircleCIPublisherForm",
+            pending_circleci_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(request)
 
@@ -4018,12 +4028,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_circleci_publisher_form": pending_circleci_publisher_form_obj,
         }
 
         assert request.flags.disallow_oidc.calls == [
@@ -4032,6 +4044,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
@@ -4101,6 +4114,15 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_circleci_publisher_form_obj = pretend.stub()
+        pending_circleci_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_circleci_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingCircleCIPublisherForm",
+            pending_circleci_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4110,12 +4132,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "CircleCI": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_circleci_publisher_form": pending_circleci_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4124,6 +4148,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4174,6 +4199,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
             ),
         ],
     )
@@ -4234,6 +4264,15 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
         )
+        pending_circleci_publisher_form_obj = pretend.stub()
+        pending_circleci_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_circleci_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingCircleCIPublisherForm",
+            pending_circleci_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4243,12 +4282,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "CircleCI": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_circleci_publisher_form": pending_circleci_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4256,6 +4297,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -4308,6 +4350,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
             ),
         ],
     )
@@ -4375,6 +4422,15 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_circleci_publisher_form_obj = pretend.stub()
+        pending_circleci_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_circleci_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingCircleCIPublisherForm",
+            pending_circleci_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4384,12 +4440,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_circleci_publisher_form": pending_circleci_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4397,6 +4455,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
         ]
         assert view.metrics.increment.calls == [
@@ -4539,6 +4598,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
         ]
         assert view.metrics.increment.calls == [
@@ -4573,6 +4633,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
             ),
         ],
     )
@@ -4651,6 +4715,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
             ),
         ],
     )
@@ -5237,6 +5305,51 @@ class TestManageAccountPublishingViews:
             )
         ]
 
+    def test_add_pending_circleci_oidc_publisher_persists_names(
+        self, monkeypatch, db_request
+    ):
+        db_request.user = UserFactory()
+        db_request.user.record_event = pretend.call_recorder(lambda **kw: None)
+        EmailFactory(user=db_request.user, verified=True, primary=True)
+        db_request.registry = pretend.stub(settings={"github.token": "fake-api-token"})
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "project_name": "some-project-name",
+            }
+        )
+
+        def _lookup_project_metadata(form, project_id):
+            form.circleci_org_name = "some-org"
+            form.circleci_project_name = "some-project"
+
+        monkeypatch.setattr(
+            views.PendingCircleCIPublisherForm,
+            "_lookup_project_metadata",
+            _lookup_project_metadata,
+        )
+
+        view = views.ManageAccountPublishingViews(db_request)
+        monkeypatch.setattr(view, "_check_ratelimits", lambda: None)
+        monkeypatch.setattr(view, "_hit_ratelimits", lambda: None)
+
+        assert isinstance(view.add_pending_circleci_oidc_publisher(), HTTPSeeOther)
+
+        pending_publisher = db_request.db.query(PendingCircleCIPublisher).one()
+        assert pending_publisher.circleci_org_name == "some-org"
+        assert pending_publisher.circleci_project_name == "some-project"
+        assert str(pending_publisher) == (
+            "CircleCI project some-project in organization some-org"
+        )
+
     def test_delete_pending_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
@@ -5292,6 +5405,15 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_circleci_publisher_form_obj = pretend.stub()
+        pending_circleci_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_circleci_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingCircleCIPublisherForm",
+            pending_circleci_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -5301,12 +5423,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "CircleCI": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_circleci_publisher_form": pending_circleci_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -5315,6 +5439,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(

@@ -12,11 +12,20 @@ from zope.interface.verify import verifyClass
 
 import warehouse.utils.exceptions
 
-from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from tests.common.db.oidc import (
+    CircleCIPublisherFactory,
+    GitHubPublisherFactory,
+    PendingCircleCIPublisherFactory,
+    PendingGitHubPublisherFactory,
+)
 from tests.common.db.packaging import ProjectFactory
 from warehouse.oidc import errors, interfaces, services
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models import GitHubPublisher, GitLabPublisher
+from warehouse.oidc.models import (
+    CIRCLECI_OIDC_ISSUER_URL,
+    GitHubPublisher,
+    GitLabPublisher,
+)
 
 
 def test_oidc_publisher_service_factory(metrics, db_request, mocker):
@@ -1200,6 +1209,58 @@ class TestNullOIDCPublisherService:
 
         expected_publisher = github_oidc_service.find_publisher(claims, pending=False)
         assert expected_publisher == publisher
+
+    @pytest.mark.parametrize("pending", [True, False])
+    @pytest.mark.parametrize(("ssh_rerun", "valid"), [(False, True), (True, False)])
+    def test_find_publisher_full_circleci_ssh_rerun(
+        self, db_session, metrics, pending, ssh_rerun, valid
+    ):
+        org_id = "00000000-0000-1000-8000-000000000001"
+        project_id = "00000000-0000-1000-8000-000000000002"
+        pipeline_def_id = "00000000-0000-1000-8000-000000000003"
+        factory = (
+            PendingCircleCIPublisherFactory if pending else CircleCIPublisherFactory
+        )
+        publisher = factory.create(
+            circleci_org_id=org_id,
+            circleci_project_id=project_id,
+            pipeline_definition_id=pipeline_def_id,
+        )
+        service = services.NullOIDCPublisherService(
+            db_session,
+            "circleci",
+            CIRCLECI_OIDC_ISSUER_URL,
+            "pypi",
+            "redis://localhost:0/",
+            metrics,
+        )
+        claims = {
+            "iss": CIRCLECI_OIDC_ISSUER_URL,
+            "aud": "pypi",
+            "iat": 1650663865,
+            "nbf": 1650663265,
+            "exp": 1650664165,
+            "sub": f"org/{org_id}/project/{project_id}/user/fake",
+            "oidc.circleci.com/org-id": org_id,
+            "oidc.circleci.com/project-id": project_id,
+            "oidc.circleci.com/pipeline-definition-id": pipeline_def_id,
+            "oidc.circleci.com/ssh-rerun": ssh_rerun,
+            "oidc.circleci.com/context-ids": [],
+            "oidc.circleci.com/vcs-ref": "refs/heads/main",
+            "oidc.circleci.com/vcs-origin": "github.com/some-org/some-repo",
+            "oidc.circleci.com/job-id": "fake",
+            "oidc.circleci.com/pipeline-id": "fake",
+            "oidc.circleci.com/workflow-id": "fake",
+        }
+
+        if valid:
+            assert service.find_publisher(claims, pending=pending) == publisher
+        else:
+            with pytest.raises(errors.InvalidPublisherError) as e:
+                service.find_publisher(claims, pending=pending)
+            assert str(e.value) == (
+                "Check failed for required claim 'oidc.circleci.com/ssh-rerun'"
+            )
 
     def test_reify_publisher(self, mocker):
         service = services.NullOIDCPublisherService(

@@ -21,6 +21,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
     DISALLOW_ACTIVESTATE_OIDC = "disallow-activestate-oidc"
     DISALLOW_BUILDKITE_OIDC = "disallow-buildkite-oidc"
+    DISALLOW_CIRCLECI_OIDC = "disallow-circleci-oidc"
     READ_ONLY = "read-only"
     AUTO_PROHIBIT_DISPOSABLE_DOMAINS = "auto-prohibit-disposable-domains"
 

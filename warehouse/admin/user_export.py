@@ -46,6 +46,7 @@ from warehouse.observations.models import (
 from warehouse.observations.utils import classify_observation
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingCircleCIPublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -1057,6 +1058,14 @@ _PUBLISHER_SPECIFIER_FIELDS: dict[type[PendingOIDCPublisher], tuple[str, ...]] =
         "issuer_url",
     ),
     PendingGooglePublisher: ("email", "sub"),
+    PendingCircleCIPublisher: (
+        "circleci_org_id",
+        "circleci_project_id",
+        "pipeline_definition_id",
+        "context_id",
+        "vcs_ref",
+        "vcs_origin",
+    ),
     PendingActiveStatePublisher: (
         "organization",
         "activestate_project_name",
