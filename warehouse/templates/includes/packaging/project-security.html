@@ -209,9 +209,11 @@
                   {% if attestation_count %}
                     <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
                        aria-hidden="true"></i>
+                    <span class="sr-only">{% trans %}With provenance{% endtrans %}</span>
                   {% else %}
                     <i class="fa-solid fa-circle-xmark attestations-viewer__file-icon muted"
                        aria-hidden="true"></i>
+                    <span class="sr-only">{% trans %}Without provenance{% endtrans %}</span>
                   {% endif %}
                   <span class="attestations-viewer__file-info">
                     <span class="attestations-viewer__file-name">{{ vfile.filename }}</span>
