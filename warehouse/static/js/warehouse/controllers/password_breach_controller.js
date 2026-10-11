@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 import { Controller } from "@hotwired/stimulus";
-import { debounce } from "debounce";
+import debounce from "debounce";
 import { gettext } from "../utils/messages-access";
 
 export default class extends Controller {

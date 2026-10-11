@@ -2,7 +2,6 @@
 
 import enum
 import functools
-import logging
 
 from uuid import UUID
 
@@ -10,6 +9,7 @@ import alembic.config
 import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
+import structlog
 import venusian
 import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
@@ -24,7 +24,7 @@ from warehouse.utils.attrs import make_repr
 __all__ = ["Model", "ModelBase", "includeme", "metadata"]
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 DEFAULT_ISOLATION = "READ COMMITTED"
@@ -162,7 +162,7 @@ def _create_session(request):
     # Check if we're in read-only mode. This _cannot_ use the request.flags
     # request method, as that would lead to a circular call as AdminFlag objects
     # must be queried from the DB
-    from warehouse.admin.flags import AdminFlag, AdminFlagValue
+    from warehouse.admin.flags import AdminFlag, AdminFlagValue  # noqa: PLC0415
 
     flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)
     if flag and flag.enabled:
@@ -177,6 +177,10 @@ def unwrap_dbapi_exceptions(context):
     """
     Listens for SQLAlchemy errors and raises the original
     DBAPI (e.g., psycopg) exception instead.
+
+    Downstream code depends on receiving the raw driver exception, e.g.
+    warehouse.admin.views.helpers.execute_bounded catches psycopg's
+    QueryCanceled directly.
     """
     if (
         isinstance(context.sqlalchemy_exception, DBAPIError)

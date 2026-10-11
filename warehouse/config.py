@@ -11,7 +11,6 @@ import shlex
 from datetime import timedelta
 from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
-import orjson
 import platformdirs
 import transaction
 
@@ -34,6 +33,10 @@ class Environment(enum.StrEnum):
     development = "development"
 
 
+def _json_dumps_with_newline(value, **kwargs):
+    return json.dumps(value, **kwargs) + "\n"
+
+
 class Configurator(_Configurator):
     def add_wsgi_middleware(self, middleware, *args, **kwargs):
         middlewares = self.get_settings().setdefault("wsgi.middlewares", [])
@@ -44,8 +47,8 @@ class Configurator(_Configurator):
         app = super().make_wsgi_app(*args, **kwargs)
 
         # Look to see if we have any WSGI middlewares configured.
-        for middleware, args, kw in self.get_settings()["wsgi.middlewares"]:
-            app = middleware(app, *args, **kw)
+        for middleware, a, kw in self.get_settings()["wsgi.middlewares"]:
+            app = middleware(app, *a, **kw)
 
         # Finally, return our now wrapped app
         return app
@@ -100,6 +103,8 @@ class RootFactory:
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -134,6 +139,7 @@ class RootFactory:
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
             ),
         ),
         (
@@ -208,7 +214,7 @@ def require_https_tween_factory(handler, registry):
     def require_https_tween(request):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
-        if request.params.get(":action", None) and request.scheme != "https":
+        if ":action" in request.params and request.scheme != "https":
             resp = HTTPForbidden(body="SSL is required.", content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
@@ -263,7 +269,7 @@ def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None)
         value = os.environ[envvar]
         if coercer is not None:
             value = coercer(value)
-        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
+        parsed_url = urlparse(value)
         parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
         value = urlunparse(parsed_url)
         settings.setdefault(name, value)
@@ -462,6 +468,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(
+        settings,
+        "email_reputation",
+        "backend",
+        "EMAIL_REPUTATION_BACKEND",
+    )
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
@@ -550,6 +562,18 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.email_change_ratelimit_string",
+        "EMAIL_CHANGE_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_reputation_ratelimit_string",
+        "EMAIL_REPUTATION_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
@@ -559,6 +583,18 @@ def configure(settings=None):
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.password_reset_ip_ratelimit_string",
+        "PASSWORD_RESET_IP_RATELIMIT_STRING",
+        default="10 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.register_ratelimit_string",
+        "REGISTER_RATELIMIT_STRING",
+        default="10 per 5 minutes, 30 per hour",
     )
     maybe_set(
         settings,
@@ -586,6 +622,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_organization_ratelimit_string",
+        "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
+        default="10 per day",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
@@ -600,6 +642,11 @@ def configure(settings=None):
         "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
         coercer=int,
         default=3,
+    )
+    maybe_set(
+        settings,
+        "warehouse.organizations.service_agreement_survey_url",
+        "ORGANIZATION_SERVICE_AGREEMENT_SURVEY_URL",
     )
 
     # Add the settings we use when the environment is set to development.
@@ -715,6 +762,7 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
+    filters.setdefault("natsort", "natsort:natsorted")
     filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
@@ -742,6 +790,7 @@ def configure(settings=None):
     jglobals.setdefault(
         "OrganizationType", "warehouse.organizations.models:OrganizationType"
     )
+    jglobals.setdefault("RateLimitPeriod", "warehouse.constants:RateLimitPeriod")
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
@@ -755,13 +804,25 @@ def configure(settings=None):
     config.add_jinja2_search_path("warehouse:templates", name=".txt")
     config.add_jinja2_search_path("warehouse:templates", name=".xml")
 
-    # We want to configure our JSON renderer to sort the keys, and also to use
-    # an ultra compact serialization format.
+    # Configure the default JSON renderer to sort keys and use compact output.
     config.add_renderer(
         "json",
         renderers.JSON(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+    )
+
+    # Match the behavior of the previous serializer (orjson).
+    config.add_renderer(
+        "json-with-newline",
+        renderers.JSON(
+            serializer=_json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ),
     )
 

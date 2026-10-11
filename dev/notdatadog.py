@@ -22,7 +22,7 @@ if __name__ == "__main__":
     try:
         host, port = sys.argv[1].split(":")
         port = int(port)
-    except (ValueError, IndexError):
+    except ValueError, IndexError:
         print("Usage: python3 notdatadog.py <host>:<port>")
         sys.exit(1)
     output = os.environ.get("METRICS_OUTPUT", "").lower() == "true"

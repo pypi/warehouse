@@ -7,7 +7,6 @@ import datetime
 import functools
 import hashlib
 import http
-import logging
 import os
 import secrets
 import typing
@@ -18,6 +17,7 @@ from uuid import UUID
 import passlib.exc
 import pytz
 import requests
+import structlog
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
@@ -29,13 +29,12 @@ from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailReputationResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -44,6 +43,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailReputationChecks,
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
@@ -60,20 +60,23 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
     UserUniqueLogin,
     WebAuthn,
+    email_domain,
 )
+from warehouse.constants import RateLimitPeriod
 from warehouse.email import send_unrecognized_login_email
 from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils import otp, webauthn
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
-PASSWORD_FIELD = "password"
+PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
 RECOVERY_CODE_BYTES = 8
 
@@ -301,7 +304,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
-        self.db.flush()  # flush the db now so user.id is available
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate user.id
 
         return user
 
@@ -340,7 +343,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
-        self.db.flush()  # flush the db now so email.id is available
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate email.id
 
         if ratelimit:
             self.ratelimiters["email.add"].hit(self.remote_addr)
@@ -352,8 +355,9 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         for attr, value in changes.items():
             if attr == PASSWORD_FIELD:
-                value = self.hasher.hash(value)
-            setattr(user, attr, value)
+                setattr(user, attr, self.hasher.hash(value))
+            else:
+                setattr(user, attr, value)
 
         # If we've given the user a new password, then we also want to unset the
         # reason for disable... because a new password means no more disabled
@@ -362,6 +366,31 @@ class DatabaseUserService:
             user.disabled_for = None
 
         return user
+
+    def set_project_create_ratelimit(
+        self,
+        user_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        user = self.get_user(user_id)
+        previous = user.project_create_ratelimit_string
+        user.project_create_ratelimit_count = count
+        user.project_create_ratelimit_period = period if count is not None else None
+
+        user.record_event(
+            tag=EventTag.Account.ProjectCreateRateLimitChange,
+            request=request,
+            additional={
+                "old_project_create_ratelimit_string": previous,
+                "new_project_create_ratelimit_string": (
+                    user.project_create_ratelimit_string
+                ),
+                "actor": request.user.username,
+            },
+        )
+        return user.project_create_ratelimit_string
 
     def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
@@ -617,7 +646,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
-        self.db.flush()  # flush the db now so webauthn.id is available
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate webauthn.id
 
         return webauthn
 
@@ -763,14 +792,13 @@ class DatabaseUserService:
             )
             .one_or_none()
         )
-        should_send_email = False
-
         # Check if we've seen this device and it's been confirmed
         if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
             return True
 
         # Create a new login if we haven't seen this device before
-        if not unique_login:
+        is_new_device = unique_login is None
+        if is_new_device:
             unique_login = UserUniqueLogin(
                 user_id=userid,
                 ip_address=request.ip_address,
@@ -779,9 +807,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
-            request.db.flush()  # To get the ID for the token
-            should_send_email = True
-
+            request.db.flush()  # ast-grep-ignore: db-flush -- generaten token id
             user.record_event(
                 tag=EventTag.Account.LoginNewDevice,
                 request=request,
@@ -789,19 +815,15 @@ class DatabaseUserService:
             )
 
         # Check if the login had expired
-        if unique_login.expires and unique_login.expires < datetime.datetime.now(
-            datetime.UTC
-        ):
-            # The previous token has expired, update the expiry for
-            # the login and re-send the email
+        window_lapsed = (
+            unique_login.expires is not None
+            and unique_login.expires < datetime.datetime.now(datetime.UTC)
+        )
+        if window_lapsed:
+            # The previous confirmation window has lapsed, extend the expiry
             unique_login.expires = datetime.datetime.now(
                 datetime.UTC
             ) + datetime.timedelta(seconds=token_service.max_age)
-            should_send_email = True
-
-        # If we don't need to send an email, short-circuit
-        if not should_send_email:
-            return False
 
         # Get User Agent Information
         user_agent_info_data = {}
@@ -837,13 +859,17 @@ class DatabaseUserService:
             }
         )
 
-        # Send the email
+        # The email is (re-)sent on every unconfirmed login attempt so that a
+        # lost, delayed, or bounced email doesn't strand the user.
         send_unrecognized_login_email(
             request,
             user,
             ip_address=str(request.ip_address.ip_address),
             user_agent=user_agent_info.display(),
             token=token,
+            # A new device or lapsed window means no valid token is
+            # outstanding, so disable the email's repeat_window throttle
+            **({"repeat_window": None} if is_new_device or window_lapsed else {}),
         )
 
         return False
@@ -907,7 +933,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
-            self.db.flush()  # Flush to get the generated ID
+            self.db.flush()  # ast-grep-ignore: db-flush -- generate the id
         except UniqueViolation:
             self.db.rollback()
             raise ValueError(
@@ -992,6 +1018,9 @@ def database_login_factory(context, request):
             ),
             "password.reset": request.find_service(
                 IRateLimiter, name="password.reset", context=None
+            ),
+            "password.reset.ip": request.find_service(
+                IRateLimiter, name="password.reset.ip", context=None
             ),
         },
     )
@@ -1086,7 +1115,7 @@ class HaveIBeenPwnedPasswordBreachedService:
             resp = self._http.get(self._get_url(hashed_password[:5]))
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             self._metrics_increment(
                 "warehouse.compromised_password_check.error", tags=tags
             )
@@ -1178,7 +1207,7 @@ class HaveIBeenPwnedEmailBreachedService:
                 and exc.response.status_code == http.HTTPStatus.NOT_FOUND
             ):
                 return 0
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             return -1
 
         return len(resp.json())
@@ -1229,13 +1258,228 @@ class DomainrDomainStatusService:
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting Domainr: %r", exc)
+            logger.warning("Error contacting Domainr", error=repr(exc))
             return None
 
         if errors := resp.json().get("errors"):
-            logger.warning(
-                {"status": "Error from Domainr", "errors": errors, "domain": domain}
-            )
+            logger.warning("Error from Domainr", errors=errors, domain=domain)
             return None
 
         return resp.json()["status"][0]["status"].split()
+
+
+@implementer(IDomainStatusService)
+class FastlyDomainStatusService:
+    def __init__(self, *, session, api_key):
+        self._http = session
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, _context, request: Request) -> FastlyDomainStatusService:
+        fastly_api_key = request.registry.settings["domain_status.api_key"]
+        return cls(session=request.http, api_key=fastly_api_key)
+
+    def get_domain_status(self, domain: str) -> list[str] | None:
+        """
+        Check if a domain is available or not.
+        See https://www.fastly.com/documentation/reference/api/domain-management/domain-research/
+        """
+        try:
+            resp = self._http.get(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": domain},
+                headers={"Fastly-Key": self.api_key},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logger.warning("Error contacting Fastly", error=repr(exc))
+            return None
+
+        body = resp.json()
+        if errors := body.get("errors"):
+            logger.warning("Error from Fastly", errors=errors, domain=domain)
+            return None
+
+        return body["status"].split()
+
+
+@implementer(IEmailReputationService)
+class NullEmailReputationService:
+    @classmethod
+    def create_service(cls, _context, _request) -> NullEmailReputationService:
+        return cls()
+
+    def check_email(self, email: str) -> EmailReputationResult:
+        return EmailReputationResult()
+
+
+@implementer(IEmailReputationService)
+class UserCheckEmailReputationService:
+    """
+    Check an email address's reputation with UserCheck.
+
+    See https://www.usercheck.com/docs/api/email-endpoint
+
+    We use the `/email/` endpoint because an address can be disposable on a
+    domain that is not (a throwaway alias on a public provider), and only an
+    address-level check sees those. The address is sent to UserCheck but
+    never logged here: log lines carry the domain only.
+
+    `disposable_provider`, which is what separates a disposable domain from
+    a throwaway address on a legitimate one, is a Pro plan field: on a
+    lesser plan it never arrives and no verdict is ever domain-level.
+    """
+
+    API_BASE = "https://api.usercheck.com/email"
+
+    def __init__(
+        self,
+        *,
+        session: requests.Session,
+        api_key: str | None,
+        metrics,
+        ratelimiter: IRateLimiter,
+        ratelimit_key: str | None,
+    ) -> None:
+        self._http = session
+        self._metrics = metrics
+        self._ratelimiter = ratelimiter
+        self._ratelimit_key = ratelimit_key
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(
+        cls, _context, request: Request
+    ) -> UserCheckEmailReputationService:
+        return cls(
+            session=request.http,
+            api_key=request.registry.settings.get("email_reputation.api_key"),
+            metrics=request.metrics,
+            ratelimiter=request.find_service(
+                IRateLimiter, name="email.reputation", context=None
+            ),
+            # Charge the caller we can actually name. Registration arrives
+            # unauthenticated, so it falls back to the client address, which
+            # everyone behind one NAT egress shares: keying the authenticated
+            # flows on the address too would let one signed-in account
+            # hammering add_email lock its whole office out of registering.
+            ratelimit_key=(
+                str(request.user.id) if request.user else request.remote_addr
+            ),
+        )
+
+    @staticmethod
+    def _reported(value) -> bool | None:
+        """Accept only actual booleans; anything else is an unknown signal."""
+        return value if isinstance(value, bool) else None
+
+    def check_email(self, email: str) -> EmailReputationResult | None:
+        domain = email_domain(email)
+
+        if not self.api_key:
+            logger.warning("No UserCheck API key configured")
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:not_configured"],
+            )
+            return None
+
+        # Every check costs a metered remote request, and the registration
+        # form reaches here unauthenticated, so bound how fast any one caller
+        # can make us spend money. The budget is spent atomically, up front,
+        # via hit(): a test-then-spend pair would let a concurrent burst of
+        # requests all pass the test before any of them recorded a spend.
+        # Spending before the remote call also means a repeatedly failing
+        # upstream still consumes budget, bounding how hard we hammer a
+        # failing service. Denial raises instead of failing open: the
+        # limiter is keyed on the caller itself, and a caller who can
+        # exhaust it at will could otherwise skip the check that gates their
+        # own submissions.
+        if self._ratelimit_key and not self._ratelimiter.hit(self._ratelimit_key):
+            logger.warning("Email reputation check rate limited", domain=domain)
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:ratelimited"],
+            )
+            raise TooManyEmailReputationChecks(
+                resets_in=self._ratelimiter.resets_in(self._ratelimit_key)
+            )
+
+        try:
+            resp = self._http.get(
+                # safe="" also encodes "/", which is valid in a local part
+                # and would otherwise split the URL path.
+                f"{self.API_BASE}/{urllib.parse.quote(email, safe='')}",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                timeout=(0.25, 1),
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # Fail open: an unavailable, unauthorized or rate-limited service
+            # must never stop somebody from using their email address. The
+            # exception repr embeds the request URL, and with it the address,
+            # so log only the exception type.
+            status_code = (
+                exc.response.status_code if exc.response is not None else "none"
+            )
+            logger.warning(
+                "Error contacting UserCheck",
+                error=type(exc).__name__,
+                status_code=status_code,
+                domain=domain,
+            )
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=[
+                    "service:usercheck",
+                    "result:error",
+                    f"status_code:{status_code}",
+                    f"error_type:{type(exc).__name__}",
+                ],
+            )
+            return None
+
+        try:
+            body = resp.json()
+        except ValueError:
+            body = None
+
+        if not isinstance(body, dict):
+            logger.warning("Unexpected response from UserCheck", domain=domain)
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+            return None
+
+        disposable_provider = body.get("disposable_provider")
+        result = EmailReputationResult(
+            mx=self._reported(body.get("mx")),
+            disposable=self._reported(body.get("disposable")),
+            public_domain=self._reported(body.get("public_domain")),
+            relay_domain=self._reported(body.get("relay_domain")),
+            spam=self._reported(body.get("spam")),
+            blocklisted=self._reported(body.get("blocklisted")),
+            disposable_provider=(
+                str(disposable_provider) if disposable_provider else None
+            ),
+        )
+
+        signals = result.signals
+        self._metrics.increment(
+            "warehouse.email_reputation.request",
+            tags=["service:usercheck", "result:success"],
+        )
+        for signal in signals:
+            self._metrics.increment(
+                "warehouse.email_reputation.signal",
+                tags=["service:usercheck", f"signal:{signal}"],
+            )
+        logger.info(
+            "Checked email reputation with UserCheck",
+            domain=domain,
+            signals=signals,
+        )
+
+        return result

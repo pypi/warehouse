@@ -52,20 +52,20 @@ def generate_random_vulnerabilities(
     sources = ["osv", "pysec", "ghsa"]
     created = 0
     for i in range(count):
-        project = random.choice(selected_projects)
+        project = random.choice(selected_projects)  # noqa: S311
         project_releases = list(project.releases)
         if not project_releases:
             continue
 
         # ~25% use the ECHO- prefix so admins can exercise bulk delete.
-        if random.random() < 0.25:
+        if random.random() < 0.25:  # noqa: S311
             vuln_id = f"ECHO-2024-{i:04d}"
             source = "osv"
         else:
-            source = random.choice(sources)
+            source = random.choice(sources)  # noqa: S311
             vuln_id = f"{source.upper()}-2024-{i:04d}"
 
-        sample_size = min(len(project_releases), random.randint(1, 5))
+        sample_size = min(len(project_releases), random.randint(1, 5))  # noqa: S311
         tied_releases = random.sample(project_releases, sample_size)
 
         session.add(
@@ -73,10 +73,10 @@ def generate_random_vulnerabilities(
                 id=vuln_id,
                 source=source,
                 link=f"https://example.invalid/{source}/{vuln_id}",
-                aliases=[f"CVE-2024-{random.randint(1000, 9999)}"],
+                aliases=[f"CVE-2024-{random.randint(1000, 9999)}"],  # noqa: S311
                 summary=fake.sentence(nb_words=8),
                 details=fake.paragraph(nb_sentences=3),
-                fixed_in=[f"{random.randint(1, 9)}.{random.randint(0, 9)}.0"],
+                fixed_in=[f"{random.randint(1, 9)}.{random.randint(0, 9)}.0"],  # noqa: S311
                 releases=tied_releases,
             )
         )

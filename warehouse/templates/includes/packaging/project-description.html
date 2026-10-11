@@ -1,0 +1,22 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{# Tab: Project description #}
+<div id="description"
+     data-project-tabs-target="content"
+     role="tabpanel"
+     aria-labelledby="description-tab"
+     tabindex="-1">
+  <div class="project-description">
+    <div class="project-description__main">
+      {% if description %}
+        <div class="project-description__content">{{ description|camoify|safe }}</div>
+      {% else %}
+        <div class="callout-block callout-block--neutral">
+          <p>{% trans %}The author of this package has not provided a project description{% endtrans %}</p>
+        </div>
+      {% endif %}
+    </div>
+    <div class="project-description__sidebar">
+      {% include "warehouse:templates/includes/packaging/project-metadata.html" %}
+    </div>
+  </div>
+</div>

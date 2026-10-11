@@ -38,9 +38,9 @@ class IGenericFileStorage(Interface):
         or provide such metadata.
         """
 
-    def get_checksum(path: str):
+    def get_size(path: str) -> int:
         """
-        Return the md5 digest of the file at a given path as a lowercase string.
+        Return the size in bytes of the file at a given path.
         """
 
     def store(path: str, file_path, *, meta=None):
@@ -89,8 +89,13 @@ class IProjectService(Interface):
         """
         Creates a new project, recording a user as its creator.
 
-        If `creator_is_owner`, a `Role` is also added to the project
-        marking `creator` as a project owner.
+        If `organization_id` is given, an `OrganizationProject` association
+        is created instead, and `creator_is_owner` is ignored — the project
+        is controlled by the organization, not the creator.
+
+        If `ratelimited` and `organization_id` is given, the organization's
+        rate limit applies (shared across all its members) in place of the
+        creator's individual per-user rate limit.
         """
 
 
@@ -122,11 +127,3 @@ class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):
 
     def __init__(self, similar_project_name: str):
         self.similar_project_name: str = similar_project_name
-
-
-class ProjectNameUnavailableTypoSquattingError(ProjectNameUnavailableError):
-    """Project name is a typo of an existing project."""
-
-    def __init__(self, check_name: str, existing_project_name: str):
-        self.check_name: str = check_name
-        self.existing_project_name: str = existing_project_name

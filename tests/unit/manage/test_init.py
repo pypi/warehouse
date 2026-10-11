@@ -56,7 +56,7 @@ class TestReAuthView:
             session=pretend.stub(
                 needs_reauthentication=pretend.call_recorder(lambda *args: True)
             ),
-            user=pretend.stub(username=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             matched_route=pretend.stub(name=pretend.stub()),
             matchdict={"foo": "bar"},
             GET=pretend.stub(mixed=lambda: {"baz": "bar"}),
@@ -95,7 +95,7 @@ def test_includeme():
         add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
         register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(
-            settings=pretend.stub(get=pretend.call_recorder(lambda k: settings.get(k)))
+            settings=pretend.stub(get=pretend.call_recorder(settings.get))
         ),
     )
 

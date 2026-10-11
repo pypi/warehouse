@@ -1,17 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 import sentry_sdk
 
 from warehouse import sentry
 
 
-def test_sentry_request_method():
-    sentry_sdk = pretend.stub()
-    request = pretend.stub(registry={"sentry": sentry_sdk}, sentry=sentry)
+def test_sentry_request_method(pyramid_request, mocker):
+    sentry_obj = mocker.sentinel.sentry_sdk
+    pyramid_request.registry["sentry"] = sentry_obj
 
-    assert sentry._sentry(request) is sentry_sdk
+    assert sentry._sentry(pyramid_request) is sentry_obj
 
 
 class TestSentryBeforeSend:
@@ -49,27 +48,17 @@ class TestSentryBeforeSend:
         assert sentry.before_send(event, hint) is event
 
 
-def test_includeme(monkeypatch):
-    class Registry(dict):
-        def __init__(self):
-            self.settings = {}
-
-    init_obj = pretend.call_recorder(lambda *a, **kw: "1")
-    pyramid_obj = pretend.call_recorder(lambda *a, **kw: "2")
-    celery_obj = pretend.call_recorder(lambda *a, **kw: "3")
-    sql_obj = pretend.call_recorder(lambda *a, **kw: "4")
-    log_obj = pretend.call_recorder(lambda *a, **kw: "5")
-    monkeypatch.setattr(sentry_sdk, "init", init_obj)
-    monkeypatch.setattr("warehouse.sentry.PyramidIntegration", pyramid_obj)
-    monkeypatch.setattr("warehouse.sentry.CeleryIntegration", celery_obj)
-    monkeypatch.setattr("warehouse.sentry.SqlalchemyIntegration", sql_obj)
-    monkeypatch.setattr("warehouse.sentry.LoggingIntegration", log_obj)
-
-    config = pretend.stub(
-        registry=Registry(),
-        add_request_method=pretend.call_recorder(lambda *a, **kw: None),
+def test_includeme(pyramid_config, mocker):
+    init_obj = mocker.patch.object(sentry_sdk, "init", return_value="1")
+    pyramid_obj = mocker.patch("warehouse.sentry.PyramidIntegration", return_value="2")
+    celery_obj = mocker.patch("warehouse.sentry.CeleryIntegration", return_value="3")
+    sql_obj = mocker.patch("warehouse.sentry.SqlalchemyIntegration", return_value="4")
+    log_obj = mocker.patch("warehouse.sentry.LoggingIntegration", return_value="5")
+    add_request_method = mocker.patch.object(
+        pyramid_config, "add_request_method", autospec=True
     )
-    config.registry.settings.update(
+
+    pyramid_config.registry.settings.update(
         {
             "warehouse.commit": "rand3rfgkn3424",
             "sentry.dsn": "test_dsn",
@@ -77,23 +66,21 @@ def test_includeme(monkeypatch):
         }
     )
 
-    sentry.includeme(config)
+    sentry.includeme(pyramid_config)
 
-    assert init_obj.calls == [
-        pretend.call(
-            dsn="test_dsn",
-            release="rand3rfgkn3424",
-            transport="proxy_transport",
-            before_send=sentry.before_send,
-            attach_stacktrace=True,
-            integrations=["2", "3", "4", "5"],
-        )
-    ]
-    assert pyramid_obj.calls == [pretend.call()]
-    assert celery_obj.calls == [pretend.call()]
-    assert sql_obj.calls == [pretend.call()]
-    assert log_obj.calls == [pretend.call()]
-    assert config.registry["sentry"] is sentry_sdk
-    assert config.add_request_method.calls == [
-        pretend.call(sentry._sentry, name="sentry", reify=True)
-    ]
+    init_obj.assert_called_once_with(
+        dsn="test_dsn",
+        release="rand3rfgkn3424",
+        transport="proxy_transport",
+        before_send=sentry.before_send,
+        attach_stacktrace=True,
+        integrations=["2", "3", "4", "5"],
+    )
+    pyramid_obj.assert_called_once_with()
+    celery_obj.assert_called_once_with()
+    sql_obj.assert_called_once_with()
+    log_obj.assert_called_once_with()
+    assert pyramid_config.registry["sentry"] is sentry_sdk
+    add_request_method.assert_called_once_with(
+        sentry._sentry, name="sentry", reify=True
+    )

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/design-utilities";
 
@@ -48,13 +48,17 @@
     max-height: 90%;
     border-radius: 3px;
     overflow: auto;
-    background: colours.$white;
+    background: colors.$white;
     position: relative;
     margin: auto;
   }
 
   &__body {
     padding: grid.$spacing-unit;
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
   }
 
   @media screen and (max-width: breakpoints.$tablet) {
@@ -69,7 +73,7 @@
   }
 
   &__footer {
-    border-top: 1px solid colours.$border-color;
+    border-top: 1px solid colors.$border-color;
     padding: grid.$half-spacing-unit;
     display: flex;
     align-items: center;
@@ -82,10 +86,10 @@
 
   &__close {
     @include design-utilities.dismiss-button;
-    color: colours.$text-color;
+    color: colors.$text-color;
 
     &:hover {
-      color: colours.$text-color;
+      color: colors.$text-color;
     }
   }
 

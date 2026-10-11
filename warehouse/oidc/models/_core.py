@@ -25,6 +25,7 @@ from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
 from warehouse.packaging.models import PROJECT_NAME_PATTERN
+from warehouse.utils.db.types import bool_false, datetime_now
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -140,7 +141,7 @@ class OIDCPublisherMixin:
     # A set of claim names which must be present, but can't be verified
     __required_unverifiable_claims__: set[str] = set()
 
-    # Simlar to __verificable_claims__, but these claims are optional
+    # Similar to __required_verifiable_claims__, but these claims are optional
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # Claims that have already been verified during the JWT signature
@@ -157,6 +158,10 @@ class OIDCPublisherMixin:
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
+
+    # Individual publishers can override this set to indicate prefixes of custom
+    # claims that are known to be present and should be ignored without exact matching.
+    __unchecked_prefixed_claims__: set[str] = set()
 
     # Whether this publisher type supports custom (non-canonical) issuer URLs.
     # When True, lookup_by_claims MUST filter by the JWT's "iss" claim to
@@ -211,7 +216,13 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = sorted(signed_claims.keys() - cls.all_known_claims())
+        known_claims = cls.all_known_claims()
+        unaccounted_claims = sorted(
+            claim
+            for claim in signed_claims
+            if claim not in known_claims
+            and not claim.startswith(tuple(cls.__unchecked_prefixed_claims__))
+        )
         if unaccounted_claims:
             with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
@@ -408,6 +419,8 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     pypi_organization: Mapped[Organization | None] = orm.relationship(
         back_populates="pending_oidc_publishers"
     )
+    created: Mapped[datetime_now]
+    expiration_reminded: Mapped[bool_false]
 
     __table_args__ = (
         CheckConstraint(

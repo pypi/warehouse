@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import mock
+import types
 
 import alembic.config
-import pretend
 import psycopg
 import pytest
 import sqlalchemy
@@ -25,13 +24,14 @@ from warehouse.db import (
     unwrap_dbapi_exceptions,
 )
 
+from ..common.db.admin import AdminFlagFactory
 
-def test_model_base_repr(monkeypatch):
-    @pretend.call_recorder
-    def inspect(item):
-        return pretend.stub(mapper=pretend.stub(column_attrs=[pretend.stub(key="foo")]))
 
-    monkeypatch.setattr(db, "inspect", inspect)
+def test_model_base_repr(mocker):
+    inspected = types.SimpleNamespace(
+        mapper=types.SimpleNamespace(column_attrs=[types.SimpleNamespace(key="foo")])
+    )
+    inspect = mocker.patch.object(db, "inspect", return_value=inspected)
 
     model = ModelBase()
     model.foo = "bar"
@@ -39,22 +39,19 @@ def test_model_base_repr(monkeypatch):
     original_repr = model.__repr__
 
     assert repr(model) == "ModelBase(foo={})".format(repr("bar"))
-    assert inspect.calls == [pretend.call(model)]
+    inspect.assert_called_once_with(model)
     assert model.__repr__ is not original_repr
     assert repr(model) == "ModelBase(foo={})".format(repr("bar"))
 
 
-def test_listens_for(monkeypatch):
-    venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
-    monkeypatch.setattr(venusian, "attach", venusian_attach)
+def test_listens_for(mocker):
+    venusian_attach = mocker.patch.object(venusian, "attach", autospec=True)
+    event_listen = mocker.patch.object(event, "listen", autospec=True)
 
-    event_listen = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(event, "listen", event_listen)
-
-    target = pretend.stub()
-    identifier = pretend.stub()
-    args = [pretend.stub()]
-    kwargs = {"my_kwarg": pretend.stub}
+    target = mocker.sentinel.target
+    identifier = mocker.sentinel.identifier
+    args = [mocker.sentinel.arg]
+    kwargs = {"my_kwarg": mocker.sentinel.my_kwarg}
 
     @db.listens_for(target, identifier, *args, **kwargs)
     def handler(config):
@@ -63,63 +60,52 @@ def test_listens_for(monkeypatch):
     # Ensure the function is called
     handler(None)
 
-    assert venusian_attach.calls == [
-        pretend.call(handler, mock.ANY, category="warehouse")
-    ]
+    venusian_attach.assert_called_once_with(handler, mocker.ANY, category="warehouse")
 
-    scanner = pretend.stub(config=pretend.stub())
-    venusian_attach.calls[0].args[1](scanner, None, handler)
+    scanner = types.SimpleNamespace(config=mocker.sentinel.config)
+    venusian_attach.call_args.args[1](scanner, None, handler)
 
-    assert event_listen.calls == [
-        pretend.call(target, identifier, mock.ANY, *args, **kwargs)
-    ]
-
-
-def test_configure_alembic(monkeypatch):
-    config_obj = pretend.stub(
-        set_main_option=pretend.call_recorder(lambda *a: None),
-        set_section_option=pretend.call_recorder(lambda *a: None),
+    event_listen.assert_called_once_with(
+        target, identifier, mocker.ANY, *args, **kwargs
     )
 
-    def config_cls():
-        return config_obj
 
-    monkeypatch.setattr(alembic.config, "Config", config_cls)
+def test_configure_alembic(pyramid_config, mocker):
+    config_cls = mocker.patch.object(alembic.config, "Config", autospec=True)
+    config_obj = config_cls.return_value
 
-    config = pretend.stub(
-        registry=pretend.stub(settings={"database.url": pretend.stub()})
-    )
+    pyramid_config.registry.settings["database.url"] = mocker.sentinel.database_url
 
-    alembic_config = _configure_alembic(config)
+    alembic_config = _configure_alembic(pyramid_config)
 
     assert alembic_config is config_obj
-    assert alembic_config.set_main_option.calls == [
-        pretend.call("script_location", "warehouse:migrations"),
-        pretend.call("url", config.registry.settings["database.url"]),
+    assert config_obj.set_main_option.call_args_list == [
+        mocker.call("script_location", "warehouse:migrations"),
+        mocker.call("url", mocker.sentinel.database_url),
     ]
-    assert alembic_config.set_section_option.calls == [
-        pretend.call("post_write_hooks", "hooks", "ruff_check, ruff_format"),
-        pretend.call("post_write_hooks", "ruff_check.type", "exec"),
-        pretend.call("post_write_hooks", "ruff_check.executable", "ruff"),
-        pretend.call(
+    assert config_obj.set_section_option.call_args_list == [
+        mocker.call("post_write_hooks", "hooks", "ruff_check, ruff_format"),
+        mocker.call("post_write_hooks", "ruff_check.type", "exec"),
+        mocker.call("post_write_hooks", "ruff_check.executable", "ruff"),
+        mocker.call(
             "post_write_hooks",
             "ruff_check.options",
             "check --fix REVISION_SCRIPT_FILENAME",
         ),
-        pretend.call("post_write_hooks", "ruff_format.type", "exec"),
-        pretend.call("post_write_hooks", "ruff_format.executable", "ruff"),
-        pretend.call(
+        mocker.call("post_write_hooks", "ruff_format.type", "exec"),
+        mocker.call("post_write_hooks", "ruff_format.executable", "ruff"),
+        mocker.call(
             "post_write_hooks", "ruff_format.options", "format REVISION_SCRIPT_FILENAME"
         ),
     ]
 
 
-def test_raises_db_available_error(pyramid_services, metrics):
+def test_raises_db_available_error(pyramid_services, metrics, mocker):
     def raiser():
         raise OperationalError("foo", {}, psycopg.OperationalError())
 
-    engine = pretend.stub(connect=raiser)
-    request = pretend.stub(
+    engine = types.SimpleNamespace(connect=raiser)
+    request = types.SimpleNamespace(
         find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
     )
@@ -127,135 +113,99 @@ def test_raises_db_available_error(pyramid_services, metrics):
     with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
 
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.db.session.start"),
-        pretend.call("warehouse.db.session.error", tags=["error_in:connecting"]),
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.db.session.start"),
+        mocker.call("warehouse.db.session.error", tags=["error_in:connecting"]),
     ]
 
 
-def test_create_session(monkeypatch, pyramid_services):
-    session_obj = pretend.stub(
-        close=pretend.call_recorder(lambda: None),
-        get=pretend.call_recorder(lambda *a: None),
+def test_create_session(mocker, pyramid_services):
+    session_obj = types.SimpleNamespace(
+        close=mocker.Mock(), get=mocker.Mock(return_value=None)
     )
-    session_cls = pretend.call_recorder(lambda bind: session_obj)
-    monkeypatch.setattr(db, "Session", session_cls)
+    session_cls = mocker.patch.object(db, "Session", return_value=session_obj)
 
-    connection = pretend.stub(
-        connection=pretend.stub(
-            # set_session=pretend.call_recorder(lambda **kw: None),
-        ),
-        close=pretend.call_recorder(lambda: None),
-    )
-    engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
-    request = pretend.stub(
+    connection = types.SimpleNamespace(close=mocker.Mock())
+    engine = types.SimpleNamespace(connect=mocker.Mock(return_value=connection))
+    request = types.SimpleNamespace(
         find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
-        tm=pretend.stub(),
-        add_finished_callback=pretend.call_recorder(lambda callback: None),
+        tm=mocker.sentinel.tm,
+        add_finished_callback=mocker.Mock(),
     )
 
-    request2 = pretend.stub()
-
-    register = pretend.call_recorder(lambda session, transaction_manager: None)
-    monkeypatch.setattr(zope.sqlalchemy, "register", register)
+    register = mocker.patch.object(zope.sqlalchemy, "register", autospec=True)
 
     assert _create_session(request) is session_obj
-    assert session_cls.calls == [pretend.call(bind=connection)]
-    assert register.calls == [pretend.call(session_obj, transaction_manager=request.tm)]
-    assert request.add_finished_callback.calls == [pretend.call(mock.ANY)]
-    request.add_finished_callback.calls[0].args[0](request2)
-    assert session_obj.close.calls == [pretend.call()]
-    assert connection.close.calls == [pretend.call()]
+    session_cls.assert_called_once_with(bind=connection)
+    register.assert_called_once_with(
+        session_obj, transaction_manager=mocker.sentinel.tm
+    )
+    request.add_finished_callback.assert_called_once_with(mocker.ANY)
+    request.add_finished_callback.call_args.args[0](mocker.sentinel.request2)
+    session_obj.close.assert_called_once_with()
+    connection.close.assert_called_once_with()
 
 
 @pytest.mark.parametrize(
-    ("admin_flag", "is_superuser", "doom_calls"),
+    ("flag_enabled", "doom_count"),
     [
-        (None, True, []),
-        (None, False, []),
-        (pretend.stub(enabled=False), True, []),
-        (pretend.stub(enabled=False), False, []),
-        (
-            pretend.stub(enabled=True, description="flag description"),
-            True,
-            [pretend.call()],
-        ),
-        (
-            pretend.stub(enabled=True, description="flag description"),
-            False,
-            [pretend.call()],
-        ),
+        (None, 0),
+        (False, 0),
+        (True, 1),
     ],
 )
 def test_create_session_read_only_mode(
-    admin_flag, is_superuser, doom_calls, monkeypatch, pyramid_services
+    flag_enabled, doom_count, mocker, pyramid_services
 ):
-    get = pretend.call_recorder(lambda *a: admin_flag)
-    session_obj = pretend.stub(close=lambda: None, get=get)
-    session_cls = pretend.call_recorder(lambda bind: session_obj)
-    monkeypatch.setattr(db, "Session", session_cls)
-
-    register = pretend.call_recorder(lambda session, transaction_manager: None)
-    monkeypatch.setattr(zope.sqlalchemy, "register", register)
-
-    connection = pretend.stub(
-        connection=pretend.stub(
-            set_session=lambda **kw: None,
-            rollback=lambda: None,
-        ),
-        info={},
-        close=lambda: None,
+    admin_flag = (
+        None if flag_enabled is None else AdminFlagFactory.build(enabled=flag_enabled)
     )
-    engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
-    request = pretend.stub(
+    get = mocker.Mock(return_value=admin_flag)
+    session_obj = types.SimpleNamespace(close=mocker.Mock(), get=get)
+    mocker.patch.object(db, "Session", return_value=session_obj)
+    mocker.patch.object(zope.sqlalchemy, "register", autospec=True)
+
+    connection = types.SimpleNamespace(close=mocker.Mock())
+    engine = types.SimpleNamespace(connect=mocker.Mock(return_value=connection))
+    request = types.SimpleNamespace(
         find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
-        tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
+        tm=types.SimpleNamespace(doom=mocker.Mock()),
         add_finished_callback=lambda callback: None,
-        user=pretend.stub(is_superuser=is_superuser),
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call(AdminFlag, AdminFlagValue.READ_ONLY.value)]
-    assert request.tm.doom.calls == doom_calls
+    get.assert_called_once_with(AdminFlag, AdminFlagValue.READ_ONLY.value)
+    assert request.tm.doom.call_count == doom_count
 
 
-def test_includeme(monkeypatch):
-    class FakeRegistry(dict):
-        settings = {"database.url": pretend.stub()}
-
-    engine = pretend.stub()
-    create_engine = pretend.call_recorder(lambda url, **kw: engine)
-    config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda *a: None),
-        registry=FakeRegistry(),
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
-        add_route_predicate=pretend.call_recorder(lambda *a, **kw: None),
+def test_includeme(pyramid_config, mocker):
+    create_engine = mocker.patch.object(
+        sqlalchemy, "create_engine", autospec=True, return_value=mocker.sentinel.engine
     )
-    monkeypatch.setattr(sqlalchemy, "create_engine", create_engine)
+    pyramid_config.registry.settings["database.url"] = mocker.sentinel.database_url
+    mocker.spy(pyramid_config, "add_directive")
 
-    includeme(config)
+    includeme(pyramid_config)
 
-    assert config.add_directive.calls == [
-        pretend.call("alembic_config", _configure_alembic)
-    ]
-    assert create_engine.calls == [
-        pretend.call(
-            config.registry.settings["database.url"],
-            isolation_level=DEFAULT_ISOLATION,
-            pool_size=35,
-            max_overflow=65,
-            pool_timeout=20,
-        )
-    ]
-    assert config.registry["sqlalchemy.engine"] is engine
+    pyramid_config.add_directive.assert_called_once_with(
+        "alembic_config", _configure_alembic
+    )
+    create_engine.assert_called_once_with(
+        mocker.sentinel.database_url,
+        isolation_level=DEFAULT_ISOLATION,
+        pool_size=35,
+        max_overflow=65,
+        pool_timeout=20,
+    )
+    assert pyramid_config.registry["sqlalchemy.engine"] is mocker.sentinel.engine
 
 
 def test_unwrap_dbapi_exceptions():
     original_exception = psycopg.OperationalError()
     sqlalchemy_exception = DBAPIError("foo", {}, original_exception)
-    context = pretend.stub(
+    context = types.SimpleNamespace(
         sqlalchemy_exception=sqlalchemy_exception,
         original_exception=original_exception,
     )
@@ -268,14 +218,14 @@ def test_unwrap_dbapi_exceptions():
 
 def test_unwrap_dbapi_exceptions_no_op():
     # Not a DBAPIError
-    context = pretend.stub(
+    context = types.SimpleNamespace(
         sqlalchemy_exception=OperationalError("foo", {}, None),
         original_exception=None,
     )
     unwrap_dbapi_exceptions(context)
 
     # No original exception
-    context = pretend.stub(
+    context = types.SimpleNamespace(
         sqlalchemy_exception=DBAPIError("foo", {}, None),
         original_exception=None,
     )

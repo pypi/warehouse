@@ -1,10 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, afterEach, describe, it, jest */
 
-import { fireEvent } from "@testing-library/dom";
+import { fireEvent, waitFor } from "@testing-library/dom";
 import { Application } from "@hotwired/stimulus";
-import { delay } from "./utils";
 import PasswordBreachController from "../../warehouse/static/js/warehouse/controllers/password_breach_controller";
 
 let application = null;
@@ -22,6 +21,13 @@ describe("Password breach controller", () => {
     application.register("password-breach", PasswordBreachController);
   });
 
+  afterEach(() => {
+    // Each test starts its own application. Without stopping it the previous
+    // controllers stay bound to the input, and every one of them answers the
+    // next input event with its own request.
+    application.stop();
+  });
+
   describe("initial state", () => {
     describe("the message", () => {
       it("is hidden", () => {
@@ -32,49 +38,28 @@ describe("Password breach controller", () => {
   });
 
   describe("functionality", () => {
-  /*
-    This does not feel good right now, but will allow progress.
-
-    Due to some misbheavior between jest, stimulus, debounce, and jest-fetch-mock
-    the mocked debounce function in `tests/frontend/__mocks__/debounce.js` is
-    not getting debounced during these tests.
-
-    When each test runs, the Controller is set up, and the `debounce` function
-    is called at least 3 times before calling `fetch.resetMocks()`. This can be
-    observed by adding a `console.log()` statement inside `debounce.js` mock.
-    It's also unclear if using our mock debounce actually helps - removing it
-    provides the same behaviors. But that's not the main issue here.
-
-    Reports of `resetMocks()` not emptying out the mocks is the same as I'm
-    seeing here. The only "easy" way I can see solving this for now is to
-    increment the call count, which is brittle at best.
-    I've even tried upgrading, same behavior on 3.0.3 - no change.
-    See: https://github.com/jefflau/jest-fetch-mock/issues/78
-
-    ----
-
-    We're on Stimulus 1.x, and they have already progressed to 3.x - we should
-    explore upgrading to a newer version of Stimulus and continue to debug the
-
-    **test** behaviors - the production behavior works fine right now.
-    Potentially: https://stimulus-use.github.io/stimulus-use/#/use-debounce
-    See also: https://buddyreno.dev/posts/testing-stimulus-connect-in-jest
-
-    Another approach is to stop mocking `fetch` at all, and try one of the
-    approaches as shown in https://kentcdodds.com/blog/stop-mocking-fetch
-    This seems a bit advanced for me right now, but wanted to keep the link.
-
-  */
     beforeEach(() => {
+      jest.useFakeTimers();
       fetch.resetMocks();
     });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // The debounce runs on fake timers, but the SHA-1 digest ahead of fetch
+    // resolves on real time. Switch back before waiting on the request.
+    async function waitForRequest(assertion) {
+      jest.useRealTimers();
+      await waitFor(assertion);
+    }
 
     describe("entering a password with less than 3 characters", () => {
       it("does not call the HIBP API", async () => {
         const passwordField = document.querySelector("#password");
-        fireEvent.input(passwordField, { target: { value: "fo" } });
+        fireEvent.input(passwordField, { target: { value: "of" } });
 
-        await delay(25);  // arbitrary number of ms, too low may cause failures
+        await jest.advanceTimersByTimeAsync(1000);
         expect(fetch.mock.calls.length).toEqual(0);
       });
     });
@@ -86,11 +71,28 @@ describe("Password breach controller", () => {
         const passwordField = document.querySelector("#password");
         fireEvent.input(passwordField, { target: { value: "foo" } });
 
-        await delay(25);
-        // TODO: mocks are not being reset between runs
-        // expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls.length).toEqual(3);
-        expect(document.getElementById("message")).not.toHaveClass("hidden");
+        await jest.advanceTimersByTimeAsync(1000);
+        await waitForRequest(() => {
+          expect(fetch.mock.calls.length).toEqual(1);
+          expect(document.getElementById("message")).not.toHaveClass("hidden");
+        });
+      });
+    });
+
+    describe("typing several characters in quick succession", () => {
+      it("calls the HIBP API once, after the typing stops", async () => {
+        const passwordField = document.querySelector("#password");
+        fireEvent.input(passwordField, { target: { value: "foo" } });
+        await jest.advanceTimersByTimeAsync(500);
+        fireEvent.input(passwordField, { target: { value: "foob" } });
+        await jest.advanceTimersByTimeAsync(500);
+        fireEvent.input(passwordField, { target: { value: "fooba" } });
+
+        await jest.advanceTimersByTimeAsync(999);
+        expect(fetch.mock.calls.length).toEqual(0);
+
+        await jest.advanceTimersByTimeAsync(1);
+        await waitForRequest(() => expect(fetch.mock.calls.length).toEqual(1));
       });
     });
 
@@ -102,10 +104,8 @@ describe("Password breach controller", () => {
         const passwordField = document.querySelector("#password");
         fireEvent.input(passwordField, { target: { value: verySecurePassword } });
 
-        await delay(25);
-        // TODO: mocks are not being reset between runs
-        // expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls.length).toEqual(4);
+        await jest.advanceTimersByTimeAsync(1000);
+        await waitForRequest(() => expect(fetch.mock.calls.length).toEqual(1));
         expect(document.getElementById("message")).toHaveClass("hidden");
       });
     });

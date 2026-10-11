@@ -1,11 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import random
+import sys
 import uuid
 
-import pretend
+import boto3
 import pytest
 
+from botocore.stub import Stubber
 from jinja2.exceptions import TemplateNotFound
+from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
 from zope.interface.verify import verifyClass
 
@@ -108,17 +112,14 @@ class TestSMTPEmailSender:
     def test_verify_service(self, sender_class):
         assert verifyClass(IEmailSender, sender_class)
 
-    def test_creates_service(self, sender_class):
-        mailer = pretend.stub()
-        context = pretend.stub()
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"site.name": "DevPyPI", "mail.sender": "noreply@example.com"},
-                getUtility=lambda mailr: mailer,
-            )
+    def test_creates_service(self, sender_class, pyramid_request):
+        mailer = DummyMailer()
+        pyramid_request.registry.registerUtility(mailer, IMailer)
+        pyramid_request.registry.settings.update(
+            {"site.name": "DevPyPI", "mail.sender": "noreply@example.com"}
         )
 
-        service = sender_class.create_service(context, request)
+        service = sender_class.create_service(None, pyramid_request)
 
         assert isinstance(service, sender_class)
         assert service.mailer is mailer
@@ -129,7 +130,7 @@ class TestSMTPEmailSender:
         service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject", body_text="a body", body_html="a html body"
             ),
@@ -142,14 +143,14 @@ class TestSMTPEmailSender:
         assert msg.subject == "a subject"
         assert msg.body == "a body"
         assert msg.html == "a html body"
-        assert msg.recipients == ["sombody@example.com"]
+        assert msg.recipients == ["somebody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
 
     def test_last_sent(self, sender_class):
         mailer = DummyMailer()
         service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
-        assert service.last_sent(to=pretend.stub(), subject=pretend.stub) is None
+        assert service.last_sent(to="me@example.com", subject="a subject") is None
 
 
 class TestConsoleAndSMTPEmailSender:
@@ -160,7 +161,7 @@ class TestConsoleAndSMTPEmailSender:
         )
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject",
                 body_text="a body",
@@ -172,64 +173,55 @@ class TestConsoleAndSMTPEmailSender:
 Email sent
 Subject: a subject
 From: DevPyPI <noreply@example.com>
-To: sombody@example.com
+To: somebody@example.com
 HTML: Visualize at http://localhost:1080
 Text: a body"""
         assert captured.out.strip() == expected.strip()
 
 
 class TestSESEmailSender:
+    @pytest.fixture
+    def ses_stubber(self):
+        client = boto3.session.Session().client(
+            "ses",
+            region_name="us-west-2",
+            aws_access_key_id="foo",
+            aws_secret_access_key="bar",
+        )
+        with Stubber(client) as stubber:
+            yield stubber
+        stubber.assert_no_pending_responses()
+
     def test_verify_service(self):
         assert verifyClass(IEmailSender, SESEmailSender)
 
-    def test_creates_service(self):
-        aws_client = pretend.stub()
-        aws_session = pretend.stub(
-            client=pretend.call_recorder(lambda name, region_name: aws_client)
-        )
-        request = pretend.stub(
-            find_service=lambda name: {"aws.session": aws_session}[name],
-            registry=pretend.stub(
-                settings={
-                    "site.name": "DevPyPI",
-                    "mail.region": "us-west-2",
-                    "mail.sender": "noreply@example.com",
-                }
-            ),
-            db=pretend.stub(),
+    def test_creates_service(self, db_request, pyramid_services, mocker):
+        aws_session = mocker.create_autospec(boto3.session.Session, instance=True)
+        pyramid_services.register_service(aws_session, name="aws.session")
+        db_request.registry.settings.update(
+            {
+                "site.name": "DevPyPI",
+                "mail.region": "us-west-2",
+                "mail.sender": "noreply@example.com",
+            }
         )
 
-        sender = SESEmailSender.create_service(pretend.stub(), request)
+        sender = SESEmailSender.create_service(None, db_request)
 
-        assert aws_session.client.calls == [
-            pretend.call("ses", region_name="us-west-2")
-        ]
-
-        assert sender._client is aws_client
+        aws_session.client.assert_called_once_with("ses", region_name="us-west-2")
+        assert sender._client is aws_session.client.return_value
         assert sender._sender == "DevPyPI <noreply@example.com>"
-        assert sender._db is request.db
+        assert sender._db is db_request.db
 
-    def test_send_with_plaintext(self, db_session):
+    def test_send_with_plaintext(self, db_session, ses_stubber):
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
-        aws_client = pretend.stub(
-            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
-        )
-        sender = SESEmailSender(
-            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
-        )
-
-        sender.send(
-            "Foobar <somebody@example.com>",
-            EmailMessage(
-                subject="This is a Subject", body_text="This is a plain text body"
-            ),
-        )
-
-        assert aws_client.send_raw_email.calls == [
-            pretend.call(
-                Source="DevPyPI <noreply@example.com>",
-                Destinations=["Foobar <somebody@example.com>"],
-                RawMessage={
+        ses_stubber.add_response(
+            "send_raw_email",
+            resp,
+            {
+                "Source": "DevPyPI <noreply@example.com>",
+                "Destinations": ["Foobar <somebody@example.com>"],
+                "RawMessage": {
                     "Data": (
                         b"Subject: This is a Subject\n"
                         b"From: DevPyPI <noreply@example.com>\n"
@@ -241,8 +233,18 @@ class TestSESEmailSender:
                         b"This is a plain text body\n"
                     )
                 },
-            )
-        ]
+            },
+        )
+        sender = SESEmailSender(
+            ses_stubber.client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+
+        sender.send(
+            "Foobar <somebody@example.com>",
+            EmailMessage(
+                subject="This is a Subject", body_text="This is a plain text body"
+            ),
+        )
 
         em = (
             db_session.query(SESEmailMessage)
@@ -254,37 +256,20 @@ class TestSESEmailSender:
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
 
-    def test_send_with_unicode_and_html(self, db_session):
+    def test_send_with_unicode_and_html(self, db_session, ses_stubber):
         # Determine what the random boundary token will be
-        import random
-        import sys
-
         random.seed(42)
         token = random.randrange(sys.maxsize)
         random.seed(42)
 
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
-        aws_client = pretend.stub(
-            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
-        )
-        sender = SESEmailSender(
-            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
-        )
-
-        sender.send(
-            "Fööbar <somebody@example.com>",
-            EmailMessage(
-                subject="This is a Subject",
-                body_text="This is a plain text body",
-                body_html="<p>This is a html body! 💩</p>",
-            ),
-        )
-
-        assert aws_client.send_raw_email.calls == [
-            pretend.call(
-                Source="DevPyPI <noreply@example.com>",
-                Destinations=["Fööbar <somebody@example.com>"],
-                RawMessage={
+        ses_stubber.add_response(
+            "send_raw_email",
+            resp,
+            {
+                "Source": "DevPyPI <noreply@example.com>",
+                "Destinations": ["Fööbar <somebody@example.com>"],
+                "RawMessage": {
                     "Data": (
                         b"Subject: This is a Subject\n"
                         b"From: DevPyPI <noreply@example.com>\n"
@@ -310,8 +295,20 @@ class TestSESEmailSender:
                     )
                     % {b"token": token}
                 },
-            )
-        ]
+            },
+        )
+        sender = SESEmailSender(
+            ses_stubber.client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+
+        sender.send(
+            "Fööbar <somebody@example.com>",
+            EmailMessage(
+                subject="This is a Subject",
+                body_text="This is a plain text body",
+                body_html="<p>This is a html body! 💩</p>",
+            ),
+        )
 
         em = (
             db_session.query(SESEmailMessage)
@@ -323,36 +320,27 @@ class TestSESEmailSender:
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
 
-    def test_last_sent(self, db_session):
+    def test_last_sent(self, db_session, ses_stubber):
         to = "me@example.com"
         subject = "I care about this"
+        sender = SESEmailSender(
+            ses_stubber.client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
 
         # Send some random emails
-        aws_client = pretend.stub(
-            send_raw_email=pretend.call_recorder(
-                lambda *a, **kw: {"MessageId": str(uuid.uuid4()) + "-ses"}
-            )
-        )
-        sender = SESEmailSender(
-            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
-        )
         for address in [to, "somebody_else@example.com"]:
-            for subject in [subject, "I do not care about this"]:
+            for s in [subject, "I do not care about this"]:
+                ses_stubber.add_response(
+                    "send_raw_email", {"MessageId": str(uuid.uuid4()) + "-ses"}
+                )
                 sender.send(
                     f"Foobar <{address}>",
-                    EmailMessage(
-                        subject=subject, body_text="This is a plain text body"
-                    ),
+                    EmailMessage(subject=s, body_text="This is a plain text body"),
                 )
 
         # Send the last email that we care about
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
-        aws_client = pretend.stub(
-            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
-        )
-        sender = SESEmailSender(
-            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
-        )
+        ses_stubber.add_response("send_raw_email", resp)
         sender.send(
             f"Foobar <{to}>",
             EmailMessage(subject=subject, body_text="This is a plain text body"),
@@ -366,9 +354,9 @@ class TestSESEmailSender:
 
         assert sender.last_sent(to, subject) == em.created
 
-    def test_last_sent_none(self, db_session):
+    def test_last_sent_none(self, db_session, mocker):
         to = "me@example.com"
         subject = "I care about this"
-        sender = SESEmailSender(pretend.stub(), sender=pretend.stub(), db=db_session)
+        sender = SESEmailSender(mocker.sentinel.client, db=db_session)
 
         assert sender.last_sent(to, subject) is None

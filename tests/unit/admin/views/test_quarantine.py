@@ -1,18 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import UTC
+from datetime import UTC, datetime, timedelta
 
 from warehouse.admin.views import quarantine
 from warehouse.packaging.models import LifecycleStatus
 
-from ....common.db.packaging import ProjectFactory
+from ....common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 class TestQuarantineList:
     def test_quarantine_list_no_projects(self, db_request):
         """Test quarantine list view when no projects are quarantined"""
         result = quarantine.quarantine_list(db_request)
-        assert result == {"quarantined_projects": []}
+        assert result == {
+            "quarantined_projects": [],
+            "quarantined_releases": [],
+        }
 
     def test_quarantine_list_with_projects(self, db_request):
         """Test quarantine list view with quarantined projects"""
@@ -42,7 +45,6 @@ class TestQuarantineList:
 
     def test_quarantine_list_ordered_by_date(self, db_request):
         """Quarantined projects are ordered by quarantine date (oldest first)"""
-        from datetime import datetime, timedelta
 
         # Create projects with different quarantine dates
         base_time = datetime.now(UTC)
@@ -97,3 +99,41 @@ class TestQuarantineList:
         # Should only return projects entering quarantine
         assert len(result["quarantined_projects"]) == 1
         assert result["quarantined_projects"][0].name == entering_quarantine.name
+
+    def test_quarantine_list_includes_releases(self, db_request):
+        """Quarantined releases appear separately from quarantined projects."""
+        project = ProjectFactory.create()
+        quarantined_release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+            lifecycle_status_note="Quarantined release",
+        )
+        # A release that has been cleared should not appear.
+        ReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineExit,
+        )
+
+        result = quarantine.quarantine_list(db_request)
+
+        assert result["quarantined_projects"] == []
+        assert len(result["quarantined_releases"]) == 1
+        assert result["quarantined_releases"][0].id == quarantined_release.id
+
+    def test_quarantine_list_skips_releases_of_quarantined_projects(self, db_request):
+        """Releases of a quarantined project are not double-listed."""
+        project = ProjectFactory.create(
+            lifecycle_status=LifecycleStatus.QuarantineEnter
+        )
+        ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+
+        result = quarantine.quarantine_list(db_request)
+
+        assert len(result["quarantined_projects"]) == 1
+        assert result["quarantined_releases"] == []

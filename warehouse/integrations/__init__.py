@@ -64,7 +64,7 @@ class PayloadVerifier:
         try:
             public_keys = self._get_cached_public_keys()
             public_key = self._check_public_key(public_keys=public_keys, key_id=key_id)
-        except (CacheMissError, InvalidPayloadSignatureError):
+        except CacheMissError, InvalidPayloadSignatureError:
             # No cache or outdated cache, it's ok, we'll do a real call.
             # Just record a metric so that we can know if all calls lead to
             # cache misses

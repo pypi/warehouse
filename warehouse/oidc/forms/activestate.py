@@ -75,7 +75,7 @@ def _activestate_gql_api_call(
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
             )
-    except (requests.Timeout, requests.ConnectionError):
+    except requests.Timeout, requests.ConnectionError:
         sentry_sdk.capture_message("Connection error from ActiveState API")
         raise wtforms.validators.ValidationError(
             _("Unexpected error from ActiveState. Try again in a few minutes")

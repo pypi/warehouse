@@ -92,6 +92,7 @@ class NullIntegrityService:
             "you should not use it in production due to the lack of actual "
             "attestation verification.",
             InsecureIntegrityServiceWarning,
+            stacklevel=2,
         )
         self.db = session
 

@@ -60,7 +60,7 @@ endpoint:
   as configured when the publisher was configured on PyPI.
 * `invalid-publisher` for a previously-working project: this usually indicates
   a typo or that something has changed on either side. One example we've seen
-  is when a source repository is renamed, and the configration on PyPI
+  is when a source repository is renamed, and the configuration on PyPI
   continues to use the old repository name. For GitHub, check that the
   `repository_owner`, `repository` and workflow filename values are the same on
   both sides.

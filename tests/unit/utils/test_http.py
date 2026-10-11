@@ -15,7 +15,7 @@ class TestIsSafeUrl:
             "http://example.com",
             "http:///example.com",
             "https://example.com",
-            "ftp://exampel.com",
+            "ftp://example.com",
             r"\\example.com",
             r"\\\example.com",
             r"/\\/example.com",
@@ -31,6 +31,24 @@ class TestIsSafeUrl:
             "\x08//example.com",
             "\n",
             "view/?param=//example.com",
+            # urllib.parse strips tab/CR/LF before parsing, so "/\t/evil.com/"
+            # looks host-less here but webob's urljoin later emits
+            # "//evil.com/". Reject before that happens.
+            "/\t/evil.com/",
+            "/\n/evil.com/",
+            "/\r/evil.com/",
+            "/\t\t/evil.com",
+            "//\tevil.com/",
+            # Callers put the URL we approve here straight into a Location
+            # header, so a control character anywhere in it makes webob refuse
+            # to build the response.
+            "\n/example.com/",
+            "/example.com/\r\n",
+            "/exa\x7fmple/",
+            # urllib3 refuses to parse these at all, rather than telling us
+            # whether the host matches.
+            "https://pypi.org\u3002example.com/",
+            "\u200e//example.com",
         ],
     )
     def test_rejects_bad_url(self, url):
@@ -41,7 +59,7 @@ class TestIsSafeUrl:
         [
             "/view/?param=http://example.com",
             "/view/?param=https://example.com",
-            "/view?param=ftp://exampel.com",
+            "/view?param=ftp://example.com",
             "https://testserver/",
             "HTTPS://testserver/",
             "//testserver/",

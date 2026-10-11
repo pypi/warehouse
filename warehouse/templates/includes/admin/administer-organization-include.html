@@ -1,0 +1,10 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if request.has_permission(Permissions.AdminOrganizationsRead) %}
+  <div class="admin-include split-layout split-layout--middle">
+    <span><b>Admin tools</b></span>
+    <div>
+      <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}"
+         class="button button--small button--primary package-description__edit-button">View organization in admin</a>
+    </div>
+  </div>
+{% endif %}

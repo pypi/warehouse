@@ -42,6 +42,26 @@ class TestClassifyObservation:
             ),
             # Also works with string keys (how actions are typically stored)
             ({"1": {"action": "remove_malware"}}, "some-id", "true_positive"),
+            # Confirm malware action = true positive
+            (
+                {123: {"action": "confirm_malware", "actor": "admin"}},
+                "some-uuid",
+                "true_positive",
+            ),
+            # Remove release action = true positive (admin removed the malicious
+            # release; the parent project still exists so related_id is set)
+            (
+                {123: {"action": "remove_release", "actor": "admin"}},
+                "some-uuid",
+                "true_positive",
+            ),
+            ({"1": {"action": "remove_release"}}, "some-id", "true_positive"),
+            # Quarantine release is reversible/intermediate = pending
+            (
+                {123: {"action": "quarantine_release", "actor": "admin"}},
+                "some-uuid",
+                "pending",
+            ),
             # Verdict not malware = false positive (project still exists)
             (
                 {123: {"action": "verdict_not_malware", "actor": "admin"}},

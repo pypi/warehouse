@@ -1,0 +1,12 @@
+id: no-sqla-backref
+
+valid:
+  - relationship(back_populates="something")
+  - orm.relationship(back_populates="something")
+  - sqlalchemy.orm.relationship(back_populates="something")
+
+invalid:
+  - relationship(backref="something")
+  - relationship(firstthing=False, backref="something", other=True)
+  - orm.relationship(backref="something")
+  - sqlalchemy.orm.relationship(backref="something")

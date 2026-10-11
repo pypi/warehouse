@@ -10,4 +10,18 @@
 
 .release-timeline {
   margin-top: 5px;
+
+  .release:first-child,
+  .release:last-child {
+    .release__line {
+      height: 50%;
+    }
+  }
+
+  .release:last-child {
+    .release__line {
+      bottom: auto;
+      top: 0;
+    }
+  }
 }

@@ -2,6 +2,8 @@
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
+from warehouse.utils.http import CONTROL_CHARS
+
 
 def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
     def redirect_view(request):
@@ -9,8 +11,15 @@ def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
 
         # Check to see if any of the characters that we can't represent in a
         # header exist in our target, if so we'll raise a BadRequest
-        if set(redirect_to) & {"\n", "\r"}:
+        if CONTROL_CHARS.search(redirect_to):
             raise HTTPBadRequest("URL may not contain control characters")
+
+        # Backslashes go into the Location header verbatim, but browsers
+        # treat them as "/" in http(s) URLs (WHATWG). A redirect target of
+        # "/project/..\account\logout\..." would walk straight to
+        # "/account/logout/", so refuse them.
+        if "\\" in redirect_to:
+            raise HTTPBadRequest("URL may not contain backslashes")
 
         return redirect(redirect_to)
 

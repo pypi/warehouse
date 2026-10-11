@@ -80,7 +80,7 @@ class GitHubAppClient:
     """
 
     AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
-    TOKEN_URL = "https://github.com/login/oauth/access_token"
+    TOKEN_URL = "https://github.com/login/oauth/access_token"  # noqa: S105
     USER_API_URL = "https://api.github.com/user"
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
@@ -197,7 +197,7 @@ class GitLabOAuthClient:
     """
 
     AUTHORIZE_URL = "https://gitlab.com/oauth/authorize"
-    TOKEN_URL = "https://gitlab.com/oauth/token"
+    TOKEN_URL = "https://gitlab.com/oauth/token"  # noqa: S105
     USER_API_URL = "https://gitlab.com/api/v4/user"
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
@@ -313,6 +313,7 @@ class _NullOAuthClientBase:
             "you should not use it in production due to the creation of "
             "fake user associations without actual OAuth verification.",
             NullOAuthProviderServiceWarning,
+            stacklevel=2,
         )
         self.redirect_uri = redirect_uri
 

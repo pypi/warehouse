@@ -55,7 +55,7 @@ If you are publishing software to PyPI then you can harden your build and publis
 In addition to the specific recommendations above, we strongly recommend general account security best practices such as:
 
 * **Use 2FA / MFA, preferably using a hardware key or authenticator app for all accounts associated with open source contributions.** This includes your email address and accounts for source forge(s) like GitHub or GitLab. Avoid SMS and text-message-based 2FA schemes if possible, as they are susceptible to SIM-swapping. PyPI already requires the use of 2FA to publish packages.
-* **Don’t reuse passwords, use a password manager.** Re-using passwords for services means that a compromise to one service will compromise your account(s) elsewhere.
+* **Don’t reuse passwords, use a password manager.** Reusing passwords for services means that a compromise to one service will compromise your account(s) elsewhere.
 
 Prevention is important, but just as important is preparedness. Here’s what to do if your own project is compromised:
 

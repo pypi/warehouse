@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import functools
 import hashlib
-import logging
 import time
 import typing
 import urllib.parse
@@ -16,9 +15,11 @@ import celery.app.backends
 import celery.backends.redis
 import pyramid.scripting
 import pyramid_retry
+import structlog
 import transaction
 import venusian
 
+from celery import signals
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
@@ -34,7 +35,14 @@ if typing.TYPE_CHECKING:
 celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend"
 
 
-logger = logging.getLogger(__name__)
+def on_task_prerun(sender, task_id, task, **kwargs) -> None:
+    """Bind task metadata into contextvars for all logs within the task."""
+    structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
+
+
+def on_task_postrun(sender, task_id, task, **kwargs) -> None:
+    """Clear contextvars so nothing leaks into the next task on this worker."""
+    structlog.contextvars.clear_contextvars()
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -122,6 +130,9 @@ class WarehouseTask(celery.Task):
             env["request"].remote_addr_hashed = hashlib.sha256(
                 ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
             ).hexdigest()
+            # The request id joins the task_id/task_name bound at prerun, and
+            # is cleared with them at postrun.
+            structlog.contextvars.bind_contextvars(**{"request.id": env["request"].id})
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]  # type: ignore[attr-defined]
@@ -303,9 +314,15 @@ def includeme(config: Configurator) -> None:
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
         # Silence deprecation warning on startup
         broker_connection_retry_on_startup=False,
+        # Keep the logging configured by warehouse.logging instead of letting
+        # celery replace the root logger's handlers at worker boot.
+        worker_hijack_root_logger=False,
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
+
+    signals.task_prerun.connect(on_task_prerun)
+    signals.task_postrun.connect(on_task_postrun)
 
     config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 

@@ -41,7 +41,7 @@ class IpAddress(db.Model):
     def __lt__(self, other) -> bool:
         return self.id < other.id
 
-    unique_logins: Mapped[list["UserUniqueLogin"]] = orm.relationship(
+    unique_logins: Mapped[list[UserUniqueLogin]] = orm.relationship(
         back_populates="ip_address",
         cascade="all, delete-orphan",
         lazy=True,

@@ -67,7 +67,7 @@ FROM user_unique_logins
 LEFT JOIN ip_addresses ON user_unique_logins.ip_address::inet = ip_addresses.ip_address
 WHERE ip_addresses.id IS NULL AND user_unique_logins.ip_address IS NOT NULL
 LIMIT :batch_size
-"""),
+"""),  # noqa: S608
             {"batch_size": batch_size},
         )
         bind.commit()

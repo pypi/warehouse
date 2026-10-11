@@ -6,11 +6,12 @@ HelpDesk service implementations to interact with other services.
 
 from __future__ import annotations
 
-import logging
 import pprint
 import typing
 
 from textwrap import dedent
+
+import structlog
 
 from pyramid_retry import RetryableException
 from requests.exceptions import RequestException
@@ -22,7 +23,7 @@ if typing.TYPE_CHECKING:
     from pyramid.request import Request
     from requests import Session
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @implementer(IHelpDeskService)
@@ -47,7 +48,6 @@ class ConsoleHelpDeskService:
 
     def add_tag(self, *, conversation_url: str, tag: str) -> None:
         print(f"Adding tag '{tag}' to conversation '{conversation_url}'")  # noqa: T201
-        return
 
 
 @implementer(IHelpDeskService)
@@ -168,7 +168,6 @@ class ConsoleAdminNotificationService:
         print("Webhook notification sent")  # noqa: T201
         print("payload:")  # noqa: T201
         print(dedent(pprint.pformat(payload)))  # noqa: T201
-        return
 
 
 @implementer(IAdminNotificationService)
@@ -206,4 +205,3 @@ class SlackAdminNotificationService:
             timeout=10,
         )
         resp.raise_for_status()
-        return

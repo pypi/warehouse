@@ -26,8 +26,16 @@
       {% endtrans %}
     </p>
     <p>
-      {% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}
+      {% trans %}To prevent a package from being uploaded to PyPI, use the special <code>Private :: Do Not Upload</code> classifier. PyPI will always reject packages with classifiers beginning with <code>Private ::</code>.{% endtrans %}
     </p>
+    <div class="callout-block callout-block--warning no-bottom-margin"
+         role="alert">
+      <p>{% trans %}Note: As of <a href="https://packaging.python.org/en/latest/specifications/license-expression/"
+    target="_blank"
+    rel="noopener">PEP 639</a>, the use of <code>License</code> Trove classifiers is deprecated. Please use <a href="https://packaging.python.org/en/latest/specifications/license-expression/"
+    target="_blank"
+    rel="noopener">license expressions</a> in your <code>pyproject.toml</code> instead.{% endtrans %}</p>
+    </div>
     <h2>{% trans %}List of classifiers{% endtrans %}</h2>
     <ul>
       {% for classifier in classifiers %}

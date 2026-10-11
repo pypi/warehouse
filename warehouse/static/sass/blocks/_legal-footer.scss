@@ -1,0 +1,41 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/grid";
+@use "../settings/fonts";
+@use "../tools/link-utilities";
+
+/*
+  Legal footer:
+
+  <div class="legal-footer">
+      <ul>...</ul>  // trademark, copyright, sitemap, deploy sha
+    </div>
+  </div>
+*/
+
+.legal-footer {
+  width: 100%;
+  border-top: 1px solid color.adjust(colors.$border-color, $lightness: 10%);
+  background-color: color.adjust(colors.$border-color, $lightness: 15%);
+  font-size: fonts.$small-font-size;
+  text-align: center;
+  padding: grid.$half-spacing-unit grid.$spacing-unit;
+
+  @media only screen and (max-width: breakpoints.$small-tablet) {
+    padding: grid.$half-spacing-unit;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: inline-block;
+      margin-right: grid.$half-spacing-unit;
+    }
+  }
+}

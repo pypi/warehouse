@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-readd the unique constraint on pep426 normalization
+re-add the unique constraint on pep426 normalization
 
 Revision ID: 1ce6d45d7ef
 Revises: 23a3c4ffe5d

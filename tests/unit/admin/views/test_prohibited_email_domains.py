@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
@@ -12,9 +11,13 @@ from ....common.db.accounts import ProhibitedEmailDomain, ProhibitedEmailDomainF
 
 class TestProhibitedEmailDomainsList:
     def test_no_query(self, db_request):
+        # `created` is set once per transaction (Postgres `now()`), so every
+        # row in this batch shares the same value. Sort by `(created, id)` to
+        # match the view's tiebreaker and get a deterministic expected order.
         prohibited = sorted(
             ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
 
         result = views.prohibited_email_domains(db_request)
@@ -24,7 +27,8 @@ class TestProhibitedEmailDomainsList:
     def test_with_page(self, db_request):
         prohibited = sorted(
             ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
         db_request.GET["page"] = "2"
 
@@ -32,90 +36,81 @@ class TestProhibitedEmailDomainsList:
 
         assert result == {"prohibited_email_domains": prohibited[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.prohibited_email_domains(request)
+            views.prohibited_email_domains(pyramid_request)
 
     def test_basic_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = prohibited[0].domain
+        # A single result, so ordering is irrelevant here.
+        target = ProhibitedEmailDomainFactory.create(domain="target.example.com")
+        ProhibitedEmailDomainFactory.create_batch(29)
+        db_request.GET["q"] = target.domain
 
         result = views.prohibited_email_domains(db_request)
 
         assert result == {
-            "prohibited_email_domains": [prohibited[0]],
-            "query": prohibited[0].domain,
+            "prohibited_email_domains": [target],
+            "query": target.domain,
         }
 
     def test_wildcard_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = f"{prohibited[0].domain[:-1]}%"
+        # Use an explicit domain so the wildcard can only match this one row,
+        # rather than a prefix of a generated domain that a sibling row in the
+        # batch might also match.
+        target = ProhibitedEmailDomainFactory.create(domain="target.example.com")
+        ProhibitedEmailDomainFactory.create_batch(29)
+        db_request.GET["q"] = "target.example.co%"
 
         result = views.prohibited_email_domains(db_request)
 
         assert result == {
-            "prohibited_email_domains": [prohibited[0]],
-            "query": f"{prohibited[0].domain[:-1]}%",
+            "prohibited_email_domains": [target],
+            "query": "target.example.co%",
         }
 
 
 class TestProhibitedEmailDomainsAdd:
-    def test_no_email_domain(self, db_request):
+    def test_no_email_domain(self, db_request, mocker):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/add/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {}
 
         with pytest.raises(HTTPSeeOther):
             views.add_prohibited_email_domain(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Email domain is required.", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Email domain is required.", queue="error"
+        )
 
-    def test_invalid_domain(self, db_request):
+    def test_invalid_domain(self, db_request, mocker):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/add/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"email_domain": "invalid"}
 
         with pytest.raises(HTTPSeeOther):
             views.add_prohibited_email_domain(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid domain name 'invalid'", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Invalid domain name 'invalid'", queue="error"
+        )
 
-    def test_duplicate_domain(self, db_request):
+    def test_duplicate_domain(self, db_request, mocker):
         existing_domain = ProhibitedEmailDomainFactory.create()
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/add/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"email_domain": existing_domain.domain}
 
         with pytest.raises(HTTPSeeOther):
             views.add_prohibited_email_domain(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Email domain '{existing_domain.domain}' already exists.",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Email domain '{existing_domain.domain}' already exists.", queue="error"
+        )
 
     @pytest.mark.parametrize(
         ("input_domain", "expected_domain"),
@@ -125,12 +120,10 @@ class TestProhibitedEmailDomainsAdd:
             ("https://example.com/", "example.com"),
         ],
     )
-    def test_success(self, db_request, input_domain, expected_domain):
+    def test_success(self, db_request, input_domain, expected_domain, mocker):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/list/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {
             "email_domain": input_domain,
             "is_mx_record": "on",
@@ -141,9 +134,9 @@ class TestProhibitedEmailDomainsAdd:
 
         assert response.status_code == 303
         assert response.headers["Location"] == "/admin/prohibited_email_domains/list/"
-        assert db_request.session.flash.calls == [
-            pretend.call("Prohibited email domain added.", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Prohibited email domain added.", queue="success"
+        )
 
         query = db_request.db.query(ProhibitedEmailDomain).filter(
             ProhibitedEmailDomain.domain == expected_domain
@@ -154,54 +147,46 @@ class TestProhibitedEmailDomainsAdd:
 
 
 class TestProhibitedEmailDomainsRemove:
-    def test_no_domain_name(self, db_request):
+    def test_no_domain_name(self, db_request, mocker):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/remove/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {}
 
         with pytest.raises(HTTPSeeOther):
             views.remove_prohibited_email_domain(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Domain name is required.", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Domain name is required.", queue="error"
+        )
 
-    def test_domain_not_found(self, db_request):
+    def test_domain_not_found(self, db_request, mocker):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/remove/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"domain_name": "example.com"}
 
         with pytest.raises(HTTPSeeOther):
             views.remove_prohibited_email_domain(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Domain not found.", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Domain not found.", queue="error"
+        )
 
-    def test_success(self, db_request):
+    def test_success(self, db_request, mocker):
         domain = ProhibitedEmailDomainFactory.create()
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/list/"
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"domain_name": domain.domain}
 
         response = views.remove_prohibited_email_domain(db_request)
 
         assert response.status_code == 303
         assert response.headers["Location"] == "/admin/prohibited_email_domains/list/"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Prohibited email domain '{domain.domain}' removed.", queue="success"
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Prohibited email domain '{domain.domain}' removed.", queue="success"
+        )
 
         query = db_request.db.query(ProhibitedEmailDomain).filter(
             ProhibitedEmailDomain.domain == domain.domain

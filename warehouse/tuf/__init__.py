@@ -15,14 +15,14 @@ class RSTUFError(Exception):
     pass
 
 
-def get_task_state(server: str, task_id: str) -> str:
-    resp = requests.get(f"{server}/api/v1/task?task_id={task_id}")
+def get_task_state(server: str, task_id: str, timeout: float = 5) -> str:
+    resp = requests.get(f"{server}/api/v1/task?task_id={task_id}", timeout=timeout)
     resp.raise_for_status()
     return resp.json()["data"]["state"]
 
 
-def post_bootstrap(server: str, payload: Any) -> str:
-    resp = requests.post(f"{server}/api/v1/bootstrap", json=payload)
+def post_bootstrap(server: str, payload: Any, timeout: float = 5) -> str:
+    resp = requests.post(f"{server}/api/v1/bootstrap", json=payload, timeout=timeout)
     resp.raise_for_status()
 
     # TODO: Ask upstream to not return 200 on error

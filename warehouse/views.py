@@ -58,6 +58,7 @@ from warehouse.packaging.models import (
     ReleaseClassifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
@@ -405,6 +406,13 @@ def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     ratelimiter.hit(request.remote_addr)
+    record_rate_limit(
+        request,
+        "search",
+        ratelimiter,
+        identifiers=(request.remote_addr,),
+        partition_key="ip",
+    )
     if not ratelimiter.test(request.remote_addr):
         metrics.increment("warehouse.search.ratelimiter.exceeded")
         message = (

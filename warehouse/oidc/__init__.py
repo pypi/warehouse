@@ -7,7 +7,12 @@ from celery.schedules import crontab
 
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
-from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons
+from warehouse.oidc.tasks import (
+    compute_oidc_metrics,
+    delete_expired_oidc_macaroons,
+    delete_expired_pending_publishers,
+    send_pending_publisher_expiration_reminders,
+)
 from warehouse.oidc.utils import (
     ACTIVESTATE_OIDC_ISSUER_URL,
     GITHUB_OIDC_ISSUER_URL,
@@ -71,6 +76,7 @@ def includeme(config: Configurator) -> None:
     # NOTE: This is a legacy route for the above. Pyramid requires route
     # names to be unique, so we can't deduplicate it.
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
+    config.add_route("oidc.burn_token", "/_/oidc/burn-token", domain=auth)
 
     # Compute OIDC metrics periodically
     config.add_periodic_task(crontab(minute=0, hour="*"), compute_oidc_metrics)
@@ -78,3 +84,13 @@ def includeme(config: Configurator) -> None:
     # Daily purge expired OIDC-minted API tokens. These tokens are temporary in nature
     # and expire after 15 minutes of creation.
     config.add_periodic_task(crontab(minute=0, hour=6), delete_expired_oidc_macaroons)
+
+    # Daily purge expired pending OIDC publishers. Pending publishers that have
+    # not been used within their TTL are deleted and their owners are notified.
+    config.add_periodic_task(
+        crontab(minute=0, hour=2), delete_expired_pending_publishers
+    )
+    # Daily reminder for pending OIDC publishers approaching their TTL.
+    config.add_periodic_task(
+        crontab(minute=0, hour=3), send_pending_publisher_expiration_reminders
+    )

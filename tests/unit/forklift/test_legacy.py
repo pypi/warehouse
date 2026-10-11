@@ -2,6 +2,8 @@
 
 import base64
 import builtins
+import datetime
+import gzip
 import hashlib
 import io
 import json
@@ -9,21 +11,22 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
-from cgi import FieldStorage
+from collections.abc import Callable
+from contextlib import ExitStack
 from textwrap import dedent
-from types import SimpleNamespace
 from unittest import mock
 
-import pretend
 import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
-from sqlalchemy import and_, event, exists
+from sqlalchemy import and_, event, exists, func, select
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
+from webob.compat import cgi_FieldStorage
 from webob.multidict import MultiDict
 
 import warehouse.constants
@@ -31,8 +34,11 @@ import warehouse.constants
 from warehouse.accounts.utils import UserContext
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.forklift import legacy, metadata
-from warehouse.macaroons import IMacaroonService, caveats, security_policy
+from warehouse.macaroons import IMacaroonService, caveats
 from warehouse.metrics import IMetricsService
 from warehouse.metrics.services import NullMetrics
 from warehouse.oidc.interfaces import SignedClaims
@@ -49,11 +55,14 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.services import LocalArchiveFileStorage
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
+from ...common.db.macaroons import MacaroonFactory
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory,
@@ -72,7 +81,8 @@ from ...common.db.packaging import (
 def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
     with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
-        tar.add("/dev/null", arcname="fake_package-1.0/PKG-INFO")
+        # An empty regular file; adding /dev/null would store a character device.
+        tar.addfile(tarfile.TarInfo("fake_package-1.0/PKG-INFO"), io.BytesIO())
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.MIT")
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.APACHE")
     return temp_f.getvalue()
@@ -165,7 +175,92 @@ def test_sort_releases(db_request, versions, expected):
     ] == expected
 
 
+def _store_asserting(filebody: bytes) -> Callable[..., None]:
+    """A ``storage.store`` side effect asserting the bytes handed to storage."""
+
+    def store(path, file_path, *, meta=None):
+        expected = b"Fake metadata" if file_path.endswith(".metadata") else filebody
+        with open(file_path, "rb") as fp:
+            assert fp.read() == expected
+
+    return store
+
+
+def _content_field(
+    *, file: io.BytesIO, filename: str | None = None, type: str | None = None
+) -> cgi_FieldStorage:
+    """Build the uploaded file field standing in for a parsed multipart part.
+
+    ``webob.compat.cgi_FieldStorage`` is the exact class WebOb hands
+    ``file_upload``. It is a ``cgi.FieldStorage`` subclass, so the
+    ``isinstance`` check in ``forklift.decorators.sanitize`` still sees a
+    match, and it replaces ``cgi``'s ``__repr__``, which renders ``value`` and
+    so reads the whole upload body.
+
+    The explicit ``environ`` matters: a bare constructor falls back to parsing
+    ``sys.argv[1]``, which under pytest is the command line. That query-string
+    parse leaves ``list`` at ``[]``; a real file part has ``list`` of ``None``,
+    so a stand-in left at ``[]`` is falsy and zero-length where a real upload
+    raises ``TypeError``.
+    """
+    field = cgi_FieldStorage(environ={"QUERY_STRING": ""})
+    field.filename = filename
+    field.file = file
+    field.type = type
+    field.list = None
+    return field
+
+
+@pytest.fixture
+def storage_service(mocker):
+    """An ``IFileStorage`` stand-in with the real archive storage's signatures."""
+    return mocker.create_autospec(LocalArchiveFileStorage, instance=True)
+
+
+class TestCloseUploadTempfiles:
+    def test_closes_content_file_and_body_file(self, pyramid_request, mocker):
+        content = _content_field(file=io.BytesIO())
+        body_file = io.BytesIO()
+        content_close = mocker.spy(content.file, "close")
+        body_close = mocker.spy(body_file, "close")
+        pyramid_request.POST = {"content": content}
+        pyramid_request.body_file_raw = body_file
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        content_close.assert_called_once_with()
+        body_close.assert_called_once_with()
+        assert content.file.closed
+        assert body_file.closed
+
+    def test_no_content_field(self, pyramid_request, mocker):
+        body_file = io.BytesIO()
+        body_close = mocker.spy(body_file, "close")
+        pyramid_request.POST = {}
+        pyramid_request.body_file_raw = body_file
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        body_close.assert_called_once_with()
+        assert body_file.closed
+
+    def test_skips_already_closed_body_file(self, pyramid_request, mocker):
+        body_file = io.BytesIO()
+        body_file.close()
+        close = mocker.spy(body_file, "close")
+        pyramid_request.POST = {}
+        pyramid_request.body_file_raw = body_file
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        close.assert_not_called()
+
+
 class TestFileValidation:
+    def test_open_dist_file_rejects_unsupported_extension(self):
+        with pytest.raises(ValueError, match="Unsupported distribution file"):
+            legacy._open_dist_file("test.exe", ExitStack())
+
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
 
@@ -226,6 +321,39 @@ class TestFileValidation:
         assert tarfile.is_tarfile(fake_tar)
 
         # This should fail
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
+
+    def test_bails_with_tarfile_that_raises_zlib_error(self, tmpdir):
+        fake_tar = str(tmpdir.join("test.tar.gz"))
+
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            file_content = b"x"
+            tarinfo = tarfile.TarInfo(name="package/data")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        valid_gzip_member = gzip.compress(
+            buffer.getvalue()[: tarfile.BLOCKSIZE], mtime=0
+        )
+        # 0x07 starts a final DEFLATE block with the reserved block type.
+        invalid_gzip_member = bytes.fromhex("1f8b080000000000000307")
+        with open(fake_tar, "wb") as fp:
+            fp.write(valid_gzip_member + invalid_gzip_member)
+
+        assert tarfile.is_tarfile(fake_tar)
+        with (
+            pytest.raises(zlib.error) as exc_info,
+            tarfile.open(fake_tar, "r:gz") as archive,
+        ):
+            archive.getnames()
+        assert str(exc_info.value) == (
+            "Error -3 while decompressing data: invalid block type"
+        )
+
         assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
             False,
             None,
@@ -439,6 +567,55 @@ class TestFileValidation:
             "Content not allowed.",
         )
 
+    @pytest.mark.parametrize(
+        "tar_format",
+        [
+            pytest.param(tarfile.PAX_FORMAT, id="pax"),
+            pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+        ],
+    )
+    @pytest.mark.parametrize("scan", [True, False], ids=["scan", "no-scan"])
+    def test_sparse_member_in_tarball(self, tmpdir, tar_format, scan, mocker):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        metrics = NullMetrics()
+        increment = mocker.spy(metrics, "increment")
+        with tarfile.open(tar_fn, "w:gz", format=tar_format) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+            info = tarfile.TarInfo(name="package/sparse.dat")
+            if tar_format == tarfile.PAX_FORMAT:
+                info.size = 1
+                info.pax_headers = {
+                    "GNU.sparse.map": "0,1",
+                    "GNU.sparse.size": "10",
+                }
+            else:
+                info.type = tarfile.GNUTYPE_SPARSE
+                info.size = 0
+            tar.addfile(info, io.BytesIO(b"x"))
+
+        assert legacy._is_valid_dist_file(
+            tar_fn,
+            "sdist",
+            metrics,
+            scan=scan,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: Sparse members are not allowed. "
+                "See https://docs.pypi.org/archives for more information"
+            ),
+        )
+        assert increment.call_args_list == [
+            mock.call(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+        ]
+
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
         with zipfile.ZipFile(f, "w") as zfp:
@@ -477,6 +654,64 @@ class TestFileValidation:
         ) == (
             True,
             None,
+        )
+
+    @pytest.mark.parametrize(
+        "alias",
+        [
+            pytest.param("test-1.0.dist-info/./METADATA", id="dot"),
+            pytest.param(
+                "test-1.0.dist-info/../test-1.0.dist-info/METADATA", id="dotdot"
+            ),
+            pytest.param("test-1.0.dist-info//METADATA", id="double-slash"),
+            pytest.param("/test-1.0.dist-info/METADATA", id="absolute"),
+        ],
+    )
+    def test_wheel_non_canonical_member_path(self, tmpdir, alias):
+        """
+        Installers normalize member paths, so an alias of METADATA would
+        replace the entry Warehouse validated.
+        """
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("test-1.0.dist-info/METADATA", b"clean")
+            zfp.writestr(alias, b"evil")
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            False,
+            f"Archive member path is not normalized: {alias!r}",
+        )
+
+    def test_wheel_directory_member_is_canonical(self, tmpdir):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/", b"")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
+
+    def test_tarball_non_canonical_member_path(self, tmpdir):
+        """
+        Extraction normalizes member paths, so ``package/./PKG-INFO`` would
+        overwrite the PKG-INFO Warehouse validated.
+        """
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/./PKG-INFO")
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+            False,
+            "Archive member path is not normalized: 'package/./PKG-INFO'",
         )
 
     def test_tarfile_zipfile_polyglot(self, tmpdir):
@@ -648,10 +883,13 @@ class TestIsDuplicateFile:
 
 class TestFileUpload:
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
-    def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
+    def test_fails_invalid_version(
+        self, pyramid_config, pyramid_request, version, mocker
+    ):
         pyramid_request.POST["protocol_version"] = version
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        pyramid_request.help_url = mocker.Mock(
+            side_effect=lambda **kw: "/the/help/url/"
+        )
 
         user = UserFactory.create(with_verified_primary_email=True)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -677,9 +915,11 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "None is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "None is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -690,27 +930,33 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "'-1' is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'-1' is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # name errors.
             (
                 {"metadata_version": "1.2"},
-                "'' is an invalid value for Name. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'' is an invalid value for Name. "
+                    "Error: This field is required. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name. "
-                "Error: Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'foo-' is an invalid value for Name. "
+                    "Error: Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             # version errors.
             (
@@ -721,9 +967,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'version' is a required field. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'version' is a required field. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -733,9 +981,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'dog' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'dog' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -745,9 +995,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'1.0.dev.a1' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'1.0.dev.a1' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             # filetype/pyversion errors.
             (
@@ -767,8 +1019,10 @@ class TestFileUpload:
                     "filetype": "bdist_wheel",
                     "content": "fake binary content",
                 },
-                "Invalid value for pyversion. "
-                "Error: Python version is required for binary distribution uploads.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Python version is required for binary distribution uploads."
+                ),
             ),
             (
                 {
@@ -789,8 +1043,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Invalid value for pyversion. "
-                "Error: Use 'source' as Python version for an sdist.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Use 'source' as Python version for an sdist."
+                ),
             ),
             # digest errors.
             (
@@ -811,8 +1067,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "Invalid value for sha256_digest. "
-                "Error: Use a valid, hex-encoded, SHA256 message digest.",
+                (
+                    "Invalid value for sha256_digest. "
+                    "Error: Use a valid, hex-encoded, SHA256 message digest."
+                ),
             ),
             # summary errors
             (
@@ -824,9 +1082,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'summary' field must be 512 characters or less. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' field must be 512 characters or less. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -837,9 +1097,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "'summary' must be a single line. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' must be a single line. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # local version error
             (
@@ -850,9 +1112,12 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in '1.0+local' is not allowed. "
-                "See https://packaging.python.org/en/latest/specifications/"
-                "version-specifiers/#local-version-identifiers for more information.",
+                (
+                    "The use of local versions in '1.0+local' is not allowed. "
+                    "See https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers "
+                    "for more information."
+                ),
             ),
         ],
     )
@@ -875,7 +1140,7 @@ class TestFileUpload:
         assert resp.status == f"400 {message}"
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
-    def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
+    def test_fails_with_invalid_names(self, pyramid_config, db_request, name, mocker):
         user = UserFactory.create()
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -888,7 +1153,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=f"{name}-1.0.tar.gz",
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -896,14 +1161,14 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        db_request.help_url.assert_called_once_with(_anchor="project-name")
 
         assert resp.status_code == 400
         assert resp.status == (
@@ -923,7 +1188,7 @@ class TestFileUpload:
         ],
     )
     def test_fails_with_ultranormalized_names(
-        self, pyramid_config, db_request, conflicting_name
+        self, pyramid_config, db_request, conflicting_name, mocker
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -939,7 +1204,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=f"{conflicting_name}-1.0.tar.gz",
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -947,14 +1212,14 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        db_request.help_url.assert_called_once_with(_anchor="project-name")
 
         assert resp.status_code == 400
         assert resp.status == (
@@ -968,20 +1233,30 @@ class TestFileUpload:
             (
                 "text/x-rst",
                 ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render for 'text/x-rst'. "
+                    "See /the/help/url/ for more information."
+                ),
             ),
             (
                 None,
                 ".. invalid-directive::",
-                "400 The description failed to render in the default format "
-                "of reStructuredText. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render in the default format "
+                    "of reStructuredText. "
+                    "See /the/help/url/ for more information."
+                ),
             ),
         ],
     )
     def test_fails_invalid_render(
-        self, pyramid_config, db_request, description_content_type, description, message
+        self,
+        pyramid_config,
+        db_request,
+        description_content_type,
+        description,
+        message,
+        mocker,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -996,7 +1271,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename="example-1.0.tar.gz",
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1007,7 +1282,7 @@ class TestFileUpload:
         if description_content_type is not None:
             db_request.POST.add("description_content_type", description_content_type)
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -1017,9 +1292,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == message
 
-        assert db_request.help_url.calls == [
-            pretend.call(_anchor="description-content-type")
-        ]
+        db_request.help_url.assert_called_once_with(_anchor="description-content-type")
 
     @pytest.mark.parametrize(
         "name",
@@ -1048,7 +1321,7 @@ class TestFileUpload:
             "cgihttpserver",
         ],
     )
-    def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
+    def test_fails_with_stdlib_names(self, pyramid_config, db_request, name, mocker):
         user = UserFactory.create()
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1060,7 +1333,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=f"{name}-1.0.tar.gz",
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1068,14 +1341,14 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        db_request.help_url.assert_called_once_with(_anchor="project-name")
 
         assert resp.status_code == 400
         assert resp.status == (
@@ -1128,6 +1401,8 @@ class TestFileUpload:
         db_request,
         digests,
         macaroon_in_user_context,
+        storage_service,
+        mocker,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -1145,16 +1420,20 @@ class TestFileUpload:
 
         db_request.user = user
         user_context = UserContext(
-            user, pretend.stub() if macaroon_in_user_context else None
+            user,
+            MacaroonFactory.create(user_id=user.id)
+            if macaroon_in_user_context
+            else None,
         )
         pyramid_config.testing_securitypolicy(identity=user_context)
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        content = FieldStorage()
-        content.filename = filename
-        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
-        content.type = "application/tar"
+        content = _content_field(
+            filename=filename,
+            file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+            type="application/tar",
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1178,33 +1457,28 @@ class TestFileUpload:
         )
         db_request.POST.update(digests)
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            expected = _TAR_GZ_PKG_TESTDATA
-            with open(file_path, "rb") as fp:
-                assert fp.read() == expected
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
+        storage_service.store.side_effect = _store_asserting(_TAR_GZ_PKG_TESTDATA)
+        db_request.find_service = mocker.Mock(
+            side_effect=lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
             }.get(svc)
         )
         db_request.registry.settings = {
             "warehouse.release_files_table": "example.pypi.distributions"
         }
-        delay = pretend.call_recorder(lambda a: None)
-        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+        delay = mocker.Mock()
+        db_request.task = mocker.Mock(
+            return_value=mocker.Mock(spec=["delay"], delay=delay)
+        )
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [
-            pretend.call(IIntegrityService, context=None),
-            pretend.call(IFileStorage, name="archive"),
+        assert db_request.find_service.call_args_list == [
+            mock.call(IIntegrityService, context=None),
+            mock.call(IFileStorage, name="archive"),
         ]
-        assert len(storage_service.store.calls) == 1
-        assert storage_service.store.calls[0] == pretend.call(
+        storage_service.store.assert_called_once_with(
             "/".join(
                 [
                     _TAR_GZ_PKG_STORAGE_HASH[:2],
@@ -1250,12 +1524,12 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.task.calls == [
-            pretend.call(update_bigquery_release_files),
-            pretend.call(sync_file_to_cache),
+        assert db_request.task.call_args_list == [
+            mock.call(update_bigquery_release_files),
+            mock.call(sync_file_to_cache),
         ]
-        assert delay.calls == [
-            pretend.call(
+        assert delay.call_args_list == [
+            mock.call(
                 {
                     "metadata_version": "2.4",
                     "name": project.name,
@@ -1301,12 +1575,12 @@ class TestFileUpload:
                     "upload_time": uploaded_file.upload_time,
                 }
             ),
-            pretend.call(uploaded_file.id),
+            mock.call(uploaded_file.id),
         ]
 
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
+        assert db_request.metrics.increment.call_args_list == [
+            mock.call("warehouse.upload.attempt"),
+            mock.call("warehouse.upload.ok", tags=["filetype:sdist"]),
         ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
@@ -1337,7 +1611,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "pyversion": "source",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type=content_type,
@@ -1375,7 +1649,7 @@ class TestFileUpload:
                 "filetype": "bdist_dumb",
                 "pyversion": "2.7",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1414,7 +1688,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": _TAR_BZ2_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
                     type="application/tar",
@@ -1459,7 +1733,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(b"A fake file."),
                     type="application/zip",
@@ -1495,7 +1769,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1521,21 +1795,31 @@ class TestFileUpload:
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
-                "400 The classifier 'AA :: BB' has been deprecated, use one of "
-                "['CC :: DD'] instead. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated, use one of "
+                    "['CC :: DD'] instead. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {"AA :: BB": []},
-                "400 The classifier 'AA :: BB' has been deprecated. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
         ],
     )
     def test_upload_fails_with_deprecated_classifier(
-        self, pyramid_config, db_request, monkeypatch, deprecated_classifiers, expected
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        deprecated_classifiers,
+        expected,
+        mocker,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1562,7 +1846,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1570,7 +1854,7 @@ class TestFileUpload:
             }
         )
         db_request.POST.extend([("classifiers", classifier.classifier)])
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
+        db_request.route_url = mocker.Mock(return_value="/url")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -1630,7 +1914,7 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1670,7 +1954,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename, file=io.BytesIO(b"a"), type="application/zip"
                 ),
             }
@@ -1685,7 +1969,7 @@ class TestFileUpload:
         assert resp.status == ("400 Invalid distribution file. File is not a zipfile")
 
     def test_upload_fails_end_of_file_error(
-        self, pyramid_config, db_request, project_service
+        self, pyramid_config, db_request, project_service, storage_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -1706,7 +1990,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_contents).hexdigest(),
-                "content": pretend.stub(
+                "content": _content_field(
                     filename="malformed-1.1.tar.gz",
                     file=io.BytesIO(file_contents),
                     type="application/tar",
@@ -1714,7 +1998,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -1729,7 +2012,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == ("400 Invalid distribution file. File is not a tarfile")
 
-    def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
+    def test_upload_fails_with_too_large_file(self, pyramid_config, db_request, mocker):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1749,28 +2032,24 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(b"a" * (project.upload_limit + 1)),
                     type="application/tar",
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
+        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-file-size-limit-increase",
-            )
-        ]
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/storage-limits",
+            anchor="requesting-a-file-size-limit-increase",
+        )
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 100 MB. "
@@ -1778,7 +2057,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_too_large_project_size_default_limit(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1803,28 +2082,22 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * 2),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a" * 2), type="application/tar"
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
+        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-project-size-limit-increase",
-            )
-        ]
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/storage-limits",
+            anchor="requesting-a-project-size-limit-increase",
+        )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
@@ -1833,7 +2106,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_too_large_project_size_custom_limit(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1863,28 +2136,24 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(b"a" * (one_megabyte + 1)),
                     type="application/tar",
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
+        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-project-size-limit-increase",
-            )
-        ]
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/storage-limits",
+            anchor="requesting-a-project-size-limit-increase",
+        )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
@@ -1897,6 +2166,7 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         project_service,
+        storage_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1923,7 +2193,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -1931,7 +2201,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -1985,7 +2254,7 @@ class TestFileUpload:
         ]
 
     def test_upload_fails_with_oserror_on_metadata_write(
-        self, tmpdir, monkeypatch, pyramid_config, db_request
+        self, tmpdir, monkeypatch, pyramid_config, db_request, storage_service
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
         monkeypatch.setattr(
@@ -2019,10 +2288,11 @@ class TestFileUpload:
         )
         wheel_md5 = hashlib.md5(wheel_testdata).hexdigest()
 
-        content = FieldStorage()
-        content.filename = filename
-        content.file = io.BytesIO(wheel_testdata)
-        content.type = "application/octet-stream"
+        content = _content_field(
+            filename=filename,
+            file=io.BytesIO(wheel_testdata),
+            type="application/octet-stream",
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2038,12 +2308,9 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, file_path, *, meta: None)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         # Patch open to raise OSError
         original_open = builtins.open
@@ -2063,16 +2330,16 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == f"400 Filename is too long: '{filename}'"
 
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call(
+        assert db_request.metrics.increment.call_args_list == [
+            mock.call("warehouse.upload.attempt"),
+            mock.call(
                 "warehouse.upload.failed",
                 tags=["reason:filename-too-long", "filetype:bdist_wheel"],
             ),
         ]
 
     def test_upload_fails_with_previously_used_filename(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2094,21 +2361,21 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename, file=file_content, type="application/tar"
                 ),
             }
         )
 
         db_request.db.add(Filename(filename=filename))
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
+        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename was previously used by a file that has since been "
@@ -2116,12 +2383,12 @@ class TestFileUpload:
         )
 
     def test_upload_noop_with_existing_filename_same_content(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
-        db_request.tm = pretend.stub(doom=pretend.call_recorder(lambda: None))
+        doom = mocker.patch.object(db_request.tm, "doom", autospec=True)
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2139,7 +2406,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename, file=file_content, type="application/tar"
                 ),
             }
@@ -2160,11 +2427,11 @@ class TestFileUpload:
 
         resp = legacy.file_upload(db_request)
 
-        assert db_request.tm.doom.calls == [pretend.call()]
+        doom.assert_called_once_with()
         assert resp.status_code == 200
 
     def test_upload_fails_with_existing_filename_diff_content(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2186,7 +2453,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename, file=file_content, type="application/tar"
                 ),
             }
@@ -2206,13 +2473,13 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
+        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({filename!r}, "
@@ -2221,7 +2488,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_diff_filename_same_blake2(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2243,7 +2510,7 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=f"{project.name}-fake.tar.gz",
                     file=file_content,
                     type="application/tar",
@@ -2264,14 +2531,14 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
+        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({db_request.POST['content'].filename!r}, "
@@ -2303,6 +2570,7 @@ class TestFileUpload:
         filename,
         filetype,
         project_name,
+        storage_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2313,7 +2581,6 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -2333,7 +2600,7 @@ class TestFileUpload:
                     "bdist_egg": "1.0",
                     "sdist": "source",
                 }[filetype],
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename.format(version=release.version),
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -2360,8 +2627,10 @@ class TestFileUpload:
         [
             (
                 "wutang-6.6.6.tar.gz",
-                "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
-                "'wutang-1.2.3.tar.gz'.",
+                (
+                    "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
+                    "'wutang-1.2.3.tar.gz'."
+                ),
             ),
             (
                 "wutang-6.6.6-py3-none-any.whl",
@@ -2370,7 +2639,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_fails_with_wrong_filename_version(
-        self, monkeypatch, pyramid_config, db_request, filename, status
+        self, monkeypatch, pyramid_config, db_request, filename, status, storage_service
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2380,7 +2649,6 @@ class TestFileUpload:
         project = ProjectFactory.create(name="wutang")
         RoleFactory.create(user=user, project=project)
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -2401,7 +2669,7 @@ class TestFileUpload:
                     "bdist_egg": "1.0",
                     "sdist": "source",
                 }[filetype],
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -2453,10 +2721,8 @@ class TestFileUpload:
                     "bdist_egg": "1.0",
                     "sdist": "source",
                 }[filetype],
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
@@ -2493,10 +2759,8 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
@@ -2536,10 +2800,8 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
@@ -2575,10 +2837,8 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
@@ -2594,7 +2854,9 @@ class TestFileUpload:
             "or the DEL character (ordinal 127) in the name."
         )
 
-    def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
+    def test_upload_fails_without_user_permission(
+        self, pyramid_config, db_request, mocker
+    ):
         user1 = UserFactory.create()
         EmailFactory.create(user=user1)
         user2 = UserFactory.create()
@@ -2616,22 +2878,20 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        db_request.help_url.assert_called_once_with(_anchor="project-name")
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The user '{user2.username}' "
@@ -2640,7 +2900,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_without_oidc_publisher_permission(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, mocker
     ):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2660,22 +2920,20 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        db_request.help_url.assert_called_once_with(_anchor="project-name")
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The given token isn't allowed to upload to project '{project.name}'. "
@@ -2709,14 +2967,12 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": SimpleNamespace(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -2755,14 +3011,12 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": SimpleNamespace(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -2806,14 +3060,12 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": SimpleNamespace(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -2846,14 +3098,12 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "nope!",
-                "content": SimpleNamespace(
-                    filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
-                    type="application/tar",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -2877,12 +3127,12 @@ class TestFileUpload:
 
     def test_upload_attestation_fails_without_oidc_publisher(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         project_service,
         macaroon_service,
         integrity_service,
+        storage_service,
     ):
         project = ProjectFactory.create()
         owner = UserFactory.create()
@@ -2892,7 +3142,7 @@ class TestFileUpload:
 
         EmailFactory.create(user=maintainer)
         db_request.user = maintainer
-        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+        _, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(maintainer.id))],
@@ -2924,18 +3174,12 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", extract_http_macaroon
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
@@ -3016,7 +3260,14 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_with_wheel(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, plat
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        plat,
+        storage_service,
+        mocker,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -3045,26 +3296,16 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
+        db_request.find_service = mocker.Mock(
+            side_effect=lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
             }.get(svc)
         )
@@ -3076,12 +3317,12 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [
-            pretend.call(IIntegrityService, context=None),
-            pretend.call(IFileStorage, name="archive"),
+        assert db_request.find_service.call_args_list == [
+            mock.call(IIntegrityService, context=None),
+            mock.call(IFileStorage, name="archive"),
         ]
-        assert storage_service.store.calls == [
-            pretend.call(
+        assert storage_service.store.call_args_list == [
+            mock.call(
                 "/".join(
                     [
                         filestoragehash[:2],
@@ -3098,7 +3339,7 @@ class TestFileUpload:
                     "python-version": "cp34",
                 },
             ),
-            pretend.call(
+            mock.call(
                 "/".join(
                     [
                         filestoragehash[:2],
@@ -3141,9 +3382,9 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
+        assert db_request.metrics.increment.call_args_list == [
+            mock.call("warehouse.upload.attempt"),
+            mock.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
     @pytest.mark.parametrize(
@@ -3161,6 +3402,7 @@ class TestFileUpload:
         pyramid_config,
         project_name,
         version,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3174,21 +3416,11 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -3205,10 +3437,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3231,6 +3461,7 @@ class TestFileUpload:
         pyramid_config,
         project_name,
         filename_prefix,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3240,21 +3471,11 @@ class TestFileUpload:
         filename = f"{filename_prefix}-1.0.0-py3-none-any.whl"
         filebody = _get_whl_testdata(name=filename_prefix, version="1.0.0")
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -3271,10 +3492,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3304,6 +3523,7 @@ class TestFileUpload:
         project_name,
         filename_prefix,
         version,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3313,18 +3533,11 @@ class TestFileUpload:
         filename = f"{filename_prefix}-{version}.tar.gz"
         filebody = _TAR_GZ_PKG_TESTDATA
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -3341,10 +3554,8 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "pyversion": "source",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3360,7 +3571,7 @@ class TestFileUpload:
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
     def test_upload_succeeds_with_wheel_after_sdist(
-        self, tmpdir, monkeypatch, pyramid_config, db_request
+        self, tmpdir, monkeypatch, pyramid_config, db_request, storage_service, mocker
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -3395,25 +3606,15 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
+        storage_service.store.side_effect = _store_asserting(filebody)
+        db_request.find_service = mocker.Mock(
+            side_effect=lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
             }.get(svc)
         )
@@ -3425,12 +3626,12 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [
-            pretend.call(IIntegrityService, context=None),
-            pretend.call(IFileStorage, name="archive"),
+        assert db_request.find_service.call_args_list == [
+            mock.call(IIntegrityService, context=None),
+            mock.call(IFileStorage, name="archive"),
         ]
-        assert storage_service.store.calls == [
-            pretend.call(
+        assert storage_service.store.call_args_list == [
+            mock.call(
                 "/".join(
                     [
                         filestoragehash[:2],
@@ -3447,7 +3648,7 @@ class TestFileUpload:
                     "python-version": "cp34",
                 },
             ),
-            pretend.call(
+            mock.call(
                 "/".join(
                     [
                         filestoragehash[:2],
@@ -3503,8 +3704,10 @@ class TestFileUpload:
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid wheel filename (invalid version): "
-                "'foo-0.0.4test1-py3-none-any'",
+                (
+                    "400 Invalid wheel filename (invalid version): "
+                    "'foo-0.0.4test1-py3-none-any'"
+                ),
             ),
             (
                 "something.tar.gz",
@@ -3536,10 +3739,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel" if filename.endswith(".whl") else "sdist",
                 "pyversion": "cp34" if filename.endswith(".whl") else "source",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3589,7 +3790,7 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(b"A fake file."),
                     type="application/tar",
@@ -3640,10 +3841,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3663,7 +3862,7 @@ class TestFileUpload:
         )
 
     def test_upload_warns_with_mismatched_wheel_and_zip_contents(
-        self, monkeypatch, pyramid_config, db_request
+        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3698,10 +3897,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3710,27 +3907,27 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+        send_email = mocker.patch.object(
+            legacy, "send_wheel_record_mismatch_email", autospec=True
+        )
 
         resp = legacy.file_upload(db_request)
-        assert send_email.calls == [
-            pretend.call(
+        assert send_email.call_args_list == [
+            mock.call(
                 db_request,
                 {user},
                 project_name=project.name,
                 filename=filename,
-            ),
+            )
         ]
         assert resp.status_code == 200
 
     def test_upload_record_does_not_warn_with_zip_dir(
-        self, monkeypatch, pyramid_config, db_request
+        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
     ):
         """
         ZIP archives can contain directory "members".
@@ -3778,10 +3975,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3790,21 +3985,21 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+        send_email = mocker.patch.object(
+            legacy, "send_wheel_record_mismatch_email", autospec=True
+        )
 
         resp = legacy.file_upload(db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert resp.status_code == 200
 
     def test_upload_record_does_not_warn_windows_path_separators(
-        self, monkeypatch, pyramid_config, db_request
+        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
     ):
         """
         RECORD files can use '/' or '\' for path separators.
@@ -3848,10 +4043,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3860,22 +4053,28 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+        send_email = mocker.patch.object(
+            legacy, "send_wheel_record_mismatch_email", autospec=True
+        )
 
         resp = legacy.file_upload(db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert resp.status_code == 200
 
     @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
     def test_upload_record_check_does_not_include_jws_p7s(
-        self, monkeypatch, pyramid_config, db_request, exempt_filename
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        exempt_filename,
+        storage_service,
+        mocker,
     ):
         """
         Certain filenames are required not to be included in RECORD
@@ -3926,10 +4125,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -3938,17 +4135,17 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+        send_email = mocker.patch.object(
+            legacy, "send_wheel_record_mismatch_email", autospec=True
+        )
 
         resp = legacy.file_upload(db_request)
 
-        assert send_email.calls == []
+        send_email.assert_not_called()
         assert resp.status_code == 200
 
     @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
@@ -3958,6 +4155,8 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         exempt_filename,
+        storage_service,
+        mocker,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3993,10 +4192,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -4005,24 +4202,85 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+        send_email = mocker.patch.object(
+            legacy, "send_wheel_record_mismatch_email", autospec=True
+        )
 
         resp = legacy.file_upload(db_request)
-        assert send_email.calls == [
-            pretend.call(
+        assert send_email.call_args_list == [
+            mock.call(
                 db_request,
                 {user},
                 project_name=project.name,
                 filename=filename,
-            ),
+            )
         ]
         assert resp.status_code == 200
+
+    def test_upload_fails_with_invalid_entrypoints_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        Uploading a wheel fails if the entry_points.txt file is invalid.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/entry_points.txt",
+                "[console_scripts]\n/bin/evil = evil:main\n",
+            )
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    some_file,
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/entry_points.txt,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = f"{project_name}-{release.version}-cp34-none-any.whl"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        with pytest.raises(HTTPBadRequest, match="has invalid entry points"):
+            legacy.file_upload(db_request)
 
     def test_upload_fails_with_missing_metadata_wheel(
         self, monkeypatch, pyramid_config, db_request
@@ -4060,10 +4318,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -4082,7 +4338,223 @@ class TestFileUpload:
             "400 Wheel .* does not contain the required METADATA file: .*", resp.status
         )
 
-    def test_upload_updates_existing_project_name(self, pyramid_config, db_request):
+    @pytest.mark.parametrize("filetype", ["bdist_wheel", "sdist"])
+    def test_upload_fails_with_direct_dependency_in_artifact_metadata(
+        self, pyramid_config, db_request, filetype
+    ):
+        """
+        The form omits the direct dependency that the artifact's own metadata
+        file (METADATA or PKG-INFO) declares.
+        """
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        project_name = project.normalized_name.replace("-", "_")
+        version = "1.0"
+        artifact_metadata = dedent(
+            f"""\
+            Metadata-Version: 2.4
+            Name: {project.name}
+            Version: {version}
+            Provides-Extra: dev
+            Requires-Dist: evil @ https://example.com/e.tar.gz ; extra == "dev"
+            """,
+        ).encode()
+
+        temp_f = io.BytesIO()
+        if filetype == "bdist_wheel":
+            filename = f"{project_name}-{version}-py3-none-any.whl"
+            dist_info = f"{project_name}-{version}.dist-info"
+            with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+                zfp.writestr(f"{dist_info}/METADATA", artifact_metadata)
+                zfp.writestr(f"{dist_info}/WHEEL", "Wheel-Version: 1.0\n")
+                zfp.writestr(
+                    f"{dist_info}/RECORD",
+                    f"{dist_info}/METADATA,\n{dist_info}/WHEEL,\n{dist_info}/RECORD,\n",
+                )
+            expected = f"400 Wheel '{filename}' has invalid METADATA"
+        else:
+            filename = f"{project_name}-{version}.tar.gz"
+            with tarfile.open(fileobj=temp_f, mode="w:gz") as tar:
+                tar.add("/dev/null", arcname=f"{project_name}-{version}/setup.py")
+                info = tarfile.TarInfo(f"{project_name}-{version}/PKG-INFO")
+                info.size = len(artifact_metadata)
+                tar.addfile(info, io.BytesIO(artifact_metadata))
+            expected = f"400 Source distribution '{filename}' has invalid PKG-INFO"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "filetype": filetype,
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status.startswith(
+            f"{expected} (requires-dist): Can't have direct dependency: "
+            "'evil @ https://example.com/e.tar.gz ; extra == \"dev\"'. "
+        )
+        assert db_request.db.scalar(select(func.count()).select_from(File)) == 0
+
+    @pytest.mark.parametrize("filetype", ["bdist_wheel", "sdist"])
+    def test_upload_succeeds_with_dependencies_in_artifact_metadata(
+        self, pyramid_config, db_request, storage_service, filetype
+    ):
+        """A real dependency list in METADATA or PKG-INFO is accepted."""
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        project_name = project.normalized_name.replace("-", "_")
+        version = "1.0"
+        artifact_metadata = dedent(
+            f"""\
+            Metadata-Version: 2.4
+            Name: {project.name}
+            Version: {version}
+            Provides-Extra: dev
+            Requires-Dist: foo>=1.0
+            Requires-Dist: bar ; extra == "dev"
+            Provides-Dist: baz
+            """,
+        ).encode()
+
+        temp_f = io.BytesIO()
+        if filetype == "bdist_wheel":
+            filename = f"{project_name}-{version}-py3-none-any.whl"
+            dist_info = f"{project_name}-{version}.dist-info"
+            with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+                zfp.writestr(f"{dist_info}/METADATA", artifact_metadata)
+                zfp.writestr(f"{dist_info}/WHEEL", "Wheel-Version: 1.0\n")
+                zfp.writestr(
+                    f"{dist_info}/RECORD",
+                    f"{dist_info}/METADATA,\n{dist_info}/WHEEL,\n{dist_info}/RECORD,\n",
+                )
+        else:
+            filename = f"{project_name}-{version}.tar.gz"
+            with tarfile.open(fileobj=temp_f, mode="w:gz") as tar:
+                tar.add("/dev/null", arcname=f"{project_name}-{version}/setup.py")
+                info = tarfile.TarInfo(f"{project_name}-{version}/PKG-INFO")
+                info.size = len(artifact_metadata)
+                tar.addfile(info, io.BytesIO(artifact_metadata))
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "filetype": filetype,
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert db_request.db.scalars(select(File).filter_by(filename=filename)).one()
+
+    @pytest.mark.parametrize(
+        "member_kind", ["directory", "symlink", "hardlink", "oversized"]
+    )
+    def test_upload_fails_when_sdist_pkg_info_is_not_a_regular_file(
+        self, pyramid_config, db_request, member_kind
+    ):
+        """
+        _is_valid_dist_file only checks that a PKG-INFO member exists. Anything
+        other than a bounded regular file is rejected before it is read.
+        """
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        project_name = project.normalized_name.replace("-", "_")
+        filename = f"{project_name}-1.0.tar.gz"
+        temp_f = io.BytesIO()
+        with tarfile.open(fileobj=temp_f, mode="w:gz") as tar:
+            tar.add("/dev/null", arcname=f"{project_name}-1.0/setup.py")
+            info = tarfile.TarInfo(f"{project_name}-1.0/PKG-INFO")
+            if member_kind == "directory":
+                info.type = tarfile.DIRTYPE
+                tar.addfile(info)
+            elif member_kind == "symlink":
+                info.type = tarfile.SYMTYPE
+                info.linkname = "does-not-exist"
+                tar.addfile(info)
+            elif member_kind == "hardlink":
+                info.type = tarfile.LNKTYPE
+                info.linkname = f"{project_name}-1.0/setup.py"
+                tar.addfile(info)
+            else:
+                content = b"\0" * (legacy.MAX_PKG_INFO_SIZE + 1)
+                info.size = len(content)
+                tar.addfile(info, io.BytesIO(content))
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            f"400 Source distribution '{filename}' has invalid PKG-INFO: "
+            f"{project_name}-1.0/PKG-INFO must be a regular file no larger "
+            "than 10 MiB."
+        )
+        assert db_request.db.scalar(select(func.count()).select_from(File)) == 0
+
+    def test_upload_updates_existing_project_name(
+        self, pyramid_config, db_request, storage_service
+    ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name="Package-Name")
@@ -4103,7 +4575,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4111,7 +4583,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4153,15 +4624,14 @@ class TestFileUpload:
     )
     def test_upload_succeeds_creates_release(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         version,
         expected_version,
         test_with_user,
+        storage_service,
+        mocker,
     ):
-        from warehouse.events.models import HasEvents
-        from warehouse.events.tags import EventTag
 
         project = ProjectFactory.create()
         if test_with_user:
@@ -4193,7 +4663,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4212,15 +4682,11 @@ class TestFileUpload:
             ]
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
 
-        record_event = pretend.call_recorder(
-            lambda self, *, tag, request=None, additional: None
-        )
-        monkeypatch.setattr(HasEvents, "record_event", record_event)
+        record_event = mocker.patch.object(HasEvents, "record_event", autospec=True)
 
         resp = legacy.file_upload(db_request)
 
@@ -4306,14 +4772,14 @@ class TestFileUpload:
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 
-        assert record_event.calls == [
-            pretend.call(
+        assert record_event.call_args_list == [
+            mock.call(
                 mock.ANY,
                 tag=EventTag.Project.ReleaseAdd,
                 request=db_request,
                 additional=release_event,
             ),
-            pretend.call(
+            mock.call(
                 mock.ANY,
                 tag=EventTag.File.FileAdd,
                 request=db_request,
@@ -4323,12 +4789,12 @@ class TestFileUpload:
 
     def test_upload_succeeds_with_valid_attestation(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         integrity_service,
+        storage_service,
+        mocker,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -4371,31 +4837,24 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IIntegrityService: integrity_service,
             IFileStorage: storage_service,
         }.get(svc)
 
-        record_event = pretend.call_recorder(
-            lambda self, *, tag, request=None, additional: None
-        )
-        monkeypatch.setattr(HasEvents, "record_event", record_event)
+        mocker.patch.object(HasEvents, "record_event", autospec=True)
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
 
-        assert (
-            pretend.call("warehouse.upload.attestations.ok")
-            in db_request.metrics.increment.calls
-        )
+        db_request.metrics.increment.assert_any_call("warehouse.upload.attestations.ok")
 
         # The file was created and has an associated provenance object.
         file = db_request.db.query(File).filter(File.filename == filename).one()
@@ -4428,12 +4887,11 @@ class TestFileUpload:
     )
     def test_upload_fails_attestation_error(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         invalid_attestations,
+        mocker,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -4466,7 +4924,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4474,10 +4932,7 @@ class TestFileUpload:
             }
         )
 
-        record_event = pretend.call_recorder(
-            lambda self, *, tag, request=None, additional: None
-        )
-        monkeypatch.setattr(HasEvents, "record_event", record_event)
+        mocker.patch.object(HasEvents, "record_event", autospec=True)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -4498,7 +4953,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_url_verified(
-        self, monkeypatch, pyramid_config, db_request, url, expected
+        self, pyramid_config, db_request, url, expected, storage_service
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -4526,7 +4981,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4545,7 +5000,6 @@ class TestFileUpload:
             ]
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4568,7 +5022,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_homepage_download_urls_verified(
-        self, monkeypatch, pyramid_config, db_request, url, expected
+        self, pyramid_config, db_request, url, expected, storage_service
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -4596,7 +5050,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4616,7 +5070,6 @@ class TestFileUpload:
             ]
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4637,11 +5090,11 @@ class TestFileUpload:
     )
     def test_new_publisher_verifies_existing_release_url(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         home_page_verified,
         download_url_verified,
+        storage_service,
     ):
         repo_name = "my_new_repo"
         verified_url = "https://github.com/foo/bar"
@@ -4686,7 +5139,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4711,7 +5164,6 @@ class TestFileUpload:
         db_request.POST.add("project_urls", f"verified_url, {verified_url}")
         db_request.POST.add("project_urls", f"unverified_url, {unverified_url}")
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4735,6 +5187,7 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
+        storage_service,
     ):
         """
         Retroactive verification of home_page and download_url must only
@@ -4781,7 +5234,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4805,7 +5258,6 @@ class TestFileUpload:
         # block to execute (it's guarded by `if not is_new_release and project_urls`)
         db_request.POST.add("project_urls", f"Source, {publisher_url}")
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4823,7 +5275,9 @@ class TestFileUpload:
         assert release_db.download_url == stored_url
         assert release_db.download_url_verified is False
 
-    def test_new_release_email_verified(self, monkeypatch, pyramid_config, db_request):
+    def test_new_release_email_verified(
+        self, pyramid_config, db_request, storage_service
+    ):
         owner = UserFactory.create()
         maintainer = UserFactory.create()
 
@@ -4864,7 +5318,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4884,7 +5338,6 @@ class TestFileUpload:
             ]
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -4904,7 +5357,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_creates_release_metadata_2_3(
-        self, pyramid_config, db_request, version, expected_version
+        self, pyramid_config, db_request, version, expected_version, storage_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4929,7 +5382,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -4951,7 +5404,6 @@ class TestFileUpload:
             ]
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5023,7 +5475,9 @@ class TestFileUpload:
         with pytest.raises(psycopg.errors.CheckViolation):
             db_request.db.commit()
 
-    def test_equivalent_version_one_release(self, pyramid_config, db_request):
+    def test_equivalent_version_one_release(
+        self, pyramid_config, db_request, storage_service
+    ):
         """
         Test that if a release with a version like '1.0' exists, that a future
         upload with an equivalent version like '1.0.0' will not make a second
@@ -5047,7 +5501,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename="{}-{}.tar.gz".format(
                         project.normalized_name.replace("-", "_"), "1.0.0"
                     ),
@@ -5057,7 +5511,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5072,7 +5525,9 @@ class TestFileUpload:
         # Asset that only one release has been created
         assert releases == [release]
 
-    def test_equivalent_canonical_versions(self, pyramid_config, db_request):
+    def test_equivalent_canonical_versions(
+        self, pyramid_config, db_request, storage_service
+    ):
         """
         Test that if more than one release with equivalent canonical versions
         exists, we use the one that is an exact match
@@ -5096,7 +5551,7 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename="{}-{}.tar.gz".format(
                         project.normalized_name.replace("-", "_"), "1.0.0"
                     ),
@@ -5106,7 +5561,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5117,7 +5571,7 @@ class TestFileUpload:
         assert len(release_b.files.all()) == 1
 
     def test_upload_fails_nonuser_identity_cannot_create_project(
-        self, pyramid_config, db_request
+        self, pyramid_config, db_request, storage_service
     ):
         publisher = GitHubPublisherFactory.create()
 
@@ -5132,7 +5586,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5140,7 +5594,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5176,6 +5629,8 @@ class TestFileUpload:
         project_service,
         failing_limiter,
         remote_addr,
+        storage_service,
+        mocker,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5191,7 +5646,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5200,11 +5655,13 @@ class TestFileUpload:
         )
         db_request.remote_addr = remote_addr
 
-        project_service.ratelimiters[failing_limiter] = pretend.stub(
-            test=lambda *a, **kw: False,
-            resets_in=lambda *a, **kw: 60,
-        )
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
+        limiter.test.return_value = False
+        limiter.hit.return_value = False
+        limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        limiter.get_window_stats.return_value = []
+        limiter.override.return_value = limiter
+        project_service.ratelimiters[failing_limiter] = limiter
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -5220,7 +5677,7 @@ class TestFileUpload:
         assert resp.status == ("429 Too many new projects created")
 
     def test_upload_succeeds_creates_project(
-        self, pyramid_config, db_request, project_service
+        self, pyramid_config, db_request, project_service, storage_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5236,7 +5693,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5244,7 +5701,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -5298,7 +5754,7 @@ class TestFileUpload:
         ]
 
     def test_upload_succeeds_with_gpg_signature_field(
-        self, pyramid_config, db_request, project_service, monkeypatch
+        self, pyramid_config, db_request, project_service, storage_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5314,7 +5770,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5323,7 +5779,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -5338,8 +5793,8 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        monkeypatch,
         project_service,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5355,7 +5810,7 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5363,7 +5818,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IProjectService: project_service,
@@ -5395,7 +5849,6 @@ class TestFileUpload:
     )
     def test_upload_with_token_api_warns_if_trusted_publisher_configured(
         self,
-        monkeypatch,
         pyramid_config,
         db_request,
         project_service,
@@ -5404,6 +5857,8 @@ class TestFileUpload:
         auth_with_api_token,
         warning_already_sent,
         expect_warning,
+        storage_service,
+        mocker,
     ):
         # Sanity check: If we're not authenticating with an API token,
         # that means we have at least one trusted publisher
@@ -5423,7 +5878,7 @@ class TestFileUpload:
         if auth_with_api_token:
             EmailFactory.create(user=maintainer)
             db_request.user = maintainer
-            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            _, macaroon = macaroon_service.create_macaroon(
                 "fake location",
                 "fake description",
                 [caveats.RequestUser(user_id=str(maintainer.id))],
@@ -5436,7 +5891,7 @@ class TestFileUpload:
             db_request.oidc_publisher = identity.publisher
             db_request.oidc_claims = identity.claims
             db_request.user = None
-            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            _, macaroon = macaroon_service.create_macaroon(
                 "fake location",
                 "fake description",
                 [
@@ -5466,18 +5921,12 @@ class TestFileUpload:
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", extract_http_macaroon
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
@@ -5487,9 +5936,10 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            legacy, "send_api_token_used_in_trusted_publisher_project_email", send_email
+        send_email = mocker.patch.object(
+            legacy,
+            "send_api_token_used_in_trusted_publisher_project_email",
+            autospec=True,
         )
 
         resp = legacy.file_upload(db_request)
@@ -5505,18 +5955,18 @@ class TestFileUpload:
             )
         ).scalar()
         if expect_warning:
-            assert send_email.calls == [
-                pretend.call(
+            assert send_email.call_args_list == [
+                mock.call(
                     db_request,
                     {owner, maintainer},
                     project_name=project.name,
                     token_owner_username=maintainer.username,
                     token_name=macaroon.description,
-                ),
+                )
             ]
             assert warning_exists
         else:
-            assert send_email.calls == []
+            send_email.assert_not_called()
             if not warning_already_sent:
                 assert not warning_exists
 
@@ -5525,13 +5975,17 @@ class TestFileUpload:
         [
             (
                 "Some_Thing",
-                "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'Some_Thing'.",
+                (
+                    "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'Some_Thing'."
+                ),
             ),
             (
                 "some.thing",
-                "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'some.thing'.",
+                (
+                    "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'some.thing'."
+                ),
             ),
         ],
     )
@@ -5545,6 +5999,8 @@ class TestFileUpload:
         macaroon_service,
         project_name,
         status,
+        storage_service,
+        mocker,
     ):
         project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
@@ -5566,15 +6022,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": digest,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(data),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(data), type="application/zip"
                 ),
             }
         )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
 
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
@@ -5583,7 +6035,7 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -5619,6 +6071,8 @@ class TestFileUpload:
         filename,
         version,
         expected,
+        storage_service,
+        mocker,
     ):
         project = ProjectFactory.create(name="some_thing")
         owner = UserFactory.create()
@@ -5635,7 +6089,7 @@ class TestFileUpload:
                 "version": version,
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
+                "content": _content_field(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
@@ -5643,15 +6097,13 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -5685,6 +6137,7 @@ class TestFileUpload:
         expected_version,
         filetype,
         mimetype,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5720,10 +6173,8 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": filetype,
                 "md5_digest": digest,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(data),
-                    type=mimetype,
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(data), type=mimetype
                 ),
             }
         )
@@ -5737,7 +6188,6 @@ class TestFileUpload:
         if filetype == "bdist_wheel":
             db_request.POST.extend([("pyversion", "py3")])
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5790,6 +6240,7 @@ class TestFileUpload:
         expected_version,
         filetype,
         mimetype,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5825,17 +6276,14 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": filetype,
                 "md5_digest": digest,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(data),
-                    type=mimetype,
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(data), type=mimetype
                 ),
             }
         )
         if filetype == "bdist_wheel":
             db_request.POST.extend([("pyversion", "py3")])
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5883,6 +6331,7 @@ class TestFileUpload:
         expected_version,
         filetype,
         mimetype,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5923,10 +6372,8 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": filetype,
                 "md5_digest": digest,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(data),
-                    type=mimetype,
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(data), type=mimetype
                 ),
             }
         )
@@ -5940,7 +6387,6 @@ class TestFileUpload:
         if filetype == "bdist_wheel":
             db_request.POST.extend([("pyversion", "py3")])
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -5960,6 +6406,7 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
+        storage_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5981,10 +6428,8 @@ class TestFileUpload:
                 "summary": "This is my summary!",
                 "filetype": "bdist_wheel",
                 "md5_digest": digest,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(data),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(data), type="application/zip"
                 ),
             }
         )
@@ -5996,7 +6441,6 @@ class TestFileUpload:
         )
         db_request.POST.extend([("pyversion", "py3")])
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
@@ -6015,7 +6459,7 @@ class TestFileUpload:
         )
 
     def test_upload_for_organization_owned_project_succeeds(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service
     ):
         organization = OrganizationFactory.create(orgtype="Community")
         user = UserFactory.create(with_verified_primary_email=True)
@@ -6030,21 +6474,11 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -6061,10 +6495,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -6104,10 +6536,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -6126,7 +6556,7 @@ class TestFileUpload:
         )
 
     def test_upload_with_organization_file_size_limit_succeeds(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service
     ):
         organization = OrganizationFactory.create(
             orgtype="Company",
@@ -6144,38 +6574,19 @@ class TestFileUpload:
         filename = (
             f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
         )
-        # Create a small file representing a 110 MiB file
         filebody = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
-
-        # Mock the file size to be 110 MiB
-        class MockFieldStorage:
-            def __init__(self, data, filename):
-                self.file = io.BytesIO(data)
-                self.filename = filename
-                self.type = "application/x-wheel+zip"
-                self.length = 110 * (1024**2)  # 110 MiB
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -6189,7 +6600,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": MockFieldStorage(filebody, filename),
+                "content": _content_field(
+                    file=io.BytesIO(filebody),
+                    filename=filename,
+                    type="application/x-wheel+zip",
+                ),
             }
         )
 
@@ -6198,7 +6613,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_with_organization_total_size_limit_succeeds(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service
     ):
         organization = OrganizationFactory.create(
             orgtype="Company",
@@ -6219,38 +6634,19 @@ class TestFileUpload:
         filename = (
             f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
         )
-        # Create a small file representing a 5 GiB file
         filebody = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
-
-        # Mock the file size to be 5 GiB
-        class MockFieldStorage:
-            def __init__(self, data, filename):
-                self.file = io.BytesIO(data)
-                self.filename = filename
-                self.type = "application/x-wheel+zip"
-                self.length = 5 * (1024**3)  # 5 GiB
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -6264,7 +6660,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": MockFieldStorage(filebody, filename),
+                "content": _content_field(
+                    file=io.BytesIO(filebody),
+                    filename=filename,
+                    type="application/x-wheel+zip",
+                ),
             }
         )
 
@@ -6273,7 +6673,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_for_company_organization_owned_project_suceeds_with_subscription(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service
     ):
         organization = OrganizationFactory.create(orgtype="Company")
         user = UserFactory.create(with_verified_primary_email=True)
@@ -6289,21 +6689,11 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+        storage_service.store.side_effect = _store_asserting(filebody)
 
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -6320,10 +6710,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -6333,7 +6721,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_uses_model_property_for_file_size_limits(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service
     ):
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
@@ -6361,27 +6749,15 @@ class TestFileUpload:
         )
 
         # Mock storage service
-        storage_service = pretend.stub(
-            store=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
         # Mock file upload
-        class MockFieldStorage:
-            def __init__(self, data, filename):
-                self.file = io.BytesIO(data)
-                self.filename = filename
-                self.type = "application/x-wheel+zip"
-                self.length = len(data)
-
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -6394,7 +6770,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": MockFieldStorage(filebody, filename),
+                "content": _content_field(
+                    file=io.BytesIO(filebody),
+                    filename=filename,
+                    type="application/x-wheel+zip",
+                ),
             }
         )
 
@@ -6403,7 +6783,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_uses_model_property_for_total_size_limits(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service, mocker
     ):
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
@@ -6431,39 +6811,19 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version="1.0.0"
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        storage_service.store.side_effect = _store_asserting(filebody)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        # Mock file upload - simulate 5 GiB file size
-        class MockFieldStorage:
-            def __init__(self, data, filename):
-                self.file = io.BytesIO(data)
-                self.filename = filename
-                self.type = "application/x-wheel+zip"
-                self.length = 5 * (1024**3)  # Mock large file size
-
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
+        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -6473,7 +6833,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": MockFieldStorage(filebody, filename),
+                "content": _content_field(
+                    file=io.BytesIO(filebody),
+                    filename=filename,
+                    type="application/x-wheel+zip",
+                ),
             }
         )
 
@@ -6482,7 +6846,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_limit_property_falls_back_to_system_default(
-        self, pyramid_config, db_request, monkeypatch
+        self, pyramid_config, db_request, monkeypatch, storage_service, mocker
     ):
         """Integration test: verify properties fall back to system defaults correctly"""
         # Create project with NO custom limits and NO organization
@@ -6491,8 +6855,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         # Verify model properties return system defaults
-        from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
-
         assert project.upload_limit_size == MAX_FILESIZE
         assert project.total_size_limit_value == MAX_PROJECT_SIZE
 
@@ -6502,39 +6864,19 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version="1.0.0"
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        storage_service.store.side_effect = _store_asserting(filebody)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        # Mock file upload - simulate file just under system limit
-        class MockFieldStorage:
-            def __init__(self, data, filename):
-                self.file = io.BytesIO(data)
-                self.filename = filename
-                self.type = "application/x-wheel+zip"
-                self.length = MAX_FILESIZE - 1024  # Just under system limit
-
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
+        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -6544,7 +6886,11 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "py3",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": MockFieldStorage(filebody, filename),
+                "content": _content_field(
+                    file=io.BytesIO(filebody),
+                    filename=filename,
+                    type="application/x-wheel+zip",
+                ),
             }
         )
 
@@ -6562,8 +6908,10 @@ class TestFileUpload:
             "_is_valid_dist_file",
             lambda *a, **kw: (
                 False,
-                "PyArmor-encrypted content is not allowed. "
-                "See https://pypi.org/policy/terms-of-use/ for more information.",
+                (
+                    "PyArmor-encrypted content is not allowed. "
+                    "See https://pypi.org/policy/terms-of-use/ for more information."
+                ),
             ),
         )
 
@@ -6591,10 +6939,8 @@ class TestFileUpload:
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(filebody),
-                    type="application/zip",
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
                 ),
             }
         )
@@ -6605,6 +6951,120 @@ class TestFileUpload:
         resp = excinfo.value
         assert resp.status_code == 400
         assert "PyArmor-encrypted content is not allowed" in resp.status
+
+    def test_upload_fails_release_is_closed(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        now = datetime.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0", created=then)
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=io.BytesIO(filebody), type="application/zip"
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert (
+            f"Uploading new files to releases older than "
+            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed."
+            in resp.status
+        )
+
+    def test_upload_duplicate_error_on_closed_releases(
+        self, pyramid_config, db_request, mocker
+    ):
+        # 'File already exists' error should be favored over a
+        # 'Closed release' error, as this is a non-error outcome
+        # when used with --skip-existing on old releases.
+
+        now = datetime.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            created=then,
+        )
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+                "content": _content_field(
+                    filename=filename, file=file_content, type="application/tar"
+                ),
+            }
+        )
+        db_request.db.add(
+            FileFactory.create(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                sha256_digest=hashlib.sha256(filename.encode("utf8")).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode("utf8"), digest_size=256 // 8
+                ).hexdigest(),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
+                upload_time=then,
+            )
+        )
+        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+        resp = excinfo.value
+
+        # The error is 'File already exists', not the closed release error.
+        assert resp.status_code == 400
+        assert f"400 File already exists ({filename!r}" in resp.status
 
 
 def test_submit(pyramid_request):
@@ -6627,8 +7087,8 @@ def test_doc_upload(pyramid_request):
     )
 
 
-def test_missing_trailing_slash_redirect(pyramid_request):
-    pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/legacy/")
+def test_missing_trailing_slash_redirect(pyramid_request, mocker):
+    pyramid_request.route_path = mocker.Mock(return_value="/legacy/")
 
     resp = legacy.missing_trailing_slash_redirect(pyramid_request)
 
@@ -6662,6 +7122,7 @@ class TestFileUploadAdvisoryLockTiming:
         monkeypatch,
         pyramid_config,
         db_request,
+        storage_service,
     ):
         """Verify that JournalEntries are automatically separated from other
         objects into their own flush cycle, and only appear after storage upload.
@@ -6683,14 +7144,15 @@ class TestFileUploadAdvisoryLockTiming:
         )
 
         db_request.user = user
-        identity = UserContext(user, pretend.stub())
+        identity = UserContext(user, MacaroonFactory.create(user_id=user.id))
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        content = FieldStorage()
-        content.filename = filename
-        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
-        content.type = "application/tar"
+        content = _content_field(
+            filename=filename,
+            file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+            type="application/tar",
+        )
 
         db_request.POST = MultiDict(
             {
@@ -6703,24 +7165,12 @@ class TestFileUploadAdvisoryLockTiming:
             }
         )
 
-        # Track storage calls to know when S3 upload happened relative to flushes
-        storage_calls = []
-
-        def track_store(path, filepath, meta):
-            storage_calls.append(path)
-
-        storage_service = pretend.stub(store=track_store)
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
         db_request.registry.settings = {
             "warehouse.release_files_table": None,
         }
-        delay = pretend.call_recorder(lambda a: None)
-        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
-
         # Track what's actually in the session when each flush executes.
         flush_log = []
 
@@ -6732,14 +7182,14 @@ class TestFileUploadAdvisoryLockTiming:
                     "has_journal": any(
                         isinstance(obj, JournalEntry) for obj in session.new
                     ),
-                    "storage_uploaded": len(storage_calls) > 0,
+                    "storage_uploaded": storage_service.store.called,
                 }
             )
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert storage_calls, "Expected at least one storage.store() call"
+        assert storage_service.store.called, "Expected a storage.store() call"
 
         # The ensure_monotonic_journals listener defers JournalEntries when
         # other objects are also pending. They're re-added to session.new

@@ -12,7 +12,7 @@ function loadZxcvbn() {
       import(/* webpackChunkName: "zxcvbn-common" */ "@zxcvbn-ts/language-common"),
       import(/* webpackChunkName: "zxcvbn-en" */ "@zxcvbn-ts/language-en"),
     ]).then(([core, common, en]) => {
-      core.zxcvbnOptions.setOptions({
+      const factory = new core.ZxcvbnFactory({
         graphs: common.adjacencyGraphs,
         dictionary: {
           ...common.dictionary,
@@ -20,7 +20,7 @@ function loadZxcvbn() {
         },
         translations: en.translations,
       });
-      return core.zxcvbn;
+      return (password) => factory.check(password);
     });
   }
   return zxcvbnLoadPromise;

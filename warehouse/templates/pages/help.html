@@ -53,6 +53,9 @@
 {% macro archived_project() %}
   {% trans %}What's an archived project?{% endtrans %}
 {% endmacro %}
+{% macro pre_release() %}
+  {% trans %}What is a pre-release?{% endtrans %}
+{% endmacro %}
 {# My Account #}
 {% macro verified_email() %}
   {% trans %}Why do I need a verified email address?{% endtrans %}
@@ -178,7 +181,7 @@
   {% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}
 {% endmacro %}
 {% macro project_in_quarantine() %}
-  {% trans %}My project says it's in quarantine. What does that mean?{% endtrans %}
+  {% trans %}My project or release says it's in quarantine. What does that mean?{% endtrans %}
 {% endmacro %}
 {# About #}
 {% macro maintainers() %}
@@ -234,6 +237,9 @@
           </li>
           <li>
             <a href="#archived-project">{{ archived_project() }}</a>
+          </li>
+          <li>
+            <a href="#pre-release-versioning">{{ pre_release() }}</a>
           </li>
         </ul>
       </section>
@@ -485,6 +491,15 @@
   can still be resolved from the index by default, unlike deleted or
   <a href="{{ href }}">yanked</a> releases. An archived project cannot
   make new releases and will not appear in PyPI's search results.
+{% endtrans %}
+</p>
+<h3 id="pre-release-versioning">{{ pre_release() }}</h3>
+<p>
+  {% trans %}
+  A pre-release is a version of a package that is not yet considered stable for general use.
+  Pre-releases are typically labelled with suffixes such as <code>a</code> (alpha), <code>b</code> (beta),
+  or <code>rc</code> (release candidate) — for example, <code>1.0a1</code> or <code>2.3rc2</code>.
+  By default, installers such as pip will not install pre-release versions unless explicitly requested.
 {% endtrans %}
 </p>
 </section>
@@ -1077,7 +1092,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 <h3 id="deletion">{{ deletion() }}</h3>
 <p>
   {% trans %}
-  Deletion of a project, release or file on PyPI is permanent and irreversable, without exception.
+  Deletion of a project, release or file on PyPI is permanent and irreversible, without exception.
   Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user.
   Deleted files <a href="#file-name-reuse">cannot be re-uploaded</a>.
   Deleted projects, releases or files cannot be restored by PyPI administrators.
@@ -1280,7 +1295,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 <h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
 <p>
   {% trans tou="https://policies.python.org/pypi.org/Terms-of-Service/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
-  Projects may get placed in quarantine for any number of reasons,
+  Projects or individual releases may get placed in quarantine for any number of reasons,
   such as suspicion of malicious activity, spam, or other violations of the
   <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Service</a>
   or
@@ -1289,14 +1304,15 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 </p>
 <p>
   {% trans %}
-  While in quarantine, the project is not installable by clients,
-  and cannot be being modified by its maintainers.
-  PyPI Administrators will need to review this project before it can be restored.
+  While in quarantine, the project or release is not installable by clients,
+  and cannot be modified by its maintainers.
+  PyPI Administrators will need to review it before it can be restored.
+  When a single release is quarantined, other releases of the same project are unaffected.
 {% endtrans %}
 </p>
 <p>
   {% trans mailto="mailto:security@pypi.org" %}
-  If you believe your project has mistakenly been flagged for quarantine,
+  If you believe your project or release has mistakenly been flagged for quarantine,
   contact PyPI via <a href="{{ mailto }}">security@pypi.org</a>
   with any details.
 {% endtrans %}

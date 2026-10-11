@@ -5,8 +5,10 @@ import sys
 import pytest
 import transaction
 
+from tests.common import db as test_db
 from warehouse import db
 from warehouse.cli import shell
+from warehouse.config import Environment
 
 
 class TestAutoDetection:
@@ -60,12 +62,17 @@ class TestCLIShell:
         mock_autodetect = mocker.patch.object(shell, "autodetect", return_value="plain")
 
         session = mocker.stub(name="session")
-        mock_session_cls = mocker.patch.object(db, "Session", return_value=session)
+        # In dev, the shell pulls its Session through `tests.common.db`'s
+        # scoped_session so factories and `request.db` share one Session.
+        # That import happens lazily inside the dev branch of `shell.shell`,
+        # so we patch `Session` on `tests.common.db`, not `warehouse.db`.
+        mock_session_cls = mocker.patch.object(test_db, "Session", return_value=session)
 
         mock_plain = mocker.patch.object(shell, "plain")
 
         engine = mocker.stub(name="engine")
         pyramid_config.registry["sqlalchemy.engine"] = engine
+        pyramid_config.registry.settings["warehouse.env"] = Environment.development
 
         result = cli.invoke(shell.shell, obj=pyramid_config)
 
@@ -85,11 +92,12 @@ class TestCLIShell:
 
         session = mocker.stub(name="session")
         engine = mocker.stub(name="engine")
-        mock_session_cls = mocker.patch.object(db, "Session", return_value=session)
+        mock_session_cls = mocker.patch.object(test_db, "Session", return_value=session)
 
         mock_runner = mocker.patch.object(shell, type_)
 
         pyramid_config.registry["sqlalchemy.engine"] = engine
+        pyramid_config.registry.settings["warehouse.env"] = Environment.development
 
         result = cli.invoke(shell.shell, ["--type", type_], obj=pyramid_config)
 
@@ -102,17 +110,46 @@ class TestCLIShell:
         assert call_kwargs["db"] is session
         assert call_kwargs["request"].db is session
 
+    def test_non_dev_uses_warehouse_session(self, mocker, cli, pyramid_config):
+        """
+        Outside of dev, the shell should use the bare `warehouse.db.Session`
+        sessionmaker and never touch `tests.common.db.Session`.
+        """
+        mocker.patch.object(shell, "autodetect", return_value="plain")
+
+        session = mocker.stub(name="session")
+        mock_warehouse_session_cls = mocker.patch.object(
+            db, "Session", return_value=session
+        )
+        mock_test_session_cls = mocker.patch.object(test_db, "Session")
+
+        mock_plain = mocker.patch.object(shell, "plain")
+
+        engine = mocker.stub(name="engine")
+        pyramid_config.registry["sqlalchemy.engine"] = engine
+        pyramid_config.registry.settings["warehouse.env"] = Environment.production
+
+        result = cli.invoke(shell.shell, obj=pyramid_config)
+
+        assert result.exit_code == 0
+        mock_warehouse_session_cls.assert_called_once_with(bind=engine)
+        mock_test_session_cls.assert_not_called()
+        call_kwargs = mock_plain.call_args.kwargs
+        assert call_kwargs["db"] is session
+        assert call_kwargs["request"].db is session
+
     @pytest.mark.parametrize("type_", ["bpython", "ipython", "plain"])
     def test_unavailable_shell(self, mocker, cli, pyramid_config, type_):
         mock_autodetect = mocker.patch.object(shell, "autodetect")
 
         session = mocker.stub(name="session")
         engine = mocker.stub(name="engine")
-        mocker.patch.object(db, "Session", return_value=session)
+        mocker.patch.object(test_db, "Session", return_value=session)
 
         mock_runner = mocker.patch.object(shell, type_, side_effect=ImportError)
 
         pyramid_config.registry["sqlalchemy.engine"] = engine
+        pyramid_config.registry.settings["warehouse.env"] = Environment.development
 
         result = cli.invoke(shell.shell, ["--type", type_], obj=pyramid_config)
 

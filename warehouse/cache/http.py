@@ -87,7 +87,7 @@ def conditional_http_tween_factory(handler, registry):
                 and response.content_length is not None
                 and response.content_length <= BUFFER_MAX
             ):
-                response.body
+                response.body  # noqa: B018
                 streaming = False
 
             # Anything that has survived as a streaming response at this point

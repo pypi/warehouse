@@ -1,0 +1,11 @@
+id: metrics-tag-type
+
+valid:
+  - "metrics.increment(\"counter\", tags=[\"tag1\", \"tag2\"])"
+  - "request.metrics.gauge(\"gauge\", tags=None)"
+  - "metrics.histogram(\"hist\", tags=tag_list)"
+
+invalid:
+  - "metrics.increment(\"counter\", tags=\"string\")"
+  - "request.metrics.gauge(\"gauge\", tags=(\"tuple\",))"
+  - "metrics.histogram(\"hist\", tags={\"dict\": \"value\"})"

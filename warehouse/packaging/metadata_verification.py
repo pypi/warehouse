@@ -19,6 +19,13 @@ def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) 
     """
     Check if a URL matches any of the PyPI URLs for a specific project
     """
+    # Browsers treat "\" as "/" in http(s) URLs (per WHATWG); rfc3986 does
+    # not. So "/project/foo/..\x/../bar/" normalizes to /project/foo/ here
+    # while a browser visits /project/bar/. Reject backslashes so we can't
+    # be tricked into "verifying" a URL that points elsewhere.
+    if "\\" in url:
+        return False
+
     candidate_urls = (
         f"{pypi_project_url}{name}{optional_slash}"
         for pypi_project_url in _pypi_project_urls

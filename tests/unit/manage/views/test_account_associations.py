@@ -4,6 +4,7 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import OAuthAccountAssociationFactory
+from warehouse.accounts.oauth import NullGitLabOAuthClient
 from warehouse.events.tags import EventTag
 from warehouse.manage.views import account_associations as views
 
@@ -224,7 +225,6 @@ class TestGitLabAssociationConnect:
     def test_initiates_oauth_flow(self, pyramid_request, mocker):
         """Test that the connect view generates state and redirects to OAuth URL."""
         pyramid_request.registry.settings["gitlab.oauth.backend"] = True
-        from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
         mocker.spy(gitlab_service, "generate_authorize_url")
@@ -301,7 +301,6 @@ class TestGitLabAssociationCallback:
     def test_no_access_token_received(self, pyramid_request, user_service, mocker):
         """Test handling when token exchange returns no access token."""
         pyramid_request.registry.settings["gitlab.oauth.backend"] = True
-        from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
 
@@ -338,7 +337,6 @@ class TestGitLabAssociationCallback:
     ):
         """Test handling when association already exists (ValueError)."""
         pyramid_request.registry.settings["gitlab.oauth.backend"] = True
-        from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         # Pre-create an association with known values
         OAuthAccountAssociationFactory.create(
@@ -383,7 +381,6 @@ class TestGitLabAssociationCallback:
     ):
         """Test handling of unexpected exceptions during OAuth flow."""
         pyramid_request.registry.settings["gitlab.oauth.backend"] = True
-        from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
 
@@ -422,7 +419,6 @@ class TestGitLabAssociationCallback:
     ):
         """Test successful GitLab account association."""
         pyramid_request.registry.settings["gitlab.oauth.backend"] = True
-        from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
         mocker.spy(gitlab_service, "exchange_code_for_token")

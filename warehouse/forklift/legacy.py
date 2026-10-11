@@ -1,11 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
+import datetime
 import hashlib
 import hmac
 import os.path
+import posixpath
 import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
+
+from collections.abc import Iterable
+from contextlib import ExitStack, nullcontext
 
 import packaging.requirements
 import packaging.specifiers
@@ -36,7 +42,7 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import ONE_GIB, ONE_MIB
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_wheel_record_mismatch_email,
@@ -59,20 +65,26 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    added_late,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
+    InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    is_valid_platform_tag,
+    validate_entrypoints,
     validate_record,
 )
 
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
+# Upper bound on an sdist's PKG-INFO, which is read into memory to validate it.
+MAX_PKG_INFO_SIZE = 10 * ONE_MIB
 
 # If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
@@ -87,133 +99,9 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
-# Wheel platform checking
 
-# Note: defining new platform ABI compatibility tags that don't
-#       have a python.org binary release to anchor them is a
-#       complex task that needs more than just OS+architecture info.
-#       For Linux specifically, the platform ABI is defined by each
-#       individual distro version, so wheels built on one version may
-#       not even work on older versions of the same distro, let alone
-#       a completely different distro.
-#
-#       That means new entries should only be added given an
-#       accompanying ABI spec that explains how to build a
-#       compatible binary (see the manylinux specs as examples).
-
-# These platforms can be handled by a simple static list:
-_allowed_platforms = {
-    "any",
-    "win32",
-    "win_arm64",
-    "win_amd64",
-    "win_ia64",
-    "manylinux1_x86_64",
-    "manylinux1_i686",
-    "manylinux2010_x86_64",
-    "manylinux2010_i686",
-    "manylinux2014_x86_64",
-    "manylinux2014_i686",
-    "manylinux2014_aarch64",
-    "manylinux2014_armv7l",
-    "manylinux2014_ppc64",
-    "manylinux2014_ppc64le",
-    "manylinux2014_s390x",
-    "linux_armv6l",
-    "linux_armv7l",
-}
-# macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
-_macosx_arches = {
-    "ppc",
-    "ppc64",
-    "i386",
-    "x86_64",
-    "arm64",
-    "intel",
-    "fat",
-    "fat3",
-    "fat64",
-    "universal",
-    "universal2",
-}
-# macosx 10 is also supported, but with different rules
-_macosx_major_versions = {
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "26",
-}
-
-_ios_platform_re = re.compile(
-    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
-)
-_ios_arches = {
-    "arm64",
-    "x86_64",
-}
-
-_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
-_android_arches = {
-    "armeabi_v7a",
-    "arm64_v8a",
-    "x86",
-    "x86_64",
-}
-
-# manylinux pep600 and musllinux pep656 are a little more complicated:
-_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_jointlinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64le",
-    "s390x",
-    "riscv64",
-}
-_manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches
-
-_pyemscripten_platform_re = re.compile(
-    r"pyemscripten_(?P<major>\d+)_(?P<minor>\d+)_wasm32"
-)
-
-
-# Actual checking code;
 def _valid_platform_tag(platform_tag):
-    if platform_tag in _allowed_platforms:
-        return True
-    m = _macosx_platform_re.match(platform_tag)
-    # https://github.com/pypa/packaging.python.org/issues/1933
-    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
-    # only the minor version ever increased, and `macosx_{major}_0` for the
-    # new release scheme where we don't know how many minor versions each
-    # release has.
-    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
-        return True
-    if (
-        m
-        and m.group("major") in _macosx_major_versions
-        and m.group("minor") == "0"
-        and m.group("arch") in _macosx_arches
-    ):
-        return True
-    m = _linux_platform_re.match(platform_tag)
-    if m and m.group("libc") == "musl":
-        return m.group("arch") in _musllinux_arches
-    if m and m.group("libc") == "many":
-        return m.group("arch") in _manylinux_arches
-    m = _ios_platform_re.match(platform_tag)
-    if m and m.group("arch") in _ios_arches:
-        return True
-    m = _android_platform_re.match(platform_tag)
-    if m and m.group("arch") in _android_arches:
-        return True
-    m = _pyemscripten_platform_re.match(platform_tag)
-    return bool(m)
+    return is_valid_platform_tag(platform_tag)
 
 
 _error_message_order = ["metadata-version", "name", "version"]
@@ -270,7 +158,22 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
+def _open_dist_file(filename, stack: ExitStack):
+    if filename.endswith((".zip", ".whl")):
+        return stack.enter_context(zipfile.ZipFile(filename))
+    if filename.endswith(".tar.gz"):
+        return stack.enter_context(tarfile.open(filename, mode="r:gz"))
+    raise ValueError(f"Unsupported distribution file: {filename}")
+
+
+def _is_valid_dist_file(
+    filename,
+    filetype,
+    metrics,
+    *,
+    scan=True,
+    archive=None,
+):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
@@ -281,6 +184,8 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
     name enumeration, both of which do CPU-bound work synchronously inside
     the upload request.
+
+    If ``archive`` is provided, it is retained by the caller for subsequent checks.
     """
     is_zipfile = bool(filename and zipfile.is_zipfile(filename))
     is_tarfile = bool(filename and tarfile.is_tarfile(filename))
@@ -291,11 +196,16 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     if filename.endswith((".zip", ".whl")):
         if not is_zipfile:
             return False, "File is not a zipfile"
+
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
         try:
-            with zipfile.ZipFile(filename) as zfp:
-                # Ensure that the compression ratio is not absurd (decompression bomb)
+            archive_context = (
+                zipfile.ZipFile(filename) if archive is None else nullcontext(archive)
+            )
+            with archive_context as zfp:
+                # Ensure that the compression ratio is not absurd
+                # (decompression bomb)
                 compressed_size = os.stat(filename).st_size
                 decompressed_size = sum(e.file_size for e in zfp.infolist())
                 if (
@@ -310,8 +220,10 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                     )
                     return (
                         False,
-                        "File exceeds compression ratio of "
-                        f"{COMPRESSION_RATIO_THRESHOLD}",
+                        (
+                            "File exceeds compression ratio of "
+                            f"{COMPRESSION_RATIO_THRESHOLD}"
+                        ),
                     )
 
                 # Check that the compression type is valid
@@ -324,6 +236,9 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                             False,
                             "File does not use a supported compression type",
                         )
+
+                if (alias := _non_canonical_member_path(zfp.namelist())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
 
                 if filename.endswith(".zip"):
                     top_level = _commonpath(zfp.namelist())
@@ -366,14 +281,14 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                         )
                         return False, yara_match.message
 
-            # Check the ZIP file record framing
-            # to avoid parser differentials.
-            zip_ok, zip_error = zipfiles.validate_zipfile(filename)
-            if not zip_ok:
-                return False, (
-                    f"ZIP archive not accepted: {zip_error}. "
-                    f"See https://docs.pypi.org/archives for more information"
-                )
+                # Check the ZIP file record framing
+                # to avoid parser differentials.
+                zip_ok, zip_error = zipfiles.validate_zipfile(zfp)
+                if not zip_ok:
+                    return False, (
+                        f"ZIP archive not accepted: {zip_error}. "
+                        f"See https://docs.pypi.org/archives for more information"
+                    )
 
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None
@@ -381,15 +296,38 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     elif filename.endswith(".tar.gz"):
         if not is_tarfile:
             return False, "File is not a tarfile"
+
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
         try:
-            with tarfile.open(filename, "r:gz") as tar:
+            # Ignore SIM115: the returned TarFile is managed by the context below.
+            archive_context = (
+                tarfile.open(filename, "r:gz")  # noqa: SIM115
+                if archive is None
+                else nullcontext(archive)
+            )
+            with archive_context as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
+                # Sparse members rely on GNU extensions, including when stored
+                # in a pax header, and are not valid in PEP 625 sdists.
+                if any(member.issparse() for member in tar.getmembers()):
+                    metrics.increment(
+                        "warehouse.upload.tarfile.policy_error",
+                        tags=["reason:sparse-member"],
+                    )
+                    return (
+                        False,
+                        (
+                            "tar archive not accepted: Sparse members are not allowed. "
+                            "See https://docs.pypi.org/archives for more information"
+                        ),
+                    )
+                if (alias := _non_canonical_member_path(tar.getnames())) is not None:
+                    return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -416,7 +354,7 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                         )
                         return False, yara_match.message
 
-        except (tarfile.ReadError, EOFError):
+        except tarfile.ReadError, EOFError, zlib.error:
             return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
@@ -506,6 +444,45 @@ def _commonpath(values):
     return os.path.commonpath(values)
 
 
+def _non_canonical_member_path(names: Iterable[str]) -> str | None:
+    """
+    Return the first archive member path that an installer would normalize to
+    a different path, or ``None`` if every path is already canonical.
+
+    pip maps wheel members through ``PurePosixPath`` and tar extraction
+    normalizes too, so ``x.dist-info/./METADATA`` lands on ``METADATA`` and
+    replaces the entry Warehouse validated.
+    """
+    for name in names:
+        if name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+            return name
+    return None
+
+
+def _validate_artifact_dependencies(
+    request: Request, filetype: str, description: str, content: bytes
+) -> None:
+    """
+    Reject an artifact whose own metadata file declares a direct dependency.
+
+    ``description`` names the artifact and file for the error message, e.g.
+    ``"Wheel 'foo.whl' has invalid METADATA"``.
+    """
+    try:
+        metadata.validate_artifact_dependencies(content)
+    except metadata.InvalidMetadata as error:
+        request.metrics.increment(
+            "warehouse.upload.failed",
+            tags=["reason:invalid-artifact-metadata", f"filetype:{filetype}"],
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"{description} ({error.field}): {error}. "
+            "See https://packaging.python.org/specifications/core-metadata "
+            "for more information.",
+        )
+
+
 def _ensure_user_can_upload(request: Request) -> None:
     """Enforce per-user upload prerequisites: a verified primary email and 2FA.
 
@@ -554,6 +531,21 @@ def _ensure_user_can_upload(request: Request) -> None:
         ) from None
 
 
+def _close_upload_tempfiles(request):
+    # WebOb's multipart parsing creates two tempfiles when the body is large
+    # enough to exceed ``request_body_tempfile_limit``: one buffering the raw
+    # request body (``body_file_raw``) and one per file field on the parsed
+    # FieldStorage. Neither is closed by WebOb on its own — without explicit
+    # cleanup the OS file descriptors are only reclaimed when the request is
+    # garbage collected, triggering ResourceWarning under -W error.
+    content = request.POST.get("content")
+    if content is not None and hasattr(content, "file"):
+        content.file.close()
+    body_file = request.body_file_raw
+    if hasattr(body_file, "close") and not getattr(body_file, "closed", True):
+        body_file.close()
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -566,6 +558,12 @@ def _ensure_user_can_upload(request: Request) -> None:
 def file_upload(request):
     # Log an attempt to upload
     request.metrics.increment("warehouse.upload.attempt")
+
+    # WebOb's multipart parser backs the request body and uploaded "content"
+    # field with tempfiles; ensure they're closed at request teardown
+    # regardless of which exit path this view takes, so the fds aren't
+    # reclaimed by GC later (which would surface as a ResourceWarning).
+    request.add_finished_callback(_close_upload_tempfiles)
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings: list[str] = []
@@ -586,7 +584,7 @@ def file_upload(request):
             if field_name in form.errors:
                 break
         else:
-            field_name = sorted(form.errors.keys())[0]
+            field_name = min(form.errors.keys())
 
         if field_name in form:
             field = form[field_name]
@@ -620,7 +618,9 @@ def file_upload(request):
 
     # Get a validated Metadata object from the form data.
     # TODO: We should eventually extract this data out of the artifact and use that,
-    #       but for now we'll continue to use the form data.
+    #       but for now we'll continue to use the form data. Until then, only the
+    #       artifact's dependency fields are checked, further down.
+    #       See: https://github.com/pypi/warehouse/issues/8090
     try:
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
@@ -635,7 +635,7 @@ def file_upload(request):
             if field_name in errors:
                 break
         else:
-            field_name = sorted(errors.keys())[0]
+            field_name = min(errors.keys())
 
         # Return an error for the field, using the first error that we can find
         # for that field
@@ -991,7 +991,7 @@ def file_upload(request):
             dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
             **{
                 k: getattr(meta, k)
-                for k in {
+                for k in (
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "summary",
@@ -1001,7 +1001,7 @@ def file_upload(request):
                     "author",
                     "maintainer",
                     "provides_extra",
-                }
+                )
             },
             uploader=request.user or None,
             uploaded_via=request.user_agent,
@@ -1056,7 +1056,7 @@ def file_upload(request):
     project_size_limit = project.total_size_limit_value
 
     file_data = None
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory() as tmpdir, ExitStack() as archive_stack:
         temporary_filename = os.path.join(tmpdir, filename)
 
         # Buffer the entire file onto disk, checking the hash of the file as we
@@ -1162,6 +1162,21 @@ def file_upload(request):
                 + " for more information.",
             )
 
+        # Check that the release is either new or that the release
+        # is still within the window allowing new files to be published.
+        # Note that this feature explicitly doesn't protect against
+        # users deleting and recreating releases in the UI, only
+        # against uploads through compromised API tokens or workflows.
+        if added_late(datetime.datetime.now(), release.created):
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:closed-release"]
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Uploading new files to releases older than "
+                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed.",
+            )
+
         # Check to see if uploading this file would create a duplicate sdist
         # for the current release.
         if (
@@ -1185,12 +1200,27 @@ def file_upload(request):
             "warehouse.upload.validate",
             tags=[f"filetype:{form.filetype.data}"],
         ):
-            _valid, _msg = _is_valid_dist_file(
-                temporary_filename,
-                form.filetype.data,
-                request.metrics,
-                scan=_scan,
-            )
+            upload_archive = None
+            try:
+                upload_archive = _open_dist_file(
+                    temporary_filename,
+                    archive_stack,
+                )
+            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                )
+            else:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                    archive=upload_archive,
+                )
         if not _valid:
             request.metrics.increment(
                 "warehouse.upload.failed",
@@ -1221,7 +1251,7 @@ def file_upload(request):
                     f"Invalid source distribution filename: {filename}",
                 )
 
-            # The previous function fails to accomodate the edge case where
+            # The previous function fails to accommodate the edge case where
             # versions may contain hyphens, so we handle that here based on
             # what we were expecting. This requires there to be at least two
             # hyphens in the filename: one between the project name & version
@@ -1284,31 +1314,62 @@ def file_upload(request):
 
             filename = os.path.basename(temporary_filename)
 
+            # _is_valid_dist_file above checked that this is a tarfile with a
+            # member named PKG-INFO, but not what kind of member it is.
+            tar = upload_archive
+            assert isinstance(tar, tarfile.TarFile)
+            top_level = _commonpath(tar.getnames())
+            pkg_info_name = os.path.join(top_level, "PKG-INFO")
+            pkg_info_member = tar.getmember(pkg_info_name)
+            if not pkg_info_member.isfile() or pkg_info_member.size > MAX_PKG_INFO_SIZE:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-pkg-info",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Source distribution '{filename}' has invalid PKG-INFO: "
+                    f"{pkg_info_name} must be a regular file no larger than "
+                    f"{MAX_PKG_INFO_SIZE // ONE_MIB} MiB.",
+                )
+            # Reading a member re-inflates the stream from wherever the
+            # validation scan left it, so time it like getnames above.
+            with request.metrics.timed("warehouse.upload.tarfile.read_pkg_info"):
+                pkg_info = tar.extractfile(pkg_info_member)
+                assert pkg_info is not None  # isfile() above guarantees this
+                pkg_info_content = pkg_info.read()
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Source distribution '{filename}' has invalid PKG-INFO",
+                pkg_info_content,
+            )
+
             if meta.license_files:
                 """
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = _commonpath(tar.getnames())
-                    # Already validated as a tarfile by _is_valid_dist_file above
-                    for license_file in meta.license_files:
-                        target_file = os.path.join(top_level, license_file)
-                        try:
-                            tar.getmember(target_file)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {target_file}",
-                            )
+                for license_file in meta.license_files:
+                    target_file = os.path.join(top_level, license_file)
+                    try:
+                        tar.getmember(target_file)
+                    except KeyError:
+                        request.metrics.increment(
+                            "warehouse.upload.failed",
+                            tags=[
+                                "reason:missing-license-file",
+                                f"filetype:{form.filetype.data}",
+                            ],
+                        )
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            f"License-File {license_file} does not exist in "
+                            f"distribution file {filename} at {target_file}",
+                        )
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
@@ -1394,38 +1455,40 @@ def file_upload(request):
             filename = os.path.basename(temporary_filename)
             # Get the name and version from the original filename. Eventually this
             # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
+            # we can't use this as it adds additional normalization to the project name
             # and version.
             name, version, _ = filename.split("-", 2)
+
+            zfp = upload_archive
+            assert isinstance(zfp, zipfile.ZipFile)
 
             if meta.license_files:
                 """
                 Ensure all License-File keys exist in the wheel
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    for license_file in meta.license_files:
-                        license_filename = (
-                            f"{name}-{version}.dist-info/licenses/{license_file}"
+                for license_file in meta.license_files:
+                    license_filename = (
+                        f"{name}-{version}.dist-info/licenses/{license_file}"
+                    )
+                    try:
+                        zfp.read(license_filename)
+                    except KeyError:
+                        request.metrics.increment(
+                            "warehouse.upload.failed",
+                            tags=[
+                                "reason:missing-license-file",
+                                f"filetype:{form.filetype.data}",
+                            ],
                         )
-                        try:
-                            zfp.read(license_filename)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {license_filename}",
-                            )
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            f"License-File {license_file} does not exist in "
+                            f"distribution file {filename} at {license_filename}",
+                        )
 
             try:
-                validate_record(temporary_filename)
+                validate_record(zfp)
             except MissingWheelRecordError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
@@ -1450,6 +1513,22 @@ def file_upload(request):
                     filename=filename,
                 )
 
+            try:
+                validate_entrypoints(zfp)
+            except InvalidWheelEntryPointsError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-entrypoints",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Wheel '{filename}' has invalid entry points defined in "
+                    "the entry_points.txt file",
+                )
+
             """
             Extract METADATA file from a wheel and return it as a content.
             The name of the .whl file is used to find the corresponding .dist-info dir.
@@ -1457,8 +1536,7 @@ def file_upload(request):
             """
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_metadata_contents = zfp.read(metadata_filename)
+                wheel_metadata_contents = zfp.read(metadata_filename)
             except KeyError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
@@ -1472,6 +1550,12 @@ def file_upload(request):
                     f"Wheel '{filename}' does not contain the required "
                     f"METADATA file: {metadata_filename}",
                 )
+            _validate_artifact_dependencies(
+                request,
+                form.filetype.data,
+                f"Wheel '{filename}' has invalid METADATA",
+                wheel_metadata_contents,
+            )
             try:
                 with open(temporary_filename + ".metadata", "wb") as fp:
                     fp.write(wheel_metadata_contents)
@@ -1660,7 +1744,7 @@ def file_upload(request):
         )
     )
 
-    request.db.flush()  # flush db now so server default values are populated for celery
+    request.db.flush()  # ast-grep-ignore: db-flush -- server default columns for celery
 
     # Push updates to BigQuery
     dist_metadata = {

@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/typography";
 
 /*
-  A heading aligned in the center, with a sub title and horziontal rule:
+  A heading aligned in the center, with a sub title and horizontal rule:
 
   <div class="centered-heading">
     <h1 class="centered-heading__title">Title</h1>
@@ -26,7 +26,7 @@
   &__rule {
     max-width: 300px;
     margin: grid.$half-spacing-unit auto (grid.$spacing-unit * 2);
-    background: colours.$base-grey;
+    background: colors.$base-grey;
 
     @media only screen and (max-width: breakpoints.$tablet) {
       display: none;

@@ -4,16 +4,19 @@ import urllib.parse
 
 import certifi
 import opensearchpy
-import requests_aws4auth
 
+from botocore.credentials import Credentials
 from celery.schedules import crontab
+from opensearchpy import RequestsAWSV4SignerAuth
 from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.packaging.models import LifecycleStatus, Project, Release
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
+from warehouse.search.tasks import reindex
 from warehouse.search.utils import get_index
+from warehouse.utils.db import has_only_audit_changes
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -29,7 +32,12 @@ def store_projects_for_project_reindex(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a Project to reindex for when the session has been committed.
-    for obj in session.new | session.dirty:
+    dirty = session.dirty
+    for obj in session.new | dirty:
+        if obj.__class__ not in (Project, Release):
+            continue
+        if has_only_audit_changes(obj, dirty):
+            continue
         if obj.__class__ == Project:
             # Un-index archived/quarantined projects
             if obj.lifecycle_status in [
@@ -98,19 +106,16 @@ def includeme(config):
     if aws_auth:
         aws_region = qs.get("region", ["us-east-1"])[0]
         kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
-        kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
-            config.registry.settings["aws.key_id"],
-            config.registry.settings["aws.secret_key"],
-            aws_region,
-            "es",
+        credentials = Credentials(
+            access_key=config.registry.settings["aws.key_id"],
+            secret_key=config.registry.settings["aws.secret_key"],
         )
+        kwargs["http_auth"] = RequestsAWSV4SignerAuth(credentials, aws_region, "es")
     config.registry["opensearch.client"] = opensearchpy.OpenSearch(**kwargs)
     config.registry["opensearch.index"] = p.path.strip("/")
     config.registry["opensearch.shards"] = int(qs.get("shards", ["1"])[0])
     config.registry["opensearch.replicas"] = int(qs.get("replicas", ["0"])[0])
     config.add_request_method(opensearch, name="opensearch", reify=True)
-
-    from warehouse.search.tasks import reindex
 
     config.add_periodic_task(crontab(minute=0, hour=6), reindex)
 

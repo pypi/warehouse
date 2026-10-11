@@ -12,6 +12,10 @@ A custom styled code block.
  <pre class="code-block">
    Code here
  </pre>
+
+Modifiers:
+  - tight: Reduces the block's padding.
+  - with-copy: tight, with a copy-to-clipboard button.
 */
 
 .code-block {
@@ -21,4 +25,27 @@ A custom styled code block.
   word-break: break-all;
   direction: ltr;
   overflow-x: auto;
+}
+
+.code-block--tight {
+  padding: grid.$quarter-spacing-unit;
+}
+
+.code-block--with-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: grid.$quarter-spacing-unit;
+  padding: grid.$quarter-spacing-unit;
+
+  span {
+    flex: 1;
+    min-width: 0;
+    word-break: break-all;
+  }
+
+  .button {
+    padding: 2px 4px;
+    border: 0;
+    flex-shrink: 0;
+  }
 }

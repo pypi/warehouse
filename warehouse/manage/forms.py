@@ -4,10 +4,6 @@ import json
 
 import wtforms
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
-from warehouse import forms
 from warehouse.accounts.forms import (
     NewEmailMixin,
     NewPasswordMixin,
@@ -23,6 +19,7 @@ from warehouse.organizations.models import (
     OrganizationType,
     TeamProjectRoleType,
 )
+from warehouse.utils import otp, webauthn
 from warehouse.utils.project import PROJECT_NAME_RE
 
 # /manage/account/ forms
@@ -591,9 +588,24 @@ class TransferOrganizationProjectForm(wtforms.Form):
 class CreateOrganizationRoleForm(
     OrganizationRoleNameMixin, UsernameMixin, wtforms.Form
 ):
-    def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
+    def __init__(
+        self,
+        *args,
+        orgtype,
+        organization_service,
+        user_service,
+        allow_billing_manager_only=False,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
-        if orgtype != OrganizationType.Company:
+        if allow_billing_manager_only:
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if choice[0] == OrganizationRoleType.BillingManager.value
+                or choice[0] == ""
+            ]
+        elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
             self.role_name.choices = [
                 choice
@@ -644,6 +656,7 @@ class SaveOrganizationForm(wtforms.Form):
         ]
     )
     link_url = wtforms.URLField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message="Specify your organization URL"),
             wtforms.validators.Length(
@@ -657,7 +670,7 @@ class SaveOrganizationForm(wtforms.Form):
                 r"^https?://",
                 message=_("The organization URL must start with http:// or https://"),
             ),
-        ]
+        ],
     )
     description = wtforms.TextAreaField(
         validators=[
@@ -802,51 +815,3 @@ class SaveTeamForm(wtforms.Form):
 
 class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
-
-
-class AddAlternateRepositoryForm(wtforms.Form):
-    """Form to add an Alternate Repository Location for a Project."""
-
-    __params__ = ["display_name", "link_url", "description"]
-
-    display_name = wtforms.StringField(
-        validators=[
-            wtforms.validators.InputRequired(
-                message=_("Specify your alternate repository name"),
-            ),
-            wtforms.validators.Length(
-                max=100,
-                message=_(
-                    "The name is too long. Choose a name with 100 characters or less."
-                ),
-            ),
-        ]
-    )
-    link_url = wtforms.URLField(
-        validators=[
-            wtforms.validators.InputRequired(
-                message=_("Specify your alternate repository URL"),
-            ),
-            wtforms.validators.Length(
-                max=400,
-                message=_(
-                    "The URL is too long. Choose a URL with 400 characters or less."
-                ),
-            ),
-            forms.URIValidator(),
-        ]
-    )
-    description = wtforms.TextAreaField(
-        validators=[
-            wtforms.validators.InputRequired(
-                message="Describe the purpose and content of the alternate repository."
-            ),
-            wtforms.validators.Length(
-                max=400,
-                message=_(
-                    "The description is too long. "
-                    "Choose a description with 400 characters or less."
-                ),
-            ),
-        ]
-    )

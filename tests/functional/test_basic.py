@@ -9,6 +9,20 @@ import pytest
 import webtest
 
 
+@pytest.mark.parametrize(
+    "path",
+    ["/_health/", "/_health/web", "/_health/api", "/_health/other/nested/"],
+)
+def test_health(webtest, path):
+    response = webtest.get(path, status=HTTPStatus.OK)
+    assert response.content_type == "text/plain"
+    assert response.body == b"OK"
+
+
+def test_health_prefix_boundary(webtest):
+    webtest.get("/_healthcheck/api", status=HTTPStatus.NOT_FOUND)
+
+
 def test_funding_manifest_urls(app_config):
     testapp = webtest.TestApp(app_config.make_wsgi_app())
     resp = testapp.get("/.well-known/funding-manifest-urls")
@@ -74,6 +88,18 @@ def test_robots_txt(app_config, domain, indexable):
         assert body == (
             "Sitemap: http://localhost/sitemap.xml\n\nUser-agent: *\nDisallow: /\n"
         )
+
+
+def test_organizations_landing_page(webtest):
+    resp = webtest.get("/organizations/", status=HTTPStatus.OK)
+    assert "https://example.com/service-agreement-survey" in resp.text
+    assert "/manage/organizations/" in resp.text
+
+
+def test_homepage_links_to_organizations(webtest):
+    resp = webtest.get("/", status=HTTPStatus.OK)
+    banner = resp.html.find("div", {"class": "homepage-banner"})
+    assert banner.find("a", href="/organizations/") is not None
 
 
 def test_non_existent_route_404(webtest):

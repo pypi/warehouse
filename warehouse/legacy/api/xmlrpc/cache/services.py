@@ -12,11 +12,11 @@ from warehouse.legacy.api.xmlrpc.cache import interfaces
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def purge_tag(task, request, tag):
     service = request.find_service(interfaces.IXMLRPCCache)
-    request.log.info("Purging %s", tag)
+    request.log.info("Purging cache tag", tag=tag)
     try:
         service.purge(tag)
     except interfaces.CacheError as exc:
-        request.log.error("Error purging %s: %s", tag, str(exc))
+        request.log.error("Error purging cache tag", tag=tag, error=str(exc))
         raise task.retry(exc=exc)
 
 
@@ -48,6 +48,12 @@ class RedisXMLRPCCache:
                     "warehouse.xmlrpc.cache.expires", 25 * 60 * 60
                 )
             ),
+            # `execute_purge` calls this factory with the Configurator rather than a
+            # request, and a Configurator has no `metrics`. That path only calls
+            # `purge_tags`, which enqueues celery tasks and never touches `RedisLru`,
+            # so falling back to `StubMetricReporter` there loses nothing: the real
+            # `purge` runs in the `purge_tag` task, which does have a request.
+            metric_reporter=getattr(request, "metrics", None),
         )
 
     def fetch(self, func, args, kwargs, key, tag, expires):

@@ -8,6 +8,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 
 
 # NOTE: Is there a better place for this to live? It may not even need to exist
@@ -22,6 +23,37 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
+    # Placeholder for the Maintainer API, the key-authenticated surface kept
+    # distinct from Upload API Tokens (macaroons). No policy implements it yet.
+    API_KEY = "api-key"
+
+
+# Which AuthenticationMethods may grant a given Permission. Anything not in
+# this table defaults to SESSION-only (browser flows).
+#
+# MACAROON should long-term only grant ProjectsUpload. The APIEcho and
+# APIObservationsAdd entries are transitional and go away once the Maintainer
+# API takes over those endpoints. Don't add new MACAROON entries here; new API
+# endpoints authenticate with API_KEY instead.
+PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
+    Permissions.ProjectsUpload: frozenset(
+        {AuthenticationMethod.MACAROON, AuthenticationMethod.BASIC_AUTH}
+    ),
+    # Transitional: move to the Maintainer API, then delete.
+    Permissions.APIEcho: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
+}
+
+
+def permission_allowed_by_authentication_method(
+    permission: Permissions | str, method: AuthenticationMethod
+) -> bool:
+    """Return whether ``method`` may grant ``permission``."""
+    if not isinstance(permission, Permissions):
+        return method == AuthenticationMethod.SESSION
+    return method in PERMISSION_AUTH_METHODS.get(
+        permission, frozenset({AuthenticationMethod.SESSION})
+    )
 
 
 @implementer(ISecurityPolicy)

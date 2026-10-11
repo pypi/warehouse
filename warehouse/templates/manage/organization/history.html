@@ -42,9 +42,13 @@
         {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
-      {% set target_user = get_user(event.additional.target_user_id).username %}
+      {% set target_user_obj = get_user(event.additional.target_user_id) %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
+        {% if target_user_obj %}
+          {% trans href=request.route_path('accounts.profile', username=target_user_obj.username), username=target_user_obj.username, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
+        {% else %}
+          {% trans role_name=event.additional.role_name|lower %}A deleted user was removed as organization {{ role_name }}{% endtrans %}
+        {% endif %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleChange %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
@@ -116,12 +120,28 @@
       <small>
         {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
       </small>
+      {# Display action for organization billing events #}
+    {% elif event.tag == EventTag.Organization.SubscriptionCreate %}
+      <strong>{% trans %}Subscription started{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.SubscriptionStatusChange %}
+      <strong>{% trans status=event.additional.status %}Subscription status changed to {{ status }}{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.SubscriptionCancel %}
+      {% if event.additional.at_period_end %}
+        <strong>{% trans %}Subscription set to cancel at period end{% endtrans %}</strong>
+      {% else %}
+        <strong>{% trans %}Subscription canceled{% endtrans %}</strong>
+      {% endif %}
+      {% if event.additional.canceled_by %}
+        <small>{% trans canceled_by=event.additional.canceled_by %}Canceled by: {{ canceled_by }}{% endtrans %}</small>
+      {% endif %}
       {# For everything else, display the tag itself #}
     {% else %}
       <strong>{{ event.tag }}</strong>
     {% endif %}
-    {# Display acting user for catalog entry events #}
-    {% if event.tag == EventTag.Organization.CatalogEntryAdd %}
+    {# Billing events render their acting user (if any) in the summary above #}
+    {% if event.tag in [EventTag.Organization.SubscriptionCreate, EventTag.Organization.SubscriptionStatusChange, EventTag.Organization.SubscriptionCancel] %}
+      {# Display acting user for catalog entry events #}
+    {% elif event.tag == EventTag.Organization.CatalogEntryAdd %}
       {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
       <small>
         {% trans %}Registered by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>

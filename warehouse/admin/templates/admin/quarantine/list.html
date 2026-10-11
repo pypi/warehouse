@@ -164,4 +164,93 @@
       {% endif %}
     </div>
   </div>
+
+  <div class="card mt-3">
+    <div class="card-header">
+      <h3 class="card-title">Releases in Quarantine</h3>
+    </div>
+    <div class="card-body">
+      {% if quarantined_releases %}
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Version</th>
+                <th class="d-none d-md-table-cell">Days in Quarantine</th>
+                <th class="d-none d-lg-table-cell">Quarantined Date</th>
+                <th class="d-none d-xl-table-cell">Note</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for release in quarantined_releases %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.detail', project_name=release.project.name) }}">
+                      <strong>{{ release.project.name }}</strong>
+                    </a>
+                  </td>
+                  <td><code>{{ release.version }}</code></td>
+                  <td class="d-none d-md-table-cell">
+                    {% if release.lifecycle_status_changed %}
+                      {% set days_quarantined = (now() - release.lifecycle_status_changed).days %}
+                      <span class="badge badge-{{ 'warning' if days_quarantined > 30 else ('info' if days_quarantined > 7 else 'secondary') }}">
+                        {{ days_quarantined }} days
+                      </span>
+                    {% else %}
+                      <em>Unknown</em>
+                    {% endif %}
+                  </td>
+                  <td class="d-none d-lg-table-cell">
+                    {% if release.lifecycle_status_changed %}
+                      {{ release.lifecycle_status_changed.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+                    {% else %}
+                      <em>Unknown</em>
+                    {% endif %}
+                  </td>
+                  <td class="d-none d-xl-table-cell">
+                    {% if release.lifecycle_status_note %}
+                      {{ release.lifecycle_status_note }}
+                    {% else %}
+                      <em>No note</em>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}"
+                         class="btn btn-sm btn-info" title="View Release">
+                        <i class="fa fa-eye"></i> View
+                      </a>
+                      <form method="post"
+                            action="{{ request.route_path('admin.project.release.remove_from_quarantine', project_name=release.project.normalized_name, version=release.version) }}"
+                            class="d-inline">
+                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-success" title="Clear from Quarantine">
+                          <i class="fa fa-unlock"></i> Release
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3">
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+            <strong>{{ quarantined_releases|length }}</strong> release{{ 's' if quarantined_releases|length != 1 else '' }} currently in quarantine.
+            Excludes releases whose parent project is already quarantined.
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-success">
+          <i class="fa fa-check-circle"></i>
+          No individual releases are currently in quarantine.
+        </div>
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}
