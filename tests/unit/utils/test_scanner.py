@@ -496,14 +496,18 @@ class TestPyPITokenDetection:
     @pytest.mark.parametrize(
         "token",
         [
+            # placeholders
             "pypi-AgEIcHlwaS5vcmcCJDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             "pypi-AgEIcHlwaS5vcmcCJ...",
+            # patterns detecting the token format
+            "pypi-AgEIcHlwaS[A-Za-z0-9_-]{50,}",
+            "pypi-AgEIcHlwaS5vcmcCJ[a-zA-Z0-9-_]{150,157}"
         ],
     )
     @pytest.mark.parametrize(
         "dist_factory", [_make_tarball, _make_wheel], ids=["tarball", "wheel"]
     )
-    def test_ignores_sample_tokens(
+    def test_ignores_sample_tokens_and_detection(
         self, tmp_path, rules, token, filename, dist_factory
     ):
         dist = dist_factory(tmp_path, {f"pkg/{filename}": token})
