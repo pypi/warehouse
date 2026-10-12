@@ -154,7 +154,7 @@
                                  value="{{ value }}"
                                  data-action="filter-list#filter filter-dropdown#close"
                                  data-filter-list-target="filter"
-                                 data-filtered-source="interpreter"
+                                 data-filtered-source="fileInterpreter"
                                  data-comparison-type="exact"
                                  data-auto-update-url-querystring="true">
                           {{ label }}
@@ -173,7 +173,7 @@
                                  value="{{ value }}"
                                  data-action="filter-list#filter filter-dropdown#close"
                                  data-filter-list-target="filter"
-                                 data-filtered-source="platform"
+                                 data-filtered-source="filePlatform"
                                  data-comparison-type="exact"
                                  data-auto-update-url-querystring="true">
                           {{ label }}
@@ -203,8 +203,8 @@
                   data-filename="{{ vfile.filename }}"
                   data-filtered-target-provenance='{{ (["with-provenance"] if attestation_count else ["without-provenance"]) | tojson }}'
                   data-filtered-target-file-type='{{ (["sdist"] if vfile.packagetype == "sdist" else ["wheel"]) | tojson }}'
-                  data-filtered-target-interpreter='{{ (vfile.wheel_filters.get("interpreter", {}).keys() | list) | tojson }}'
-                  data-filtered-target-platform='{{ (vfile.wheel_filters.get("platform", {}).keys() | list) | tojson }}'>
+                  data-filtered-target-file-interpreter='{{ (vfile.wheel_filters.get("interpreter", {}).keys() | list) | tojson }}'
+                  data-filtered-target-file-platform='{{ (vfile.wheel_filters.get("platform", {}).keys() | list) | tojson }}'>
                 <button type="button"
                         data-action="attestations-viewer#select"
                         aria-pressed="{{ 'true' if vfile == selected_file else 'false' }}">
