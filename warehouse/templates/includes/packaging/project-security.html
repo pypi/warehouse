@@ -59,11 +59,13 @@
          data-controller="attestations-viewer filter-list">
       <div class="attestations-viewer__sidebar">
         <div class="attestations-viewer__sidebar-header">
-          <div class="attestations-viewer__sidebar-title">
-            {% trans count=viewer_files|length %}{{ count }} file
-          {% pluralize %}
-            Select from {{ count }} files{% endtrans %}
-          </div>
+          {% if viewer_files|length > 1 %}
+            <div class="attestations-viewer__sidebar-title">
+              {% trans count=viewer_files|length %}Select from {{ count }} file
+            {% pluralize %}
+              Select from {{ count }} files{% endtrans %}
+            </div>
+          {% endif %}
           {% if files|length > 8 %}
             <div class="attestations-viewer__sidebar-actions">
               <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#security"
