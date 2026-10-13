@@ -2693,6 +2693,51 @@ class TestVerifyOrganizationRole:
         )
         invite_request.route_path.assert_called_once_with("manage.organizations")
 
+    @pytest.mark.parametrize(
+        ("method", "post"),
+        [("GET", {}), ("POST", {}), ("POST", {"decline": "Decline"})],
+    )
+    def test_verify_organization_role_submitter_deleted(
+        self, invite_request, organization, token_service, method, post
+    ):
+        user = UserFactory.create()
+        token = token_service.dumps(
+            {
+                "action": "email-organization-role-verify",
+                "desired_role": "Member",
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+        invitation = OrganizationInvitationFactory.create(
+            organization=organization, user=user, token=token
+        )
+
+        invite_request.user = user
+        invite_request.method = method
+        invite_request.GET["token"] = token
+        invite_request.POST.update(post)
+
+        result = views.verify_organization_role(invite_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.route_path.assert_called_once_with("manage.organizations")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid invitation: the inviting user no longer exists. "
+            "Please ask a remaining owner to reissue your invitation.",
+            queue="error",
+        )
+        assert (
+            invite_request.db.get(OrganizationInvitation, invitation.id) == invitation
+        )
+        assert (
+            invite_request.db.query(OrganizationRole)
+            .filter_by(organization=organization, user=user)
+            .one_or_none()
+            is None
+        )
+
     def test_verify_organization_role_declined(
         self, invite_request, organization, owner_user, invite_token, mocker
     ):
@@ -2953,6 +2998,49 @@ class TestVerifyProjectRole:
             queue="error",
         )
         invite_request.route_path.assert_called_once_with("manage.projects")
+
+    @pytest.mark.parametrize(
+        ("method", "post"),
+        [("GET", {}), ("POST", {}), ("POST", {"decline": "Decline"})],
+    )
+    def test_verify_project_role_submitter_deleted(
+        self, invite_request, project, token_service, method, post
+    ):
+        user = UserFactory.create()
+        token = token_service.dumps(
+            {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+        invitation = RoleInvitationFactory.create(
+            user=user, project=project, token=token
+        )
+
+        invite_request.user = user
+        invite_request.method = method
+        invite_request.GET["token"] = token
+        invite_request.POST.update(post)
+
+        result = views.verify_project_role(invite_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.route_path.assert_called_once_with("manage.projects")
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid invitation: the inviting user no longer exists. "
+            "Please ask a remaining owner to reissue your invitation.",
+            queue="error",
+        )
+        assert invite_request.db.get(RoleInvitation, invitation.id) == invitation
+        assert (
+            invite_request.db.query(Role)
+            .filter_by(project=project, user=user)
+            .one_or_none()
+            is None
+        )
 
     def test_verify_project_role_declined(self, invite_request, project, invite_token):
         user = UserFactory.create()
