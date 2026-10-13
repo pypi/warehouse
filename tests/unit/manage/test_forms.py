@@ -1197,13 +1197,10 @@ class TestCreateTeamForm:
 
 
 class TestDeleteAccountAssociationForm:
-    def test_validate_association_id_valid(self, db_request):
+    def test_validate_association_id_valid(self, user_service, mocker):
         user = UserFactory.create()
         association = OAuthAccountAssociationFactory.create(user=user)
-
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: association)
-        )
+        get_account_association = mocker.spy(user_service, "get_account_association")
 
         form = forms.DeleteAccountAssociationForm(
             MultiDict({"association_id": str(association.id)}),
@@ -1213,13 +1210,9 @@ class TestDeleteAccountAssociationForm:
 
         assert form.validate()
         assert form.association == association
-        assert user_service.get_account_association.calls == [
-            pretend.call(str(association.id))
-        ]
+        get_account_association.assert_called_once_with(str(association.id))
 
-    def test_validate_association_id_missing(self):
-        user_service = pretend.stub()
-
+    def test_validate_association_id_missing(self, user_service):
         form = forms.DeleteAccountAssociationForm(
             MultiDict({}), user_service=user_service, user_id="some-user-id"
         )
@@ -1228,11 +1221,8 @@ class TestDeleteAccountAssociationForm:
         assert "association_id" in form.errors
         assert form.errors["association_id"][0] == "Specify an association ID"
 
-    def test_validate_association_id_invalid_uuid(self):
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: None)
-        )
-
+    def test_validate_association_id_invalid_uuid(self, user_service, mocker):
+        get_account_association = mocker.spy(user_service, "get_account_association")
         form = forms.DeleteAccountAssociationForm(
             MultiDict({"association_id": "not-a-uuid"}),
             user_service=user_service,
@@ -1241,12 +1231,11 @@ class TestDeleteAccountAssociationForm:
 
         assert not form.validate()
         assert "association_id" in form.errors
-        assert form.errors["association_id"][0] == "Association must be specified by ID"
+        assert form.errors["association_id"] == ["Association must be specified by ID"]
+        get_account_association.assert_not_called()
 
-    def test_validate_association_id_not_found(self):
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: None)
-        )
+    def test_validate_association_id_not_found(self, user_service, mocker):
+        get_account_association = mocker.spy(user_service, "get_account_association")
 
         association_id = "12345678-1234-1234-1234-123456789012"
         form = forms.DeleteAccountAssociationForm(
@@ -1260,18 +1249,13 @@ class TestDeleteAccountAssociationForm:
         assert (
             form.errors["association_id"][0] == "No account association with given ID"
         )
-        assert user_service.get_account_association.calls == [
-            pretend.call(association_id)
-        ]
+        get_account_association.assert_called_once_with(association_id)
 
-    def test_validate_association_id_wrong_user(self, db_request):
+    def test_validate_association_id_wrong_user(self, user_service, mocker):
         user = UserFactory.create()
         other_user = UserFactory.create()
         association = OAuthAccountAssociationFactory.create(user=other_user)
-
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: association)
-        )
+        get_account_association = mocker.spy(user_service, "get_account_association")
 
         form = forms.DeleteAccountAssociationForm(
             MultiDict({"association_id": str(association.id)}),
@@ -1285,6 +1269,4 @@ class TestDeleteAccountAssociationForm:
             form.errors["association_id"][0]
             == "This association does not belong to you"
         )
-        assert user_service.get_account_association.calls == [
-            pretend.call(str(association.id))
-        ]
+        get_account_association.assert_called_once_with(str(association.id))
