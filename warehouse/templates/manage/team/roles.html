@@ -45,6 +45,8 @@
                 {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
                 <span class="table__user-gravatar">
                   <img src="{{ gravatar(request, role.user.email, size=50) }}"
+                       srcset="{{ gravatar(request, role.user.email, size=100) }} 2x,
+                               {{ gravatar(request, role.user.email, size=150) }} 3x"
                        height="50"
                        width="50"
                        alt="{{ alt }}">

@@ -10,6 +10,7 @@
               aria-label="{% trans %}View menu{% endtrans %}">
         {# djlint:off #}<img class="user-image"
              src="{{ gravatar(request, request.user.email, size=22) }}"
+             srcset="{{ gravatar(request, request.user.email, size=44) }} 2x, {{ gravatar(request, request.user.email, size=66) }} 3x"
         alt="User Image">{{ request.user.username }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
       </button>
       <ul class="dropdown__content"
