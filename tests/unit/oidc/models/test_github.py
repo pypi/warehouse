@@ -433,17 +433,18 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, mocker.sentinel.all_signed_claims) == valid
 
-    def test_check_event_name_invalid(self, mocker):
+    @pytest.mark.parametrize("trigger_name", ["pull_request_target", "issue_comment"])
+    def test_check_event_name_invalid(self, mocker, trigger_name):
         check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
 
         with pytest.raises(
             errors.InvalidPublisherError,
             match=re.escape(
-                "Publishing from a workflow invoked via 'pull_request_target' "
-                "is not supported."
+                f"Publishing via an insecure trigger (`{trigger_name}`) is not "
+                "supported"
             ),
         ):
-            check("throwaway", "pull_request_target", mocker.sentinel.all_signed_claims)
+            check("throwaway", trigger_name, mocker.sentinel.all_signed_claims)
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
