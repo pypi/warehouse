@@ -441,7 +441,8 @@ class TestGitHubPublisher:
             errors.InvalidPublisherError,
             match=re.escape(
                 f"Publishing via an insecure trigger (`{trigger_name}`) is not "
-                "supported"
+                "supported. See "
+                "https://docs.pypi.org/trusted-publishers/troubleshooting/#forbidden-triggers-on-github"
             ),
         ):
             check("throwaway", trigger_name, mocker.sentinel.all_signed_claims)

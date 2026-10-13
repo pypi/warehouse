@@ -138,7 +138,8 @@ def _check_event_name(
 ) -> bool:
     if signed_claim in _FORBIDDEN_TRIGGERS:
         raise InvalidPublisherError(
-            f"Publishing via an insecure trigger (`{signed_claim}`) is not supported."
+            f"Publishing via an insecure trigger (`{signed_claim}`) is not supported. "
+            "See https://docs.pypi.org/trusted-publishers/troubleshooting/#forbidden-triggers-on-github"
         )
     return True
 
