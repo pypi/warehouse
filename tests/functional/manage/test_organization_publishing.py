@@ -97,9 +97,7 @@ class TestManageOrganizationPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "test-org-project" in success_message.text
@@ -172,9 +170,7 @@ class TestManageOrganizationPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "test-org-gitlab-project" in success_message.text
@@ -244,9 +240,7 @@ class TestManageOrganizationPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "test-org-google-project" in success_message.text
@@ -335,9 +329,7 @@ class TestManageOrganizationPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "test-org-activestate-project" in success_message.text

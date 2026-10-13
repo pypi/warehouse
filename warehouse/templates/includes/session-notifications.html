@@ -1,13 +1,13 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% if request.user %}
   {% if not request.user.primary_email.verified %}
-    <div class="notification-bar notification-bar--warning" role="status">
-      <div class="notification-bar__container">
-        <span class="notification-bar__icon">
+    <div class="banner banner--warning" role="status">
+      <div class="banner__container">
+        <span class="banner__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
         </span>
-        <span class="notification-bar__message">
+        <span class="banner__message">
           {% if request.user.primary_email %}
             {% trans email_address=request.user.primary_email.email %}Your primary email address ({{ email_address }}) is unverified.{% endtrans %}
           {% else %}
@@ -20,11 +20,11 @@
       </div>
     </div>
   {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_two_factor %}
-    <div class="notification-bar notification-bar--dismissable"
+    <div class="banner banner--dismissable"
          data-controller="notification"
          data-notification-target="notification">
-      <div class="notification-bar__container">
-        <span class="notification-bar__message">
+      <div class="banner__container">
+        <span class="banner__message">
           {% trans href=request.route_path('manage.account.two-factor') %}
           Two factor authentication is available, <a href="{{ href }}">enable it now for your account.</a>
         {% endtrans %}
@@ -33,16 +33,16 @@
               title="Dismiss this notification"
               data-notification-target="dismissButton"
               data-action="click->notification#dismiss"
-              class="notification-bar__dismiss"
+              class="banner__dismiss"
               aria-label="{% trans %}Close{% endtrans %}">
         <i class="fa fa-times" aria-hidden="true"></i>
       </button>
     </div>
   </div>
 {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
-  <div class="notification-bar notification-bar--warning">
-    <div class="notification-bar__container">
-      <span class="notification-bar__message">
+  <div class="banner banner--warning">
+    <div class="banner__container">
+      <span class="banner__message">
         {% trans href=request.route_path('manage.account.two-factor') %}
         Two-factor recovery codes are available, <a href="{{ href }}">generate them now for your account.</a>
       {% endtrans %}

@@ -241,7 +241,7 @@ class TestManageOrganizationRoles:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert success_message is not None
         assert "Invitation sent" in success_message.text
