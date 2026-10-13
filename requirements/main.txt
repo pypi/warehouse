@@ -67,9 +67,9 @@ automat==25.4.16 \
     --hash=sha256:0017591a5477066e90d26b0e696ddc143baafd87b588cfac8100bc6be9634de0 \
     --hash=sha256:04e9bce696a8d5671ee698005af6e5a9fa15354140a87f4870744604dcdd3ba1
     # via -r requirements/main.in
-b2sdk==2.13.0 \
-    --hash=sha256:2063cd1c1c202f2dbc0fc517e9ad0c50980939355f565704e0183c4817f18524 \
-    --hash=sha256:edb586be7698b4b868194506cd81d594364e445817461c7e7b43df47378f6827
+b2sdk==2.13.1 \
+    --hash=sha256:45f91907bb677f916c920e9ccc3d120fdbd2b11d0059ff2cd06360973c281e6f \
+    --hash=sha256:ce6533be17f75785ce9511f063b9dd1142adbe71fa124417005b65bad69e8abe
     # via -r requirements/main.in
 babel==2.18.0 \
     --hash=sha256:b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d \
@@ -632,9 +632,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.271 \
-    --hash=sha256:472234b267b7edaa3e4e5a9168831b09229b7351304b45de2b5058d840b0ce58 \
-    --hash=sha256:df24549004ea84df84fbd4f38ba12b2ea6a8e1fbc615c43e3442c79eb605d033
+disposable-email-domains==0.0.274 \
+    --hash=sha256:8d05cf68c4461bcab072ac730f9b9381485f65b42463df387d1445ad4e38dbbc \
+    --hash=sha256:e65c3acdabf0c4976fa911a906f6b965efe58eb327f84227cd735b02ac8478b2
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -687,9 +687,9 @@ google-auth[pyopenssl]==2.56.3 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.46.0 \
-    --hash=sha256:5039bd16c7430f0f2929f72779d6c05a48501c3dc0a5f7f2191818f9c2170777 \
-    --hash=sha256:6d4a43238aa7207bc9798270b3303a703c5c451c856aae14ed04a6b2e7ce4654
+google-cloud-bigquery==3.46.1 \
+    --hash=sha256:c5564a58fc3c99b003cd334a8f302c6224bd34cb55c87476a3c445be1d00538b \
+    --hash=sha256:ee0e73d06a624c26445458e75f04deed894ed50a0c46bdc876f30c50e05ec6c2
     # via -r requirements/main.in
 google-cloud-core==2.6.0 \
     --hash=sha256:6d63ac8e5eca6d9e4319d0a1e2265fadcd7f1049904378caecfa01cf52dd869e \
@@ -1624,9 +1624,9 @@ plaster-pastedeploy==1.0.1 \
     --hash=sha256:ad3550cc744648969ed3b810f33c9344f515ee8d8a8cec18e8f2c4a643c2181f \
     --hash=sha256:be262e6d2e41a7264875daa2fe2850cbb0615728bcdc92828fdc72736e381412
     # via pyramid
-platformdirs==4.12.2 \
-    --hash=sha256:29dbf06d96c500bc6bdbce75fb0a14d63279c93b1842f97e72a135b33e856983 \
-    --hash=sha256:eab5f70271a490ef74618bb314fbb86e3c7e82fa3b9c922c2ea0e0a1a155d329
+platformdirs==4.12.3 \
+    --hash=sha256:080f3b39423b5abfca9a23d84c4e9795f54d395cd8459867a8ded44084fcd5f8 \
+    --hash=sha256:427fc0bb321ae0c5b037fa03238ca74820437be162e78b4848c4d4055b9b766c
     # via
     #   -r requirements/main.in
     #   sigstore
@@ -2010,9 +2010,9 @@ python-slugify==9.1.2 \
     --hash=sha256:a470dafd2ad79672606cc0d1a5fcaf7a2ccf8f358073ff29b5b93c2bd7e288d6 \
     --hash=sha256:bd36ca98e5ebb1cd2b9dfa2f27b948ce87402fb083b762cbd9d0fa3aed489a92
     # via -r requirements/main.in
-pytz==2026.4 \
-    --hash=sha256:464303645bafafd72418898368b2429458f709cf1eb6a15372fbcc396b64da63 \
-    --hash=sha256:9d514388fbc89ca0833203464272ac485b8828568ab73532f5020f17e892a0ff
+pytz==2026.5 \
+    --hash=sha256:e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03 \
+    --hash=sha256:fa23724b9c486543b9ff54a327ee7569ac83ade54bb9afd0fc18676620401c86
     # via -r requirements/main.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
@@ -2425,9 +2425,9 @@ text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
     --hash=sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93
     # via python-slugify
-tldextract==5.3.2 \
-    --hash=sha256:6c90d2a259f5c89f4fcf01f97af15708416a59ffedddff006d67222ab30d0fb0 \
-    --hash=sha256:c017431bc0800f2d3d1b57cce36e06668f0930f60a6d8c4615d4e2b8da298fa9
+tldextract==5.4.0 \
+    --hash=sha256:6c9223212c15c25c0da2bf7313893c14f175cb36b64a0c42da67a468e0c61ee3 \
+    --hash=sha256:7f02aed30bd3b6ad5717192eb859a39b20aafc7caf3917d9cf6cb00a58efb34f
     # via -r requirements/main.in
 transaction==5.1 \
     --hash=sha256:05aa77c4543cec8b541565ad8b304857490878605ed727851bc5a531b9060789 \
