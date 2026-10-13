@@ -586,6 +586,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.password_reset_ip_ratelimit_string",
+        "PASSWORD_RESET_IP_RATELIMIT_STRING",
+        default="10 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.register_ratelimit_string",
         "REGISTER_RATELIMIT_STRING",
         default="10 per 5 minutes, 30 per hour",
