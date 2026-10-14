@@ -17,10 +17,23 @@
   <p>{% trans %}While this could reflect a legitimate choice by the project maintainers, it may also indicate that the release has been compromised.{% endtrans %}</p>
   {% if repo_inconsistent %}
     {% set unknown_source_files = counts.total_files - (counts.source_counts.values() | sum) %}
+    {% set ns = namespace(kinds=[]) %}
+    {% for source in counts.source_counts.keys() %}
+      {% set kind = "account" if "@" in source.identity else "repo" %}
+      {% if kind not in ns.kinds %}
+        {% set ns.kinds = ns.kinds + [kind] %}
+      {% endif %}
+    {% endfor %}
     <div class="provenance-diff provenance-diff--breakdown">
       <p class="provenance-diff__title">
         <i class="fa-solid fa-code" aria-hidden="true"></i>
-        {% trans %}Repository{% endtrans %}
+        {% if ns.kinds | length > 1 %}
+          {% trans %}Repository/Account{% endtrans %}
+        {% elif ns.kinds == ["account"] %}
+          {% trans %}Account{% endtrans %}
+        {% else %}
+          {% trans %}Repository{% endtrans %}
+        {% endif %}
       </p>
       <ul class="provenance-diff__rows">
         {% for source, count in counts.source_counts.items() %}
@@ -40,10 +53,7 @@
             {% pluralize %}
               {{ count }} files{% endtrans %}
             </span>
-            <span class="provenance-diff__value">
-              {% trans %}Unknown{% endtrans %}
-              <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
-            </span>
+            <span class="provenance-diff__value">{% trans %}Unknown{% endtrans %}</span>
           </li>
         {% endif %}
       </ul>
@@ -74,10 +84,7 @@
             {% pluralize %}
               {{ count }} files{% endtrans %}
             </span>
-            <span class="provenance-diff__value">
-              {% trans %}Unknown{% endtrans %}
-              <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
-            </span>
+            <span class="provenance-diff__value">{% trans %}Unknown{% endtrans %}</span>
           </li>
         {% endif %}
       </ul>

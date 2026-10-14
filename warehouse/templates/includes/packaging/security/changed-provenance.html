@@ -18,10 +18,23 @@
   <p>{% trans %}While this could reflect a routine change by the project maintainers, it may also indicate that the release files have been compromised.{% endtrans %}</p>
   {% if comparison %}
     {% if repo_changed %}
+      {% set ns = namespace(kinds=[]) %}
+      {% for source in (provenance_status.removed_sources | list + provenance_status.added_sources | list) %}
+        {% set kind = "account" if "@" in source.identity else "repo" %}
+        {% if kind not in ns.kinds %}
+          {% set ns.kinds = ns.kinds + [kind] %}
+        {% endif %}
+      {% endfor %}
       <div class="provenance-diff">
         <p class="provenance-diff__title">
           <i class="fa-solid fa-code" aria-hidden="true"></i>
-          {% trans %}Repository{% endtrans %}
+          {% if ns.kinds | length > 1 %}
+            {% trans %}Repository/Account{% endtrans %}
+          {% elif ns.kinds == ["account"] %}
+            {% trans %}Account{% endtrans %}
+          {% else %}
+            {% trans %}Repository{% endtrans %}
+          {% endif %}
         </p>
         <ul class="provenance-diff__rows">
           {% for source in provenance_status.removed_sources %}
