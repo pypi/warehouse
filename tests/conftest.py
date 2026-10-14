@@ -81,11 +81,10 @@ _FIXTURES = _HERE / "_fixtures"
 
 
 class _CallRecorder:
-    """Transitional recorder for the ``metrics``, ``pyramid_request``, and
-    ``send_email`` fixtures.
+    """Transitional recorder for the ``metrics`` and ``pyramid_request`` fixtures.
 
     Wraps a callable -- a real bound method (``metrics``) or a lambda stand-in
-    (``request.task`` / ``request.log`` / ``send_email``) -- so a single object
+    (``request.task`` / ``request.log``) -- so a single object
     satisfies BOTH the legacy ``pretend``-style
     ``obj.method.calls == [pretend.call(...)]`` assertions and the modern
     ``unittest.mock`` API (``assert_called_once_with`` / ``assert_has_calls`` /
@@ -185,6 +184,10 @@ def jinja():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            # Templates rendered through this fixture may grow a {% component %}
+            # tag; without the extension that fails as a TemplateSyntaxError
+            # pointing at the template rather than at this fixture.
+            "pyramid_components.jinja2.ComponentExtension",
         ],
         cache_size=0,
     )
@@ -275,6 +278,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
+    dummy_request.matched_route = None
     dummy_request.authentication_method = None
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
@@ -706,6 +710,7 @@ def db_request(pyramid_request, db_session, tm):
 def _enable_all_oidc_providers(webtest):
     flags = (
         AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
         AdminFlagValue.DISALLOW_GITLAB_OIDC,
         AdminFlagValue.DISALLOW_GITHUB_OIDC,
         AdminFlagValue.DISALLOW_GOOGLE_OIDC,
@@ -725,14 +730,11 @@ def _enable_all_oidc_providers(webtest):
 
 
 @pytest.fixture
-def send_email(pyramid_request, monkeypatch):
-    send_email_stub = types.SimpleNamespace(
-        delay=_CallRecorder(lambda *args, **kwargs: None)
-    )
-    pyramid_request.task = _CallRecorder(lambda *args, **kwargs: send_email_stub)
-    pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-    monkeypatch.setattr(warehouse.email, "send_email", send_email_stub)
-    return send_email_stub
+def send_email(pyramid_request, pyramid_config, mocker):
+    send_email_task = mocker.patch.object(warehouse.email, "send_email")
+    pyramid_request.task = mocker.Mock(return_value=send_email_task)
+    pyramid_request.registry.settings["mail.sender"] = "noreply@example.com"
+    return send_email_task
 
 
 @pytest.fixture
@@ -850,6 +852,7 @@ class _MockRedis:
 
     def __init__(self, cache=None):
         self.cache = cache
+        self.ttls: dict[str, int] = {}
 
         if not self.cache:  # pragma: no cover
             self.cache = {}
@@ -862,6 +865,7 @@ class _MockRedis:
 
     def delete(self, key):
         del self.cache[key]
+        self.ttls.pop(key, None)
 
     def execute(self):
         pass
@@ -869,8 +873,11 @@ class _MockRedis:
     def exists(self, key):
         return key in self.cache
 
-    def expire(self, _key, _seconds):
-        pass
+    def expire(self, key, seconds, nx=False):
+        if nx and key in self.ttls:
+            return False
+        self.ttls[key] = seconds
+        return True
 
     def from_url(self, _url):
         return self

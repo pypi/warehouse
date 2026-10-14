@@ -21,6 +21,23 @@
             </span>
           </a>
         </li>
+        <li role="presentation">
+          <a id="metadata-tab"
+             href="#metadata"
+             role="tab"
+             class="project-tabs__tab project-tabs__tab--mobile-only"
+             aria-selected="false"
+             aria-controls="metadata"
+             tabindex="-1"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
+             aria-label="{% trans %}Metadata. Focus will be moved to the metadata panel.{% endtrans %}">
+            <span>
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              {% trans %}Metadata{% endtrans %}
+            </span>
+          </a>
+        </li>
         {% if files %}
           <li role="presentation">
             <a id="files-tab"

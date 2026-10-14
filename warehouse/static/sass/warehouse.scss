@@ -61,6 +61,7 @@
 @use "blocks/button-group";
 @use "blocks/callout-block";
 @use "blocks/centered-heading";
+@use "blocks/checkbox-list";
 @use "blocks/checkbox-tree";
 /*rtl:begin:ignore*/
 @use "blocks/code-block";
@@ -339,7 +340,7 @@ time {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   border: 0;
 }
 

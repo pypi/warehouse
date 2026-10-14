@@ -361,7 +361,7 @@
 
 
   &--releases {
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     margin-bottom: grid.$spacing-unit;
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
@@ -444,7 +444,7 @@
     margin: 0 0 grid.$spacing-unit;
 
     .table__email {
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       word-break: break-all;
       font-family: fonts.$code-font;
       font-size: 0.9rem;
@@ -484,7 +484,7 @@
     margin-top: 0;
 
     .table__monospace {
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       word-break: break-all;
       font-family: fonts.$code-font;
       font-size: 95%;
@@ -506,7 +506,7 @@
     margin-top: 0;
 
     .table__monospace {
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       word-break: break-all;
       font-family: fonts.$code-font;
       font-size: 95%;

@@ -4,7 +4,6 @@ import datetime
 
 from datetime import date, timedelta
 
-import pretend
 import pytest
 
 from freezegun import freeze_time
@@ -115,14 +114,11 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[25:], "query": "", "terms": []}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            params={"page": "not an integer"},
-        )
+    def test_with_invalid_page(self, db_request):
+        db_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.organization_list(request)
+            views.organization_list(db_request)
 
     def test_basic_query(self, db_request):
         organizations = sorted(
@@ -437,7 +433,7 @@ class TestOrganizationDetail:
         with pytest.raises(HTTPNotFound):
             views.organization_detail(db_request)
 
-    def test_updates_organization(self, db_request):
+    def test_updates_organization(self, db_request, mocker):
         organization = OrganizationFactory.create(
             display_name="Old Name",
             link_url="https://old-url.com",
@@ -451,17 +447,18 @@ class TestOrganizationDetail:
         db_request.POST = MultiDict(
             {
                 "display_name": "New Name",
-                "link_url": "https://new-url.com",
+                "link_url": " https://new-url.com ",
                 "description": "New description",
                 "orgtype": "Community",
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda name, **kwargs: f"/admin/organizations/{organization.id}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/organizations/{organization.id}/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.organization_detail(db_request)
 
@@ -471,14 +468,11 @@ class TestOrganizationDetail:
         assert organization.link_url == "https://new-url.com"
         assert organization.description == "New description"
         assert organization.orgtype == OrganizationType.Community
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Organization {organization.name!r} updated successfully",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Organization {organization.name!r} updated successfully", queue="success"
+        )
 
-    def test_updates_organization_with_stripe_customer(self, db_request, monkeypatch):
+    def test_updates_organization_with_stripe_customer(self, db_request, mocker):
         organization = OrganizationFactory.create(
             name="acme",
             display_name="Old Name",
@@ -501,18 +495,20 @@ class TestOrganizationDetail:
                 "orgtype": "Community",
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda name, **kwargs: f"/admin/organizations/{organization.id}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/organizations/{organization.id}/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.registry = pretend.stub(settings={"site.name": "TestPyPI"})
+        mocker.spy(db_request.session, "flash")
+        db_request.registry.settings["site.name"] = "TestPyPI"
 
         # Patch the billing service's update_customer method
         billing_service = db_request.find_service(IBillingService)
-        update_customer = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(billing_service, "update_customer", update_customer)
+        update_customer = mocker.patch.object(
+            billing_service, "update_customer", autospec=True
+        )
 
         result = views.organization_detail(db_request)
 
@@ -522,19 +518,12 @@ class TestOrganizationDetail:
         assert organization.link_url == "https://new-url.com"
         assert organization.description == "New description"
         assert organization.orgtype == OrganizationType.Community
-        assert update_customer.calls == [
-            pretend.call(
-                "cus_123456",
-                "TestPyPI Organization - New Name (acme)",
-                "New description",
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Organization {organization.name!r} updated successfully",
-                queue="success",
-            )
-        ]
+        update_customer.assert_called_once_with(
+            "cus_123456", "TestPyPI Organization - New Name (acme)", "New description"
+        )
+        db_request.session.flash.assert_called_once_with(
+            f"Organization {organization.name!r} updated successfully", queue="success"
+        )
 
     def test_does_not_update_with_invalid_form(self, db_request):
         organization = OrganizationFactory.create()
@@ -693,7 +682,7 @@ class TestCancelOrganizationSubscription:
 
 
 class TestOrganizationActions:
-    def test_rename_not_found(self, db_request):
+    def test_rename_not_found(self, db_request, mocker):
         admin = UserFactory.create()
 
         db_request.matchdict = {
@@ -703,12 +692,14 @@ class TestOrganizationActions:
             "new_organization_name": "widget",
         }
         db_request.user = admin
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
+        )
 
         with pytest.raises(HTTPNotFound):
             views.organization_rename(db_request)
 
-    def test_rename(self, db_request):
+    def test_rename(self, db_request, mocker):
         admin = UserFactory.create()
         organization = OrganizationFactory.create(name="example")
 
@@ -717,23 +708,23 @@ class TestOrganizationActions:
             "new_organization_name": "  widget  ",  # Test trimming whitespace
         }
         db_request.user = admin
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/admin/organizations/{organization.id}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/organizations/{organization.id}/",
         )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
 
         result = views.organization_rename(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                '"example" organization renamed "widget"',
-                queue="success",
-            ),
-        ]
+        db_request.session.flash.assert_called_once_with(
+            '"example" organization renamed "widget"', queue="success"
+        )
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
-    def test_rename_fails_on_conflict(self, db_request):
+    def test_rename_fails_on_conflict(self, db_request, mocker):
         admin = UserFactory.create()
         OrganizationFactory.create(name="widget")
         organization = OrganizationFactory.create(name="example")
@@ -743,39 +734,39 @@ class TestOrganizationActions:
             "new_organization_name": "widget",
         }
         db_request.user = admin
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/admin/organizations/{organization.id}/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/organizations/{organization.id}/",
         )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
 
         result = views.organization_rename(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                'Organization name "widget" has been used',
-                queue="error",
-            ),
-        ]
+        db_request.session.flash.assert_called_once_with(
+            'Organization name "widget" has been used', queue="error"
+        )
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
 
 class TestAddOrganizationRole:
-    def test_add_role(self, db_request, monkeypatch):
+    def test_add_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
 
         # Mock record_event
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": user.username, "role_name": "Manager"}
 
         result = views.add_organization_role(db_request)
@@ -783,12 +774,10 @@ class TestAddOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/admin/organizations/"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Added '{user.username}' as 'Manager' to '{organization.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Added '{user.username}' as 'Manager' to '{organization.name}'",
+            queue="success",
+        )
 
         role = db_request.db.query(OrganizationRole).one()
         assert role.role_name == OrganizationRoleType.Manager
@@ -796,77 +785,78 @@ class TestAddOrganizationRole:
         assert role.organization == organization
 
         # Check event was recorded
-        assert record_event.calls == [
-            pretend.call(
-                request=db_request,
-                tag="admin:organization:role:add",
-                additional={
-                    "action": f"add Manager {user.username}",
-                    "user_id": str(user.id),
-                    "role_name": "Manager",
-                },
-            )
-        ]
+        record_event.assert_called_once_with(
+            request=db_request,
+            tag="admin:organization:role:add",
+            additional={
+                "action": f"add Manager {user.username}",
+                "user_id": str(user.id),
+                "role_name": "Manager",
+            },
+        )
 
-    def test_add_role_no_username(self, db_request):
+    def test_add_role_no_username(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"role_name": "Manager"}
 
         result = views.add_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a username", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Provide a username", queue="error"
+        )
 
-    def test_add_role_unknown_user(self, db_request):
+    def test_add_role_unknown_user(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": "nonexistent", "role_name": "Manager"}
 
         result = views.add_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Unknown username 'nonexistent'", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Unknown username 'nonexistent'", queue="error"
+        )
 
-    def test_add_role_no_role_name(self, db_request):
+    def test_add_role_no_role_name(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": user.username}
 
         result = views.add_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a role", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Provide a role", queue="error"
+        )
 
-    def test_add_role_user_already_has_role(self, db_request):
+    def test_add_role_user_already_has_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         OrganizationRoleFactory.create(
@@ -874,23 +864,22 @@ class TestAddOrganizationRole:
         )
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": user.username, "role_name": "Manager"}
 
         result = views.add_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"User '{user.username}' already has a role in this organization",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"User '{user.username}' already has a role in this organization",
+            queue="error",
+        )
 
     def test_add_role_organization_not_found(self, db_request):
         db_request.matchdict = {
@@ -902,7 +891,7 @@ class TestAddOrganizationRole:
 
 
 class TestUpdateOrganizationRole:
-    def test_update_role(self, db_request, monkeypatch):
+    def test_update_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -910,19 +899,19 @@ class TestUpdateOrganizationRole:
         )
 
         # Mock record_event
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"role_name": "Manager"}
 
         result = views.update_organization_role(db_request)
@@ -930,52 +919,49 @@ class TestUpdateOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/admin/organizations/"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Changed '{user.username}' from 'Member' to 'Manager' "
-                f"in '{organization.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Changed '{user.username}' from 'Member' to 'Manager' "
+            f"in '{organization.name}'",
+            queue="success",
+        )
 
         assert role.role_name == OrganizationRoleType.Manager
 
         # Check event was recorded
-        assert record_event.calls == [
-            pretend.call(
-                request=db_request,
-                tag="admin:organization:role:change",
-                additional={
-                    "action": f"change {user.username} from Member to Manager",
-                    "user_id": str(user.id),
-                    "old_role_name": "Member",
-                    "new_role_name": "Manager",
-                },
-            )
-        ]
+        record_event.assert_called_once_with(
+            request=db_request,
+            tag="admin:organization:role:change",
+            additional={
+                "action": f"change {user.username} from Member to Manager",
+                "user_id": str(user.id),
+                "old_role_name": "Member",
+                "new_role_name": "Manager",
+            },
+        )
 
-    def test_update_role_not_found(self, db_request):
+    def test_update_role_not_found(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": "00000000-0000-0000-0000-000000000000",
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.update_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("This role no longer exists", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "This role no longer exists", queue="error"
+        )
 
-    def test_update_role_no_role_name(self, db_request):
+    def test_update_role_no_role_name(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -986,22 +972,23 @@ class TestUpdateOrganizationRole:
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {}
 
         result = views.update_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a role", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Provide a role", queue="error"
+        )
 
-    def test_update_role_same_role(self, db_request):
+    def test_update_role_same_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1012,20 +999,21 @@ class TestUpdateOrganizationRole:
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"role_name": "Member"}
 
         result = views.update_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Role is already set to this value", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Role is already set to this value", queue="error"
+        )
 
     def test_update_role_organization_not_found(self, db_request):
         db_request.matchdict = {
@@ -1038,7 +1026,7 @@ class TestUpdateOrganizationRole:
 
 
 class TestDeleteOrganizationRole:
-    def test_delete_role(self, db_request, monkeypatch):
+    def test_delete_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1046,19 +1034,19 @@ class TestDeleteOrganizationRole:
         )
 
         # Mock record_event
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": user.username}
 
         result = views.delete_organization_role(db_request)
@@ -1066,50 +1054,47 @@ class TestDeleteOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/admin/organizations/"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Removed '{user.username}' as 'Member' from '{organization.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            f"Removed '{user.username}' as 'Member' from '{organization.name}'",
+            queue="success",
+        )
 
         assert db_request.db.query(OrganizationRole).count() == 0
 
         # Check event was recorded
-        assert record_event.calls == [
-            pretend.call(
-                request=db_request,
-                tag="admin:organization:role:remove",
-                additional={
-                    "action": f"remove Member {user.username}",
-                    "user_id": str(user.id),
-                    "role_name": "Member",
-                },
-            )
-        ]
+        record_event.assert_called_once_with(
+            request=db_request,
+            tag="admin:organization:role:remove",
+            additional={
+                "action": f"remove Member {user.username}",
+                "user_id": str(user.id),
+                "role_name": "Member",
+            },
+        )
 
-    def test_delete_role_not_found(self, db_request):
+    def test_delete_role_not_found(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": "00000000-0000-0000-0000-000000000000",
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.delete_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("This role no longer exists", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "This role no longer exists", queue="error"
+        )
 
-    def test_delete_role_wrong_confirmation(self, db_request):
+    def test_delete_role_wrong_confirmation(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1120,25 +1105,26 @@ class TestDeleteOrganizationRole:
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {"username": "wronguser"}
 
         result = views.delete_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
         # Role should still exist
         assert db_request.db.query(OrganizationRole).count() == 1
 
-    def test_delete_role_no_confirmation(self, db_request):
+    def test_delete_role_no_confirmation(self, db_request, mocker):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1149,20 +1135,21 @@ class TestDeleteOrganizationRole:
             "organization_id": str(organization.id),
             "role_id": str(role.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = {}
 
         result = views.delete_organization_role(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
         # Role should still exist
         assert db_request.db.query(OrganizationRole).count() == 1
@@ -1249,7 +1236,7 @@ class TestManualActivationForm:
 
 class TestAddManualActivation:
     @freeze_time("2024-01-15")
-    def test_add_manual_activation_success(self, db_request, monkeypatch):
+    def test_add_manual_activation_success(self, db_request, mocker):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
 
@@ -1261,19 +1248,15 @@ class TestAddManualActivation:
                 "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            organization, "record_event", autospec=True, return_value=None
         )
 
         result = views.add_manual_activation(db_request)
@@ -1287,35 +1270,26 @@ class TestAddManualActivation:
         assert manual_activation.created_by_id == user.id
 
         # Check success flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert call.args[0].startswith("Manual activation added for")
         assert call.kwargs == {"queue": "success"}
 
         # Check event was recorded
-        assert len(organization.record_event.calls) == 1
-        call = organization.record_event.calls[0]
+        assert len(organization.record_event.call_args_list) == 1
+        call = organization.record_event.call_args_list[0]
         assert call.kwargs["tag"] == "admin:organization:manual_activation:add"
 
-    def test_add_manual_activation_organization_not_found(
-        self, db_request, monkeypatch
-    ):
+    def test_add_manual_activation_organization_not_found(self, db_request):
         db_request.matchdict = {
             "organization_id": "00000000-0000-0000-0000-000000000000"
         }
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: None)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
 
         with pytest.raises(HTTPNotFound):
             views.add_manual_activation(db_request)
 
     @freeze_time("2024-01-15")
-    def test_add_manual_activation_already_exists(self, db_request, monkeypatch):
+    def test_add_manual_activation_already_exists(self, db_request, mocker):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         OrganizationManualActivationFactory.create(organization=organization)
@@ -1328,31 +1302,25 @@ class TestAddManualActivation:
                 "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.add_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check error flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert "already has manual activation" in call.args[0]
         assert call.kwargs == {"queue": "error"}
 
     @freeze_time("2024-01-15")
-    def test_add_manual_activation_invalid_form(self, db_request, monkeypatch):
+    def test_add_manual_activation_invalid_form(self, db_request, mocker):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
 
@@ -1366,33 +1334,29 @@ class TestAddManualActivation:
                 ).isoformat(),  # In the past
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.add_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check error flash messages for validation errors
-        assert len(db_request.session.flash.calls) >= 1
-        error_messages = [call.args[0] for call in db_request.session.flash.calls]
+        assert len(db_request.session.flash.call_args_list) >= 1
+        error_messages = [
+            call.args[0] for call in db_request.session.flash.call_args_list
+        ]
         error_messages = " ".join(error_messages)
         assert "seat_limit" in error_messages or "expires" in error_messages
 
 
 class TestUpdateManualActivation:
     @freeze_time("2024-01-15")
-    def test_update_manual_activation_success(self, db_request, monkeypatch):
+    def test_update_manual_activation_success(self, db_request, mocker):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         manual_activation = OrganizationManualActivationFactory.create(
@@ -1408,19 +1372,15 @@ class TestUpdateManualActivation:
                 "expires": (date.today() + timedelta(days=730)).isoformat(),
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            organization, "record_event", autospec=True, return_value=None
         )
 
         result = views.update_manual_activation(db_request)
@@ -1433,17 +1393,17 @@ class TestUpdateManualActivation:
         assert manual_activation.created_by_id != user.id
 
         # Check success flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert call.args[0].startswith("Manual activation updated for")
         assert call.kwargs == {"queue": "success"}
 
         # Check event was recorded
-        assert len(organization.record_event.calls) == 1
-        call = organization.record_event.calls[0]
+        assert len(organization.record_event.call_args_list) == 1
+        call = organization.record_event.call_args_list[0]
         assert call.kwargs["tag"] == "admin:organization:manual_activation:update"
 
-    def test_update_manual_activation_not_found(self, db_request, monkeypatch):
+    def test_update_manual_activation_not_found(self, db_request, mocker):
         organization = OrganizationFactory.create()
 
         db_request.matchdict = {"organization_id": str(organization.id)}
@@ -1453,31 +1413,25 @@ class TestUpdateManualActivation:
                 "expires": (date.today() + timedelta(days=730)).isoformat(),
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.update_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check error flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert "has no manual activation to update" in call.args[0]
         assert call.kwargs == {"queue": "error"}
 
     @freeze_time("2024-01-15")
-    def test_update_manual_activation_invalid_form(self, db_request, monkeypatch):
+    def test_update_manual_activation_invalid_form(self, db_request, mocker):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         OrganizationManualActivationFactory.create(
@@ -1494,71 +1448,52 @@ class TestUpdateManualActivation:
                 "expires": (date.today() + timedelta(days=730)).isoformat(),
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.update_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check that form validation errors were flashed
-        assert len(db_request.session.flash.calls) >= 1
+        assert len(db_request.session.flash.call_args_list) >= 1
         # Should have flashed seat_limit error
         error_flashed = any(
             "seat_limit" in call.args[0]
-            for call in db_request.session.flash.calls
+            for call in db_request.session.flash.call_args_list
             if call.kwargs.get("queue") == "error"
         )
         assert error_flashed
 
-    def test_update_manual_activation_organization_not_found(
-        self, db_request, monkeypatch
-    ):
+    def test_update_manual_activation_organization_not_found(self, db_request):
         db_request.matchdict = {
             "organization_id": "00000000-0000-0000-0000-000000000000"
         }
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: None)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
 
         with pytest.raises(HTTPNotFound):
             views.update_manual_activation(db_request)
 
 
 class TestDeleteManualActivation:
-    def test_delete_manual_activation_success(self, db_request, monkeypatch):
+    def test_delete_manual_activation_success(self, db_request, mocker):
         organization = OrganizationFactory.create(name="test-org")
         OrganizationManualActivationFactory.create(organization=organization)
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.POST = MultiDict({"confirm": "test-org"})
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            organization, "record_event", autospec=True, return_value=None
         )
 
         result = views.delete_manual_activation(db_request)
@@ -1573,42 +1508,36 @@ class TestDeleteManualActivation:
         assert remaining_activations == 0
 
         # Check success flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert "Manual activation removed from" in call.args[0]
         assert call.kwargs == {"queue": "success"}
 
         # Check event was recorded
-        assert len(organization.record_event.calls) == 1
-        call = organization.record_event.calls[0]
+        assert len(organization.record_event.call_args_list) == 1
+        call = organization.record_event.call_args_list[0]
         assert call.kwargs["tag"] == "admin:organization:manual_activation:delete"
 
-    def test_delete_manual_activation_no_confirmation(self, db_request, monkeypatch):
+    def test_delete_manual_activation_no_confirmation(self, db_request, mocker):
         organization = OrganizationFactory.create(name="test-org")
         OrganizationManualActivationFactory.create(organization=organization)
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.POST = MultiDict({"confirm": "wrong-name"})
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.delete_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check error flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert call.args[0] == "Confirm the request"
         assert call.kwargs == {"queue": "error"}
 
@@ -1621,72 +1550,58 @@ class TestDeleteManualActivation:
         )
         assert remaining_activations == 1
 
-    def test_delete_manual_activation_not_found(self, db_request, monkeypatch):
+    def test_delete_manual_activation_not_found(self, db_request, mocker):
         organization = OrganizationFactory.create(name="test-org")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.POST = MultiDict({"confirm": "test-org"})
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: organization)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
+        mocker.spy(db_request.session, "flash")
 
         result = views.delete_manual_activation(db_request)
         assert isinstance(result, HTTPSeeOther)
 
         # Check error flash message
-        assert len(db_request.session.flash.calls) == 1
-        call = db_request.session.flash.calls[0]
+        assert len(db_request.session.flash.call_args_list) == 1
+        call = db_request.session.flash.call_args_list[0]
         assert "has no manual activation to delete" in call.args[0]
         assert call.kwargs == {"queue": "error"}
 
-    def test_delete_manual_activation_organization_not_found(
-        self, db_request, monkeypatch
-    ):
+    def test_delete_manual_activation_organization_not_found(self, db_request):
         db_request.matchdict = {
             "organization_id": "00000000-0000-0000-0000-000000000000"
         }
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda id: None)
-        )
-        monkeypatch.setattr(
-            db_request, "find_service", lambda iface, context: organization_service
-        )
 
         with pytest.raises(HTTPNotFound):
             views.delete_manual_activation(db_request)
 
 
 class TestSetUploadLimit:
-    def test_set_upload_limit_with_integer(self, db_request):
+    def test_set_upload_limit_with_integer(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
         user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": "150"})
 
         result = views.set_upload_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Upload limit set to 150.0MiB", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Upload limit set to 150.0MiB", queue="success"
+        )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.upload_limit == 150 * views.ONE_MIB
@@ -1699,26 +1614,27 @@ class TestSetUploadLimit:
             "actor": user.username,
         }
 
-    def test_set_upload_limit_with_none(self, db_request):
+    def test_set_upload_limit_with_none(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
         organization.upload_limit = 150 * views.ONE_MIB
         user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": ""})
 
         result = views.set_upload_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Upload limit set to (default)", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Upload limit set to (default)", queue="success"
+        )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.upload_limit is None
@@ -1731,26 +1647,24 @@ class TestSetUploadLimit:
             "actor": user.username,
         }
 
-    def test_set_upload_limit_invalid_value(self, db_request):
+    def test_set_upload_limit_invalid_value(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": "not_an_integer"})
 
         result = views.set_upload_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit must be a valid integer or empty",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit must be a valid integer or empty", queue="error"
+        )
         assert result.status_code == 303
 
     def test_set_upload_limit_not_found(self, db_request):
@@ -1759,71 +1673,69 @@ class TestSetUploadLimit:
         with pytest.raises(HTTPNotFound):
             views.set_upload_limit(db_request)
 
-    def test_set_upload_limit_above_cap(self, db_request):
+    def test_set_upload_limit_above_cap(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": "2048"})  # 2048 MiB > 1024 MiB cap
 
         result = views.set_upload_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit can not be greater than 1024.0MiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit can not be greater than 1024.0MiB",
+            queue="error",
+        )
         assert result.status_code == 303
 
-    def test_set_upload_limit_below_default(self, db_request):
+    def test_set_upload_limit_below_default(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
 
         result = views.set_upload_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "upload_limit: Upload limit can not be less than 100.0MiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "upload_limit: Upload limit can not be less than 100.0MiB", queue="error"
+        )
         assert result.status_code == 303
 
 
 class TestSetTotalSizeLimit:
-    def test_set_total_size_limit_with_integer(self, db_request):
+    def test_set_total_size_limit_with_integer(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
         user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
         result = views.set_total_size_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Total size limit set to 150.0GiB", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Total size limit set to 150.0GiB", queue="success"
+        )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.total_size_limit == 150 * views.ONE_GIB
@@ -1836,26 +1748,27 @@ class TestSetTotalSizeLimit:
             "actor": user.username,
         }
 
-    def test_set_total_size_limit_with_none(self, db_request):
+    def test_set_total_size_limit_with_none(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
         organization.total_size_limit = 150 * views.ONE_GIB
         user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": ""})
 
         result = views.set_total_size_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Total size limit set to (default)", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Total size limit set to (default)", queue="success"
+        )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.total_size_limit is None
@@ -1868,26 +1781,25 @@ class TestSetTotalSizeLimit:
             "actor": user.username,
         }
 
-    def test_set_total_size_limit_invalid_value(self, db_request):
+    def test_set_total_size_limit_invalid_value(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": "not_an_integer"})
 
         result = views.set_total_size_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "total_size_limit: Total size limit must be a valid integer or empty",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "total_size_limit: Total size limit must be a valid integer or empty",
+            queue="error",
+        )
         assert result.status_code == 303
 
     def test_set_total_size_limit_not_found(self, db_request):
@@ -1896,27 +1808,25 @@ class TestSetTotalSizeLimit:
         with pytest.raises(HTTPNotFound):
             views.set_total_size_limit(db_request)
 
-    def test_set_total_size_limit_below_default(self, db_request):
+    def test_set_total_size_limit_below_default(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, organization_id: "/admin/organizations/1/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/1/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
 
         result = views.set_total_size_limit(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "total_size_limit: Total organization size can not be less than "
-                "10.0GiB",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "total_size_limit: Total organization size can not be less than 10.0GiB",
+            queue="error",
+        )
         assert result.status_code == 303
 
 
@@ -2053,22 +1963,22 @@ class TestSetProjectCreateRatelimit:
 
 
 class TestAddOIDCIssuer:
-    def test_add_oidc_issuer_success(self, db_request, monkeypatch):
+    def test_add_oidc_issuer_success(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
         # Mock record_event
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.user = admin_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict(
             {
                 "issuer_type": "gitlab",
@@ -2081,13 +1991,11 @@ class TestAddOIDCIssuer:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/admin/organizations/"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "OIDC issuer 'https://gitlab.company.com' (gitlab) added to "
-                f"'{organization.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "OIDC issuer 'https://gitlab.company.com' (gitlab) added to "
+            f"'{organization.name}'",
+            queue="success",
+        )
 
         issuer = db_request.db.query(OrganizationOIDCIssuer).one()
         assert issuer.issuer_type == OIDCIssuerType.GitLab
@@ -2096,31 +2004,30 @@ class TestAddOIDCIssuer:
         assert issuer.created_by == admin_user
 
         # Check event was recorded
-        assert record_event.calls == [
-            pretend.call(
-                request=db_request,
-                tag=EventTag.Organization.OIDCPublisherAdded,
-                additional={
-                    "issuer_type": "gitlab",
-                    "issuer_url": "https://gitlab.company.com",
-                    "submitted_by_user_id": str(admin_user.id),
-                    "redact_ip": True,
-                },
-            )
-        ]
+        record_event.assert_called_once_with(
+            request=db_request,
+            tag=EventTag.Organization.OIDCPublisherAdded,
+            additional={
+                "issuer_type": "gitlab",
+                "issuer_url": "https://gitlab.company.com",
+                "submitted_by_user_id": str(admin_user.id),
+                "redact_ip": True,
+            },
+        )
 
-    def test_add_oidc_issuer_invalid_form(self, db_request):
+    def test_add_oidc_issuer_invalid_form(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.user = admin_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         # Missing issuer_url
         db_request.POST = MultiDict({"issuer_type": "gitlab"})
 
@@ -2128,21 +2035,22 @@ class TestAddOIDCIssuer:
         assert isinstance(result, HTTPSeeOther)
 
         # Should flash form validation errors
-        assert len(db_request.session.flash.calls) > 0
-        assert "error" in str(db_request.session.flash.calls[0])
+        assert len(db_request.session.flash.call_args_list) > 0
+        assert "error" in str(db_request.session.flash.call_args_list[0])
 
-    def test_add_oidc_issuer_invalid_url(self, db_request):
+    def test_add_oidc_issuer_invalid_url(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.user = admin_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         # Invalid URL (not https)
         db_request.POST = MultiDict(
             {
@@ -2155,10 +2063,12 @@ class TestAddOIDCIssuer:
         assert isinstance(result, HTTPSeeOther)
 
         # Should flash form validation errors
-        flash_messages = [call.args[0] for call in db_request.session.flash.calls]
+        flash_messages = [
+            call.args[0] for call in db_request.session.flash.call_args_list
+        ]
         assert any("https://" in msg for msg in flash_messages)
 
-    def test_add_oidc_issuer_duplicate(self, db_request, monkeypatch):
+    def test_add_oidc_issuer_duplicate(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
@@ -2171,17 +2081,17 @@ class TestAddOIDCIssuer:
         )
 
         # Mock record_event (should not be called on duplicate)
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.user = admin_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict(
             {
                 "issuer_type": "gitlab",
@@ -2192,16 +2102,14 @@ class TestAddOIDCIssuer:
         result = views.add_oidc_issuer(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Issuer 'https://gitlab.company.com' already exists "
-                f"for organization '{organization.name}'",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Issuer 'https://gitlab.company.com' already exists "
+            f"for organization '{organization.name}'",
+            queue="error",
+        )
 
         # No new event recorded
-        assert record_event.calls == []
+        record_event.assert_not_called()
 
     def test_add_oidc_issuer_organization_not_found(self, db_request):
         admin_user = UserFactory.create(username="admin")
@@ -2216,7 +2124,7 @@ class TestAddOIDCIssuer:
 
 
 class TestDeleteOIDCIssuer:
-    def test_delete_oidc_issuer_success(self, db_request, monkeypatch):
+    def test_delete_oidc_issuer_success(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
@@ -2228,19 +2136,19 @@ class TestDeleteOIDCIssuer:
         )
 
         # Mock record_event
-        record_event = pretend.call_recorder(lambda **kwargs: None)
-        monkeypatch.setattr(organization, "record_event", record_event)
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "issuer_id": str(issuer.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
 
         result = views.delete_oidc_issuer(db_request)
@@ -2248,53 +2156,50 @@ class TestDeleteOIDCIssuer:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/admin/organizations/"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "OIDC issuer 'https://gitlab.company.com' removed "
-                f"from '{organization.name}'",
-                queue="success",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "OIDC issuer 'https://gitlab.company.com' removed "
+            f"from '{organization.name}'",
+            queue="success",
+        )
 
         assert db_request.db.query(OrganizationOIDCIssuer).count() == 0
 
         # Check event was recorded
-        assert record_event.calls == [
-            pretend.call(
-                request=db_request,
-                tag=EventTag.Organization.OIDCPublisherRemoved,
-                additional={
-                    "issuer_type": "gitlab",
-                    "issuer_url": "https://gitlab.company.com",
-                    "deleted_by_user_id": str(admin_user.id),
-                    "redact_ip": True,
-                },
-            )
-        ]
+        record_event.assert_called_once_with(
+            request=db_request,
+            tag=EventTag.Organization.OIDCPublisherRemoved,
+            additional={
+                "issuer_type": "gitlab",
+                "issuer_url": "https://gitlab.company.com",
+                "deleted_by_user_id": str(admin_user.id),
+                "redact_ip": True,
+            },
+        )
 
-    def test_delete_oidc_issuer_not_found(self, db_request):
+    def test_delete_oidc_issuer_not_found(self, db_request, mocker):
         organization = OrganizationFactory.create()
 
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "issuer_id": "00000000-0000-0000-0000-000000000000",
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
 
         result = views.delete_oidc_issuer(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("This issuer does not exist", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "This issuer does not exist", queue="error"
+        )
 
-    def test_delete_oidc_issuer_wrong_confirmation(self, db_request):
+    def test_delete_oidc_issuer_wrong_confirmation(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
@@ -2309,25 +2214,26 @@ class TestDeleteOIDCIssuer:
             "organization_id": str(organization.id),
             "issuer_id": str(issuer.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict({"confirm": "https://wrong-url.com"})
 
         result = views.delete_oidc_issuer(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
         # Issuer should still exist
         assert db_request.db.query(OrganizationOIDCIssuer).count() == 1
 
-    def test_delete_oidc_issuer_no_confirmation(self, db_request):
+    def test_delete_oidc_issuer_no_confirmation(self, db_request, mocker):
         organization = OrganizationFactory.create()
         admin_user = UserFactory.create(username="admin")
 
@@ -2342,20 +2248,21 @@ class TestDeleteOIDCIssuer:
             "organization_id": str(organization.id),
             "issuer_id": str(issuer.id),
         }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
         db_request.POST = MultiDict({})
 
         result = views.delete_oidc_issuer(db_request)
         assert isinstance(result, HTTPSeeOther)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
         # Issuer should still exist
         assert db_request.db.query(OrganizationOIDCIssuer).count() == 1

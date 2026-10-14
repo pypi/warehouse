@@ -14,6 +14,7 @@ from warehouse.accounts.forms import (
 )
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
+    OrganizationApplicationStatus,
     OrganizationMembershipSize,
     OrganizationRoleType,
     OrganizationType,
@@ -296,6 +297,9 @@ class DeleteAccountAssociationForm(wtforms.Form):
         self.user_id = user_id
 
     def validate_association_id(self, field):
+        if field.errors:
+            return
+
         association_id = field.data
         association = self.user_service.get_account_association(association_id)
 
@@ -656,6 +660,7 @@ class SaveOrganizationForm(wtforms.Form):
         ]
     )
     link_url = wtforms.URLField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message="Specify your organization URL"),
             wtforms.validators.Length(
@@ -669,7 +674,7 @@ class SaveOrganizationForm(wtforms.Form):
                 r"^https?://",
                 message=_("The organization URL must start with http:// or https://"),
             ),
-        ]
+        ],
     )
     description = wtforms.TextAreaField(
         validators=[
@@ -697,8 +702,6 @@ class SaveOrganizationForm(wtforms.Form):
 
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     __params__ = ["name", *SaveOrganizationForm.__params__]
-
-    _max_apps = wtforms.IntegerField()
 
     membership_size = wtforms.SelectField(
         choices=[(size.value, size.value) for size in OrganizationMembershipSize],
@@ -737,20 +740,30 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         self.user = user
         self.max_applications = max_applications
 
-    def validate__max_apps(self, field):
-        if (
-            self.max_applications is not None
-            and len(self.user.organization_applications) >= self.max_applications
-        ):
-            self.form_errors.append(
-                _(
-                    "You have already submitted the maximum number of "
-                    "Organization requests (%s)."
+    def validate(self, *args, **kwargs):
+        success = super().validate(*args, **kwargs)
+
+        if self.max_applications is not None:
+            undecided = [
+                app
+                for app in self.user.organization_applications
+                if app.status
+                not in (
+                    OrganizationApplicationStatus.Approved,
+                    OrganizationApplicationStatus.Declined,
                 )
-                % self.max_applications
-            )
-            return False
-        return True
+            ]
+            if len(undecided) >= self.max_applications:
+                self.form_errors.append(
+                    _(
+                        "You have already submitted the maximum number of "
+                        "Organization requests (${count}).",
+                        mapping={"count": self.max_applications},
+                    )
+                )
+                return False
+
+        return success
 
 
 class CreateTeamRoleForm(wtforms.Form):

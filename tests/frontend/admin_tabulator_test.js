@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, describe, it, beforeEach, jest */
+/* global expect, describe, it, beforeEach, afterEach, jest */
 
 /**
  * Tests for the declarative admin tables, asserting on runtime behavior rather
@@ -254,6 +254,19 @@ function rejection(message) {
 }
 
 describe("remote admin tables", () => {
+  beforeEach(() => {
+    // Tabulator logs every rejected load. These tests reject on purpose, so
+    // drop that line and let anything else through.
+    const consoleError = console.error;
+    jest.spyOn(console, "error").mockImplementation((...args) => {
+      if (args[0] !== "Data Load Error: ") consoleError(...args);
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders an endpoint's message as text rather than as markup", async () => {
     const { table, queue } = await renderRemote();
     queue[0].reject(

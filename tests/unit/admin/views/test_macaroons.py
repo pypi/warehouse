@@ -92,9 +92,7 @@ class TestMacaroonDecodeToken:
         assert result["partial"].signature is None
         assert result["db_record"] == macaroon
 
-    def test_post_truncated_token_not_found(
-        self, db_request, macaroon_service, raw_token
-    ):
+    def test_post_truncated_token_not_found(self, db_request, raw_token):
         db_request.method = "POST"
         db_request.POST = {"token": raw_token[:75]}
 
@@ -117,7 +115,7 @@ class TestMacaroonDecodeToken:
         assert result["db_record"] is None
         find_macaroon.assert_not_called()
 
-    def test_post_token_with_non_ascii(self, db_request, macaroon_service):
+    def test_post_token_with_non_ascii(self, db_request):
         """A token elided with an ellipsis gets a 400."""
         db_request.method = "POST"
         db_request.POST = {"token": "pypi-AgEIcHl\u2026"}
@@ -129,7 +127,7 @@ class TestMacaroonDecodeToken:
             "macaroon')"
         )
 
-    def test_post_token_with_binary_identifier(self, db_request, macaroon_service):
+    def test_post_token_with_binary_identifier(self, db_request):
         """A macaroon can carry bytes here that no template can render."""
         macaroon = pymacaroons.Macaroon(
             location="pypi.org",
@@ -145,7 +143,7 @@ class TestMacaroonDecodeToken:
             views.macaroon_decode_token(db_request)
         assert "malformed macaroon identifier" in excinfo.value.message
 
-    def test_post_token_not_found(self, db_request, macaroon_service, raw_token):
+    def test_post_token_not_found(self, db_request, raw_token):
         db_request.method = "POST"
         db_request.POST = {"token": raw_token}
 
@@ -164,7 +162,7 @@ class TestMacaroonDetail:
         with pytest.raises(views.HTTPNotFound):
             views.macaroon_detail(db_request)
 
-    def test_macaroon_exists(self, db_request, macaroon_service):
+    def test_macaroon_exists(self, db_request):
         user = UserFactory.create()
         macaroon = MacaroonFactory.create(user_id=user.id)
         db_request.matchdict["macaroon_id"] = macaroon.id
@@ -175,7 +173,7 @@ class TestMacaroonDetail:
 
 
 class TestMacaroonDelete:
-    def test_no_macaroon_raises_404(self, db_request, macaroon_service):
+    def test_no_macaroon_raises_404(self, db_request):
         db_request.matchdict["macaroon_id"] = str(uuid.uuid4())
 
         with pytest.raises(views.HTTPNotFound):

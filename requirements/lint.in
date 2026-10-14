@@ -1,6 +1,4 @@
-# TODO: 0.16 stabilizes CPY001, PLR0917, ISC004 and FURB192, and reformats
-# Python blocks in our Markdown docs. Upgrade in its own PR.
-ruff<0.16
+ruff
 ast-grep-cli
 codespell
 # TODO: 1.40 onwards fixes indentation after multi-line `{% trans %}` blocks,
@@ -18,7 +16,6 @@ boto3-stubs
 types-certifi
 types-first
 types-gunicorn
-types-html5lib
 types-itsdangerous
 types-passlib
 types-pyasn1

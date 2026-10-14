@@ -741,6 +741,46 @@ class TestManageOrganizations:
             "create_organization_application_form": create_organization_application_obj
         }
 
+    def test_create_organization_application_max_undecided(
+        self, pyramid_config, db_request, mocker
+    ):
+        db_request.registry.settings[
+            "warehouse.organizations.max_undecided_organization_applications"
+        ] = 3
+        db_request.user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(
+            3,
+            submitted_by=db_request.user,
+            status=OrganizationApplicationStatus.Submitted,
+        )
+        db_request.POST = MultiDict(
+            {
+                "name": "my_organization_name",
+                "display_name": "My Organization",
+                "link_url": "https://example.com/",
+                "description": "An organization",
+                "orgtype": "Community",
+                "membership_size": "1",
+                "usage": "We plan to publish a few packages under one organization.",
+            }
+        )
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(db_request)
+        result = view.create_organization_application()
+
+        form = result["create_organization_application_form"]
+        assert [str(error) for error in form.form_errors] == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
+        assert len(db_request.user.organization_applications) == 3
+        send_email.assert_not_called()
+
 
 class TestManageOrganizationSettings:
     def test_manage_organization(self, db_request, organization_service, monkeypatch):
@@ -1218,23 +1258,40 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
+    @pytest.mark.parametrize(
+        ("subscription_status", "should_cancel"),
+        [
+            ("active", True),
+            ("past_due", True),
+            ("canceled", False),
+            ("incomplete_expired", False),
+        ],
+    )
     def test_delete_organization_with_subscriptions(
         self,
         db_request,
         pyramid_user,
+        billing_service,
         organization_service,
         user_service,
         monkeypatch,
+        subscription_status,
+        should_cancel,
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        subscription = StripeSubscriptionFactory.create(
+            customer=stripe_customer, status=subscription_status
+        )
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
+
+        cancel_subscription = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(billing_service, "cancel_subscription", cancel_subscription)
 
         db_request.POST = {"confirm_organization_name": organization.name}
         db_request.route_path = pretend.call_recorder(
@@ -1265,6 +1322,9 @@ class TestManageOrganizationSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations/"
+        assert cancel_subscription.calls == (
+            [pretend.call(subscription.subscription_id)] if should_cancel else []
+        )
         assert organization_service.delete_organization.calls == [
             pretend.call(organization.id)
         ]
@@ -1963,14 +2023,18 @@ class TestManageOrganizationProjects:
             (
                 datetime.timedelta(seconds=600),
                 "600",
-                "This organization has created too many new projects recently. "
-                "Try again in 10 minutes.",
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again in 10 minutes."
+                ),
             ),
             (
                 None,
                 None,
-                "This organization has created too many new projects recently. "
-                "Try again later.",
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again later."
+                ),
             ),
         ],
         ids=["with-reset-hint", "without-reset-hint"],

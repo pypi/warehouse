@@ -7,9 +7,9 @@ from types import SimpleNamespace
 
 import freezegun
 import passlib.exc
-import pretend
 import pytest
 import requests
+import responses
 
 from webauthn.helpers import bytes_to_base64url
 from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
@@ -44,8 +44,8 @@ from warehouse.accounts.models import (
 )
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
-from warehouse.metrics import IMetricsService, NullMetrics
-from warehouse.rate_limiting import DummyRateLimiter
+from warehouse.metrics import NullMetrics
+from warehouse.rate_limiting import DummyRateLimiter, RateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils import otp, webauthn
 
@@ -57,50 +57,67 @@ from ...common.db.accounts import (
     UserTermsOfServiceEngagementFactory,
     UserUniqueLoginFactory,
 )
-from ...common.db.ip_addresses import IpAddressFactory
+
+
+@pytest.fixture
+def http_session(mocker):
+    """A real ``requests.Session`` with a spied ``get``, for ``responses`` tests."""
+    session = requests.Session()
+    mocker.spy(session, "get")
+    return session
+
+
+@pytest.fixture
+def make_limiter(mocker):
+    """Build an autospec'd ``RateLimiter`` with the given method return values."""
+
+    def _make(**return_values):
+        limiter = mocker.create_autospec(RateLimiter, instance=True)
+        for method, value in return_values.items():
+            getattr(limiter, method).return_value = value
+        return limiter
+
+    return _make
 
 
 class TestDatabaseUserService:
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)
 
-    def test_service_creation(self, monkeypatch):
-        crypt_context_obj = pretend.stub()
-        crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
-        monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
+    def test_service_creation(self, mocker):
+        crypt_context_cls = mocker.patch.object(services, "CryptContext", autospec=True)
 
-        session = pretend.stub()
+        session = mocker.sentinel.session
         service = services.DatabaseUserService(
             session, metrics=NullMetrics(), remote_addr=REMOTE_ADDR
         )
 
         assert service.db is session
-        assert service.hasher is crypt_context_obj
-        assert crypt_context_cls.calls == [
-            pretend.call(
-                schemes=[
-                    "argon2",
-                    "bcrypt_sha256",
-                    "bcrypt",
-                    "django_bcrypt",
-                    "unix_disabled",
-                ],
-                deprecated=["auto"],
-                truncate_error=True,
-                argon2__memory_cost=1024,
-                argon2__parallelism=6,
-                argon2__time_cost=6,
-            )
-        ]
+        assert service.hasher is crypt_context_cls.return_value
+        crypt_context_cls.assert_called_once_with(
+            schemes=[
+                "argon2",
+                "bcrypt_sha256",
+                "bcrypt",
+                "django_bcrypt",
+                "unix_disabled",
+            ],
+            deprecated=["auto"],
+            truncate_error=True,
+            argon2__memory_cost=1024,
+            argon2__parallelism=6,
+            argon2__time_cost=6,
+        )
 
-    def test_service_creation_ratelimiters(self, monkeypatch):
-        crypt_context_obj = pretend.stub()
-        crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
-        monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
+    def test_service_creation_ratelimiters(self, mocker):
+        crypt_context_cls = mocker.patch.object(services, "CryptContext", autospec=True)
 
-        ratelimiters = {"user.login": pretend.stub(), "global.login": pretend.stub()}
+        ratelimiters = {
+            "user.login": mocker.sentinel.user_login,
+            "global.login": mocker.sentinel.global_login,
+        }
 
-        session = pretend.stub()
+        session = mocker.sentinel.session
         service = services.DatabaseUserService(
             session,
             metrics=NullMetrics(),
@@ -110,39 +127,33 @@ class TestDatabaseUserService:
 
         assert service.db is session
         assert service.ratelimiters == ratelimiters
-        assert service.hasher is crypt_context_obj
-        assert crypt_context_cls.calls == [
-            pretend.call(
-                schemes=[
-                    "argon2",
-                    "bcrypt_sha256",
-                    "bcrypt",
-                    "django_bcrypt",
-                    "unix_disabled",
-                ],
-                deprecated=["auto"],
-                truncate_error=True,
-                argon2__memory_cost=1024,
-                argon2__parallelism=6,
-                argon2__time_cost=6,
-            )
-        ]
-
-    def test_skips_ip_rate_limiter(self, user_service, metrics):
-        user = UserFactory.create()
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda ipaddr: resets),
-            hit=pretend.call_recorder(lambda uid: None),
+        assert service.hasher is crypt_context_cls.return_value
+        crypt_context_cls.assert_called_once_with(
+            schemes=[
+                "argon2",
+                "bcrypt_sha256",
+                "bcrypt",
+                "django_bcrypt",
+                "unix_disabled",
+            ],
+            deprecated=["auto"],
+            truncate_error=True,
+            argon2__memory_cost=1024,
+            argon2__parallelism=6,
+            argon2__time_cost=6,
         )
+
+    def test_skips_ip_rate_limiter(self, user_service, metrics, make_limiter, mocker):
+        user = UserFactory.create()
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["ip.login"] = limiter
         user_service.remote_addr = None
 
         user_service.check_password(user.id, "password")
 
-        assert limiter.test.calls == []
-        assert limiter.resets_in.calls == []
+        limiter.test.assert_not_called()
+        limiter.resets_in.assert_not_called()
 
     def test_username_is_not_prohibited(self, user_service):
         assert user_service.username_is_prohibited("my_username") is False
@@ -165,153 +176,147 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert user_service.find_userid(user.username) == user.id
 
-    def test_check_password_global_rate_limited(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
+    def test_check_password_global_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_password(uuid.uuid4(), None, tags=["foo"])
 
         assert excinfo.value.resets_in is resets
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start",
                 tags=["foo", "mechanism:check_password"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["foo", "mechanism:check_password", "ratelimiter:global"],
             ),
         ]
 
-    def test_check_password_nonexistent_user(self, user_service, metrics):
+    def test_check_password_nonexistent_user(self, user_service, metrics, mocker):
         assert not user_service.check_password(uuid.uuid4(), None, tags=["foo"])
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start",
                 tags=["foo", "mechanism:check_password"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.failure",
                 tags=["foo", "mechanism:check_password", "failure_reason:user"],
             ),
         ]
 
-    def test_check_password_user_rate_limited(self, user_service, metrics):
+    def test_check_password_user_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
         user = UserFactory.create()
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda uid: resets),
-        )
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(user.id)]
-        assert limiter.resets_in.calls == [pretend.call(user.id)]
-        assert metrics.increment.calls == [
-            pretend.call(
+        limiter.test.assert_called_once_with(user.id)
+        limiter.resets_in.assert_called_once_with(user.id)
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_password", "ratelimiter:user"],
             ),
         ]
 
-    def test_check_password_ip_rate_limited(self, user_service, metrics):
+    def test_check_password_ip_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
         user = UserFactory.create()
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda ipaddr: resets),
-        )
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["ip.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
-        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
-        assert metrics.increment.calls == [
-            pretend.call(
+        limiter.test.assert_called_once_with(REMOTE_ADDR)
+        limiter.resets_in.assert_called_once_with(REMOTE_ADDR)
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_password", "ratelimiter:ip"],
             ),
         ]
 
-    def test_check_password_invalid(self, user_service, metrics):
-        user = UserFactory.create()
-        user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(
-                lambda L, r: (False, None)  # noqa: N803
-            )
-        )
+    def test_check_password_invalid(self, user_service, metrics, mocker):
+        user = UserFactory.create(clear_pwd="password")
+        mocker.spy(user_service.hasher, "verify_and_update")
 
         assert not user_service.check_password(user.id, "user password")
-        assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", user.password)
-        ]
-        assert metrics.increment.calls == [
-            pretend.call(
+        user_service.hasher.verify_and_update.assert_called_once_with(
+            "user password", user.password
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.failure",
                 tags=["mechanism:check_password", "failure_reason:password"],
             ),
         ]
 
-    def test_check_password_catches_bcrypt_exception(self, user_service, metrics):
+    def test_check_password_catches_bcrypt_exception(
+        self, user_service, metrics, mocker
+    ):
         user = UserFactory.create()
 
-        @pretend.call_recorder
-        def raiser(*a, **kw):
-            raise passlib.exc.PasswordValueError
-
-        user_service.hasher = pretend.stub(verify_and_update=raiser)
+        mocker.patch.object(
+            user_service.hasher,
+            "verify_and_update",
+            autospec=True,
+            side_effect=passlib.exc.PasswordValueError,
+        )
 
         assert not user_service.check_password(user.id, "user password")
-        assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", user.password)
-        ]
-        assert metrics.increment.calls == [
-            pretend.call(
+        user_service.hasher.verify_and_update.assert_called_once_with(
+            "user password", user.password
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.failure",
                 tags=["mechanism:check_password", "failure_reason:password"],
             ),
         ]
-        assert raiser.calls == [pretend.call("user password", "!")]
 
-    def test_check_password_valid(self, user_service, metrics):
-        user = UserFactory.create()
-        user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(
-                lambda L, r: (True, None)  # noqa: N803
-            )
-        )
+    def test_check_password_valid(self, user_service, metrics, mocker):
+        user = UserFactory.create(clear_pwd="user password")
+        mocker.spy(user_service.hasher, "verify_and_update")
 
         assert user_service.check_password(user.id, "user password", tags=["bar"])
-        assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", user.password)
-        ]
-        assert metrics.increment.calls == [
-            pretend.call(
+        user_service.hasher.verify_and_update.assert_called_once_with(
+            "user password", user.password
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.start",
                 tags=["bar", "mechanism:check_password"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ok", tags=["bar", "mechanism:check_password"]
             ),
         ]
@@ -342,19 +347,20 @@ class TestDatabaseUserService:
         assert user.password.startswith("$argon2id$v=19$m=1024,t=6,p=6$")
         assert user_service.check_password(user.id, "password")
 
-    def test_hash_is_upgraded(self, user_service):
+    def test_hash_is_upgraded(self, user_service, mocker):
         user = UserFactory.create()
         password = user.password
-        user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(
-                lambda L, r: (True, "new password")  # noqa: N803
-            )
+        mocker.patch.object(
+            user_service.hasher,
+            "verify_and_update",
+            autospec=True,
+            return_value=(True, "new password"),
         )
 
         assert user_service.check_password(user.id, "user password")
-        assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", password)
-        ]
+        user_service.hasher.verify_and_update.assert_called_once_with(
+            "user password", password
+        )
         assert user.password == "new password"
 
     def test_create_user(self, user_service):
@@ -397,13 +403,9 @@ class TestDatabaseUserService:
         assert not new_email2.primary
         assert not new_email2.verified
 
-    def test_add_email_rate_limited(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda ip: None),
-            test=pretend.call_recorder(lambda ip: False),
-            resets_in=pretend.call_recorder(lambda ip: resets),
-        )
+    def test_add_email_rate_limited(self, user_service, metrics, make_limiter, mocker):
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["email.add"] = limiter
 
         user = UserFactory.build()
@@ -412,21 +414,17 @@ class TestDatabaseUserService:
             user_service.add_email(user.id, user.email)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
-        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
-            )
-        ]
-
-    def test_add_email_bypass_ratelimit(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda ip: None),
-            test=pretend.call_recorder(lambda ip: False),
-            resets_in=pretend.call_recorder(lambda ip: resets),
+        limiter.test.assert_called_once_with(REMOTE_ADDR)
+        limiter.resets_in.assert_called_once_with(REMOTE_ADDR)
+        metrics.increment.assert_called_once_with(
+            "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
         )
+
+    def test_add_email_bypass_ratelimit(
+        self, user_service, metrics, make_limiter, mocker
+    ):
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["email.add"] = limiter
 
         user = UserFactory.create()
@@ -434,9 +432,9 @@ class TestDatabaseUserService:
 
         assert new_email.email == "foo@example.com"
         assert not new_email.verified
-        assert limiter.test.calls == []
-        assert limiter.resets_in.calls == []
-        assert metrics.increment.calls == []
+        limiter.test.assert_not_called()
+        limiter.resets_in.assert_not_called()
+        metrics.increment.assert_not_called()
 
     def test_update_user(self, user_service):
         user = UserFactory.create()
@@ -568,13 +566,10 @@ class TestDatabaseUserService:
             ),
         ],
     )
-    def test_disable_password(self, user_service, reason, expected):
-        request = pretend.stub(
-            remote_addr="127.0.0.1",
-            ip_address=IpAddressFactory.create(),
-        )
+    def test_disable_password(self, user_service, db_request, reason, expected, mocker):
+        request = db_request
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         # Need to give the user a good password first.
         user_service.update_user(user.id, password="foo")
@@ -584,25 +579,18 @@ class TestDatabaseUserService:
         user_service.disable_password(user.id, reason=reason, request=request)
         assert user.password == "!"
 
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordDisabled,
-                request=request,
-                additional={"reason": expected},
-            )
-        ]
+        user.record_event.assert_called_once_with(
+            tag=EventTag.Account.PasswordDisabled,
+            request=request,
+            additional={"reason": expected},
+        )
 
     @pytest.mark.parametrize(
         ("disabled", "reason"),
         [(True, None), (True, DisableReason.CompromisedPassword), (False, None)],
     )
-    def test_is_disabled(self, user_service, disabled, reason):
-        request = pretend.stub(
-            remote_addr="127.0.0.1",
-            ip_address=IpAddressFactory.create(),
-            headers={},
-            db=pretend.stub(add=lambda *a: None),
-        )
+    def test_is_disabled(self, user_service, db_request, disabled, reason):
+        request = db_request
         user = UserFactory.create()
         user_service.update_user(user.id, password="foo")
         if disabled:
@@ -613,13 +601,8 @@ class TestDatabaseUserService:
         user = UserFactory.create(is_frozen=True)
         assert user_service.is_disabled(user.id) == (True, DisableReason.AccountFrozen)
 
-    def test_updating_password_undisables(self, user_service):
-        request = pretend.stub(
-            remote_addr="127.0.0.1",
-            ip_address=IpAddressFactory.create(),
-            headers={},
-            db=pretend.stub(add=lambda *a: None),
-        )
+    def test_updating_password_undisables(self, user_service, db_request):
+        request = db_request
         user = UserFactory.create()
         user_service.disable_password(
             user.id, reason=DisableReason.CompromisedPassword, request=request
@@ -667,9 +650,8 @@ class TestDatabaseUserService:
         ("last_totp_value", "valid"),
         [(None, True), ("000000", True), ("000000", False)],
     )
-    def test_check_totp_value(self, user_service, monkeypatch, last_totp_value, valid):
-        verify_totp = pretend.call_recorder(lambda *a: valid)
-        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+    def test_check_totp_value(self, user_service, last_totp_value, valid, mocker):
+        mocker.patch.object(otp, "verify_totp", autospec=True, return_value=valid)
 
         user = UserFactory.create()
         user_service.update_user(
@@ -694,12 +676,12 @@ class TestDatabaseUserService:
         with pytest.raises(otp.OutOfSyncTOTPError):
             user_service.check_totp_value(user.id, b"123456")
 
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.two_factor.start",
                 tags=["mechanism:check_totp_value"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.two_factor.failure",
                 tags=["mechanism:check_totp_value", "failure_reason:out_of_sync"],
             ),
@@ -710,74 +692,72 @@ class TestDatabaseUserService:
         with pytest.raises(otp.InvalidTOTPError):
             user_service.check_totp_value(user.id, b"123456")
 
-    def test_check_totp_ip_rate_limited(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda uid: resets),
-        )
+    def test_check_totp_ip_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
 
         assert excinfo.value.resets_in is resets
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.two_factor.start",
                 tags=["foo", "mechanism:check_totp_value"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["foo", "mechanism:check_totp_value", "ratelimiter:ip"],
             ),
         ]
 
-    def test_check_totp_value_user_rate_limited(self, user_service, metrics):
+    def test_check_totp_value_user_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
         user = UserFactory.create()
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda uid: resets),
-        )
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["2fa.user"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(user.id, b"123456")
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(user.id)]
-        assert limiter.resets_in.calls == [pretend.call(user.id)]
-        assert metrics.increment.calls == [
-            pretend.call(
+        limiter.test.assert_called_once_with(user.id)
+        limiter.resets_in.assert_called_once_with(user.id)
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.authentication.two_factor.start",
                 tags=["mechanism:check_totp_value"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_totp_value", "ratelimiter:user"],
             ),
         ]
 
-    def test_check_totp_value_invalid_secret(self, user_service):
+    def test_check_totp_value_invalid_secret(self, user_service, mocker, make_limiter):
         user = UserFactory.create(totp_secret=None)
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
-        )
+        limiter = make_limiter(test=True)
         user_service.ratelimiters["2fa.user"] = limiter
         user_service.ratelimiters["2fa.ip"] = limiter
 
         valid = user_service.check_totp_value(user.id, b"123456")
 
         assert not valid
-        assert limiter.hit.calls == [pretend.call(user.id), pretend.call(REMOTE_ADDR)]
+        assert limiter.hit.call_args_list == [
+            mocker.call(user.id),
+            mocker.call(REMOTE_ADDR),
+        ]
 
-    def test_check_totp_value_invalid_totp(self, user_service, monkeypatch):
+    def test_check_totp_value_invalid_totp(
+        self, user_service, monkeypatch, mocker, make_limiter
+    ):
         user = UserFactory.create()
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda ip: None),
-            test=pretend.call_recorder(lambda uid: True),
-        )
+        limiter = make_limiter(test=True)
         user_service.get_totp_secret = lambda uid: "secret"
         monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
         user_service.ratelimiters["2fa.user"] = limiter
@@ -786,28 +766,28 @@ class TestDatabaseUserService:
         valid = user_service.check_totp_value(user.id, b"123456")
 
         assert not valid
-        assert limiter.test.calls == [pretend.call(REMOTE_ADDR), pretend.call(user.id)]
-        assert limiter.hit.calls == [pretend.call(user.id), pretend.call(REMOTE_ADDR)]
+        assert limiter.test.call_args_list == [
+            mocker.call(REMOTE_ADDR),
+            mocker.call(user.id),
+        ]
+        assert limiter.hit.call_args_list == [
+            mocker.call(user.id),
+            mocker.call(REMOTE_ADDR),
+        ]
 
     def test_check_totp_value_with_2fa_rate_limiters(
-        self, db_session, metrics, monkeypatch
+        self, db_session, metrics, monkeypatch, make_limiter
     ):
         """Test that check_totp_value uses new 2FA rate limiters when available."""
         user = UserFactory.create()
 
         # Create mocked rate limiters
         ratelimiters = {
-            "user.login": pretend.stub(test=lambda *a: True, hit=lambda *a: None),
-            "ip.login": pretend.stub(test=lambda *a: True, hit=lambda *a: None),
-            "global.login": pretend.stub(test=lambda: True, hit=lambda: None),
-            "2fa.user": pretend.stub(
-                test=pretend.call_recorder(lambda uid: True),
-                hit=pretend.call_recorder(lambda uid: None),
-            ),
-            "2fa.ip": pretend.stub(
-                test=pretend.call_recorder(lambda addr: True),
-                hit=pretend.call_recorder(lambda addr: None),
-            ),
+            "user.login": make_limiter(test=True),
+            "ip.login": make_limiter(test=True),
+            "global.login": make_limiter(test=True),
+            "2fa.user": make_limiter(test=True),
+            "2fa.ip": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -825,20 +805,19 @@ class TestDatabaseUserService:
 
         assert not result
         # Should use 2FA rate limiters, not login rate limiters
-        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
-        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
+        ratelimiters["2fa.user"].test.assert_called_once_with(user.id)
+        ratelimiters["2fa.ip"].test.assert_called_once_with(REMOTE_ADDR)
 
-    def test_check_2fa_ratelimits_ip_limited(self, db_session, metrics):
+    def test_check_2fa_ratelimits_ip_limited(
+        self, db_session, metrics, make_limiter, mocker
+    ):
         """Test IP-based 2FA rate limiting."""
         user = UserFactory.create()
-        resets = pretend.stub()
+        resets = mocker.sentinel.resets
 
         ratelimiters = {
-            "2fa.ip": pretend.stub(
-                test=pretend.call_recorder(lambda addr: False),
-                resets_in=pretend.call_recorder(lambda addr: resets),
-            ),
-            "2fa.user": pretend.stub(test=lambda *a: True),
+            "2fa.ip": make_limiter(test=False, resets_in=resets),
+            "2fa.user": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -852,25 +831,21 @@ class TestDatabaseUserService:
             user_service._check_2fa_ratelimits(userid=user.id, tags=["test_tag"])
 
         assert excinfo.value.resets_in is resets
-        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.authentication.ratelimited",
-                tags=["test_tag", "ratelimiter:ip"],
-            ),
-        ]
+        ratelimiters["2fa.ip"].test.assert_called_once_with(REMOTE_ADDR)
+        metrics.increment.assert_called_once_with(
+            "warehouse.authentication.ratelimited", tags=["test_tag", "ratelimiter:ip"]
+        )
 
-    def test_check_2fa_ratelimits_user_limited(self, db_session, metrics):
+    def test_check_2fa_ratelimits_user_limited(
+        self, db_session, metrics, make_limiter, mocker
+    ):
         """Test user-based 2FA rate limiting."""
         user = UserFactory.create()
-        resets = pretend.stub()
+        resets = mocker.sentinel.resets
 
         ratelimiters = {
-            "2fa.ip": pretend.stub(test=lambda *a: True),
-            "2fa.user": pretend.stub(
-                test=pretend.call_recorder(lambda uid: False),
-                resets_in=pretend.call_recorder(lambda uid: resets),
-            ),
+            "2fa.ip": make_limiter(test=True),
+            "2fa.user": make_limiter(test=False, resets_in=resets),
         }
 
         user_service = services.DatabaseUserService(
@@ -884,23 +859,21 @@ class TestDatabaseUserService:
             user_service._check_2fa_ratelimits(userid=user.id, tags=["test_tag"])
 
         assert excinfo.value.resets_in is resets
-        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.authentication.ratelimited",
-                tags=["test_tag", "ratelimiter:user"],
-            ),
-        ]
+        ratelimiters["2fa.user"].test.assert_called_once_with(user.id)
+        metrics.increment.assert_called_once_with(
+            "warehouse.authentication.ratelimited",
+            tags=["test_tag", "ratelimiter:user"],
+        )
 
-    def test_check_2fa_ratelimits_no_remote_addr(self, db_session, metrics):
+    def test_check_2fa_ratelimits_no_remote_addr(
+        self, db_session, metrics, make_limiter
+    ):
         """Test 2FA rate limiting when remote_addr is None."""
         user = UserFactory.create()
 
         ratelimiters = {
-            "2fa.ip": pretend.stub(
-                test=pretend.call_recorder(lambda addr: True),
-            ),
-            "2fa.user": pretend.stub(test=lambda *a: True),
+            "2fa.ip": make_limiter(test=True),
+            "2fa.user": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -914,15 +887,15 @@ class TestDatabaseUserService:
         user_service._check_2fa_ratelimits(userid=user.id)
 
         # IP limiter should not be called
-        assert ratelimiters["2fa.ip"].test.calls == []
+        ratelimiters["2fa.ip"].test.assert_not_called()
 
-    def test_hit_2fa_ratelimits(self, db_session, metrics):
+    def test_hit_2fa_ratelimits(self, db_session, metrics, make_limiter):
         """Test hitting 2FA rate limits records properly."""
         user = UserFactory.create()
 
         ratelimiters = {
-            "2fa.user": pretend.stub(hit=pretend.call_recorder(lambda uid: None)),
-            "2fa.ip": pretend.stub(hit=pretend.call_recorder(lambda addr: None)),
+            "2fa.user": make_limiter(),
+            "2fa.ip": make_limiter(),
         }
 
         user_service = services.DatabaseUserService(
@@ -934,16 +907,16 @@ class TestDatabaseUserService:
 
         user_service._hit_2fa_ratelimits(userid=user.id)
 
-        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
-        assert ratelimiters["2fa.ip"].hit.calls == [pretend.call(REMOTE_ADDR)]
+        ratelimiters["2fa.user"].hit.assert_called_once_with(user.id)
+        ratelimiters["2fa.ip"].hit.assert_called_once_with(REMOTE_ADDR)
 
-    def test_hit_2fa_ratelimits_no_remote_addr(self, db_session, metrics):
+    def test_hit_2fa_ratelimits_no_remote_addr(self, db_session, metrics, make_limiter):
         """Test hitting 2FA rate limits when remote_addr is None."""
         user = UserFactory.create()
 
         ratelimiters = {
-            "2fa.user": pretend.stub(hit=pretend.call_recorder(lambda uid: None)),
-            "2fa.ip": pretend.stub(hit=pretend.call_recorder(lambda addr: None)),
+            "2fa.user": make_limiter(),
+            "2fa.ip": make_limiter(),
         }
 
         user_service = services.DatabaseUserService(
@@ -956,22 +929,19 @@ class TestDatabaseUserService:
         user_service._hit_2fa_ratelimits(userid=user.id)
 
         # Only user limiter should be hit
-        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
-        assert ratelimiters["2fa.ip"].hit.calls == []
+        ratelimiters["2fa.user"].hit.assert_called_once_with(user.id)
+        ratelimiters["2fa.ip"].hit.assert_not_called()
 
     def test_verify_webauthn_assertion_rate_limited(
-        self, db_session, metrics, monkeypatch
+        self, db_session, metrics, make_limiter, mocker
     ):
         """Test that verify_webauthn_assertion uses 2FA rate limiters."""
         user = UserFactory.create()
-        resets = pretend.stub()
+        resets = mocker.sentinel.resets
 
         ratelimiters = {
-            "2fa.user": pretend.stub(
-                test=pretend.call_recorder(lambda uid: False),
-                resets_in=pretend.call_recorder(lambda uid: resets),
-            ),
-            "2fa.ip": pretend.stub(test=lambda *a: True),
+            "2fa.user": make_limiter(test=False, resets_in=resets),
+            "2fa.ip": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -991,27 +961,21 @@ class TestDatabaseUserService:
             )
 
         assert excinfo.value.resets_in is resets
-        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.authentication.ratelimited",
-                tags=["mechanism:webauthn", "ratelimiter:user"],
-            ),
-        ]
+        ratelimiters["2fa.user"].test.assert_called_once_with(user.id)
+        metrics.increment.assert_called_once_with(
+            "warehouse.authentication.ratelimited",
+            tags=["mechanism:webauthn", "ratelimiter:user"],
+        )
 
     def test_verify_webauthn_assertion_failure_hits_ratelimits(
-        self, db_session, metrics, monkeypatch
+        self, db_session, metrics, make_limiter, mocker
     ):
         """Test that failed WebAuthn assertions hit 2FA rate limiters."""
         user = UserFactory.create()
 
         ratelimiters = {
-            "2fa.user": pretend.stub(
-                test=lambda *a: True, hit=pretend.call_recorder(lambda uid: None)
-            ),
-            "2fa.ip": pretend.stub(
-                test=lambda *a: True, hit=pretend.call_recorder(lambda addr: None)
-            ),
+            "2fa.user": make_limiter(test=True),
+            "2fa.ip": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -1022,10 +986,11 @@ class TestDatabaseUserService:
         )
 
         # Mock webauthn to raise AuthenticationRejectedError
-        monkeypatch.setattr(
+        mocker.patch.object(
             webauthn,
             "verify_assertion_response",
-            pretend.raiser(webauthn.AuthenticationRejectedError("test error")),
+            autospec=True,
+            side_effect=webauthn.AuthenticationRejectedError("test error"),
         )
 
         with pytest.raises(webauthn.AuthenticationRejectedError):
@@ -1037,20 +1002,19 @@ class TestDatabaseUserService:
                 rp_id="example.com",
             )
 
-        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
-        assert ratelimiters["2fa.ip"].hit.calls == [pretend.call(REMOTE_ADDR)]
+        ratelimiters["2fa.user"].hit.assert_called_once_with(user.id)
+        ratelimiters["2fa.ip"].hit.assert_called_once_with(REMOTE_ADDR)
 
-    def test_check_recovery_code_uses_2fa_ratelimits(self, db_session, metrics):
+    def test_check_recovery_code_uses_2fa_ratelimits(
+        self, db_session, metrics, mocker, make_limiter
+    ):
         """Test that check_recovery_code uses 2FA rate limiters."""
         user = UserFactory.create()
-        resets = pretend.stub()
+        resets = mocker.sentinel.resets
 
         ratelimiters = {
-            "2fa.ip": pretend.stub(
-                test=pretend.call_recorder(lambda addr: False),
-                resets_in=pretend.call_recorder(lambda addr: resets),
-            ),
-            "2fa.user": pretend.stub(test=lambda *a: True),
+            "2fa.ip": make_limiter(test=False, resets_in=resets),
+            "2fa.user": make_limiter(test=True),
         }
 
         user_service = services.DatabaseUserService(
@@ -1064,10 +1028,10 @@ class TestDatabaseUserService:
             user_service.check_recovery_code(user.id, "code")
 
         assert excinfo.value.resets_in is resets
-        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call(
+        ratelimiters["2fa.ip"].test.assert_called_once_with(REMOTE_ADDR)
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
             ),
@@ -1121,7 +1085,7 @@ class TestDatabaseUserService:
         assert options["rpId"] == "fake_rp_id"
         assert options["allowCredentials"][0]["id"] == user.webauthn[0].credential_id
 
-    def test_verify_webauthn_credential(self, user_service, monkeypatch):
+    def test_verify_webauthn_credential(self, user_service, mocker):
         user = UserFactory.create()
         user_service.add_webauthn(
             user.id,
@@ -1131,24 +1095,41 @@ class TestDatabaseUserService:
             sign_count=1,
         )
 
-        fake_validated_credential = pretend.stub(credential_id=b"bar")
-        verify_registration_response = pretend.call_recorder(
-            lambda *a, **kw: fake_validated_credential
+        fake_validated_credential = VerifiedRegistration(
+            credential_id=b"bar",
+            credential_public_key=b"bar",
+            sign_count=0,
+            aaguid="wutang",
+            fmt=AttestationFormat.NONE,
+            credential_type=PublicKeyCredentialType.PUBLIC_KEY,
+            user_verified=False,
+            attestation_object=b"foobar",
+            credential_device_type="single_device",
+            credential_backed_up=False,
         )
-        monkeypatch.setattr(
-            webauthn, "verify_registration_response", verify_registration_response
+        verify_registration_response = mocker.patch.object(
+            webauthn,
+            "verify_registration_response",
+            autospec=True,
+            return_value=fake_validated_credential,
         )
 
         validated_credential = user_service.verify_webauthn_credential(
-            pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
+            mocker.sentinel.credential,
+            challenge=mocker.sentinel.challenge,
+            rp_id=mocker.sentinel.rp_id,
+            origin=mocker.sentinel.origin,
         )
 
         assert validated_credential is fake_validated_credential
+        verify_registration_response.assert_called_once_with(
+            mocker.sentinel.credential,
+            challenge=mocker.sentinel.challenge,
+            rp_id=mocker.sentinel.rp_id,
+            origin=mocker.sentinel.origin,
+        )
 
-    def test_verify_webauthn_credential_already_in_use(self, user_service, monkeypatch):
+    def test_verify_webauthn_credential_already_in_use(self, user_service, mocker):
         user = UserFactory.create()
         user_service.add_webauthn(
             user.id,
@@ -1170,22 +1151,22 @@ class TestDatabaseUserService:
             credential_device_type="single_device",
             credential_backed_up=False,
         )
-        verify_registration_response = pretend.call_recorder(
-            lambda *a, **kw: fake_validated_credential
-        )
-        monkeypatch.setattr(
-            webauthn, "verify_registration_response", verify_registration_response
+        mocker.patch.object(
+            webauthn,
+            "verify_registration_response",
+            autospec=True,
+            return_value=fake_validated_credential,
         )
 
         with pytest.raises(webauthn.RegistrationRejectedError):
             user_service.verify_webauthn_credential(
-                pretend.stub(),
-                challenge=pretend.stub(),
-                rp_id=pretend.stub(),
-                origin=pretend.stub(),
+                mocker.sentinel.credential,
+                challenge=mocker.sentinel.challenge,
+                rp_id=mocker.sentinel.rp_id,
+                origin=mocker.sentinel.origin,
             )
 
-    def test_verify_webauthn_assertion(self, user_service, monkeypatch):
+    def test_verify_webauthn_assertion(self, user_service, mocker):
         user = UserFactory.create()
         user_service.add_webauthn(
             user.id,
@@ -1195,17 +1176,16 @@ class TestDatabaseUserService:
             sign_count=1,
         )
 
-        verify_assertion_response = pretend.call_recorder(lambda *a, **kw: 2)
-        monkeypatch.setattr(
-            webauthn, "verify_assertion_response", verify_assertion_response
+        mocker.patch.object(
+            webauthn, "verify_assertion_response", autospec=True, return_value=2
         )
 
         updated_sign_count = user_service.verify_webauthn_assertion(
             user.id,
-            pretend.stub(),
-            challenge=pretend.stub(),
-            origin=pretend.stub(),
-            rp_id=pretend.stub(),
+            mocker.sentinel.assertion,
+            challenge=mocker.sentinel.challenge,
+            origin=mocker.sentinel.origin,
+            rp_id=mocker.sentinel.rp_id,
         )
         assert updated_sign_count == 2
 
@@ -1311,7 +1291,7 @@ class TestDatabaseUserService:
         assert len(codes) == 8
         assert len(user_service.get_recovery_codes(user.id)) == 8
 
-    def test_check_recovery_code(self, user_service, metrics):
+    def test_check_recovery_code(self, user_service, metrics, mocker):
         user = UserFactory.create()
 
         with pytest.raises(NoRecoveryCodes):
@@ -1333,59 +1313,57 @@ class TestDatabaseUserService:
 
         assert user_service.get_recovery_code(user.id, codes[0]).burned
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call(
                 "warehouse.authentication.recovery_code.failure",
                 tags=["failure_reason:no_recovery_codes"],
             ),
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call("warehouse.authentication.recovery_code.ok"),
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call(
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call("warehouse.authentication.recovery_code.ok"),
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call(
                 "warehouse.authentication.recovery_code.failure",
                 tags=["failure_reason:burned_recovery_code"],
             ),
         ]
 
-    def test_check_recovery_code_ip_rate_limited(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda uid: resets),
-        )
+    def test_check_recovery_code_ip_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(uuid.uuid4(), "recovery_code")
 
         assert excinfo.value.resets_in is resets
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
             ),
         ]
 
-    def test_check_recovery_code_user_rate_limited(self, user_service, metrics):
+    def test_check_recovery_code_user_rate_limited(
+        self, user_service, metrics, mocker, make_limiter
+    ):
         user = UserFactory.create()
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            test=pretend.call_recorder(lambda uid: False),
-            resets_in=pretend.call_recorder(lambda uid: resets),
-        )
+        resets = mocker.sentinel.resets
+        limiter = make_limiter(test=False, resets_in=resets)
         user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(user.id, "recovery_code")
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
-        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.recovery_code.start"),
-            pretend.call(
+        limiter.test.assert_called_once_with(REMOTE_ADDR)
+        limiter.resets_in.assert_called_once_with(REMOTE_ADDR)
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.authentication.recovery_code.start"),
+            mocker.call(
                 "warehouse.authentication.ratelimited",
                 tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
             ),
@@ -1626,7 +1604,7 @@ class TestDatabaseUserService:
                 external_username="testuser",
             )
 
-    def test_delete_account_association(self, user_service, db_request):
+    def test_delete_account_association(self, user_service):
         user = UserFactory.create()
         assoc = OAuthAccountAssociationFactory.create(user=user)
         assoc_id = str(assoc.id)
@@ -1647,18 +1625,16 @@ class TestTokenService:
     def test_verify_service(self):
         assert verifyClass(ITokenService, services.TokenService)
 
-    def test_service_creation(self, monkeypatch):
-        serializer_obj = pretend.stub()
-        serializer_cls = pretend.call_recorder(lambda *a, **kw: serializer_obj)
-        monkeypatch.setattr(services, "URLSafeTimedSerializer", serializer_cls)
+    def test_service_creation(self, mocker):
+        serializer_cls = mocker.patch.object(
+            services, "URLSafeTimedSerializer", autospec=True
+        )
 
-        secret = pretend.stub()
-        salt = pretend.stub()
-        max_age = pretend.stub()
-        service = services.TokenService(secret, salt, max_age)
+        service = services.TokenService("secret", "salt", 60)
 
-        assert service.serializer == serializer_obj
-        assert serializer_cls.calls == [pretend.call(secret, salt=salt)]
+        assert service.serializer is serializer_cls.return_value
+        assert service.max_age == 60
+        serializer_cls.assert_called_once_with("secret", salt="salt")
 
     def test_dumps(self, token_service):
         assert token_service.dumps({"foo": "bar"})
@@ -1722,123 +1698,70 @@ class TestTokenService:
         assert token_service.unsafe_load_payload(token) is None
 
 
-def test_database_login_factory(monkeypatch, pyramid_services, metrics):
-    service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda *a, **kw: service_obj)
-    monkeypatch.setattr(services, "DatabaseUserService", service_cls)
-
-    global_login_ratelimiter = pretend.stub()
-    user_login_ratelimiter = pretend.stub()
-    ip_login_ratelimiter = pretend.stub()
-    email_add_ratelimiter = pretend.stub()
-    password_reset_ratelimiter = pretend.stub()
-    user_2fa_ratelimiter = pretend.stub()
-    ip_2fa_ratelimiter = pretend.stub()
-
-    def find_service(iface, name=None, context=None):
-        if iface != IRateLimiter and name is None:
-            return pyramid_services.find_service(iface, context=context)
-
-        assert iface is IRateLimiter
-        assert context is None
-        assert name in {
+def test_database_login_factory(db_request, pyramid_services, metrics, mocker):
+    service_cls = mocker.patch.object(services, "DatabaseUserService", autospec=True)
+    ratelimiters = {
+        name: DummyRateLimiter()
+        for name in (
             "global.login",
             "user.login",
             "ip.login",
             "email.add",
             "password.reset",
+            "password.reset.ip",
             "2fa.user",
             "2fa.ip",
+        )
+    }
+    for name, limiter in ratelimiters.items():
+        pyramid_services.register_service(limiter, IRateLimiter, None, name=name)
+
+    assert (
+        services.database_login_factory(mocker.sentinel.context, db_request)
+        is service_cls.return_value
+    )
+    service_cls.assert_called_once_with(
+        db_request.db,
+        metrics=metrics,
+        remote_addr=REMOTE_ADDR,
+        ratelimiters=ratelimiters,
+    )
+
+
+@pytest.mark.parametrize("custom_max_age", [False, True])
+def test_token_service_factory_max_age(pyramid_request, mocker, custom_max_age):
+    name = "name"
+    service_cls = mocker.create_autospec(services.TokenService)
+
+    service_factory = services.TokenServiceFactory(name, service_cls)
+
+    assert service_factory.name == name
+    assert service_factory.service_class == service_cls
+
+    pyramid_request.registry.settings.update(
+        {
+            "token.name.secret": mocker.sentinel.secret,
+            "token.default.max_age": mocker.sentinel.default_max_age,
         }
-
-        return (
-            {
-                "global.login": global_login_ratelimiter,
-                "user.login": user_login_ratelimiter,
-                "ip.login": ip_login_ratelimiter,
-                "email.add": email_add_ratelimiter,
-                "password.reset": password_reset_ratelimiter,
-                "2fa.user": user_2fa_ratelimiter,
-                "2fa.ip": ip_2fa_ratelimiter,
-            }
-        ).get(name)
-
-    context = pretend.stub()
-    request = pretend.stub(
-        db=pretend.stub(), find_service=find_service, remote_addr=REMOTE_ADDR
     )
-
-    assert services.database_login_factory(context, request) is service_obj
-    assert service_cls.calls == [
-        pretend.call(
-            request.db,
-            metrics=metrics,
-            remote_addr=REMOTE_ADDR,
-            ratelimiters={
-                "global.login": global_login_ratelimiter,
-                "user.login": user_login_ratelimiter,
-                "ip.login": ip_login_ratelimiter,
-                "email.add": email_add_ratelimiter,
-                "password.reset": password_reset_ratelimiter,
-                "2fa.user": user_2fa_ratelimiter,
-                "2fa.ip": ip_2fa_ratelimiter,
-            },
+    if custom_max_age:
+        pyramid_request.registry.settings["token.name.max_age"] = (
+            mocker.sentinel.custom_max_age
         )
-    ]
 
-
-def test_token_service_factory_default_max_age(monkeypatch):
-    name = "name"
-    service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda *args: service_obj)
-
-    service_factory = services.TokenServiceFactory(name, service_cls)
-
-    assert service_factory.name == name
-    assert service_factory.service_class == service_cls
-
-    context = pretend.stub()
-    secret = pretend.stub()
-    default_max_age = pretend.stub()
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={
-                "token.name.secret": secret,
-                "token.default.max_age": default_max_age,
-            }
-        )
+    assert (
+        service_factory(mocker.sentinel.context, pyramid_request)
+        is service_cls.return_value
     )
-
-    assert service_factory(context, request) is service_obj
-    assert service_cls.calls == [pretend.call(secret, name, default_max_age)]
-
-
-def test_token_service_factory_custom_max_age(monkeypatch):
-    name = "name"
-    service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda *args: service_obj)
-
-    service_factory = services.TokenServiceFactory(name, service_cls)
-
-    assert service_factory.name == name
-    assert service_factory.service_class == service_cls
-
-    context = pretend.stub()
-    secret = pretend.stub()
-    default_max_age = pretend.stub()
-    custom_max_age = pretend.stub()
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={
-                "token.name.secret": secret,
-                "token.default.max_age": default_max_age,
-                "token.name.max_age": custom_max_age,
-            }
-        )
+    service_cls.assert_called_once_with(
+        mocker.sentinel.secret,
+        name,
+        (
+            mocker.sentinel.custom_max_age
+            if custom_max_age
+            else mocker.sentinel.default_max_age
+        ),
     )
-
-    assert service_factory(context, request) is service_obj
-    assert service_cls.calls == [pretend.call(secret, name, custom_max_age)]
 
 
 def test_token_service_factory_eq():
@@ -1885,80 +1808,78 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             ),
         ],
     )
-    def test_success(self, password, prefix, expected, dataset):
-        response = pretend.stub(text=dataset, raise_for_status=lambda: None)
-        session = pretend.stub(get=pretend.call_recorder(lambda url: response))
+    @responses.activate
+    def test_success(self, http_session, password, prefix, expected, dataset):
+        url = f"https://api.pwnedpasswords.com/range/{prefix}"
+        responses.add(responses.GET, url, body=dataset)
 
         svc = services.HaveIBeenPwnedPasswordBreachedService(
-            session=session, metrics=NullMetrics()
+            session=http_session, metrics=NullMetrics()
         )
 
         assert svc.check_password(password) == expected
-        assert session.get.calls == [
-            pretend.call(f"https://api.pwnedpasswords.com/range/{prefix}")
-        ]
+        http_session.get.assert_called_once_with(url)
 
-    def test_failure(self):
+    @responses.activate
+    def test_failure(self, http_session):
         class AnError(Exception):
             pass
 
-        def raiser():
-            raise AnError
-
-        response = pretend.stub(raise_for_status=raiser)
-        session = pretend.stub(get=lambda url: response)
+        responses.add(
+            responses.GET,
+            "https://api.pwnedpasswords.com/range/a2f8f",
+            body=AnError(),
+        )
 
         svc = services.HaveIBeenPwnedPasswordBreachedService(
-            session=session, metrics=NullMetrics()
+            session=http_session, metrics=NullMetrics()
         )
 
         with pytest.raises(AnError):
             svc.check_password("my password")
 
-    def test_http_failure(self):
-        @pretend.call_recorder
-        def raiser():
-            raise requests.RequestException
-
-        response = pretend.stub(raise_for_status=raiser)
-        session = pretend.stub(get=lambda url: response)
+    @responses.activate
+    def test_http_failure(self, http_session):
+        responses.add(
+            responses.GET,
+            "https://api.pwnedpasswords.com/range/a2f8f",
+            status=500,
+        )
 
         svc = services.HaveIBeenPwnedPasswordBreachedService(
-            session=session, metrics=NullMetrics()
+            session=http_session, metrics=NullMetrics()
         )
         assert not svc.check_password("my password")
-        assert raiser.calls
+        http_session.get.assert_called_once_with(
+            "https://api.pwnedpasswords.com/range/a2f8f"
+        )
 
-    def test_metrics_increments(self, metrics):
+    def test_metrics_increments(self, metrics, mocker):
         svc = services.HaveIBeenPwnedPasswordBreachedService(
-            session=pretend.stub(), metrics=metrics
+            session=mocker.sentinel.session, metrics=metrics
         )
 
         svc._metrics_increment("something")
         svc._metrics_increment("another_thing")
         svc._metrics_increment("something")
 
-        assert metrics.increment.calls == [
-            pretend.call("something"),
-            pretend.call("another_thing"),
-            pretend.call("something"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("something"),
+            mocker.call("another_thing"),
+            mocker.call("something"),
         ]
 
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            find_service=lambda iface, context: {
-                (IMetricsService, None): NullMetrics()
-            }[(iface, context)],
-            help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
+    def test_factory(self, pyramid_request, metrics, mocker):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.help_url = mocker.Mock(
+            side_effect=lambda _anchor=None: f"http://localhost/help/#{_anchor}"
         )
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
-            context, request
+            mocker.sentinel.context, pyramid_request
         )
 
-        assert svc._http is request.http
-        assert isinstance(svc._metrics, NullMetrics)
+        assert svc._http is pyramid_request.http
+        assert svc._metrics is metrics
         assert svc._help_url == "http://localhost/help/#compromised-password"
 
     @pytest.mark.parametrize(
@@ -1982,17 +1903,11 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             ),
         ],
     )
-    def test_failure_message(self, help_url, expected):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            find_service=lambda iface, context: {
-                (IMetricsService, None): NullMetrics()
-            }[(iface, context)],
-            help_url=lambda _anchor=None: help_url,
-        )
+    def test_failure_message(self, pyramid_request, mocker, help_url, expected):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.help_url = mocker.Mock(return_value=help_url)
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
-            context, request
+            mocker.sentinel.context, pyramid_request
         )
         assert svc.failure_message == expected
 
@@ -2007,10 +1922,10 @@ class TestNullPasswordBreachedService:
         svc = services.NullPasswordBreachedService()
         assert not svc.check_password("password")
 
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub()
-        svc = services.NullPasswordBreachedService.create_service(context, request)
+    def test_factory(self, pyramid_request, mocker):
+        svc = services.NullPasswordBreachedService.create_service(
+            mocker.sentinel.context, pyramid_request
+        )
 
         assert isinstance(svc, services.NullPasswordBreachedService)
         assert not svc.check_password("hunter2")
@@ -2022,78 +1937,44 @@ class TestHaveIBeenPwnedEmailBreachedService:
             IEmailBreachedService, services.HaveIBeenPwnedEmailBreachedService
         )
 
-    def test_no_api_key(self):
-        svc = services.HaveIBeenPwnedEmailBreachedService(session=pretend.stub())
+    def test_no_api_key(self, mocker):
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=mocker.sentinel.session
+        )
         assert svc.get_email_breach_count("anything") is None
 
-    def test_successful_breach_count(self):
-        response = pretend.stub(
-            json=lambda: [{"LinkedIn"}], raise_for_status=lambda: None
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+    @pytest.mark.parametrize(
+        ("address", "response_kwargs", "expected"),
+        [
+            ("foo@example.com", {"json": [{"Name": "LinkedIn"}]}, 1),
+            ("new-email@gmail.com", {"status": 404}, 0),
+            ("invalid-address", {"status": 401}, -1),
+        ],
+    )
+    @responses.activate
+    def test_breach_count(self, http_session, address, response_kwargs, expected):
+        url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{address}"
+        responses.add(responses.GET, url, **response_kwargs)
         svc = services.HaveIBeenPwnedEmailBreachedService(
-            session=session, api_key="blowhole"
+            session=http_session, api_key="blowhole"
         )
 
-        assert svc.get_email_breach_count("foo@example.com") == 1
-        assert session.get.calls == [
-            pretend.call(
-                "https://haveibeenpwned.com/api/v3/breachedaccount/foo@example.com",
-                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
-                timeout=(0.25, 0.25),
-            )
-        ]
-
-    def test_no_breaches(self):
-        class NotFoundException(requests.HTTPError):
-            def __init__(self):
-                self.response = pretend.stub(status_code=404)
-
-        response = pretend.stub(raise_for_status=pretend.raiser(NotFoundException))
-        session = pretend.stub(
-            get=pretend.call_recorder(lambda *a, **kw: response),
-        )
-        svc = services.HaveIBeenPwnedEmailBreachedService(
-            session=session, api_key="blowhole"
+        assert svc.get_email_breach_count(address) == expected
+        http_session.get.assert_called_once_with(
+            url,
+            headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
+            timeout=(0.25, 0.25),
         )
 
-        assert svc.get_email_breach_count("new-email@gmail.com") == 0
-        assert session.get.calls == [
-            pretend.call(
-                "https://haveibeenpwned.com/api/v3/breachedaccount/new-email@gmail.com",
-                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
-                timeout=(0.25, 0.25),
-            )
-        ]
-
-    def test_other_failure(self):
-        class OtherHTTPException(requests.HTTPError):
-            def __init__(self):
-                self.response = pretend.stub(status_code=401)
-
-        response = pretend.stub(raise_for_status=pretend.raiser(OtherHTTPException))
-        session = pretend.stub(
-            get=pretend.call_recorder(lambda *a, **kw: response),
-        )
-        svc = services.HaveIBeenPwnedEmailBreachedService(
-            session=session, api_key="blowhole"
-        )
-
-        assert svc.get_email_breach_count("invalid-address") == -1
-
-    def test_factory(self):
-        context = pretend.stub()
-        hibp_api_key = "blowhole"
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(settings={"hibp.api_key": hibp_api_key}),
-        )
+    def test_factory(self, pyramid_request, mocker):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.registry.settings["hibp.api_key"] = "blowhole"
         svc = services.HaveIBeenPwnedEmailBreachedService.create_service(
-            context, request
+            mocker.sentinel.context, pyramid_request
         )
 
-        assert svc._http is request.http
-        assert svc.api_key == hibp_api_key
+        assert svc._http is pyramid_request.http
+        assert svc.api_key == "blowhole"
 
 
 class TestNullEmailBreachedService:
@@ -2104,10 +1985,10 @@ class TestNullEmailBreachedService:
         svc = services.NullEmailBreachedService()
         assert svc.get_email_breach_count("foo@example.com") == 0
 
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub()
-        svc = services.NullEmailBreachedService.create_service(context, request)
+    def test_factory(self, pyramid_request, mocker):
+        svc = services.NullEmailBreachedService.create_service(
+            mocker.sentinel.context, pyramid_request
+        )
 
         assert isinstance(svc, services.NullEmailBreachedService)
         assert svc.get_email_breach_count("foo@example.com") == 0
@@ -2121,189 +2002,145 @@ class TestNullDomainStatusService:
         svc = services.NullDomainStatusService()
         assert svc.get_domain_status("example.com") == ["active"]
 
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub()
-        svc = services.NullDomainStatusService.create_service(context, request)
+    def test_factory(self, pyramid_request, mocker):
+        svc = services.NullDomainStatusService.create_service(
+            mocker.sentinel.context, pyramid_request
+        )
 
         assert isinstance(svc, services.NullDomainStatusService)
         assert svc.get_domain_status("example.com") == ["active"]
 
 
 class TestDomainrDomainStatusService:
+    URL = "https://api.domainr.com/v2/status"
+
     def test_verify_service(self):
         assert verifyClass(IDomainStatusService, services.DomainrDomainStatusService)
 
-    def test_successful_domain_status_check(self):
-        response = pretend.stub(
-            json=lambda: {
-                "status": [{"domain": "example.com", "status": "undelegated inactive"}]
-            },
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.DomainrDomainStatusService(
-            session=session, client_id="some_client_id"
-        )
-
-        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.domainr.com/v2/status",
-                params={"client_id": "some_client_id", "domain": "example.com"},
-                timeout=5,
-            )
-        ]
-
-    def test_domainr_exception_returns_empty(self):
-        class DomainrException(requests.HTTPError):
-            def __init__(self):
-                self.response = pretend.stub(status_code=400)
-
-        response = pretend.stub(raise_for_status=pretend.raiser(DomainrException))
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.DomainrDomainStatusService(
-            session=session, client_id="some_client_id"
-        )
-
-        assert svc.get_domain_status("example.com") is None
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.domainr.com/v2/status",
-                params={"client_id": "some_client_id", "domain": "example.com"},
-                timeout=5,
-            )
-        ]
-
-    def test_domainr_response_contains_errors_returns_none(self):
-        response = pretend.stub(
-            json=lambda: {
-                "status": [],
-                "errors": [
-                    {
-                        "code": 400,
-                        "detail": "unknown zone: ocm",
-                        "message": "Bad request",
+    @pytest.mark.parametrize(
+        ("domain", "response_kwargs", "expected"),
+        [
+            pytest.param(
+                "example.com",
+                {
+                    "json": {
+                        "status": [
+                            {"domain": "example.com", "status": "undelegated inactive"}
+                        ]
                     }
-                ],
-            },
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.DomainrDomainStatusService(
-            session=session, client_id="some_client_id"
-        )
-
-        assert svc.get_domain_status("example.ocm") is None
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.domainr.com/v2/status",
-                params={"client_id": "some_client_id", "domain": "example.ocm"},
-                timeout=5,
-            )
-        ]
-
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(
-                settings={"domain_status.client_id": "some_client_id"}
+                },
+                ["undelegated", "inactive"],
+                id="success",
             ),
+            pytest.param("example.com", {"status": 400}, None, id="http-error"),
+            pytest.param(
+                "example.ocm",
+                {
+                    "json": {
+                        "status": [],
+                        "errors": [
+                            {
+                                "code": 400,
+                                "detail": "unknown zone: ocm",
+                                "message": "Bad request",
+                            }
+                        ],
+                    }
+                },
+                None,
+                id="response-contains-errors",
+            ),
+        ],
+    )
+    @responses.activate
+    def test_get_domain_status(self, http_session, domain, response_kwargs, expected):
+        responses.add(responses.GET, self.URL, **response_kwargs)
+        svc = services.DomainrDomainStatusService(
+            session=http_session, client_id="some_client_id"
         )
-        svc = services.DomainrDomainStatusService.create_service(context, request)
 
-        assert svc._http is request.http
+        assert svc.get_domain_status(domain) == expected
+        http_session.get.assert_called_once_with(
+            self.URL,
+            params={"client_id": "some_client_id", "domain": domain},
+            timeout=5,
+        )
+
+    def test_factory(self, pyramid_request, mocker):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.registry.settings["domain_status.client_id"] = "some_client_id"
+        svc = services.DomainrDomainStatusService.create_service(
+            mocker.sentinel.context, pyramid_request
+        )
+
+        assert svc._http is pyramid_request.http
         assert svc.client_id == "some_client_id"
 
 
 class TestFastlyDomainStatusService:
+    URL = "https://api.fastly.com/domain-management/v1/tools/status"
+
     def test_verify_service(self):
         assert verifyClass(IDomainStatusService, services.FastlyDomainStatusService)
 
-    def test_successful_domain_status_check(self):
-        response = pretend.stub(
-            json=lambda: {
-                "domain": "example.com",
-                "zone": "com",
-                "status": "undelegated inactive",
-                "tags": "generic",
-            },
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.FastlyDomainStatusService(
-            session=session, api_key="some_api_key"
-        )
-
-        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.fastly.com/domain-management/v1/tools/status",
-                params={"domain": "example.com"},
-                headers={"Fastly-Key": "some_api_key"},
-                timeout=5,
-            )
-        ]
-
-    def test_fastly_exception_returns_none(self):
-        class FastlyException(requests.HTTPError):
-            def __init__(self):
-                self.response = pretend.stub(status_code=400)
-
-        response = pretend.stub(raise_for_status=pretend.raiser(FastlyException))
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.FastlyDomainStatusService(
-            session=session, api_key="some_api_key"
-        )
-
-        assert svc.get_domain_status("example.com") is None
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.fastly.com/domain-management/v1/tools/status",
-                params={"domain": "example.com"},
-                headers={"Fastly-Key": "some_api_key"},
-                timeout=5,
-            )
-        ]
-
-    def test_fastly_response_contains_errors_returns_none(self):
-        response = pretend.stub(
-            json=lambda: {
-                "errors": [
-                    {
-                        "code": 404,
-                        "message": "Domain not found",
-                        "detail": "example.ocm",
+    @pytest.mark.parametrize(
+        ("domain", "response_kwargs", "expected"),
+        [
+            pytest.param(
+                "example.com",
+                {
+                    "json": {
+                        "domain": "example.com",
+                        "zone": "com",
+                        "status": "undelegated inactive",
+                        "tags": "generic",
                     }
-                ],
-            },
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+                },
+                ["undelegated", "inactive"],
+                id="success",
+            ),
+            pytest.param("example.com", {"status": 400}, None, id="http-error"),
+            pytest.param(
+                "example.ocm",
+                {
+                    "json": {
+                        "errors": [
+                            {
+                                "code": 404,
+                                "message": "Domain not found",
+                                "detail": "example.ocm",
+                            }
+                        ],
+                    }
+                },
+                None,
+                id="response-contains-errors",
+            ),
+        ],
+    )
+    @responses.activate
+    def test_get_domain_status(self, http_session, domain, response_kwargs, expected):
+        responses.add(responses.GET, self.URL, **response_kwargs)
         svc = services.FastlyDomainStatusService(
-            session=session, api_key="some_api_key"
+            session=http_session, api_key="some_api_key"
         )
 
-        assert svc.get_domain_status("example.ocm") is None
-        assert session.get.calls == [
-            pretend.call(
-                "https://api.fastly.com/domain-management/v1/tools/status",
-                params={"domain": "example.ocm"},
-                headers={"Fastly-Key": "some_api_key"},
-                timeout=5,
-            )
-        ]
-
-    def test_factory(self):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(settings={"domain_status.api_key": "some_api_key"}),
+        assert svc.get_domain_status(domain) == expected
+        http_session.get.assert_called_once_with(
+            self.URL,
+            params={"domain": domain},
+            headers={"Fastly-Key": "some_api_key"},
+            timeout=5,
         )
-        svc = services.FastlyDomainStatusService.create_service(context, request)
 
-        assert svc._http is request.http
+    def test_factory(self, pyramid_request, mocker):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.registry.settings["domain_status.api_key"] = "some_api_key"
+        svc = services.FastlyDomainStatusService.create_service(
+            mocker.sentinel.context, pyramid_request
+        )
+
+        assert svc._http is pyramid_request.http
         assert svc.api_key == "some_api_key"
 
 
@@ -2796,6 +2633,20 @@ class TestUserCheckEmailReputationService:
 
 
 class TestDeviceIsKnown:
+    @pytest.fixture
+    def device_request(self, db_request, pyramid_services, token_service, mocker):
+        mocker.patch.object(
+            token_service, "dumps", autospec=True, return_value="fake_token"
+        )
+        pyramid_services.register_service(
+            token_service, ITokenService, None, name="confirm_login"
+        )
+        db_request.headers["User-Agent"] = (
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+            "Gecko/20100101 Firefox/15.0.1"
+        )
+        return db_request
+
     def _new_device_events(self, user_service, user):
         """The user's recorded LoginNewDevice events."""
         return (
@@ -2807,33 +2658,18 @@ class TestDeviceIsKnown:
             .all()
         )
 
-    def test_device_is_known(self, user_service, db_request):
+    def test_device_is_known(self, user_service, device_request):
         user = UserFactory.create()
         UserUniqueLoginFactory.create(
-            user=user, ip_address=db_request.ip_address, status="confirmed"
+            user=user, ip_address=device_request.ip_address, status="confirmed"
         )
-        db_request.find_service = lambda *a, **kw: pretend.stub()
-        assert user_service.device_is_known(user.id, db_request)
+        assert user_service.device_is_known(user.id, device_request)
 
-    def test_device_is_not_known(self, user_service, monkeypatch):
+    def test_device_is_not_known(self, user_service, mocker, device_request):
         user = UserFactory.create(with_verified_primary_email=True)
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        user_service.request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                    "Gecko/20100101 Firefox/15.0.1"
-                )
-            },
-            find_service=lambda *a, **kw: token_service,
-            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
-        )
+        send_email = mocker.patch.object(services, "send_unrecognized_login_email")
 
-        assert not user_service.device_is_known(user.id, user_service.request)
+        assert not user_service.device_is_known(user.id, device_request)
 
         unique_login = (
             user_service.db.query(services.UserUniqueLogin)
@@ -2846,167 +2682,115 @@ class TestDeviceIsKnown:
         assert unique_login.expires is not None
 
         # A new device has no valid token outstanding, so no throttling
-        assert send_email.calls == [
-            pretend.call(
-                user_service.request,
-                user,
-                ip_address=REMOTE_ADDR,
-                user_agent="Firefox (Ubuntu)",
-                token="fake_token",
-                repeat_window=None,
-            )
-        ]
+        send_email.assert_called_once_with(
+            device_request,
+            user,
+            ip_address=REMOTE_ADDR,
+            user_agent="Firefox (Ubuntu)",
+            token="fake_token",
+            repeat_window=None,
+        )
 
     @pytest.mark.parametrize("two_factor_method", ["totp", "recovery-code"])
     def test_device_is_not_known_records_event(
-        self, user_service, monkeypatch, two_factor_method
+        self, user_service, two_factor_method, mocker, device_request
     ):
         user = UserFactory.create(with_verified_primary_email=True)
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
-        user_service.request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                    "Gecko/20100101 Firefox/15.0.1"
-                )
-            },
-            find_service=lambda *a, **kw: token_service,
-            ip_address=ip_address,
-        )
+        mocker.patch.object(services, "send_unrecognized_login_email")
 
         assert not user_service.device_is_known(
-            user.id, user_service.request, two_factor_method=two_factor_method
+            user.id, device_request, two_factor_method=two_factor_method
         )
 
         # Verify a LoginNewDevice event was recorded with the 2FA method
         events = self._new_device_events(user_service, user)
         assert len(events) == 1
-        assert events[0].ip_address == ip_address
+        assert events[0].ip_address == device_request.ip_address
         assert events[0].additional["two_factor_method"] == two_factor_method
 
     def test_device_is_known_does_not_record_new_device_event(
-        self, user_service, db_request
+        self, user_service, device_request
     ):
 
         user = UserFactory.create()
         UserUniqueLoginFactory.create(
-            user=user, ip_address=db_request.ip_address, status="confirmed"
+            user=user, ip_address=device_request.ip_address, status="confirmed"
         )
-        db_request.find_service = lambda *a, **kw: pretend.stub()
-        assert user_service.device_is_known(user.id, db_request)
+        assert user_service.device_is_known(user.id, device_request)
 
         # Verify no LoginNewDevice event was recorded
         assert self._new_device_events(user_service, user) == []
 
     def test_device_is_pending_not_expired_resends_email(
-        self, user_service, monkeypatch, db_request
+        self, user_service, device_request, mocker
     ):
         user = UserFactory.create(with_verified_primary_email=True)
         unique_login = UserUniqueLoginFactory.create(
             user=user,
-            ip_address=db_request.ip_address,
+            ip_address=device_request.ip_address,
             status="pending",
             # A future expiry, as device_is_known always sets on pending logins
             expires=datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1),
         )
         original_expires = unique_login.expires
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        user_service.request = db_request
-        db_request.find_service = lambda *a, **kw: token_service
-        db_request.headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                "Gecko/20100101 Firefox/15.0.1"
-            )
-        }
+        send_email = mocker.patch.object(services, "send_unrecognized_login_email")
 
-        assert not user_service.device_is_known(user.id, user_service.request)
+        assert not user_service.device_is_known(user.id, device_request)
         # The pending login's expiry is untouched, but the email is re-sent,
         # throttled by the email's own repeat_window since the earlier
         # email's token still works (hence no repeat_window override here).
         assert unique_login.expires == original_expires
-        assert send_email.calls == [
-            pretend.call(
-                user_service.request,
-                user,
-                ip_address=REMOTE_ADDR,
-                user_agent="Firefox (Ubuntu)",
-                token="fake_token",
-            )
-        ]
+        send_email.assert_called_once_with(
+            device_request,
+            user,
+            ip_address=REMOTE_ADDR,
+            user_agent="Firefox (Ubuntu)",
+            token="fake_token",
+        )
 
         # A repeat attempt from a known-but-pending device is not a new device
         assert self._new_device_events(user_service, user) == []
 
-    def test_device_is_pending_and_expired(self, user_service, monkeypatch, db_request):
+    def test_device_is_pending_and_expired(self, user_service, device_request, mocker):
         user = UserFactory.create(with_verified_primary_email=True)
         UserUniqueLoginFactory.create(
             user=user,
             status="pending",
-            ip_address=db_request.ip_address,
+            ip_address=device_request.ip_address,
             created=datetime.datetime(1970, 1, 1),
             expires=datetime.datetime(1970, 1, 1),
         )
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        user_service.request = db_request
-        db_request.find_service = lambda *a, **kw: token_service
-        db_request.headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                "Gecko/20100101 Firefox/15.0.1"
-            )
-        }
+        send_email = mocker.patch.object(services, "send_unrecognized_login_email")
 
-        assert not user_service.device_is_known(user.id, user_service.request)
+        assert not user_service.device_is_known(user.id, device_request)
         # A lapsed confirmation window invalidated the earlier token, so the
         # fresh email must not be throttled
-        assert send_email.calls == [
-            pretend.call(
-                user_service.request,
-                user,
-                ip_address=REMOTE_ADDR,
-                user_agent="Firefox (Ubuntu)",
-                token="fake_token",
-                repeat_window=None,
-            )
-        ]
+        send_email.assert_called_once_with(
+            device_request,
+            user,
+            ip_address=REMOTE_ADDR,
+            user_agent="Firefox (Ubuntu)",
+            token="fake_token",
+            repeat_window=None,
+        )
 
     @pytest.mark.parametrize("ua_string", [None, "no bueno", "Python-urllib/3.7"])
     def test_device_is_not_known_bad_user_agent(
-        self, user_service, monkeypatch, ua_string
+        self, user_service, ua_string, mocker, device_request
     ):
         user = UserFactory.create(with_verified_primary_email=True)
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        headers = {}
+        send_email = mocker.patch.object(services, "send_unrecognized_login_email")
         if ua_string:
-            headers["User-Agent"] = ua_string
-        user_service.request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            headers=headers,
-            find_service=lambda *a, **kw: token_service,
-            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
-        )
+            device_request.headers["User-Agent"] = ua_string
+        else:
+            del device_request.headers["User-Agent"]
 
-        assert not user_service.device_is_known(user.id, user_service.request)
-        assert send_email.calls == [
-            pretend.call(
-                user_service.request,
-                user,
-                ip_address=REMOTE_ADDR,
-                user_agent=ua_string or "Unknown User-Agent",
-                token="fake_token",
-                repeat_window=None,
-            )
-        ]
+        assert not user_service.device_is_known(user.id, device_request)
+        send_email.assert_called_once_with(
+            device_request,
+            user,
+            ip_address=REMOTE_ADDR,
+            user_agent=ua_string or "Unknown User-Agent",
+            token="fake_token",
+            repeat_window=None,
+        )

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest
@@ -38,11 +37,11 @@ class TestProhibitedUserNameList:
 
         assert result == {"prohibited_user_names": prohibited[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, pyramid_request):
+        pyramid_request.params = {"page": "not an integer"}
 
         with pytest.raises(HTTPBadRequest):
-            views.prohibited_usernames(request)
+            views.prohibited_usernames(pyramid_request)
 
     def test_basic_query(self, db_request):
         # A single result, so ordering is irrelevant here.
@@ -74,12 +73,10 @@ class TestProhibitedUserNameList:
 
 
 class TestBulkAddProhibitedUserName:
-    def test_get(self):
-        request = pretend.stub(method="GET")
+    def test_get(self, pyramid_request):
+        assert views.bulk_add_prohibited_user_names(pyramid_request) == {}
 
-        assert views.bulk_add_prohibited_user_names(request) == {}
-
-    def test_bulk_add(self, db_request):
+    def test_bulk_add(self, db_request, mocker):
         db_request.user = UserFactory.create()
         db_request.method = "POST"
 
@@ -101,19 +98,14 @@ class TestBulkAddProhibitedUserName:
 
         db_request.POST["users"] = "\n".join(user_names)
 
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        flash = mocker.spy(db_request.session, "flash")
         db_request.route_path = lambda a: "/admin/prohibited_user_names/bulk"
 
         result = views.bulk_add_prohibited_user_names(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Prohibited {len(user_names)!r} users",
-                queue="success",
-            )
-        ]
+        flash.assert_called_once_with(
+            f"Prohibited {len(user_names)!r} users", queue="success"
+        )
         assert result.status_code == 303
         assert result.headers["Location"] == "/admin/prohibited_user_names/bulk"
 

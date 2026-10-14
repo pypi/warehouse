@@ -4,6 +4,24 @@ title: Troubleshooting
 
 # Troubleshooting
 
+## Forbidden triggers on GitHub
+
+!!! note
+
+    The list of forbidden triggers may change over time.
+
+Certain workflow triggers on GitHub Actions are fundamentally dangerous,
+and have historically been used by attackers to compromise package registry
+uploads.
+
+As a result, PyPI currently forbids Trusted Publishing flows that come
+from certain triggers, even if everything else about the flow is valid.
+
+The set of currently forbidden triggers is:
+
+- `pull_request_target`
+- `issue_comment`
+
 ## Reusable workflows on GitHub
 
 [Reusable workflows] cannot currently be used as the workflow in a Trusted
