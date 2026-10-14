@@ -23,8 +23,8 @@ every page now redirects to the same page on `dev.pypi.org`.
 
 PyPI's other sites already live under `pypi.org`:
 user documentation at [docs.pypi.org], and this blog at [blog.pypi.org].
-Moving the developer documentation to `dev.pypi.org` puts everything
-about PyPI in one place, and makes it easier to find.
+The developer documentation was the odd one out.
+Moving it to `dev.pypi.org` puts all of PyPI's sites under one domain.
 
 ## What's on dev.pypi.org?
 
