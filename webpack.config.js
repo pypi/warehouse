@@ -138,6 +138,7 @@ module.exports = [
               for (const pattern of [
                 "warehouse/templates/**/*.html",
                 "warehouse/admin/templates/**/*.html",
+                "warehouse/admin/components/**/*.html",
               ]) {
                 for (const file of glob.sync(pattern)) {
                   compilation.fileDependencies.add(path.resolve(__dirname, file));

@@ -70,7 +70,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:17.5' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:17.11' || '' }}
         ports:
           - 5432:5432
         env:
@@ -129,7 +129,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: postgres:17.5
+        image: postgres:17.11
         ports:
         - 5432:5432
         env:

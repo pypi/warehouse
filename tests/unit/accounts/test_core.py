@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
+import pytest
 
 from celery.schedules import crontab
+from pyramid.testing import DummySecurityPolicy
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
@@ -32,232 +35,204 @@ from ...common.db.oidc import GitHubPublisherFactory
 
 
 class TestUser:
-    def test_with_user_context_no_macaroon(self, db_request):
-        user = UserFactory.create()
-        user_ctx = UserContext(user, None)
-        request = pretend.stub(identity=user_ctx)
+    def test_with_user_context_no_macaroon(self, pyramid_config, pyramid_request):
+        user = UserFactory.build()
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=UserContext(user, None))
+        )
 
-        assert accounts._user(request) is user
+        assert accounts._user(pyramid_request) is user
 
-    def test_with_user_token_context_macaroon(self, db_request):
-        user = UserFactory.create()
-        user_ctx = UserContext(user, pretend.stub())
-        request = pretend.stub(identity=user_ctx)
+    def test_with_user_token_context_macaroon(
+        self, pyramid_config, pyramid_request, mocker
+    ):
+        user = UserFactory.build()
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=UserContext(user, mocker.sentinel.macaroon))
+        )
 
-        assert accounts._user(request) is user
+        assert accounts._user(pyramid_request) is user
 
-    def test_without_user_identity(self):
-        nonuser = pretend.stub()
-        request = pretend.stub(identity=nonuser)
+    def test_without_user_identity(self, pyramid_config, pyramid_request, mocker):
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=mocker.sentinel.nonuser)
+        )
 
-        assert accounts._user(request) is None
+        assert accounts._user(pyramid_request) is None
 
-    def test_without_identity(self):
-        request = pretend.stub(identity=None)
-        assert accounts._user(request) is None
+    def test_without_identity(self, pyramid_request):
+        assert accounts._user(pyramid_request) is None
 
 
 class TestOIDCPublisherAndClaims:
-    def test_with_oidc_publisher(self, db_request):
+    def test_with_oidc_publisher(self, pyramid_config, pyramid_request):
         publisher = GitHubPublisherFactory.create()
         assert isinstance(publisher, OIDCPublisher)
         claims = SignedClaims({"foo": "bar"})
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=PublisherTokenContext(publisher, claims))
+        )
 
-        request = pretend.stub(identity=PublisherTokenContext(publisher, claims))
+        assert accounts._oidc_publisher(pyramid_request) is publisher
+        assert accounts._oidc_claims(pyramid_request) is claims
 
-        assert accounts._oidc_publisher(request) is publisher
-        assert accounts._oidc_claims(request) is claims
+    def test_without_oidc_publisher_identity(
+        self, pyramid_config, pyramid_request, mocker
+    ):
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=mocker.sentinel.nonpublisher)
+        )
 
-    def test_without_oidc_publisher_identity(self):
-        nonpublisher = pretend.stub()
-        request = pretend.stub(identity=nonpublisher)
+        assert accounts._oidc_publisher(pyramid_request) is None
+        assert accounts._oidc_claims(pyramid_request) is None
 
-        assert accounts._oidc_publisher(request) is None
-        assert accounts._oidc_claims(request) is None
-
-    def test_without_identity(self):
-        request = pretend.stub(identity=None)
-        assert accounts._oidc_publisher(request) is None
-        assert accounts._oidc_claims(request) is None
+    def test_without_identity(self, pyramid_request):
+        assert accounts._oidc_publisher(pyramid_request) is None
+        assert accounts._oidc_claims(pyramid_request) is None
 
 
 class TestUnauthenticatedUserid:
-    def test_unauthenticated_userid(self):
-        request = pretend.stub()
-        assert accounts._unauthenticated_userid(request) is None
+    def test_unauthenticated_userid(self, mocker):
+        assert accounts._unauthenticated_userid(mocker.sentinel.request) is None
 
 
-def test_includeme(monkeypatch):
-    multi_policy_obj = pretend.stub()
-    multi_policy_cls = pretend.call_recorder(lambda ps: multi_policy_obj)
-    monkeypatch.setattr(accounts, "MultiSecurityPolicy", multi_policy_cls)
+@pytest.fixture
+def config(mocker):
+    config = mocker.Mock(
+        spec=[
+            "registry",
+            "register_service_factory",
+            "register_rate_limiter",
+            "add_request_method",
+            "set_security_policy",
+            "maybe_dotted",
+            "add_route_predicate",
+            "add_periodic_task",
+        ]
+    )
+    config.registry = types.SimpleNamespace(
+        settings={
+            "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+            "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+            "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+            "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+            "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
+            "warehouse.account.email_add_ratelimit_string": "2 per day",
+            "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
+            "warehouse.account.email_reputation_ratelimit_string": "100 per hour",
+            "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+            "warehouse.account.password_reset_ratelimit_string": "5 per day",
+            "warehouse.account.password_reset_ip_ratelimit_string": "10 per hour",
+            "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+            "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
+            "github.oauth.backend": accounts.NullGitHubOAuthClient,
+        }
+    )
+    config.maybe_dotted.side_effect = lambda path: path
+    return config
 
-    session_policy_obj = pretend.stub()
-    session_policy_cls = pretend.call_recorder(lambda: session_policy_obj)
-    monkeypatch.setattr(accounts, "SessionSecurityPolicy", session_policy_cls)
 
-    basic_policy_obj = pretend.stub()
-    basic_policy_cls = pretend.call_recorder(lambda: basic_policy_obj)
-    monkeypatch.setattr(accounts, "BasicAuthSecurityPolicy", basic_policy_cls)
-
-    macaroon_policy_obj = pretend.stub()
-    macaroon_policy_cls = pretend.call_recorder(lambda: macaroon_policy_obj)
-    monkeypatch.setattr(accounts, "MacaroonSecurityPolicy", macaroon_policy_cls)
-
-    config = pretend.stub(
-        registry=pretend.stub(
-            settings={
-                "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
-                "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
-                "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
-                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
-                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
-                "warehouse.account.email_add_ratelimit_string": "2 per day",
-                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
-                "warehouse.account.email_reputation_ratelimit_string": "100 per hour",
-                "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
-                "warehouse.account.password_reset_ratelimit_string": "5 per day",
-                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
-                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
-                "github.oauth.backend": accounts.NullGitHubOAuthClient,
-            }
-        ),
-        register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name=None: None
-        ),
-        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
-        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
-        set_security_policy=pretend.call_recorder(lambda p: None),
-        maybe_dotted=pretend.call_recorder(lambda path: path),
-        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
-        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+def test_includeme(config, mocker):
+    multi_policy_cls = mocker.patch.object(
+        accounts, "MultiSecurityPolicy", autospec=True
+    )
+    session_policy_cls = mocker.patch.object(
+        accounts, "SessionSecurityPolicy", autospec=True
+    )
+    basic_policy_cls = mocker.patch.object(
+        accounts, "BasicAuthSecurityPolicy", autospec=True
+    )
+    macaroon_policy_cls = mocker.patch.object(
+        accounts, "MacaroonSecurityPolicy", autospec=True
     )
 
     accounts.includeme(config)
 
-    assert config.register_service_factory.calls == [
-        pretend.call(database_login_factory, IUserService),
-        pretend.call(
+    assert config.register_service_factory.call_args_list == [
+        mocker.call(database_login_factory, IUserService),
+        mocker.call(
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
-        pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
-        pretend.call(
+        mocker.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
+        mocker.call(
             TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
         ),
-        pretend.call(
+        mocker.call(
             TokenServiceFactory(name="confirm_login"),
             ITokenService,
             name="confirm_login",
         ),
-        pretend.call(
+        mocker.call(
             TokenServiceFactory(name="remember_device"),
             ITokenService,
             name="remember_device",
         ),
-        pretend.call(
+        mocker.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
         ),
-        pretend.call(
+        mocker.call(
             HaveIBeenPwnedEmailBreachedService.create_service,
             IEmailBreachedService,
         ),
-        pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
-        pretend.call(
+        mocker.call(NullDomainStatusService.create_service, IDomainStatusService),
+        mocker.call(
             NullEmailReputationService.create_service,
             IEmailReputationService,
         ),
-        pretend.call(
+        mocker.call(
             accounts.NullGitHubOAuthClient.create_service,
             accounts.IOAuthProviderService,
             name="github",
         ),
     ]
-    assert config.register_rate_limiter.calls == [
-        pretend.call("10 per 5 minutes", "user.login"),
-        pretend.call("10 per 5 minutes", "ip.login"),
-        pretend.call("1000 per 5 minutes", "global.login"),
-        pretend.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
-        pretend.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
-        pretend.call("2 per day", "email.add"),
-        pretend.call("5 per 5 minutes, 20 per hour", "email.change"),
-        pretend.call("100 per hour", "email.reputation"),
-        pretend.call("5 per day", "password.reset"),
-        pretend.call("3 per 6 hours", "email.verify"),
-        pretend.call("100 per hour", "accounts.search"),
-        pretend.call("10 per 5 minutes, 30 per hour", "accounts.register"),
+    assert config.register_rate_limiter.call_args_list == [
+        mocker.call("10 per 5 minutes", "user.login"),
+        mocker.call("10 per 5 minutes", "ip.login"),
+        mocker.call("1000 per 5 minutes", "global.login"),
+        mocker.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
+        mocker.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
+        mocker.call("2 per day", "email.add"),
+        mocker.call("5 per 5 minutes, 20 per hour", "email.change"),
+        mocker.call("100 per hour", "email.reputation"),
+        mocker.call("5 per day", "password.reset"),
+        mocker.call("10 per hour", "password.reset.ip"),
+        mocker.call("3 per 6 hours", "email.verify"),
+        mocker.call("100 per hour", "accounts.search"),
+        mocker.call("10 per 5 minutes, 30 per hour", "accounts.register"),
     ]
-    assert config.add_request_method.calls == [
-        pretend.call(accounts._user, name="user", reify=True),
-        pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
-        pretend.call(accounts._oidc_claims, name="oidc_claims", reify=True),
-        pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
+    assert config.add_request_method.call_args_list == [
+        mocker.call(accounts._user, name="user", reify=True),
+        mocker.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
+        mocker.call(accounts._oidc_claims, name="oidc_claims", reify=True),
+        mocker.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
-    assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
-    assert multi_policy_cls.calls == [
-        pretend.call(
-            [
-                session_policy_obj,
-                basic_policy_obj,
-                macaroon_policy_obj,
-            ]
-        )
-    ]
+    config.set_security_policy.assert_called_once_with(multi_policy_cls.return_value)
+    multi_policy_cls.assert_called_once_with(
+        [
+            session_policy_cls.return_value,
+            basic_policy_cls.return_value,
+            macaroon_policy_cls.return_value,
+        ]
+    )
     assert (
-        pretend.call(crontab(minute="*/20"), compute_user_metrics)
-        in config.add_periodic_task.calls
-    )
-
-    # Verify GitLab OAuth is NOT registered when setting is absent
-    assert (
-        pretend.call(
-            accounts.NullGitLabOAuthClient.create_service,
-            accounts.IOAuthProviderService,
-            name="gitlab",
-        )
-        not in config.register_service_factory.calls
+        mocker.call(crontab(minute="*/20"), compute_user_metrics)
+        in config.add_periodic_task.call_args_list
     )
 
 
-def test_includeme_with_gitlab_oauth():
-    """Verify GitLab OAuth service is registered when configured."""
-    register_service_factory = pretend.call_recorder(
-        lambda factory, iface, name=None: None
-    )
-    config = pretend.stub(
-        registry=pretend.stub(
-            settings={
-                "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
-                "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
-                "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
-                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
-                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
-                "warehouse.account.email_add_ratelimit_string": "2 per day",
-                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
-                "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
-                "warehouse.account.password_reset_ratelimit_string": "5 per day",
-                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
-                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
-                "github.oauth.backend": accounts.NullGitHubOAuthClient,
-                "gitlab.oauth.backend": accounts.NullGitLabOAuthClient,
-            }
-        ),
-        register_service_factory=register_service_factory,
-        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
-        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
-        set_security_policy=pretend.call_recorder(lambda p: None),
-        maybe_dotted=pretend.call_recorder(lambda path: path),
-        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
-        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+def test_includeme_with_gitlab_oauth(config, mocker):
+    """Verify GitLab OAuth service is registered only when configured."""
+    gitlab_registration = mocker.call(
+        accounts.NullGitLabOAuthClient.create_service,
+        accounts.IOAuthProviderService,
+        name="gitlab",
     )
 
     accounts.includeme(config)
+    assert gitlab_registration not in config.register_service_factory.call_args_list
 
-    assert (
-        pretend.call(
-            accounts.NullGitLabOAuthClient.create_service,
-            accounts.IOAuthProviderService,
-            name="gitlab",
-        )
-        in register_service_factory.calls
-    )
+    config.register_service_factory.reset_mock()
+    config.registry.settings["gitlab.oauth.backend"] = accounts.NullGitLabOAuthClient
+    accounts.includeme(config)
+    assert gitlab_registration in config.register_service_factory.call_args_list

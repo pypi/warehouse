@@ -55,6 +55,11 @@ from warehouse.packaging.models import (
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import (
+    DELETE_FILE_ACKNOWLEDGMENTS,
+    DELETE_PROJECT_ACKNOWLEDGMENTS,
+    DELETE_RELEASE_ACKNOWLEDGMENTS,
+)
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
@@ -309,8 +314,10 @@ class TestManageUnverifiedAccount:
             (
                 True,
                 [],
-                "Cannot change email address on accounts with two-factor "
-                "authentication enabled",
+                (
+                    "Cannot change email address on accounts with two-factor "
+                    "authentication enabled"
+                ),
             ),
             (
                 False,
@@ -3924,6 +3931,28 @@ class TestManageProjectSettings:
             )
         ]
 
+    def test_delete_project_no_acknowledgments(self, db_request, mocker):
+        """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
+        project = ProjectFactory.create(name="foo")
+        db_request.user = UserFactory.create()
+        db_request.POST["confirm_project_name"] = project.name
+        db_request.route_path = mocker.Mock(return_value="/the-redirect")
+        flash = mocker.spy(db_request.session, "flash")
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, db_request)
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        flash.assert_called_once_with(
+            "Could not delete project - "
+            "acknowledge all of the consequences to continue",
+            queue="error",
+        )
+        db_request.route_path.assert_called_once_with(
+            "manage.project.settings", project_name=project.normalized_name
+        )
+        assert db_request.db.query(Project).filter(Project.name == "foo").count() == 1
+
     def test_delete_project_disallow_deletion(self, pyramid_request):
         project = pretend.stub(name="foo", normalized_name="foo")
         pyramid_request.flags = pretend.stub(
@@ -4027,6 +4056,7 @@ class TestManageProjectSettings:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST["confirm_project_name"] = project.name
+        db_request.POST.update(dict.fromkeys(DELETE_PROJECT_ACKNOWLEDGMENTS, "on"))
         db_request.user = UserFactory.create()
 
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
@@ -4099,6 +4129,7 @@ class TestManageProjectSettings:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST["confirm_project_name"] = project.name
+        db_request.POST.update(dict.fromkeys(DELETE_PROJECT_ACKNOWLEDGMENTS, "on"))
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project, user, req: "Owner"
@@ -4685,7 +4716,10 @@ class TestManageProjectRelease:
         release = ReleaseFactory.create(project=project, yanked=True)
         project.record_event = pretend.call_recorder(lambda *a, **kw: None)
 
-        db_request.POST = {"confirm_delete_version": release.version}
+        db_request.POST = {
+            "confirm_delete_version": release.version,
+            **dict.fromkeys(DELETE_RELEASE_ACKNOWLEDGMENTS, "on"),
+        }
         db_request.method = "POST"
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
@@ -4829,6 +4863,34 @@ class TestManageProjectRelease:
             )
         ]
 
+    def test_delete_project_release_no_acknowledgments(self, db_request, mocker):
+        """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
+        release = ReleaseFactory.create()
+        db_request.method = "POST"
+        db_request.POST = {"confirm_delete_version": release.version}
+        db_request.route_path = mocker.Mock(return_value="/the-redirect")
+        flash = mocker.spy(db_request.session, "flash")
+
+        view = views.ManageProjectRelease(release, db_request)
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            view.delete_project_release()
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        flash.assert_called_once_with(
+            "Could not delete release - "
+            "acknowledge all of the consequences to continue",
+            queue="error",
+        )
+        db_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+        assert (
+            db_request.db.query(Release).filter(Release.id == release.id).count() == 1
+        )
+
     def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
         release = pretend.stub(
             version="1.2.3",
@@ -4886,6 +4948,7 @@ class TestManageProjectRelease:
         db_request.POST = {
             "confirm_project_name": release.project.name,
             "file_id": release_file.id,
+            **dict.fromkeys(DELETE_FILE_ACKNOWLEDGMENTS, "on"),
         }
         db_request.method = ("POST",)
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
@@ -5076,6 +5139,35 @@ class TestManageProjectRelease:
                 version=release.version,
             )
         ]
+
+    def test_delete_project_release_file_no_acknowledgments(self, db_request, mocker):
+        """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
+        release = ReleaseFactory.create()
+        release_file = FileFactory.create(release=release)
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": str(release_file.id),
+        }
+        db_request.route_path = mocker.Mock(return_value="/the-redirect")
+        flash = mocker.spy(db_request.session, "flash")
+
+        view = views.ManageProjectRelease(release, db_request)
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            view.delete_project_release_file()
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        flash.assert_called_once_with(
+            "Could not delete file - acknowledge all of the consequences to continue",
+            queue="error",
+        )
+        db_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
 
 
 class TestManageProjectRoles:

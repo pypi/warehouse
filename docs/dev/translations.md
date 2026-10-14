@@ -46,6 +46,7 @@ In Python, given a request context, call `request._(message)` to mark
 
 ```python
 from warehouse.i18n import localize as _
+
 message = _("Your message here.")
 ```
 

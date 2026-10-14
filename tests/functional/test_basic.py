@@ -9,6 +9,20 @@ import pytest
 import webtest
 
 
+@pytest.mark.parametrize(
+    "path",
+    ["/_health/", "/_health/web", "/_health/api", "/_health/other/nested/"],
+)
+def test_health(webtest, path):
+    response = webtest.get(path, status=HTTPStatus.OK)
+    assert response.content_type == "text/plain"
+    assert response.body == b"OK"
+
+
+def test_health_prefix_boundary(webtest):
+    webtest.get("/_healthcheck/api", status=HTTPStatus.NOT_FOUND)
+
+
 def test_funding_manifest_urls(app_config):
     testapp = webtest.TestApp(app_config.make_wsgi_app())
     resp = testapp.get("/.well-known/funding-manifest-urls")

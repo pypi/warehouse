@@ -179,6 +179,16 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
 # Pre-compile our dependencies bytecode to save time collectively on container boot!
 RUN python -m compileall /opt/warehouse/lib/ -j 0
 
+# Install the in-repo pyramid_components package (a src/ layout sibling of warehouse).
+# Copied and installed on its own, ahead of the warehouse source copy below, so that
+# editing warehouse doesn't re-run a setuptools build on every image build.
+# Editable + --no-deps so its deps come from warehouse's pinned requirements and dev
+# bind-mounts still live-reload; --no-build-isolation uses the venv's setuptools.
+COPY pyramid_components/ /opt/warehouse/src/pyramid_components/
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
+        pip --disable-pip-version-check install \
+            --no-deps --no-build-isolation -e ./pyramid_components
+
 # Copy our compiled static files. These should overlay cleanly on top of the
 # virtual environment and even when that gets invalidated, copything these is
 # super fast.
@@ -202,6 +212,7 @@ COPY --exclude=requirements \
      --exclude=package.json \
      --exclude=webpack.config.js \
      --exclude=webpack.plugin.localize.js \
+     --exclude=pyramid_components \
         . /opt/warehouse/src/
 
 
@@ -209,7 +220,9 @@ COPY --exclude=requirements \
 # NOTE: We only do this when we're not building a dev build, because a dev build
 #       will likely have a checkout mounted over warehouse anyways, so these
 #       *.pyc files won't be used in that case.
-RUN if [ "$DEVEL" != "yes" ]; then python -m compileall warehouse/ -j 0; fi
+RUN if [ "$DEVEL" != "yes" ]; then \
+        python -m compileall warehouse/ pyramid_components/src/ -j 0; \
+    fi
 
 # Pre-cache TLD list
 # NOTE: We only do this when we're not building a dev build, because a dev build
