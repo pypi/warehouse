@@ -12,6 +12,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.constants import MAX_ORGANIZATION_NAME_LENGTH
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationMembershipSize,
@@ -450,7 +451,7 @@ class OrganizationNameMixin:
             ),
             PreventNullBytesValidator(),
             wtforms.validators.Length(
-                max=50,
+                max=MAX_ORGANIZATION_NAME_LENGTH,
                 message=_(
                     "Choose an organization account name with 50 characters or less."
                 ),

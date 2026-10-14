@@ -33,6 +33,20 @@ class TestSanitizeRequest:
 
         assert wrapped(mocker.sentinel.context, pyramid_request) is resp
 
+    def test_keeps_unknown_organization(self, pyramid_request, mocker):
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict(
+            {"organization": "UNKNOWN", "summary": "UNKNOWN"}
+        )
+        resp = mocker.sentinel.resp
+
+        @decorators.sanitize
+        def wrapped(context, request):
+            assert MultiDict({"organization": "UNKNOWN"}) == request.POST
+            return resp
+
+        assert wrapped(mocker.sentinel.context, pyramid_request) is resp
+
     def test_escapes_nul_characters(self, pyramid_request, mocker):
         pyramid_request.method = "POST"
         pyramid_request.POST = MultiDict({"summary": "I want to go to the \x00"})

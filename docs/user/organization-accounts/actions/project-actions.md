@@ -21,6 +21,11 @@ within a project in an organization account.
 * Scroll down to the bottom of the page and enter a name for the new project
 * Click on **Create** and add a new project
 
+Owners of the organization can also create a project in the organization
+by uploading its first release with the organization named in the upload.
+The upload tool must support this; see the `organization` field of the
+[upload API](../../api/upload.md#upload-a-file).
+
 ---
 
 #### Transfer a project

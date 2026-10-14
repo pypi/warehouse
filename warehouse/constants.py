@@ -13,6 +13,9 @@ PROJECT_CREATE_RATELIMIT_CAP = 100
 # Taken from passlib
 MAX_PASSWORD_SIZE = 4096
 
+# Organization account names are limited to this many characters.
+MAX_ORGANIZATION_NAME_LENGTH = 50
+
 # After a release has been published for this long, reject new uploaded files.
 MAXIMUM_AGE_FOR_NEW_UPLOADS = datetime.timedelta(days=14)
 
