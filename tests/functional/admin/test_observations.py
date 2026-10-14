@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from datetime import datetime
 from http import HTTPStatus
 
+from tests.common.db.accounts import UserFactory, UserObservationFactory
 from tests.common.db.observations import ObserverFactory
 from tests.common.db.packaging import ProjectFactory, ProjectObservationFactory
 
@@ -93,3 +95,49 @@ class TestObserverReputation:
 
         assert "Overall Accuracy Rate" in resp.text
         assert "100.0%" in resp.text
+
+
+class TestUserDetailObservations:
+    def test_renders_observation_tables(self, webtest, login_admin):
+        login_admin()
+
+        target = UserFactory.create()
+        target.observer = ObserverFactory.create()
+        UserObservationFactory.create(
+            kind="account_abuse",
+            related=target,
+            observer=ObserverFactory.create(),
+            summary="flagged for review",
+            payload={"origin": "manual-review"},
+        )
+        project = ProjectFactory.create()
+        ProjectObservationFactory.create(
+            related=project,
+            observer=target.observer,
+            kind="account_abuse",
+            summary="older report",
+            created=datetime(2026, 1, 1),
+        )
+        ProjectObservationFactory.create(
+            related=project,
+            observer=target.observer,
+            kind="account_abuse",
+            summary="newer report",
+            created=datetime(2026, 1, 2),
+        )
+
+        page = webtest.get(f"/admin/users/{target.username}/", status=HTTPStatus.OK)
+
+        about = page.html.find(id="user_observations")
+        assert about.has_attr("data-tabulator")
+        assert "flagged for review" in about.get_text()
+        assert f"User(username='{target.username}')" in about.get_text()
+        assert "manual-review" in about.get_text()
+        payload_header = about.find("th", string="Payload")
+        assert payload_header.has_attr("tabulator-responsive")
+        assert not payload_header.has_attr("tabulator-visible")
+
+        submitted = page.html.find(id="observations")
+        assert submitted.has_attr("data-tabulator")
+        summaries = [row.find_all("td")[3].get_text() for row in submitted.tbody("tr")]
+        assert summaries == ["newer report", "older report"]

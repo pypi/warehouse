@@ -1708,6 +1708,7 @@ def test_database_login_factory(db_request, pyramid_services, metrics, mocker):
             "ip.login",
             "email.add",
             "password.reset",
+            "password.reset.ip",
             "2fa.user",
             "2fa.ip",
         )
