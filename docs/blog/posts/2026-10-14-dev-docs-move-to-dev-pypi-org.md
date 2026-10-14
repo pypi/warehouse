@@ -29,7 +29,7 @@ about PyPI in one place, and makes it easier to find.
 ## What's on dev.pypi.org?
 
 The same content that was on `warehouse.pypa.io`, aimed at people working
-on PyPI itself:
+on warehouse, the codebase behind PyPI itself:
 
 - The [getting started guide] for setting up a local development environment
 - An [architectural overview] of how Warehouse fits together
