@@ -10,12 +10,26 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
+from warehouse.organizations.models import OrganizationApplicationStatus
 from warehouse.utils import otp
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
-from ...common.db.organizations import OrganizationFactory
+from ...common.db.organizations import (
+    OrganizationApplicationFactory,
+    OrganizationFactory,
+)
 from ...common.db.packaging import ProjectFactory
+
+VALID_APPLICATION = {
+    "name": "my_organization_name",
+    "display_name": "My Organization",
+    "link_url": "https://example.com/",
+    "description": "An organization",
+    "orgtype": "Community",
+    "membership_size": "1",
+    "usage": "We plan to publish a handful of packages under one organization.",
+}
 
 
 def _stub_mx_ptr_resolution(monkeypatch, ptr_host):
@@ -863,9 +877,8 @@ class TestDeleteMacaroonForm:
 
 
 class TestCreateOrganizationApplicationForm:
-    def test_creation(self):
-        organization_service = pretend.stub()
-        user = pretend.stub()
+    def test_creation(self, organization_service):
+        user = UserFactory.create()
         form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
             user=user,
@@ -874,135 +887,118 @@ class TestCreateOrganizationApplicationForm:
         assert form.organization_service is organization_service
         assert form.user is user
 
-    def test_validate_name_with_no_organization(self):
-        organization_service = pretend.stub(
-            get_organization_applications_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None, undecided=False: []
-            ),
-            find_organizationid=pretend.call_recorder(lambda name: None),
+    def test_validate_name_with_no_organization(self, organization_service, mocker):
+        get_applications = mocker.spy(
+            organization_service, "get_organization_applications_by_name"
         )
-        user = pretend.stub()
+        find_organizationid = mocker.spy(organization_service, "find_organizationid")
+        user = UserFactory.create()
         form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
             user=user,
         )
-        field = pretend.stub(data="my_organization_name")
-        forms._ = lambda string: string
+        form.name.data = "my_organization_name"
 
-        form.validate_name(field)
+        form.validate_name(form.name)
 
-        assert organization_service.get_organization_applications_by_name.calls == [
-            pretend.call("my_organization_name", submitted_by=user, undecided=True)
-        ]
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_organization_name")
-        ]
-
-    def test_validate_name_with_existing_application(self, db_session):
-        organization_service = pretend.stub(
-            get_organization_applications_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None, undecided=False: [pretend.stub()]
-            ),
-            find_organizationid=pretend.call_recorder(lambda name: None),
+        get_applications.assert_called_once_with(
+            "my_organization_name", submitted_by=user, undecided=True
         )
-        user = pretend.stub()
+        find_organizationid.assert_called_once_with("my_organization_name")
+
+    def test_validate_name_with_existing_application(
+        self, organization_service, mocker
+    ):
+        user = UserFactory.create()
+        OrganizationApplicationFactory.create(
+            name="my_organization_name", submitted_by=user
+        )
+        get_applications = mocker.spy(
+            organization_service, "get_organization_applications_by_name"
+        )
+        find_organizationid = mocker.spy(organization_service, "find_organizationid")
         form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
             user=user,
         )
-        field = pretend.stub(data="my_organization_name")
-        forms._ = lambda string: string
+        form.name.data = "my_organization_name"
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_name(field)
+            form.validate_name(form.name)
 
-        assert organization_service.get_organization_applications_by_name.calls == [
-            pretend.call("my_organization_name", submitted_by=user, undecided=True)
-        ]
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_organization_name")
-        ]
-
-    def test_validate_name_with_max_applications(self, db_session):
-        organization_service = pretend.stub(
-            get_organization_applications_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None: []
-            ),
-            find_organizationid=pretend.call_recorder(lambda name: None),
+        get_applications.assert_called_once_with(
+            "my_organization_name", submitted_by=user, undecided=True
         )
-        user = pretend.stub(organization_applications=[])
+        find_organizationid.assert_called_once_with("my_organization_name")
+
+    @pytest.mark.parametrize(
+        "status",
+        [
+            OrganizationApplicationStatus.Approved,
+            OrganizationApplicationStatus.Declined,
+        ],
+    )
+    def test_validate_max_applications_ignores_decided(
+        self, organization_service, status
+    ):
+        user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(3, submitted_by=user, status=status)
         form = forms.CreateOrganizationApplicationForm(
+            MultiDict(VALID_APPLICATION),
             organization_service=organization_service,
             user=user,
             max_applications=3,
         )
-        forms._ = lambda string: string
 
-        form.validate__max_apps(pretend.stub())
+        assert form.validate(), str(form.errors)
+        assert form.form_errors == []
 
-        assert form.errors == {}
-
-        assert organization_service.get_organization_applications_by_name.calls == []
-        assert organization_service.find_organizationid.calls == []
-
-    def test_validate_name_with_fewer_than_max_applications(self, db_session):
-        organization_service = pretend.stub(
-            get_organization_applications_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None: []
-            ),
-            find_organizationid=pretend.call_recorder(lambda name: None),
-        )
-        user = pretend.stub(
-            organization_applications=[pretend.stub(), pretend.stub(), pretend.stub()]
+    def test_validate_max_applications_reached(
+        self, pyramid_config, organization_service
+    ):
+        user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(
+            3, submitted_by=user, status=OrganizationApplicationStatus.Deferred
         )
         form = forms.CreateOrganizationApplicationForm(
+            MultiDict(VALID_APPLICATION),
             organization_service=organization_service,
             user=user,
             max_applications=3,
         )
-        forms._ = lambda string: string
 
-        form.validate__max_apps(pretend.stub())
-
-        assert form.form_errors == [
+        assert not form.validate()
+        assert [str(error) for error in form.form_errors] == [
             (
                 "You have already submitted the maximum number of "
                 "Organization requests (3)."
             )
         ]
 
-        assert organization_service.get_organization_applications_by_name.calls == []
-        assert organization_service.find_organizationid.calls == []
-
-    def test_validate_name_with_organization(self):
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: 1)
-        )
+    def test_validate_name_with_organization(self, organization_service, mocker):
+        OrganizationFactory.create(name="my_organization_name")
+        find_organizationid = mocker.spy(organization_service, "find_organizationid")
         form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
-            user=pretend.stub(),
+            user=UserFactory.create(),
         )
-        field = pretend.stub(data="my_organization_name")
+        form.name.data = "my_organization_name"
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_name(field)
+            form.validate_name(form.name)
 
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_organization_name")
-        ]
+        find_organizationid.assert_called_once_with("my_organization_name")
 
-    def test_validate_name_with_null_bytes(self):
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None),
-        )
+    def test_validate_name_with_null_bytes(self, organization_service, mocker):
+        find_organizationid = mocker.spy(organization_service, "find_organizationid")
         form = forms.CreateOrganizationApplicationForm(
             MultiDict({"name": "test\x00name"}),
             organization_service=organization_service,
-            user=pretend.stub(),
+            user=UserFactory.create(),
         )
         assert not form.validate()
         assert "Null bytes are not allowed." in form.name.errors
-        assert organization_service.find_organizationid.calls == []
+        find_organizationid.assert_not_called()
 
 
 class TestSaveOrganizationNameForm:
