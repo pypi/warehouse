@@ -7,6 +7,7 @@
     <img src="{{ gravatar(request, maintainer.email, size=35) }}"
          srcset="{{ gravatar(request, maintainer.email, size=70) }} 2x,
                  {{ gravatar(request, maintainer.email, size=105) }} 3x"
+         loading="lazy"
          height="35"
          width="35"
          alt="{{ alt }}"
