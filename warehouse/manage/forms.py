@@ -296,6 +296,9 @@ class DeleteAccountAssociationForm(wtforms.Form):
         self.user_id = user_id
 
     def validate_association_id(self, field):
+        if field.errors:
+            return
+
         association_id = field.data
         association = self.user_service.get_account_association(association_id)
 
