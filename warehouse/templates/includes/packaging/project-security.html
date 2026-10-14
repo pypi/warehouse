@@ -73,11 +73,12 @@
                  data-filter-list-target="clear"
                  class="hidden attestations-viewer__filter-clear">{% trans %}Reset{% endtrans %}</a>
               <div class="attestations-viewer__filter-dropdown"
-                   data-controller="filter-dropdown">
+                   data-controller="filter-dropdown"
+                   data-action="keydown->filter-dropdown#keydown focusout->filter-dropdown#focusout">
                 <button type="button"
                         class="button button--small button--outline dropdown__trigger"
-                        aria-haspopup="true"
                         aria-expanded="false"
+                        aria-controls="security-filter-panel"
                         aria-label="{% trans %}Filter files{% endtrans %}"
                         data-filter-dropdown-target="trigger"
                         data-filter-list-target="trigger"
@@ -86,36 +87,39 @@
                   <span class="hidden attestations-viewer__filter-count"
                         data-filter-list-target="count"></span>
                 </button>
-                <div class="dropdown__content attestations-viewer__filter-panel"
+                <div id="security-filter-panel"
+                     class="dropdown__content attestations-viewer__filter-panel"
                      aria-hidden="true"
                      data-filter-dropdown-target="content">
-                  <fieldset class="attestations-viewer__filter-group">
-                    <legend>{% trans %}Provenance{% endtrans %}</legend>
-                    <label for="security-filter-provenance-with">
-                      <input type="radio"
-                             id="security-filter-provenance-with"
-                             name="security-filter-provenance"
-                             value="with-provenance"
-                             data-action="filter-list#filter filter-dropdown#close"
-                             data-filter-list-target="filter"
-                             data-filtered-source="provenance"
-                             data-comparison-type="exact"
-                             data-auto-update-url-querystring="true">
-                      {% trans %}With provenance{% endtrans %}
-                    </label>
-                    <label for="security-filter-provenance-without">
-                      <input type="radio"
-                             id="security-filter-provenance-without"
-                             name="security-filter-provenance"
-                             value="without-provenance"
-                             data-action="filter-list#filter filter-dropdown#close"
-                             data-filter-list-target="filter"
-                             data-filtered-source="provenance"
-                             data-comparison-type="exact"
-                             data-auto-update-url-querystring="true">
-                      {% trans %}Without provenance{% endtrans %}
-                    </label>
-                  </fieldset>
+                  {% if 'partial-provenance' in provenance_states %}
+                    <fieldset class="attestations-viewer__filter-group">
+                      <legend>{% trans %}Provenance{% endtrans %}</legend>
+                      <label for="security-filter-provenance-with">
+                        <input type="radio"
+                               id="security-filter-provenance-with"
+                               name="security-filter-provenance"
+                               value="with-provenance"
+                               data-action="filter-list#filter click->filter-dropdown#selectOption"
+                               data-filter-list-target="filter"
+                               data-filtered-source="provenance"
+                               data-comparison-type="exact"
+                               data-auto-update-url-querystring="true">
+                        {% trans %}With provenance{% endtrans %}
+                      </label>
+                      <label for="security-filter-provenance-without">
+                        <input type="radio"
+                               id="security-filter-provenance-without"
+                               name="security-filter-provenance"
+                               value="without-provenance"
+                               data-action="filter-list#filter click->filter-dropdown#selectOption"
+                               data-filter-list-target="filter"
+                               data-filtered-source="provenance"
+                               data-comparison-type="exact"
+                               data-auto-update-url-querystring="true">
+                        {% trans %}Without provenance{% endtrans %}
+                      </label>
+                    </fieldset>
+                  {% endif %}
                   <fieldset class="attestations-viewer__filter-group">
                     <legend>{% trans %}File type{% endtrans %}</legend>
                     <label for="security-filter-file-type-sdist">
@@ -123,7 +127,7 @@
                              id="security-filter-file-type-sdist"
                              name="security-filter-file-type"
                              value="sdist"
-                             data-action="filter-list#filter filter-dropdown#close"
+                             data-action="filter-list#filter click->filter-dropdown#selectOption"
                              data-filter-list-target="filter"
                              data-filtered-source="fileType"
                              data-comparison-type="exact"
@@ -135,7 +139,7 @@
                              id="security-filter-file-type-wheel"
                              name="security-filter-file-type"
                              value="wheel"
-                             data-action="filter-list#filter filter-dropdown#close"
+                             data-action="filter-list#filter click->filter-dropdown#selectOption"
                              data-filter-list-target="filter"
                              data-filtered-source="fileType"
                              data-comparison-type="exact"
@@ -152,7 +156,7 @@
                                  id="security-filter-interpreter-{{ value }}"
                                  name="security-filter-interpreter"
                                  value="{{ value }}"
-                                 data-action="filter-list#filter filter-dropdown#close"
+                                 data-action="filter-list#filter click->filter-dropdown#selectOption"
                                  data-filter-list-target="filter"
                                  data-filtered-source="fileInterpreter"
                                  data-comparison-type="exact"
@@ -171,7 +175,7 @@
                                  id="security-filter-platform-{{ value }}"
                                  name="security-filter-platform"
                                  value="{{ value }}"
-                                 data-action="filter-list#filter filter-dropdown#close"
+                                 data-action="filter-list#filter click->filter-dropdown#selectOption"
                                  data-filter-list-target="filter"
                                  data-filtered-source="filePlatform"
                                  data-comparison-type="exact"

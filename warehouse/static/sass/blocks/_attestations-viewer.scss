@@ -245,15 +245,14 @@
     legend {
       display: block;
       width: 100%;
-      padding: 0 grid.$half-spacing-unit;
+      padding: 0 10px;
       font-size: fonts.$small-font-size;
       font-weight: fonts.$bold-font-weight;
       color: colors.$mid-grey;
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      margin-top: grid.$quarter-spacing-unit;
       position: relative;
-      top: 5px;
+      top: 10px;
     }
 
     label {

@@ -59,6 +59,14 @@ export default class extends Controller {
     this._initFilterSelectOptions();
     this._initFilterComparisons();
 
+    // Captured before any filtering runs, so _setClear() can restore this
+    // exact (translated) text once no filter is active, and build on it
+    // when one is - the active-filter count is otherwise only shown via a
+    // visual badge, with nothing exposed to assistive tech.
+    if (this.hasTriggerTarget) {
+      this._baseTriggerLabel = this.triggerTarget.getAttribute("aria-label") ?? "";
+    }
+
     // Update the filters from the url.
     this._urlChanged();
 
@@ -601,6 +609,18 @@ export default class extends Controller {
 
     if (this.hasTriggerTarget) {
       this.triggerTarget.classList.toggle("attestations-viewer__filter-dropdown-trigger--active", hasActiveFilter);
+
+      // The active-filter count is otherwise only shown via a visual badge
+      // (above) - fold it into the accessible name too.
+      if (this._baseTriggerLabel) {
+        this.triggerTarget.setAttribute("aria-label", hasActiveFilter
+          ? `${this._baseTriggerLabel} (${ngettext(
+            "%1 filter applied",
+            "%1 filters applied",
+            activeKeyCount,
+            activeKeyCount.toString())})`
+          : this._baseTriggerLabel);
+      }
     }
   }
 

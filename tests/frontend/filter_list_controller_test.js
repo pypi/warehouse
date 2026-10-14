@@ -44,7 +44,7 @@ const testFixtureHTMLFilters = `
 const testFixtureHTMLRadioFilters = `
 <a id="radio-filter-clear" href="#" data-action="filter-list#filterClear"
     data-filter-list-target="clear" class="hidden">Clear filters</a>
-<button id="radio-filter-trigger" type="button" data-filter-list-target="trigger">
+<button id="radio-filter-trigger" type="button" aria-label="Filter files" data-filter-list-target="trigger">
   <span id="radio-filter-count" class="hidden" data-filter-list-target="count"></span>
 </button>
 <input id="filter-radio-color-red" type="radio" name="color" value="red" data-action="filter-list#filter"
@@ -565,6 +565,35 @@ describe("Filter list controller", () => {
       expect(document.getElementById("radio-filter-clear").classList).toContain("hidden");
       expect(document.getElementById("radio-filter-count").classList).toContain("hidden");
       expect(document.getElementById("radio-filter-trigger").classList).not.toContain("attestations-viewer__filter-dropdown-trigger--active");
+
+      appStop(application);
+    });
+
+    it("keeps the trigger's base aria-label when no filter is active", async () => {
+      const application = await appStartRadio();
+
+      expect(document.getElementById("radio-filter-trigger")).toHaveAttribute("aria-label", "Filter files");
+
+      appStop(application);
+    });
+
+    it("folds the active filter count into the trigger's aria-label, since the count badge is otherwise only visual", async () => {
+      const application = await appStartRadio();
+
+      setFilterRadioChecked("filter-radio-color-red", true);
+
+      expect(document.getElementById("radio-filter-trigger")).toHaveAttribute("aria-label", "Filter files (1 filter applied)");
+
+      appStop(application);
+    });
+
+    it("restores the trigger's base aria-label after clearing", async () => {
+      const application = await appStartRadio();
+
+      setFilterRadioChecked("filter-radio-color-red", true);
+      clearRadioFilters();
+
+      expect(document.getElementById("radio-filter-trigger")).toHaveAttribute("aria-label", "Filter files");
 
       appStop(application);
     });
