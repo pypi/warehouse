@@ -112,7 +112,7 @@ msgstr ""
 msgid "You can't use a disposable email address. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:130
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -216,7 +216,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:950 warehouse/accounts/views.py:1063
 #: warehouse/accounts/views.py:1128 warehouse/accounts/views.py:1234
-#: warehouse/accounts/views.py:1405
+#: warehouse/accounts/views.py:1412
 msgid "Invalid token: no token supplied"
 msgstr ""
 
@@ -321,56 +321,62 @@ msgstr ""
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1305
+#: warehouse/accounts/views.py:1259 warehouse/accounts/views.py:1446
+msgid ""
+"Invalid invitation: the inviting user no longer exists. Please ask a "
+"remaining owner to reissue your invitation."
+msgstr ""
+
+#: warehouse/accounts/views.py:1313
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1368
+#: warehouse/accounts/views.py:1375
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1401
+#: warehouse/accounts/views.py:1408
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1403
+#: warehouse/accounts/views.py:1410
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1409
+#: warehouse/accounts/views.py:1416
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1413 warehouse/accounts/views.py:1433
+#: warehouse/accounts/views.py:1420 warehouse/accounts/views.py:1440
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1420
+#: warehouse/accounts/views.py:1427
 msgid "Invalid token: project does not exist"
 msgstr ""
 
-#: warehouse/accounts/views.py:1431
+#: warehouse/accounts/views.py:1438
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1465
+#: warehouse/accounts/views.py:1480
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1531
+#: warehouse/accounts/views.py:1545
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1642
+#: warehouse/accounts/views.py:1656
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1869 warehouse/accounts/views.py:2137
+#: warehouse/accounts/views.py:1883 warehouse/accounts/views.py:2151
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1772
 msgid ""
@@ -378,22 +384,22 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1890
+#: warehouse/accounts/views.py:1904
 #: warehouse/manage/views/organizations.py:1795
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1906
+#: warehouse/accounts/views.py:1920
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1919
+#: warehouse/accounts/views.py:1933
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1934
+#: warehouse/accounts/views.py:1948
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -403,7 +409,7 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1958
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
@@ -412,30 +418,30 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1959
+#: warehouse/accounts/views.py:1973
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1984
+#: warehouse/accounts/views.py:1998
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2007
+#: warehouse/accounts/views.py:2021
 #: warehouse/manage/views/organizations.py:1863
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2150 warehouse/accounts/views.py:2163
-#: warehouse/accounts/views.py:2170
+#: warehouse/accounts/views.py:2164 warehouse/accounts/views.py:2177
+#: warehouse/accounts/views.py:2184
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2177
+#: warehouse/accounts/views.py:2191
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -443,31 +449,31 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:288
+#: warehouse/manage/forms.py:289
 msgid "Specify an association ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:289
+#: warehouse/manage/forms.py:290
 msgid "Association must be specified by ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:304
+#: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:309
+#: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
 msgstr ""
 
-#: warehouse/manage/forms.py:413
+#: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
 msgstr ""
 
-#: warehouse/manage/forms.py:455
+#: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:463
+#: warehouse/manage/forms.py:467
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -475,87 +481,87 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:486
+#: warehouse/manage/forms.py:490
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:505
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:535
+#: warehouse/manage/forms.py:539
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:540 warehouse/oidc/forms/_core.py:32
+#: warehouse/manage/forms.py:544 warehouse/oidc/forms/_core.py:32
 #: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:548
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:551
+#: warehouse/manage/forms.py:555
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:584
+#: warehouse/manage/forms.py:588
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr ""
 
-#: warehouse/manage/forms.py:652
+#: warehouse/manage/forms.py:656
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:665
+#: warehouse/manage/forms.py:669
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:671
+#: warehouse/manage/forms.py:675
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:683
+#: warehouse/manage/forms.py:687
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:728
 msgid ""
 "We don't need to know quite that much :), limit your usage description to"
 " 1024 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:748
-#, python-format
+#: warehouse/manage/forms.py:759
+#, python-brace-format
 msgid ""
 "You have already submitted the maximum number of Organization requests "
-"(%s)."
+"(${count})."
 msgstr ""
 
-#: warehouse/manage/forms.py:778
+#: warehouse/manage/forms.py:790
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:785
+#: warehouse/manage/forms.py:797
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:812
+#: warehouse/manage/forms.py:824
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -1007,7 +1013,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:351
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
