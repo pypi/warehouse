@@ -203,11 +203,11 @@ dbshell: .state/docker-build-base ## Open a PostgreSQL shell
 
 clean: ## Remove generated project files
 	rm -rf dev/*.sql
-	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/
+	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/ docs/.cache/
 	rm -rf warehouse/static/dist/ warehouse/admin/static/dist/
 
 purge: stop clean ## Remove generated files, containers, and volumes
-	rm -rf .state .coverage* .cache .state/db-populated .state/db-migrated
+	rm -rf .state .coverage* .cache
 	docker compose down -v --remove-orphans
 	docker compose rm --force
 
