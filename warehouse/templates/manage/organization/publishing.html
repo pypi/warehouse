@@ -1,6 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/organization/manage_organization_base.html" %}
-{% from "manage/_buildkite_publisher_form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
+{% from "includes/manage/buildkite-publisher-form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
 {% set active_tab = "publishing" %}
 {% block title %}
   {% trans organization_name=organization.name %}Trusted Publisher Management for '{{ organization_name }}'{% endtrans %}

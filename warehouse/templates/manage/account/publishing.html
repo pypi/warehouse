@@ -1,6 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/manage_base.html" %}
-{% from "manage/_buildkite_publisher_form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
+{% from "includes/manage/buildkite-publisher-form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
 {% set user = request.user %}
 {% set pending_oidc_enabled = user.has_primary_verified_email %}
 {% set active_tab = "publishing" %}
