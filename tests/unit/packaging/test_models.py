@@ -9,6 +9,7 @@ import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
+from sqlalchemy import update
 
 from warehouse.attestations.models import (
     ProvenanceCounts,
@@ -2208,6 +2209,25 @@ class TestFile:
         (file,) = release.files
 
         assert file.added_late is expected
+
+    def test_insert_does_not_rewrite_sibling_requires_python(self, db_session):
+        """
+        Inserting a file must only write its own ``requires_python``.
+        """
+        release = DBReleaseFactory.create(requires_python=">=3.9")
+        sibling = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+
+        # A value the trigger can never produce: if the insert below rewrites
+        # the release's other files, this is reset to the release's value.
+        db_session.execute(
+            update(File).where(File.id == sibling.id).values(requires_python="sentinel")
+        )
+
+        new = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+        db_session.refresh(sibling)
+
+        assert sibling.requires_python == "sentinel"
+        assert new.requires_python == ">=3.9"
 
 
 class TestProjectLimitProperties:
