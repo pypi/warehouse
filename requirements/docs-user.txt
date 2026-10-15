@@ -332,9 +332,9 @@ pathspec==1.1.1 \
     # via
     #   mkdocs
     #   mkdocs-macros-plugin
-platformdirs==4.12.3 \
-    --hash=sha256:080f3b39423b5abfca9a23d84c4e9795f54d395cd8459867a8ded44084fcd5f8 \
-    --hash=sha256:427fc0bb321ae0c5b037fa03238ca74820437be162e78b4848c4d4055b9b766c
+platformdirs==4.12.4 \
+    --hash=sha256:63743c02414e755de4e31b8f68125c1407495b86c5a006e203c01ff8b9924250 \
+    --hash=sha256:78bfb9db2a8471ed7eebe3c3c932da413911042994e699b384fbb4493fa872d7
     # via mkdocs-get-deps
 pygments==2.20.0 \
     --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
