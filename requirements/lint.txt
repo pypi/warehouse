@@ -1013,10 +1013,6 @@ types-redis==4.6.0.20241004 \
     --hash=sha256:5f17d2b3f9091ab75384153bfa276619ffa1cf6a38da60e10d5e6749cc5b902e \
     --hash=sha256:ef5da68cb827e5f606c8f9c0b49eeee4c2669d6d97122f301d3a55dc6a63f6ed
     # via -r requirements/lint.in
-types-requests==2.33.0.20261006 \
-    --hash=sha256:0652999e9306aea345f40732d58fa49a7f6cade6a0d74d92119c5c8d82eddaf0 \
-    --hash=sha256:26cc8146505cab33cda9737991929e4144c559bebe05078ccc6998f27c4ca2c1
-    # via -r requirements/lint.in
 types-s3transfer==0.16.0 \
     --hash=sha256:1c0cd111ecf6e21437cb410f5cddb631bfb2263b77ad973e79b9c6d0cb24e0ef \
     --hash=sha256:b4636472024c5e2b62278c5b759661efeb52a81851cde5f092f24100b1ecb443
@@ -1050,10 +1046,6 @@ typing-extensions==4.15.0 \
     #   celery-types
     #   msgpack-types
     #   mypy
-urllib3==2.8.0 \
-    --hash=sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3 \
-    --hash=sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63
-    # via types-requests
 zope-event==6.2 \
     --hash=sha256:5e755153ac4faf64c10a4b6dd3307680166a3edf65b38df22df592610f8fa874 \
     --hash=sha256:b97d5d6327067ee6b9dfcbdf606ade9ade70991e19c162e808ea39e5fcf0f8d3
