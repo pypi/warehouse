@@ -13,11 +13,13 @@ theme:
   custom_dir: blog/overrides
   palette:
     - scheme: pypi
+      primary: indigo
       media: "(prefers-color-scheme: light)"
       toggle:
         icon: material/weather-night
         name: Switch to Dark mode
     - scheme: slate
+      primary: indigo
       media: "(prefers-color-scheme: dark)"
       toggle:
         icon: material/weather-sunny
