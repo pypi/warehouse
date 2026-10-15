@@ -103,8 +103,8 @@ will be recognized.
 | Changelog        | :fontawesome-solid-scroll:                | Changelog information       | Change log, Changes, News, Whatsnew, What's new, History                                               |
 | Release notes    | :fontawesome-solid-newspaper:             | Curated release information | Releasenotes                                                                                           |
 | Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
-| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
-| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
+| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^\*^, Tracker^\*^, Report^\*^                                                                     |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^\*^, Donation^\*^, Donate^\*^                                                                  |
 | Security         | :fontawesome-solid-shield:                | Security policy or vulnerability reporting page | Security Policy, securitypolicy                                                                       |
 | Source           | :fontawesome-solid-code-branch:           | Source code repository      | Source Code, Sourcecode, Repository                                                                    |
 
