@@ -2,6 +2,7 @@
 
 import threading
 
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 
 import pytest
@@ -326,27 +327,19 @@ class TestBuildkitePublisher:
 
         locked = threading.Event()
         release = threading.Event()
-        thread_errors = []
 
         def pin_publisher():
-            try:
-                with Session(engine) as session, session.begin():
-                    publisher = buildkite.BuildkitePublisher.lookup_by_claims(
-                        session,
-                        claims(
-                            organization_slug="locking-org",
-                            pipeline_slug="locking-pipeline",
-                        ),
-                    )
-                    locked.set()
-                    release.wait(timeout=5)
-                    publisher.pin_claims(claims())
-            except Exception as error:  # noqa: BLE001
-                thread_errors.append(error)
-
-        thread = threading.Thread(target=pin_publisher)
-        thread.start()
-        assert locked.wait(timeout=5)
+            with Session(engine) as session, session.begin():
+                publisher = buildkite.BuildkitePublisher.lookup_by_claims(
+                    session,
+                    claims(
+                        organization_slug="locking-org",
+                        pipeline_slug="locking-pipeline",
+                    ),
+                )
+                locked.set()
+                release.wait(timeout=5)
+                publisher.pin_claims(claims())
 
         def lookup_while_locked():
             with Session(engine) as session, session.begin():
@@ -359,15 +352,15 @@ class TestBuildkitePublisher:
                     ),
                 )
 
-        try:
-            with pytest.raises(LockNotAvailable, match="lock timeout"):
-                lookup_while_locked()
-        finally:
-            release.set()
-            thread.join(timeout=5)
-
-        assert not thread.is_alive()
-        assert thread_errors == []
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(pin_publisher)
+            try:
+                assert locked.wait(timeout=5)
+                with pytest.raises(LockNotAvailable, match="lock timeout"):
+                    lookup_while_locked()
+            finally:
+                release.set()
+            future.result(timeout=5)
 
         with Session(engine) as session, session.begin():
             with pytest.raises(errors.InvalidPublisherError, match="does not match"):
