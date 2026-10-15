@@ -27,6 +27,12 @@ from warehouse.oidc.urls import verify_url_from_reference
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+# TODO: Should probably be an allowlist instead of a denylist.
+_FORBIDDEN_TRIGGERS = [
+    "pull_request_target",
+    "issue_comment",
+]
+
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
@@ -130,10 +136,10 @@ def _check_event_name(
     _all_signed_claims: SignedClaims,
     **_kwargs,
 ) -> bool:
-    if signed_claim == "pull_request_target":
+    if signed_claim in _FORBIDDEN_TRIGGERS:
         raise InvalidPublisherError(
-            "Publishing from a workflow invoked via 'pull_request_target' is "
-            "not supported."
+            f"Publishing via an insecure trigger (`{signed_claim}`) is not supported. "
+            "See https://docs.pypi.org/trusted-publishers/troubleshooting/#forbidden-triggers-on-github"
         )
     return True
 

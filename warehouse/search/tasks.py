@@ -15,6 +15,7 @@ from opensearchpy import RequestsAWSV4SignerAuth
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
 from sqlalchemy import func, or_, select, text
+from sqlalchemy.dialects.postgresql import distinct_on
 from urllib3.util import parse_url
 
 from warehouse import tasks
@@ -79,7 +80,7 @@ def _project_docs(db, project_name: str | None = None):
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
-        .distinct(Project.name)
+        .ext(distinct_on(Project.name))
         .execution_options(yield_per=25000)
     )
 

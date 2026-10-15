@@ -72,6 +72,10 @@ invitation to join the project as a collaborator.
 * Assign a role for the collaborator
 * Click on **Add**
 
+If the inviting user deletes their account before the invitation is accepted,
+the recipient cannot accept or decline it. A remaining project Owner must
+revoke the old invitation and send a new one.
+
 ---
 
 #### Remove a collaborator
