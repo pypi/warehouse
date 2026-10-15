@@ -136,6 +136,15 @@
       padding: 2px 0;
     }
 
+    li:has(> input[type="checkbox"]) {
+      list-style-type: none;
+
+      > input[type="checkbox"] {
+        margin: 0 0.2em 0.25em -1.4em;
+        vertical-align: middle;
+      }
+    }
+
     li p:first-child {
       margin-top: 0;
     }
