@@ -42,6 +42,8 @@ class PEP740AttestationViewer:
 
         Reference can either be a hash or a named revision.
         """
+        if not base_url or not reference:
+            return ""
         match self.publisher:
             case pypi_attestations.GitHubPublisher():
                 return f"{base_url}/tree/{reference}"
@@ -94,6 +96,8 @@ class PEP740AttestationViewer:
         """Build Config URI with permalink to the exact version used."""
         repo_url = self.repository_url
         workflow_url = self.claims.get("1.3.6.1.4.1.57264.1.18", "")
+        if not repo_url or not workflow_url or not self.build_digest:
+            return ""
         workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
         return f"{repo_url}/blob/{self.build_digest}/{workflow_file_path}"
 

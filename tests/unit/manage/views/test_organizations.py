@@ -741,6 +741,46 @@ class TestManageOrganizations:
             "create_organization_application_form": create_organization_application_obj
         }
 
+    def test_create_organization_application_max_undecided(
+        self, pyramid_config, db_request, mocker
+    ):
+        db_request.registry.settings[
+            "warehouse.organizations.max_undecided_organization_applications"
+        ] = 3
+        db_request.user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(
+            3,
+            submitted_by=db_request.user,
+            status=OrganizationApplicationStatus.Submitted,
+        )
+        db_request.POST = MultiDict(
+            {
+                "name": "my_organization_name",
+                "display_name": "My Organization",
+                "link_url": "https://example.com/",
+                "description": "An organization",
+                "orgtype": "Community",
+                "membership_size": "1",
+                "usage": "We plan to publish a few packages under one organization.",
+            }
+        )
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(db_request)
+        result = view.create_organization_application()
+
+        form = result["create_organization_application_form"]
+        assert [str(error) for error in form.form_errors] == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
+        assert len(db_request.user.organization_applications) == 3
+        send_email.assert_not_called()
+
 
 class TestManageOrganizationSettings:
     def test_manage_organization(self, db_request, organization_service, monkeypatch):
