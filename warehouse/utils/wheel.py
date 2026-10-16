@@ -7,8 +7,24 @@ import re
 import sys
 import zipfile
 
+from typing import TYPE_CHECKING
+
 import packaging.tags
 import packaging.utils
+
+from natsort import natsorted
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Literal
+
+    type Kind = Literal["interpreter", "abi", "platform", "other"]
+    # key: tag kind, value: {tag: display label}
+    type GroupedLabels = dict[Kind, dict[str, str]]
+    # key: tag kind, value: {display label: [tags sharing it]}
+    type TagsByLabel = dict[Kind, dict[str, list[str]]]
+    # key: tag kind, value: [(option value, display label)]
+    type FilterOptions = dict[Kind, list[tuple[str, str]]]
 
 
 class MissingWheelRecordError(Exception):
@@ -265,7 +281,7 @@ def _abi_to_label(tag: packaging.tags.Tag) -> str:
     return _norm_str(key)
 
 
-def _parse_platform_tag(platform_tag) -> dict[str, str] | bool:
+def _parse_platform_tag(platform_tag: str) -> dict[str, str] | bool:
     """Check wheel platform is recognised and a valid combination.
     Return false if the platform tag is not valid.
     Return true if a static platform tag matches.
@@ -322,7 +338,7 @@ def _platform_to_label(tag: packaging.tags.Tag) -> str:
     value = tag.platform
     parsed = _parse_platform_tag(value)
 
-    if parsed is False or parsed is None:
+    if parsed is False:
         # Unknown platform, just return it.
         return _norm_str(value)
 
@@ -358,7 +374,9 @@ def _platform_to_label(tag: packaging.tags.Tag) -> str:
     return _norm_str(value)
 
 
-def _add_group_label(container: dict, group: str, value: str, label: str) -> None:
+def _add_group_label(
+    container: GroupedLabels, group: Kind, value: str, label: str
+) -> None:
     container[group][value] = label
 
 
@@ -385,8 +403,8 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
     return sorted(pretty_tags)
 
 
-def filename_to_grouped_labels(filename: str) -> dict[str, dict[str, str]]:
-    grouped_labels: dict[str, dict[str, str]] = {
+def filename_to_grouped_labels(filename: str) -> GroupedLabels:
+    grouped_labels: GroupedLabels = {
         "interpreter": {},
         "abi": {},
         "platform": {},
@@ -416,8 +434,8 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict[str, str]]:
     return grouped_labels
 
 
-def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict[str, str]]:
-    grouped_labels: dict[str, dict[str, str]] = {
+def filenames_to_grouped_labels(filenames: Iterable[str]) -> GroupedLabels:
+    grouped_labels: GroupedLabels = {
         "interpreter": {},
         "abi": {},
         "platform": {},
@@ -432,10 +450,45 @@ def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict[str, str
     return grouped_labels
 
 
-def is_valid_platform_tag(platform_tag) -> bool:
+def group_tags_by_label(grouped_labels: GroupedLabels) -> TagsByLabel:
+    """
+    Invert ``{kind: {tag: label}}`` into ``{kind: {label: [tags]}}``.
+
+    Several tags can share one display label
+    eg: `manylinux2014_x86_64` is an alias of `manylinux_2_17_x86_64`
+    """
+    tags_by_label: TagsByLabel = {}
+    for kind, tag_labels in grouped_labels.items():
+        by_label: dict[str, list[str]] = {}
+        for tag, label in natsorted(tag_labels.items()):
+            by_label.setdefault(label, []).append(tag)
+        tags_by_label[kind] = by_label
+    return tags_by_label
+
+
+def filter_options(tags_by_label: TagsByLabel) -> FilterOptions:
+    return {
+        kind: [(tags[0], label) for label, tags in by_label.items()]
+        for kind, by_label in tags_by_label.items()
+    }
+
+
+def expand_filter_tags(
+    grouped_labels: GroupedLabels, tags_by_label: TagsByLabel
+) -> dict[Kind, list[str]]:
+    expanded: dict[Kind, list[str]] = {}
+    for kind, tag_labels in grouped_labels.items():
+        tags = set(tag_labels)
+        for label in tag_labels.values():
+            tags.update(tags_by_label[kind].get(label, ()))
+        expanded[kind] = natsorted(tags)
+    return expanded
+
+
+def is_valid_platform_tag(platform_tag: str) -> bool:
     """Check wheel platform is recognised and a valid combination."""
     parsed = _parse_platform_tag(platform_tag)
-    return not (parsed is None or parsed is False)
+    return parsed is not False
 
 
 def _zip_filename_is_dir(filename: str) -> bool:

@@ -147,10 +147,10 @@
                       {% trans %}Wheel{% endtrans %}
                     </label>
                   </fieldset>
-                  {% if wheel_filters_all['interpreter'] %}
+                  {% if wheel_filter_options['interpreter'] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Interpreter{% endtrans %}</legend>
-                      {% for value, label in wheel_filters_all['interpreter'].items() | natsort | unique(attribute=1) %}
+                      {% for value, label in wheel_filter_options['interpreter'] %}
                         <label for="security-filter-interpreter-{{ value }}">
                           <input type="radio"
                                  id="security-filter-interpreter-{{ value }}"
@@ -166,10 +166,10 @@
                       {% endfor %}
                     </fieldset>
                   {% endif %}
-                  {% if wheel_filters_all['platform'] %}
+                  {% if wheel_filter_options['platform'] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Platform{% endtrans %}</legend>
-                      {% for value, label in wheel_filters_all['platform'].items() | natsort | unique(attribute=1) %}
+                      {% for value, label in wheel_filter_options['platform'] %}
                         <label for="security-filter-platform-{{ value }}">
                           <input type="radio"
                                  id="security-filter-platform-{{ value }}"
@@ -207,8 +207,8 @@
                   data-filename="{{ vfile.filename }}"
                   data-filtered-target-provenance='{{ (["with-provenance"] if attestation_count else ["without-provenance"]) | tojson }}'
                   data-filtered-target-file-type='{{ (["sdist"] if vfile.packagetype == "sdist" else ["wheel"]) | tojson }}'
-                  data-filtered-target-file-interpreter='{{ (vfile.wheel_filters.get("interpreter", {}).keys() | list) | tojson }}'
-                  data-filtered-target-file-platform='{{ (vfile.wheel_filters.get("platform", {}).keys() | list) | tojson }}'>
+                  data-filtered-target-file-interpreter='{{ wheel_filter_tags[vfile.filename]["interpreter"] | tojson }}'
+                  data-filtered-target-file-platform='{{ wheel_filter_tags[vfile.filename]["platform"] | tojson }}'>
                 <button type="button"
                         data-action="attestations-viewer#select"
                         aria-pressed="{{ 'true' if vfile == selected_file else 'false' }}">

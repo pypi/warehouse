@@ -118,7 +118,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Interpreter{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['interpreter'].items() | natsort | unique(attribute=1) %}
+                {% for value, label in wheel_filter_options['interpreter'] %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
@@ -141,7 +141,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}ABI{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['abi'].items() | natsort | unique(attribute=1) %}
+                {% for value, label in wheel_filter_options['abi'] %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
@@ -164,7 +164,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Platform{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['platform'].items() | natsort | unique(attribute=1) %}
+                {% for value, label in wheel_filter_options['platform'] %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
@@ -184,7 +184,7 @@
     <tbody>
       {% for file in bdists %}
         <tr class="file-row"
-            {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
+            {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, tags in wheel_filter_tags[file.filename].items() %} data-filtered-target-{{ filter_name }}='{{ tags | tojson }}' {% endfor %}
             {% endif %}>
           <td>
             <span class="file-info__name">
