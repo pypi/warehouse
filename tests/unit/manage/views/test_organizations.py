@@ -4,7 +4,6 @@ import datetime as dt
 import re
 import uuid
 
-import pretend
 import pytest
 
 from freezegun import freeze_time
@@ -44,7 +43,6 @@ from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
-from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
 from warehouse.organizations.models import (
@@ -2676,28 +2674,15 @@ class TestManageOrganizationHistory:
             "organization": organization,
         }
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
-        params = MultiDict({"page": "abc"})
-        db_request.params = params
-
-        events_query = pretend.stub()
-        db_request.events_query = pretend.stub(
-            events_query=lambda *a, **kw: events_query
-        )
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+    def test_raises_400_with_pagenum_type_str(self, db_request, mocker):
+        db_request.params = MultiDict({"page": "abc"})
+        page_cls = mocker.patch.object(org_views, "SQLAlchemyORMPage", autospec=True)
 
         organization = OrganizationFactory.create()
         with pytest.raises(HTTPBadRequest):
             org_views.manage_organization_history(organization, db_request)
 
-        assert page_cls.calls == []
+        page_cls.assert_not_called()
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
