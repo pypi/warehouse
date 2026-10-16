@@ -33,7 +33,6 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionPriceFactory,
 )
 from warehouse.accounts import ITokenService, IUserService
-from warehouse.accounts.interfaces import TokenExpired
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
@@ -2726,367 +2725,278 @@ class TestManageOrganizationRoles:
         ]
 
 
+def _expired_token(token_service, data):
+    """Sign data far enough in the past that the token has already expired."""
+    with freeze_time(
+        datetime.datetime.now(datetime.UTC)
+        - datetime.timedelta(seconds=token_service.max_age + 1)
+    ):
+        return token_service.dumps(data)
+
+
+def _invitation(db_request, organization, user, status=None):
+    query = (
+        db_request.db.query(OrganizationInvitation)
+        .filter(OrganizationInvitation.user == user)
+        .filter(OrganizationInvitation.organization == organization)
+    )
+    if status is not None:
+        query = query.filter(OrganizationInvitation.invite_status == status)
+    return query.one_or_none()
+
+
+@pytest.fixture
+def invite_organization():
+    return OrganizationFactory.create(name="foobar")
+
+
+@pytest.fixture
+def invite_owner(invite_organization):
+    owner_user = UserFactory.create()
+    OrganizationRoleFactory(
+        user=owner_user,
+        organization=invite_organization,
+        role_name=OrganizationRoleType.Owner,
+    )
+    return owner_user
+
+
+@pytest.fixture
+def invite_request(db_request, invite_owner, mocker):
+    """A POST from an organization owner, with the roles route stubbed."""
+    db_request.method = "POST"
+    db_request.remote_addr = "10.10.10.10"
+    db_request.user = invite_owner
+    mocker.patch.object(
+        db_request,
+        "route_path",
+        autospec=True,
+        return_value="/manage/organization/foobar/people/",
+    )
+    mocker.spy(db_request.session, "flash")
+    return db_request
+
+
 class TestResendOrganizationInvitations:
     @freeze_time(datetime.datetime.now(datetime.UTC))
-    def test_resend_invitation(self, db_request, token_service, monkeypatch):
-        organization = OrganizationFactory.create(name="foobar")
+    def test_resend_invitation(
+        self, invite_request, invite_organization, invite_owner, token_service, mocker
+    ):
+        """Resend reads the stored token's payload without checking its expiry,
+        so an expired invitation can be sent again."""
+        organization = invite_organization
         user = UserFactory.create(username="testuser")
         EmailFactory.create(user=user, verified=True, primary=True)
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
             invite_status=OrganizationInvitationStatus.Expired,
+            token=_expired_token(
+                token_service,
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": "Manager",
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": invite_owner.id,
+                },
+            ),
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
+        member_invited_email = mocker.patch.object(
+            org_views, "send_organization_member_invited_email", autospec=True
         )
+        role_verification_email = mocker.patch.object(
+            org_views, "send_organization_role_verification_email", autospec=True
+        )
+        invite_request.POST = MultiDict({"user_id": user.id})
 
-        send_organization_member_invited_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_invited_email",
-            send_organization_member_invited_email,
-        )
-        send_organization_role_verification_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_role_verification_email",
-            send_organization_role_verification_email,
-        )
+        result = org_views.resend_organization_invitation(organization, invite_request)
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations"
+        assert _invitation(
+            invite_request, organization, user, OrganizationInvitationStatus.Pending
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        invite_request.session.flash.assert_called_once_with(
+            f"Invitation sent to '{user.username}'", queue="success"
         )
-        token_service.loads = pretend.raiser(TokenExpired)
-        token_service.unsafe_load_payload = pretend.call_recorder(
-            lambda data: {
-                "action": "email-organization-role-verify",
-                "desired_role": "Manager",
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
-
-        result = org_views.resend_organization_invitation(organization, db_request)
-        db_request.db.flush()
-
-        assert (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .filter(
-                OrganizationInvitation.invite_status
-                == OrganizationInvitationStatus.Pending
-            )
-            .one()
-        )
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Invitation sent to '{user.username}'", queue="success")
-        ]
-
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
+        invite_request.route_path.assert_called_once_with(
+            "manage.organization.roles", organization_name=organization.normalized_name
+        )
 
-        assert send_organization_member_invited_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                desired_role="Manager",
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": "Manager",
-                        "user_id": user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
-        assert send_organization_role_verification_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                desired_role="Manager",
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": "Manager",
-                        "user_id": user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
+        email_kwargs = {
+            "desired_role": "Manager",
+            "initiator_username": invite_owner.username,
+            "organization_name": organization.name,
+            "email_token": token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": "Manager",
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": invite_owner.id,
+                }
+            ),
+            "token_age": token_service.max_age,
+        }
+        member_invited_email.assert_called_once_with(
+            invite_request, {invite_owner}, user=user, **email_kwargs
+        )
+        role_verification_email.assert_called_once_with(
+            invite_request, user, **email_kwargs
+        )
 
-    def test_resend_invitation_fails_corrupt_token(self, db_request, token_service):
-        organization = OrganizationFactory.create(name="foobar")
+    def test_resend_invitation_fails_corrupt_token(
+        self, invite_request, invite_organization
+    ):
         user = UserFactory.create(username="testuser")
         OrganizationInvitationFactory.create(
-            organization=organization,
+            organization=invite_organization,
             user=user,
             invite_status=OrganizationInvitationStatus.Expired,
+            token="not-a-signed-token",
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
-        )
+        invite_request.POST = MultiDict({"user_id": user.id})
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations"
+        result = org_views.resend_organization_invitation(
+            invite_organization, invite_request
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        token_service.loads = pretend.raiser(TokenExpired)
-        token_service.unsafe_load_payload = pretend.call_recorder(lambda data: None)
-
-        result = org_views.resend_organization_invitation(organization, db_request)
-        db_request.db.flush()
 
         assert (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .filter(
-                OrganizationInvitation.invite_status
-                == OrganizationInvitationStatus.Pending
+            _invitation(
+                invite_request,
+                invite_organization,
+                user,
+                OrganizationInvitationStatus.Pending,
             )
-            .one_or_none()
-        ) is None
-        assert db_request.session.flash.calls == [
-            pretend.call("Organization invitation could not be re-sent.", queue="error")
-        ]
-
+            is None
+        )
+        invite_request.session.flash.assert_called_once_with(
+            "Organization invitation could not be re-sent.", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
     def test_resend_invitation_fails_missing_invitation(
-        self, db_request, token_service
+        self, invite_request, invite_organization
     ):
-        organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
+        invite_request.POST = MultiDict({"user_id": user.id})
+
+        result = org_views.resend_organization_invitation(
+            invite_organization, invite_request
         )
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations"
+        assert _invitation(invite_request, invite_organization, user) is None
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find organization invitation.", queue="error"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        result = org_views.resend_organization_invitation(organization, db_request)
-        db_request.db.flush()
-
-        assert (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .filter(
-                OrganizationInvitation.invite_status
-                == OrganizationInvitationStatus.Pending
-            )
-            .one_or_none()
-        ) is None
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find organization invitation.", queue="error")
-        ]
-
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
 
 class TestRevokeOrganizationInvitation:
-    def test_revoke_invitation(self, db_request, token_service, monkeypatch):
-        organization = OrganizationFactory.create(name="foobar")
+    @pytest.fixture
+    def revoke_emails(self, mocker):
+        return (
+            mocker.patch.object(
+                org_views,
+                "send_organization_member_invite_canceled_email",
+                autospec=True,
+            ),
+            mocker.patch.object(
+                org_views,
+                "send_canceled_as_invited_organization_member_email",
+                autospec=True,
+            ),
+        )
+
+    def test_revoke_invitation(
+        self,
+        invite_request,
+        invite_organization,
+        invite_owner,
+        token_service,
+        revoke_emails,
+    ):
+        organization = invite_organization
         user = UserFactory.create(username="testuser")
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token=token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": "Manager",
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": invite_owner.id,
+                }
+            ),
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
-        )
+        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_canceled_email, canceled_as_invited_email = revoke_emails
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        token_service.loads = pretend.call_recorder(
-            lambda data: {
-                "action": "email-organization-role-verify",
-                "desired_role": "Manager",
-                "user_id": user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner_user.id,
-            }
-        )
+        result = org_views.revoke_organization_invitation(organization, invite_request)
 
-        organization_member_invite_canceled_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        assert _invitation(invite_request, organization, user) is None
+        invite_canceled_email.assert_called_once_with(
+            invite_request,
+            {invite_owner},
+            user=user,
+            organization_name=organization.name,
         )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_invite_canceled_email",
-            organization_member_invite_canceled_email,
+        canceled_as_invited_email.assert_called_once_with(
+            invite_request, user, organization_name=organization.name
         )
-        canceled_as_invited_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
+        invite_request.session.flash.assert_called_once_with(
+            f"Invitation revoked from '{user.username}'.", queue="success"
         )
-        monkeypatch.setattr(
-            org_views,
-            "send_canceled_as_invited_organization_member_email",
-            canceled_as_invited_organization_member_email,
-        )
-
-        result = org_views.revoke_organization_invitation(organization, db_request)
-        db_request.db.flush()
-
-        assert not (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .one_or_none()
-        )
-        assert organization_member_invite_canceled_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_user},
-                user=user,
-                organization_name=organization.name,
-            )
-        ]
-        assert canceled_as_invited_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                organization_name=organization.name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
-        ]
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
+        invite_request.route_path.assert_called_once_with(
+            "manage.organization.roles", organization_name=organization.normalized_name
+        )
 
-    def test_invitation_does_not_exist(self, db_request, token_service):
-        organization = OrganizationFactory.create(name="foobar")
+    def test_invitation_does_not_exist(self, invite_request, invite_organization):
         user = UserFactory.create(username="testuser")
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
+        invite_request.POST = MultiDict({"user_id": user.id})
+
+        result = org_views.revoke_organization_invitation(
+            invite_organization, invite_request
         )
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations"
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find organization invitation.", queue="error"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        token_service.loads = pretend.call_recorder(lambda data: None)
-
-        result = org_views.revoke_organization_invitation(organization, db_request)
-        db_request.db.flush()
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find organization invitation.", queue="error")
-        ]
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
-    def test_token_expired(self, db_request, token_service):
-        organization = OrganizationFactory.create(name="foobar")
+    def test_token_expired(
+        self, invite_request, invite_organization, token_service, revoke_emails
+    ):
         user = UserFactory.create(username="testuser")
         OrganizationInvitationFactory.create(
-            organization=organization,
+            organization=invite_organization,
             user=user,
+            token=_expired_token(
+                token_service, {"action": "email-organization-role-verify"}
+            ),
         )
-        owner_user = UserFactory.create()
-        OrganizationRoleFactory(
-            user=owner_user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
+        invite_request.POST = MultiDict({"user_id": user.id})
+
+        result = org_views.revoke_organization_invitation(
+            invite_organization, invite_request
         )
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations/roles"
+        assert _invitation(invite_request, invite_organization, user) is None
+        invite_request.session.flash.assert_called_once_with(
+            "Expired invitation for 'testuser' deleted.", queue="success"
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
-
-        result = org_views.revoke_organization_invitation(organization, db_request)
-        db_request.db.flush()
-
-        assert not (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .one_or_none()
-        )
-        assert db_request.session.flash.calls == [
-            pretend.call("Expired invitation for 'testuser' deleted.", queue="success")
-        ]
+        for send_email in revoke_emails:
+            send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/organizations/roles"
+        assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
 
 class TestChangeOrganizationRole:
