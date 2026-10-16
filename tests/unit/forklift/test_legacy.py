@@ -5676,6 +5676,62 @@ class TestFileUpload:
         assert resp.status_code == 429
         assert resp.status == ("429 Too many new projects created")
 
+    def test_upload_new_project_failure_spends_attempt_not_creation_limit(
+        self, pyramid_config, db_request, project_service, storage_service, mocker
+    ):
+        """
+        This test checks that a failed upload rolls back its new project, so it
+        spends an attempt but not the uploader's creation quota.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "0" * 32,
+                "content": _content_field(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        creation_limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
+        creation_limiter.test.return_value = True
+        creation_limiter.get_window_stats.return_value = []
+        creation_limiter.override.return_value = creation_limiter
+        attempt_limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
+        attempt_limiter.test.return_value = True
+        attempt_limiter.hit.return_value = True
+        attempt_limiter.get_window_stats.return_value = []
+        attempt_limiter.override.return_value = attempt_limiter
+        project_service.ratelimiters["project.create.user"] = creation_limiter
+        project_service.ratelimiters["project.create.attempt.user"] = attempt_limiter
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == (
+            "400 The digest supplied does not match a digest calculated "
+            "from the uploaded file."
+        )
+        attempt_limiter.hit.assert_called_once_with(user.id)
+        creation_limiter.hit.assert_not_called()
+
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, project_service, storage_service
     ):
