@@ -39,14 +39,13 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionFactory,
     StripeSubscriptionPriceFactory,
 )
-from warehouse.accounts import ITokenService, IUserService
+from warehouse.accounts import ITokenService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
-from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     OIDCIssuerType,
     Organization,
@@ -369,7 +368,7 @@ class TestManageOrganizationApplication:
         ],
     )
     def test_withdraw_organization_application(
-        self, db_request, metrics, status, confirm, withdrawn
+        self, db_request, metrics, mocker, status, confirm, withdrawn
     ):
         app = OrganizationApplicationFactory.create(
             name="example",
@@ -390,14 +389,14 @@ class TestManageOrganizationApplication:
             OrganizationApplicationStatus.Withdrawn if withdrawn else status
         )
         tags = ["status:submitted", "orgtype:Company"]
-        assert metrics.increment.calls == (
-            [pretend.call("warehouse.organizations.application.withdrawn", tags=tags)]
+        assert metrics.increment.call_args_list == (
+            [mocker.call("warehouse.organizations.application.withdrawn", tags=tags)]
             if withdrawn
             else []
         )
-        assert metrics.distribution.calls == (
+        assert metrics.distribution.call_args_list == (
             [
-                pretend.call(
+                mocker.call(
                     "warehouse.organizations.application.withdrawn.age_seconds",
                     86400.0,
                     tags=tags,
@@ -432,416 +431,21 @@ class TestManageOrganizationApplication:
         db_request.db.expire(app)
 
         assert app.status == OrganizationApplicationStatus.Approved
-        assert metrics.increment.calls == []
+        assert metrics.increment.call_args_list == []
 
 
 class TestManageOrganizations:
-    def test_default_response(self, monkeypatch):
-        create_organization_application_obj = pretend.stub()
-        create_organization_application_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_application_obj
-        )
-        monkeypatch.setattr(
-            org_views,
-            "CreateOrganizationApplicationForm",
-            create_organization_application_cls,
-        )
-
-        organization = pretend.stub(name=pretend.stub(), is_approved=None)
-
-        user_organizations = pretend.call_recorder(
-            lambda *a, **kw: {
-                "organizations_managed": [],
-                "organizations_owned": [organization],
-                "organizations_billing": [],
-            }
-        )
-        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
-
-        organization_service = pretend.stub(
-            get_organizations_by_user=lambda *a, **kw: [organization],
-            get_organization_invites_by_user=lambda *a, **kw: [],
-        )
-        user_service = pretend.stub()
-        submitted = pretend.stub(status=OrganizationApplicationStatus.Submitted)
-        withdrawn = pretend.stub(status=OrganizationApplicationStatus.Withdrawn)
-        request = pretend.stub(
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                organization_applications=[submitted, withdrawn, withdrawn],
-            ),
-            find_service=lambda interface, **kw: {
-                IOrganizationService: organization_service,
-                IUserService: user_service,
-            }[interface],
-            registry=pretend.stub(
-                settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 2
-                }
-            ),
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-
-        assert view.default_response == {
-            "organization_applications": [submitted],
-            "organization_invites": [],
-            "organizations": [organization],
-            "organizations_managed": [],
-            "organizations_owned": [organization.name],
-            "organizations_billing": [],
-            "create_organization_application_form": create_organization_application_obj,
-        }
-
-    def test_manage_organizations(self, monkeypatch):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(),
-        )
-
-        default_response = MultiDict({"default": "response"})
-        monkeypatch.setattr(
-            org_views.ManageOrganizationsViews,
-            "default_response",
-            default_response,
-        )
-        view = org_views.ManageOrganizationsViews(request)
-        result = view.manage_organizations()
-
-        assert result == default_response
-
-    def test_create_organization_application(self, monkeypatch):
-        admins = []
-        user_service = pretend.stub(
-            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-        )
-
-        organization = pretend.stub(
-            id=pretend.stub(),
-            name="psf",
-            display_name="Python Software Foundation",
-            orgtype="Community",
-            link_url="https://www.python.org/psf/",
-            description=(
-                "To promote, protect, and advance the Python programming "
-                "language, and to support and facilitate the growth of a "
-                "diverse and international community of Python programmers"
-            ),
-            is_active=False,
-            is_approved=None,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        catalog_entry = pretend.stub()
-        role = pretend.stub()
-        organization_service = pretend.stub(
-            add_organization_application=pretend.call_recorder(
-                lambda *a, **kw: organization
-            ),
-            add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
-            add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-        )
-
-        request = pretend.stub(
-            POST={
-                "name": organization.name,
-                "display_name": organization.display_name,
-                "orgtype": organization.orgtype,
-                "link_url": organization.link_url,
-                "description": organization.description,
-            },
-            domain=pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                has_primary_verified_email=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[interface],
-            remote_addr="0.0.0.0",
-            ip_address=pretend.stub(
-                ip_address="0.0.0.0",
-                hashed_ip_address="deadbeef",
-                geoip_info={"country_code": "US"},
-            ),
-            path="request-path",
-            registry=pretend.stub(
-                settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 3
-                }
-            ),
-        )
-
-        create_organization_application_obj = pretend.stub(
-            data=request.POST,
-            orgtype=pretend.stub(data=request.POST["orgtype"]),
-            validate=lambda: True,
-        )
-        create_organization_application_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_application_obj
-        )
-        monkeypatch.setattr(
-            org_views,
-            "CreateOrganizationApplicationForm",
-            create_organization_application_cls,
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_new_organization_requested_email", send_email
-        )
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            org_views.ManageOrganizationsViews,
-            "default_response",
-            default_response,
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization_application()
-
-        assert user_service.get_admins.calls == []
-        assert organization_service.add_organization_application.calls == [
-            pretend.call(
-                name=organization.name,
-                display_name=organization.display_name,
-                orgtype=organization.orgtype,
-                link_url=organization.link_url,
-                description=organization.description,
-                submitted_by=request.user,
-            )
-        ]
-        assert organization_service.add_organization_role.calls == []
-        assert organization.record_event.calls == []
-        assert request.user.record_event.calls == []
-        assert send_email.calls == [
-            pretend.call(
-                request,
-                request.user,
-                organization_name=organization.name,
-            ),
-        ]
-        assert isinstance(result, HTTPSeeOther)
-
-    def test_create_organization_application_with_subscription(self, monkeypatch):
-        admins = []
-        user_service = pretend.stub(
-            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-        )
-
-        organization = pretend.stub(
-            id=pretend.stub(),
-            name="psf",
-            normalized_name="psf",
-            display_name="Python Software Foundation",
-            orgtype="Company",
-            link_url="https://www.python.org/psf/",
-            description=(
-                "To promote, protect, and advance the Python programming "
-                "language, and to support and facilitate the growth of a "
-                "diverse and international community of Python programmers"
-            ),
-            is_active=False,
-            is_approved=None,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        catalog_entry = pretend.stub()
-        role = pretend.stub()
-        organization_service = pretend.stub(
-            add_organization_application=pretend.call_recorder(
-                lambda *a, **kw: organization
-            ),
-            add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
-            add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-        )
-
-        request = pretend.stub(
-            POST={
-                "name": organization.name,
-                "display_name": organization.display_name,
-                "orgtype": organization.orgtype,
-                "link_url": organization.link_url,
-                "description": organization.description,
-            },
-            domain=pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                has_primary_verified_email=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[interface],
-            remote_addr="0.0.0.0",
-            ip_address=pretend.stub(
-                ip_address="0.0.0.0",
-                hashed_ip_address="deadbeef",
-                geoip_info={"country_code": "US"},
-            ),
-            route_path=lambda *a, **kw: "manage-subscription-url",
-            path="request-path",
-            registry=pretend.stub(
-                settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 3
-                }
-            ),
-        )
-
-        create_organization_application_obj = pretend.stub(
-            data=request.POST,
-            orgtype=pretend.stub(data=request.POST["orgtype"]),
-            validate=lambda: True,
-        )
-        create_organization_application_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_application_obj
-        )
-        monkeypatch.setattr(
-            org_views,
-            "CreateOrganizationApplicationForm",
-            create_organization_application_cls,
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_new_organization_requested_email", send_email
-        )
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            org_views.ManageOrganizationsViews,
-            "default_response",
-            default_response,
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization_application()
-
-        assert user_service.get_admins.calls == []
-        assert organization_service.add_organization_application.calls == [
-            pretend.call(
-                name=organization.name,
-                display_name=organization.display_name,
-                orgtype=organization.orgtype,
-                link_url=organization.link_url,
-                description=organization.description,
-                submitted_by=request.user,
-            )
-        ]
-        assert organization_service.add_organization_role.calls == []
-        assert organization.record_event.calls == []
-        assert request.user.record_event.calls == []
-        assert send_email.calls == [
-            pretend.call(
-                request,
-                request.user,
-                organization_name=organization.name,
-            ),
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "request-path"
-
-    def test_create_organization_application_validation_fails(self, monkeypatch):
-        admins = []
-        user_service = pretend.stub(
-            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-        )
-
-        organization = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        catalog_entry = pretend.stub()
-        role = pretend.stub()
-        organization_service = pretend.stub(
-            add_organization_application=pretend.call_recorder(
-                lambda *a, **kw: organization
-            ),
-            add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
-            add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-        )
-
-        request = pretend.stub(
-            POST={
-                "name": None,
-                "display_name": None,
-                "orgtype": None,
-                "link_url": None,
-                "description": None,
-            },
-            domain=pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[interface],
-            remote_addr="0.0.0.0",
-            ip_address=pretend.stub(
-                ip_address="0.0.0.0",
-                hashed_ip_address="deadbeef",
-                geoip_info={"country_code": "US"},
-            ),
-            registry=pretend.stub(
-                settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 3
-                }
-            ),
-        )
-
-        create_organization_application_obj = pretend.stub(
-            validate=lambda: False, data=request.POST
-        )
-        create_organization_application_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_application_obj
-        )
-        monkeypatch.setattr(
-            org_views,
-            "CreateOrganizationApplicationForm",
-            create_organization_application_cls,
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_new_organization_requested_email", send_email
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization_application()
-
-        assert user_service.get_admins.calls == []
-        assert organization_service.add_organization_application.calls == []
-        assert organization_service.add_catalog_entry.calls == []
-        assert organization_service.add_organization_role.calls == []
-        assert organization.record_event.calls == []
-        assert send_email.calls == []
-        assert result == {
-            "create_organization_application_form": create_organization_application_obj
-        }
-
-    def test_create_organization_application_max_undecided(
-        self, pyramid_config, db_request, mocker
-    ):
+    @pytest.fixture
+    def org_request(self, db_request):
         db_request.registry.settings[
             "warehouse.organizations.max_undecided_organization_applications"
         ] = 3
         db_request.user = UserFactory.create()
-        OrganizationApplicationFactory.create_batch(
-            3,
-            submitted_by=db_request.user,
-            status=OrganizationApplicationStatus.Submitted,
-        )
-        db_request.POST = MultiDict(
+        return db_request
+
+    @pytest.fixture
+    def application_post(self):
+        return MultiDict(
             {
                 "name": "my_organization_name",
                 "display_name": "My Organization",
@@ -852,11 +456,116 @@ class TestManageOrganizations:
                 "usage": "We plan to publish a few packages under one organization.",
             }
         )
+
+    def test_default_response(self, org_request):
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=org_request.user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        submitted = OrganizationApplicationFactory.create(submitted_by=org_request.user)
+        OrganizationApplicationFactory.create_batch(
+            2,
+            submitted_by=org_request.user,
+            status=OrganizationApplicationStatus.Withdrawn,
+        )
+        org_request.registry.settings[
+            "warehouse.organizations.max_undecided_organization_applications"
+        ] = 2
+
+        view = org_views.ManageOrganizationsViews(org_request)
+        response = view.default_response
+
+        form = response.pop("create_organization_application_form")
+        assert isinstance(form, org_views.CreateOrganizationApplicationForm)
+        assert response == {
+            "organization_applications": [submitted],
+            "organization_invites": [],
+            "organizations": [organization],
+            "organizations_managed": [],
+            "organizations_owned": [organization.name],
+            "organizations_billing": [],
+        }
+
+    def test_manage_organizations(self, org_request, mocker):
+        default_response = mocker.patch.object(
+            org_views.ManageOrganizationsViews,
+            "default_response",
+            new_callable=mocker.PropertyMock,
+        )
+
+        view = org_views.ManageOrganizationsViews(org_request)
+
+        assert view.manage_organizations() is default_response.return_value
+
+    @pytest.mark.parametrize("orgtype", ["Community", "Company"])
+    def test_create_organization_application(
+        self, org_request, application_post, orgtype, mocker
+    ):
+        application_post["orgtype"] = orgtype
+        org_request.POST = application_post
+        mocker.spy(org_request.session, "flash")
         send_email = mocker.patch.object(
             org_views, "send_new_organization_requested_email", autospec=True
         )
 
-        view = org_views.ManageOrganizationsViews(db_request)
+        view = org_views.ManageOrganizationsViews(org_request)
+        result = view.create_organization_application()
+
+        application = org_request.db.scalars(select(OrganizationApplication)).one()
+        assert application.name == "my_organization_name"
+        assert application.display_name == "My Organization"
+        assert application.orgtype == OrganizationType(orgtype)
+        assert application.link_url == "https://example.com/"
+        assert application.description == "An organization"
+        assert application.submitted_by == org_request.user
+        assert application.membership_size == "1"
+        assert application.usage == (
+            "We plan to publish a few packages under one organization."
+        )
+        # Submitting an application grants no organization role.
+        assert org_request.db.scalars(select(OrganizationRole)).all() == []
+        send_email.assert_called_once_with(
+            org_request, org_request.user, organization_name="my_organization_name"
+        )
+        org_request.session.flash.assert_called_once_with(
+            "Request for new organization submitted", queue="success"
+        )
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == org_request.path
+
+    def test_create_organization_application_validation_fails(
+        self, org_request, mocker
+    ):
+        org_request.POST = MultiDict({})
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(org_request)
+        result = view.create_organization_application()
+
+        form = result["create_organization_application_form"]
+        assert isinstance(form, org_views.CreateOrganizationApplicationForm)
+        assert form.errors
+        assert org_request.db.scalars(select(OrganizationApplication)).all() == []
+        send_email.assert_not_called()
+
+    def test_create_organization_application_max_undecided(
+        self, pyramid_config, org_request, application_post, mocker
+    ):
+        OrganizationApplicationFactory.create_batch(
+            3,
+            submitted_by=org_request.user,
+            status=OrganizationApplicationStatus.Submitted,
+        )
+        org_request.POST = application_post
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(org_request)
         result = view.create_organization_application()
 
         form = result["create_organization_application_form"]
@@ -866,7 +575,7 @@ class TestManageOrganizations:
                 "Organization requests (3)."
             )
         ]
-        assert len(db_request.user.organization_applications) == 3
+        assert len(org_request.user.organization_applications) == 3
         send_email.assert_not_called()
 
 
