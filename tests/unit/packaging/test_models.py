@@ -2229,6 +2229,25 @@ class TestFile:
         assert sibling.requires_python == "sentinel"
         assert new.requires_python == ">=3.9"
 
+    def test_cached_update_does_not_recompute_total_size(self, db_session):
+        """
+        Flipping ``cached`` must not touch the parent project row.
+        """
+
+        rfile = DBFileFactory.create(cached=False)
+        project = rfile.release.project
+
+        # A value the trigger can never produce, if it runs on the flush,
+        # update_project_total_size_release_files resets this to the real sum.
+        project.total_size = sentinel = rfile.size + 1
+        db_session.flush()
+
+        rfile.cached = True
+        db_session.flush()
+        db_session.refresh(project)
+
+        assert project.total_size == sentinel
+
 
 class TestProjectLimitProperties:
     def test_upload_limit_size_with_no_limits(self, db_session):
