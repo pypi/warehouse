@@ -1950,8 +1950,16 @@ class ManageAccountPublishingViews:
             return self.default_response
 
         # Separately from having permission to register pending OIDC publishers,
-        # we limit users to no more than 3 pending publishers at once.
-        if len(self.request.user.pending_oidc_publishers) >= 3:
+        # we limit users to no more than 3 personal pending publishers at once.
+        # Pending publishers a user registers for an organization fall under
+        # that organization's separate per-user limit instead.
+        pending_count = self.request.db.scalar(
+            select(func.count()).where(
+                PendingOIDCPublisher.organization_id.is_(None),
+                PendingOIDCPublisher.added_by_id == self.request.user.id,
+            )
+        )
+        if pending_count >= 3:
             self.request.session.flash(
                 self.request._(
                     "You can't register more than 3 pending trusted publishers at once."
