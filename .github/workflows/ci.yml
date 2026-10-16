@@ -158,3 +158,116 @@ jobs:
         env:
           # override the hostname set in `dev/environment`
           DATABASE_URL: 'postgresql+psycopg://postgres@postgres/warehouse'
+
+  extract_translations:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: depot-ubuntu-24.04-arm
+    container:
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Extract translatable strings
+        run: make -C warehouse/locale/ compile-pot
+      - name: Upload messages.pot
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: messages-pot
+          path: warehouse/locale/messages.pot
+          if-no-files-found: error
+          retention-days: 1
+
+  propose_translations:
+    needs: extract_translations
+    runs-on: ubuntu-24.04
+    permissions: {}
+    environment: translations
+    concurrency:
+      group: translations-pot
+      cancel-in-progress: false
+    steps:
+      - name: Download messages.pot
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: messages-pot
+          path: ${{ runner.temp }}/messages-pot
+      - name: Mint App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.TRANSLATIONS_APP_ID }}
+          private-key: ${{ secrets.TRANSLATIONS_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Open or update the messages.pot PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          ARTIFACT_DIR: ${{ runner.temp }}/messages-pot
+        run: |
+          set -euo pipefail
+          path=warehouse/locale/messages.pot
+          branch=bot/update-messages-pot
+          new="$ARTIFACT_DIR/messages.pot"
+
+          # Runs queue in arrival order, not commit order; only the run for the
+          # current head of main may touch the bot branch
+          head=$(gh api "repos/$REPO/git/ref/heads/main" --jq .object.sha)
+          if [ "$head" != "$SHA" ]; then
+            echo "main has moved to $head; its run will handle messages.pot"
+            exit 0
+          fi
+
+          gh api -H "Accept: application/vnd.github.raw" \
+            "repos/$REPO/contents/$path?ref=$SHA" > "$RUNNER_TEMP/current.pot"
+
+          # Qualify the head with the repo owner: a bare branch name also matches PRs
+          # from forks that reuse it
+          open_pr=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:$branch" \
+            --jq '.[0].number // empty')
+
+          if cmp -s "$new" "$RUNNER_TEMP/current.pot"; then
+            echo "messages.pot on main is current"
+            if [ -n "$open_pr" ]; then
+              gh pr close "$open_pr" --repo "$REPO" \
+                --comment "messages.pot on main is already current."
+            fi
+            if gh api "repos/$REPO/git/ref/heads/$branch" > /dev/null 2>&1; then
+              gh api -X DELETE "repos/$REPO/git/refs/heads/$branch"
+            fi
+            exit 0
+          fi
+
+          # Build the commit first, then move the branch once, so the open PR never
+          # sees a branch with no commits ahead of main (GitHub would close it)
+          base_tree=$(gh api "repos/$REPO/git/commits/$SHA" --jq .tree.sha)
+          base64 < "$new" | tr -d '\n' > "$RUNNER_TEMP/content.b64"
+          blob=$(jq -n --rawfile c "$RUNNER_TEMP/content.b64" '{content: $c, encoding: "base64"}' \
+            | gh api -X POST "repos/$REPO/git/blobs" --input - --jq .sha)
+          tree=$(jq -n --arg bt "$base_tree" --arg p "$path" --arg b "$blob" \
+            '{base_tree: $bt, tree: [{path: $p, mode: "100644", type: "blob", sha: $b}]}' \
+            | gh api -X POST "repos/$REPO/git/trees" --input - --jq .sha)
+          commit=$(jq -n --arg t "$tree" --arg s "$SHA" \
+            '{message: "Update messages.pot", tree: $t, parents: [$s]}' \
+            | gh api -X POST "repos/$REPO/git/commits" --input - --jq .sha)
+
+          if gh api "repos/$REPO/git/ref/heads/$branch" > /dev/null 2>&1; then
+            gh api -X PATCH "repos/$REPO/git/refs/heads/$branch" -f sha="$commit" -F force=true > /dev/null
+          else
+            gh api -X POST "repos/$REPO/git/refs" -f ref="refs/heads/$branch" -f sha="$commit" > /dev/null
+          fi
+
+          if [ -z "$open_pr" ]; then
+            gh pr create --repo "$REPO" --base main --head "$branch" \
+              --title "Update messages.pot" \
+              --body "Generated from main by CI. Merge before the open Weblate PR. See docs/dev/translations.md."
+          else
+            echo "Updated PR #$open_pr"
+          fi
