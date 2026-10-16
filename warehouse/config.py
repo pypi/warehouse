@@ -900,6 +900,7 @@ def configure(settings=None):
 
     # Register support for Macaroon based authentication
     config.include(".macaroons")
+    config.include(".api.maintainer")
 
     # Register support for OIDC based authentication
     config.include(".oidc")
