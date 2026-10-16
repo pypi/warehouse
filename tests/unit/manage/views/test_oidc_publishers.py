@@ -1,16 +1,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import uuid
 
 import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther, HTTPTooManyRequests
+from sqlalchemy import select
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.oidc import (
+    ActiveStatePublisherFactory,
+    GitHubPublisherFactory,
+    GitLabPublisherFactory,
+    GooglePublisherFactory,
+)
 from tests.common.db.packaging import ProjectFactory, RoleFactory
-from warehouse.admin.flags import AdminFlagValue
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.manage.views import oidc_publishers as oidc_views
 from warehouse.metrics import IMetricsService
@@ -22,30 +30,90 @@ from warehouse.oidc.models import (
     GooglePublisher,
     OIDCPublisher,
 )
-from warehouse.rate_limiting import IRateLimiter
+from warehouse.packaging.models import Project
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
+
+PROVIDER_FLAGS = {
+    "GitHub": AdminFlagValue.DISALLOW_GITHUB_OIDC,
+    "GitLab": AdminFlagValue.DISALLOW_GITLAB_OIDC,
+    "Google": AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+    "ActiveState": AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+}
+
+
+def _events(project: Project) -> dict[str, dict | None]:
+    """
+    Project events keyed by tag. Events recorded in one transaction share a
+    timestamp, so their order is not meaningful. Each tag must appear once.
+    """
+    events = project.events.all()
+    by_tag = {event.tag: event.additional for event in events}
+    assert len(by_tag) == len(events), "duplicate event tags"
+    return by_tag
 
 
 class TestManageOIDCPublisherViews:
-    def test_initializes(self, metrics):
-        project = pretend.stub(organization=None)
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            POST=MultiDict(),
-        )
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
+    @pytest.fixture
+    def oidc_limiters(self, mocker):
+        """Spied per-user and per-IP OIDC registration rate limiters."""
+        limiters = {"user": DummyRateLimiter(), "ip": DummyRateLimiter()}
+        for limiter in limiters.values():
+            mocker.spy(limiter, "test")
+            mocker.spy(limiter, "hit")
+        return limiters
+
+    @pytest.fixture
+    def publishing_request(self, db_request, pyramid_services, oidc_limiters, mocker):
+        """
+        A POST-less request from a user with a verified primary email, with every
+        trusted publishing provider enabled and the OIDC registration rate
+        limiters backed by ``oidc_limiters``.
+        """
+        db_request.user = UserFactory.create(with_verified_primary_email=True)
+        db_request.registry.settings = {"github.token": "fake-api-token"}
+        db_request.POST = MultiDict()
+        db_request.path = "request-path"
+        for flag in (AdminFlagValue.DISALLOW_OIDC, *PROVIDER_FLAGS.values()):
+            db_request.db.get(AdminFlag, flag.value).enabled = False
+        mocker.spy(db_request.flags, "disallow_oidc")
+        mocker.spy(db_request.session, "flash")
+        for key in ("user", "ip"):
+            pyramid_services.register_service(
+                oidc_limiters[key],
+                IRateLimiter,
+                None,
+                name=f"{key}_oidc.publisher.register",
+            )
+        return db_request
+
+    @staticmethod
+    def _enable_flag(request, flag):
+        request.db.get(AdminFlag, flag.value).enabled = True
+
+    @staticmethod
+    def _default_response(view, disabled=(), prefilled_provider=None):
+        return {
+            "disabled": {name: name in disabled for name in PROVIDER_FLAGS},
+            "project": view.project,
+            "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": prefilled_provider,
+        }
+
+    def test_initializes(self, publishing_request, metrics, mocker):
+        mocker.spy(publishing_request, "find_service")
+        project = ProjectFactory.create()
+
+        view = oidc_views.ManageOIDCPublisherViews(project, publishing_request)
 
         assert view.project is project
-        assert view.request is request
+        assert view.request is publishing_request
         assert view.metrics is metrics
-
-        assert view.request.find_service.calls == [
-            pretend.call(IMetricsService, context=None)
-        ]
+        publishing_request.find_service.assert_called_once_with(
+            IMetricsService, context=None
+        )
 
     @pytest.mark.parametrize(
         ("ip_exceeded", "user_exceeded"),
@@ -53,158 +121,95 @@ class TestManageOIDCPublisherViews:
             (False, False),
             (False, True),
             (True, False),
+            (True, True),
         ],
     )
-    def test_ratelimiting(self, metrics, ip_exceeded, user_exceeded):
-        project = pretend.stub(organization=None)
-        user_rate_limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None),
-            test=pretend.call_recorder(lambda uid: not user_exceeded),
-            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
+    def test_ratelimiting(
+        self, publishing_request, pyramid_services, mocker, ip_exceeded, user_exceeded
+    ):
+        user_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        user_rate_limiter.test.return_value = not user_exceeded
+        user_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        ip_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        ip_rate_limiter.test.return_value = not ip_exceeded
+        ip_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=30)
+        pyramid_services.register_service(
+            user_rate_limiter, IRateLimiter, None, name="user_oidc.publisher.register"
         )
-        ip_rate_limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None),
-            test=pretend.call_recorder(lambda ip: not ip_exceeded),
-            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
+        pyramid_services.register_service(
+            ip_rate_limiter, IRateLimiter, None, name="ip_oidc.publisher.register"
         )
+        mocker.spy(publishing_request, "find_service")
 
-        def find_service(iface, name=None, context=None):
-            if iface is IMetricsService:
-                return metrics
-
-            if name == "user_oidc.publisher.register":
-                return user_rate_limiter
-            return ip_rate_limiter
-
-        request = pretend.stub(
-            find_service=pretend.call_recorder(find_service),
-            user=pretend.stub(id=pretend.stub()),
-            remote_addr=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            POST=MultiDict(),
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
         )
-
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
         assert view._ratelimiters == {
             "user.oidc": user_rate_limiter,
             "ip.oidc": ip_rate_limiter,
         }
-        assert request.find_service.calls == [
-            pretend.call(IMetricsService, context=None),
-            pretend.call(IRateLimiter, name="user_oidc.publisher.register"),
-            pretend.call(IRateLimiter, name="ip_oidc.publisher.register"),
+        assert publishing_request.find_service.call_args_list == [
+            mocker.call(IMetricsService, context=None),
+            mocker.call(IRateLimiter, name="user_oidc.publisher.register"),
+            mocker.call(IRateLimiter, name="ip_oidc.publisher.register"),
         ]
 
         view._hit_ratelimits()
 
-        assert user_rate_limiter.hit.calls == [
-            pretend.call(request.user.id),
-        ]
-        assert ip_rate_limiter.hit.calls == [pretend.call(request.remote_addr)]
+        user_rate_limiter.hit.assert_called_once_with(publishing_request.user.id)
+        ip_rate_limiter.hit.assert_called_once_with(publishing_request.remote_addr)
 
         if user_exceeded or ip_exceeded:
-            with pytest.raises(TooManyOIDCRegistrations):
+            with pytest.raises(TooManyOIDCRegistrations) as excinfo:
                 view._check_ratelimits()
+            assert excinfo.value.resets_in == datetime.timedelta(
+                seconds=60 if user_exceeded else 30
+            )
         else:
             view._check_ratelimits()
 
-    def test_manage_project_oidc_publishers(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[], organization=None)
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
+    def test_manage_project_oidc_publishers(self, publishing_request, mocker):
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
         )
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": view.prefilled_provider,
-        }
-
-        assert request.flags.disallow_oidc.calls == [
-            pretend.call(),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        assert view.manage_project_oidc_publishers() == self._default_response(view)
+        assert publishing_request.flags.disallow_oidc.call_args_list == [
+            mocker.call(),
+            mocker.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
+        publishing_request.session.flash.assert_not_called()
 
     def test_manage_project_oidc_publishers_admin_disabled(
-        self, monkeypatch, pyramid_request
+        self, publishing_request, mocker
     ):
-        project = pretend.stub(oidc_publishers=[], organization=None)
-        pyramid_request.user = pretend.stub()
-        pyramid_request.registry = pretend.stub(
-            settings={
-                "github.token": "fake-api-token",
-            },
-        )
-        pyramid_request.find_service = lambda *a, **kw: None
-        pyramid_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: True)
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.POST = MultiDict()
+        self._enable_flag(publishing_request, AdminFlagValue.DISALLOW_OIDC)
 
-        view = oidc_views.ManageOIDCPublisherViews(project, pyramid_request)
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
+        )
 
-        assert view.manage_project_oidc_publishers() == {
-            "disabled": {
-                "GitHub": True,
-                "GitLab": True,
-                "Google": True,
-                "ActiveState": True,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": view.prefilled_provider,
-        }
-
-        assert pyramid_request.flags.disallow_oidc.calls == [
-            pretend.call(),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        assert view.manage_project_oidc_publishers() == self._default_response(
+            view, disabled=PROVIDER_FLAGS
+        )
+        assert publishing_request.flags.disallow_oidc.call_args_list == [
+            mocker.call(),
+            mocker.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
-                ),
-                queue="error",
-            )
-        ]
+        publishing_request.session.flash.assert_called_once_with(
+            (
+                "Trusted publishing is temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            ),
+            queue="error",
+        )
 
     @pytest.mark.parametrize(
         ("form_name", "prefilled_data"),
@@ -265,46 +270,20 @@ class TestManageOIDCPublisherViews:
         ],
     )
     def test_manage_project_oidc_publishers_prefill(
-        self, monkeypatch, form_name, prefilled_data
+        self, publishing_request, form_name, prefilled_data
     ):
-        project = pretend.stub(oidc_publishers=[], organization=None)
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
+        publishing_request.params = MultiDict(prefilled_data)
+
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
         )
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": prefilled_data["provider"].lower(),
-        }
-
-        # The form data does not contain the provider, so we'll remove it from
-        # the prefilled data before comparing them
-        del prefilled_data["provider"]
-
-        form = getattr(view, form_name)
-        assert form.data == prefilled_data
+        assert view.manage_project_oidc_publishers_prefill() == self._default_response(
+            view, prefilled_provider=prefilled_data["provider"].lower()
+        )
+        # The form data does not contain the provider
+        expected_data = {k: v for k, v in prefilled_data.items() if k != "provider"}
+        assert getattr(view, form_name).data == expected_data
 
     @pytest.mark.parametrize(
         ("missing_fields", "prefilled_data", "extra_fields"),
@@ -348,664 +327,324 @@ class TestManageOIDCPublisherViews:
         ],
     )
     def test_manage_project_oidc_publishers_prefill_partial(
-        self, monkeypatch, missing_fields, prefilled_data, extra_fields
+        self, publishing_request, missing_fields, prefilled_data, extra_fields
     ):
-        project = pretend.stub(oidc_publishers=[], organization=None)
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
+        publishing_request.params = MultiDict(prefilled_data)
+
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
         )
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": prefilled_data["provider"].lower(),
-        }
-
-        # The form data does not contain the provider, so we'll remove it from
-        # the prefilled data before comparing them
-        del prefilled_data["provider"]
-
-        missing_data = dict.fromkeys(missing_fields)
-        # The expected form data is the prefilled data plus the missing fields
-        # (set to None) minus the extra fields
-        expected_data = prefilled_data | missing_data
+        assert view.manage_project_oidc_publishers_prefill() == self._default_response(
+            view, prefilled_provider=prefilled_data["provider"].lower()
+        )
+        # The expected form data is the prefilled data, without the provider and
+        # the extra fields, plus the missing fields set to None.
         expected_data = {
-            k: v for k, v in expected_data.items() if k not in extra_fields
+            k: v
+            for k, v in (prefilled_data | dict.fromkeys(missing_fields)).items()
+            if k != "provider" and k not in extra_fields
         }
         assert view.github_publisher_form.data == expected_data
 
-    def test_manage_project_oidc_publishers_prefill_unknown_provider(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[], organization=None)
-        prefilled_data = {
-            "provider": "github2",
-            "owner": "owner",
-            "repository": "repo",
-            "workflow_filename": "file.yml",
-            "environment": "my_env",
-        }
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
+    def test_manage_project_oidc_publishers_prefill_unknown_provider(
+        self, publishing_request
+    ):
+        publishing_request.params = MultiDict(
+            {
+                "provider": "github2",
+                "owner": "owner",
+                "repository": "repo",
+                "workflow_filename": "file.yml",
+                "environment": "my_env",
+            }
         )
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": None,
-        }
+        view = oidc_views.ManageOIDCPublisherViews(
+            ProjectFactory.create(), publishing_request
+        )
 
-        assert all(v is None for _, v in view.github_publisher_form.data.items())
+        assert view.manage_project_oidc_publishers_prefill() == self._default_response(
+            view
+        )
+        assert all(v is None for v in view.github_publisher_form.data.values())
+
+    @pytest.fixture
+    def constrain_request(self, publishing_request):
+        """Build a constrain-environment POST for a publisher id."""
+
+        def _make(publisher_id, environment="fakeenv"):
+            publishing_request.POST = MultiDict(
+                {
+                    "constrained_publisher_id": str(publisher_id),
+                    "constrained_environment_name": environment,
+                }
+            )
+            return publishing_request
+
+        return _make
 
     @pytest.mark.parametrize(
-        ("publisher", "new_environment_name"),
+        "publisher_factory",
         [
-            (
-                GitHubPublisher(
-                    repository_name="some-repository",
-                    repository_owner="some-owner",
-                    repository_owner_id="666",
-                    workflow_filename="some-workflow-filename.yml",
-                    environment="",
-                ),
-                "fakeenv",
-            ),
-            (
-                GitLabPublisher(
-                    namespace="some-namespace",
-                    project="some-project",
-                    workflow_filepath="some-workflow-filename.yml",
-                    environment="",
-                    issuer_url="https://gitlab.com",
-                ),
-                "fakeenv",
-            ),
+            pytest.param(GitHubPublisherFactory, id="GitHub"),
+            pytest.param(GitLabPublisherFactory, id="GitLab"),
         ],
     )
     def test_manage_project_oidc_publishers_constrain_environment(
-        self,
-        monkeypatch,
-        metrics,
-        db_request,
-        publisher,
-        new_environment_name,
+        self, constrain_request, metrics, publisher_factory
     ):
-        owner = UserFactory.create()
-        db_request.user = owner
-
+        publisher = publisher_factory.create(environment="")
         project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        request = constrain_request(publisher.id)
 
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get the id
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(publisher.id),
-                "constrained_environment_name": new_environment_name,
-            }
+        response = view.constrain_environment()
+        assert isinstance(response, HTTPSeeOther)
+        assert response.location == request.path
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-        db_request._ = lambda s: s
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
 
-        assert isinstance(view.constrain_environment(), HTTPSeeOther)
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.constrain_publisher_environment.attempt",
-            ),
-        ]
-
-        # The old publisher is actually removed entirely from the DB
-        # and replaced by the new constrained publisher.
-        publishers = db_request.db.query(OIDCPublisher).all()
-        assert len(publishers) == 1
-        constrained_publisher = publishers[0]
-        assert constrained_publisher.environment == new_environment_name
+        # The old publisher is removed entirely from the DB and replaced by the
+        # new constrained publisher.
+        constrained_publisher = request.db.scalars(select(OIDCPublisher)).one()
+        assert constrained_publisher.environment == "fakeenv"
         assert project.oidc_publishers == [constrained_publisher]
 
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherAdded,
-                request=db_request,
-                additional={
-                    "publisher": constrained_publisher.publisher_name,
-                    "id": str(constrained_publisher.id),
-                    "specifier": str(constrained_publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                    "reified_from_pending_publisher": False,
-                    "constrained_from_existing_publisher": True,
-                },
-            ),
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                request=db_request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                },
-            ),
-        ]
-        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Trusted publisher for project {project.name!r} has been "
-                f"constrained to environment {new_environment_name!r}",
-                queue="success",
-            )
-        ]
+        assert _events(project) == {
+            EventTag.Project.OIDCPublisherAdded: {
+                "publisher": constrained_publisher.publisher_name,
+                "id": str(constrained_publisher.id),
+                "specifier": str(constrained_publisher),
+                "url": constrained_publisher.publisher_url(),
+                "submitted_by": request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
+            },
+            EventTag.Project.OIDCPublisherRemoved: {
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": request.user.username,
+            },
+        }
+        request.flags.disallow_oidc.assert_called_once_with()
+        request.session.flash.assert_called_once_with(
+            f"Trusted publisher for project {project.name!r} has been "
+            f"constrained to environment 'fakeenv'",
+            queue="success",
+        )
 
     def test_manage_project_oidc_publishers_constrain_environment_shared_publisher(
-        self,
-        metrics,
-        db_request,
+        self, constrain_request, metrics
     ):
-        publisher = GitHubPublisher(
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="666",
-            workflow_filename="some-workflow-filename.yml",
-            environment="",
-        )
-        owner = UserFactory.create()
-        db_request.user = owner
-
+        publisher = GitHubPublisherFactory.create(environment="")
         project = ProjectFactory.create(oidc_publishers=[publisher])
         other_project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        request = constrain_request(publisher.id)
 
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get the id
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(publisher.id),
-                "constrained_environment_name": "fakeenv",
-            }
+        response = view.constrain_environment()
+        assert isinstance(response, HTTPSeeOther)
+        assert response.location == request.path
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-        db_request._ = lambda s: s
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
 
-        assert isinstance(view.constrain_environment(), HTTPSeeOther)
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.constrain_publisher_environment.attempt",
-            ),
-        ]
-
-        # The old publisher is should still be present in the DB, because other_project
-        # still uses it.
-        assert db_request.db.query(OIDCPublisher).count() == 2
-        assert (
-            db_request.db.query(GitHubPublisher)
-            .filter(GitHubPublisher.environment == "")
-            .filter(GitHubPublisher.projects.contains(other_project))
-            .count()
-        ) == 1
-
-        # The new constrained publisher should exist, and associated to the current
-        # project
-        constrained_publisher = (
-            db_request.db.query(GitHubPublisher)
-            .filter(GitHubPublisher.environment == "fakeenv")
-            .one()
-        )
+        # The new constrained publisher exists and belongs to the current project.
+        constrained_publisher = request.db.scalars(
+            select(GitHubPublisher).where(GitHubPublisher.environment == "fakeenv")
+        ).one()
         assert project.oidc_publishers == [constrained_publisher]
 
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherAdded,
-                request=db_request,
-                additional={
-                    "publisher": constrained_publisher.publisher_name,
-                    "id": str(constrained_publisher.id),
-                    "specifier": str(constrained_publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                    "reified_from_pending_publisher": False,
-                    "constrained_from_existing_publisher": True,
-                },
+        # The old publisher stays in the DB, because other_project still uses it.
+        assert set(request.db.scalars(select(OIDCPublisher))) == {
+            publisher,
+            constrained_publisher,
+        }
+        assert other_project.oidc_publishers == [publisher]
+
+        assert _events(project) == {
+            EventTag.Project.OIDCPublisherAdded: {
+                "publisher": constrained_publisher.publisher_name,
+                "id": str(constrained_publisher.id),
+                "specifier": str(constrained_publisher),
+                "url": constrained_publisher.publisher_url(),
+                "submitted_by": request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
+            },
+            EventTag.Project.OIDCPublisherRemoved: {
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": request.user.username,
+            },
+        }
+        request.flags.disallow_oidc.assert_called_once_with()
+        request.session.flash.assert_called_once_with(
+            f"Trusted publisher for project {project.name!r} has been "
+            f"constrained to environment 'fakeenv'",
+            queue="success",
+        )
+
+    def test_constrain_oidc_publisher_admin_disabled(self, constrain_request, metrics):
+        request = constrain_request(uuid.uuid4())
+        self._enable_flag(request, AdminFlagValue.DISALLOW_OIDC)
+
+        view = oidc_views.ManageOIDCPublisherViews(ProjectFactory.create(), request)
+
+        assert view.constrain_environment() == self._default_response(
+            view, disabled=PROVIDER_FLAGS
+        )
+        metrics.increment.assert_not_called()
+        request.session.flash.assert_called_once_with(
+            (
+                "Trusted publishing is temporarily disabled. See "
+                "https://pypi.org/help#admin-intervention for details."
             ),
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                request=db_request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                },
-            ),
-        ]
-        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Trusted publisher for project {project.name!r} has been "
-                f"constrained to environment 'fakeenv'",
-                queue="success",
-            )
-        ]
-
-    def test_constrain_oidc_publisher_admin_disabled(self, monkeypatch):
-        project = pretend.stub(organization=None)
-        request = pretend.stub(
-            method="POST",
-            params=MultiDict(),
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: True)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            _=lambda s: s,
-            POST=MultiDict(
-                {
-                    "constrained_publisher_id": uuid.uuid4(),
-                    "constrained_environment_name": "fakeenv",
-                }
-            ),
-            registry=pretend.stub(settings={}),
+            queue="error",
         )
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
+    def test_constrain_oidc_publisher_invalid_params(self, constrain_request, metrics):
+        request = constrain_request("not_an_uuid")
+
+        view = oidc_views.ManageOIDCPublisherViews(ProjectFactory.create(), request)
+
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
+        )
+        request.session.flash.assert_called_once_with(
+            "The trusted publisher could not be constrained", queue="error"
         )
 
-        assert view.constrain_environment() == default_response
-        assert request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Trusted publishing is temporarily disabled. See "
-                    "https://pypi.org/help#admin-intervention for details."
-                ),
-                queue="error",
-            )
-        ]
+    def test_constrain_non_extant_oidc_publisher(self, constrain_request, metrics):
+        request = constrain_request(uuid.uuid4())
 
-    def test_constrain_oidc_publisher_invalid_params(self, monkeypatch, metrics):
-        project = pretend.stub(organization=None)
-        request = pretend.stub(
-            method="POST",
-            params=MultiDict(),
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            _=lambda s: s,
-            POST=MultiDict(
-                {
-                    "constrained_publisher_id": "not_an_uuid",
-                    "constrained_environment_name": "fakeenv",
-                }
-            ),
-            registry=pretend.stub(settings={}),
-        )
+        view = oidc_views.ManageOIDCPublisherViews(ProjectFactory.create(), request)
 
-        view = oidc_views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "The trusted publisher could not be constrained",
-                queue="error",
-            )
-        ]
-
-    def test_constrain_non_extant_oidc_publisher(
-        self, monkeypatch, metrics, db_request
-    ):
-        project = pretend.stub(organization=None)
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(uuid.uuid4()),
-                "constrained_environment_name": "fakeenv",
-            }
+        request.session.flash.assert_called_once_with(
+            "Invalid publisher for project", queue="error"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Invalid publisher for project",
-                queue="error",
-            )
-        ]
 
     def test_constrain_publisher_from_different_project(
-        self, monkeypatch, metrics, db_request
+        self, constrain_request, metrics
     ):
-        owner = UserFactory.create()
-        db_request.user = owner
-
-        publisher = GitHubPublisher(
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="666",
-            workflow_filename="some-workflow-filename.yml",
-            environment="",
-        )
-
-        request_project = ProjectFactory.create(oidc_publishers=[])
-        request_project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=request_project, role_name="Owner")
-
+        publisher = GitHubPublisherFactory.create(environment="")
         ProjectFactory.create(oidc_publishers=[publisher])
+        project = ProjectFactory.create()
+        request = constrain_request(publisher.id)
 
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get the id
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        db_request.params = MultiDict()
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(publisher.id),
-                "constrained_environment_name": "fakeenv",
-            }
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        request.session.flash.assert_called_once_with(
+            "Invalid publisher for project", queue="error"
         )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-
-        view = oidc_views.ManageOIDCPublisherViews(request_project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Invalid publisher for project",
-                queue="error",
-            )
-        ]
 
     @pytest.mark.parametrize(
-        "publisher",
+        "publisher_factory",
         [
-            ActiveStatePublisher(
-                organization="some-org",
-                activestate_project_name="some-project",
-                actor="some-user",
-                actor_id="some-user-id",
-            ),
-            GooglePublisher(
-                email="some-email@example.com",
-                sub="some-sub",
-            ),
+            pytest.param(ActiveStatePublisherFactory, id="ActiveState"),
+            pytest.param(GooglePublisherFactory, id="Google"),
         ],
     )
     def test_constrain_unsupported_publisher(
-        self, monkeypatch, metrics, db_request, publisher
+        self, constrain_request, metrics, publisher_factory
     ):
-        owner = UserFactory.create()
-        db_request.user = owner
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get the id
-
+        publisher = publisher_factory.create()
         project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        request = constrain_request(publisher.id)
 
-        db_request.params = MultiDict()
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(publisher.id),
-                "constrained_environment_name": "fakeenv",
-            }
-        )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Can only constrain the environment for GitHub and GitLab publishers",
-                queue="error",
-            )
-        ]
+        request.session.flash.assert_called_once_with(
+            "Can only constrain the environment for GitHub and GitLab publishers",
+            queue="error",
+        )
 
     def test_constrain_publisher_with_nonempty_environment(
-        self, monkeypatch, metrics, db_request
+        self, constrain_request, metrics
     ):
-        owner = UserFactory.create()
-        db_request.user = owner
-
-        publisher = GitHubPublisher(
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="666",
-            workflow_filename="some-workflow-filename.yml",
-            environment="env-already-constrained",
-        )
-
+        publisher = GitHubPublisherFactory.create(environment="env-already-constrained")
         project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        request = constrain_request(publisher.id)
 
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get the id
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        db_request.params = MultiDict()
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(publisher.id),
-                "constrained_environment_name": "fakeenv",
-            }
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        request.session.flash.assert_called_once_with(
+            "Can only constrain the environment for publishers without an "
+            "environment configured",
+            queue="error",
         )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Can only constrain the environment for publishers without an "
-                "environment configured",
-                queue="error",
-            )
-        ]
 
     @pytest.mark.parametrize(
-        ("publisher_class", "publisher_kwargs"),
+        ("publisher_factory", "publisher_kwargs"),
         [
-            (
-                GitHubPublisher,
+            pytest.param(
+                GitHubPublisherFactory,
                 {
                     "repository_name": "some-repository",
                     "repository_owner": "some-owner",
                     "repository_owner_id": "666",
                     "workflow_filename": "some-workflow-filename.yml",
                 },
+                id="GitHub",
             ),
-            (
-                GitLabPublisher,
+            pytest.param(
+                GitLabPublisherFactory,
                 {
                     "namespace": "some-namespace",
                     "project": "some-project",
                     "workflow_filepath": "some-workflow-filename.yml",
                     "issuer_url": "https://gitlab.com",
                 },
+                id="GitLab",
             ),
         ],
     )
     def test_constrain_environment_publisher_already_exists(
-        self, monkeypatch, metrics, db_request, publisher_class, publisher_kwargs
+        self, constrain_request, metrics, publisher_factory, publisher_kwargs
     ):
-        owner = UserFactory.create()
-        db_request.user = owner
-
-        # Create unconstrained and constrained versions of the publisher
-        unconstrained = publisher_class(environment="", **publisher_kwargs)
-        constrained = publisher_class(environment="fakeenv", **publisher_kwargs)
-
+        unconstrained = publisher_factory.create(environment="", **publisher_kwargs)
+        constrained = publisher_factory.create(
+            environment="fakeenv", **publisher_kwargs
+        )
         project = ProjectFactory.create(oidc_publishers=[unconstrained, constrained])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        request = constrain_request(unconstrained.id)
 
-        db_request.db.add_all([unconstrained, constrained])
-        db_request.db.flush()  # To get the ids
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
-        db_request.method = "POST"
-        db_request.POST = MultiDict(
-            {
-                "constrained_publisher_id": str(unconstrained.id),
-                "constrained_environment_name": "fakeenv",
-            }
+        assert view.constrain_environment() == self._default_response(view)
+        metrics.increment.assert_called_once_with(
+            "warehouse.oidc.constrain_publisher_environment.attempt"
         )
-        db_request.find_service = lambda *a, **kw: metrics
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        assert _events(project) == {}
+        request.session.flash.assert_called_once_with(
+            f"{unconstrained} is already registered with {project.name}",
+            queue="error",
         )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-        db_request._ = lambda s: s
-
-        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.constrain_environment() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.constrain_publisher_environment.attempt",
-            ),
-        ]
-        assert project.record_event.calls == []
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"{unconstrained} is already registered with {project.name}",
-                queue="error",
-            )
-        ]
 
     @pytest.mark.parametrize(
         ("view_name", "publisher", "make_form"),
