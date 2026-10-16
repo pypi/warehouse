@@ -54,13 +54,14 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationTermsOfServiceEngagement,
     OrganizationType,
     Team,
 )
-from warehouse.packaging import IProjectService, Project
+from warehouse.packaging import IProjectService, Project, Role
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
 from warehouse.subscriptions.services import StripeBillingService
 from warehouse.utils.paginate import paginate_url_factory
@@ -1370,87 +1371,59 @@ class TestManageOrganizationTeams:
 
 
 class TestManageOrganizationProjects:
-    def test_manage_organization_projects(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
-    ):
+    @pytest.fixture
+    def organization(self, pyramid_user):
         organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        OrganizationRoleFactory.create(
+            organization=organization, user=pyramid_user, role_name="Owner"
+        )
+        return organization
+
+    def _organization_project_ids(self, db_request, organization):
+        return set(
+            db_request.db.scalars(
+                select(OrganizationProject.project_id).filter_by(
+                    organization_id=organization.id
+                )
+            )
+        )
+
+    def test_manage_organization_projects(
+        self, db_request, pyramid_user, organization, organization_service
+    ):
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
 
-        add_organization_project_obj = pretend.stub()
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
+        db_request.POST = MultiDict()
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.manage_organization_projects()
 
         assert view.request == db_request
         assert view.organization_service == organization_service
+        form = result.pop("add_organization_project_form")
+        assert isinstance(form, org_views.AddOrganizationProjectForm)
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": set(),
-            "projects_sole_owned": set(),
-            "add_organization_project_form": add_organization_project_obj,
+            "projects_owned": {existing.project.name},
+            "projects_sole_owned": {existing.project.name},
         }
-        assert len(add_organization_project_cls.calls) == 1
 
     def test_add_organization_project_existing_project(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
+        self, db_request, pyramid_user, organization, mocker
     ):
-        organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
-
         project = ProjectFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
+        RoleFactory.create(project=project, user=pyramid_user, role_name="Owner")
+        db_request.POST = MultiDict(
+            {"add_existing_project": "true", "existing_project_name": project.name}
         )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=True),
-            existing_project_name=pretend.stub(data=project.name),
-            validate=lambda *a, **kw: True,
-        )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
-        )
-
-        send_organization_project_added_email = pretend.call_recorder(
-            lambda req, user, **k: None
-        )
-        monkeypatch.setattr(
-            view_helpers,
-            "send_organization_project_added_email",
-            send_organization_project_added_email,
+        send_email = mocker.patch.object(
+            view_helpers, "send_organization_project_added_email", autospec=True
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
@@ -1458,64 +1431,46 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert len(add_organization_project_cls.calls) == 1
-        assert len(organization.projects) == 2
-        assert send_organization_project_added_email.calls == [
-            pretend.call(
-                db_request,
-                {db_request.user},
-                organization_name=organization.name,
-                project_name=project.name,
-                submitter_username=db_request.user.username,
-            )
-        ]
+        assert self._organization_project_ids(db_request, organization) == {
+            existing.project_id,
+            project.id,
+        }
+        assert (
+            db_request.db.scalars(
+                select(Role).filter_by(project=project, user=pyramid_user)
+            ).all()
+            == []
+        )
+        send_email.assert_called_once_with(
+            db_request,
+            {pyramid_user},
+            organization_name=organization.name,
+            project_name=project.name,
+            submitter_username=pyramid_user.username,
+        )
 
     def test_add_organization_project_existing_project_no_individual_owner(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
+        self, db_request, pyramid_user, organization, mocker
     ):
-        organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        """
+        The form only offers projects the user owns, so skip its validation
+        to reach a project with no owner role for the user.
+        """
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
-
         project = ProjectFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
+        db_request.POST = MultiDict(
+            {"add_existing_project": "true", "existing_project_name": project.name}
         )
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=True),
-            existing_project_name=pretend.stub(data=project.name),
-            validate=lambda *a, **kw: True,
+        mocker.patch.object(
+            org_views.AddOrganizationProjectForm,
+            "validate",
+            autospec=True,
+            return_value=True,
         )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
-        )
-
-        send_organization_project_added_email = pretend.call_recorder(
-            lambda req, user, **k: None
-        )
-        monkeypatch.setattr(
-            view_helpers,
-            "send_organization_project_added_email",
-            send_organization_project_added_email,
+        send_email = mocker.patch.object(
+            view_helpers, "send_organization_project_added_email", autospec=True
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
@@ -1523,94 +1478,52 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert len(add_organization_project_cls.calls) == 1
-        assert len(organization.projects) == 2
-        assert send_organization_project_added_email.calls == [
-            pretend.call(
-                db_request,
-                {db_request.user},
-                organization_name=organization.name,
-                project_name=project.name,
-                submitter_username=db_request.user.username,
-            )
-        ]
+        assert self._organization_project_ids(db_request, organization) == {
+            existing.project_id,
+            project.id,
+        }
+        send_email.assert_called_once_with(
+            db_request,
+            {pyramid_user},
+            organization_name=organization.name,
+            project_name=project.name,
+            submitter_username=pyramid_user.username,
+        )
 
     def test_add_organization_project_existing_project_invalid(
-        self,
-        db_request,
-        pyramid_user,
-        monkeypatch,
+        self, db_request, pyramid_user, organization
     ):
-        organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
-
         project = ProjectFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
-        )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=True),
-            existing_project_name=pretend.stub(data=project.name),
-            validate=lambda *a, **kw: False,
-        )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
+        RoleFactory.create(project=project, user=pyramid_user, role_name="Owner")
+        db_request.POST = MultiDict({"add_existing_project": "true"})
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
+        form = result.pop("add_organization_project_form")
+        assert form.existing_project_name.errors == ["Select project"]
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": {project.name, organization.projects[0].name},
-            "projects_sole_owned": {project.name, organization.projects[0].name},
-            "add_organization_project_form": add_organization_project_obj,
+            "projects_owned": {project.name, existing.project.name},
+            "projects_sole_owned": {project.name, existing.project.name},
         }
-        assert len(add_organization_project_cls.calls) == 1
-        assert len(organization.projects) == 1
+        assert self._organization_project_ids(db_request, organization) == {
+            existing.project_id
+        }
 
     def test_add_organization_project_new_project(
-        self,
-        db_request,
-        pyramid_user,
-        monkeypatch,
+        self, db_request, pyramid_user, organization, mocker
     ):
         db_request.user_docs_url = lambda *a, **kw: ""
-
-        organization = OrganizationFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
+        db_request.POST = MultiDict(
+            {"add_existing_project": "false", "new_project_name": "fakepackage"}
         )
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data="fakepackage"),
-            validate=lambda *a, **kw: True,
-        )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        send_organization_project_added_email = pretend.call_recorder(
-            lambda req, user, **k: None
-        )
-        monkeypatch.setattr(
-            view_helpers,
-            "send_organization_project_added_email",
-            send_organization_project_added_email,
+        send_email = mocker.patch.object(
+            view_helpers, "send_organization_project_added_email", autospec=True
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
@@ -1627,15 +1540,13 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert send_organization_project_added_email.calls == [
-            pretend.call(
-                db_request,
-                {db_request.user},
-                organization_name=organization.name,
-                project_name="fakepackage",
-                submitter_username=db_request.user.username,
-            )
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            {pyramid_user},
+            organization_name=organization.name,
+            project_name="fakepackage",
+            submitter_username=pyramid_user.username,
+        )
 
     @pytest.mark.parametrize(
         ("resets_in", "retry_after", "expected_error"),
@@ -1671,7 +1582,7 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        monkeypatch,
+        organization,
         mocker,
         resets_in,
         retry_after,
@@ -1683,21 +1594,8 @@ class TestManageOrganizationProjects:
         session, so the view must doom the transaction or pyramid_tm commits
         the refused project."""
         db_request.user_docs_url = lambda *a, **kw: ""
-
-        organization = OrganizationFactory.create()
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
-        )
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data="fakepackage", errors=[]),
-            validate=lambda *a, **kw: True,
-        )
-        monkeypatch.setattr(
-            org_views,
-            "AddOrganizationProjectForm",
-            lambda *a, **kw: add_organization_project_obj,
+        db_request.POST = MultiDict(
+            {"add_existing_project": "false", "new_project_name": "fakepackage"}
         )
 
         limiter = DummyRateLimiter()
@@ -1709,22 +1607,28 @@ class TestManageOrganizationProjects:
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
+        form = result.pop("add_organization_project_form")
+        assert form.new_project_name.errors == [expected_error]
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
-            "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_obj.new_project_name.errors == [expected_error]
         assert db_request.response.status_code == 429
         assert db_request.response.headers.get("Retry-After") == retry_after
         assert db_request.tm.isDoomed()
 
     @pytest.mark.parametrize(
-        ("invalid_name", "expected"),
+        ("project_name", "expected"),
         [
-            ("-invalid-name-", "The name '-invalid-name-' is invalid."),
+            (
+                "-invalid-name-",
+                (
+                    "Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'."
+                ),
+            ),
             (
                 "requirements.txt",
                 (
@@ -1734,107 +1638,53 @@ class TestManageOrganizationProjects:
             ),
         ],
     )
-    def test_add_organization_project_new_project_exception(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
-        invalid_name,
-        expected,
+    def test_add_organization_project_new_project_invalid(
+        self, db_request, pyramid_user, organization, project_name, expected
     ):
         db_request.user_docs_url = lambda *a, **kw: "docs-url"
-
-        organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
-
-        project = ProjectFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
-        )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data=invalid_name, errors=[]),
-            validate=lambda *a, **kw: True,
-        )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
+        db_request.POST = MultiDict(
+            {"add_existing_project": "false", "new_project_name": project_name}
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
+        form = result.pop("add_organization_project_form")
+        assert form.new_project_name.errors == [expected]
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": {project.name, organization.projects[0].name},
-            "projects_sole_owned": {project.name, organization.projects[0].name},
-            "add_organization_project_form": add_organization_project_obj,
+            "projects_owned": {existing.project.name},
+            "projects_sole_owned": {existing.project.name},
         }
-        assert add_organization_project_obj.new_project_name.errors == [expected]
-        assert len(organization.projects) == 1
+        assert self._organization_project_ids(db_request, organization) == {
+            existing.project_id
+        }
 
     def test_add_organization_project_new_project_name_conflict(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
+        self, db_request, pyramid_user, organization
     ):
-        db_request.user_docs_url = lambda *a, **kw: "docs-url"
-
-        organization = OrganizationFactory.create()
-        OrganizationProjectFactory.create(
+        existing = OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
         )
-
         project = ProjectFactory.create()
-
-        OrganizationRoleFactory.create(
-            organization=organization, user=db_request.user, role_name="Owner"
-        )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_organization_project_obj = pretend.stub(
-            add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data=project.name, errors=[]),
-            validate=lambda *a, **kw: True,
-        )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
-        monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
+        db_request.POST = MultiDict(
+            {"add_existing_project": "false", "new_project_name": project.name}
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
-        assert result == {
-            "organization": organization,
-            "active_projects": view.active_projects,
-            "projects_owned": {project.name, organization.projects[0].name},
-            "projects_sole_owned": {project.name, organization.projects[0].name},
-            "add_organization_project_form": add_organization_project_obj,
-        }
-        assert add_organization_project_obj.new_project_name.errors == [
-            (
-                "The name {name!r} conflicts with an existing project. "
-                "See {projecthelp} for more information."
-            ).format(
-                name=project.name,
-                projecthelp="docs-url",
-            )
+        form = result.pop("add_organization_project_form")
+        assert form.new_project_name.errors == [
+            "This project name has already been used. Choose a different project name."
         ]
-        assert len(organization.projects) == 1
+        assert self._organization_project_ids(db_request, organization) == {
+            existing.project_id
+        }
 
 
 class TestManageOrganizationRoles:
