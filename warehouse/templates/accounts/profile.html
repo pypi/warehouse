@@ -20,6 +20,8 @@
           {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
           {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
           <img src="{{ gravatar(request, email, size=225) }}"
+               srcset="{{ gravatar(request, email, size=450) }} 2x,
+                       {{ gravatar(request, email, size=675) }} 3x"
                alt="{{ alt }}"
                title="{{ alt }}">
           <div class="author-profile__info">
