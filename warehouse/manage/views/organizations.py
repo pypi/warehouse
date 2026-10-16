@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import functools
 
 from urllib.parse import urljoin
 
@@ -13,9 +14,10 @@ from pyramid.httpexceptions import (
     HTTPException,
     HTTPNotFound,
     HTTPSeeOther,
+    HTTPTooManyRequests,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import orm
+from sqlalchemy import func, orm, select
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
@@ -64,12 +66,14 @@ from warehouse.oidc.forms import (
     PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
 )
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     GitLabPublisher,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
+    PendingOIDCPublisher,
 )
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
@@ -84,7 +88,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
-from warehouse.rate_limiting.interfaces import RateLimiterException
+from warehouse.rate_limiting.interfaces import IRateLimiter, RateLimiterException
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 from warehouse.subscriptions.services import MockStripeBillingService
@@ -1736,6 +1740,36 @@ class ManageOrganizationPublishingViews:
             user=request.user,
         )
 
+    @functools.cached_property
+    def _ratelimiters(self):
+        return {
+            "user.oidc": self.request.find_service(
+                IRateLimiter, name="user_oidc.publisher.register"
+            ),
+            "ip.oidc": self.request.find_service(
+                IRateLimiter, name="ip_oidc.publisher.register"
+            ),
+        }
+
+    def _hit_ratelimits(self):
+        self._ratelimiters["user.oidc"].hit(self.request.user.id)
+        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
+
+    def _check_ratelimits(self):
+        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["user.oidc"].resets_in(
+                    self.request.user.id
+                )
+            )
+
+        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["ip.oidc"].resets_in(
+                    self.request.remote_addr
+                )
+            )
+
     @property
     def default_response(self):
         # Get pending publishers owned by this organization
@@ -1804,6 +1838,55 @@ class ManageOrganizationPublishingViews:
             "warehouse.oidc.add_pending_publisher.attempt",
             tags=[f"publisher:{publisher_name}", "organization:true"],
         )
+
+        if not self.request.user.has_primary_verified_email:
+            self.request.session.flash(
+                self.request._(
+                    "You must have a verified email in order to register a "
+                    "pending trusted publisher. "
+                    "See https://pypi.org/help#openid-connect for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        # Separately from having permission to register pending OIDC publishers,
+        # we limit each user to no more than 3 pending publishers at once per
+        # organization. Counting only the user's own rows keeps one owner from
+        # filling the organization's slots, since only the user who added a
+        # pending publisher can remove it.
+        pending_count = self.request.db.scalar(
+            select(func.count()).where(
+                PendingOIDCPublisher.organization_id == self.organization.id,
+                PendingOIDCPublisher.added_by_id == self.request.user.id,
+            )
+        )
+        if pending_count >= 3:
+            self.request.session.flash(
+                self.request._(
+                    "You can't register more than 3 pending trusted publishers "
+                    "for an organization at once."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_pending_publisher.ratelimited",
+                tags=[f"publisher:{publisher_name}", "organization:true"],
+            )
+            raise HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=(exc.resets_in.total_seconds() if exc.resets_in else None),
+            )
+
+        self._hit_ratelimits()
 
         # Validate form
         if not form.validate():
