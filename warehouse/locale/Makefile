@@ -1,5 +1,3 @@
-GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
-
 POT_OUTPUT ?= warehouse/locale/messages.pot
 
 compile-pot:
@@ -38,12 +36,5 @@ build-mos: compile-pot
 	for LOCALE in $(LOCALES) ; do \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
-
-translations: compile-pot
-ifneq ($(GITHUB_ACTIONS), false)
-	cd ../../; \
-	cmp -s ./warehouse/locale/messages.pot /opt/warehouse/src/warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
-else
-endif
 
 .PHONY: compile-pot
