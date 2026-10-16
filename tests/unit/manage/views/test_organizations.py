@@ -1688,21 +1688,85 @@ class TestManageOrganizationProjects:
 
 
 class TestManageOrganizationRoles:
+    @pytest.fixture
+    def invite_emails(self, mocker):
+        return (
+            mocker.patch.object(
+                org_views, "send_organization_member_invited_email", autospec=True
+            ),
+            mocker.patch.object(
+                org_views, "send_organization_role_verification_email", autospec=True
+            ),
+        )
+
+    def _owners(self, organization):
+        owners = []
+        for username in ("owner_1", "owner_2"):
+            owner = UserFactory.create(username=username)
+            OrganizationRoleFactory.create(
+                organization=organization,
+                user=owner,
+                role_name=OrganizationRoleType.Owner,
+            )
+            owners.append(owner)
+        return owners
+
+    def _invitee(self):
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        return new_user
+
+    def _assert_invited(
+        self, db_request, invite_emails, organization, new_user, owners, token_service
+    ):
+        """
+        Assert an Owner invitation went out. The caller must post role "Owner",
+        spy on ``session.flash``, and run under ``freeze_time`` so the expected
+        token signs to the same value.
+        """
+        member_invited_email, role_verification_email = invite_emails
+        email_kwargs = {
+            "desired_role": "Owner",
+            "initiator_username": db_request.user.username,
+            "organization_name": organization.name,
+            "email_token": token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": "Owner",
+                    "user_id": new_user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": db_request.user.id,
+                }
+            ),
+            "token_age": token_service.max_age,
+        }
+        member_invited_email.assert_called_once_with(
+            db_request, set(owners), user=new_user, **email_kwargs
+        )
+        role_verification_email.assert_called_once_with(
+            db_request, new_user, **email_kwargs
+        )
+        db_request.session.flash.assert_called_once_with(
+            f"Invitation sent to '{new_user.username}'", queue="success"
+        )
+        # Only one role invitation is created
+        db_request.db.scalars(
+            select(OrganizationInvitation).filter_by(
+                user=new_user, organization=organization
+            )
+        ).unique().one()
+
     def test_get_manage_organization_roles(self, db_request, pyramid_user):
         organization = OrganizationFactory.create(name="foobar")
-        form_obj = pretend.stub()
+        db_request.POST = MultiDict()
 
-        def form_class(*a, **kw):
-            return form_obj
+        result = org_views.manage_organization_roles(organization, db_request)
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        assert isinstance(result.pop("form"), org_views.CreateOrganizationRoleForm)
         assert result == {
             "organization": organization,
             "roles": set(),
             "invitations": set(),
-            "form": form_obj,
             "is_sole_owner": False,
             "awaiting_initial_billing": False,
             "role_choices": [
@@ -1716,13 +1780,7 @@ class TestManageOrganizationRoles:
     @freeze_time(dt.datetime.now(dt.UTC))
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
-        self,
-        db_request,
-        orgtype,
-        organization_service,
-        user_service,
-        token_service,
-        monkeypatch,
+        self, db_request, orgtype, token_service, invite_emails, mocker
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
 
@@ -1731,105 +1789,24 @@ class TestManageOrganizationRoles:
             OrganizationStripeCustomerFactory.create(organization=organization)
             OrganizationStripeSubscriptionFactory.create(organization=organization)
 
-        new_user = UserFactory.create(username="new_user")
-        EmailFactory.create(user=new_user, verified=True, primary=True)
-        owner_1 = UserFactory.create(username="owner_1")
-        owner_2 = UserFactory.create(username="owner_2")
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner_1,
-            role_name=OrganizationRoleType.Owner,
-        )
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner_2,
-            role_name=OrganizationRoleType.Owner,
-        )
+        new_user = self._invitee()
+        owners = self._owners(organization)
 
         db_request.method = "POST"
         db_request.POST = MultiDict(
             {"username": new_user.username, "role_name": "Owner"}
         )
-        db_request.user = owner_1
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        send_organization_member_invited_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_invited_email",
-            send_organization_member_invited_email,
-        )
-        send_organization_role_verification_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_role_verification_email",
-            send_organization_role_verification_email,
-        )
+        db_request.user = owners[0]
+        mocker.spy(db_request.session, "flash")
 
         result = org_views.manage_organization_roles(organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
-        ]
-
-        # Only one role invitation is created
-        (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == new_user)
-            .filter(OrganizationInvitation.organization == organization)
-            .one()
+        assert isinstance(result, HTTPSeeOther)
+        self._assert_invited(
+            db_request, invite_emails, organization, new_user, owners, token_service
         )
 
-        assert isinstance(result, HTTPSeeOther)
-        assert send_organization_member_invited_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_1, owner_2},
-                user=new_user,
-                desired_role=db_request.POST["role_name"],
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": db_request.POST["role_name"],
-                        "user_id": new_user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
-        assert send_organization_role_verification_email.calls == [
-            pretend.call(
-                db_request,
-                new_user,
-                desired_role=db_request.POST["role_name"],
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": db_request.POST["role_name"],
-                        "user_id": new_user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
-
-    def test_post_duplicate_organization_role(
-        self, db_request, organization_service, user_service
-    ):
+    def test_post_duplicate_organization_role(self, db_request, invite_emails, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1839,112 +1816,52 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = pretend.stub()
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=user.username),
-            role_name=pretend.stub(data=role.role_name),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.POST = MultiDict({"username": user.username, "role_name": "Owner"})
+        mocker.spy(db_request.session, "flash")
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        result = org_views.manage_organization_roles(organization, db_request)
 
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-                allow_billing_manager_only=False,
-            ),
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "User 'testuser' already has Owner role for organization", queue="error"
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "User 'testuser' already has Owner role for organization", queue="error"
+        )
 
         # No additional roles are created
         assert role == db_request.db.query(OrganizationRole).one()
 
         assert isinstance(result, HTTPSeeOther)
+        for send_email in invite_emails:
+            send_email.assert_not_called()
 
     @pytest.mark.parametrize("with_email", [True, False])
-    def test_post_unverified_email(
-        self,
-        db_request,
-        organization_service,
-        user_service,
-        with_email,
-    ):
+    def test_post_unverified_email(self, db_request, with_email, invite_emails, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         if with_email:
             EmailFactory.create(user=user, verified=False, primary=True)
 
         db_request.method = "POST"
-        db_request.POST = pretend.stub()
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=user.username),
-            role_name=pretend.stub(data=OrganizationRoleType.Owner),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.POST = MultiDict({"username": user.username, "role_name": "Owner"})
+        mocker.spy(db_request.session, "flash")
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        result = org_views.manage_organization_roles(organization, db_request)
 
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-                allow_billing_manager_only=False,
-            ),
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "User 'testuser' does not have a verified primary email address "
-                "and cannot be added as a Owner for organization",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "User 'testuser' does not have a verified primary email address "
+            "and cannot be added as a Owner for organization",
+            queue="error",
+        )
 
         # No additional roles are created
         assert db_request.db.query(OrganizationRole).all() == []
 
         assert isinstance(result, HTTPSeeOther)
+        for send_email in invite_emails:
+            send_email.assert_not_called()
 
-    def test_cannot_reinvite_organization_role(
-        self, db_request, organization_service, user_service
-    ):
+    def test_cannot_reinvite_organization_role(self, db_request, invite_emails, mocker):
         organization = OrganizationFactory.create(name="foobar")
-        new_user = UserFactory.create(username="new_user")
-        EmailFactory.create(user=new_user, verified=True, primary=True)
-        owner_1 = UserFactory.create(username="owner_1")
-        owner_2 = UserFactory.create(username="owner_2")
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner_1,
-            role_name=OrganizationRoleType.Owner,
-        )
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner_2,
-            role_name=OrganizationRoleType.Owner,
-        )
+        new_user = self._invitee()
+        owners = self._owners(organization)
         token_service = db_request.find_service(ITokenService, name="email")
         OrganizationInvitationFactory.create(
             organization=organization,
@@ -1954,64 +1871,30 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = pretend.stub()
+        db_request.POST = MultiDict(
+            {"username": new_user.username, "role_name": "Owner"}
+        )
         db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_1
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data=OrganizationRoleType.Owner),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.user = owners[0]
+        mocker.spy(db_request.session, "flash")
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        result = org_views.manage_organization_roles(organization, db_request)
 
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-                allow_billing_manager_only=False,
-            ),
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "User 'new_user' already has an active invite. Please try again later.",
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "User 'new_user' already has an active invite. Please try again later.",
+            queue="error",
+        )
         assert isinstance(result, HTTPSeeOther)
+        for send_email in invite_emails:
+            send_email.assert_not_called()
 
     @freeze_time(dt.datetime.now(dt.UTC))
     def test_reinvite_organization_role_after_expiration(
-        self,
-        db_request,
-        organization_service,
-        user_service,
-        monkeypatch,
+        self, db_request, invite_emails, mocker
     ):
         organization = OrganizationFactory.create(name="foobar")
-        new_user = UserFactory.create(username="new_user")
-        EmailFactory.create(user=new_user, verified=True, primary=True)
-        owner_1 = UserFactory.create(username="owner_1")
-        owner_2 = UserFactory.create(username="owner_2")
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner_1,
-            role_name=OrganizationRoleType.Owner,
-        )
-        OrganizationRoleFactory.create(
-            user=owner_2,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
-        )
+        new_user = self._invitee()
+        owners = self._owners(organization)
         token_service = db_request.find_service(ITokenService, name="email")
         OrganizationInvitationFactory.create(
             user=new_user,
@@ -2021,107 +1904,31 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = pretend.stub()
+        db_request.POST = MultiDict(
+            {"username": new_user.username, "role_name": "Owner"}
+        )
         db_request.remote_addr = "10.10.10.10"
-        db_request.user = owner_1
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data=OrganizationRoleType.Owner),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.user = owners[0]
+        mocker.spy(db_request.session, "flash")
 
-        send_organization_member_invited_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_invited_email",
-            send_organization_member_invited_email,
-        )
-        send_organization_role_verification_email = pretend.call_recorder(
-            lambda r, u, **k: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_role_verification_email",
-            send_organization_role_verification_email,
-        )
-
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
-
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-                allow_billing_manager_only=False,
-            ),
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
-        ]
-
-        # Only one role invitation is created
-        (
-            db_request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == new_user)
-            .filter(OrganizationInvitation.organization == organization)
-            .one()
-        )
+        result = org_views.manage_organization_roles(organization, db_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert send_organization_member_invited_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_1, owner_2},
-                user=new_user,
-                desired_role=form_obj.role_name.data.value,
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data.value,
-                        "user_id": new_user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
-        assert send_organization_role_verification_email.calls == [
-            pretend.call(
-                db_request,
-                new_user,
-                desired_role=form_obj.role_name.data.value,
-                initiator_username=db_request.user.username,
-                organization_name=organization.name,
-                email_token=token_service.dumps(
-                    {
-                        "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data.value,
-                        "user_id": new_user.id,
-                        "organization_id": organization.id,
-                        "submitter_id": db_request.user.id,
-                    }
-                ),
-                token_age=token_service.max_age,
-            )
-        ]
+        self._assert_invited(
+            db_request, invite_emails, organization, new_user, owners, token_service
+        )
 
     def test_manage_organization_roles_not_in_good_standing(
-        self, db_request, monkeypatch
+        self, db_request, invite_emails, mocker
     ):
-        organization = OrganizationFactory.create(orgtype="Company")  # No billing
+        """
+        A Company organization that once had billing and lost it is neither
+        in good standing nor awaiting initial billing.
+        """
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationEventFactory.create(
+            source=organization, tag=EventTag.Organization.SubscriptionCreate
+        )
         new_user = UserFactory.create(username="new-user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_user = UserFactory.create()
@@ -2131,32 +1938,22 @@ class TestManageOrganizationRoles:
             role_name=OrganizationRoleType.Owner,
         )
 
-        form_obj = pretend.stub(
-            username=pretend.stub(data="new-user"),
-            role_name=pretend.stub(data=OrganizationRoleType.Member),
-            validate=pretend.call_recorder(lambda: True),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-
         db_request.method = "POST"
+        db_request.POST = MultiDict({"username": "new-user", "role_name": "Member"})
         db_request.user = owner_user
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
+        result = org_views.manage_organization_roles(organization, db_request)
+
+        db_request.session.flash.assert_called_once_with(
+            "Cannot invite new member. Organization is not in good standing.",
+            queue="error",
         )
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Cannot invite new member. Organization is not in good standing.",
-                queue="error",
-            )
-        ]
         assert isinstance(result, HTTPSeeOther)  # Redirect due to inactive org
+        for send_email in invite_emails:
+            send_email.assert_not_called()
 
-    def test_manage_organization_roles_pre_billing_company(
-        self, db_request, organization_service, user_service
-    ):
+    def test_manage_organization_roles_pre_billing_company(self, db_request):
         organization = OrganizationFactory.create(
             name="new-company-org", orgtype=OrganizationType.Company
         )
@@ -2167,24 +1964,15 @@ class TestManageOrganizationRoles:
             role_name=OrganizationRoleType.Owner,
         )
 
-        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
-
         db_request.method = "GET"
+        db_request.POST = MultiDict()
         db_request.user = owner_user
 
-        result = org_views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        result = org_views.manage_organization_roles(organization, db_request)
 
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-                allow_billing_manager_only=True,
-            )
+        assert result["form"].role_name.choices == [
+            ("", "Select role"),
+            ("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
         assert [choice[0] for choice in result["role_choices"]] == [
