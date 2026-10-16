@@ -2998,6 +2998,91 @@ class TestRevokeOrganizationInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
+    @pytest.mark.parametrize("token", ["not-a-signed-token", ""])
+    def test_token_invalid(
+        self, invite_request, invite_organization, revoke_emails, token
+    ):
+        """An invitation whose token no longer verifies (a rotated secret, or a
+        corrupt row) can still be revoked."""
+        user = UserFactory.create(username="testuser")
+        OrganizationInvitationFactory.create(
+            organization=invite_organization, user=user, token=token
+        )
+        invite_request.POST = MultiDict({"user_id": user.id})
+
+        result = org_views.revoke_organization_invitation(
+            invite_organization, invite_request
+        )
+
+        assert _invitation(invite_request, invite_organization, user) is None
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid invitation for 'testuser' deleted.", queue="success"
+        )
+        for send_email in revoke_emails:
+            send_email.assert_not_called()
+        assert isinstance(result, HTTPSeeOther)
+
+
+class TestReinviteOrganizationMember:
+    @pytest.fixture
+    def invitee(self):
+        user = UserFactory.create(username="testuser")
+        EmailFactory.create(user=user, verified=True, primary=True)
+        return user
+
+    @pytest.mark.parametrize(
+        "make_token",
+        [
+            lambda token_service: _expired_token(
+                token_service, {"action": "email-organization-role-verify"}
+            ),
+            lambda token_service: "not-a-signed-token",
+            lambda token_service: "",
+        ],
+        ids=["expired", "invalid", "missing"],
+    )
+    def test_pending_invitation_with_unusable_token_is_replaced(
+        self,
+        invite_request,
+        invite_organization,
+        invitee,
+        token_service,
+        mocker,
+        make_token,
+    ):
+        """
+        A pending invitation whose token no longer loads is not an active
+        invite, so inviting the user again sends a fresh one.
+        """
+        OrganizationInvitationFactory.create(
+            organization=invite_organization,
+            user=invitee,
+            invite_status=OrganizationInvitationStatus.Pending,
+            token=make_token(token_service),
+        )
+        mocker.patch.object(
+            org_views, "send_organization_member_invited_email", autospec=True
+        )
+        role_verification_email = mocker.patch.object(
+            org_views, "send_organization_role_verification_email", autospec=True
+        )
+        invite_request.POST = MultiDict(
+            {"username": invitee.username, "role_name": "Manager"}
+        )
+
+        result = org_views.manage_organization_roles(
+            invite_organization, invite_request
+        )
+
+        assert isinstance(result, HTTPSeeOther)
+        invitation = _invitation(invite_request, invite_organization, invitee)
+        assert invitation.invite_status == OrganizationInvitationStatus.Pending
+        assert token_service.loads(invitation.token)["desired_role"] == "Manager"
+        role_verification_email.assert_called_once()
+        invite_request.session.flash.assert_called_once_with(
+            "Invitation sent to 'testuser'", queue="success"
+        )
+
 
 class TestChangeOrganizationRole:
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
