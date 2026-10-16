@@ -299,6 +299,19 @@ class TestSession:
         session.clear_totp_secret()
         assert not session[session._totp_secret_key]
 
+    @pytest.mark.parametrize(
+        ("stored", "expected"),
+        [(b"foobar", True), (None, False)],
+    )
+    def test_has_totp_secret(self, stored, expected):
+        session = Session()
+        session[session._totp_secret_key] = stored
+
+        assert session.has_totp_secret() is expected
+
+    def test_has_totp_secret_never_set(self):
+        assert not Session().has_totp_secret()
+
     def test_get_webauthn_challenge(self):
         session = Session()
         session[session._webauthn_challenge_key] = "not_a_real_challenge"
