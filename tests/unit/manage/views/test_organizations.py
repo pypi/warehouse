@@ -58,6 +58,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationTermsOfServiceEngagement,
     OrganizationType,
+    Team,
 )
 from warehouse.packaging import IProjectService, Project
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
@@ -1277,13 +1278,7 @@ class TestManageOrganizationBillingViews:
 
 
 class TestManageOrganizationTeams:
-    def test_manage_teams(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
-    ):
+    def test_manage_teams(self, db_request, pyramid_user, organization_service):
         organization = OrganizationFactory.create()
         organization.teams = [TeamFactory.create()]
 
@@ -1300,13 +1295,7 @@ class TestManageOrganizationTeams:
             "create_team_form": form,
         }
 
-    def test_create_team(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
-    ):
+    def test_create_team(self, db_request, pyramid_user, mocker):
         organization = OrganizationFactory.create()
         organization.teams = [TeamFactory.create()]
 
@@ -1321,11 +1310,8 @@ class TestManageOrganizationTeams:
         # Authentication also loads the current user before the view runs.
         db_request.db.refresh(db_request.user)
 
-        send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views,
-            "send_team_created_email",
-            send_team_created_email,
+        send_team_created_email = mocker.patch.object(
+            org_views, "send_team_created_email", autospec=True
         )
 
         view = org_views.ManageOrganizationTeamsViews(organization, db_request)
@@ -1333,10 +1319,11 @@ class TestManageOrganizationTeams:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        teams = organization_service.get_teams_by_organization(organization.id)
+        teams = db_request.db.scalars(
+            select(Team).filter_by(organization=organization)
+        ).all()
         assert len(teams) == 2
         team = next(team for team in teams if team.name == "Team Name")
-        assert team.organization == organization
         assert team.events[0].tag == "team:create"
         assert team.events[0].additional == {
             "organization_name": organization.name,
@@ -1349,22 +1336,14 @@ class TestManageOrganizationTeams:
             "team_name": "Team Name",
             "created_by_user_id": str(db_request.user.id),
         }
-        assert send_team_created_email.calls == [
-            pretend.call(
-                db_request,
-                {db_request.user},
-                organization_name=organization.name,
-                team_name="Team Name",
-            )
-        ]
+        send_team_created_email.assert_called_once_with(
+            db_request,
+            {db_request.user},
+            organization_name=organization.name,
+            team_name=team.name,
+        )
 
-    def test_create_team_invalid(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        monkeypatch,
-    ):
+    def test_create_team_invalid(self, db_request, pyramid_user, organization_service):
         organization = OrganizationFactory.create()
         organization.teams = [TeamFactory.create(name="Used Name")]
 
