@@ -1568,6 +1568,17 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
         session.info.setdefault("_deferred_journals", []).extend(journal_entries)
         return
 
+    # Lock the project rows the journals trigger will update before taking the
+    # advisory lock, matching the order uploads use (row first, advisory last).
+    # The advisory lock is held until commit, so this only covers this flush's
+    # projects, not rows a later flush in the same transaction touches.
+    session.execute(
+        select(Project.id)
+        .where(Project.name.in_([je.name for je in journal_entries]))
+        .order_by(Project.name)
+        .with_for_update(key_share=True)
+    )
+
     session.execute(
         select(
             func.pg_advisory_xact_lock(
