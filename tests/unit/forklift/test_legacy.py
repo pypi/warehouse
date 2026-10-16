@@ -1443,6 +1443,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "pyversion": "source",
                 "content": content,
+                "author": "=?utf-8?q?Jos=C3=A9?=",
                 "description": "an example description",
                 "keywords": "keyword1, keyword2",
                 "license_expression": "MIT OR Apache-2.0",
@@ -1536,7 +1537,7 @@ class TestFileUpload:
                     "version": release.version,
                     "summary": None,
                     "description": "an example description",
-                    "author": None,
+                    "author": "=?utf-8?q?Jos=C3=A9?=",
                     "description_content_type": None,
                     "author_email": None,
                     "maintainer": None,
@@ -1581,6 +1582,9 @@ class TestFileUpload:
         assert db_request.metrics.increment.call_args_list == [
             mock.call("warehouse.upload.attempt"),
             mock.call("warehouse.upload.ok", tags=["filetype:sdist"]),
+            mock.call(
+                "warehouse.upload.metadata.encoded_credits", tags=["field:author"]
+            ),
         ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
