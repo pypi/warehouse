@@ -1,6 +1,7 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/organization/manage_organization_base.html" %}
 {% set active_tab = "publishing" %}
+{% set pending_oidc_enabled = request.user.has_primary_verified_email %}
 {% block title %}
   {% trans organization_name=organization.name %}Trusted Publisher Management for '{{ organization_name }}'{% endtrans %}
 {% endblock %}
@@ -107,7 +108,7 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
   </div>
 </form>
 {% endmacro %}
@@ -221,7 +222,7 @@
 <div>
   <input type="submit"
          value="{% trans %}Add{% endtrans %}"
-         class="button button--primary">
+         class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
 </div>
 </form>
 {% endmacro %}
@@ -289,7 +290,7 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
   </div>
 </form>
 {% endmacro %}
@@ -382,7 +383,7 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
   </div>
 </form>
 {% endmacro %}
