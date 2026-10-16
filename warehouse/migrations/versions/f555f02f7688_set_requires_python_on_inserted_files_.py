@@ -3,14 +3,14 @@
 Set requires_python on inserted files only
 
 Revision ID: f555f02f7688
-Revises: a1c4b5219d5e
+Revises: 2c0c003dbc2f
 Create Date: 2026-10-15 16:40:11.989846
 """
 
 from alembic import op
 
 revision = "f555f02f7688"
-down_revision = "a1c4b5219d5e"
+down_revision = "2c0c003dbc2f"
 
 
 def upgrade():
