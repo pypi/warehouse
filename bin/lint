@@ -23,3 +23,10 @@ python -m mypy -p warehouse -p tests.common -p pyramid_components
 tombi lint --offline --error-on-warnings
 tombi format --offline --check --diff
 codespell
+
+# Extract translatable strings to a scratch file, so a template or module
+# that pybabel cannot parse fails here. messages.pot itself is regenerated
+# on main by CI.
+pot_check=$(mktemp)
+trap 'rm -f "$pot_check"' EXIT
+make -C warehouse/locale/ compile-pot POT_OUTPUT="$pot_check"
