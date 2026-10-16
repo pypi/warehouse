@@ -63,6 +63,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -3344,6 +3345,7 @@ class TestManageAccountPublishingViews:
         "GitLab": AdminFlagValue.DISALLOW_GITLAB_OIDC,
         "Google": AdminFlagValue.DISALLOW_GOOGLE_OIDC,
         "ActiveState": AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        "Buildkite": AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
     }
 
     @pytest.fixture
@@ -3426,6 +3428,7 @@ class TestManageAccountPublishingViews:
             "pending_activestate_publisher_form": (
                 form_classes["ActiveState"].return_value
             ),
+            "pending_buildkite_publisher_form": form_classes["Buildkite"].return_value,
         }
 
     def _assert_forms_constructed(self, form_classes, request, project_service):
@@ -3436,7 +3439,7 @@ class TestManageAccountPublishingViews:
             check_project_name=project_service.check_project_name,
             user=request.user,
         )
-        for name in ("GitLab", "Google", "ActiveState"):
+        for name in ("GitLab", "Google", "ActiveState", "Buildkite"):
             form_classes[name].assert_called_once_with(
                 request.POST,
                 route_url=request.route_url,
@@ -3523,6 +3526,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         publishing_request.session.flash.assert_not_called()
         self._assert_forms_constructed(
@@ -3546,6 +3550,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         publishing_request.session.flash.assert_called_once_with(
             (
@@ -3581,6 +3586,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_admin_disabled(
@@ -3607,6 +3617,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             mocker.call(flag),
         ]
         publishing_request.session.flash.assert_called_once_with(
@@ -3645,6 +3656,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_user_cannot_register(
@@ -3669,6 +3685,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             mocker.call(flag),
         ]
         metrics.increment.assert_called_once_with(
@@ -3746,6 +3763,23 @@ class TestManageAccountPublishingViews:
                 ),
                 PendingActiveStatePublisher,
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
+                lambda i, user_id: PendingBuildkitePublisher(
+                    project_name="some-project-name-" + str(i),
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline-" + str(i),
+                    buildkite_organization_id=None,
+                    pipeline_id=None,
+                    build_branch=None,
+                    build_tag=None,
+                    step_key="publish",
+                ),
+                PendingBuildkitePublisher,
+            ),
         ],
     )
     def test_add_pending_github_oidc_publisher_too_many_already(
@@ -3781,6 +3815,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             mocker.call(flag),
         ]
         metrics.increment.assert_called_once_with(
@@ -3811,6 +3846,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
             ),
         ],
     )
@@ -3867,6 +3906,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
             ),
         ],
     )
@@ -3988,6 +4031,31 @@ class TestManageAccountPublishingViews:
                         "organization": "some-org",
                         "project": "some-project",
                         "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                lambda user_id: PendingBuildkitePublisher(
+                    project_name="some-project-name",
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline",
+                    buildkite_organization_id=None,
+                    pipeline_id=None,
+                    build_branch="main",
+                    build_tag=None,
+                    step_key="publish",
+                ),
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
                         "project_name": "some-project-name",
                     }
                 ),
@@ -4129,6 +4197,32 @@ class TestManageAccountPublishingViews:
                     }
                 ),
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                PendingBuildkitePublisher,
+                lambda user_id: PendingBuildkitePublisher(
+                    project_name="some-other-project-name",
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline",
+                    buildkite_organization_id=None,
+                    pipeline_id=None,
+                    build_branch="main",
+                    build_tag=None,
+                    step_key="publish",
+                ),
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_uniqueviolation(
@@ -4238,6 +4332,21 @@ class TestManageAccountPublishingViews:
                 ),
                 PendingActiveStatePublisher,
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingBuildkitePublisher,
+            ),
         ],
     )
     def test_add_pending_oidc_publisher(
@@ -4286,8 +4395,12 @@ class TestManageAccountPublishingViews:
         pending_publisher = publishing_request.db.query(publisher_class).one()
         assert pending_publisher.added_by_id == user.id
 
+        expected_fields = dict(post_body)
+        if publisher_class is PendingBuildkitePublisher:
+            expected_fields["build_tag"] = None
+
         mapping = {"owner": "repository_owner", "repository": "repository_name"}
-        for k, v in post_body.items():
+        for k, v in expected_fields.items():
             assert getattr(pending_publisher, mapping.get(k, k)) == v
 
         user.record_event.assert_called_once_with(
@@ -4320,6 +4433,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         publishing_request.session.flash.assert_called_once_with(
             (
