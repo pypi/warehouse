@@ -40,6 +40,7 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionPriceFactory,
 )
 from warehouse.accounts import ITokenService
+from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
@@ -55,10 +56,12 @@ from warehouse.organizations.models import (
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationTermsOfServiceEngagement,
     OrganizationType,
 )
 from warehouse.packaging import IProjectService, Project
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
+from warehouse.subscriptions.services import StripeBillingService
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -1001,18 +1004,13 @@ class TestManageOrganizationBillingViews:
     def subscription_price(self):
         return StripeSubscriptionPriceFactory.create()
 
-    def test_customer_id(
-        self,
-        db_request,
-        subscription_service,
-        organization,
-    ):
-        billing_service = pretend.stub(
-            create_customer=lambda *a, **kw: {"id": organization.customer.customer_id},
-        )
+    @pytest.fixture
+    def stripe_billing_service(self, mocker):
+        """A billing service that is not the local MockStripeBillingService."""
+        return mocker.create_autospec(StripeBillingService, instance=True)
 
+    def test_customer_id(self, db_request, organization):
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-        view.billing_service = billing_service
         customer_id = view.customer_id
 
         assert customer_id == organization.customer.customer_id
@@ -1034,99 +1032,77 @@ class TestManageOrganizationBillingViews:
         assert customer_id.startswith("mockcus_")
 
     @pytest.mark.parametrize(
-        ("next_param", "expected_url", "expected_route_calls"),
+        ("next_param", "expected_url", "uses_default"),
         [
             # No next parameter - should fall back to default
-            (
-                None,
-                "https://pypi.org/manage/organizations/",
-                [pretend.call("manage.organizations")],
-            ),
+            (None, "https://pypi.org/manage/organizations/", True),
             # Unsafe external URL - should fall back to default
             (
                 "https://evil.com/phishing",
                 "https://pypi.org/manage/organizations/",
-                [pretend.call("manage.organizations")],
+                True,
             ),
             # Safe internal URL - should use the provided URL
-            ("/manage/projects/", "https://pypi.org/manage/projects/", []),
+            ("/manage/projects/", "https://pypi.org/manage/projects/", False),
         ],
     )
     def test_return_url(
-        self,
-        db_request,
-        billing_service,
-        subscription_service,
-        organization,
-        next_param,
-        expected_url,
-        expected_route_calls,
+        self, db_request, organization, next_param, expected_url, uses_default, mocker
     ):
         db_request.GET = {} if next_param is None else {"next": next_param}
         db_request.host = "pypi.org"
         db_request.application_url = "https://pypi.org"
-        db_request.route_path = pretend.call_recorder(
-            lambda route: "/manage/organizations/"
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/manage/organizations/",
         )
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
         return_url = view.return_url
 
-        assert db_request.route_path.calls == expected_route_calls
+        if uses_default:
+            db_request.route_path.assert_called_once_with("manage.organizations")
+        else:
+            db_request.route_path.assert_not_called()
         assert return_url == expected_url
 
-    def test_activate_subscription(
-        self,
-        db_request,
-        organization,
-        monkeypatch,
-    ):
-        organization_activate_billing_form_obj = pretend.stub()
-        organization_activate_billing_form_cls = pretend.call_recorder(
-            lambda *a, **kw: organization_activate_billing_form_obj
-        )
-        monkeypatch.setattr(
-            org_views,
-            "OrganizationActivateBillingForm",
-            organization_activate_billing_form_cls,
-        )
+    def test_activate_subscription(self, db_request, organization, mocker):
         db_request.POST = MultiDict()
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-
         result = view.activate_subscription()
 
-        assert result == {
-            "organization": organization,
-            "form": organization_activate_billing_form_obj,
-        }
+        assert result == {"organization": organization, "form": mocker.ANY}
+        assert isinstance(result["form"], org_views.OrganizationActivateBillingForm)
 
-    def test_post_activate_subscription_valid(
-        self,
-        db_request,
-        organization,
-        monkeypatch,
-    ):
+    def test_post_activate_subscription_valid(self, db_request, organization, mocker):
         db_request.method = "POST"
         db_request.POST = MultiDict({"terms_of_service_agreement": "1"})
-
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "mock-billing-url"
+        db_request.registry.settings["terms.revision"] = "initial"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="mock-billing-url"
         )
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-
         result = view.activate_subscription()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "mock-billing-url"
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.subscription",
+            organization_name=organization.normalized_name,
+        )
+        engagement = db_request.db.scalars(
+            select(OrganizationTermsOfServiceEngagement).filter_by(
+                organization_id=organization.id
+            )
+        ).one()
+        assert engagement.engagement == TermsOfServiceEngagement.Agreed
+        assert engagement.revision == "initial"
 
-    def test_post_activate_subscription_invalid(
-        self,
-        db_request,
-        organization,
-        monkeypatch,
-    ):
+    def test_post_activate_subscription_invalid(self, db_request, organization):
         db_request.method = "POST"
         db_request.POST = MultiDict()
 
@@ -1190,39 +1166,28 @@ class TestManageOrganizationBillingViews:
     def test_create_subscription(
         self,
         db_request,
-        subscription_service,
         organization,
         subscription_price,
-        monkeypatch,
+        stripe_billing_service,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "mock-session-url"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="mock-session-url"
         )
-
-        # Stub for billing service is not instance of MockStripeBillingService.
-        create_checkout_session = pretend.call_recorder(
-            lambda *a, **kw: {"url": "session-url"}
-        )
-
-        billing_service = pretend.stub(
-            create_checkout_session=create_checkout_session,
-            create_customer=lambda *a, **kw: {"id": organization.customer.customer_id},
-            sync_price=lambda *a, **kw: None,
-            sync_product=lambda *a, **kw: None,
-        )
+        stripe_billing_service.create_checkout_session.return_value = {
+            "url": "session-url"
+        }
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-        view.billing_service = billing_service
+        view.billing_service = stripe_billing_service
         result = view.create_or_manage_subscription()
 
-        assert create_checkout_session.calls == [
-            pretend.call(
-                customer_id=organization.customer.customer_id,
-                price_ids=[subscription_price.price_id],
-                success_url=view.return_url,
-                cancel_url=view.return_url,
-            ),
-        ]
+        stripe_billing_service.create_checkout_session.assert_called_once_with(
+            customer_id=organization.customer.customer_id,
+            price_ids=[subscription_price.price_id],
+            success_url=view.return_url,
+            cancel_url=view.return_url,
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "session-url"
 
@@ -1230,70 +1195,55 @@ class TestManageOrganizationBillingViews:
         self,
         db_request,
         billing_service,
-        subscription_service,
         organization,
         subscription_price,
-        monkeypatch,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "mock-session-url"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="mock-session-url"
         )
-
-        # Fixture for billing service is instance of MockStripeBillingService.
-        create_checkout_session = pretend.call_recorder(
-            lambda *a, **kw: {"url": "session-url"}
-        )
-        monkeypatch.setattr(
-            billing_service, "create_checkout_session", create_checkout_session
+        create_checkout_session = mocker.patch.object(
+            billing_service,
+            "create_checkout_session",
+            autospec=True,
+            return_value={"url": "session-url"},
         )
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
         result = view.create_or_manage_subscription()
 
-        assert create_checkout_session.calls == [
-            pretend.call(
-                customer_id=view.customer_id,
-                price_ids=[subscription_price.price_id],
-                success_url=view.return_url,
-                cancel_url=view.return_url,
-            ),
-        ]
+        create_checkout_session.assert_called_once_with(
+            customer_id=view.customer_id,
+            price_ids=[subscription_price.price_id],
+            success_url=view.return_url,
+            cancel_url=view.return_url,
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "mock-session-url"
 
     def test_manage_subscription(
         self,
         db_request,
-        billing_service,
-        subscription_service,
         organization,
         organization_subscription,
-        monkeypatch,
+        stripe_billing_service,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "mock-session-url"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="mock-session-url"
         )
-
-        # Stub for billing service is not instance of MockStripeBillingService.
-        create_portal_session = pretend.call_recorder(
-            lambda *a, **kw: {"url": "session-url"}
-        )
-        billing_service = pretend.stub(
-            create_portal_session=create_portal_session,
-            sync_price=lambda *a, **kw: None,
-            sync_product=lambda *a, **kw: None,
-        )
+        stripe_billing_service.create_portal_session.return_value = {
+            "url": "session-url"
+        }
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-        view.billing_service = billing_service
+        view.billing_service = stripe_billing_service
         result = view.create_or_manage_subscription()
 
-        assert create_portal_session.calls == [
-            pretend.call(
-                customer_id=organization.customer.customer_id,
-                return_url=view.return_url,
-            ),
-        ]
+        stripe_billing_service.create_portal_session.assert_called_once_with(
+            customer_id=organization.customer.customer_id,
+            return_url=view.return_url,
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "session-url"
 
@@ -1301,32 +1251,27 @@ class TestManageOrganizationBillingViews:
         self,
         db_request,
         billing_service,
-        subscription_service,
         organization,
         organization_subscription,
-        monkeypatch,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "mock-session-url"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="mock-session-url"
         )
-
-        # Fixture for billing service is instance of MockStripeBillingService.
-        create_portal_session = pretend.call_recorder(
-            lambda *a, **kw: {"url": "session-url"}
-        )
-        monkeypatch.setattr(
-            billing_service, "create_portal_session", create_portal_session
+        create_portal_session = mocker.patch.object(
+            billing_service,
+            "create_portal_session",
+            autospec=True,
+            return_value={"url": "session-url"},
         )
 
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
         result = view.create_or_manage_subscription()
 
-        assert create_portal_session.calls == [
-            pretend.call(
-                customer_id=organization.customer.customer_id,
-                return_url=view.return_url,
-            ),
-        ]
+        create_portal_session.assert_called_once_with(
+            customer_id=organization.customer.customer_id,
+            return_url=view.return_url,
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "mock-session-url"
 
