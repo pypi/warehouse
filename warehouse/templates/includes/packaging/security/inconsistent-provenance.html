@@ -16,7 +16,7 @@
   {% endif %}
   <p>{% trans %}While this could reflect a legitimate choice by the project maintainers, it may also indicate that the release has been compromised.{% endtrans %}</p>
   {% if repo_inconsistent %}
-    {% set unknown_source_files = counts.total_files - (counts.source_counts.values() | sum) %}
+    {% set unknown_source_files = counts.total_files - counts.files_with_sources %}
     {% set ns = namespace(kinds=[]) %}
     {% for source in counts.source_counts.keys() %}
       {% set kind = "account" if "@" in source.identity else "repo" %}
@@ -43,7 +43,7 @@
             {% pluralize %}
               {{ count }} files{% endtrans %}
             </span>
-            <span class="provenance-diff__value">{{ source.identity }}</span>
+            <span class="provenance-diff__value">{{ source.kind }}: {{ source.identity }}</span>
           </li>
         {% endfor %}
         {% if unknown_source_files > 0 %}
@@ -60,7 +60,7 @@
     </div>
   {% endif %}
   {% if config_inconsistent %}
-    {% set unknown_workflow_files = counts.total_files - (counts.workflow_counts.values() | sum) %}
+    {% set unknown_workflow_files = counts.total_files - counts.files_with_workflows %}
     <div class="provenance-diff provenance-diff--breakdown">
       <p class="provenance-diff__title">
         <i class="fa-solid fa-circle-play" aria-hidden="true"></i>

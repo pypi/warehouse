@@ -196,6 +196,7 @@
     flex: 1 1 auto;
     min-width: 0;
     padding: grid.$half-spacing-unit grid.$three-quarter-spacing-unit;
+    overflow-wrap: anywhere;
 
     .attestation:first-of-type {
       margin-top: 0;

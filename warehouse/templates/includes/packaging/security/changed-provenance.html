@@ -45,7 +45,7 @@
               </span>
               <a class="provenance-diff__version"
                  href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
-              <span class="provenance-diff__value">{{ source.identity }}</span>
+              <span class="provenance-diff__value">{{ source.kind }}: {{ source.identity }}</span>
             </li>
           {% endfor %}
           {% for source in provenance_status.added_sources %}
@@ -55,7 +55,7 @@
                 <span class="sr-only">{% trans %}Added{% endtrans %}</span>
               </span>
               <span class="provenance-diff__version">{{ release.version }}</span>
-              <span class="provenance-diff__value">{{ source.identity }}</span>
+              <span class="provenance-diff__value">{{ source.kind }}: {{ source.identity }}</span>
             </li>
           {% endfor %}
         </ul>
