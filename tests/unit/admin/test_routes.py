@@ -270,6 +270,11 @@ def test_includeme(mocker):
             "/admin/ip-addresses/{ip_address}/unban",
             domain=warehouse,
         ),
+        mocker.call(
+            "admin.ip_address.reset_notfound_ratelimit",
+            "/admin/ip-addresses/{ip_address}/reset-notfound-ratelimit",
+            domain=warehouse,
+        ),
         mocker.call("admin.project.list", "/admin/projects/", domain=warehouse),
         mocker.call(
             "admin.project.detail",

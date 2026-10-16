@@ -66,6 +66,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.rate_limiting.interfaces import WindowStats
 from warehouse.search import services as search_services
 from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
@@ -643,6 +644,28 @@ def ratelimit_service(mocker):
     mocker.spy(service, "clear")
     mocker.spy(service, "resets_in")
     return service
+
+
+@pytest.fixture
+def notfound_ratelimit_service(pyramid_services, ratelimit_service, mocker):
+    """The ``notfound.ip`` limiter, reporting one policy with budget left.
+
+    Set ``hit.return_value = False`` to simulate an exceeded limit.
+    """
+    mocker.patch.object(ratelimit_service, "hit", return_value=True)
+    mocker.patch.object(
+        ratelimit_service,
+        "get_window_stats",
+        return_value=[
+            WindowStats(
+                amount=50, window_seconds=300, remaining=49, resets_in_seconds=120
+            )
+        ],
+    )
+    pyramid_services.register_service(
+        ratelimit_service, IRateLimiter, None, name="notfound.ip"
+    )
+    return ratelimit_service
 
 
 @pytest.fixture
