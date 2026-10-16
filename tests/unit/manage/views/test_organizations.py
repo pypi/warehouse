@@ -42,6 +42,7 @@ from tests.common.db.subscriptions import (
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
+from warehouse.events.tags import EventTag
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
@@ -3042,6 +3043,28 @@ class TestResendOrganizationInvitations:
         assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
 
+def _assert_revoke_events(request, organization, user, org_event, user_event):
+    """An unreadable invitation still records its revocation, without a role."""
+    org_event.assert_called_once_with(
+        tag=EventTag.Organization.OrganizationRoleRevokeInvite,
+        request=request,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "role_name": None,
+            "target_user_id": str(user.id),
+        },
+    )
+    user_event.assert_called_once_with(
+        tag=EventTag.Account.OrganizationRoleRevokeInvite,
+        request=request,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
+            "role_name": None,
+        },
+    )
+
+
 class TestRevokeOrganizationInvitation:
     @pytest.fixture
     def revoke_emails(self, mocker):
@@ -3120,9 +3143,13 @@ class TestRevokeOrganizationInvitation:
         assert result.headers["Location"] == "/manage/organization/foobar/people/"
 
     def test_token_expired(
-        self, invite_request, invite_organization, token_service, revoke_emails
+        self, invite_request, invite_organization, token_service, revoke_emails, mocker
     ):
         user = UserFactory.create(username="testuser")
+        org_event = mocker.patch.object(
+            invite_organization, "record_event", autospec=True
+        )
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
         OrganizationInvitationFactory.create(
             organization=invite_organization,
             user=user,
@@ -3140,10 +3167,105 @@ class TestRevokeOrganizationInvitation:
         invite_request.session.flash.assert_called_once_with(
             "Expired invitation for 'testuser' deleted.", queue="success"
         )
+        _assert_revoke_events(
+            invite_request, invite_organization, user, org_event, user_event
+        )
         for send_email in revoke_emails:
             send_email.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organization/foobar/people/"
+
+    @pytest.mark.parametrize("token", ["not-a-signed-token", ""])
+    def test_token_invalid(
+        self, invite_request, invite_organization, revoke_emails, mocker, token
+    ):
+        """An invitation whose token no longer verifies (a rotated secret, or a
+        corrupt row) can still be revoked."""
+        user = UserFactory.create(username="testuser")
+        org_event = mocker.patch.object(
+            invite_organization, "record_event", autospec=True
+        )
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
+        OrganizationInvitationFactory.create(
+            organization=invite_organization, user=user, token=token
+        )
+        invite_request.POST = MultiDict({"user_id": user.id})
+
+        result = org_views.revoke_organization_invitation(
+            invite_organization, invite_request
+        )
+
+        assert _invitation(invite_request, invite_organization, user) is None
+        invite_request.session.flash.assert_called_once_with(
+            "Invalid invitation for 'testuser' deleted.", queue="success"
+        )
+        _assert_revoke_events(
+            invite_request, invite_organization, user, org_event, user_event
+        )
+        for send_email in revoke_emails:
+            send_email.assert_not_called()
+        assert isinstance(result, HTTPSeeOther)
+
+
+class TestReinviteOrganizationMember:
+    @pytest.fixture
+    def invitee(self):
+        user = UserFactory.create(username="testuser")
+        EmailFactory.create(user=user, verified=True, primary=True)
+        return user
+
+    @pytest.mark.parametrize(
+        "make_token",
+        [
+            lambda token_service: _expired_token(
+                token_service, {"action": "email-organization-role-verify"}
+            ),
+            lambda token_service: "not-a-signed-token",
+            lambda token_service: "",
+        ],
+        ids=["expired", "invalid", "missing"],
+    )
+    def test_pending_invitation_with_unusable_token_is_replaced(
+        self,
+        invite_request,
+        invite_organization,
+        invitee,
+        token_service,
+        mocker,
+        make_token,
+    ):
+        """
+        A pending invitation whose token no longer loads is not an active
+        invite, so inviting the user again sends a fresh one.
+        """
+        OrganizationInvitationFactory.create(
+            organization=invite_organization,
+            user=invitee,
+            invite_status=OrganizationInvitationStatus.Pending,
+            token=make_token(token_service),
+        )
+        mocker.patch.object(
+            org_views, "send_organization_member_invited_email", autospec=True
+        )
+        role_verification_email = mocker.patch.object(
+            org_views, "send_organization_role_verification_email", autospec=True
+        )
+        invite_request.POST = MultiDict(
+            {"username": invitee.username, "role_name": "Manager"}
+        )
+
+        result = org_views.manage_organization_roles(
+            invite_organization, invite_request
+        )
+
+        assert isinstance(result, HTTPSeeOther)
+        invitation = _invitation(invite_request, invite_organization, invitee)
+        assert invitation.invite_status == OrganizationInvitationStatus.Pending
+        assert token_service.loads(invitation.token)["desired_role"] == "Manager"
+        role_verification_email.assert_called_once()
+        invite_request.session.flash.assert_called_once_with(
+            "Invitation sent to 'testuser'", queue="success"
+        )
 
 
 class TestChangeOrganizationRole:

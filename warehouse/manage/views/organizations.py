@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import datetime as dt
 import functools
 
@@ -20,7 +21,12 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func, orm, select
 from webob.multidict import MultiDict
 
-from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
+from warehouse.accounts.interfaces import (
+    ITokenService,
+    IUserService,
+    TokenException,
+    TokenExpired,
+)
 from warehouse.accounts.models import User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
@@ -1009,10 +1015,10 @@ def _send_organization_invitation(request, organization, role_name, user):
     )
     # Cover edge case where invite is invalid but task
     # has not updated invite status
-    try:
-        invite_token = token_service.loads(organization_invite.token)
-    except TokenExpired, AttributeError:
-        invite_token = None
+    invite_token = None
+    if organization_invite is not None:
+        with contextlib.suppress(TokenException):
+            invite_token = token_service.loads(organization_invite.token)
 
     if existing_role:
         request.session.flash(
@@ -1276,23 +1282,37 @@ def revoke_organization_invitation(organization, request):
 
     organization_service.delete_organization_invite(organization_invite.id)
 
+    # Only a readable token holds the invited role.
+    role_name = None
     try:
-        token_data = token_service.loads(organization_invite.token)
+        role_name = token_service.loads(organization_invite.token).get("desired_role")
     except TokenExpired:
-        request.session.flash(
-            request._(
-                "Expired invitation for '${username}' deleted.",
-                mapping={"username": user.username},
-            ),
-            queue="success",
+        message = request._(
+            "Expired invitation for '${username}' deleted.",
+            mapping={"username": user.username},
         )
-        return HTTPSeeOther(
-            request.route_path(
-                "manage.organization.roles",
-                organization_name=organization.normalized_name,
-            )
+    except TokenException:
+        message = request._(
+            "Invalid invitation for '${username}' deleted.",
+            mapping={"username": user.username},
         )
-    role_name = token_data.get("desired_role")
+    else:
+        message = request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        )
+        owner_users = set(organization_owners(request, organization))
+        send_organization_member_invite_canceled_email(
+            request,
+            owner_users,
+            user=user,
+            organization_name=organization.name,
+        )
+        send_canceled_as_invited_organization_member_email(
+            request,
+            user,
+            organization_name=organization.name,
+        )
 
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleRevokeInvite,
@@ -1313,26 +1333,7 @@ def revoke_organization_invitation(organization, request):
         },
     )
 
-    owner_users = set(organization_owners(request, organization))
-    send_organization_member_invite_canceled_email(
-        request,
-        owner_users,
-        user=user,
-        organization_name=organization.name,
-    )
-    send_canceled_as_invited_organization_member_email(
-        request,
-        user,
-        organization_name=organization.name,
-    )
-
-    request.session.flash(
-        request._(
-            "Invitation revoked from '${username}'.",
-            mapping={"username": user.username},
-        ),
-        queue="success",
-    )
+    request.session.flash(message, queue="success")
 
     return HTTPSeeOther(
         request.route_path(
