@@ -422,6 +422,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         uselist=False,
     )
+    deactivation_schedule: Mapped[OrganizationDeactivationSchedule | None] = (
+        relationship(
+            back_populates="organization",
+            uselist=False,
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+        )
+    )
     oidc_issuers: Mapped[list[OrganizationOIDCIssuer]] = relationship(
         back_populates="organization",
     )
@@ -736,6 +744,37 @@ class OrganizationManualActivation(db.Model):
     def available_seats(self) -> int:
         """Get the number of available seats for new members."""
         return max(0, self.seat_limit - self.current_member_count)
+
+
+class OrganizationDeactivationSchedule(db.Model):
+    """Deadline for an unpaid Company org. Deleted once it pays or is deactivated."""
+
+    __tablename__ = "organization_deactivation_schedules"
+
+    __repr__ = make_repr("organization_id", "deactivate_on", "last_notice_days")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship(
+        back_populates="deactivation_schedule"
+    )
+
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when the deactivation notice period started",
+    )
+    deactivate_on: Mapped[datetime.date] = mapped_column(
+        comment="Date (UTC) on or after which the organization is deactivated",
+    )
+    last_notice_days: Mapped[int] = mapped_column(
+        comment="Days-before-deactivation of the most recent notice sent",
+    )
+
+    id: Mapped[UUID] = mapped_column(
+        server_default=text("gen_random_uuid()"),
+    )
 
 
 class OrganizationApplicationStatus(enum.StrEnum):
