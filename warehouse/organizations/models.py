@@ -38,6 +38,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
+from warehouse.organizations.constants import NO_PAID_SEAT_REASON
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -537,6 +538,37 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 subscription.is_recovering_payment
                 for subscription in self.subscriptions
             )
+        )
+
+    @property
+    def reactivates_on_payment(self) -> bool:
+        """Deactivated for having no paid seat, with an owner left to pay."""
+        if self.is_active or self.orgtype != OrganizationType.Company:
+            return False
+        last = self.events.filter(
+            self.Event.tag.in_(
+                (
+                    EventTag.Organization.OrganizationDeactivate,
+                    EventTag.Organization.OrganizationReactivate,
+                )
+            )
+        ).first()
+        return (
+            last is not None
+            and last.tag == EventTag.Organization.OrganizationDeactivate
+            and last.additional.get("reason") == NO_PAID_SEAT_REASON
+            and bool(self.owners)
+        )
+
+    def reactivate_after_payment(self, *, request: Request) -> None:
+        """Turn back on an org deactivated for having no paid seat."""
+        if not self.reactivates_on_payment:
+            return
+        self.is_active = True
+        self.record_event(
+            tag=EventTag.Organization.OrganizationReactivate,
+            request=request,
+            additional={"reason": "paid_seat"},
         )
 
     def can_manage_members(self) -> bool:

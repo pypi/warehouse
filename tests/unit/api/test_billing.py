@@ -8,9 +8,13 @@ import stripe
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 
 from warehouse.api import billing
+from warehouse.events.tags import EventTag
+from warehouse.organizations.models import OrganizationRoleType
 
 from ...common.db.organizations import (
+    OrganizationEventFactory,
     OrganizationFactory,
+    OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -150,6 +154,53 @@ class TestHandleBillingWebhookEvent:
         )
 
         billing.handle_billing_webhook_event(db_request, event)
+
+    def test_handle_billing_webhook_event_checkout_complete_reactivates(
+        self, db_request, subscription_service, mocker, billing_service
+    ):
+        organization = OrganizationFactory.create(orgtype="Company", is_active=False)
+        OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationEventFactory.create(
+            source=organization,
+            tag=EventTag.Organization.OrganizationDeactivate,
+            additional={"reason": "no_paid_seat"},
+        )
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        event = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_test_12345",
+                    "metadata": {"billing_service": "pypi", "domain": "localhost"},
+                },
+            },
+        }
+        mocker.patch.object(
+            billing_service,
+            "get_checkout_session",
+            return_value={
+                "id": "cs_test_12345",
+                "customer": {
+                    "id": stripe_customer.customer_id,
+                    "email": "good@day.com",
+                },
+                "status": "complete",
+                "subscription": {
+                    "id": "sub_12345",
+                    "items": {"data": [{"id": "si_12345"}]},
+                },
+            },
+        )
+
+        billing.handle_billing_webhook_event(db_request, event)
+
+        assert organization.is_active
+        assert organization.is_in_good_standing()
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_status(
         self, db_request

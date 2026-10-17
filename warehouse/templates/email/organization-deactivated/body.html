@@ -10,7 +10,7 @@
     A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install. The name <strong>{{ organization_name }}</strong> may later be made available for others to claim through a new organization application.
   </p>
   <p>
-    To reactivate this organization and purchase a seat, please reach out to us at <a href="mailto:support+orgs@pypi.org">support+orgs@pypi.org</a>.
+    To reactivate this organization, <a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}">purchase a seat from its billing page</a>. If you need help, reach out to us at <a href="mailto:support+orgs@pypi.org">support+orgs@pypi.org</a>.
   </p>
   <p>
     If you no longer want this organization, you can still <a href="{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}">delete it yourself from its settings page</a>. Deleting an organization requires that it owns no projects, and is permanent: to create an organization again, you will need to submit a new organization application, and once deleted the name <strong>{{ organization_name }}</strong> becomes available for someone else to register.

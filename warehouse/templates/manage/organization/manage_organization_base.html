@@ -52,9 +52,20 @@
           {% if not organization.is_active %}
             <div class="callout-block callout-block--danger"
                  id="organization-deactivated">
-              <p>
-                {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated. It cannot upload new releases to its projects or invite members. To reactivate it, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
-              </p>
+              {% if organization.reactivates_on_payment %}
+                <p>
+                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated because it does not have a paid seat. It cannot upload new releases to its projects or invite members. To reactivate it, purchase a seat. For help, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+                </p>
+                {% if request.has_permission(Permissions.OrganizationsBillingManage) and request.matched_route.name != "manage.organization.activate_subscription" %}
+                  <p>
+                    <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Activate billing{% endtrans %}</a>
+                  </p>
+                {% endif %}
+              {% else %}
+                <p>
+                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated. It cannot upload new releases to its projects or invite members. To reactivate it, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+                </p>
+              {% endif %}
             </div>
           {% elif organization.lacks_paid_seat and organization.deactivation_schedule %}
             {% set deactivate_on = organization.deactivation_schedule.deactivate_on|format_date(format="long") %}

@@ -626,8 +626,8 @@ class ManageOrganizationBillingViews:
         return HTTPSeeOther(manage_subscription_url)
 
     def deactivated_redirect(self) -> HTTPSeeOther | None:
-        """Paying doesn't reactivate a deactivated org, so don't let it start."""
-        if self.organization.is_active:
+        """Only orgs deactivated for having no paid seat come back by paying."""
+        if self.organization.is_active or self.organization.reactivates_on_payment:
             return None
         self.request.session.flash(
             self.request._(

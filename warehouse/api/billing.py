@@ -64,6 +64,10 @@ def handle_billing_webhook_event(request, event):
                     request=request,
                     additional={"subscription_id": subscription_id},
                 )
+            # A paid seat turns back on an org deactivated for not having one.
+            subscription_service.get_subscription(
+                subscription_service.find_subscriptionid(subscription_id)
+            ).organization.reactivate_after_payment(request=request)
         # Occurs whenever a customer's subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]

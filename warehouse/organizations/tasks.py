@@ -27,6 +27,7 @@ from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
     DEACTIVATION_STARTS_PER_DAY,
+    NO_PAID_SEAT_REASON,
     SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
@@ -345,7 +346,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     organization.record_event(
         tag=EventTag.Organization.OrganizationDeactivate,
         request=request,
-        additional={"reason": "no_paid_seat"},
+        additional={"reason": NO_PAID_SEAT_REASON},
     )
     request.db.delete(schedule)
     for owner in owners:

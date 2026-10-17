@@ -9,7 +9,11 @@ We have deactivated your Company organization '{{ organization_name }}' on PyPI 
 
 A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install. The name '{{ organization_name }}' may later be made available for others to claim through a new organization application.
 
-To reactivate this organization and purchase a seat, please reach out to us at support+orgs@pypi.org.
+To reactivate this organization, purchase a seat from its billing page:
+
+{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}
+
+If you need help, reach out to us at support+orgs@pypi.org.
 
 If you no longer want this organization, you can still delete it yourself from its settings page:
 

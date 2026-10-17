@@ -1534,6 +1534,23 @@ class TestManageOrganizationBillingViews:
         )
         create_subscription.assert_not_called()
 
+    def test_org_deactivated_for_no_paid_seat_can_start_subscription(
+        self, db_request, organization_no_customer, mocker
+    ):
+        organization_no_customer.is_active = False
+        mocker.patch.object(
+            type(organization_no_customer),
+            "reactivates_on_payment",
+            new_callable=mocker.PropertyMock,
+            return_value=True,
+        )
+        view = org_views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
+        create_subscription = mocker.patch.object(view, "create_subscription")
+
+        assert view.create_or_manage_subscription() is create_subscription.return_value
+
     def test_create_subscription(
         self,
         db_request,
