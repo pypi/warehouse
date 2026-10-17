@@ -660,8 +660,10 @@ class TestDeactivateUnpaidOrganization:
             (3, 14, 3, 3),
             # Late reminders never shorten the notice they promise.
             (10, 30, 14, 14),
-            (1, 30, 3, 3),
             (-5, 14, 3, 3),
+            # A missed reminder starts the notice period over.
+            (1, 30, 30, 30),
+            (-5, 30, 30, 30),
         ],
     )
     def test_sends_due_reminder(

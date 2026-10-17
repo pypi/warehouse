@@ -316,9 +316,9 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         if days_remaining <= days < schedule.last_notice_days
     ]
     if due:
-        # Missed a reminder? Send only the latest one, and move the deadline
-        # out so it still gives that many days.
-        notice_days = min(due)
+        # A late reminder moves the deadline out so it still gives that many days.
+        # Missed a whole reminder (e.g. a long pause)? Start over at 30 days.
+        notice_days = min(due) if len(due) == 1 else DEACTIVATION_NOTICE_DAYS[0]
         schedule.deactivate_on = max(
             schedule.deactivate_on, today + datetime.timedelta(days=notice_days)
         )
