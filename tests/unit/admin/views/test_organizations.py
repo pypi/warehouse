@@ -13,6 +13,7 @@ from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
 from tests.common.db.organizations import (
+    OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
@@ -1579,6 +1580,76 @@ class TestDeleteManualActivation:
 
         with pytest.raises(HTTPNotFound):
             views.delete_manual_activation(db_request)
+
+
+class TestReactivateOrganization:
+    @pytest.fixture
+    def flash(self, db_request, mocker):
+        db_request.route_path = mocker.Mock(return_value="/admin/organizations/")
+        return mocker.spy(db_request.session, "flash")
+
+    def test_reactivates_and_clears_stale_schedule(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=False)
+        OrganizationDeactivationScheduleFactory.create(organization=organization)
+        db_request.user = UserFactory.create()
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "test-org"})
+
+        result = views.reactivate_organization(db_request)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert organization.is_active
+        assert organization.deactivation_schedule is None
+        event = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationReactivate
+        ).one()
+        assert event.additional["reactivated_by_user_id"] == str(db_request.user.id)
+        flash.assert_called_once_with(
+            "Organization 'test-org' reactivated", queue="success"
+        )
+
+    def test_reactivates_without_schedule(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=False)
+        db_request.user = UserFactory.create()
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "test-org"})
+
+        views.reactivate_organization(db_request)
+
+        assert organization.is_active
+
+    def test_requires_confirmation(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=False)
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "wrong-name"})
+
+        result = views.reactivate_organization(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert not organization.is_active
+        flash.assert_called_once_with("Confirm the request", queue="error")
+
+    def test_already_active(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=True)
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "test-org"})
+
+        result = views.reactivate_organization(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        flash.assert_called_once_with(
+            "Organization 'test-org' is already active", queue="error"
+        )
+
+    def test_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.reactivate_organization(db_request)
 
 
 class TestSetUploadLimit:
