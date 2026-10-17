@@ -526,6 +526,19 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             is None
         )
 
+    @property
+    def lacks_paid_seat(self) -> bool:
+        """Active Company org with no paid seat. Past-due orgs are left to Stripe."""
+        return (
+            self.is_active
+            and self.orgtype == OrganizationType.Company
+            and not self.is_in_good_standing()
+            and not any(
+                subscription.is_recovering_payment
+                for subscription in self.subscriptions
+            )
+        )
+
     def can_manage_members(self) -> bool:
         """Check if this organization may invite or remove members.
 

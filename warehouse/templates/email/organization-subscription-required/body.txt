@@ -5,13 +5,15 @@
 {% block content %}
 Hello {{ username }},
 
-Your Company organization '{{ organization_name }}' on PyPI was approved, but it does not currently have an active subscription.
+Your Company organization '{{ organization_name }}' on PyPI does not have an active subscription. Company organizations require a paid subscription with at least 1 seat purchased.
 
-Continued use of a Company organization requires a paid subscription with at least 1 seat purchased. Without an active subscription, your organization's features (such as uploads and member invitations) may be restricted.
+If no seat has been purchased by {{ deactivate_on|format_date(format="long") }} (in {{ days_remaining }} days), we will deactivate '{{ organization_name }}'. A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install.
 
 To activate a subscription, visit your organization's billing page:
 
 {{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}
+
+Organizations are eligible for increased rate limits, and will gain access to upcoming features such as namespaces when they launch. We don't have a timeline for those features yet.
 
 If you no longer want this organization, you can delete it yourself from its settings page, and we will stop emailing you about it:
 
@@ -19,9 +21,11 @@ If you no longer want this organization, you can delete it yourself from its set
 
 Deleting an organization requires that it owns no projects, so remove or transfer any projects first.
 
+Deleting an organization is permanent. To create an organization again, you will need to submit a new organization application and wait for it to be approved. Once deleted, the name '{{ organization_name }}' becomes available, and someone else may register it.
+
 {% trans %}Company organizations are for for-profit companies. Community organizations are for community-supported projects and teams. Non-profits, NGOs, schools, and other non-commercial groups belong here too; you do not need to be an informal project to qualify. Publishing open-source packages does not by itself qualify a company for a Community organization.{% endtrans %}
 
-If you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org.
+If you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org before {{ deactivate_on|format_date(format="long") }}.
 
 – The PyPI Team
 {% endblock %}

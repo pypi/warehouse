@@ -2302,10 +2302,70 @@ class TestOrganizationSubscriptionRequiredEmail:
             "organization-subscription-required"
         )
 
+        deactivate_on = datetime.date(2026, 11, 16)
+
         result = email.send_organization_subscription_required_email(
             db_request,
             user,
             organization_name=organization_name,
+            deactivate_on=deactivate_on,
+            days_remaining=30,
+        )
+
+        assert result == {
+            "username": user.username,
+            "organization_name": organization_name,
+            "deactivate_on": deactivate_on,
+            "days_remaining": 30,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        db_request.task.assert_called_once_with(send_email)
+        send_email.delay.assert_called_once_with(
+            f"{user.name} <{user.email}>",
+            {
+                "sender": None,
+                "subject": subject_renderer.string_response,
+                "body_text": body_renderer.string_response,
+                "body_html": (
+                    f"<html>\n"
+                    f"<head></head>\n"
+                    f"<body>{html_renderer.string_response}</body>\n"
+                    f"</html>\n"
+                ),
+            },
+            {
+                "tag": "account:email:sent",
+                "user_id": user.id,
+                "additional": {
+                    "from_": "noreply@example.com",
+                    "to": user.email,
+                    "subject": subject_renderer.string_response,
+                    "redact_ip": True,
+                },
+            },
+        )
+
+
+class TestOrganizationDeactivatedEmail:
+    def test_send_organization_deactivated_email(
+        self,
+        db_request,
+        pyramid_user,
+        make_email_renderers,
+        send_email,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, verified=True)
+        organization_name = "example"
+
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-deactivated"
+        )
+
+        result = email.send_organization_deactivated_email(
+            db_request, user, organization_name=organization_name
         )
 
         assert result == {

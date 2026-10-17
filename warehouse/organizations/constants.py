@@ -10,5 +10,5 @@ CLEANUP_AFTER = datetime.timedelta(days=30)
 ## -- Things rleating to only company orgs
 SUBSCRIPTION_NOTICE_AFTER = datetime.timedelta(days=7)
 """How long to wait before first reminding owners that a subscription is required."""
-SUBSCRIPTION_NOTICE_INTERVAL = datetime.timedelta(days=30)
-"""Minimum time between subscription requirement reminder emails for corpos types."""
+DEACTIVATION_NOTICE_DAYS = (30, 14, 3)
+"""Days before deactivation that we email owners of an unpaid Company org."""

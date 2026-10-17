@@ -1,25 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import datetime
+import typing
+
+from uuid import UUID
 
 import stripe
 import structlog
 
 from pyramid_retry import RetryableException
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
-from warehouse.email import send_organization_subscription_required_email
+from warehouse.admin.flags import AdminFlagValue
+from warehouse.email import (
+    send_organization_deactivated_email,
+    send_organization_subscription_required_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.organizations.constants import (
     CLEANUP_AFTER,
+    DEACTIVATION_NOTICE_DAYS,
     SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationStripeSubscription,
@@ -27,6 +39,11 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+
+    from warehouse.accounts.models import User
 
 TRANSIENT_STRIPE_ERRORS = (
     stripe.error.APIConnectionError,
@@ -192,37 +209,136 @@ def reconcile_stripe_status(request):
         )
 
 
-@tasks.task(ignore_result=True, acks_late=True)
-def notify_organizations_requiring_subscription(request):
-    """
-    Email owners of company orgs that have no active subscription
-    (or manual activation) that 1 seat is required for paid orgs.
+def _send_deactivation_notice(
+    request: Request,
+    organization: Organization,
+    schedule: OrganizationDeactivationSchedule,
+    owners: list[User],
+    today: datetime.date,
+) -> None:
+    for owner in owners:
+        send_organization_subscription_required_email(
+            request,
+            owner,
+            organization_name=organization.name,
+            deactivate_on=schedule.deactivate_on,
+            days_remaining=(schedule.deactivate_on - today).days,
+        )
+    request.metrics.increment(
+        "warehouse.organizations.deactivation.notice",
+        tags=[f"days:{schedule.last_notice_days}"],
+    )
 
-    Reminders start at SUBSCRIPTION_NOTICE_AFTER, before the 30-day
-    subscription deadline communicated in the approval email.
+
+@tasks.task(ignore_result=True, acks_late=True)
+def schedule_unpaid_organization_deactivations(request: Request) -> None:
     """
+    Daily: queue one deactivate_unpaid_organization task per unpaid Company org,
+    and per org with a schedule. New orgs get SUBSCRIPTION_NOTICE_AFTER first.
+    """
+    if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
+        return
+
     organizations = (
         request.db.query(Organization)
         .filter(
-            Organization.is_active.is_(True),
-            Organization.orgtype == OrganizationType.Company,
-            Organization.created
-            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
+            or_(
+                Organization.deactivation_schedule.has(),
+                and_(
+                    Organization.is_active.is_(True),
+                    Organization.orgtype == OrganizationType.Company,
+                    Organization.created
+                    < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
+                ),
+            )
         )
         .options(
             joinedload(Organization.subscriptions),
             joinedload(Organization.manual_activation),
+            joinedload(Organization.deactivation_schedule),
         )
         .all()
     )
 
     for organization in organizations:
-        if organization.is_in_good_standing():
-            continue
+        if (
+            organization.deactivation_schedule is not None
+            or organization.lacks_paid_seat
+        ):
+            request.task(deactivate_unpaid_organization).delay(organization.id)
 
-        for user in organization.owners:
-            send_organization_subscription_required_email(
-                request,
-                user,
-                organization_name=organization.name,
+
+@tasks.task(ignore_result=True, acks_late=True)
+def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> None:
+    """Email the next notice for one org, deactivate it, or clear its schedule."""
+    if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
+        return
+
+    # Lock the org so a duplicate task can't send the same notice twice.
+    organization = request.db.get(Organization, organization_id, with_for_update=True)
+    if organization is None:
+        return
+
+    schedule = organization.deactivation_schedule
+    if not organization.lacks_paid_seat:
+        if schedule is not None:
+            request.db.delete(schedule)
+            request.metrics.increment("warehouse.organizations.deactivation.cleared")
+        return
+
+    today = datetime.datetime.now(datetime.UTC).date()
+    owners = organization.owners
+
+    if schedule is None:
+        # Don't start the clock when there is nobody we can tell about it.
+        if not any(
+            owner.primary_email and owner.primary_email.verified for owner in owners
+        ):
+            request.metrics.increment(
+                "warehouse.organizations.deactivation.skipped",
+                tags=["reason:no_recipients"],
             )
+            return
+        notice_days = DEACTIVATION_NOTICE_DAYS[0]
+        schedule = OrganizationDeactivationSchedule(
+            organization=organization,
+            deactivate_on=today + datetime.timedelta(days=notice_days),
+            last_notice_days=notice_days,
+        )
+        request.db.add(schedule)
+        _send_deactivation_notice(request, organization, schedule, owners, today)
+        return
+
+    days_remaining = (schedule.deactivate_on - today).days
+    due = [
+        days
+        for days in DEACTIVATION_NOTICE_DAYS
+        if days_remaining <= days < schedule.last_notice_days
+    ]
+    if due:
+        # Missed a reminder? Send only the latest one, and move the deadline
+        # out so it still gives that many days.
+        notice_days = min(due)
+        schedule.deactivate_on = max(
+            schedule.deactivate_on, today + datetime.timedelta(days=notice_days)
+        )
+        schedule.last_notice_days = notice_days
+        _send_deactivation_notice(request, organization, schedule, owners, today)
+        return
+
+    # Owners have until the end of deactivate_on (UTC) to purchase a seat.
+    if days_remaining >= 0:
+        return
+
+    organization.is_active = False
+    organization.record_event(
+        tag=EventTag.Organization.OrganizationDeactivate,
+        request=request,
+        additional={"reason": "no_paid_seat"},
+    )
+    request.db.delete(schedule)
+    for owner in owners:
+        send_organization_deactivated_email(
+            request, owner, organization_name=organization.name
+        )
+    request.metrics.increment("warehouse.organizations.deactivation.deactivated")
