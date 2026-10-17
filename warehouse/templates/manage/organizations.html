@@ -76,7 +76,10 @@
               {% endif %}
               <span class="badge"
                     title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
-              {% if not organization.is_in_good_standing() %}
+              {% if not organization.is_active %}
+                <span class="badge badge--danger"
+                      title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
+              {% elif not organization.is_in_good_standing() %}
                 {% if organization.name in (organizations_owned + organizations_billing) %}
                   <a class="badge badge--danger"
                      href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
@@ -84,9 +87,6 @@
                   <span class="badge badge--danger"
                         title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
                 {% endif %}
-              {% elif organization.is_active == False %}
-                <span class="badge badge--danger"
-                      title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
               {% elif organization.name in organizations_managed %}
                 <a class="badge badge--warning"
                    href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
@@ -100,6 +100,10 @@
             </h3>
             <p class="organization-snippet__meta">
               {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+              {% if organization.lacks_paid_seat and organization.deactivation_schedule %}
+                <br>
+                <strong>{% trans deactivate_on=organization.deactivation_schedule.deactivate_on|format_date(format="long") %}Purchase a seat by {{ deactivate_on }} or this organization will be deactivated{% endtrans %}</strong>
+              {% endif %}
             </p>
           </div>
           <div class="organization-snippet__buttons">
@@ -109,12 +113,19 @@
                  href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}"
                  title="{% trans %}View this organization{% endtrans %}">{% trans %}View{% endtrans %}</a>
             {% elif not organization.is_active %}
-              {# Show disabled "Manage" button for inactive organization #}
-              <button class="button button--primary"
-                      disabled
-                      title="{% trans %}This organization is not active{% endtrans %}">
-                {% trans %}Manage{% endtrans %}
-              </button>
+              {% if organization.name in organizations_owned %}
+                {# Owners can still delete an inactive organization from its settings #}
+                <a class="button"
+                   href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
+                   title="{% trans %}Manage this organization{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
+              {% else %}
+                {# Show disabled "Manage" button for inactive organization #}
+                <button class="button button--primary"
+                        disabled
+                        title="{% trans %}This organization is not active{% endtrans %}">
+                  {% trans %}Manage{% endtrans %}
+                </button>
+              {% endif %}
             {% elif not organization.is_in_good_standing() %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
                 {# Show "Activate Billing" button for owners and billing managers #}

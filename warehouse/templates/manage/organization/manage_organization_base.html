@@ -49,6 +49,27 @@
           {% with mode="mobile" %}
             {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
           {% endwith %}
+          {% if not organization.is_active %}
+            <div class="callout-block callout-block--danger"
+                 id="organization-deactivated">
+              <p>
+                {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated. It cannot upload new releases to its projects or invite members. To reactivate it, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+              </p>
+            </div>
+          {% elif organization.lacks_paid_seat and organization.deactivation_schedule %}
+            {% set deactivate_on = organization.deactivation_schedule.deactivate_on|format_date(format="long") %}
+            <div class="callout-block callout-block--warning"
+                 id="organization-deactivation-scheduled">
+              <p>
+                {% trans deactivate_on=deactivate_on %}This organization does not have an active subscription. If no seat has been purchased by {{ deactivate_on }}, it will be deactivated.{% endtrans %}
+              </p>
+              {% if request.has_permission(Permissions.OrganizationsBillingManage) and request.matched_route.name != "manage.organization.activate_subscription" %}
+                <p>
+                  <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Activate billing{% endtrans %}</a>
+                </p>
+              {% endif %}
+            </div>
+          {% endif %}
           {% block main %}
           {% endblock %}
         </div>
