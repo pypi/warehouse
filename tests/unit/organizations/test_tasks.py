@@ -552,6 +552,12 @@ class TestScheduleUnpaidOrganizationDeactivations:
         OrganizationFactory.create(orgtype=OrganizationType.Community)
         _unpaid_org(is_active=False)
         _unpaid_org(created=datetime.datetime.now(datetime.UTC))
+        unverified = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationRoleFactory.create(
+            organization=unverified,
+            user=EmailFactory.create(verified=False, primary=True).user,
+            role_name=OrganizationRoleType.Owner,
+        )
 
         schedule_unpaid_organization_deactivations(db_request)
 
@@ -560,6 +566,23 @@ class TestScheduleUnpaidOrganizationDeactivations:
             unpaid.id,
             canceled.id,
             scheduled_inactive.id,
+        }
+
+    def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
+        mocker.patch("warehouse.organizations.tasks.DEACTIVATION_STARTS_PER_DAY", 1)
+        task = mocker.patch.object(db_request, "task")
+
+        oldest, _ = _unpaid_org(created=datetime.datetime(2021, 1, 1))
+        _unpaid_org(created=datetime.datetime(2022, 1, 1))
+        # Orgs already counting down don't count against the cap.
+        scheduled, _ = _unpaid_org(created=datetime.datetime(2023, 1, 1))
+        _schedule(scheduled, deactivate_in=14, last_notice_days=30)
+
+        schedule_unpaid_organization_deactivations(db_request)
+
+        assert {c.args[0] for c in task.return_value.delay.call_args_list} == {
+            oldest.id,
+            scheduled.id,
         }
 
     def test_disallowed_by_admin_flag(self, db_request, mocker):

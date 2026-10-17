@@ -11,11 +11,12 @@ import stripe
 import structlog
 
 from pyramid_retry import RetryableException
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_organization_deactivated_email,
@@ -25,6 +26,7 @@ from warehouse.events.tags import EventTag
 from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
+    DEACTIVATION_STARTS_PER_DAY,
     SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
@@ -34,6 +36,8 @@ from warehouse.organizations.models import (
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationRole,
+    OrganizationRoleType,
     OrganizationStripeSubscription,
     OrganizationType,
 )
@@ -42,8 +46,6 @@ from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptio
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
-
-    from warehouse.accounts.models import User
 
 TRANSIENT_STRIPE_ERRORS = (
     stripe.error.APIConnectionError,
@@ -233,39 +235,48 @@ def _send_deactivation_notice(
 @tasks.task(ignore_result=True, acks_late=True)
 def schedule_unpaid_organization_deactivations(request: Request) -> None:
     """
-    Daily: queue one deactivate_unpaid_organization task per unpaid Company org,
-    and per org with a schedule. New orgs get SUBSCRIPTION_NOTICE_AFTER first.
+    Daily: queue one deactivate_unpaid_organization task per org with a schedule,
+    and for up to DEACTIVATION_STARTS_PER_DAY unpaid Company orgs without one,
+    oldest first. New orgs get SUBSCRIPTION_NOTICE_AFTER first.
     """
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
-    organizations = (
+    scheduled = request.db.scalars(
+        select(Organization.id).where(Organization.deactivation_schedule.has())
+    ).all()
+
+    candidates = (
         request.db.query(Organization)
         .filter(
-            or_(
-                Organization.deactivation_schedule.has(),
+            ~Organization.deactivation_schedule.has(),
+            Organization.is_active.is_(True),
+            Organization.orgtype == OrganizationType.Company,
+            Organization.created
+            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
+            # Orgs nobody can be told about would take up the cap every night.
+            Organization.roles.any(
                 and_(
-                    Organization.is_active.is_(True),
-                    Organization.orgtype == OrganizationType.Company,
-                    Organization.created
-                    < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
-                ),
-            )
+                    OrganizationRole.role_name == OrganizationRoleType.Owner,
+                    OrganizationRole.user.has(
+                        User.emails.any(
+                            and_(Email.primary.is_(True), Email.verified.is_(True))
+                        )
+                    ),
+                )
+            ),
         )
         .options(
             joinedload(Organization.subscriptions),
             joinedload(Organization.manual_activation),
-            joinedload(Organization.deactivation_schedule),
         )
+        .order_by(Organization.created)
         .all()
     )
+    unpaid = [org.id for org in candidates if org.lacks_paid_seat]
 
-    for organization in organizations:
-        if (
-            organization.deactivation_schedule is not None
-            or organization.lacks_paid_seat
-        ):
-            request.task(deactivate_unpaid_organization).delay(organization.id)
+    for organization_id in [*scheduled, *unpaid[:DEACTIVATION_STARTS_PER_DAY]]:
+        request.task(deactivate_unpaid_organization).delay(organization_id)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
