@@ -967,7 +967,7 @@ class TestProjectService:
     @pytest.mark.parametrize(
         ("success", "remote_addr"),
         [(True, "1.2.3.4"), (True, None), (False, "1.2.3.4")],
-        ids=["committed", "committed-without-remote-addr", "aborted"],
+        ids=["committed", "committed-without-remote-addr", "failed-commit"],
     )
     def test_create_project_spends_creation_limits_only_after_commit(
         self,
@@ -993,6 +993,12 @@ class TestProjectService:
         if success:
             db_request.tm.commit()
         else:
+            resource = mocker.Mock()
+            resource.sortKey.return_value = "failing-resource"
+            resource.tpc_vote.side_effect = RuntimeError("commit failed")
+            db_request.tm.get().join(resource)
+            with pytest.raises(RuntimeError, match="commit failed"):
+                db_request.tm.commit()
             db_request.tm.abort()
         db_request.tm.begin()
 
