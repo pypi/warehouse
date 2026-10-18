@@ -1011,16 +1011,11 @@ class TestProjectService:
         creator = UserFactory.create()
         organization = OrganizationFactory.create() if organization_owned else None
         organization_id = organization.id if organization else None
-        storage = MemoryStorage()
-        for partition in ("user", "organization", "ip"):
-            for kind, amount in (("", 4), ("attempt.", 20)):
-                name = f"project.create.{kind}{partition}"
-                project_service.ratelimiters[name] = RateLimiter(
-                    storage, f"{amount} per day", identifiers=[name], metrics=metrics
-                )
-        identity = project_service._identity_limiter(creator, organization_id)
+        partition = "organization" if organization_owned else "user"
+        limiter = RateLimiter(MemoryStorage(), "20 per day", metrics=metrics)
+        project_service.ratelimiters[f"project.create.attempt.{partition}"] = limiter
         for _ in range(used):
-            identity.attempt_limiter.hit(identity.identifier)
+            limiter.hit(organization_id or creator.id)
 
         if used == 20:
             with pytest.raises(TooManyProjectsCreated):
@@ -1035,7 +1030,6 @@ class TestProjectService:
                 "tracked-project", creator, db_request, organization_id=organization_id
             )
 
-        partition = "organization" if organization_owned else "user"
         metrics.increment.assert_any_call(
             "warehouse.project.create.attempt",
             tags=[f"partition:{partition}", "ratelimited:true"],
