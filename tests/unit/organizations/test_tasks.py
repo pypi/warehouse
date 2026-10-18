@@ -42,6 +42,7 @@ from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationManualActivationFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
@@ -562,6 +563,11 @@ class TestScheduleUnpaidOrganizationDeactivations:
         secondary_only = OrganizationFactory.create(orgtype=OrganizationType.Company)
         _owner_with_emails(secondary_only, primary_verified=False, other_verified=True)
 
+        # Nobody can be told, but they own nothing, so they're deactivated anyway.
+        unreachable = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _owner_with_emails(unreachable, primary_verified=False, other_verified=False)
+        ownerless = OrganizationFactory.create(orgtype=OrganizationType.Company)
+
         # None of these are dispatched.
         good_standing, _ = _unpaid_org()
         OrganizationManualActivationFactory.create(organization=good_standing)
@@ -573,12 +579,14 @@ class TestScheduleUnpaidOrganizationDeactivations:
         OrganizationFactory.create(orgtype=OrganizationType.Community)
         _unpaid_org(is_active=False)
         _unpaid_org(created=datetime.datetime.now(datetime.UTC))
-        unverified = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        OrganizationRoleFactory.create(
-            organization=unverified,
-            user=EmailFactory.create(verified=False, primary=True).user,
-            role_name=OrganizationRoleType.Owner,
+        # Nobody can be told and it owns a project.
+        unreachable_with_project = OrganizationFactory.create(
+            orgtype=OrganizationType.Company
         )
+        _owner_with_emails(
+            unreachable_with_project, primary_verified=False, other_verified=False
+        )
+        OrganizationProjectFactory.create(organization=unreachable_with_project)
 
         schedule_unpaid_organization_deactivations(db_request)
 
@@ -588,6 +596,8 @@ class TestScheduleUnpaidOrganizationDeactivations:
             canceled.id,
             scheduled_inactive.id,
             secondary_only.id,
+            unreachable.id,
+            ownerless.id,
         }
 
     def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
@@ -662,13 +672,27 @@ class TestDeactivateUnpaidOrganization:
         assert organization.deactivation_schedule is not None
         assert _queued(db_request) == [(organization.id, False)]
 
-    def test_no_verified_owner_does_not_start_notice_period(self, db_request, metrics):
+    @pytest.mark.parametrize("has_owner", [True, False])
+    def test_unreachable_org_without_projects_starts_notice_period(
+        self, db_request, has_owner
+    ):
         organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        owner = UserFactory.create()
-        EmailFactory.create(user=owner, verified=False, primary=True)
-        OrganizationRoleFactory.create(
-            organization=organization, user=owner, role_name=OrganizationRoleType.Owner
-        )
+        if has_owner:
+            _owner_with_emails(
+                organization, primary_verified=False, other_verified=False
+            )
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.deactivation_schedule is not None
+        assert _queued(db_request) == [(organization.id, False)]
+
+    def test_unreachable_org_with_projects_does_not_start_notice_period(
+        self, db_request, metrics
+    ):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _owner_with_emails(organization, primary_verified=False, other_verified=False)
+        OrganizationProjectFactory.create(organization=organization)
 
         deactivate_unpaid_organization(db_request, organization.id)
 

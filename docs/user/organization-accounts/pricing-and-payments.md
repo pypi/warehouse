@@ -21,6 +21,8 @@ Continued use of a Corporate Organization requires a paid subscription with at l
 date to purchase a seat by, and remind them 30, 14, and 3 days before that date. If no
 seat is purchased by the end of that date (UTC), we deactivate the Organization.
 Purchasing a seat before then stops the emails and keeps the Organization active.
+We send these emails to each owner's verified email addresses. If no owner has one
+and the Organization owns no projects, it is still deactivated on the same schedule.
 
 A deactivated Organization cannot upload new releases to its projects or invite
 members, and its public page on PyPI is removed. Its projects stay on PyPI and can

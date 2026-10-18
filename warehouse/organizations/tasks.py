@@ -12,7 +12,7 @@ import stripe
 import structlog
 
 from pyramid_retry import RetryableException
-from sqlalchemy import and_, select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse import tasks
@@ -263,14 +263,18 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
             Organization.orgtype == OrganizationType.Company,
             Organization.created
             < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
-            # Orgs nobody can be told about would take up the cap every night.
-            Organization.roles.any(
-                and_(
-                    OrganizationRole.role_name == OrganizationRoleType.Owner,
-                    OrganizationRole.user.has(
-                        User.emails.any(Email.verified.is_(True))
-                    ),
-                )
+            # Orgs nobody can be told about are only deactivated if they own no
+            # projects; the rest would take up the cap every night.
+            or_(
+                Organization.roles.any(
+                    and_(
+                        OrganizationRole.role_name == OrganizationRoleType.Owner,
+                        OrganizationRole.user.has(
+                            User.emails.any(Email.verified.is_(True))
+                        ),
+                    )
+                ),
+                ~Organization.projects.any(),
             ),
         )
         .options(
@@ -307,8 +311,9 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     today = datetime.datetime.now(datetime.UTC).date()
 
     if schedule is None:
-        # Don't start the clock when there is nobody we can tell about it.
-        if not _reachable_owners(organization):
+        # Nobody to tell: go ahead anyway unless it owns projects, whose uploads
+        # would stop without warning.
+        if not _reachable_owners(organization) and organization.projects:
             request.metrics.increment(
                 "warehouse.organizations.deactivation.skipped",
                 tags=["reason:no_recipients"],
