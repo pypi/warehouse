@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-create organization deactivation schedules
+add organization deactivation
 
 Revision ID: b3c1d8e9f4a2
 Revises: f555f02f7688
@@ -10,6 +10,9 @@ Create Date: 2026-10-17 00:00:00.000000
 import sqlalchemy as sa
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
+
+from warehouse.utils.db.types import TZDateTime
 
 revision = "b3c1d8e9f4a2"
 down_revision = "f555f02f7688"
@@ -38,6 +41,32 @@ down_revision = "f555f02f7688"
 
 
 def upgrade():
+    sa.Enum(
+        "no_paid_seat", "owner_removed", name="organizationdeactivationreason"
+    ).create(op.get_bind())
+    op.add_column(
+        "organizations",
+        sa.Column(
+            "deactivated",
+            TZDateTime(),
+            nullable=True,
+            comment="Datetime the organization was deactivated. NULL while active.",
+        ),
+    )
+    op.add_column(
+        "organizations",
+        sa.Column(
+            "deactivated_reason",
+            postgresql.ENUM(
+                "no_paid_seat",
+                "owner_removed",
+                name="organizationdeactivationreason",
+                create_type=False,
+            ),
+            nullable=True,
+            comment="Why the organization was deactivated, if known.",
+        ),
+    )
     op.create_table(
         "organization_deactivation_schedules",
         sa.Column(
@@ -57,13 +86,32 @@ def upgrade():
             "deactivate_on",
             sa.Date(),
             nullable=False,
-            comment="Date (UTC) on or after which the organization is deactivated",
+            comment="Last day (UTC) to purchase a seat before deactivation",
         ),
         sa.Column(
             "last_notice_days",
             sa.Integer(),
             nullable=False,
-            comment="Days-before-deactivation of the most recent notice sent",
+            comment="Days-before-deactivation of the most recent notice",
+        ),
+        sa.ForeignKeyConstraint(
+            ["organization_id"], ["organizations.id"], ondelete="CASCADE"
+        ),
+        sa.PrimaryKeyConstraint("organization_id"),
+    )
+    op.create_table(
+        "organization_deactivation_notices",
+        sa.Column(
+            "organization_id",
+            sa.UUID(),
+            nullable=False,
+            comment="Foreign key to organization",
+        ),
+        sa.Column(
+            "deactivated",
+            sa.Boolean(),
+            nullable=False,
+            comment="True if the org was deactivated, False for a reminder",
         ),
         sa.Column(
             "id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False
@@ -71,7 +119,13 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["organization_id"], ["organizations.id"], ondelete="CASCADE"
         ),
-        sa.PrimaryKeyConstraint("organization_id"),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(
+        op.f("ix_organization_deactivation_notices_organization_id"),
+        "organization_deactivation_notices",
+        ["organization_id"],
+        unique=False,
     )
     op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
@@ -88,4 +142,14 @@ def downgrade():
     op.execute(
         "DELETE FROM admin_flags WHERE id = 'disallow-organization-deactivation'"
     )
+    op.drop_index(
+        op.f("ix_organization_deactivation_notices_organization_id"),
+        table_name="organization_deactivation_notices",
+    )
+    op.drop_table("organization_deactivation_notices")
     op.drop_table("organization_deactivation_schedules")
+    op.drop_column("organizations", "deactivated_reason")
+    op.drop_column("organizations", "deactivated")
+    sa.Enum(
+        "no_paid_seat", "owner_removed", name="organizationdeactivationreason"
+    ).drop(op.get_bind())

@@ -821,7 +821,7 @@ class OrganizationManualActivation(db.Model):
         return max(0, self.seat_limit - self.current_member_count)
 
 
-class OrganizationDeactivationSchedule(db.Model):
+class OrganizationDeactivationSchedule(db.ModelBase):
     """Deadline for an unpaid Company org. Deleted once it pays or is deactivated."""
 
     __tablename__ = "organization_deactivation_schedules"
@@ -841,14 +841,10 @@ class OrganizationDeactivationSchedule(db.Model):
         comment="Datetime when the deactivation notice period started",
     )
     deactivate_on: Mapped[datetime.date] = mapped_column(
-        comment="Date (UTC) on or after which the organization is deactivated",
+        comment="Last day (UTC) to purchase a seat before deactivation",
     )
     last_notice_days: Mapped[int] = mapped_column(
-        comment="Days-before-deactivation of the most recent notice sent",
-    )
-
-    id: Mapped[UUID] = mapped_column(
-        server_default=text("gen_random_uuid()"),
+        comment="Days-before-deactivation of the most recent notice",
     )
 
 
@@ -866,9 +862,6 @@ class OrganizationDeactivationNotice(db.Model):
     )
     organization: Mapped[Organization] = relationship()
 
-    created: Mapped[datetime_now] = mapped_column(
-        comment="Datetime when the notice was queued",
-    )
     deactivated: Mapped[bool] = mapped_column(
         comment="True if the org was deactivated, False for a reminder",
     )
