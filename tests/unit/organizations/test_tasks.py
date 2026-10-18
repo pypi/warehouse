@@ -521,6 +521,20 @@ def _unpaid_org(**kwargs):
     return organization, owner
 
 
+def _owner_with_emails(organization, *, primary_verified, other_verified):
+    owner = UserFactory.create()
+    EmailFactory.create(user=owner, verified=primary_verified, primary=True)
+    other = (
+        EmailFactory.create(user=owner, verified=True, primary=False)
+        if other_verified
+        else None
+    )
+    OrganizationRoleFactory.create(
+        organization=organization, user=owner, role_name=OrganizationRoleType.Owner
+    )
+    return owner, other
+
+
 def _schedule(organization, *, deactivate_in, last_notice_days):
     return OrganizationDeactivationScheduleFactory.create(
         organization=organization,
@@ -544,6 +558,9 @@ class TestScheduleUnpaidOrganizationDeactivations:
         # the per-org task can clear it.
         scheduled_inactive, _ = _unpaid_org(is_active=False)
         _schedule(scheduled_inactive, deactivate_in=14, last_notice_days=30)
+        # An owner reachable only at a non-primary verified address counts.
+        secondary_only = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _owner_with_emails(secondary_only, primary_verified=False, other_verified=True)
 
         # None of these are dispatched.
         good_standing, _ = _unpaid_org()
@@ -570,6 +587,7 @@ class TestScheduleUnpaidOrganizationDeactivations:
             unpaid.id,
             canceled.id,
             scheduled_inactive.id,
+            secondary_only.id,
         }
 
     def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
@@ -629,6 +647,15 @@ class TestDeactivateUnpaidOrganization:
             organization=organization,
             subscription__status=StripeSubscriptionStatus.Canceled,
         )
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.deactivation_schedule is not None
+        assert _queued(db_request) == [(organization.id, False)]
+
+    def test_owner_with_other_verified_email_starts_notice_period(self, db_request):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _owner_with_emails(organization, primary_verified=False, other_verified=True)
 
         deactivate_unpaid_organization(db_request, organization.id)
 
@@ -837,7 +864,14 @@ class TestSendOrganizationDeactivationNotices:
     ):
         later, owner = _unpaid_org(name="later")
         _schedule(later, deactivate_in=14, last_notice_days=14)
-        sooner, sooner_owner = _unpaid_org(name="sooner")
+        sooner = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, name="sooner"
+        )
+        # Reached at their other verified address; the unreachable owner is skipped.
+        sooner_owner, sooner_email = _owner_with_emails(
+            sooner, primary_verified=False, other_verified=True
+        )
+        _owner_with_emails(sooner, primary_verified=False, other_verified=False)
         _schedule(sooner, deactivate_in=3, last_notice_days=3)
         self._add_owner(sooner, owner)
         gone, _ = _unpaid_org(name="gone")
@@ -863,7 +897,7 @@ class TestSendOrganizationDeactivationNotices:
         assert send_reminder.call_count == 2
         send_reminder.assert_any_call(
             db_request,
-            owner,
+            (owner, owner.primary_email),
             organizations=[
                 {
                     "name": "sooner",
@@ -879,7 +913,7 @@ class TestSendOrganizationDeactivationNotices:
         )
         send_reminder.assert_any_call(
             db_request,
-            sooner_owner,
+            (sooner_owner, sooner_email),
             organizations=[
                 {
                     "name": "sooner",
@@ -892,7 +926,7 @@ class TestSendOrganizationDeactivationNotices:
         assert send_deactivated.call_count == 2
         send_deactivated.assert_any_call(
             db_request,
-            owner,
+            (owner, owner.primary_email),
             organizations=[
                 {"name": "gone", "reactivate_by": TODAY + datetime.timedelta(days=90)}
             ],

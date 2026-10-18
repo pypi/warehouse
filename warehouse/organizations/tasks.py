@@ -214,6 +214,19 @@ def reconcile_stripe_status(request):
         )
 
 
+def _reachable_owners(organization: Organization) -> list[tuple[User, Email]]:
+    """Each owner with a verified address: their primary, else any other verified."""
+    reachable = []
+    for owner in organization.owners:
+        verified = sorted(
+            (email for email in owner.emails if email.verified),
+            key=lambda email: (not email.primary, email.id),
+        )
+        if verified:
+            reachable.append((owner, verified[0]))
+    return reachable
+
+
 def _queue_reminder(
     request: Request,
     organization: Organization,
@@ -255,9 +268,7 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
                 and_(
                     OrganizationRole.role_name == OrganizationRoleType.Owner,
                     OrganizationRole.user.has(
-                        User.emails.any(
-                            and_(Email.primary.is_(True), Email.verified.is_(True))
-                        )
+                        User.emails.any(Email.verified.is_(True))
                     ),
                 )
             ),
@@ -294,13 +305,10 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         return
 
     today = datetime.datetime.now(datetime.UTC).date()
-    owners = organization.owners
 
     if schedule is None:
         # Don't start the clock when there is nobody we can tell about it.
-        if not any(
-            owner.primary_email and owner.primary_email.verified for owner in owners
-        ):
+        if not _reachable_owners(organization):
             request.metrics.increment(
                 "warehouse.organizations.deactivation.skipped",
                 tags=["reason:no_recipients"],
@@ -364,29 +372,29 @@ def send_organization_deactivation_notices(request: Request) -> None:
     ).all()
 
     # Drop notices the org no longer needs, e.g. it paid since they were queued.
-    owners: dict[UUID, User] = {}
+    recipients: dict[UUID, tuple[User, Email]] = {}
     reminders: dict[UUID, set[OrganizationDeactivationSchedule]] = defaultdict(set)
     deactivations: dict[UUID, dict[str, datetime.date]] = defaultdict(dict)
     for notice in notices:
         organization = notice.organization
         schedule = organization.deactivation_schedule
         deadline = organization.reactivation_deadline
-        if notice.deactivated and organization.reactivates_on_payment and deadline:
-            for owner in organization.owners:
-                owners[owner.id] = owner
-                deactivations[owner.id][organization.name] = deadline.date()
-        elif not notice.deactivated and organization.lacks_paid_seat and schedule:
-            for owner in organization.owners:
-                owners[owner.id] = owner
+        if not notice.deactivated and organization.lacks_paid_seat and schedule:
+            for owner, email in _reachable_owners(organization):
+                recipients[owner.id] = (owner, email)
                 reminders[owner.id].add(schedule)
+        elif notice.deactivated and organization.reactivates_on_payment and deadline:
+            for owner, email in _reachable_owners(organization):
+                recipients[owner.id] = (owner, email)
+                deactivations[owner.id][organization.name] = deadline.date()
         request.db.delete(notice)
 
     today = datetime.datetime.now(datetime.UTC).date()
-    for owner_id, owner in owners.items():
+    for owner_id, recipient in recipients.items():
         if schedules := reminders[owner_id]:
             send_organization_subscription_required_email(
                 request,
-                owner,
+                recipient,
                 organizations=[
                     {
                         "name": schedule.organization.name,
@@ -402,7 +410,7 @@ def send_organization_deactivation_notices(request: Request) -> None:
         if deadlines := deactivations[owner_id]:
             send_organization_deactivated_email(
                 request,
-                owner,
+                recipient,
                 organizations=[
                     {"name": name, "reactivate_by": reactivate_by}
                     for name, reactivate_by in sorted(deadlines.items())

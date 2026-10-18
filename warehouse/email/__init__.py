@@ -666,10 +666,11 @@ def send_organization_deleted_email(request, user, *, organization_name):
 @_email("organization-subscription-required")
 def send_organization_subscription_required_email(
     request: Request,
-    user: User,
+    user_and_email: tuple[User, Email],
     *,
     organizations: list[dict[str, str | datetime.date | int]],
 ) -> dict[str, str | list[dict[str, str | datetime.date | int]]]:
+    user, _ = user_and_email
     return {
         "username": user.username,
         "organizations": organizations,
@@ -679,10 +680,11 @@ def send_organization_subscription_required_email(
 @_email("organization-deactivated")
 def send_organization_deactivated_email(
     request: Request,
-    user: User,
+    user_and_email: tuple[User, Email],
     *,
     organizations: list[dict[str, str | datetime.date]],
 ) -> dict[str, str | list[dict[str, str | datetime.date]]]:
+    user, _ = user_and_email
     return {
         "username": user.username,
         "organizations": organizations,

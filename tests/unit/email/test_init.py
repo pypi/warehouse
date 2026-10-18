@@ -2310,7 +2310,7 @@ class TestOrganizationSubscriptionRequiredEmail:
         ]
 
         result = email.send_organization_subscription_required_email(
-            db_request, user, organizations=organizations
+            db_request, (user, user.primary_email), organizations=organizations
         )
 
         assert result == {
@@ -2367,7 +2367,7 @@ class TestOrganizationDeactivatedEmail:
         ]
 
         result = email.send_organization_deactivated_email(
-            db_request, user, organizations=organizations
+            db_request, (user, user.primary_email), organizations=organizations
         )
 
         assert result == {
