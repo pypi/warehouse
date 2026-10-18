@@ -591,7 +591,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         )
 
     def reactivate_after_payment(self, *, request: Request) -> None:
-        """Turn back on an org deactivated for having no paid seat."""
+        # Lock and reload so a deactivation running right now can't be missed.
+        request.db.get(
+            Organization, self.id, with_for_update=True, populate_existing=True
+        )
         if not self.reactivates_on_payment:
             return
         self.reactivate()

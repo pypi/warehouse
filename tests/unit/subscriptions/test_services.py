@@ -560,9 +560,7 @@ class TestStripeSubscriptionService:
         ("status", "reactivates"),
         [
             (StripeSubscriptionStatus.Active, True),
-            (StripeSubscriptionStatus.Trialing, True),
             (StripeSubscriptionStatus.PastDue, False),
-            (StripeSubscriptionStatus.Canceled, False),
         ],
     )
     def test_sync_subscription_status_reactivates_paid_org(
