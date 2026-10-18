@@ -457,6 +457,7 @@ class ProjectService:
         ip_limiter = self.ratelimiters["project.create.ip"]
         attempt_ip_limiter = self.ratelimiters["project.create.attempt.ip"]
         attempt_limiter = identity.attempt_limiter
+        snapshot_offset = len(getattr(request, "_rate_limit_snapshots", ()))
 
         # Record the current limiter state so the egress tween can emit
         # RateLimit / RateLimit-Policy headers, whether or not we reject below.
@@ -489,6 +490,18 @@ class ProjectService:
             identifiers=(identity.identifier,),
             partition_key=identity.partition_key,
         )
+
+        # Attempt-weighted window usage, not unique-publisher daily totals.
+        for snapshot in getattr(request, "_rate_limit_snapshots", ())[snapshot_offset:]:
+            for stats in snapshot.stats:
+                request.metrics.distribution(
+                    "warehouse.project.create.quota.used",
+                    stats.amount - stats.remaining,
+                    tags=[
+                        f"ratelimiter:{snapshot.name.removeprefix('project.create.')}",
+                        f"window_seconds:{stats.window_seconds}",
+                    ],
+                )
 
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
@@ -602,6 +615,14 @@ class ProjectService:
         ratelimited=True,
         organization_id=None,
     ):
+        partition = "organization" if organization_id is not None else "user"
+        request.metrics.increment(
+            "warehouse.project.create.attempt",
+            tags=[
+                f"partition:{partition}",
+                f"ratelimited:{str(ratelimited).lower()}",
+            ],
+        )
         identity_limiter = (
             self._identity_limiter(creator, organization_id) if ratelimited else None
         )

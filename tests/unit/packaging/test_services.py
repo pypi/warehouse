@@ -10,6 +10,7 @@ import botocore.exceptions
 import google.cloud.storage
 import pytest
 
+from limits.storage import MemoryStorage
 from pyramid.httpexceptions import HTTPForbidden
 from zope.interface.verify import verifyClass
 
@@ -47,7 +48,7 @@ from warehouse.packaging.services import (
     project_service_factory,
 )
 from warehouse.packaging.tasks import typo_check_project_name
-from warehouse.rate_limiting import DummyRateLimiter
+from warehouse.rate_limiting import DummyRateLimiter, RateLimiter
 from warehouse.rate_limiting.interfaces import WindowStats
 
 from ...common.db.accounts import UserFactory
@@ -1007,6 +1008,49 @@ class TestProjectService:
                 expected.append(mocker.call(remote_addr))
             expected.append(mocker.call(creator.id))
         assert ratelimit_service.hit.call_args_list == expected
+
+    @pytest.mark.parametrize("organization_owned", [False, True])
+    @pytest.mark.parametrize("used", [4, 20])
+    def test_creation_metrics_include_quota_rejections(
+        self, project_service, db_request, metrics, organization_owned, used
+    ):
+        creator = UserFactory.create()
+        organization = OrganizationFactory.create() if organization_owned else None
+        organization_id = organization.id if organization else None
+        storage = MemoryStorage()
+        for partition in ("user", "organization", "ip"):
+            for kind, amount in (("", 4), ("attempt.", 20)):
+                name = f"project.create.{kind}{partition}"
+                project_service.ratelimiters[name] = RateLimiter(
+                    storage, f"{amount} per day", identifiers=[name], metrics=metrics
+                )
+        identity = project_service._identity_limiter(creator, organization_id)
+        for _ in range(used):
+            identity.attempt_limiter.hit(identity.identifier)
+
+        if used == 20:
+            with pytest.raises(TooManyProjectsCreated):
+                project_service.create_project(
+                    "tracked-project",
+                    creator,
+                    db_request,
+                    organization_id=organization_id,
+                )
+        else:
+            project_service.create_project(
+                "tracked-project", creator, db_request, organization_id=organization_id
+            )
+
+        partition = "organization" if organization_owned else "user"
+        metrics.increment.assert_any_call(
+            "warehouse.project.create.attempt",
+            tags=[f"partition:{partition}", "ratelimited:true"],
+        )
+        metrics.distribution.assert_any_call(
+            "warehouse.project.create.quota.used",
+            used,
+            tags=[f"ratelimiter:attempt.{partition}", "window_seconds:86400"],
+        )
 
     def test_identity_limiter_applies_user_override_to_attempt_limiter(
         self, project_service, ratelimit_service, mocker
