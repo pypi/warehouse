@@ -32,12 +32,11 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0), update_organziation_subscription_usage_record
     )
-    # Daily, after reconcile_stripe_status, so a dropped webhook can't get a
-    # paying org warned or deactivated. Reminder cadence lives in the schedule.
+    # After reconcile_stripe_status, so a missed webhook can't deactivate a paid org.
     config.add_periodic_task(
         crontab(minute=0, hour=1), schedule_unpaid_organization_deactivations
     )
-    # An hour after the per-org tasks queue notices, so each owner gets one email.
+    # After the per-org tasks queue notices, so each owner gets one email.
     config.add_periodic_task(
         crontab(minute=0, hour=2), send_organization_deactivation_notices
     )

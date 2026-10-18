@@ -228,12 +228,12 @@ def _reachable_owners(organization: Organization) -> list[tuple[User, Email]]:
 
 
 def _queue_reminder(
-    request: Request,
-    organization: Organization,
-    schedule: OrganizationDeactivationSchedule,
+    request: Request, schedule: OrganizationDeactivationSchedule
 ) -> None:
     request.db.add(
-        OrganizationDeactivationNotice(organization=organization, deactivated=False)
+        OrganizationDeactivationNotice(
+            organization=schedule.organization, deactivated=False
+        )
     )
     request.metrics.increment(
         "warehouse.organizations.deactivation.notice",
@@ -243,11 +243,7 @@ def _queue_reminder(
 
 @tasks.task(ignore_result=True, acks_late=True)
 def schedule_unpaid_organization_deactivations(request: Request) -> None:
-    """
-    Daily: queue one deactivate_unpaid_organization task per org with a schedule,
-    and for up to DEACTIVATION_STARTS_PER_DAY unpaid Company orgs without one,
-    oldest first. New orgs get SUBSCRIPTION_NOTICE_AFTER first.
-    """
+    """Daily: dispatch every scheduled org plus a capped batch of new unpaid ones."""
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
@@ -263,8 +259,7 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
             Organization.orgtype == OrganizationType.Company,
             Organization.created
             < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
-            # Orgs nobody can be told about are only deactivated if they own no
-            # projects; the rest would take up the cap every night.
+            # Unreachable orgs that own projects are skipped, so don't spend the cap.
             or_(
                 Organization.roles.any(
                     and_(
@@ -296,7 +291,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
-    # Lock the org so a duplicate task can't queue the same notice twice.
+    # Lock so a duplicate task can't queue the same notice twice.
     organization = request.db.get(Organization, organization_id, with_for_update=True)
     if organization is None:
         return
@@ -311,8 +306,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     today = datetime.datetime.now(datetime.UTC).date()
 
     if schedule is None:
-        # Nobody to tell: go ahead anyway unless it owns projects, whose uploads
-        # would stop without warning.
+        # Nobody to warn: only deactivate if no project uploads would break.
         if not _reachable_owners(organization) and organization.projects:
             request.metrics.increment(
                 "warehouse.organizations.deactivation.skipped",
@@ -326,7 +320,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
             last_notice_days=notice_days,
         )
         request.db.add(schedule)
-        _queue_reminder(request, organization, schedule)
+        _queue_reminder(request, schedule)
         return
 
     days_remaining = (schedule.deactivate_on - today).days
@@ -336,17 +330,14 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         if days_remaining <= days < schedule.last_notice_days
     ]
     if due:
-        # A late reminder moves the deadline out so it still gives that many days.
-        # Missed a whole reminder (e.g. a long pause)? Start over at 30 days.
-        notice_days = min(due) if len(due) == 1 else DEACTIVATION_NOTICE_DAYS[0]
-        schedule.deactivate_on = max(
-            schedule.deactivate_on, today + datetime.timedelta(days=notice_days)
-        )
+        # A late reminder still gives its full days; several missed restarts at 30.
+        notice_days = due[0] if len(due) == 1 else DEACTIVATION_NOTICE_DAYS[0]
+        schedule.deactivate_on = today + datetime.timedelta(days=notice_days)
         schedule.last_notice_days = notice_days
-        _queue_reminder(request, organization, schedule)
+        _queue_reminder(request, schedule)
         return
 
-    # Owners have until the end of deactivate_on (UTC) to purchase a seat.
+    # Owners have all of deactivate_on (UTC) to purchase a seat.
     if days_remaining >= 0:
         return
 
@@ -369,7 +360,7 @@ def send_organization_deactivation_notices(request: Request) -> None:
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
-    # Skip rows a concurrent run is already sending.
+    # skip_locked: another run is already sending these.
     notices = request.db.scalars(
         select(OrganizationDeactivationNotice)
         .options(selectinload(OrganizationDeactivationNotice.organization))
@@ -377,47 +368,46 @@ def send_organization_deactivation_notices(request: Request) -> None:
     ).all()
 
     # Drop notices the org no longer needs, e.g. it paid since they were queued.
-    recipients: dict[UUID, tuple[User, Email]] = {}
-    reminders: dict[UUID, set[OrganizationDeactivationSchedule]] = defaultdict(set)
-    deactivations: dict[UUID, dict[str, datetime.date]] = defaultdict(dict)
+    reminders: dict[tuple[User, Email], set[OrganizationDeactivationSchedule]] = (
+        defaultdict(set)
+    )
+    deactivations: dict[tuple[User, Email], dict[str, datetime.date]] = defaultdict(
+        dict
+    )
     for notice in notices:
         organization = notice.organization
         schedule = organization.deactivation_schedule
         deadline = organization.reactivation_deadline
         if not notice.deactivated and organization.lacks_paid_seat and schedule:
-            for owner, email in _reachable_owners(organization):
-                recipients[owner.id] = (owner, email)
-                reminders[owner.id].add(schedule)
+            for recipient in _reachable_owners(organization):
+                reminders[recipient].add(schedule)
         elif notice.deactivated and organization.reactivates_on_payment and deadline:
-            for owner, email in _reachable_owners(organization):
-                recipients[owner.id] = (owner, email)
-                deactivations[owner.id][organization.name] = deadline
+            for recipient in _reachable_owners(organization):
+                deactivations[recipient][organization.name] = deadline
         request.db.delete(notice)
 
     today = datetime.datetime.now(datetime.UTC).date()
-    for owner_id, recipient in recipients.items():
-        if schedules := reminders[owner_id]:
-            send_organization_subscription_required_email(
-                request,
-                recipient,
-                organizations=[
-                    {
-                        "name": schedule.organization.name,
-                        "deactivate_on": schedule.deactivate_on,
-                        "days_remaining": (schedule.deactivate_on - today).days,
-                    }
-                    for schedule in sorted(
-                        schedules,
-                        key=lambda s: (s.deactivate_on, s.organization.name),
-                    )
-                ],
-            )
-        if deadlines := deactivations[owner_id]:
-            send_organization_deactivated_email(
-                request,
-                recipient,
-                organizations=[
-                    {"name": name, "reactivate_by": reactivate_by}
-                    for name, reactivate_by in sorted(deadlines.items())
-                ],
-            )
+    for recipient, schedules in reminders.items():
+        send_organization_subscription_required_email(
+            request,
+            recipient,
+            organizations=[
+                {
+                    "name": schedule.organization.name,
+                    "deactivate_on": schedule.deactivate_on,
+                    "days_remaining": (schedule.deactivate_on - today).days,
+                }
+                for schedule in sorted(
+                    schedules, key=lambda s: (s.deactivate_on, s.organization.name)
+                )
+            ],
+        )
+    for recipient, deadlines in deactivations.items():
+        send_organization_deactivated_email(
+            request,
+            recipient,
+            organizations=[
+                {"name": name, "reactivate_by": reactivate_by}
+                for name, reactivate_by in sorted(deadlines.items())
+            ],
+        )

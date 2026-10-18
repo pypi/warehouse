@@ -548,7 +548,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         """Active Company org with no paid seat. Past-due orgs are left to Stripe."""
         return (
             self.is_active
-            and self.orgtype == OrganizationType.Company
             and not self.is_in_good_standing()
             and not any(
                 subscription.is_recovering_payment
@@ -557,13 +556,11 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         )
 
     def deactivate(self, reason: OrganizationDeactivationReason) -> None:
-        """Turn the org off and remember when and why."""
         self.is_active = False
         self.deactivated = datetime.datetime.now(datetime.UTC)
         self.deactivated_reason = reason
 
     def reactivate(self) -> None:
-        """Turn the org back on."""
         self.is_active = True
         self.deactivated = None
         self.deactivated_reason = None
@@ -580,7 +577,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     @property
     def reactivates_on_payment(self) -> bool:
-        """Paying now would reactivate it, and there's an owner left to pay."""
         deadline = self.reactivation_deadline
         return (
             deadline is not None

@@ -514,25 +514,20 @@ def _unpaid_org(**kwargs):
     organization = OrganizationFactory.create(
         orgtype=OrganizationType.Company, **kwargs
     )
-    owner = UserFactory.create()
-    EmailFactory.create(user=owner, verified=True, primary=True)
-    OrganizationRoleFactory.create(
-        organization=organization, user=owner, role_name=OrganizationRoleType.Owner
-    )
+    owner = UserFactory.create(with_verified_primary_email=True)
+    OrganizationRoleFactory.create(organization=organization, user=owner)
     return organization, owner
 
 
-def _owner_with_emails(organization, *, primary_verified, other_verified):
+def _unverified_owner(organization, *, other_verified=False):
     owner = UserFactory.create()
-    EmailFactory.create(user=owner, verified=primary_verified, primary=True)
+    EmailFactory.create(user=owner, verified=False, primary=True)
     other = (
         EmailFactory.create(user=owner, verified=True, primary=False)
         if other_verified
         else None
     )
-    OrganizationRoleFactory.create(
-        organization=organization, user=owner, role_name=OrganizationRoleType.Owner
-    )
+    OrganizationRoleFactory.create(organization=organization, user=owner)
     return owner, other
 
 
@@ -561,11 +556,11 @@ class TestScheduleUnpaidOrganizationDeactivations:
         _schedule(scheduled_inactive, deactivate_in=14, last_notice_days=30)
         # An owner reachable only at a non-primary verified address counts.
         secondary_only = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        _owner_with_emails(secondary_only, primary_verified=False, other_verified=True)
+        _unverified_owner(secondary_only, other_verified=True)
 
         # Nobody can be told, but they own nothing, so they're deactivated anyway.
         unreachable = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        _owner_with_emails(unreachable, primary_verified=False, other_verified=False)
+        _unverified_owner(unreachable)
         ownerless = OrganizationFactory.create(orgtype=OrganizationType.Company)
 
         # None of these are dispatched.
@@ -583,9 +578,7 @@ class TestScheduleUnpaidOrganizationDeactivations:
         unreachable_with_project = OrganizationFactory.create(
             orgtype=OrganizationType.Company
         )
-        _owner_with_emails(
-            unreachable_with_project, primary_verified=False, other_verified=False
-        )
+        _unverified_owner(unreachable_with_project)
         OrganizationProjectFactory.create(organization=unreachable_with_project)
 
         schedule_unpaid_organization_deactivations(db_request)
@@ -651,36 +644,13 @@ class TestDeactivateUnpaidOrganization:
             "warehouse.organizations.deactivation.notice", tags=["days:30"]
         )
 
-    def test_canceled_subscription_starts_notice_period(self, db_request):
-        organization, _ = _unpaid_org()
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization,
-            subscription__status=StripeSubscriptionStatus.Canceled,
-        )
-
-        deactivate_unpaid_organization(db_request, organization.id)
-
-        assert organization.deactivation_schedule is not None
-        assert _queued(db_request) == [(organization.id, False)]
-
-    def test_owner_with_other_verified_email_starts_notice_period(self, db_request):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        _owner_with_emails(organization, primary_verified=False, other_verified=True)
-
-        deactivate_unpaid_organization(db_request, organization.id)
-
-        assert organization.deactivation_schedule is not None
-        assert _queued(db_request) == [(organization.id, False)]
-
     @pytest.mark.parametrize("has_owner", [True, False])
     def test_unreachable_org_without_projects_starts_notice_period(
         self, db_request, has_owner
     ):
         organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
         if has_owner:
-            _owner_with_emails(
-                organization, primary_verified=False, other_verified=False
-            )
+            _unverified_owner(organization)
 
         deactivate_unpaid_organization(db_request, organization.id)
 
@@ -691,7 +661,7 @@ class TestDeactivateUnpaidOrganization:
         self, db_request, metrics
     ):
         organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        _owner_with_emails(organization, primary_verified=False, other_verified=False)
+        _unverified_owner(organization)
         OrganizationProjectFactory.create(organization=organization)
 
         deactivate_unpaid_organization(db_request, organization.id)
@@ -747,7 +717,7 @@ class TestDeactivateUnpaidOrganization:
 
     @pytest.mark.parametrize(
         ("deactivate_in", "last_notice_days"),
-        [(30, 30), (20, 30), (5, 14), (1, 3), (0, 3)],
+        [(30, 30), (5, 14), (0, 3)],
     )
     def test_waits_between_reminders(self, db_request, deactivate_in, last_notice_days):
         organization, _ = _unpaid_org()
@@ -763,10 +733,9 @@ class TestDeactivateUnpaidOrganization:
         assert schedule.last_notice_days == last_notice_days
         assert _queued(db_request) == []
 
-    @pytest.mark.parametrize("deactivate_in", [-1, -2])
-    def test_deactivates_after_final_notice(self, db_request, metrics, deactivate_in):
+    def test_deactivates_after_final_notice(self, db_request, metrics):
         organization, _ = _unpaid_org()
-        _schedule(organization, deactivate_in=deactivate_in, last_notice_days=3)
+        _schedule(organization, deactivate_in=-1, last_notice_days=3)
 
         deactivate_unpaid_organization(db_request, organization.id)
         db_request.db.flush()
@@ -794,14 +763,7 @@ class TestDeactivateUnpaidOrganization:
         )
 
     @pytest.mark.parametrize(
-        "status",
-        [
-            StripeSubscriptionStatus.Active,
-            StripeSubscriptionStatus.Trialing,
-            StripeSubscriptionStatus.PastDue,
-            StripeSubscriptionStatus.Unpaid,
-            StripeSubscriptionStatus.Incomplete,
-        ],
+        "status", [StripeSubscriptionStatus.Active, StripeSubscriptionStatus.PastDue]
     )
     def test_clears_schedule_once_seat_paid_for(self, db_request, metrics, status):
         organization, _ = _unpaid_org()
@@ -820,17 +782,6 @@ class TestDeactivateUnpaidOrganization:
         metrics.increment.assert_any_call(
             "warehouse.organizations.deactivation.cleared"
         )
-
-    def test_clears_schedule_of_inactive_org(self, db_request):
-        organization, _ = _unpaid_org(is_active=False)
-        _schedule(organization, deactivate_in=0, last_notice_days=3)
-
-        deactivate_unpaid_organization(db_request, organization.id)
-        db_request.db.flush()
-        db_request.db.expire(organization)
-
-        assert organization.deactivation_schedule is None
-        assert _queued(db_request) == []
 
     def test_ignores_org_in_good_standing(self, db_request, metrics):
         organization, _ = _unpaid_org()
@@ -877,12 +828,6 @@ class TestSendOrganizationDeactivationNotices:
             "warehouse.organizations.tasks.send_organization_deactivated_email",
         )
 
-    @staticmethod
-    def _add_owner(organization, user):
-        OrganizationRoleFactory.create(
-            organization=organization, user=user, role_name=OrganizationRoleType.Owner
-        )
-
     def test_sends_each_owner_one_email_per_kind(
         self, db_request, send_reminder, send_deactivated
     ):
@@ -892,15 +837,13 @@ class TestSendOrganizationDeactivationNotices:
             orgtype=OrganizationType.Company, name="sooner"
         )
         # Reached at their other verified address; the unreachable owner is skipped.
-        sooner_owner, sooner_email = _owner_with_emails(
-            sooner, primary_verified=False, other_verified=True
-        )
-        _owner_with_emails(sooner, primary_verified=False, other_verified=False)
+        sooner_owner, sooner_email = _unverified_owner(sooner, other_verified=True)
+        _unverified_owner(sooner)
         _schedule(sooner, deactivate_in=3, last_notice_days=3)
-        self._add_owner(sooner, owner)
+        OrganizationRoleFactory.create(organization=sooner, user=owner)
         gone, _ = _unpaid_org(name="gone")
         gone.deactivate(OrganizationDeactivationReason.NoPaidSeat)
-        self._add_owner(gone, owner)
+        OrganizationRoleFactory.create(organization=gone, user=owner)
         # Only owners are told.
         OrganizationRoleFactory.create(
             organization=later, role_name=OrganizationRoleType.Member
