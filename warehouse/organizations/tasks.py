@@ -303,16 +303,19 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
             request.metrics.increment("warehouse.organizations.deactivation.cleared")
         return
 
+    # Nobody to warn: only deactivate if no project uploads would break.
+    if not _reachable_owners(organization) and organization.projects:
+        if schedule is not None:
+            request.db.delete(schedule)
+        request.metrics.increment(
+            "warehouse.organizations.deactivation.skipped",
+            tags=["reason:no_recipients"],
+        )
+        return
+
     today = datetime.datetime.now(datetime.UTC).date()
 
     if schedule is None:
-        # Nobody to warn: only deactivate if no project uploads would break.
-        if not _reachable_owners(organization) and organization.projects:
-            request.metrics.increment(
-                "warehouse.organizations.deactivation.skipped",
-                tags=["reason:no_recipients"],
-            )
-            return
         notice_days = DEACTIVATION_NOTICE_DAYS[0]
         schedule = OrganizationDeactivationSchedule(
             organization=organization,

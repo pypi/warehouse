@@ -657,15 +657,22 @@ class TestDeactivateUnpaidOrganization:
         assert organization.deactivation_schedule is not None
         assert _queued(db_request) == [(organization.id, False)]
 
-    def test_unreachable_org_with_projects_does_not_start_notice_period(
-        self, db_request, metrics
+    # The owner can also lose their last verified address mid-countdown.
+    @pytest.mark.parametrize("deactivate_in", [None, -1])
+    def test_unreachable_org_with_projects_is_skipped(
+        self, db_request, metrics, deactivate_in
     ):
         organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
         _unverified_owner(organization)
         OrganizationProjectFactory.create(organization=organization)
+        if deactivate_in is not None:
+            _schedule(organization, deactivate_in=deactivate_in, last_notice_days=3)
 
         deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
 
+        assert organization.is_active
         assert organization.deactivation_schedule is None
         assert _queued(db_request) == []
         metrics.increment.assert_any_call(
