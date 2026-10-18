@@ -817,8 +817,8 @@ class TestOrganizationBillingMethods:
         assert not organization.is_awaiting_initial_billing
 
     @staticmethod
-    def _deactivated_for(reason, *, owner=True, orgtype="Company"):
-        organization = DBOrganizationFactory.create(orgtype=orgtype)
+    def _deactivated_for(reason, *, owner=True):
+        organization = DBOrganizationFactory.create(orgtype="Company")
         if owner:
             DBOrganizationRoleFactory.create(
                 organization=organization, role_name=OrganizationRoleType.Owner
@@ -846,10 +846,7 @@ class TestOrganizationBillingMethods:
         assert organization.is_active
         assert organization.deactivated is None
         assert organization.deactivated_reason is None
-
-    def test_reactivates_on_payment(self, db_session):
-        organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
-        assert organization.reactivates_on_payment
+        assert organization.reactivation_deadline is None
 
     @pytest.mark.parametrize(
         "kwargs",
@@ -858,39 +855,25 @@ class TestOrganizationBillingMethods:
             # e.g. deactivated before reasons were recorded
             {"reason": None},
             {"reason": OrganizationDeactivationReason.NoPaidSeat, "owner": False},
-            {
-                "reason": OrganizationDeactivationReason.NoPaidSeat,
-                "orgtype": "Community",
-            },
         ],
     )
     def test_does_not_reactivate_on_payment(self, db_session, kwargs):
         organization = self._deactivated_for(**kwargs)
         assert not organization.reactivates_on_payment
 
-    def test_active_org_does_not_reactivate_on_payment(self, db_session):
-        organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
-        organization.reactivate()
-        assert not organization.reactivates_on_payment
-        assert organization.reactivation_deadline is None
-
     @pytest.mark.parametrize(
         ("now", "reactivates"),
         [
-            ("2027-01-16 00:59:59", True),
-            ("2027-01-16 01:00:00", False),
+            ("2027-01-16 23:59:59", True),
+            ("2027-01-17 00:00:00", False),
         ],
     )
-    def test_reactivates_on_payment_only_within_90_days(
-        self, db_session, now, reactivates
-    ):
+    def test_reactivates_on_payment_through_day_90(self, db_session, now, reactivates):
         with freeze_time("2026-10-18 01:00:00"):
             organization = self._deactivated_for(
                 OrganizationDeactivationReason.NoPaidSeat
             )
-        assert organization.reactivation_deadline == datetime.datetime(
-            2027, 1, 16, 1, tzinfo=datetime.UTC
-        )
+        assert organization.reactivation_deadline == datetime.date(2027, 1, 16)
 
         with freeze_time(now):
             assert organization.reactivates_on_payment is reactivates

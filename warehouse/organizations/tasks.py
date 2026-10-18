@@ -391,7 +391,7 @@ def send_organization_deactivation_notices(request: Request) -> None:
         elif notice.deactivated and organization.reactivates_on_payment and deadline:
             for owner, email in _reachable_owners(organization):
                 recipients[owner.id] = (owner, email)
-                deactivations[owner.id][organization.name] = deadline.date()
+                deactivations[owner.id][organization.name] = deadline
         request.db.delete(notice)
 
     today = datetime.datetime.now(datetime.UTC).date()
