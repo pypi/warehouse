@@ -840,7 +840,8 @@ class TestSendOrganizationDeactivationNotices:
         sooner, sooner_owner = _unpaid_org(name="sooner")
         _schedule(sooner, deactivate_in=3, last_notice_days=3)
         self._add_owner(sooner, owner)
-        gone, _ = _unpaid_org(name="gone", is_active=False)
+        gone, _ = _unpaid_org(name="gone")
+        gone.deactivate(OrganizationDeactivationReason.NoPaidSeat)
         self._add_owner(gone, owner)
         # Only owners are told.
         OrganizationRoleFactory.create(
@@ -889,7 +890,13 @@ class TestSendOrganizationDeactivationNotices:
         )
         # gone's own owner gets the other deactivated email.
         assert send_deactivated.call_count == 2
-        send_deactivated.assert_any_call(db_request, owner, organization_names=["gone"])
+        send_deactivated.assert_any_call(
+            db_request,
+            owner,
+            organizations=[
+                {"name": "gone", "reactivate_by": TODAY + datetime.timedelta(days=90)}
+            ],
+        )
         assert _queued(db_request) == []
 
     def test_drops_notices_no_longer_needed(
@@ -902,6 +909,16 @@ class TestSendOrganizationDeactivationNotices:
         OrganizationDeactivationNoticeFactory.create(
             organization=reactivated, deactivated=True
         )
+        # Orgs owners can no longer reactivate by paying get no deactivated email.
+        owner_removed, _ = _unpaid_org()
+        owner_removed.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        lapsed, _ = _unpaid_org()
+        lapsed.deactivate(OrganizationDeactivationReason.NoPaidSeat)
+        lapsed.deactivated -= datetime.timedelta(days=91)
+        for organization in (owner_removed, lapsed):
+            OrganizationDeactivationNoticeFactory.create(
+                organization=organization, deactivated=True
+            )
 
         send_organization_deactivation_notices(db_request)
 

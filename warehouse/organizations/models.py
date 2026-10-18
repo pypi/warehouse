@@ -38,6 +38,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
+from warehouse.organizations.constants import REACTIVATE_BY_PAYING_WITHIN
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -568,12 +569,24 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         self.deactivated_reason = None
 
     @property
+    def reactivation_deadline(self) -> datetime.datetime | None:
+        """Until when owners can reactivate by paying, if they can."""
+        if (
+            self.is_active
+            or self.orgtype != OrganizationType.Company
+            or self.deactivated_reason != OrganizationDeactivationReason.NoPaidSeat
+            or self.deactivated is None
+        ):
+            return None
+        return self.deactivated + REACTIVATE_BY_PAYING_WITHIN
+
+    @property
     def reactivates_on_payment(self) -> bool:
-        """Deactivated for having no paid seat, with an owner left to pay."""
+        """Paying now would reactivate it, and there's an owner left to pay."""
+        deadline = self.reactivation_deadline
         return (
-            not self.is_active
-            and self.orgtype == OrganizationType.Company
-            and self.deactivated_reason == OrganizationDeactivationReason.NoPaidSeat
+            deadline is not None
+            and datetime.datetime.now(datetime.UTC) < deadline
             and bool(self.owners)
         )
 

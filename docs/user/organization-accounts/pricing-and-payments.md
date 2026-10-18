@@ -25,7 +25,8 @@ Purchasing a seat before then stops the emails and keeps the Organization active
 A deactivated Organization cannot upload new releases to its projects or invite
 members, and its public page on PyPI is removed. Its projects stay on PyPI and can
 still be installed. To reactivate it, purchase a seat from the Organization's billing
-page. For help, email [support+orgs@pypi.org](mailto:support+orgs@pypi.org).
+page within 90 days of deactivation. After that, or for help, email
+[support+orgs@pypi.org](mailto:support+orgs@pypi.org).
 
 If you no longer want the Organization, you can delete it yourself from its settings
 page. Deleting an Organization requires that it owns no projects, so remove or

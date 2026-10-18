@@ -678,11 +678,14 @@ def send_organization_subscription_required_email(
 
 @_email("organization-deactivated")
 def send_organization_deactivated_email(
-    request: Request, user: User, *, organization_names: list[str]
-) -> dict[str, str | list[str]]:
+    request: Request,
+    user: User,
+    *,
+    organizations: list[dict[str, str | datetime.date]],
+) -> dict[str, str | list[dict[str, str | datetime.date]]]:
     return {
         "username": user.username,
-        "organization_names": organization_names,
+        "organizations": organizations,
     }
 
 

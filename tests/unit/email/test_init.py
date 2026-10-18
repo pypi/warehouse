@@ -2362,13 +2362,17 @@ class TestOrganizationDeactivatedEmail:
             "organization-deactivated"
         )
 
+        organizations = [
+            {"name": "example", "reactivate_by": datetime.date(2027, 1, 16)},
+        ]
+
         result = email.send_organization_deactivated_email(
-            db_request, user, organization_names=["example", "other"]
+            db_request, user, organizations=organizations
         )
 
         assert result == {
             "username": user.username,
-            "organization_names": ["example", "other"],
+            "organizations": organizations,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)

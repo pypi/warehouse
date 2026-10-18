@@ -54,7 +54,7 @@
                  id="organization-deactivated">
               {% if organization.reactivates_on_payment %}
                 <p>
-                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated because it does not have a paid seat. It cannot upload new releases to its projects or invite members. To reactivate it, purchase a seat. For help, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org", reactivate_by=organization.reactivation_deadline|format_date(format="long") %}This organization is deactivated because it does not have a paid seat. It cannot upload new releases to its projects or invite members. To reactivate it, purchase a seat by {{ reactivate_by }}. After that, or for help, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
                 </p>
                 {% if request.has_permission(Permissions.OrganizationsBillingManage) and request.matched_route.name != "manage.organization.activate_subscription" %}
                   <p>

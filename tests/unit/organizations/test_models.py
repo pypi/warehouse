@@ -872,6 +872,28 @@ class TestOrganizationBillingMethods:
         organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
         organization.reactivate()
         assert not organization.reactivates_on_payment
+        assert organization.reactivation_deadline is None
+
+    @pytest.mark.parametrize(
+        ("now", "reactivates"),
+        [
+            ("2027-01-16 00:59:59", True),
+            ("2027-01-16 01:00:00", False),
+        ],
+    )
+    def test_reactivates_on_payment_only_within_90_days(
+        self, db_session, now, reactivates
+    ):
+        with freeze_time("2026-10-18 01:00:00"):
+            organization = self._deactivated_for(
+                OrganizationDeactivationReason.NoPaidSeat
+            )
+        assert organization.reactivation_deadline == datetime.datetime(
+            2027, 1, 16, 1, tzinfo=datetime.UTC
+        )
+
+        with freeze_time(now):
+            assert organization.reactivates_on_payment is reactivates
 
     def test_reactivate_after_payment(self, db_request):
         organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)

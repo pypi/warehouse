@@ -366,14 +366,15 @@ def send_organization_deactivation_notices(request: Request) -> None:
     # Drop notices the org no longer needs, e.g. it paid since they were queued.
     owners: dict[UUID, User] = {}
     reminders: dict[UUID, set[OrganizationDeactivationSchedule]] = defaultdict(set)
-    deactivations: dict[UUID, set[str]] = defaultdict(set)
+    deactivations: dict[UUID, dict[str, datetime.date]] = defaultdict(dict)
     for notice in notices:
         organization = notice.organization
         schedule = organization.deactivation_schedule
-        if notice.deactivated and not organization.is_active:
+        deadline = organization.reactivation_deadline
+        if notice.deactivated and organization.reactivates_on_payment and deadline:
             for owner in organization.owners:
                 owners[owner.id] = owner
-                deactivations[owner.id].add(organization.name)
+                deactivations[owner.id][organization.name] = deadline.date()
         elif not notice.deactivated and organization.lacks_paid_seat and schedule:
             for owner in organization.owners:
                 owners[owner.id] = owner
@@ -398,7 +399,12 @@ def send_organization_deactivation_notices(request: Request) -> None:
                     )
                 ],
             )
-        if names := deactivations[owner_id]:
+        if deadlines := deactivations[owner_id]:
             send_organization_deactivated_email(
-                request, owner, organization_names=sorted(names)
+                request,
+                owner,
+                organizations=[
+                    {"name": name, "reactivate_by": reactivate_by}
+                    for name, reactivate_by in sorted(deadlines.items())
+                ],
             )

@@ -169,6 +169,11 @@
               Deactivated {{ organization.deactivated|format_date() }}.
               {% endif %}
               Reason: {{ organization.deactivated_reason.value if organization.deactivated_reason else "unknown" }}.
+              {% if organization.reactivates_on_payment %}
+              Owners can reactivate by paying until {{ organization.reactivation_deadline|format_date() }}.
+              {% elif organization.reactivation_deadline %}
+              Owners could reactivate by paying until {{ organization.reactivation_deadline|format_date() }}; now only an admin can.
+              {% endif %}
             </div>
 
             <button
