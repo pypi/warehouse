@@ -15,6 +15,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplicationStatus,
+    OrganizationDeactivationNotice,
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationNameCatalog,
@@ -34,6 +35,7 @@ from warehouse.subscriptions.models import StripeSubscription
 
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
+    OrganizationDeactivationNoticeFactory,
     OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -678,6 +680,7 @@ class TestDatabaseOrganizationService:
     ):
         schedule = OrganizationDeactivationScheduleFactory.create()
         organization = schedule.organization
+        OrganizationDeactivationNoticeFactory.create(organization=organization)
         assert organization.deactivation_schedule is schedule
 
         organization_service.delete_organization(organization.id)
@@ -685,6 +688,7 @@ class TestDatabaseOrganizationService:
 
         assert organization_service.get_organization(organization.id) is None
         assert not db_request.db.query(OrganizationDeactivationSchedule).count()
+        assert not db_request.db.query(OrganizationDeactivationNotice).count()
 
     def test_rename_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()

@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import typing
 
+from collections import defaultdict
 from uuid import UUID
 
 import stripe
@@ -12,7 +13,7 @@ import structlog
 
 from pyramid_retry import RetryableException
 from sqlalchemy import and_, select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
@@ -34,6 +35,7 @@ from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationDeactivationNotice,
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
@@ -212,21 +214,14 @@ def reconcile_stripe_status(request):
         )
 
 
-def _send_deactivation_notice(
+def _queue_reminder(
     request: Request,
     organization: Organization,
     schedule: OrganizationDeactivationSchedule,
-    owners: list[User],
-    today: datetime.date,
 ) -> None:
-    for owner in owners:
-        send_organization_subscription_required_email(
-            request,
-            owner,
-            organization_name=organization.name,
-            deactivate_on=schedule.deactivate_on,
-            days_remaining=(schedule.deactivate_on - today).days,
-        )
+    request.db.add(
+        OrganizationDeactivationNotice(organization=organization, deactivated=False)
+    )
     request.metrics.increment(
         "warehouse.organizations.deactivation.notice",
         tags=[f"days:{schedule.last_notice_days}"],
@@ -282,11 +277,11 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
 
 @tasks.task(ignore_result=True, acks_late=True)
 def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> None:
-    """Email the next notice for one org, deactivate it, or clear its schedule."""
+    """Queue the next notice for one org, deactivate it, or clear its schedule."""
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
-    # Lock the org so a duplicate task can't send the same notice twice.
+    # Lock the org so a duplicate task can't queue the same notice twice.
     organization = request.db.get(Organization, organization_id, with_for_update=True)
     if organization is None:
         return
@@ -318,7 +313,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
             last_notice_days=notice_days,
         )
         request.db.add(schedule)
-        _send_deactivation_notice(request, organization, schedule, owners, today)
+        _queue_reminder(request, organization, schedule)
         return
 
     days_remaining = (schedule.deactivate_on - today).days
@@ -335,7 +330,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
             schedule.deactivate_on, today + datetime.timedelta(days=notice_days)
         )
         schedule.last_notice_days = notice_days
-        _send_deactivation_notice(request, organization, schedule, owners, today)
+        _queue_reminder(request, organization, schedule)
         return
 
     # Owners have until the end of deactivate_on (UTC) to purchase a seat.
@@ -349,8 +344,61 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         additional={"reason": NO_PAID_SEAT_REASON},
     )
     request.db.delete(schedule)
-    for owner in owners:
-        send_organization_deactivated_email(
-            request, owner, organization_name=organization.name
-        )
+    request.db.add(
+        OrganizationDeactivationNotice(organization=organization, deactivated=True)
+    )
     request.metrics.increment("warehouse.organizations.deactivation.deactivated")
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def send_organization_deactivation_notices(request: Request) -> None:
+    """Daily: email each owner one list of their orgs with queued notices."""
+    if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
+        return
+
+    # Skip rows a concurrent run is already sending.
+    notices = request.db.scalars(
+        select(OrganizationDeactivationNotice)
+        .options(selectinload(OrganizationDeactivationNotice.organization))
+        .with_for_update(skip_locked=True)
+    ).all()
+
+    # Drop notices the org no longer needs, e.g. it paid since they were queued.
+    owners: dict[UUID, User] = {}
+    reminders: dict[UUID, set[OrganizationDeactivationSchedule]] = defaultdict(set)
+    deactivations: dict[UUID, set[str]] = defaultdict(set)
+    for notice in notices:
+        organization = notice.organization
+        schedule = organization.deactivation_schedule
+        if notice.deactivated and not organization.is_active:
+            for owner in organization.owners:
+                owners[owner.id] = owner
+                deactivations[owner.id].add(organization.name)
+        elif not notice.deactivated and organization.lacks_paid_seat and schedule:
+            for owner in organization.owners:
+                owners[owner.id] = owner
+                reminders[owner.id].add(schedule)
+        request.db.delete(notice)
+
+    today = datetime.datetime.now(datetime.UTC).date()
+    for owner_id, owner in owners.items():
+        if schedules := reminders[owner_id]:
+            send_organization_subscription_required_email(
+                request,
+                owner,
+                organizations=[
+                    {
+                        "name": schedule.organization.name,
+                        "deactivate_on": schedule.deactivate_on,
+                        "days_remaining": (schedule.deactivate_on - today).days,
+                    }
+                    for schedule in sorted(
+                        schedules,
+                        key=lambda s: (s.deactivate_on, s.organization.name),
+                    )
+                ],
+            )
+        if names := deactivations[owner_id]:
+            send_organization_deactivated_email(
+                request, owner, organization_names=sorted(names)
+            )

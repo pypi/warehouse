@@ -668,25 +668,21 @@ def send_organization_subscription_required_email(
     request: Request,
     user: User,
     *,
-    organization_name: str,
-    deactivate_on: datetime.date,
-    days_remaining: int,
-) -> dict[str, str | datetime.date | int]:
+    organizations: list[dict[str, str | datetime.date | int]],
+) -> dict[str, str | list[dict[str, str | datetime.date | int]]]:
     return {
         "username": user.username,
-        "organization_name": organization_name,
-        "deactivate_on": deactivate_on,
-        "days_remaining": days_remaining,
+        "organizations": organizations,
     }
 
 
 @_email("organization-deactivated")
 def send_organization_deactivated_email(
-    request: Request, user: User, *, organization_name: str
-) -> dict[str, str]:
+    request: Request, user: User, *, organization_names: list[str]
+) -> dict[str, str | list[str]]:
     return {
         "username": user.username,
-        "organization_name": organization_name,
+        "organization_names": organization_names,
     }
 
 

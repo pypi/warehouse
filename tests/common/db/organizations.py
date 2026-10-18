@@ -11,6 +11,7 @@ from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationDeactivationNotice,
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationManualActivation,
@@ -159,6 +160,14 @@ class OrganizationDeactivationScheduleFactory(WarehouseFactory):
         lambda: datetime.datetime.now(datetime.UTC).date() + datetime.timedelta(days=30)
     )
     last_notice_days = 30
+
+
+class OrganizationDeactivationNoticeFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationDeactivationNotice
+
+    organization = factory.SubFactory(OrganizationFactory)
+    deactivated = False
 
 
 class OrganizationProjectFactory(WarehouseFactory):

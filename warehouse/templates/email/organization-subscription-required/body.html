@@ -4,33 +4,62 @@
 {% set domain = request.registry.settings.get('warehouse.domain') %}
 {% block content %}
   <p>Hello {{ username }},</p>
-  <p>
-    Your Company organization <strong>{{ organization_name }}</strong> on PyPI does not have an active subscription. Company organizations require a paid subscription with at least 1 seat purchased.
-  </p>
-  <p>
-    <strong>If no seat has been purchased by {{ deactivate_on|format_date(format="long") }} (in {{ days_remaining }} days), we will deactivate {{ organization_name }}.</strong>
-    A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install.
-  </p>
-  <p>
-    <strong><a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}">Activate your subscription</a></strong>
-  </p>
+  {% if organizations|length == 1 %}
+    {% set organization = organizations[0] %}
+    <p>
+      Your Company organization <strong>{{ organization.name }}</strong> on PyPI does not have an active subscription. Company organizations require a paid subscription with at least 1 seat purchased.
+    </p>
+    <p>
+      <strong>If no seat has been purchased by {{ organization.deactivate_on|format_date(format="long") }} (in {{ organization.days_remaining }} days), we will deactivate {{ organization.name }}.</strong>
+      A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install.
+    </p>
+    <p>
+      <strong><a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization.name, _host=domain) }}">Activate your subscription</a></strong>
+    </p>
+  {% else %}
+    <p>
+      These Company organizations you own on PyPI do not have an active subscription. Company organizations require a paid subscription with at least 1 seat purchased.
+    </p>
+    <p>
+      <strong>If no seat has been purchased for an organization by the date below, we will deactivate it.</strong>
+      A deactivated organization cannot upload releases to its projects, invite members, or be managed, and its public profile page is removed. Its projects remain available to install.
+    </p>
+    <ul>
+      {% for organization in organizations %}
+        <li>
+          <strong>{{ organization.name }}</strong>, by {{ organization.deactivate_on|format_date(format="long") }} (in {{ organization.days_remaining }} days):
+          <a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization.name, _host=domain) }}">activate its subscription</a>
+          or <a href="{{ request.route_url('manage.organization.settings', organization_name=organization.name, _host=domain) }}">delete it from its settings page</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
   <p>
     Organizations are eligible for increased rate limits, and will gain access to upcoming features such as namespaces when they launch. We don't have a timeline for those features yet.
   </p>
   <p>
-    If you no longer want this organization, you can <a href="{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}">delete it yourself from its settings page</a>, and we will stop emailing you about it. Deleting an organization requires that it owns no projects, so remove or transfer any projects first.
+    {% if organizations|length == 1 %}
+      If you no longer want this organization, you can <a href="{{ request.route_url('manage.organization.settings', organization_name=organizations[0].name, _host=domain) }}">delete it yourself from its settings page</a>, and we will stop emailing you about it.
+    {% else %}
+      If you no longer want an organization, you can delete it yourself from its settings page, linked above, and we will stop emailing you about it.
+    {% endif %}
+    Deleting an organization requires that it owns no projects, so remove or transfer any projects first.
   </p>
   <p>
-    Deleting an organization is permanent. To create an organization again, you will need to submit a new organization application and wait for it to be approved. Once deleted, the name <strong>{{ organization_name }}</strong> becomes available, and someone else may register it.
+    Deleting an organization is permanent. To create an organization again, you will need to submit a new organization application and wait for it to be approved. Once deleted, the organization's name becomes available, and someone else may register it.
   </p>
   <p>
     {% trans %}Company organizations are for for-profit companies. Community organizations are for community-supported projects and teams. Non-profits, NGOs, schools, and other non-commercial groups belong here too; you do not need to be an informal project to qualify. Publishing open-source packages does not by itself qualify a company for a Community organization.{% endtrans %}
   </p>
   <p>
-    If you believe you qualify for a Community organization instead, please reach out to us at <a href="mailto:support+orgs@pypi.org">support+orgs@pypi.org</a> before {{ deactivate_on|format_date(format="long") }}.
+    If you believe you qualify for a Community organization instead, please reach out to us at <a href="mailto:support+orgs@pypi.org">support+orgs@pypi.org</a> before the deadline.
   </p>
   <p>– The PyPI Team</p>
 {% endblock %}
 {% block reason %}
-  You are receiving this because you are an owner of the <strong>{{ organization_name }}</strong> organization on PyPI. If you own multiple PyPI Organizations you may receive multiple emails.
+  {% if organizations|length == 1 %}
+    You are receiving this because you are an owner of the <strong>{{ organizations[0].name }}</strong> organization on PyPI.
+  {% else %}
+    You are receiving this because you are an owner of these organizations on PyPI.
+  {% endif %}
 {% endblock %}

@@ -822,6 +822,28 @@ class OrganizationDeactivationSchedule(db.Model):
     )
 
 
+class OrganizationDeactivationNotice(db.Model):
+    """An email owed to an org's owners, sent in their next daily batch."""
+
+    __tablename__ = "organization_deactivation_notices"
+
+    __repr__ = make_repr("organization_id", "deactivated")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        index=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship()
+
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when the notice was queued",
+    )
+    deactivated: Mapped[bool] = mapped_column(
+        comment="True if the org was deactivated, False for a reminder",
+    )
+
+
 class OrganizationApplicationStatus(enum.StrEnum):
     Submitted = "submitted"
     Declined = "declined"

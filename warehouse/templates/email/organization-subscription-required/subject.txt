@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Action required: Your PyPI organization {{ organization_name }} will be deactivated in {{ days_remaining }} days{% endblock %}
+{% block subject %}{% if organizations|length == 1 %}Action required: Your PyPI organization {{ organizations[0].name }} will be deactivated in {{ organizations[0].days_remaining }} days{% else %}Action required: {{ organizations|length }} of your PyPI organizations will be deactivated{% endif %}{% endblock %}

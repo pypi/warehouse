@@ -2296,27 +2296,26 @@ class TestOrganizationSubscriptionRequiredEmail:
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user, verified=True)
-        organization_name = "example"
 
         subject_renderer, body_renderer, html_renderer = make_email_renderers(
             "organization-subscription-required"
         )
 
-        deactivate_on = datetime.date(2026, 11, 16)
+        organizations = [
+            {
+                "name": "example",
+                "deactivate_on": datetime.date(2026, 11, 16),
+                "days_remaining": 30,
+            }
+        ]
 
         result = email.send_organization_subscription_required_email(
-            db_request,
-            user,
-            organization_name=organization_name,
-            deactivate_on=deactivate_on,
-            days_remaining=30,
+            db_request, user, organizations=organizations
         )
 
         assert result == {
             "username": user.username,
-            "organization_name": organization_name,
-            "deactivate_on": deactivate_on,
-            "days_remaining": 30,
+            "organizations": organizations,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
@@ -2358,19 +2357,18 @@ class TestOrganizationDeactivatedEmail:
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user, verified=True)
-        organization_name = "example"
 
         subject_renderer, body_renderer, html_renderer = make_email_renderers(
             "organization-deactivated"
         )
 
         result = email.send_organization_deactivated_email(
-            db_request, user, organization_name=organization_name
+            db_request, user, organization_names=["example", "other"]
         )
 
         assert result == {
             "username": user.username,
-            "organization_name": organization_name,
+            "organization_names": ["example", "other"],
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)

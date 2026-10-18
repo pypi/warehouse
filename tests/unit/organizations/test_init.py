@@ -9,6 +9,7 @@ from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     reconcile_stripe_status,
     schedule_unpaid_organization_deactivations,
+    send_organization_deactivation_notices,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -34,4 +35,5 @@ def test_includeme(mocker):
         mocker.call(
             crontab(minute=0, hour=1), schedule_unpaid_organization_deactivations
         ),
+        mocker.call(crontab(minute=0, hour=2), send_organization_deactivation_notices),
     ]
