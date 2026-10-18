@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Action required: An active subscription is required for your PyPI organization {{ organization_name }}{% endblock %}
+{% block subject %}Action required: {{ organizations|map(attribute="name")|join(", ") }} will be deactivated on PyPI{% endblock %}

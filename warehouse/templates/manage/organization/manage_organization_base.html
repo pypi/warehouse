@@ -50,10 +50,12 @@
             {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
           {% endwith %}
           {% set can_pay = organization.is_active or organization.reactivates_on_payment %}
-          {% if not organization.is_active %}
-            <div class="callout-block callout-block--danger">
+          {% if not organization.is_active or (organization.lacks_paid_seat and organization.deactivation_schedule) %}
+            <div class="callout-block callout-block--{{ 'warning' if organization.is_active else 'danger' }}">
               <p>
-                {% if can_pay %}
+                {% if organization.is_active %}
+                  {% trans deactivate_on=organization.deactivation_schedule.deactivate_on|format_date(format="long") %}This organization does not have an active subscription. If no seat has been purchased by {{ deactivate_on }}, it will be deactivated.{% endtrans %}
+                {% elif can_pay %}
                   {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org", reactivate_by=organization.reactivation_deadline|format_date(format="long") %}This organization is deactivated because it does not have a paid seat. It cannot upload new releases to its projects or invite members. To reactivate it, purchase a seat by {{ reactivate_by }}. After that, or for help, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
                 {% else %}
                   {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated. It cannot upload new releases to its projects or invite members. To reactivate it, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}

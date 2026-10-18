@@ -39,6 +39,13 @@ ACTIVE_SUBSCRIPTION_STATUSES = [
     StripeSubscriptionStatus.Trialing.value,
 ]
 
+# Statuses where Stripe is still retrying payment for a subscription.
+PAYMENT_RECOVERY_STATUSES = [
+    StripeSubscriptionStatus.PastDue.value,
+    StripeSubscriptionStatus.Unpaid.value,
+    StripeSubscriptionStatus.Incomplete.value,
+]
+
 
 class StripeSubscriptionPriceInterval(enum.StrEnum):
     Month = "month"
@@ -118,6 +125,10 @@ class StripeSubscription(db.Model):
     @property
     def is_manageable(self):
         return self.status != StripeSubscriptionStatus.Canceled.value
+
+    @property
+    def is_recovering_payment(self) -> bool:
+        return self.status in PAYMENT_RECOVERY_STATUSES
 
 
 class StripeSubscriptionProduct(db.Model):

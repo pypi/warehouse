@@ -156,6 +156,13 @@
               </form>
             </div>
 
+            {% if organization.deactivation_schedule %}
+            <div class="alert alert-warning mt-3" id="deactivation-schedule">
+              No paid seat. Deadline: {{ organization.deactivation_schedule.deactivate_on|format_date() }}; deactivated the next day.
+              Last notice: {{ organization.deactivation_schedule.last_notice_days }} days.
+            </div>
+            {% endif %}
+
             {% if not organization.is_active %}
             <div class="alert alert-secondary mt-3" id="deactivation-reason">
               {% if organization.deactivated %}
@@ -176,7 +183,6 @@
               </button>
             </form>
             {% endif %}
-
         </div>
       </div>
     </div>

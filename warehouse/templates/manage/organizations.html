@@ -100,6 +100,10 @@
             </h3>
             <p class="organization-snippet__meta">
               {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+              {% if organization.lacks_paid_seat and organization.deactivation_schedule %}
+                <br>
+                <strong>{% trans deactivate_on=organization.deactivation_schedule.deactivate_on|format_date(format="long") %}Purchase a seat by {{ deactivate_on }} or this organization will be deactivated{% endtrans %}</strong>
+              {% endif %}
             </p>
           </div>
           <div class="organization-snippet__buttons">

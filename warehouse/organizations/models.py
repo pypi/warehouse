@@ -543,6 +543,18 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             is None
         )
 
+    @property
+    def lacks_paid_seat(self) -> bool:
+        """Active Company org with no paid seat. Past-due orgs are left to Stripe."""
+        return (
+            self.is_active
+            and not self.is_in_good_standing()
+            and not any(
+                subscription.is_recovering_payment
+                for subscription in self.subscriptions
+            )
+        )
+
     def deactivate(self, reason: OrganizationDeactivationReason) -> None:
         """Deactivate once, preserving the original timestamp and reason."""
         if not self.is_active:

@@ -1,35 +1,48 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime as dt
+import uuid
+
+from unittest import mock
 
 import pytest
 import stripe
 
+from freezegun import freeze_time
 from pyramid_retry import RetryableException
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationDeactivationNotice,
+    OrganizationDeactivationReason,
     OrganizationInvitationStatus,
     OrganizationRoleType,
     OrganizationType,
 )
 from warehouse.organizations.tasks import (
+    deactivate_unpaid_organization,
     delete_declined_organization_applications,
-    notify_organizations_requiring_subscription,
     reconcile_stripe_status,
+    schedule_unpaid_organization_deactivations,
+    send_organization_deactivation_notices,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
+from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
+    OrganizationDeactivationNoticeFactory,
+    OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationManualActivationFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
@@ -492,115 +505,440 @@ class TestReconcileStripeStatus:
         assert subscription.status == StripeSubscriptionStatus.Active.value
 
 
-class TestNotifyOrganizationsRequiringSubscription:
-    def test_notifies_owners_of_company_orgs_not_in_good_standing(
-        self, db_request, mocker
-    ):
-        send_email = mocker.patch(
-            "warehouse.organizations.tasks."
-            "send_organization_subscription_required_email",
-        )
+TODAY = dt.date(2026, 10, 17)
 
-        organization = OrganizationFactory.create(
-            orgtype=OrganizationType.Company, is_active=True
-        )
-        owner1 = UserFactory.create()
-        owner2 = UserFactory.create()
-        OrganizationRoleFactory.create(
-            organization=organization, user=owner1, role_name=OrganizationRoleType.Owner
-        )
-        OrganizationRoleFactory.create(
-            organization=organization, user=owner2, role_name=OrganizationRoleType.Owner
-        )
-        # A non-owner member should not be notified.
-        OrganizationRoleFactory.create(
-            organization=organization,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Member,
-        )
 
-        notify_organizations_requiring_subscription(db_request)
+def _unpaid_org(**kwargs):
+    organization = OrganizationFactory.create(
+        orgtype=OrganizationType.Company, **kwargs
+    )
+    owner = UserFactory.create(with_verified_primary_email=True)
+    OrganizationRoleFactory.create(organization=organization, user=owner)
+    return organization, owner
 
-        assert send_email.call_count == 2
-        send_email.assert_any_call(
-            db_request, owner1, organization_name=organization.name
-        )
-        send_email.assert_any_call(
-            db_request, owner2, organization_name=organization.name
-        )
 
-    def test_skips_good_standing_non_company_and_inactive_orgs(
-        self, db_request, mocker
-    ):
-        send_email = mocker.patch(
-            "warehouse.organizations.tasks."
-            "send_organization_subscription_required_email",
-        )
+def _unverified_owner(organization, *, other_verified=False):
+    owner = UserFactory.create()
+    EmailFactory.create(user=owner, verified=False, primary=True)
+    other = (
+        EmailFactory.create(user=owner, verified=True, primary=False)
+        if other_verified
+        else None
+    )
+    OrganizationRoleFactory.create(organization=organization, user=owner)
+    return owner, other
 
-        # Company org in good standing via an active manual activation.
-        good_standing = OrganizationFactory.create(
-            orgtype=OrganizationType.Company, is_active=True
+
+def _schedule(organization, *, deactivate_in, last_notice_days):
+    return OrganizationDeactivationScheduleFactory.create(
+        organization=organization,
+        deactivate_on=TODAY + dt.timedelta(days=deactivate_in),
+        last_notice_days=last_notice_days,
+    )
+
+
+@freeze_time(TODAY.isoformat() + " 01:00:00")
+class TestScheduleUnpaidOrganizationDeactivations:
+    def test_dispatches_unpaid_and_scheduled_orgs(self, db_request, mocker):
+        task = mocker.patch.object(db_request, "task")
+
+        unpaid, _ = _unpaid_org()
+        canceled, _ = _unpaid_org()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=canceled,
+            subscription__status=StripeSubscriptionStatus.Canceled,
         )
+        # A schedule is dispatched even once the org no longer qualifies, so
+        # the per-org task can clear it.
+        scheduled_inactive, _ = _unpaid_org(is_active=False)
+        _schedule(scheduled_inactive, deactivate_in=14, last_notice_days=30)
+        # An owner reachable only at a non-primary verified address counts.
+        secondary_only = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _unverified_owner(secondary_only, other_verified=True)
+
+        # Nobody can be told, but they own nothing, so they're deactivated anyway.
+        unreachable = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _unverified_owner(unreachable)
+        ownerless = OrganizationFactory.create(orgtype=OrganizationType.Company)
+
+        # None of these are dispatched.
+        good_standing, _ = _unpaid_org()
         OrganizationManualActivationFactory.create(organization=good_standing)
-        OrganizationRoleFactory.create(
-            organization=good_standing,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Owner,
+        past_due, _ = _unpaid_org()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=past_due,
+            subscription__status=StripeSubscriptionStatus.PastDue,
+        )
+        OrganizationFactory.create(orgtype=OrganizationType.Community)
+        _unpaid_org(is_active=False)
+        _unpaid_org(created=dt.datetime.now(dt.UTC))
+        # Nobody can be told and it owns a project.
+        unreachable_with_project = OrganizationFactory.create(
+            orgtype=OrganizationType.Company
+        )
+        _unverified_owner(unreachable_with_project)
+        OrganizationProjectFactory.create(organization=unreachable_with_project)
+
+        schedule_unpaid_organization_deactivations(db_request)
+
+        task.assert_called_with(deactivate_unpaid_organization)
+        assert {c.args[0] for c in task.return_value.delay.call_args_list} == {
+            unpaid.id,
+            canceled.id,
+            scheduled_inactive.id,
+            secondary_only.id,
+            unreachable.id,
+            ownerless.id,
+        }
+
+    def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
+        mocker.patch("warehouse.organizations.tasks.DEACTIVATION_STARTS_PER_DAY", 1)
+        task = mocker.patch.object(db_request, "task")
+
+        oldest, _ = _unpaid_org(created=dt.datetime(2021, 1, 1))
+        _unpaid_org(created=dt.datetime(2022, 1, 1))
+        # Orgs already counting down don't count against the cap.
+        scheduled, _ = _unpaid_org(created=dt.datetime(2023, 1, 1))
+        _schedule(scheduled, deactivate_in=14, last_notice_days=30)
+
+        schedule_unpaid_organization_deactivations(db_request)
+
+        assert {c.args[0] for c in task.return_value.delay.call_args_list} == {
+            oldest.id,
+            scheduled.id,
+        }
+
+    def test_disallowed_by_admin_flag(self, db_request, mocker):
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION.value
+        ).enabled = True
+        task = mocker.patch.object(db_request, "task")
+        _unpaid_org()
+
+        schedule_unpaid_organization_deactivations(db_request)
+
+        task.assert_not_called()
+
+
+def _queued(db_request):
+    return sorted(
+        (notice.organization_id, notice.deactivated)
+        for notice in db_request.db.query(OrganizationDeactivationNotice)
+    )
+
+
+@freeze_time(TODAY.isoformat() + " 01:00:00")
+class TestDeactivateUnpaidOrganization:
+    def test_starts_notice_period(self, db_request, metrics):
+        organization, _ = _unpaid_org()
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        schedule = organization.deactivation_schedule
+        assert schedule.deactivate_on == TODAY + dt.timedelta(days=30)
+        assert schedule.last_notice_days == 30
+        assert _queued(db_request) == [(organization.id, False)]
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.notice", tags=["days:30"]
         )
 
-        # Community org (only Company orgs require a subscription).
-        community = OrganizationFactory.create(
-            orgtype=OrganizationType.Community, is_active=True
-        )
-        OrganizationRoleFactory.create(
-            organization=community,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Owner,
+    @pytest.mark.parametrize("has_owner", [True, False])
+    def test_unreachable_org_without_projects_starts_notice_period(
+        self, db_request, has_owner
+    ):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        if has_owner:
+            _unverified_owner(organization)
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.deactivation_schedule is not None
+        assert _queued(db_request) == [(organization.id, False)]
+
+    # The owner can also lose their last verified address mid-countdown.
+    @pytest.mark.parametrize("deactivate_in", [None, -1])
+    def test_unreachable_org_with_projects_is_skipped(
+        self, db_request, metrics, deactivate_in
+    ):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        _unverified_owner(organization)
+        OrganizationProjectFactory.create(organization=organization)
+        if deactivate_in is not None:
+            _schedule(organization, deactivate_in=deactivate_in, last_notice_days=3)
+
+        deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert organization.is_active
+        assert organization.deactivation_schedule is None
+        assert _queued(db_request) == []
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.skipped",
+            tags=["reason:no_recipients"],
         )
 
-        # Inactive Company org.
-        inactive = OrganizationFactory.create(
-            orgtype=OrganizationType.Company, is_active=False
+    @pytest.mark.parametrize(
+        ("deactivate_in", "last_notice_days", "notice_days", "new_deactivate_in"),
+        [
+            (14, 30, 14, 14),
+            (3, 14, 3, 3),
+            # Late reminders never shorten the notice they promise.
+            (10, 30, 14, 14),
+            (-5, 14, 3, 3),
+            # A missed reminder starts the notice period over.
+            (1, 30, 30, 30),
+            (-5, 30, 30, 30),
+        ],
+    )
+    def test_queues_due_reminder(
+        self,
+        db_request,
+        metrics,
+        deactivate_in,
+        last_notice_days,
+        notice_days,
+        new_deactivate_in,
+    ):
+        organization, _ = _unpaid_org()
+        schedule = _schedule(
+            organization,
+            deactivate_in=deactivate_in,
+            last_notice_days=last_notice_days,
         )
-        OrganizationRoleFactory.create(
-            organization=inactive,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Owner,
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.is_active
+        assert schedule.last_notice_days == notice_days
+        assert schedule.deactivate_on == TODAY + dt.timedelta(days=new_deactivate_in)
+        assert _queued(db_request) == [(organization.id, False)]
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.notice",
+            tags=[f"days:{notice_days}"],
         )
 
-        notify_organizations_requiring_subscription(db_request)
+    @pytest.mark.parametrize(
+        ("deactivate_in", "last_notice_days"),
+        [(30, 30), (5, 14), (0, 3)],
+    )
+    def test_waits_between_reminders(self, db_request, deactivate_in, last_notice_days):
+        organization, _ = _unpaid_org()
+        schedule = _schedule(
+            organization,
+            deactivate_in=deactivate_in,
+            last_notice_days=last_notice_days,
+        )
 
-        send_email.assert_not_called()
+        deactivate_unpaid_organization(db_request, organization.id)
 
-    def test_skips_recently_approved_orgs_within_grace_period(self, db_request, mocker):
-        send_email = mocker.patch(
+        assert organization.is_active
+        assert schedule.last_notice_days == last_notice_days
+        assert _queued(db_request) == []
+
+    def test_deactivates_after_final_notice(self, db_request, metrics):
+        organization, _ = _unpaid_org()
+        _schedule(organization, deactivate_in=-1, last_notice_days=3)
+
+        deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert not organization.is_active
+        assert (
+            organization.deactivated_reason == OrganizationDeactivationReason.NoPaidSeat
+        )
+        assert organization.deactivated == dt.datetime(2026, 10, 17, 1, tzinfo=dt.UTC)
+        assert organization.deactivation_schedule is None
+        assert (
+            organization.events.filter_by(
+                tag=EventTag.Organization.OrganizationDeactivate
+            )
+            .one()
+            .additional["reason"]
+            == "no_paid_seat"
+        )
+        assert _queued(db_request) == [(organization.id, True)]
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.deactivated"
+        )
+
+    @pytest.mark.parametrize(
+        "status", [StripeSubscriptionStatus.Active, StripeSubscriptionStatus.PastDue]
+    )
+    def test_clears_schedule_once_seat_paid_for(self, db_request, metrics, status):
+        organization, _ = _unpaid_org()
+        _schedule(organization, deactivate_in=3, last_notice_days=14)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription__status=status
+        )
+
+        deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert organization.is_active
+        assert organization.deactivation_schedule is None
+        assert _queued(db_request) == []
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.cleared"
+        )
+
+    def test_ignores_org_in_good_standing(self, db_request, metrics):
+        organization, _ = _unpaid_org()
+        OrganizationManualActivationFactory.create(organization=organization)
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.deactivation_schedule is None
+        assert _queued(db_request) == []
+        assert (
+            mock.call("warehouse.organizations.deactivation.cleared")
+            not in metrics.increment.call_args_list
+        )
+
+    def test_ignores_missing_org(self, db_request):
+        deactivate_unpaid_organization(db_request, uuid.uuid4())
+
+        assert _queued(db_request) == []
+
+    def test_disallowed_by_admin_flag(self, db_request):
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION.value
+        ).enabled = True
+        organization, _ = _unpaid_org()
+
+        deactivate_unpaid_organization(db_request, organization.id)
+
+        assert organization.deactivation_schedule is None
+        assert _queued(db_request) == []
+
+
+@freeze_time(TODAY.isoformat() + " 02:00:00")
+class TestSendOrganizationDeactivationNotices:
+    @pytest.fixture
+    def send_reminder(self, mocker):
+        return mocker.patch(
             "warehouse.organizations.tasks."
             "send_organization_subscription_required_email",
         )
 
-        organization = OrganizationFactory.create(
-            orgtype=OrganizationType.Company,
-            is_active=True,
-            created=dt.datetime.now(dt.UTC),
+    @pytest.fixture
+    def send_deactivated(self, mocker):
+        return mocker.patch(
+            "warehouse.organizations.tasks.send_organization_deactivated_email",
         )
+
+    def test_sends_each_owner_one_email_per_kind(
+        self, db_request, send_reminder, send_deactivated
+    ):
+        later, owner = _unpaid_org(name="later")
+        _schedule(later, deactivate_in=14, last_notice_days=14)
+        sooner = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, name="sooner"
+        )
+        # Reached at their other verified address; the unreachable owner is skipped.
+        sooner_owner, sooner_email = _unverified_owner(sooner, other_verified=True)
+        _unverified_owner(sooner)
+        _schedule(sooner, deactivate_in=3, last_notice_days=3)
+        OrganizationRoleFactory.create(organization=sooner, user=owner)
+        gone, _ = _unpaid_org(name="gone")
+        gone.deactivate(OrganizationDeactivationReason.NoPaidSeat)
+        OrganizationRoleFactory.create(organization=gone, user=owner)
+        # Only owners are told.
         OrganizationRoleFactory.create(
-            organization=organization,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Owner,
+            organization=later, role_name=OrganizationRoleType.Member
         )
+        for organization, deactivated in (
+            (later, False),
+            (sooner, False),
+            (gone, True),
+        ):
+            OrganizationDeactivationNoticeFactory.create(
+                organization=organization, deactivated=deactivated
+            )
+        # A duplicate notice still means one entry.
+        OrganizationDeactivationNoticeFactory.create(organization=later)
 
-        notify_organizations_requiring_subscription(db_request)
+        send_organization_deactivation_notices(db_request)
 
-        send_email.assert_not_called()
-
-    def test_handles_company_org_without_owners(self, db_request, mocker):
-        send_email = mocker.patch(
-            "warehouse.organizations.tasks."
-            "send_organization_subscription_required_email",
+        assert send_reminder.call_count == 2
+        send_reminder.assert_any_call(
+            db_request,
+            (owner, owner.primary_email),
+            organizations=[
+                {
+                    "name": "sooner",
+                    "deactivate_on": TODAY + dt.timedelta(days=3),
+                    "days_remaining": 3,
+                },
+                {
+                    "name": "later",
+                    "deactivate_on": TODAY + dt.timedelta(days=14),
+                    "days_remaining": 14,
+                },
+            ],
         )
+        send_reminder.assert_any_call(
+            db_request,
+            (sooner_owner, sooner_email),
+            organizations=[
+                {
+                    "name": "sooner",
+                    "deactivate_on": TODAY + dt.timedelta(days=3),
+                    "days_remaining": 3,
+                }
+            ],
+        )
+        # gone's own owner gets the other deactivated email.
+        assert send_deactivated.call_count == 2
+        send_deactivated.assert_any_call(
+            db_request,
+            (owner, owner.primary_email),
+            organizations=[
+                {"name": "gone", "reactivate_by": TODAY + dt.timedelta(days=90)}
+            ],
+        )
+        assert _queued(db_request) == []
 
-        OrganizationFactory.create(orgtype=OrganizationType.Company, is_active=True)
+    def test_drops_notices_no_longer_needed(
+        self, db_request, send_reminder, send_deactivated
+    ):
+        paid, _ = _unpaid_org()
+        OrganizationManualActivationFactory.create(organization=paid)
+        OrganizationDeactivationNoticeFactory.create(organization=paid)
+        reactivated, _ = _unpaid_org()
+        OrganizationDeactivationNoticeFactory.create(
+            organization=reactivated, deactivated=True
+        )
+        # Orgs owners can no longer reactivate by paying get no deactivated email.
+        owner_removed, _ = _unpaid_org()
+        owner_removed.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        lapsed, _ = _unpaid_org()
+        lapsed.deactivate(OrganizationDeactivationReason.NoPaidSeat)
+        lapsed.deactivated -= dt.timedelta(days=91)
+        for organization in (owner_removed, lapsed):
+            OrganizationDeactivationNoticeFactory.create(
+                organization=organization, deactivated=True
+            )
 
-        notify_organizations_requiring_subscription(db_request)
+        send_organization_deactivation_notices(db_request)
 
-        send_email.assert_not_called()
+        send_reminder.assert_not_called()
+        send_deactivated.assert_not_called()
+        assert _queued(db_request) == []
+
+    def test_disallowed_by_admin_flag(
+        self, db_request, send_reminder, send_deactivated
+    ):
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION.value
+        ).enabled = True
+        organization, _ = _unpaid_org()
+        _schedule(organization, deactivate_in=30, last_notice_days=30)
+        OrganizationDeactivationNoticeFactory.create(organization=organization)
+
+        send_organization_deactivation_notices(db_request)
+
+        send_reminder.assert_not_called()
+        assert _queued(db_request) == [(organization.id, False)]
