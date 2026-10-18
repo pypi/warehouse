@@ -156,6 +156,27 @@
               </form>
             </div>
 
+            {% if not organization.is_active %}
+            <div class="alert alert-secondary mt-3" id="deactivation-reason">
+              {% if organization.deactivated %}
+              Deactivated {{ organization.deactivated|format_date() }}.
+              {% endif %}
+              Reason: {{ organization.deactivated_reason.value if organization.deactivated_reason else "unknown" }}.
+              {% if organization.reactivates_on_payment %}
+              Owners can reactivate by paying through {{ organization.reactivation_deadline|format_date() }}.
+              {% endif %}
+            </div>
+
+            <form method="POST" action="{{ request.route_path('admin.organization.reactivate', organization_id=organization.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="btn btn-warning btn-block mt-3"
+                      {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+                      onclick="return confirm('Reactivate {{ organization.name }}? If it still has no paid seat, its owners get a new 30-day notice.')">
+                <i class="icon fa fa-power-off"></i> Reactivate
+              </button>
+            </form>
+            {% endif %}
+
         </div>
       </div>
     </div>

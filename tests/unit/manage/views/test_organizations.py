@@ -1503,6 +1503,54 @@ class TestManageOrganizationBillingViews:
             "Terms of Service must be accepted."
         ]
 
+    @pytest.mark.parametrize(
+        "view_method", ["activate_subscription", "create_or_manage_subscription"]
+    )
+    def test_deactivated_organization_cannot_start_subscription(
+        self, db_request, organization_no_customer, mocker, view_method
+    ):
+        organization_no_customer.is_active = False
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"terms_of_service_agreement": "1"})
+        db_request.route_path = mocker.Mock(return_value="/settings/")
+        flash = mocker.spy(db_request.session, "flash")
+
+        view = org_views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
+        create_subscription = mocker.patch.object(view, "create_subscription")
+        result = getattr(view, view_method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/settings/"
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.settings",
+            organization_name=organization_no_customer.normalized_name,
+        )
+        flash.assert_called_once_with(
+            "This organization is deactivated. To reactivate it, email "
+            "support+orgs@pypi.org.",
+            queue="error",
+        )
+        create_subscription.assert_not_called()
+
+    def test_org_deactivated_for_no_paid_seat_can_start_subscription(
+        self, db_request, organization_no_customer, mocker
+    ):
+        organization_no_customer.is_active = False
+        mocker.patch.object(
+            type(organization_no_customer),
+            "reactivates_on_payment",
+            new_callable=mocker.PropertyMock,
+            return_value=True,
+        )
+        view = org_views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
+        create_subscription = mocker.patch.object(view, "create_subscription")
+
+        assert view.create_or_manage_subscription() is create_subscription.return_value
+
     def test_create_subscription(
         self,
         db_request,

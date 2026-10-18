@@ -17,6 +17,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
     StripeCustomer,
     StripeSubscription,
     StripeSubscriptionItem,
@@ -512,6 +513,8 @@ class StripeSubscriptionService:
                     "status": status.value,
                 },
             )
+            if status.value in ACTIVE_SUBSCRIPTION_STATUSES:
+                subscription.organization.reactivate_after_payment(request=request)
         return True
 
     def delete_subscription(self, id):

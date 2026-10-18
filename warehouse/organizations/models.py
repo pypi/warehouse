@@ -38,6 +38,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
+from warehouse.organizations.constants import REACTIVATE_BY_PAYING_WITHIN
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -554,6 +555,39 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         self.is_active = True
         self.deactivated = None
         self.deactivated_reason = None
+
+    @property
+    def reactivation_deadline(self) -> datetime.date | None:
+        """Last day (UTC) owners can reactivate by paying."""
+        if (
+            self.deactivated is None
+            or self.deactivated_reason != OrganizationDeactivationReason.NoPaidSeat
+        ):
+            return None
+        return (self.deactivated + REACTIVATE_BY_PAYING_WITHIN).date()
+
+    @property
+    def reactivates_on_payment(self) -> bool:
+        deadline = self.reactivation_deadline
+        return (
+            deadline is not None
+            and datetime.datetime.now(datetime.UTC).date() <= deadline
+            and bool(self.owners)
+        )
+
+    def reactivate_after_payment(self, *, request: Request) -> None:
+        # Lock and reload so a deactivation running right now can't be missed.
+        request.db.get(
+            Organization, self.id, with_for_update=True, populate_existing=True
+        )
+        if not self.reactivates_on_payment:
+            return
+        self.reactivate()
+        self.record_event(
+            tag=EventTag.Organization.OrganizationReactivate,
+            request=request,
+            additional={"reason": "paid_seat"},
+        )
 
     def can_manage_members(self) -> bool:
         """Check if this organization may invite or remove members.
