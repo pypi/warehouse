@@ -144,7 +144,7 @@ deps_upgrade_all: .state/docker-build-base ## Upgrade all dependencies
 deps_upgrade_project: .state/docker-build-base ## Upgrade dependencies for one project; use P=name
 	docker compose run --rm base bin/deps-upgrade -p $(P)
 
-translations: .state/docker-build-base ## Update translation catalogs
+translations: .state/docker-build-base ## Extract translatable strings to .state/messages.pot
 	docker compose run --rm base bin/translations
 
 patch: .state/docker-build-base ## Apply local patches

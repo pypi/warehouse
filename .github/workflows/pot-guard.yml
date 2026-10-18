@@ -1,0 +1,20 @@
+name: messages.pot guard
+
+on:
+  pull_request:
+    paths:
+      - warehouse/locale/messages.pot
+
+permissions: {}
+
+jobs:
+  guard:
+    if: github.event.pull_request.user.login != 'pypi-warehouse-translations[bot]'
+    name: messages.pot is generated
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Reject hand edits
+        run: |
+          # shellcheck disable=SC2016
+          echo '::error file=warehouse/locale/messages.pot::messages.pot is regenerated on main by CI. Revert it with: git checkout $(git merge-base HEAD upstream/main) -- warehouse/locale/messages.pot'
+          exit 1
