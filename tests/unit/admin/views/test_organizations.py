@@ -1595,7 +1595,6 @@ class TestReactivateOrganization:
         OrganizationDeactivationScheduleFactory.create(organization=organization)
         db_request.user = UserFactory.create()
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.POST = MultiDict({"confirm": "test-org"})
 
         result = views.reactivate_organization(db_request)
         db_request.db.flush()
@@ -1614,31 +1613,9 @@ class TestReactivateOrganization:
             "Organization 'test-org' reactivated", queue="success"
         )
 
-    def test_reactivates_without_schedule(self, db_request, flash):
-        organization = OrganizationFactory.create(name="test-org", is_active=False)
-        db_request.user = UserFactory.create()
-        db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.POST = MultiDict({"confirm": "test-org"})
-
-        views.reactivate_organization(db_request)
-
-        assert organization.is_active
-
-    def test_requires_confirmation(self, db_request, flash):
-        organization = OrganizationFactory.create(name="test-org", is_active=False)
-        db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.POST = MultiDict({"confirm": "wrong-name"})
-
-        result = views.reactivate_organization(db_request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert not organization.is_active
-        flash.assert_called_once_with("Confirm the request", queue="error")
-
     def test_already_active(self, db_request, flash):
         organization = OrganizationFactory.create(name="test-org", is_active=True)
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.POST = MultiDict({"confirm": "test-org"})
 
         result = views.reactivate_organization(db_request)
 

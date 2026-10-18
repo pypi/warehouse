@@ -159,7 +159,7 @@
             {% if organization.deactivation_schedule %}
             <div class="alert alert-warning mt-3" id="deactivation-schedule">
               No paid seat. Deadline: {{ organization.deactivation_schedule.deactivate_on|format_date() }}; deactivated the next day.
-              Last email sent: {{ organization.deactivation_schedule.last_notice_days }}-day notice.
+              Last notice: {{ organization.deactivation_schedule.last_notice_days }} days.
             </div>
             {% endif %}
 
@@ -170,58 +170,18 @@
               {% endif %}
               Reason: {{ organization.deactivated_reason.value if organization.deactivated_reason else "unknown" }}.
               {% if organization.reactivates_on_payment %}
-              Owners can reactivate by paying until {{ organization.reactivation_deadline|format_date() }}.
-              {% elif organization.reactivation_deadline %}
-              Owners could reactivate by paying until {{ organization.reactivation_deadline|format_date() }}; now only an admin can.
+              Owners can reactivate by paying through {{ organization.reactivation_deadline|format_date() }}.
               {% endif %}
             </div>
 
-            <button
-              type="button"
-              class="btn btn-warning btn-block mt-3"
-              data-toggle="modal"
-              data-target="#reactivateModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
-              title="Reactivate"
-            >
-              <i class="icon fa fa-power-off"></i> Reactivate
-            </button>
-
-            <div class="modal fade" id="reactivateModal" tabindex="-1" role="dialog" aria-labelledby="reactivateModalLabel">
-              <form method="POST" action="{{ request.route_path('admin.organization.reactivate', organization_id=organization.id) }}">
-                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h4 class="modal-title" id="reactivateModalLabel">
-                        Reactivate {{ organization.name }}?
-                      </h4>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <p>
-                        This will reactivate <strong>{{ organization.name }}</strong>.
-                        If it still has no paid seat, its owners get a new 30-day notice.
-                      </p>
-                      <div class="form-group">
-                        <label for="reactivateModalConfirm">Organization Name</label>
-                        <input type="text" id="reactivateModalConfirm" class="form-control" name="confirm" placeholder="{{ organization.name }}" aria-describedby="reactivateModalConfirmHelp" required>
-                        <span id="reactivateModalConfirmHelp">
-                          Type "{{ organization.name }}" to confirm you are <strong>reactivating</strong> the organization.
-                        </span>
-                      </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-warning">
-                        <i class="icon fa fa-check"></i> Reactivate organization
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
+            <form method="POST" action="{{ request.route_path('admin.organization.reactivate', organization_id=organization.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="btn btn-warning btn-block mt-3"
+                      {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+                      onclick="return confirm('Reactivate {{ organization.name }}? If it still has no paid seat, its owners get a new 30-day notice.')">
+                <i class="icon fa fa-power-off"></i> Reactivate
+              </button>
+            </form>
             {% endif %}
 
         </div>
