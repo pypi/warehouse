@@ -741,6 +741,46 @@ class TestManageOrganizations:
             "create_organization_application_form": create_organization_application_obj
         }
 
+    def test_create_organization_application_max_undecided(
+        self, pyramid_config, db_request, mocker
+    ):
+        db_request.registry.settings[
+            "warehouse.organizations.max_undecided_organization_applications"
+        ] = 3
+        db_request.user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(
+            3,
+            submitted_by=db_request.user,
+            status=OrganizationApplicationStatus.Submitted,
+        )
+        db_request.POST = MultiDict(
+            {
+                "name": "my_organization_name",
+                "display_name": "My Organization",
+                "link_url": "https://example.com/",
+                "description": "An organization",
+                "orgtype": "Community",
+                "membership_size": "1",
+                "usage": "We plan to publish a few packages under one organization.",
+            }
+        )
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(db_request)
+        result = view.create_organization_application()
+
+        form = result["create_organization_application_form"]
+        assert [str(error) for error in form.form_errors] == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
+        assert len(db_request.user.organization_applications) == 3
+        send_email.assert_not_called()
+
 
 class TestManageOrganizationSettings:
     def test_manage_organization(self, db_request, organization_service, monkeypatch):
@@ -2000,8 +2040,11 @@ class TestManageOrganizationProjects:
         ids=["with-reset-hint", "without-reset-hint"],
     )
     @pytest.mark.parametrize(
-        "limiter_method",
-        ["test", "hit"],
+        ("limiter_name", "limiter_method"),
+        [
+            ("project.create.organization", "test"),
+            ("project.create.attempt.organization", "hit"),
+        ],
         ids=["rejected-before-writing", "rejected-after-writing"],
     )
     def test_add_organization_project_new_project_ratelimited(
@@ -2013,10 +2056,12 @@ class TestManageOrganizationProjects:
         resets_in,
         retry_after,
         expected_error,
+        limiter_name,
         limiter_method,
     ):
-        """`hit` rejects after the project is in the session, so the view must
-        doom the transaction or pyramid_tm commits the refused project."""
+        """`hit` (on the attempt limiter) rejects after the project is in the
+        session, so the view must doom the transaction or pyramid_tm commits
+        the refused project."""
         db_request.help_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
@@ -2035,11 +2080,11 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj,
         )
 
-        org_limiter = DummyRateLimiter()
-        mocker.patch.object(org_limiter, limiter_method, return_value=False)
-        mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+        limiter = DummyRateLimiter()
+        mocker.patch.object(limiter, limiter_method, return_value=False)
+        mocker.patch.object(limiter, "resets_in", return_value=resets_in)
         project_service = db_request.find_service(IProjectService)
-        project_service.ratelimiters["project.create.organization"] = org_limiter
+        project_service.ratelimiters[limiter_name] = limiter
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()

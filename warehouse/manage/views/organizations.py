@@ -217,7 +217,7 @@ class ManageOrganizationsViews:
             self.request.POST,
             organization_service=self.organization_service,
             user=self.request.user,
-            max_apps=self.request.registry.settings[
+            max_applications=self.request.registry.settings[
                 "warehouse.organizations.max_undecided_organization_applications"
             ],
         )

@@ -499,6 +499,9 @@ class TestPEP740AttestationViewer:
         )
 
         assert viewer.workflow_filename == ""
+        assert viewer.workflow_url == ""
+        assert viewer.permalink_with_digest == ""
+        assert viewer.permalink_with_reference == ""
         assert (
             viewer._format_url("https://example.com", "refs/heads/main")
             == "https://example.com/refs/heads/main"

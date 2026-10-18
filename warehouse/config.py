@@ -628,6 +628,24 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_USER_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_IP_RATELIMIT_STRING",
+        default="200 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_ORGANIZATION_RATELIMIT_STRING",
+        default="50 per day",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
