@@ -990,17 +990,11 @@ class TestProjectService:
         project_service.create_project("some-new-project", creator, db_request)
 
         ratelimit_service.hit.assert_not_called()
-        hooks = list(db_request.tm.get().getAfterCommitHooks())
-        assert hooks == [
-            (
-                ProjectService._hit_creation_limiters,
-                (ratelimit_service, remote_addr, ratelimit_service, creator.id),
-                {},
-            )
-        ]
-
-        hook, args, kws = hooks[0]
-        hook(success, *args, **kws)
+        if success:
+            db_request.tm.commit()
+        else:
+            db_request.tm.abort()
+        db_request.tm.begin()
 
         expected = []
         if success:
