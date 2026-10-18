@@ -20,6 +20,10 @@
       <strong>{% trans organization_name=event.additional.organization_name %}{{ organization_name }} organization created{% endtrans %}</strong>
     {% elif event.tag == EventTag.Organization.OrganizationDelete %}
       <strong>{% trans organization_name=event.additional.organization_name %}{{ organization_name }} organization deleted{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.OrganizationDeactivate %}
+      <strong>{% trans organization_name=event.additional.organization_name %}{{ organization_name }} organization deactivated{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.OrganizationReactivate %}
+      <strong>{% trans organization_name=event.additional.organization_name %}{{ organization_name }} organization reactivated{% endtrans %}</strong>
     {% elif event.tag == EventTag.Organization.OrganizationRename %}
       <strong>{% trans organization_name=event.additional.organization_name, previous_organization_name=event.additional.previous_organization_name %}{{ previous_organization_name }} organization renamed to {{ organization_name }}{% endtrans %}</strong>
     {% elif event.tag == EventTag.Organization.OrganizationSetOrgType %}

@@ -18,6 +18,7 @@ from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
+    OrganizationDeactivationReason,
     OrganizationFactory,
     OrganizationRoleType,
     TeamFactory,
@@ -814,6 +815,27 @@ class TestOrganizationBillingMethods:
         )
         assert not organization.is_in_good_standing()
         assert not organization.is_awaiting_initial_billing
+
+    @freeze_time("2026-10-18 01:00:00")
+    def test_deactivate_and_reactivate(self, db_session):
+        organization = DBOrganizationFactory.create()
+
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+
+        assert not organization.is_active
+        assert organization.deactivated == datetime.datetime(
+            2026, 10, 18, 1, tzinfo=datetime.UTC
+        )
+        assert (
+            organization.deactivated_reason
+            == OrganizationDeactivationReason.OwnerRemoved
+        )
+
+        organization.reactivate()
+
+        assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
 
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""

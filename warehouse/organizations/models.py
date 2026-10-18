@@ -243,6 +243,11 @@ class OrganizationType(enum.StrEnum):
     Company = "Company"
 
 
+class OrganizationDeactivationReason(enum.StrEnum):
+    NoPaidSeat = "no_paid_seat"
+    OwnerRemoved = "owner_removed"
+
+
 class OrganizationFactory:
     def __init__(self, request):
         self.request = request
@@ -356,6 +361,17 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
+    deactivated: Mapped[datetime.datetime | None] = mapped_column(
+        TZDateTime,
+        comment="Datetime the organization was deactivated. NULL while active.",
+    )
+    deactivated_reason: Mapped[OrganizationDeactivationReason | None] = mapped_column(
+        Enum(
+            OrganizationDeactivationReason,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        comment="Why the organization was deactivated, if known.",
+    )
     created: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the organization was created.",
@@ -421,6 +437,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     manual_activation: Mapped[OrganizationManualActivation | None] = relationship(
         back_populates="organization",
         uselist=False,
+    )
+    deactivation_schedule: Mapped[OrganizationDeactivationSchedule | None] = (
+        relationship(
+            back_populates="organization",
+            uselist=False,
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+        )
     )
     oidc_issuers: Mapped[list[OrganizationOIDCIssuer]] = relationship(
         back_populates="organization",
@@ -517,6 +541,16 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             ).first()
             is None
         )
+
+    def deactivate(self, reason: OrganizationDeactivationReason) -> None:
+        self.is_active = False
+        self.deactivated = datetime.datetime.now(datetime.UTC)
+        self.deactivated_reason = reason
+
+    def reactivate(self) -> None:
+        self.is_active = True
+        self.deactivated = None
+        self.deactivated_reason = None
 
     def can_manage_members(self) -> bool:
         """Check if this organization may invite or remove members.
@@ -736,6 +770,52 @@ class OrganizationManualActivation(db.Model):
     def available_seats(self) -> int:
         """Get the number of available seats for new members."""
         return max(0, self.seat_limit - self.current_member_count)
+
+
+class OrganizationDeactivationSchedule(db.ModelBase):
+    """Deadline for an unpaid Company org. Deleted once it pays or is deactivated."""
+
+    __tablename__ = "organization_deactivation_schedules"
+
+    __repr__ = make_repr("organization_id", "deactivate_on", "last_notice_days")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship(
+        back_populates="deactivation_schedule"
+    )
+
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when the deactivation notice period started",
+    )
+    deactivate_on: Mapped[datetime.date] = mapped_column(
+        comment="Last day (UTC) to purchase a seat before deactivation",
+    )
+    last_notice_days: Mapped[int] = mapped_column(
+        comment="Days-before-deactivation of the most recent notice",
+    )
+
+
+class OrganizationDeactivationNotice(db.Model):
+    """An email owed to an org's owners, sent in their next daily batch."""
+
+    __tablename__ = "organization_deactivation_notices"
+
+    __repr__ = make_repr("organization_id", "deactivated")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        index=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship()
+
+    deactivated: Mapped[bool] = mapped_column(
+        comment="True if the org was deactivated, False for a reminder",
+    )
 
 
 class OrganizationApplicationStatus(enum.StrEnum):
