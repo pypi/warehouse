@@ -28,7 +28,6 @@ from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
     DEACTIVATION_STARTS_PER_DAY,
-    NO_PAID_SEAT_REASON,
     SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
@@ -36,6 +35,7 @@ from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationDeactivationNotice,
+    OrganizationDeactivationReason,
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
@@ -337,11 +337,11 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     if days_remaining >= 0:
         return
 
-    organization.is_active = False
+    organization.deactivate(OrganizationDeactivationReason.NoPaidSeat)
     organization.record_event(
         tag=EventTag.Organization.OrganizationDeactivate,
         request=request,
-        additional={"reason": NO_PAID_SEAT_REASON},
+        additional={"reason": OrganizationDeactivationReason.NoPaidSeat.value},
     )
     request.db.delete(schedule)
     request.db.add(

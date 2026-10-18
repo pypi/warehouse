@@ -1408,7 +1408,7 @@ def reactivate_organization(request: Request) -> HTTPSeeOther:
         request.session.flash("Confirm the request", queue="error")
         return HTTPSeeOther(detail_url)
 
-    organization.is_active = True
+    organization.reactivate()
     # Drop any old deadline; if still unpaid, the daily task starts a new 30 days.
     if organization.deactivation_schedule is not None:
         request.db.delete(organization.deactivation_schedule)

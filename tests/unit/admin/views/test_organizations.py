@@ -32,6 +32,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OIDCIssuerType,
+    OrganizationDeactivationReason,
     OrganizationManualActivation,
     OrganizationOIDCIssuer,
     OrganizationRole,
@@ -1589,7 +1590,8 @@ class TestReactivateOrganization:
         return mocker.spy(db_request.session, "flash")
 
     def test_reactivates_and_clears_stale_schedule(self, db_request, flash):
-        organization = OrganizationFactory.create(name="test-org", is_active=False)
+        organization = OrganizationFactory.create(name="test-org")
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
         OrganizationDeactivationScheduleFactory.create(organization=organization)
         db_request.user = UserFactory.create()
         db_request.matchdict = {"organization_id": str(organization.id)}
@@ -1601,6 +1603,8 @@ class TestReactivateOrganization:
 
         assert isinstance(result, HTTPSeeOther)
         assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
         assert organization.deactivation_schedule is None
         event = organization.events.filter_by(
             tag=EventTag.Organization.OrganizationReactivate

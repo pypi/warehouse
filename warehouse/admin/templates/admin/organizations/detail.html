@@ -164,6 +164,13 @@
             {% endif %}
 
             {% if not organization.is_active %}
+            <div class="alert alert-secondary mt-3" id="deactivation-reason">
+              {% if organization.deactivated %}
+              Deactivated {{ organization.deactivated|format_date() }}.
+              {% endif %}
+              Reason: {{ organization.deactivated_reason.value if organization.deactivated_reason else "unknown" }}.
+            </div>
+
             <button
               type="button"
               class="btn btn-warning btn-block mt-3"

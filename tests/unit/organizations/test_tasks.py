@@ -18,6 +18,7 @@ from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationDeactivationNotice,
+    OrganizationDeactivationReason,
     OrganizationInvitationStatus,
     OrganizationRoleType,
     OrganizationType,
@@ -721,6 +722,12 @@ class TestDeactivateUnpaidOrganization:
         db_request.db.expire(organization)
 
         assert not organization.is_active
+        assert (
+            organization.deactivated_reason == OrganizationDeactivationReason.NoPaidSeat
+        )
+        assert organization.deactivated == datetime.datetime(
+            2026, 10, 17, 1, tzinfo=datetime.UTC
+        )
         assert organization.deactivation_schedule is None
         assert (
             organization.events.filter_by(

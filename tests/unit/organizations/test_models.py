@@ -18,6 +18,7 @@ from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
+    OrganizationDeactivationReason,
     OrganizationFactory,
     OrganizationRoleType,
     TeamFactory,
@@ -817,75 +818,81 @@ class TestOrganizationBillingMethods:
 
     @staticmethod
     def _deactivated_for(reason, *, owner=True, orgtype="Company"):
-        organization = DBOrganizationFactory.create(orgtype=orgtype, is_active=False)
+        organization = DBOrganizationFactory.create(orgtype=orgtype)
         if owner:
             DBOrganizationRoleFactory.create(
                 organization=organization, role_name=OrganizationRoleType.Owner
             )
-        DBOrganizationEventFactory.create(
-            source=organization,
-            tag=EventTag.Organization.OrganizationDeactivate,
-            additional={"reason": reason},
-            time=datetime.datetime(2026, 10, 1),
-        )
+        organization.deactivate(reason)
         return organization
 
+    @freeze_time("2026-10-18 01:00:00")
+    def test_deactivate_and_reactivate(self, db_session):
+        organization = DBOrganizationFactory.create()
+
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+
+        assert not organization.is_active
+        assert organization.deactivated == datetime.datetime(
+            2026, 10, 18, 1, tzinfo=datetime.UTC
+        )
+        assert (
+            organization.deactivated_reason
+            == OrganizationDeactivationReason.OwnerRemoved
+        )
+
+        organization.reactivate()
+
+        assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
+
     def test_reactivates_on_payment(self, db_session):
-        organization = self._deactivated_for("no_paid_seat")
+        organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
         assert organization.reactivates_on_payment
 
-    def test_reactivates_on_payment_other_reason(self, db_session):
-        organization = self._deactivated_for("something_else")
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"reason": OrganizationDeactivationReason.OwnerRemoved},
+            # e.g. deactivated before reasons were recorded
+            {"reason": None},
+            {"reason": OrganizationDeactivationReason.NoPaidSeat, "owner": False},
+            {
+                "reason": OrganizationDeactivationReason.NoPaidSeat,
+                "orgtype": "Community",
+            },
+        ],
+    )
+    def test_does_not_reactivate_on_payment(self, db_session, kwargs):
+        organization = self._deactivated_for(**kwargs)
         assert not organization.reactivates_on_payment
 
-    def test_reactivates_on_payment_without_owner(self, db_session):
-        organization = self._deactivated_for("no_paid_seat", owner=False)
-        assert not organization.reactivates_on_payment
-
-    def test_reactivates_on_payment_community_org(self, db_session):
-        organization = self._deactivated_for("no_paid_seat", orgtype="Community")
-        assert not organization.reactivates_on_payment
-
-    def test_reactivates_on_payment_never_deactivated(self, db_session):
-        # e.g. deactivated by removing its sole owner, which records no such event
-        organization = DBOrganizationFactory.create(orgtype="Company", is_active=False)
-        DBOrganizationRoleFactory.create(
-            organization=organization, role_name=OrganizationRoleType.Owner
-        )
-        assert not organization.reactivates_on_payment
-
-    def test_reactivates_on_payment_after_admin_reactivation(self, db_session):
-        organization = self._deactivated_for("no_paid_seat")
-        DBOrganizationEventFactory.create(
-            source=organization,
-            tag=EventTag.Organization.OrganizationReactivate,
-            additional={},
-            time=datetime.datetime(2026, 10, 2),
-        )
-        assert not organization.reactivates_on_payment
-
-    def test_reactivates_on_payment_active_org(self, db_session):
-        organization = self._deactivated_for("no_paid_seat")
-        organization.is_active = True
+    def test_active_org_does_not_reactivate_on_payment(self, db_session):
+        organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
+        organization.reactivate()
         assert not organization.reactivates_on_payment
 
     def test_reactivate_after_payment(self, db_request):
-        organization = self._deactivated_for("no_paid_seat")
+        organization = self._deactivated_for(OrganizationDeactivationReason.NoPaidSeat)
 
         organization.reactivate_after_payment(request=db_request)
 
         assert organization.is_active
-        event = organization.events.first()
+        assert organization.deactivated_reason is None
+        event = organization.events.one()
         assert event.tag == EventTag.Organization.OrganizationReactivate
         assert event.additional["reason"] == "paid_seat"
 
     def test_reactivate_after_payment_other_reason(self, db_request):
-        organization = self._deactivated_for("something_else")
+        organization = self._deactivated_for(
+            OrganizationDeactivationReason.OwnerRemoved
+        )
 
         organization.reactivate_after_payment(request=db_request)
 
         assert not organization.is_active
-        assert organization.events.count() == 1
+        assert organization.events.count() == 0
 
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""

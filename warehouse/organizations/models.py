@@ -38,7 +38,6 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
-from warehouse.organizations.constants import NO_PAID_SEAT_REASON
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -244,6 +243,11 @@ class OrganizationType(enum.StrEnum):
     Company = "Company"
 
 
+class OrganizationDeactivationReason(enum.StrEnum):
+    NoPaidSeat = "no_paid_seat"
+    OwnerRemoved = "owner_removed"
+
+
 class OrganizationFactory:
     def __init__(self, request):
         self.request = request
@@ -356,6 +360,17 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     )
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
+    )
+    deactivated: Mapped[datetime.datetime | None] = mapped_column(
+        TZDateTime,
+        comment="Datetime the organization was deactivated. NULL while active.",
+    )
+    deactivated_reason: Mapped[OrganizationDeactivationReason | None] = mapped_column(
+        Enum(
+            OrganizationDeactivationReason,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        comment="Why the organization was deactivated, if known.",
     )
     created: Mapped[datetime_now] = mapped_column(
         index=True,
@@ -540,23 +555,25 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             )
         )
 
+    def deactivate(self, reason: OrganizationDeactivationReason) -> None:
+        """Turn the org off and remember when and why."""
+        self.is_active = False
+        self.deactivated = datetime.datetime.now(datetime.UTC)
+        self.deactivated_reason = reason
+
+    def reactivate(self) -> None:
+        """Turn the org back on."""
+        self.is_active = True
+        self.deactivated = None
+        self.deactivated_reason = None
+
     @property
     def reactivates_on_payment(self) -> bool:
         """Deactivated for having no paid seat, with an owner left to pay."""
-        if self.is_active or self.orgtype != OrganizationType.Company:
-            return False
-        last = self.events.filter(
-            self.Event.tag.in_(
-                (
-                    EventTag.Organization.OrganizationDeactivate,
-                    EventTag.Organization.OrganizationReactivate,
-                )
-            )
-        ).first()
         return (
-            last is not None
-            and last.tag == EventTag.Organization.OrganizationDeactivate
-            and last.additional.get("reason") == NO_PAID_SEAT_REASON
+            not self.is_active
+            and self.orgtype == OrganizationType.Company
+            and self.deactivated_reason == OrganizationDeactivationReason.NoPaidSeat
             and bool(self.owners)
         )
 
@@ -564,7 +581,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         """Turn back on an org deactivated for having no paid seat."""
         if not self.reactivates_on_payment:
             return
-        self.is_active = True
+        self.reactivate()
         self.record_event(
             tag=EventTag.Organization.OrganizationReactivate,
             request=request,

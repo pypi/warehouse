@@ -23,7 +23,10 @@ from warehouse.admin.views import users as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
-from warehouse.organizations.models import OrganizationRoleType
+from warehouse.organizations.models import (
+    OrganizationDeactivationReason,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
@@ -654,6 +657,10 @@ class TestUserDelete:
 
         cancel_subscription.assert_called_once_with(subscription.subscription_id)
         assert organization.is_active is False
+        assert (
+            organization.deactivated_reason
+            == OrganizationDeactivationReason.OwnerRemoved
+        )
 
     def test_deletes_user_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()
