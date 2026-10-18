@@ -112,36 +112,16 @@
               <a class="button"
                  href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}"
                  title="{% trans %}View this organization{% endtrans %}">{% trans %}View{% endtrans %}</a>
-            {% elif not organization.is_active %}
-              {% if organization.name in (organizations_owned + organizations_billing) and organization.reactivates_on_payment %}
-                {# Paying reactivates an org deactivated for having no paid seat #}
-                <a class="button button--primary"
-                   href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
-                   title="{% trans %}Activate billing for this organization{% endtrans %}">
-                  {% trans %}Activate Billing{% endtrans %}
-                </a>
-              {% endif %}
-              {% if organization.name in organizations_owned %}
-                {# Owners can still delete an inactive organization from its settings #}
-                <a class="button"
-                   href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
-                   title="{% trans %}Manage this organization{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
-              {% else %}
-                {# Show disabled "Manage" button for inactive organization #}
-                <button class="button button--primary"
-                        disabled
-                        title="{% trans %}This organization is not active{% endtrans %}">
-                  {% trans %}Manage{% endtrans %}
-                </button>
-              {% endif %}
             {% elif not organization.is_in_good_standing() %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
-                {# Show "Activate Billing" button for owners and billing managers #}
-                <a class="button button--primary"
-                   href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
-                   title="{% trans %}Activate billing for this organization{% endtrans %}">
-                  {% trans %}Activate Billing{% endtrans %}
-                </a>
+                {% if organization.is_active or organization.reactivates_on_payment %}
+                  {# Show "Activate Billing" button for owners and billing managers #}
+                  <a class="button button--primary"
+                     href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
+                     title="{% trans %}Activate billing for this organization{% endtrans %}">
+                    {% trans %}Activate Billing{% endtrans %}
+                  </a>
+                {% endif %}
                 {% if organization.name in organizations_owned %}
                   {# Owners can still manage (e.g. delete) an org with inactive billing #}
                   <a class="button"
