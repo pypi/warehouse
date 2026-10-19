@@ -820,13 +820,11 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     )
 
     def get_observations(self, kind: ObservationKind) -> list[Observation]:
-        observations = [
+        return [
             observation
             for observation in self.observations
             if observation.kind == kind.value[0]
         ]
-
-        return sorted(observations, key=lambda x: x.created, reverse=True)
 
     @property
     def information_requests(self):

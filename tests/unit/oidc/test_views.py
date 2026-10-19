@@ -528,8 +528,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     [
         (
             timedelta(seconds=600),
-            "this organization has created too many new projects recently. "
-            "Try again in 600 seconds",
+            (
+                "this organization has created too many new projects recently. "
+                "Try again in 600 seconds"
+            ),
         ),
         (
             None,
@@ -539,15 +541,19 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     ids=["with-reset-hint", "without-reset-hint"],
 )
 @pytest.mark.parametrize(
-    "limiter_method",
-    ["test", "hit"],
+    ("limiter_name", "limiter_method"),
+    [
+        ("project.create.organization", "test"),
+        ("project.create.attempt.organization", "hit"),
+    ],
     ids=["rejected-before-writing", "rejected-after-writing"],
 )
 def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
-    db_request, mocker, resets_in, expected_description, limiter_method
+    db_request, mocker, resets_in, expected_description, limiter_name, limiter_method
 ):
-    """`hit` rejects after the project is in the session; committing would leave
-    an org-owned project whose pending publisher was never reified."""
+    """`hit` (on the attempt limiter) rejects after the project is in the
+    session; committing would leave an org-owned project whose pending
+    publisher was never reified."""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
 
@@ -565,11 +571,11 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
     db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
 
-    org_limiter = DummyRateLimiter()
-    mocker.patch.object(org_limiter, limiter_method, return_value=False)
-    mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+    limiter = DummyRateLimiter()
+    mocker.patch.object(limiter, limiter_method, return_value=False)
+    mocker.patch.object(limiter, "resets_in", return_value=resets_in)
     project_service = db_request.find_service(IProjectService)
-    project_service.ratelimiters["project.create.organization"] = org_limiter
+    project_service.ratelimiters[limiter_name] = limiter
 
     resp = views.mint_token_from_oidc(db_request)
 

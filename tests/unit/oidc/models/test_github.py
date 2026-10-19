@@ -433,17 +433,19 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, mocker.sentinel.all_signed_claims) == valid
 
-    def test_check_event_name_invalid(self, mocker):
+    @pytest.mark.parametrize("trigger_name", ["pull_request_target", "issue_comment"])
+    def test_check_event_name_invalid(self, mocker, trigger_name):
         check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
 
         with pytest.raises(
             errors.InvalidPublisherError,
             match=re.escape(
-                "Publishing from a workflow invoked via 'pull_request_target' "
-                "is not supported."
+                f"Publishing via an insecure trigger (`{trigger_name}`) is not "
+                "supported. See "
+                "https://docs.pypi.org/trusted-publishers/troubleshooting/#forbidden-triggers-on-github"
             ),
         ):
-            check("throwaway", "pull_request_target", mocker.sentinel.all_signed_claims)
+            check("throwaway", trigger_name, mocker.sentinel.all_signed_claims)
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
@@ -520,20 +522,24 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6",
                 "somesha",
                 "refs/pulls/6",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'"
+                ),
             ),
             # bad: missing tail or workflow name or otherwise partial
             (
@@ -541,60 +547,72 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/'"
+                ),
             ),
             (
                 "baz.yml",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'baz.yml'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'baz.yml'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@malicious.yml@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'"
+                ),
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@@",
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
-                "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
-                "'foo/bar/.github/workflows/baz.yml@somesha'], "
-                "got 'foo/bar/.github/workflows/baz.yml@@'",
+                (
+                    "The job_workflow_ref claim does not match, expecting one of "
+                    "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
+                    "'foo/bar/.github/workflows/baz.yml@somesha'], "
+                    "got 'foo/bar/.github/workflows/baz.yml@@'"
+                ),
             ),
             ("", None, None, False, "The job_workflow_ref claim is empty"),
         ],

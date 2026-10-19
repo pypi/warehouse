@@ -81,11 +81,10 @@ _FIXTURES = _HERE / "_fixtures"
 
 
 class _CallRecorder:
-    """Transitional recorder for the ``metrics``, ``pyramid_request``, and
-    ``send_email`` fixtures.
+    """Transitional recorder for the ``metrics`` and ``pyramid_request`` fixtures.
 
     Wraps a callable -- a real bound method (``metrics``) or a lambda stand-in
-    (``request.task`` / ``request.log`` / ``send_email``) -- so a single object
+    (``request.task`` / ``request.log``) -- so a single object
     satisfies BOTH the legacy ``pretend``-style
     ``obj.method.calls == [pretend.call(...)]`` assertions and the modern
     ``unittest.mock`` API (``assert_called_once_with`` / ``assert_has_calls`` /
@@ -185,6 +184,10 @@ def jinja():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            # Templates rendered through this fixture may grow a {% component %}
+            # tag; without the extension that fails as a TemplateSyntaxError
+            # pointing at the template rather than at this fixture.
+            "pyramid_components.jinja2.ComponentExtension",
         ],
         cache_size=0,
     )
@@ -260,6 +263,15 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="project.create.ip")
     services.register_service(
         ratelimit_service, IRateLimiter, name="project.create.organization"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.user"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.ip"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.organization"
     )
     services.register_service(
         github_oauth_provider_service, IOAuthProviderService, name="github"
@@ -727,14 +739,11 @@ def _enable_all_oidc_providers(webtest):
 
 
 @pytest.fixture
-def send_email(pyramid_request, monkeypatch):
-    send_email_stub = types.SimpleNamespace(
-        delay=_CallRecorder(lambda *args, **kwargs: None)
-    )
-    pyramid_request.task = _CallRecorder(lambda *args, **kwargs: send_email_stub)
-    pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-    monkeypatch.setattr(warehouse.email, "send_email", send_email_stub)
-    return send_email_stub
+def send_email(pyramid_request, pyramid_config, mocker):
+    send_email_task = mocker.patch.object(warehouse.email, "send_email")
+    pyramid_request.task = mocker.Mock(return_value=send_email_task)
+    pyramid_request.registry.settings["mail.sender"] = "noreply@example.com"
+    return send_email_task
 
 
 @pytest.fixture

@@ -35,6 +35,40 @@
 </div>
 {% endmacro %}
 
+{% macro observations_table(table_id, observations) %}
+  <table id="{{ table_id }}" class="table table-striped table-hover"
+         data-tabulator
+         data-tabulator-column-menu
+         tabulator-layout="fitDataFill"
+         tabulator-responsiveLayout="collapse"
+         tabulator-pagination="true"
+         tabulator-paginationSize="10"
+         tabulator-placeholder="No matching observations">
+    <thead>
+      <tr>
+        <th scope="col">Time</th>
+        <th scope="col" tabulator-responsive="2">Related</th>
+        <th scope="col" tabulator-responsive="3">Kind</th>
+        <th scope="col">Summary</th>
+        {#- Folds first: bulky, but the only place an admin can read the
+            payload for kinds with no detail page of their own. -#}
+        <th scope="col" tabulator-responsive="5">Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for observation in observations %}
+      <tr>
+        <td>{{ observation.created }}</td>
+        <td>{{ observation.related or observation.related_name }}</td>
+        <td>{{ observation.kind_display }}</td>
+        <td>{{ observation.summary }}</td>
+        <td>{{ observation.payload }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block breadcrumb %}
@@ -1230,28 +1264,7 @@
           <h3 class="card-title">Observations about <code>{{ user.username }}</code></h3>
         </div>
         <div class="card-body">
-          <table id="user_observations" class="table table-striped table-hover">
-            <thead>
-              <tr>
-                <th scope="col" class="time">Time</th>
-                <th scope="col" class="related">Related</th>
-                <th scope="col" class="kind">Kind</th>
-                <th scope="col" class="summary">Summary</th>
-                <th scope="col" class="payload">Payload</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for observation in user.observations %}
-              <tr>
-                <td>{{ observation.created }}</td>
-                <td>{{ observation.related }}</td>
-                <td>{{ observation.kind_display }}</td>
-                <td>{{ observation.summary }}</td>
-                <td>{{ observation.payload }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          {{ observations_table("user_observations", user.observations) }}
         </div>
       </div> <!-- .card -->
     {% endif %}
@@ -1262,28 +1275,7 @@
           <h3 class="card-title">Admin-submitted Observations</h3>
         </div>
         <div class="card-body">
-          <table id="observations" class="table table-striped table-hover">
-            <thead>
-              <tr>
-                <th scope="col" class="time">Time</th>
-                <th scope="col" class="related">Related</th>
-                <th scope="col" class="kind">Kind</th>
-                <th scope="col" class="summary">Summary</th>
-                <th scope="col" class="payload">Payload</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for observation in user.observer.observations %}
-              <tr>
-                <td>{{ observation.created }}</td>
-                <td>{{ observation.related }}</td>
-                <td>{{ observation.kind_display }}</td>
-                <td>{{ observation.summary }}</td>
-                <td>{{ observation.payload }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          {{ observations_table("observations", user.observer.observations) }}
         </div>
       </div> <!-- .card -->
     {% endif %}

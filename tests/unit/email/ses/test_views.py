@@ -3,10 +3,11 @@
 import json
 import uuid
 
-import pretend
+import boto3
 import pytest
 import requests
 
+from botocore.stub import Stubber
 from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse.email.ses import views
@@ -16,109 +17,93 @@ from ....common.db.accounts import EmailFactory
 from ....common.db.ses import EmailMessageFactory, EventFactory
 
 
+@pytest.fixture
+def verify_sns_message(mocker):
+    return mocker.patch.object(views, "_verify_sns_message", autospec=True)
+
+
 class TestVerifySNSMessageHelper:
-    def test_valid(self, monkeypatch):
-        class FakeMessageVerifier:
-            @staticmethod
-            @pretend.call_recorder
-            def __init__(topics, session):
-                self.topics = topics
-                self.session = session
+    @pytest.fixture
+    def message_verifier(self, mocker):
+        return mocker.patch.object(views.sns, "MessageVerifier", autospec=True)
 
-            @staticmethod
-            @pretend.call_recorder
-            def verify(message):
-                pass
+    @pytest.fixture
+    def sns_request(self, pyramid_request, mocker):
+        pyramid_request.http = mocker.sentinel.http
+        pyramid_request.registry.settings["mail.topic"] = "this is a topic"
+        return pyramid_request
 
-        monkeypatch.setattr(views.sns, "MessageVerifier", FakeMessageVerifier)
+    def test_valid(self, sns_request, message_verifier, mocker):
+        views._verify_sns_message(sns_request, mocker.sentinel.message)
 
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(settings={"mail.topic": "this is a topic"}),
+        message_verifier.assert_called_once_with(
+            topics=["this is a topic"], session=sns_request.http
         )
-        message = pretend.stub()
-
-        views._verify_sns_message(request, message)
-
-        assert FakeMessageVerifier.__init__.calls == [
-            pretend.call(topics=["this is a topic"], session=request.http)
-        ]
-        assert FakeMessageVerifier.verify.calls == [pretend.call(message)]
-
-    def test_invalid(self, monkeypatch):
-        class FakeMessageVerifier:
-            @staticmethod
-            @pretend.call_recorder
-            def __init__(topics, session):
-                self.topics = topics
-                self.session = session
-
-            @staticmethod
-            @pretend.call_recorder
-            def verify(message):
-                raise views.sns.InvalidMessageError("This is an Invalid Message")
-
-        monkeypatch.setattr(views.sns, "MessageVerifier", FakeMessageVerifier)
-
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(settings={"mail.topic": "this is a topic"}),
+        message_verifier.return_value.verify.assert_called_once_with(
+            mocker.sentinel.message
         )
-        message = pretend.stub()
+
+    def test_invalid(self, sns_request, message_verifier, mocker):
+        message_verifier.return_value.verify.side_effect = (
+            views.sns.InvalidMessageError("This is an Invalid Message")
+        )
 
         with pytest.raises(HTTPBadRequest, match="This is an Invalid Message"):
-            views._verify_sns_message(request, message)
+            views._verify_sns_message(sns_request, mocker.sentinel.message)
 
-        assert FakeMessageVerifier.__init__.calls == [
-            pretend.call(topics=["this is a topic"], session=request.http)
-        ]
-        assert FakeMessageVerifier.verify.calls == [pretend.call(message)]
+        message_verifier.assert_called_once_with(
+            topics=["this is a topic"], session=sns_request.http
+        )
+        message_verifier.return_value.verify.assert_called_once_with(
+            mocker.sentinel.message
+        )
 
 
 class TestConfirmSubscription:
-    def test_raises_when_invalid_type(self):
-        request = pretend.stub(json_body={"Type": "Notification"})
+    def test_raises_when_invalid_type(self, pyramid_request):
+        pyramid_request.json_body = {"Type": "Notification"}
 
         with pytest.raises(HTTPBadRequest):
-            views.confirm_subscription(request)
+            views.confirm_subscription(pyramid_request)
 
-    def test_confirms(self, monkeypatch):
+    def test_confirms(
+        self, pyramid_request, pyramid_services, verify_sns_message, mocker
+    ):
         data = {
             "Type": "SubscriptionConfirmation",
             "TopicArn": "This is a Topic!",
             "Token": "This is My Token",
         }
 
-        aws_client = pretend.stub(
-            confirm_subscription=pretend.call_recorder(lambda *a, **kw: None)
+        sns_client = boto3.session.Session().client(
+            "sns",
+            region_name="us-west-2",
+            aws_access_key_id="foo",
+            aws_secret_access_key="bar",
         )
-        aws_session = pretend.stub(
-            client=pretend.call_recorder(lambda c, region_name: aws_client)
-        )
+        aws_session = mocker.create_autospec(boto3.session.Session, instance=True)
+        aws_session.client.return_value = sns_client
+        pyramid_services.register_service(aws_session, name="aws.session")
 
-        request = pretend.stub(
-            json_body=data,
-            find_service=lambda name: {"aws.session": aws_session}[name],
-            registry=pretend.stub(settings={"mail.region": "us-west-2"}),
-        )
+        pyramid_request.json_body = data
+        pyramid_request.registry.settings["mail.region"] = "us-west-2"
 
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
-        response = views.confirm_subscription(request)
+        with Stubber(sns_client) as stubber:
+            stubber.add_response(
+                "confirm_subscription",
+                {},
+                {
+                    "TopicArn": data["TopicArn"],
+                    "Token": data["Token"],
+                    "AuthenticateOnUnsubscribe": "true",
+                },
+            )
+            response = views.confirm_subscription(pyramid_request)
+            stubber.assert_no_pending_responses()
 
         assert response.status_code == 200
-        assert verify_sns_message.calls == [pretend.call(request, data)]
-        assert aws_session.client.calls == [
-            pretend.call("sns", region_name="us-west-2")
-        ]
-        assert aws_client.confirm_subscription.calls == [
-            pretend.call(
-                TopicArn=data["TopicArn"],
-                Token=data["Token"],
-                AuthenticateOnUnsubscribe="true",
-            )
-        ]
+        verify_sns_message.assert_called_once_with(pyramid_request, data)
+        aws_session.client.assert_called_once_with("sns", region_name="us-west-2")
 
 
 class TestNotification:
@@ -128,41 +113,28 @@ class TestNotification:
         with pytest.raises(HTTPBadRequest):
             views.notification(pyramid_request)
 
-    def test_error_fetching_pubkey(self, pyramid_request, monkeypatch, metrics):
-        def raiser(*args, **kwargs):
-            raise requests.HTTPError
-
-        monkeypatch.setattr(views, "_verify_sns_message", raiser)
+    def test_error_fetching_pubkey(self, pyramid_request, verify_sns_message, metrics):
+        verify_sns_message.side_effect = requests.HTTPError
 
         pyramid_request.json_body = {"Type": "Notification"}
 
         with pytest.raises(HTTPServiceUnavailable):
             views.notification(pyramid_request)
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.ses.sns_verify.error")
-        ]
+        metrics.increment.assert_called_once_with("warehouse.ses.sns_verify.error")
 
-    def test_returns_200_existing_event(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_returns_200_existing_event(self, db_request, verify_sns_message):
         event = EventFactory.create()
 
         db_request.json_body = {"Type": "Notification", "MessageId": event.event_id}
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
         assert db_request.db.query(Event).all() == [event]
 
-    def test_returns_400_when_unknown_message(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_returns_400_when_unknown_message(self, db_request, verify_sns_message):
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": str(uuid.uuid4()),
@@ -172,16 +144,11 @@ class TestNotification:
         with pytest.raises(HTTPBadRequest, match="Unknown messageId"):
             views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert db_request.db.query(EmailMessage).count() == 0
         assert db_request.db.query(Event).count() == 0
 
-    def test_delivery(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_delivery(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email)
 
@@ -200,9 +167,7 @@ class TestNotification:
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Delivered
@@ -213,10 +178,7 @@ class TestNotification:
         assert event.event_type is EventTypes.Delivery
         assert event.data == {"someData": "this is some data"}
 
-    def test_bounce(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_bounce(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email)
 
@@ -238,9 +200,7 @@ class TestNotification:
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Bounced
@@ -254,10 +214,7 @@ class TestNotification:
             "someData": "this is some bounce data",
         }
 
-    def test_soft_bounce(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_soft_bounce(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email)
 
@@ -279,9 +236,7 @@ class TestNotification:
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.SoftBounced
@@ -295,10 +250,7 @@ class TestNotification:
             "someData": "this is some soft bounce data",
         }
 
-    def test_soft_bounce_to_deliver(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_soft_bounce_to_deliver(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email, status=EmailStatuses.SoftBounced)
 
@@ -317,9 +269,7 @@ class TestNotification:
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Delivered
@@ -330,10 +280,7 @@ class TestNotification:
         assert event.event_type is EventTypes.Delivery
         assert event.data == {"someData": "this is some data"}
 
-    def test_spam_complaint(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_spam_complaint(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email, status=EmailStatuses.Delivered)
 
@@ -354,9 +301,7 @@ class TestNotification:
 
         resp = views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Complained
@@ -367,10 +312,7 @@ class TestNotification:
         assert event.event_type is EventTypes.Complaint
         assert event.data == {"someData": "this is some complaint data"}
 
-    def test_returns_400_unknown_type(self, db_request, monkeypatch):
-        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
-
+    def test_returns_400_unknown_type(self, db_request, verify_sns_message):
         e = EmailFactory.create()
         em = EmailMessageFactory.create(to=e.email)
 
@@ -389,6 +331,4 @@ class TestNotification:
         with pytest.raises(HTTPBadRequest, match="Unknown notificationType"):
             views.notification(db_request)
 
-        assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body)
-        ]
+        verify_sns_message.assert_called_once_with(db_request, db_request.json_body)

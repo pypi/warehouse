@@ -14,15 +14,16 @@ describe("Modal close controller", () => {
         <i class="fa fa-times" aria-hidden="true"></i>
         <span class="sr-only">close</span>
       </a>
-      <div class="modal__body">
+      <form class="modal__body">
         <h3 class="modal__title">Modal Title</h3>
+        <input id="checkbox" type="checkbox" name="acknowledge_irreversible">
         <input id="input-target" name="package" data-modal-close-target="input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         <div class="modal__footer">
           <button id="button-target" data-modal-close-target="button" type="submit">
               Confirm
           </button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
     `;
@@ -33,6 +34,7 @@ describe("Modal close controller", () => {
 
   describe("clicking cancel", function() {
     it("sets the window location, resets the input target and disables the button", function() {
+      document.getElementById("checkbox").checked = true;
       document.getElementById("cancel").click();
 
       expect(window.location.href).toContain("#modal-close");
@@ -40,6 +42,7 @@ describe("Modal close controller", () => {
       expect(inputTarget.value).toEqual("");
       const buttonTarget = document.getElementById("button-target");
       expect(buttonTarget).toHaveAttribute("disabled");
+      expect(document.getElementById("checkbox").checked).toBe(false);
     });
   });
 });

@@ -93,15 +93,19 @@ class TestDatabaseMacaroonService:
             # Macaroon properly formatted but not found.
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
-            "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
+            (
+                "py"
+                "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
+                "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g"
+            ),
             # Macaroon that is malformed and has an invalid (non utf-8) identifier
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
-            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
+            (
+                "py"
+                "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+                "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK"
+            ),
         ],
     )
     def test_verify_signature_only_not_found_or_invalid(
@@ -131,9 +135,11 @@ class TestDatabaseMacaroonService:
             # Macaroon that is malformed and has an invalid (non utf-8) identifier
             # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
-            "py"
-            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
-            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
+            (
+                "py"
+                "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+                "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK"
+            ),
         ],
     )
     def test_find_userid_malformed_macaroon(self, macaroon_service, raw_macaroon):
