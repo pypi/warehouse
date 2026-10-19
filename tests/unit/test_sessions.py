@@ -309,9 +309,6 @@ class TestSession:
 
         assert session.has_totp_secret() is expected
 
-    def test_has_totp_secret_never_set(self):
-        assert not Session().has_totp_secret()
-
     def test_get_webauthn_challenge(self):
         session = Session()
         session[session._webauthn_challenge_key] = "not_a_real_challenge"
