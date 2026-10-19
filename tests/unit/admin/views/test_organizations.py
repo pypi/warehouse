@@ -458,6 +458,7 @@ class TestOrganizationDetail:
             autospec=True,
             return_value=f"/admin/organizations/{organization.id}/",
         )
+        db_request.user = UserFactory.create(username="admin-user")
         mocker.spy(db_request.session, "flash")
 
         result = views.organization_detail(db_request)
@@ -503,6 +504,7 @@ class TestOrganizationDetail:
         )
         mocker.spy(db_request.session, "flash")
         db_request.registry.settings["site.name"] = "TestPyPI"
+        db_request.user = UserFactory.create(username="admin-user")
 
         # Patch the billing service's update_customer method
         billing_service = db_request.find_service(IBillingService)
@@ -525,8 +527,94 @@ class TestOrganizationDetail:
             f"Organization {organization.name!r} updated successfully", queue="success"
         )
 
-    def test_does_not_update_with_invalid_form(self, db_request):
-        organization = OrganizationFactory.create()
+    @pytest.mark.parametrize("old_orgtype", list(OrganizationType))
+    @pytest.mark.parametrize("new_orgtype", list(OrganizationType))
+    def test_orgtype_change_with_subscriptions(
+        self, db_request, mocker, old_orgtype, new_orgtype
+    ):
+        organization = OrganizationFactory.create(orgtype=old_orgtype)
+        subscriptions = [
+            StripeSubscriptionFactory.create(status=status)
+            for status in StripeSubscriptionStatus
+        ]
+        for subscription in subscriptions:
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "display_name": "Some Org",
+                "link_url": "https://example.com",
+                "description": "Some description",
+                "orgtype": new_orgtype.value,
+            }
+        )
+        db_request.route_path = mocker.Mock(return_value="/org/")
+        db_request.user = UserFactory.create(username="admin-user")
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
+        cancel_at_period_end = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        result = views.organization_detail(db_request)
+
+        assert result.status_code == 303
+        assert organization.orgtype == new_orgtype
+        expected_ids = (
+            {
+                subscription.subscription_id
+                for subscription in subscriptions
+                if subscription.status
+                in (StripeSubscriptionStatus.Active, StripeSubscriptionStatus.Trialing)
+            }
+            if (old_orgtype, new_orgtype)
+            == (OrganizationType.Company, OrganizationType.Community)
+            else set()
+        )
+        assert sorted(call.args[0] for call in cancel.call_args_list) == sorted(
+            expected_ids
+        )
+        cancel_at_period_end.assert_not_called()
+        cancel_events = organization.events.filter_by(
+            tag=EventTag.Organization.SubscriptionCancel
+        ).all()
+        assert sorted(
+            event.additional["subscription_id"] for event in cancel_events
+        ) == sorted(expected_ids)
+        for event in cancel_events:
+            assert event.additional["at_period_end"] is False
+            assert event.additional["canceled_by"] == db_request.user.username
+
+        type_events = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationSetOrgType
+        ).all()
+        if old_orgtype == new_orgtype:
+            assert type_events == []
+        else:
+            [event] = type_events
+            assert (
+                event.additional.items()
+                >= {
+                    "old_orgtype": old_orgtype.value,
+                    "new_orgtype": new_orgtype.value,
+                    "actor": db_request.user.username,
+                }.items()
+            )
+
+    def test_does_not_update_with_invalid_form(self, db_request, mocker):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
@@ -535,7 +623,7 @@ class TestOrganizationDetail:
                 "display_name": "",  # Required field
                 "link_url": "invalid-url",  # Invalid URL
                 "description": "Some description",
-                "orgtype": "Company",
+                "orgtype": "Community",
             }
         )
 
@@ -546,6 +634,9 @@ class TestOrganizationDetail:
         assert result["form"].errors
         assert "display_name" in result["form"].errors
         assert "link_url" in result["form"].errors
+        assert organization.orgtype == OrganizationType.Company
+        assert organization.events.all() == []
+        cancel.assert_not_called()
 
     def test_detail_with_roles(self, db_request):
         """Test that organization detail view includes roles"""
