@@ -287,6 +287,29 @@ class TestLoginForm:
         ]
         is_disabled.assert_called_once_with(user.id)
 
+    def test_validate_password_disabled_for_frozen_account(
+        self, pyramid_config, db_request, user_service, breach_service, user, mocker
+    ):
+        user.is_frozen = True
+        record_event = mocker.spy(user, "record_event")
+        breach_check_password = mocker.spy(breach_service, "check_password")
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username", "password": "pw"}),
+            request=db_request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        with pytest.raises(wtforms.validators.ValidationError, match="suspended"):
+            form.validate_password(form.password)
+
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.LoginFailure,
+            request=db_request,
+            additional={"reason": "account_frozen"},
+        )
+        breach_check_password.assert_not_called()
+
     def test_validate_password_ok(
         self, db_request, user_service, breach_service, user, mocker
     ):

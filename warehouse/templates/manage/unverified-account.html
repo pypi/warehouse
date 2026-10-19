@@ -357,6 +357,8 @@
             {% trans %}Invalid two factor (Recovery code){% endtrans %}
           {% elif event.additional.reason == "burned_recovery_code" %}
             {% trans %}Invalid two factor (Recovery code){% endtrans %}
+          {% elif event.additional.reason == "account_frozen" %}
+            {% trans %}Account frozen{% endtrans %}
           {% else %}
             {{ event.additional.reason }}
           {% endif %}
