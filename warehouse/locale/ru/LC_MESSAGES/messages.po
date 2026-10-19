@@ -38,13 +38,14 @@
 # Maksym Aniriew <lenyayt008@gmail.com>, 2025.
 # Dev <70532790+vldmrdev@users.noreply.github.com>, 2025.
 # asu <grationz720@gmail.com>, 2026.
+# chiri <chirizxc@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-09-27 20:15+0000\n"
-"Last-Translator: OIS <mistresssilvara@hotmail.com>\n"
+"PO-Revision-Date: 2026-10-15 23:43+0000\n"
+"Last-Translator: chiri <chirizxc@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -53,7 +54,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.10.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -640,15 +641,11 @@ msgstr ""
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Размещаемая на GitLab трастовая публикация временно отключена. Подробнее "
+"Размещаемая на GitLab доверенная публикация временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1453

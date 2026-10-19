@@ -586,6 +586,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.password_reset_ip_ratelimit_string",
+        "PASSWORD_RESET_IP_RATELIMIT_STRING",
+        default="10 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.register_ratelimit_string",
         "REGISTER_RATELIMIT_STRING",
         default="10 per 5 minutes, 30 per hour",
@@ -619,6 +625,24 @@ def configure(settings=None):
         "warehouse.packaging.project_create_organization_ratelimit_string",
         "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
         default="10 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_USER_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_IP_RATELIMIT_STRING",
+        default="200 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_ORGANIZATION_RATELIMIT_STRING",
+        default="50 per day",
     )
     maybe_set(
         settings,

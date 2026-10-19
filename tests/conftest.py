@@ -184,6 +184,10 @@ def jinja():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            # Templates rendered through this fixture may grow a {% component %}
+            # tag; without the extension that fails as a TemplateSyntaxError
+            # pointing at the template rather than at this fixture.
+            "pyramid_components.jinja2.ComponentExtension",
         ],
         cache_size=0,
     )
@@ -259,6 +263,15 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="project.create.ip")
     services.register_service(
         ratelimit_service, IRateLimiter, name="project.create.organization"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.user"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.ip"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.organization"
     )
     services.register_service(
         github_oauth_provider_service, IOAuthProviderService, name="github"

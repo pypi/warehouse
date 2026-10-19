@@ -862,10 +862,39 @@ class TestProjectService:
         [
             (ProjectService._check_ratelimits, "test", "project.create.ip", False),
             (ProjectService._check_ratelimits, "test", "project.create.user", True),
-            (ProjectService._hit_ratelimits, "hit", "project.create.user", True),
-            (ProjectService._hit_ratelimits, "hit", "project.create.ip", False),
+            (
+                ProjectService._check_ratelimits,
+                "test",
+                "project.create.attempt.ip",
+                False,
+            ),
+            (
+                ProjectService._check_ratelimits,
+                "test",
+                "project.create.attempt.user",
+                True,
+            ),
+            (
+                ProjectService._hit_ratelimits,
+                "hit",
+                "project.create.attempt.user",
+                True,
+            ),
+            (
+                ProjectService._hit_ratelimits,
+                "hit",
+                "project.create.attempt.ip",
+                False,
+            ),
         ],
-        ids=["check-ip", "check-user", "hit-user", "hit-ip"],
+        ids=[
+            "check-ip",
+            "check-user",
+            "check-attempt-ip",
+            "check-attempt-user",
+            "hit-attempt-user",
+            "hit-attempt-ip",
+        ],
     )
     def test_ratelimit_exceeded_raises_with_correct_reset_hint(
         self,
@@ -880,10 +909,11 @@ class TestProjectService:
     ):
         """A limiter reporting its threshold is reached refuses the creation.
 
-        Both the optimistic ``_check_ratelimits`` gate (via ``test``) and the
-        enforcing ``_hit_ratelimits`` gate (via ``hit``) raise, and the reset
-        hint is keyed on the identifier that tripped the limit: the creator's id
-        for the user limit, the request IP for the IP limit.
+        Both the optimistic ``_check_ratelimits`` gate (via ``test``, on the
+        creation and attempt limiters) and the enforcing ``_hit_ratelimits``
+        gate (via ``hit``, on the attempt limiters) raise, and the reset hint
+        is keyed on the identifier that tripped the limit: the creator's id for
+        the user limits, the request IP for the IP limits.
         """
         creator = UserFactory.create()
         # Trip just the limiter under test; the other auto-creates and passes.
@@ -907,7 +937,7 @@ class TestProjectService:
         """
         creator = UserFactory.create()
         db_request.remote_addr = None
-        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+        project_service.ratelimiters["project.create.attempt.ip"] = ratelimit_service
 
         project_service._hit_ratelimits(
             db_request, project_service._identity_limiter(creator, None)
@@ -918,19 +948,82 @@ class TestProjectService:
     def test_create_project_rejects_when_hit_exceeds_limit(
         self, project_service, db_request, ratelimit_service, mocker
     ):
-        """The atomic ``hit`` enforces the limit even when ``test`` passed.
+        """The atomic attempt ``hit`` enforces the limit even when ``test`` passed.
 
         A burst of concurrent uploads can each clear the optimistic ``test``
-        check before any of them records a hit, so the per-request ``hit`` is
-        what actually caps creation: a request that pushes the counter past the
-        limit is rejected, rolling back the project just created.
+        check before any of them records a hit, so the per-request ``hit`` on
+        the attempt limiter is what actually caps creation: a request that
+        pushes the counter past the limit is rejected, rolling back the project
+        just created.
         """
         creator = UserFactory.create()
-        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.attempt.user"] = ratelimit_service
         mocker.patch.object(ratelimit_service, "hit", return_value=False)
 
         with pytest.raises(TooManyProjectsCreated):
             project_service.create_project("some-new-project", creator, db_request)
+
+    @pytest.mark.parametrize(
+        ("success", "remote_addr"),
+        [(True, "1.2.3.4"), (True, None), (False, "1.2.3.4")],
+        ids=["committed", "committed-without-remote-addr", "aborted"],
+    )
+    def test_create_project_spends_creation_limits_only_after_commit(
+        self,
+        project_service,
+        db_request,
+        ratelimit_service,
+        mocker,
+        success,
+        remote_addr,
+    ):
+        """
+        Creation limiters are hit after commit,
+        so rolled-back requests don't spend them.
+        """
+        creator = UserFactory.create()
+        db_request.remote_addr = remote_addr
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service.create_project("some-new-project", creator, db_request)
+
+        ratelimit_service.hit.assert_not_called()
+        hooks = list(db_request.tm.get().getAfterCommitHooks())
+        assert hooks == [
+            (
+                ProjectService._hit_creation_limiters,
+                (ratelimit_service, remote_addr, ratelimit_service, creator.id),
+                {},
+            )
+        ]
+
+        hook, args, kws = hooks[0]
+        hook(success, *args, **kws)
+
+        expected = []
+        if success:
+            if remote_addr is not None:
+                expected.append(mocker.call(remote_addr))
+            expected.append(mocker.call(creator.id))
+        assert ratelimit_service.hit.call_args_list == expected
+
+    def test_identity_limiter_applies_user_override_to_attempt_limiter(
+        self, project_service, ratelimit_service, mocker
+    ):
+        """The admin override governs attempts as well as creations, so it is
+        neither capped by the default attempt budget nor loosened by it."""
+        creator = UserFactory.create(
+            project_create_ratelimit_count=5,
+            project_create_ratelimit_period=RateLimitPeriod.Hour,
+        )
+        project_service.ratelimiters["project.create.attempt.user"] = ratelimit_service
+        override = mocker.spy(ratelimit_service, "override")
+
+        identity = project_service._identity_limiter(creator, None)
+
+        override.assert_called_once_with("5 per hour")
+        assert identity.attempt_limiter is ratelimit_service
 
     def test_check_ratelimits_records_rate_limit_headers(
         self, project_service, db_request, ratelimit_service, mocker
@@ -947,20 +1040,27 @@ class TestProjectService:
         mocker.patch.object(ratelimit_service, "get_window_stats", return_value=stats)
         project_service.ratelimiters["project.create.user"] = ratelimit_service
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
+        project_service.ratelimiters["project.create.attempt.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.attempt.ip"] = ratelimit_service
 
         project_service._check_ratelimits(
             db_request, project_service._identity_limiter(creator, None)
         )
 
-        # Keyed on the request IP and the creator's id, in that order.
+        # Keyed on the request IP (creation, then attempt) and the creator's id
+        # (creation, then attempt), in that order.
         assert ratelimit_service.get_window_stats.call_args_list == [
             mocker.call(db_request.remote_addr),
+            mocker.call(db_request.remote_addr),
+            mocker.call(creator.id),
             mocker.call(creator.id),
         ]
         snapshots = db_request._rate_limit_snapshots
         assert [(s.name, s.partition_key, s.stats) for s in snapshots] == [
             ("project.create.ip", "ip", stats),
+            ("project.create.attempt.ip", "ip", stats),
             ("project.create.user", "user", stats),
+            ("project.create.attempt.user", "user", stats),
         ]
 
     def test_identity_limiter_defaults_to_user(
@@ -1036,23 +1136,8 @@ class TestProjectService:
         override.assert_called_once_with(expected)
         assert identity.identifier == organization.id
 
-    @pytest.mark.parametrize(
-        ("enforce", "limiter_method"),
-        [
-            (ProjectService._check_ratelimits, "test"),
-            (ProjectService._hit_ratelimits, "hit"),
-        ],
-        ids=["check", "hit"],
-    )
     def test_organization_ratelimit_exceeded_reports_the_organization_partition(
-        self,
-        project_service,
-        db_request,
-        ratelimit_service,
-        metrics,
-        mocker,
-        enforce,
-        limiter_method,
+        self, project_service, db_request, ratelimit_service, metrics, mocker
     ):
         """The metric tag and reset hint name the bucket that filled up."""
         organization = OrganizationFactory.create()
@@ -1060,10 +1145,10 @@ class TestProjectService:
         identity = project_service._identity_limiter(
             UserFactory.create(), organization.id
         )
-        mocker.patch.object(ratelimit_service, limiter_method, return_value=False)
+        mocker.patch.object(ratelimit_service, "test", return_value=False)
 
         with pytest.raises(TooManyProjectsCreated):
-            enforce(project_service, db_request, identity)
+            project_service._check_ratelimits(db_request, identity)
 
         ratelimit_service.resets_in.assert_called_once_with(organization.id)
         metrics.increment.assert_any_call(
@@ -1125,7 +1210,9 @@ class TestProjectService:
     ):
         creator = UserFactory.create()
         organization = OrganizationFactory.create()
-        project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        project_service.ratelimiters["project.create.attempt.organization"] = (
+            ratelimit_service
+        )
         mocker.patch.object(ratelimit_service, "hit", return_value=False)
 
         with pytest.raises(TooManyProjectsCreated):
@@ -1285,7 +1372,12 @@ def test_project_service_factory(db_request, ratelimit_service, mocker):
     service = project_service_factory(mocker.sentinel.context, db_request)
 
     assert service.db is db_request.db
-    # The factory resolves all three rate limiters from the registry by name.
+    # The factory resolves all six rate limiters from the registry by name.
     assert service.ratelimiters["project.create.user"] is ratelimit_service
     assert service.ratelimiters["project.create.ip"] is ratelimit_service
     assert service.ratelimiters["project.create.organization"] is ratelimit_service
+    assert service.ratelimiters["project.create.attempt.user"] is ratelimit_service
+    assert service.ratelimiters["project.create.attempt.ip"] is ratelimit_service
+    assert (
+        service.ratelimiters["project.create.attempt.organization"] is ratelimit_service
+    )
