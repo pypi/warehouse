@@ -49,7 +49,8 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
-from warehouse.packaging import Project
+from warehouse.packaging import IProjectService, Project
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -740,6 +741,46 @@ class TestManageOrganizations:
             "create_organization_application_form": create_organization_application_obj
         }
 
+    def test_create_organization_application_max_undecided(
+        self, pyramid_config, db_request, mocker
+    ):
+        db_request.registry.settings[
+            "warehouse.organizations.max_undecided_organization_applications"
+        ] = 3
+        db_request.user = UserFactory.create()
+        OrganizationApplicationFactory.create_batch(
+            3,
+            submitted_by=db_request.user,
+            status=OrganizationApplicationStatus.Submitted,
+        )
+        db_request.POST = MultiDict(
+            {
+                "name": "my_organization_name",
+                "display_name": "My Organization",
+                "link_url": "https://example.com/",
+                "description": "An organization",
+                "orgtype": "Community",
+                "membership_size": "1",
+                "usage": "We plan to publish a few packages under one organization.",
+            }
+        )
+        send_email = mocker.patch.object(
+            org_views, "send_new_organization_requested_email", autospec=True
+        )
+
+        view = org_views.ManageOrganizationsViews(db_request)
+        result = view.create_organization_application()
+
+        form = result["create_organization_application_form"]
+        assert [str(error) for error in form.form_errors] == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
+        assert len(db_request.user.organization_applications) == 3
+        send_email.assert_not_called()
+
 
 class TestManageOrganizationSettings:
     def test_manage_organization(self, db_request, organization_service, monkeypatch):
@@ -1217,23 +1258,40 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
+    @pytest.mark.parametrize(
+        ("subscription_status", "should_cancel"),
+        [
+            ("active", True),
+            ("past_due", True),
+            ("canceled", False),
+            ("incomplete_expired", False),
+        ],
+    )
     def test_delete_organization_with_subscriptions(
         self,
         db_request,
         pyramid_user,
+        billing_service,
         organization_service,
         user_service,
         monkeypatch,
+        subscription_status,
+        should_cancel,
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        subscription = StripeSubscriptionFactory.create(
+            customer=stripe_customer, status=subscription_status
+        )
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
+
+        cancel_subscription = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(billing_service, "cancel_subscription", cancel_subscription)
 
         db_request.POST = {"confirm_organization_name": organization.name}
         db_request.route_path = pretend.call_recorder(
@@ -1264,6 +1322,9 @@ class TestManageOrganizationSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations/"
+        assert cancel_subscription.calls == (
+            [pretend.call(subscription.subscription_id)] if should_cancel else []
+        )
         assert organization_service.delete_organization.calls == [
             pretend.call(organization.id)
         ]
@@ -1785,6 +1846,7 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -1849,6 +1911,7 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -1950,8 +2013,93 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name="fakepackage",
+                submitter_username=db_request.user.username,
             )
         ]
+
+    @pytest.mark.parametrize(
+        ("resets_in", "retry_after", "expected_error"),
+        [
+            (
+                datetime.timedelta(seconds=600),
+                "600",
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again in 10 minutes."
+                ),
+            ),
+            (
+                None,
+                None,
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again later."
+                ),
+            ),
+        ],
+        ids=["with-reset-hint", "without-reset-hint"],
+    )
+    @pytest.mark.parametrize(
+        ("limiter_name", "limiter_method"),
+        [
+            ("project.create.organization", "test"),
+            ("project.create.attempt.organization", "hit"),
+        ],
+        ids=["rejected-before-writing", "rejected-after-writing"],
+    )
+    def test_add_organization_project_new_project_ratelimited(
+        self,
+        db_request,
+        pyramid_user,
+        monkeypatch,
+        mocker,
+        resets_in,
+        retry_after,
+        expected_error,
+        limiter_name,
+        limiter_method,
+    ):
+        """`hit` (on the attempt limiter) rejects after the project is in the
+        session, so the view must doom the transaction or pyramid_tm commits
+        the refused project."""
+        db_request.help_url = lambda *a, **kw: ""
+
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data="fakepackage", errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        monkeypatch.setattr(
+            org_views,
+            "AddOrganizationProjectForm",
+            lambda *a, **kw: add_organization_project_obj,
+        )
+
+        limiter = DummyRateLimiter()
+        mocker.patch.object(limiter, limiter_method, return_value=False)
+        mocker.patch.object(limiter, "resets_in", return_value=resets_in)
+        project_service = db_request.find_service(IProjectService)
+        project_service.ratelimiters[limiter_name] = limiter
+
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == [expected_error]
+        assert db_request.response.status_code == 429
+        assert db_request.response.headers.get("Retry-After") == retry_after
+        assert db_request.tm.isDoomed()
 
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),

@@ -279,6 +279,40 @@ class TestHandleBillingWebhookEvent:
 
         billing.handle_billing_webhook_event(db_request, event)
 
+    def test_handle_billing_webhook_event_subscription_deleted_is_idempotent(
+        self, db_request, subscription_service
+    ):
+        # Stripe redelivers webhooks, so a second delivery must not record a
+        # second cancel event once the status is already canceled.
+        organization = OrganizationFactory.create()
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        event = {
+            "type": "customer.subscription.deleted",
+            "data": {
+                "object": {
+                    "customer": stripe_customer.customer_id,
+                    "status": "canceled",
+                    "id": subscription.subscription_id,
+                },
+            },
+        }
+
+        billing.handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
+
+        cancel_events = organization.events.filter_by(
+            tag="organization:subscription:cancel"
+        ).all()
+        assert len(cancel_events) == 1
+
     def test_handle_billing_webhook_event_subscription_deleted(
         self, db_request, subscription_service
     ):

@@ -40,8 +40,11 @@
     width: 250px;
     flex-shrink: 0;
 
+    // Below this width the sidebar has its own "Metadata" tab
+    // (see project-tabs__tab--mobile-only) rather than sitting under
+    // the (potentially very long) README.
     @media only screen and (max-width: breakpoints.$tablet) {
-      width: 100%;
+      display: none;
     }
   }
 

@@ -452,20 +452,22 @@
                 Conflicting Applications <i class="fa fa-clipboard-question text-orange"></i>
               </label>
               <div class="col-12">
-                <table class="table">
-                  <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requester</th></tr>
-                  {% for application in conflicting_applications %}
-                    <tr>
-                      <td>
-                        {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red"></i>{% endif %}
-                        <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
-                      </td>
-                      <td>{{ application.status }}</td>
-                      <td>{{ application.submitted|format_date() }}</td>
-                      <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
-                    </tr>
-                  {% endfor %}
-                </table>
+                <div class="table-responsive">
+                  <table class="table">
+                    <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requester</th></tr>
+                    {% for application in conflicting_applications %}
+                      <tr>
+                        <td>
+                          {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red"></i>{% endif %}
+                          <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
+                        </td>
+                        <td>{{ application.status }}</td>
+                        <td>{{ application.submitted|format_date() }}</td>
+                        <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
               </div>
             </div>
             {% endif %}

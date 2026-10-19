@@ -2,8 +2,6 @@
 
 import datetime
 
-import pretend
-
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
@@ -28,7 +26,7 @@ from ...common.db.packaging import (
 )
 
 
-def test_compute_oidc_metrics(db_request, metrics):
+def test_compute_oidc_metrics(db_request, metrics, mocker):
     # Projects with OIDC
     project_oidc_one = ProjectFactory.create(name="project_oidc_one")
     project_oidc_two = ProjectFactory.create(name="project_oidc_two")
@@ -93,14 +91,14 @@ def test_compute_oidc_metrics(db_request, metrics):
 
     compute_oidc_metrics(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.total_projects_configured_oidc_publishers", 3),
-        pretend.call("warehouse.oidc.total_projects_published_with_oidc_publishers", 2),
-        pretend.call("warehouse.oidc.total_files_published_with_oidc_publishers", 2),
-        pretend.call(
+    assert metrics.gauge.call_args_list == [
+        mocker.call("warehouse.oidc.total_projects_configured_oidc_publishers", 3),
+        mocker.call("warehouse.oidc.total_projects_published_with_oidc_publishers", 2),
+        mocker.call("warehouse.oidc.total_files_published_with_oidc_publishers", 2),
+        mocker.call(
             "warehouse.oidc.publishers", 4, tags=["publisher:github_oidc_publishers"]
         ),
-        pretend.call(
+        mocker.call(
             "warehouse.oidc.pending_publishers",
             2,
             tags=["publisher:pending_github_oidc_publishers"],
@@ -175,17 +173,16 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         == 0
     )
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.expired_oidc_tokens_deleted", 1),
-    ]
+    metrics.gauge.assert_called_once_with(
+        "warehouse.oidc.expired_oidc_tokens_deleted", 1
+    )
 
 
-def test_delete_expired_pending_publishers(db_request, metrics, monkeypatch):
+def test_delete_expired_pending_publishers(db_request, metrics, mocker):
     """Expired pending publishers are deleted and their owners notified."""
-    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(
+    send_email = mocker.patch(
         "warehouse.oidc.tasks.send_pending_trusted_publisher_expired_email",
-        send_email,
+        autospec=True,
     )
 
     expired_publisher = PendingGitHubPublisherFactory.create(
@@ -196,8 +193,7 @@ def test_delete_expired_pending_publishers(db_request, metrics, monkeypatch):
     fresh_publisher = PendingGitHubPublisherFactory.create(
         project_name="fresh-project",
     )
-    record_event = pretend.call_recorder(lambda **kw: None)
-    expired_publisher.added_by.record_event = record_event
+    record_event = mocker.spy(expired_publisher.added_by, "record_event")
 
     assert db_request.db.query(PendingOIDCPublisher).count() == 2
 
@@ -209,46 +205,39 @@ def test_delete_expired_pending_publishers(db_request, metrics, monkeypatch):
     assert remaining.project_name == fresh_publisher.project_name
 
     # Email was sent to the expired publisher's owner
-    assert send_email.calls == [
-        pretend.call(
-            db_request,
-            expired_publisher.added_by,
-            project_name="expired-project",
-            days=PENDING_PUBLISHER_EXPIRY_DAYS,
-        ),
-    ]
+    send_email.assert_called_once_with(
+        db_request,
+        expired_publisher.added_by,
+        project_name="expired-project",
+        days=PENDING_PUBLISHER_EXPIRY_DAYS,
+    )
 
     # An auto-removal event was recorded against the registrant, with
     # location redacted (system action, not user-initiated).
-    assert record_event.calls == [
-        pretend.call(
-            tag=EventTag.Account.PendingOIDCPublisherRemoved,
-            request=db_request,
-            additional={
-                "project": "expired-project",
-                "publisher": expired_publisher.publisher_name,
-                "id": str(expired_publisher.id),
-                "specifier": str(expired_publisher),
-                "url": expired_publisher.publisher_url(),
-                "submitted_by": "system:ttl-expired",
-                "redact_ip": True,
-            },
-        )
-    ]
+    record_event.assert_called_once_with(
+        tag=EventTag.Account.PendingOIDCPublisherRemoved,
+        request=db_request,
+        additional={
+            "project": "expired-project",
+            "publisher": expired_publisher.publisher_name,
+            "id": str(expired_publisher.id),
+            "specifier": str(expired_publisher),
+            "url": expired_publisher.publisher_url(),
+            "submitted_by": "system:ttl-expired",
+            "redact_ip": True,
+        },
+    )
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.expired_pending_publishers_deleted", 1),
-    ]
+    metrics.gauge.assert_called_once_with(
+        "warehouse.oidc.expired_pending_publishers_deleted", 1
+    )
 
 
-def test_delete_expired_pending_publishers_none_expired(
-    db_request, metrics, monkeypatch
-):
+def test_delete_expired_pending_publishers_none_expired(db_request, metrics, mocker):
     """When no pending publishers are expired, nothing is deleted."""
-    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(
+    send_email = mocker.patch(
         "warehouse.oidc.tasks.send_pending_trusted_publisher_expired_email",
-        send_email,
+        autospec=True,
     )
 
     PendingGitHubPublisherFactory.create(project_name="fresh-project")
@@ -256,18 +245,17 @@ def test_delete_expired_pending_publishers_none_expired(
     delete_expired_pending_publishers(db_request)
 
     assert db_request.db.query(PendingOIDCPublisher).count() == 1
-    assert send_email.calls == []
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.expired_pending_publishers_deleted", 0),
-    ]
+    send_email.assert_not_called()
+    metrics.gauge.assert_called_once_with(
+        "warehouse.oidc.expired_pending_publishers_deleted", 0
+    )
 
 
-def test_send_pending_publisher_expiration_reminders(db_request, metrics, monkeypatch):
+def test_send_pending_publisher_expiration_reminders(db_request, metrics, mocker):
     """Pending publishers in the reminder window get a one-shot reminder email."""
-    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(
+    send_email = mocker.patch(
         "warehouse.oidc.tasks.send_pending_trusted_publisher_expiration_reminder_email",
-        send_email,
+        autospec=True,
     )
 
     reminder_cutoff = pending_publisher_cutoff(
@@ -286,39 +274,36 @@ def test_send_pending_publisher_expiration_reminders(db_request, metrics, monkey
 
     send_pending_publisher_expiration_reminders(db_request)
 
-    assert send_email.calls == [
-        pretend.call(
-            db_request,
-            needs_reminder.added_by,
-            project_name="needs-reminder",
-            days_remaining=PENDING_PUBLISHER_REMINDER_DAYS,
-        ),
-    ]
+    send_email.assert_called_once_with(
+        db_request,
+        needs_reminder.added_by,
+        project_name="needs-reminder",
+        days_remaining=PENDING_PUBLISHER_REMINDER_DAYS,
+    )
 
     assert needs_reminder.expiration_reminded is True
     assert already_reminded.expiration_reminded is True
     assert fresh.expiration_reminded is False
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.pending_publisher_expiration_reminders_sent", 1),
-    ]
+    metrics.gauge.assert_called_once_with(
+        "warehouse.oidc.pending_publisher_expiration_reminders_sent", 1
+    )
 
 
 def test_send_pending_publisher_expiration_reminders_none_due(
-    db_request, metrics, monkeypatch
+    db_request, metrics, mocker
 ):
     """When no pending publishers are in the reminder window, nothing is sent."""
-    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(
+    send_email = mocker.patch(
         "warehouse.oidc.tasks.send_pending_trusted_publisher_expiration_reminder_email",
-        send_email,
+        autospec=True,
     )
 
     PendingGitHubPublisherFactory.create(project_name="fresh-project")
 
     send_pending_publisher_expiration_reminders(db_request)
 
-    assert send_email.calls == []
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.pending_publisher_expiration_reminders_sent", 0),
-    ]
+    send_email.assert_not_called()
+    metrics.gauge.assert_called_once_with(
+        "warehouse.oidc.pending_publisher_expiration_reminders_sent", 0
+    )

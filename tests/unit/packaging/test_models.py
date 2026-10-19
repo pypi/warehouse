@@ -4,12 +4,12 @@ import datetime
 
 from collections import OrderedDict
 
-import pretend
 import pypi_attestations
 import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
+from sqlalchemy import update
 
 from warehouse.attestations.models import (
     ProvenanceCounts,
@@ -214,17 +214,15 @@ class TestProject:
         project = DBProjectFactory.create()
         assert project.documentation_url is None
 
-    def test_doc_url(self, pyramid_config, db_request):
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/docs/url/"
+    def test_doc_url(self, pyramid_config, db_request, mocker):
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/the/docs/url/"
         )
 
         project = DBProjectFactory.create(has_docs=True)
 
         assert project.documentation_url == "/the/docs/url/"
-        assert db_request.route_url.calls == [
-            pretend.call("legacy.docs", project=project.name)
-        ]
+        route_url.assert_called_once_with("legacy.docs", project=project.name)
 
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
@@ -1394,23 +1392,31 @@ class TestRelease:
         [
             (
                 "https://github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
-                "type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                    "type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/tree/main",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             ("https://github.com/pypa/", None),
             ("https://github.com/sponsors/pypa/", None),
@@ -1419,13 +1425,17 @@ class TestRelease:
             ("incorrect url", None),
             (
                 "https://www.github.com/pypi/warehouse.git",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse.git/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
         ],
     )
@@ -2199,6 +2209,44 @@ class TestFile:
         (file,) = release.files
 
         assert file.added_late is expected
+
+    def test_insert_does_not_rewrite_sibling_requires_python(self, db_session):
+        """
+        Inserting a file must only write its own ``requires_python``.
+        """
+        release = DBReleaseFactory.create(requires_python=">=3.9")
+        sibling = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+
+        # A value the trigger can never produce: if the insert below rewrites
+        # the release's other files, this is reset to the release's value.
+        db_session.execute(
+            update(File).where(File.id == sibling.id).values(requires_python="sentinel")
+        )
+
+        new = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+        db_session.refresh(sibling)
+
+        assert sibling.requires_python == "sentinel"
+        assert new.requires_python == ">=3.9"
+
+    def test_cached_update_does_not_recompute_total_size(self, db_session):
+        """
+        Flipping ``cached`` must not touch the parent project row.
+        """
+
+        rfile = DBFileFactory.create(cached=False)
+        project = rfile.release.project
+
+        # A value the trigger can never produce, if it runs on the flush,
+        # update_project_total_size_release_files resets this to the real sum.
+        project.total_size = sentinel = rfile.size + 1
+        db_session.flush()
+
+        rfile.cached = True
+        db_session.flush()
+        db_session.refresh(project)
+
+        assert project.total_size == sentinel
 
 
 class TestProjectLimitProperties:

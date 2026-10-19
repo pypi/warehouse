@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+from types import SimpleNamespace
+
 import pytest
 
 from tests.common.db.oidc import GooglePublisherFactory, PendingGooglePublisherFactory
@@ -73,17 +74,10 @@ class TestGooglePublisher:
             "google",
         }
 
-    def test_google_publisher_unaccounted_claims(self, monkeypatch):
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+    def test_google_publisher_unaccounted_claims(self, mocker):
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         # We don't care if these actually verify, only that they're present.
         signed_claims = dict.fromkeys(google.GooglePublisher.all_known_claims(), "fake")
@@ -91,12 +85,10 @@ class TestGooglePublisher:
         signed_claims["another-fake-claim"] = "also-fake"
 
         google.GooglePublisher.check_claims_existence(signed_claims)
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "JWT for GooglePublisher has unaccounted claims: "
-                "['another-fake-claim', 'fake-claim']"
-            )
-        ]
+        sentry_sdk.capture_message.assert_called_once_with(
+            "JWT for GooglePublisher has unaccounted claims: "
+            "['another-fake-claim', 'fake-claim']"
+        )
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
     @pytest.mark.parametrize(
@@ -104,17 +96,10 @@ class TestGooglePublisher:
         google.GooglePublisher.__required_verifiable_claims__.keys()
         | google.GooglePublisher.__required_unverifiable_claims__,
     )
-    def test_google_publisher_missing_claims(self, monkeypatch, missing):
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+    def test_google_publisher_missing_claims(self, mocker, missing):
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         signed_claims = dict.fromkeys(google.GooglePublisher.all_known_claims(), "fake")
         # Pop the first signed claim, so that it's the first one to fail.
@@ -125,16 +110,16 @@ class TestGooglePublisher:
             google.GooglePublisher.check_claims_existence(signed_claims)
 
         assert str(e.value) == f"Missing claim '{missing}'"
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(f"JWT for GooglePublisher is missing claim: {missing}")
-        ]
+        sentry_sdk.capture_message.assert_called_once_with(
+            f"JWT for GooglePublisher is missing claim: {missing}"
+        )
         assert scope.fingerprint == [missing]
 
     @pytest.mark.parametrize(
         ("email_verified", "valid"),
         [(False, False), ("truthy-but-not-bool", False), ("", False), (True, True)],
     )
-    def test_google_publisher_email_verified(self, email_verified, valid):
+    def test_google_publisher_email_verified(self, mocker, email_verified, valid):
         publisher = google.GooglePublisher(
             sub="fakesubject",
             email="fake@example.com",
@@ -148,12 +133,14 @@ class TestGooglePublisher:
         if valid:
             # Does not raise
             publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
+                signed_claims=signed_claims,
+                publisher_service=mocker.sentinel.publisher_service,
             )
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
                 publisher.verify_claims(
-                    signed_claims=signed_claims, publisher_service=pretend.stub()
+                    signed_claims=signed_claims,
+                    publisher_service=mocker.sentinel.publisher_service,
                 )
             assert str(e.value) == "Check failed for required claim 'email_verified'"
 
@@ -169,7 +156,9 @@ class TestGooglePublisher:
             ("fakesubject", None, False),
         ],
     )
-    def test_google_publisher_sub_is_optional(self, expected_sub, actual_sub, valid):
+    def test_google_publisher_sub_is_optional(
+        self, mocker, expected_sub, actual_sub, valid
+    ):
         publisher = google.GooglePublisher(
             sub=expected_sub,
             email="fake@example.com",
@@ -183,12 +172,14 @@ class TestGooglePublisher:
         if valid:
             # Does not raise
             publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
+                signed_claims=signed_claims,
+                publisher_service=mocker.sentinel.publisher_service,
             )
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
                 publisher.verify_claims(
-                    signed_claims=signed_claims, publisher_service=pretend.stub()
+                    signed_claims=signed_claims,
+                    publisher_service=mocker.sentinel.publisher_service,
                 )
             assert str(e.value) == "Check failed for optional claim 'sub'"
 

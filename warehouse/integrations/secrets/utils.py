@@ -270,7 +270,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
     try:
-        database_macaroon = macaroon_service.find_from_raw(
+        database_macaroon = macaroon_service.verify_signature_only(
             raw_macaroon=disclosure.token
         )
     except InvalidMacaroonError:

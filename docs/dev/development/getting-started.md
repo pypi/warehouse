@@ -259,8 +259,8 @@ This command will fully reset the development database.
 
 ### Viewing Warehouse in a browser
 
-At this point all the services are up, and web container is listening on port
-80. It's accessible at http://localhost:80/.
+At this point all the services are up, and Traefik is routing traffic on port
+80. The web application is accessible at http://localhost/.
 
 !!! note
     If you are using `docker-machine` on an older version of macOS or
@@ -279,7 +279,7 @@ use that port instead.
 
 ### Logging in to Warehouse
 
-You can log into warehouse at http://localhost:80/account/login/.
+You can log into warehouse at http://localhost/account/login/.
 
 There are 4 accounts ready for you to use:
 
@@ -406,7 +406,7 @@ access your developer environment, you'll:
 make serve
 ```
 
-View Warehouse in the browser at http://localhost:80/.
+View Warehouse in the browser at http://localhost/.
 
 ### Debugging the webserver
 
@@ -745,7 +745,7 @@ This is useful in scenarios like passing a
 TESTARGS="--randomly-seed=1234" make tests
 ```
 
-You can run the common tools (formatters, linting, translations) to make sure
+You can run the common tools (formatters, linting) to make sure
 that a patch is ready by running:
 
 ```shell
@@ -784,24 +784,15 @@ disable test parallelism and enable the snapshot approval dialogue. For example:
 T=tests/functional/api/test_simple.py make tests
 ```
 
-## Building translations
+## Translations
 
 Warehouse is translated into a number of different locales, which are stored in
 the `warehouse/locale/` directory.
 
-These translation files contain references to untranslated text in source code
-and HTML templates, as well as the translations which have been submitted by
-our volunteer translators.
-
-When making changes to files with strings marked for translation, it's
-necessary to update these references any time source strings are change, or the
-line numbers of the source strings in the source files.
-
-Use `make` to build the translations. For example:
-
-```shell
-make translations
-```
+`warehouse/locale/messages.pot` lists every translatable string. After each
+merge, CI regenerates it and proposes the change in a bot pull request, so you
+don't need to run anything. To inspect what extraction produces locally, run
+`make translations`, which writes to `.state/messages.pot`.
 
 ## What next?
 

@@ -37,8 +37,8 @@ def _filter_predicate(q: str) -> ColumnElement[bool]:
 
 
 def _apply_filter(
-    stmt: Select[Any] | Query[Any], q: str | None
-) -> Select[Any] | Query[Any]:
+    stmt: Select[*tuple[Any, ...]] | Query[Any], q: str | None
+) -> Select[*tuple[Any, ...]] | Query[Any]:
     return stmt if not q else stmt.filter(_filter_predicate(q))
 
 

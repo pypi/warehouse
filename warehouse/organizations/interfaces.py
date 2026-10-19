@@ -1,6 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import typing
+
+from uuid import UUID
+
 from zope.interface import Interface
+
+from warehouse.constants import RateLimitPeriod
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 class IOrganizationService(Interface):
@@ -151,6 +160,20 @@ class IOrganizationService(Interface):
         """
         Return the organization project object that represents the given
         organization and project or None
+        """
+
+    def set_project_create_ratelimit(
+        organization_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        """
+        Override this organization's project-creation rate limit, recording the
+        change on the organization's event log. A `count` of None clears the
+        override.
+
+        Returns the resulting limit string, or None when cleared.
         """
 
     def add_organization_project(organization_id, project_id):

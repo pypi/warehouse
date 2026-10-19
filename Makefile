@@ -94,6 +94,9 @@ totp: .state/docker-build-base ## Generate a dev TOTP code
 tests: .state/docker-build-base ## Run Python tests; use T=path/to/test.py
 	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+static_lint: .state/docker-build-static ## Run static asset linters
+	docker compose run --rm static bin/static_lint
+
 static_tests: .state/docker-build-static ## Run static asset tests
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
@@ -141,7 +144,7 @@ deps_upgrade_all: .state/docker-build-base ## Upgrade all dependencies
 deps_upgrade_project: .state/docker-build-base ## Upgrade dependencies for one project; use P=name
 	docker compose run --rm base bin/deps-upgrade -p $(P)
 
-translations: .state/docker-build-base ## Update translation catalogs
+translations: .state/docker-build-base ## Extract translatable strings to .state/messages.pot
 	docker compose run --rm base bin/translations
 
 patch: .state/docker-build-base ## Apply local patches

@@ -4,12 +4,6 @@ from zope.interface import Interface
 
 
 class IMacaroonService(Interface):
-    def find_from_raw(raw_macaroon):
-        """
-        Returns a macaroon model from the DB from a raw macaroon, or raises
-        InvalidMacaroon if not found or for malformed macaroons.
-        """
-
     def find_macaroon(macaroon_id):
         """
         Returns a macaroon model from the DB by its identifier.

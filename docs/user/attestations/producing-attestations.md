@@ -95,7 +95,7 @@ Before uploading attestations to the index, please:
     from pypi_attestations import Attestation
     from sigstore.models import Bundle
 
-    raw_bundle = "..." # read the bundle's JSON
+    raw_bundle = "..."  # read the bundle's JSON
     bundle = Bundle.from_json(raw_bundle)
     attestation = Attestation.from_bundle(bundle)
 

@@ -32,15 +32,16 @@ def test_populate_sponsors_from_sponsors_dict(db_request, mocker, cli):
         assert sponsor_dict["infra_sponsor"] == db_sponsor.infra_sponsor
         assert sponsor_dict["one_time"] == db_sponsor.one_time
         assert sponsor_dict["sidebar"] == db_sponsor.sidebar
-        assert (
-            sponsors.BLACK_BASE_URL + sponsor_dict["image"] == db_sponsor.color_logo_url
-        )
+        image = sponsor_dict["image"]
+        if image.startswith("http"):
+            expected_color_logo_url = expected_white_logo_url = image
+        else:
+            expected_color_logo_url = sponsors.BLACK_BASE_URL + image
+            expected_white_logo_url = sponsors.WHITE_BASE_URL + image
+        assert expected_color_logo_url == db_sponsor.color_logo_url
         # infra or footer sponsors must have white logo url
         if db_sponsor.footer or db_sponsor.infra_sponsor:
-            assert (
-                sponsors.WHITE_BASE_URL + sponsor_dict["image"]
-                == db_sponsor.white_logo_url
-            )
+            assert expected_white_logo_url == db_sponsor.white_logo_url
         else:
             assert db_sponsor.white_logo_url is None
 

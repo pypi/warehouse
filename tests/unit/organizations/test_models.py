@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
@@ -981,3 +982,55 @@ class TestOrganizationOIDCIssuer:
         # Test the relationship
         assert issuer.created_by == admin_user
         assert issuer.created_by_id == admin_user.id
+
+
+class TestProjectCreateRateLimitOverride:
+    def test_no_count_means_no_override(self, db_session):
+        entity = DBOrganizationFactory.create()
+
+        assert entity.project_create_ratelimit_string is None
+
+    def test_composes_count_and_period(self, db_session):
+        entity = DBOrganizationFactory.create(
+            project_create_ratelimit_count=200,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+
+        assert entity.project_create_ratelimit_string == "200 per day"
+
+    def test_period_survives_a_round_trip(self, db_session):
+        """Stored as an enum, so it comes back a member, not a raw string."""
+        entity = DBOrganizationFactory.create(
+            project_create_ratelimit_count=5,
+            project_create_ratelimit_period=RateLimitPeriod.Month,
+        )
+        db_session.flush()
+        db_session.expire(entity)
+
+        assert entity.project_create_ratelimit_period is RateLimitPeriod.Month
+        assert entity.project_create_ratelimit_string == "5 per month"
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_rejected_by_database(self, db_session, count, period):
+        with pytest.raises(
+            psycopg.errors.CheckViolation,
+            match="organizations_project_create_ratelimit_complete",
+        ):
+            DBOrganizationFactory.create(
+                project_create_ratelimit_count=count,
+                project_create_ratelimit_period=period,
+            )
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_cannot_be_composed(self, count, period):
+        entity = DBOrganizationFactory.build(
+            project_create_ratelimit_count=count,
+            project_create_ratelimit_period=period,
+        )
+
+        with pytest.raises(ValueError, match="count and period"):
+            _ = entity.project_create_ratelimit_string

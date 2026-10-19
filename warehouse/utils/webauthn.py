@@ -106,8 +106,8 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     Validates the challenge and attestation information
     sent from the client during device registration.
 
-    Returns a WebAuthnCredential on success.
-    Raises RegistrationRejectedError on failire.
+    Returns a VerifiedRegistration on success.
+    Raises RegistrationRejectedError on failure.
     """
     # NOTE: We re-encode the challenge below, because our
     # response's clientData.challenge is encoded twice:

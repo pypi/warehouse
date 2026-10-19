@@ -10,12 +10,14 @@ from pypi_attestations import (
 )
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import (
@@ -40,6 +42,8 @@ class PEP740AttestationViewer:
 
         Reference can either be a hash or a named revision.
         """
+        if not base_url or not reference:
+            return ""
         match self.publisher:
             case pypi_attestations.GitHubPublisher():
                 return f"{base_url}/tree/{reference}"
@@ -92,6 +96,8 @@ class PEP740AttestationViewer:
         """Build Config URI with permalink to the exact version used."""
         repo_url = self.repository_url
         workflow_url = self.claims.get("1.3.6.1.4.1.57264.1.18", "")
+        if not repo_url or not workflow_url or not self.build_digest:
+            return ""
         workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
         return f"{repo_url}/blob/{self.build_digest}/{workflow_file_path}"
 
@@ -139,6 +145,11 @@ class PEP740AttestationViewer:
     def access(self) -> str:
         """Source Repository Visibility At Signing."""
         return self.claims.get("1.3.6.1.4.1.57264.1.22", "")
+
+    @property
+    def run_invocation_uri(self) -> str:
+        """Run Invocation URI — link to the specific build or publish run."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.21", "")
 
     @property
     def permalink_with_digest(self) -> str:
@@ -234,7 +245,7 @@ def release_detail(release, request):
             request.db.query(Role)
             .join(User)
             .filter(Role.project == project)
-            .distinct(User.username)
+            .ext(distinct_on(User.username))
             .order_by(User.username)
             .all()
         )
@@ -272,31 +283,26 @@ def release_detail(release, request):
     )
 
     # Collect all the available bdist details to enable building filters.
-    wheel_filters_all = wheel.filenames_to_filters([bdist.filename for bdist in bdists])
+    wheel_filters_all = wheel.filenames_to_grouped_labels(
+        [bdist.filename for bdist in bdists]
+    )
 
-    # Get the querystring to load any pre-set parameters
-    wheel_filters_params = {
-        "filename": request.params.get("filename", ""),
-        "interpreters": request.params.get("interpreters", ""),
-        "abis": request.params.get("abis", ""),
-        "platforms": request.params.get("platforms", ""),
-    }
+    all_files = sdists + bdists
 
     return {
         "project": project,
         "release": release,
         "description": description_html,
-        "files": sdists + bdists,
+        "files": all_files,
         "sdists": sdists,
         "bdists": bdists,
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
-        # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
         "wheel_filters_all": wheel_filters_all,
-        "wheel_filters_params": wheel_filters_params,
+        "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
     }
 
 

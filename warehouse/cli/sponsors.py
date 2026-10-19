@@ -14,7 +14,7 @@ SPONSORS_DICTS = [
         "name": "Google",
         "service": "Object Storage and Download Analytics",
         "url": "https://careers.google.com/",
-        "image": "google.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/google-color-logo-2uT7IlTp.png",
         "activity": [
             "Google is a visionary sponsor of the Python Software Foundation."
         ],
@@ -30,7 +30,7 @@ SPONSORS_DICTS = [
     {
         "name": "Bloomberg",
         "url": "https://www.techatbloomberg.com/",
-        "image": "bloomberg.png",
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/bloomberg.png",
         "activity": [
             "Bloomberg is a visionary sponsor of the Python Software Foundation."
         ],
@@ -46,7 +46,7 @@ SPONSORS_DICTS = [
     {
         "name": "Microsoft",
         "url": "https://azure.microsoft.com/en-us/develop/python/",
-        "image": "microsoft.png",
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/microsoft.png",
         "activity": [
             "Microsoft is a visionary sponsor of the Python Software Foundation."
         ],
@@ -60,9 +60,58 @@ SPONSORS_DICTS = [
         "level_order": 1,
     },
     {
+        "name": "Anthropic, PBC",
+        "url": "https://www.anthropic.com/",
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/Anthropic_logo_-_Slate.png",
+        "activity": [
+            "Anthropic is a visionary sponsor of the Python Software Foundation."
+        ],
+        "footer": True,
+        "psf_sponsor": True,
+        "infra_sponsor": False,
+        "one_time": False,
+        "sidebar": True,
+        "origin": "pythondotorg",
+        "level_name": "Visionary",
+        "level_order": 1,
+    },
+    {
+        "name": "Hudson River Trading",
+        "url": "https://www.hudsonrivertrading.com/careers/",
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/hrt.png",
+        "activity": [
+            "Hudson River Trading is a visionary sponsor of the Python Software Foundation."  # noqa: E501
+        ],
+        "footer": True,
+        "psf_sponsor": True,
+        "infra_sponsor": False,
+        "one_time": False,
+        "sidebar": True,
+        "origin": "pythondotorg",
+        "level_name": "Visionary",
+        "level_order": 1,
+    },
+    {
+        "name": "NVIDIA",
+        "url": "https://developer.nvidia.com",
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/nvidia.png",
+        "activity": [
+            "NVIDIA is a visionary sponsor of the Python Software Foundation."
+        ],
+        "footer": True,
+        "psf_sponsor": True,
+        "infra_sponsor": False,
+        "one_time": False,
+        "sidebar": True,
+        "origin": "pythondotorg",
+        "level_name": "Visionary",
+        "level_order": 1,
+    },
+    {
         "name": "Facebook / Instagram",
         "url": "https://research.fb.com/",
-        "image": "facebook.png",
+        # Facebook rebranded to Meta; this is Meta's current logo asset.
+        "image": "https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/sponsor_web_logos/Meta_lockup_positive_primary_RGB_copy_hTkI52G.png",
         "activity": [
             "Facebook / Instagram is a sustainability sponsor of the Python Software Foundation."  # noqa: E501
         ],
@@ -519,7 +568,7 @@ SPONSORS_DICTS = [
         "name": "Sentry",
         "service": "Error logging",
         "url": "https://getsentry.com/for/python",
-        "image": "sentry.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/sentry-color-logo-4n0jeHxP.png",
         "activity": [
             "The PyPI team uses Sentry to capture, record, and respond to exceptions and errors on PyPI."  # noqa: E501
         ],
@@ -533,7 +582,7 @@ SPONSORS_DICTS = [
         "name": "AWS",
         "service": "Cloud computing",
         "url": "https://aws.amazon.com/",
-        "image": "aws.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/aws-color-logo-AloCRR0a.png",
         "activity": [
             "PyPI uses AWS infrastructure to host the machines that power our services, serve DNS, host our databases, and send and monitor email.",  # noqa: E501
         ],
@@ -547,9 +596,23 @@ SPONSORS_DICTS = [
         "name": "Datadog",
         "service": "Monitoring",
         "url": "https://www.datadoghq.com/",
-        "image": "datadog.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/datadog-color-logo-qaecwJgr.png",
         "activity": [
             "PyPI uses Datadog to collect metrics from the applications, services, and infrastructure behind the scenes allowing for the team to measure the impact of new changes, monitor for problems, and alert when systems fail."  # noqa: E501
+        ],
+        "footer": False,
+        "psf_sponsor": False,
+        "infra_sponsor": True,
+        "one_time": False,
+        "sidebar": False,
+    },
+    {
+        "name": "Depot",
+        "service": "Continuous Integration",
+        "url": "https://depot.dev",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/depot-color-logo-5VzuAnzk.png",
+        "activity": [
+            "Depot is an infrastructure sponsor of the Python Software Foundation, providing continuous integration build infrastructure."  # noqa: E501
         ],
         "footer": False,
         "psf_sponsor": False,
@@ -561,7 +624,7 @@ SPONSORS_DICTS = [
         "name": "Fastly",
         "service": "CDN",
         "url": "https://www.fastly.com/",
-        "image": "fastly.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/fastly-color-logo-vlmBL3eL.png",
         "activity": [
             "PyPI uses Fastly's CDN to quickly serve content to end-users, allowing us to minimize our hosting infrastructure and obscure possible downtime."  # noqa: E501
         ],
@@ -589,7 +652,7 @@ SPONSORS_DICTS = [
         "name": "StatusPage",
         "service": "Status page",
         "url": "https://statuspage.io",
-        "image": "statuspage.png",
+        "image": "https://storage.googleapis.com/pypi-assets/sponsorlogos/statuspage-color-logo-B22Cktnk.png",
         "activity": [
             "The PyPI team uses StatusPage to communicate downtime, service degradation, or maintenance windows to end-users."  # noqa: E501
         ],
@@ -669,9 +732,16 @@ def populate_db(config):
         params["activity_markdown"] = "\n\n".join(
             cast(list, params.pop("activity", []))
         ).strip()
-        params["color_logo_url"] = BLACK_BASE_URL + str(img)
+        # Some entries carry a full, verified logo URL instead of a filename
+        # to join with BLACK_BASE_URL/WHITE_BASE_URL, since those legacy
+        # pypi.org-hosted paths no longer resolve for every sponsor.
+        params["color_logo_url"] = (
+            str(img) if str(img).startswith("http") else BLACK_BASE_URL + str(img)
+        )
         if params["footer"] or params["infra_sponsor"]:
-            params["white_logo_url"] = WHITE_BASE_URL + str(img)
+            params["white_logo_url"] = (
+                str(img) if str(img).startswith("http") else WHITE_BASE_URL + str(img)
+            )
 
         sponsor = Sponsor(**params)
         try:

@@ -38,7 +38,7 @@ from warehouse.oidc.utils import (
 )
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project, ProjectFactory
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, RateLimiterException
 
 
 class Error(TypedDict):
@@ -235,7 +235,7 @@ def mint_token(
                     pending_publisher.added_by,
                     request,
                     creator_is_owner=pending_publisher.organization_id is None,
-                    ratelimited=False,
+                    ratelimited=pending_publisher.organization_id is not None,
                     organization_id=pending_publisher.organization_id,
                 )
             except HTTPException as exc:
@@ -243,12 +243,27 @@ def mint_token(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
                     request=request,
                 )
+            except RateLimiterException as exc:
+                # See ManageOrganizationProjectsViews.add_organization_project:
+                # `.hit()` rejects after the project is in the session; a
+                # returned response commits it.
+                request.tm.doom()
+                description = (
+                    "this organization has created too many new projects recently"
+                )
+                if exc.resets_in is not None:
+                    resets_in = max(1, int(exc.resets_in.total_seconds()))
+                    description += f". Try again in {resets_in} seconds"
+                return _invalid(
+                    errors=[{"code": "rate-limited", "description": description}],
+                    request=request,
+                )
 
             # Reify the pending publisher against the newly created project
             reified_publisher = oidc_service.reify_pending_publisher(
                 pending_publisher, new_project
             )
-            request.db.flush()  # reified_publisher.id  # ast-grep-ignore: db-flush
+            request.db.flush()  # ast-grep-ignore: db-flush -- reified_publisher.id
             new_project.record_event(
                 tag=EventTag.Project.OIDCPublisherAdded,
                 request=request,

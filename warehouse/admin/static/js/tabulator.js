@@ -220,39 +220,7 @@ const COLLAPSE_HANDLE_COLUMN = {
   headerMenu: false,
   // Never fold the control that unfolds everything else.
   responsive: 0,
-  download: false,
-  clipboard: false,
 };
-
-// Restore the CSV and copy exports the DataTables toolbars carried, using
-// Tabulator's own Download and Clipboard modules. Both run over the rows as
-// filtered and sorted, across every page, which is the scope DataTables
-// exported. See https://www.tabulator.info/docs/6.x/download.
-function toolbarButton(label, iconClass, onClick) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "btn btn-outline-secondary";
-  const icon = document.createElement("i");
-  icon.className = `fa ${iconClass}`;
-  button.appendChild(icon);
-  button.appendChild(document.createTextNode(` ${label}`));
-  button.addEventListener("click", onClick);
-  return button;
-}
-
-function exportToolbar(table, filename) {
-  const toolbar = document.createElement("div");
-  toolbar.className = "btn-group btn-group-sm mb-2";
-  toolbar.appendChild(
-    toolbarButton("Copy", "fa-copy", () => table.copyToClipboard("active")),
-  );
-  toolbar.appendChild(
-    toolbarButton("CSV", "fa-download", () =>
-      table.download("csv", `${filename}.csv`, {}, "active"),
-    ),
-  );
-  return toolbar;
-}
 
 function mountTable(element) {
   const options = tableOptions(element);
@@ -290,9 +258,6 @@ function mountTable(element) {
     // Admins can still drag a column wider.
     maxInitialWidth: 480,
     variableHeight: true,
-    // Exports carry what the cell shows, not the markup showing it.
-    accessorDownload: cellText,
-    accessorClipboard: cellText,
   };
 
   if (options.responsiveLayout === "collapse") {
@@ -308,26 +273,7 @@ function mountTable(element) {
     options.columnDefaults.headerMenu = columnVisibilityMenu;
   }
 
-  // Opt in with `data-tabulator-download` for the copy and CSV buttons.
-  const exporting = element.dataset.tabulatorDownload !== undefined;
-  if (exporting) {
-    // "copy" rather than true: the Clipboard module binds the copy listener
-    // `copyToClipboard` fires against only once this is set, and true would
-    // also have it read pastes into the table, which no admin table wants.
-    options.clipboard = "copy";
-  }
-
-  const table = new Tabulator(element, options);
-
-  if (exporting) {
-    const filename = element.id || "export";
-    table.on("tableBuilt", () => {
-      table.element.parentNode.insertBefore(
-        exportToolbar(table, filename),
-        table.element,
-      );
-    });
-  }
+  new Tabulator(element, options);
 }
 
 document.querySelectorAll("table[data-tabulator]").forEach(function (element) {

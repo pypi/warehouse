@@ -377,7 +377,7 @@ class TestObserverDetail:
 
 
 class TestAggregateWeeklyTimeSeries:
-    def test_time_series_empty(self, db_request):
+    def test_time_series_empty(self):
         """Test time series with no observations."""
         result = views._aggregate_weekly_time_series([])
 

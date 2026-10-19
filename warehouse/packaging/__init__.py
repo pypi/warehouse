@@ -84,6 +84,33 @@ def includeme(config):
     )
     config.register_rate_limiter(project_create_ip_limit_string, "project.create.ip")
 
+    project_create_organization_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_organization_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        project_create_organization_limit_string, "project.create.organization"
+    )
+
+    project_create_attempt_user_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        project_create_attempt_user_limit_string, "project.create.attempt.user"
+    )
+    project_create_attempt_ip_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        project_create_attempt_ip_limit_string, "project.create.attempt.ip"
+    )
+    project_create_attempt_organization_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        project_create_attempt_organization_limit_string,
+        "project.create.attempt.organization",
+    )
+
     config.register_service_factory(project_service_factory, IProjectService)
 
     # Register our origin cache keys

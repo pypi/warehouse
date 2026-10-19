@@ -42,6 +42,18 @@ def test_store_projects_unindex(db_request, mocker):
     assert session.info["warehouse.search.project_deletes"] == {project1}
 
 
+def test_store_projects_skips_audit_only_changes(app_config, db_request):
+    """Recording an event on a project does not change what is indexed."""
+    project = ProjectFactory.create()
+    db_request.db.flush()
+    db_request.db.info.pop("warehouse.search.project_updates", None)
+
+    project.record_event(tag="test:event", request=db_request, additional={})
+    db_request.db.flush()
+
+    assert project not in db_request.db.info["warehouse.search.project_updates"]
+
+
 def test_execute_reindex_success(app_config, mocker):
     delay = mocker.stub(name="delay")
     app_config.task = lambda x: types.SimpleNamespace(delay=delay)

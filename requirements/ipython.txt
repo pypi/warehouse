@@ -1,1 +1,5 @@
-ipython>=9.14.1
+# Pin, don't use a range. This file isn't compiled with hashes, so Dependabot
+# can't resolve a current version from a range, and a grouped update where one
+# member has no previous version gets discarded whole -- taking every other
+# Python bump in the python-packages group with it.
+ipython==9.17.1
