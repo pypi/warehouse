@@ -346,9 +346,6 @@ def organization_detail(request):
         previous_orgtype = organization.orgtype
         form.populate_obj(organization)
 
-        # Downgrading from Company to Community means the organization is no
-        # longer billable, so cancel any subscriptions that are still active.
-        canceled_subscriptions = 0
         if (
             previous_orgtype == OrganizationType.Company
             and organization.orgtype == OrganizationType.Community
@@ -356,19 +353,20 @@ def organization_detail(request):
             for subscription in organization.subscriptions:
                 if subscription.is_restricted:
                     continue
-                billing_service.cancel_subscription_at_period_end(
-                    subscription.subscription_id
-                )
+                billing_service.cancel_subscription(subscription.subscription_id)
                 organization.record_event(
                     tag=EventTag.Organization.SubscriptionCancel,
                     request=request,
                     additional={
                         "subscription_id": subscription.subscription_id,
-                        "at_period_end": True,
+                        "at_period_end": False,
                         "canceled_by": request.user.username,
                     },
                 )
-                canceled_subscriptions += 1
+                request.session.flash(
+                    f"Subscription for {organization.name!r} canceled",
+                    queue="success",
+                )
 
         if previous_orgtype != organization.orgtype:
             organization.record_event(
@@ -393,14 +391,6 @@ def organization_detail(request):
             f"Organization {organization.name!r} updated successfully",
             queue="success",
         )
-
-        if canceled_subscriptions:
-            noun = "subscription" if canceled_subscriptions == 1 else "subscriptions"
-            request.session.flash(
-                f"{canceled_subscriptions} {noun} for {organization.name!r} "
-                f"set to cancel at period end",
-                queue="success",
-            )
 
         return HTTPSeeOther(
             request.route_path(

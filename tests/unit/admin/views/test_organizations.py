@@ -536,8 +536,21 @@ class TestOrganizationDetail:
             )
         ]
 
-    def _downgrade_post(self, db_request, organization, mocker, orgtype="Community"):
-        """Set up a POST to the organization detail view changing the org type."""
+    @pytest.mark.parametrize("old_orgtype", list(OrganizationType))
+    @pytest.mark.parametrize("new_orgtype", list(OrganizationType))
+    def test_orgtype_change_with_subscriptions(
+        self, db_request, mocker, old_orgtype, new_orgtype
+    ):
+        organization = OrganizationFactory.create(orgtype=old_orgtype)
+        subscriptions = [
+            StripeSubscriptionFactory.create(status=status)
+            for status in StripeSubscriptionStatus
+        ]
+        for subscription in subscriptions:
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
         db_request.POST = MultiDict(
@@ -545,202 +558,72 @@ class TestOrganizationDetail:
                 "display_name": "Some Org",
                 "link_url": "https://example.com",
                 "description": "Some description",
-                "orgtype": orgtype,
+                "orgtype": new_orgtype.value,
             }
         )
-        db_request.route_path = pretend.call_recorder(
-            lambda name, **kwargs: f"/admin/organizations/{organization.id}/"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        db_request.route_path = mocker.Mock(return_value="/org/")
         db_request.user = UserFactory.create(username="admin-user")
-
         billing_service = db_request.find_service(IBillingService)
-        return mocker.patch.object(billing_service, "cancel_subscription_at_period_end")
-
-    def test_downgrade_to_community_cancels_subscription(self, db_request, mocker):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        subscription = StripeSubscriptionFactory.create(
-            status=StripeSubscriptionStatus.Active
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
+        cancel_at_period_end = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
         )
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-        cancel = self._downgrade_post(db_request, organization, mocker)
 
         result = views.organization_detail(db_request)
 
-        assert isinstance(result, HTTPSeeOther)
-        assert organization.orgtype == OrganizationType.Community
-        cancel.assert_called_once_with(subscription.subscription_id)
-
-        cancel_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.SubscriptionCancel
-        ]
-        assert len(cancel_events) == 1
-        assert (
-            cancel_events[0].additional["subscription_id"]
-            == subscription.subscription_id
+        assert result.status_code == 303
+        assert organization.orgtype == new_orgtype
+        expected_ids = (
+            {
+                subscription.subscription_id
+                for subscription in subscriptions
+                if subscription.status
+                in (StripeSubscriptionStatus.Active, StripeSubscriptionStatus.Trialing)
+            }
+            if (old_orgtype, new_orgtype)
+            == (OrganizationType.Company, OrganizationType.Community)
+            else set()
         )
-        assert cancel_events[0].additional["at_period_end"] is True
-        assert cancel_events[0].additional["canceled_by"] == "admin-user"
+        assert sorted(call.args[0] for call in cancel.call_args_list) == sorted(
+            expected_ids
+        )
+        cancel_at_period_end.assert_not_called()
+        cancel_events = organization.events.filter_by(
+            tag=EventTag.Organization.SubscriptionCancel
+        ).all()
+        assert sorted(
+            event.additional["subscription_id"] for event in cancel_events
+        ) == sorted(expected_ids)
+        for event in cancel_events:
+            assert event.additional["at_period_end"] is False
+            assert event.additional["canceled_by"] == db_request.user.username
 
-        orgtype_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.OrganizationSetOrgType
-        ]
-        assert len(orgtype_events) == 1
-        assert orgtype_events[0].additional["old_orgtype"] == "Company"
-        assert orgtype_events[0].additional["new_orgtype"] == "Community"
-        assert orgtype_events[0].additional["actor"] == "admin-user"
-
-        assert (
-            pretend.call(
-                f"1 subscription for {organization.name!r} set to cancel at period end",
-                queue="success",
+        type_events = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationSetOrgType
+        ).all()
+        if old_orgtype == new_orgtype:
+            assert type_events == []
+        else:
+            [event] = type_events
+            assert (
+                event.additional.items()
+                >= {
+                    "old_orgtype": old_orgtype.value,
+                    "new_orgtype": new_orgtype.value,
+                    "actor": db_request.user.username,
+                }.items()
             )
-            in db_request.session.flash.calls
-        )
 
-    def test_downgrade_to_community_cancels_all_subscriptions(self, db_request, mocker):
+    def test_does_not_update_with_invalid_form(self, db_request, mocker):
         organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        subscriptions = []
-        for _ in range(2):
-            subscription = StripeSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization,
+            subscription=StripeSubscriptionFactory.create(
                 status=StripeSubscriptionStatus.Active
-            )
-            OrganizationStripeSubscriptionFactory.create(
-                organization=organization, subscription=subscription
-            )
-            subscriptions.append(subscription)
-        cancel = self._downgrade_post(db_request, organization, mocker)
-
-        views.organization_detail(db_request)
-
-        assert cancel.call_count == 2
-        assert {call.args[0] for call in cancel.call_args_list} == {
-            subscription.subscription_id for subscription in subscriptions
-        }
-        cancel_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.SubscriptionCancel
-        ]
-        assert len(cancel_events) == 2
-
-        assert (
-            pretend.call(
-                f"2 subscriptions for {organization.name!r} "
-                f"set to cancel at period end",
-                queue="success",
-            )
-            in db_request.session.flash.calls
+            ),
         )
-
-    def test_downgrade_to_community_skips_restricted_subscriptions(
-        self, db_request, mocker
-    ):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        active_subscription = StripeSubscriptionFactory.create(
-            status=StripeSubscriptionStatus.Active
-        )
-        restricted_subscription = StripeSubscriptionFactory.create(
-            status=StripeSubscriptionStatus.Canceled
-        )
-        for subscription in (active_subscription, restricted_subscription):
-            OrganizationStripeSubscriptionFactory.create(
-                organization=organization, subscription=subscription
-            )
-        cancel = self._downgrade_post(db_request, organization, mocker)
-
-        views.organization_detail(db_request)
-
-        cancel.assert_called_once_with(active_subscription.subscription_id)
-        cancel_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.SubscriptionCancel
-        ]
-        assert len(cancel_events) == 1
-        assert (
-            cancel_events[0].additional["subscription_id"]
-            == active_subscription.subscription_id
-        )
-
-    def test_downgrade_to_community_without_subscriptions(self, db_request, mocker):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        cancel = self._downgrade_post(db_request, organization, mocker)
-
-        views.organization_detail(db_request)
-
-        assert organization.orgtype == OrganizationType.Community
-        cancel.assert_not_called()
-
-        orgtype_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.OrganizationSetOrgType
-        ]
-        assert len(orgtype_events) == 1
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Organization {organization.name!r} updated successfully",
-                queue="success",
-            )
-        ]
-
-    def test_update_without_orgtype_change_keeps_subscription(self, db_request, mocker):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        subscription = StripeSubscriptionFactory.create(
-            status=StripeSubscriptionStatus.Active
-        )
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-        cancel = self._downgrade_post(
-            db_request, organization, mocker, orgtype="Company"
-        )
-
-        views.organization_detail(db_request)
-
-        assert organization.display_name == "Some Org"
-        assert organization.orgtype == OrganizationType.Company
-        cancel.assert_not_called()
-        assert organization.events.all() == []
-
-    def test_upgrade_to_company_keeps_subscription(self, db_request, mocker):
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Community)
-        subscription = StripeSubscriptionFactory.create(
-            status=StripeSubscriptionStatus.Active
-        )
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-        cancel = self._downgrade_post(
-            db_request, organization, mocker, orgtype="Company"
-        )
-
-        views.organization_detail(db_request)
-
-        assert organization.orgtype == OrganizationType.Company
-        cancel.assert_not_called()
-
-        orgtype_events = [
-            event
-            for event in organization.events
-            if event.tag == EventTag.Organization.OrganizationSetOrgType
-        ]
-        assert len(orgtype_events) == 1
-        assert orgtype_events[0].additional["old_orgtype"] == "Community"
-        assert orgtype_events[0].additional["new_orgtype"] == "Company"
-        assert orgtype_events[0].additional["actor"] == "admin-user"
-
-    def test_does_not_update_with_invalid_form(self, db_request):
-        organization = OrganizationFactory.create()
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
@@ -749,7 +632,7 @@ class TestOrganizationDetail:
                 "display_name": "",  # Required field
                 "link_url": "invalid-url",  # Invalid URL
                 "description": "Some description",
-                "orgtype": "Company",
+                "orgtype": "Community",
             }
         )
 
@@ -760,6 +643,9 @@ class TestOrganizationDetail:
         assert result["form"].errors
         assert "display_name" in result["form"].errors
         assert "link_url" in result["form"].errors
+        assert organization.orgtype == OrganizationType.Company
+        assert organization.events.all() == []
+        cancel.assert_not_called()
 
     def test_detail_with_roles(self, db_request):
         """Test that organization detail view includes roles"""
