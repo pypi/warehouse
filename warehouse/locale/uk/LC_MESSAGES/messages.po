@@ -19,13 +19,14 @@
 # DK404-main <DK404.main@gmail.com>, 2023.
 # Taras Radchenko <petuzk.dev@gmail.com>, 2024.
 # Георгіч KHMS88 <khms89@gmail.com>, 2025.
+# CraftLLC <craftllcompany@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-11 20:13+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"PO-Revision-Date: 2026-10-15 23:43+0000\n"
+"Last-Translator: CraftLLC <craftllcompany@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -34,7 +35,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -71,19 +72,21 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"Таке ім'я користувача неправильне. Імена користувачів мають складатися із "
+"Таке ім'я користувача недійсне. Імена користувачів мають складатися із "
 "літер, чисел, крапок, дефісів та підкреслень. Також вони мають починатися і "
 "закінчуватися на літеру або число. Оберіть інше ім'я користувача."
 
 #: warehouse/accounts/forms.py:62
 msgid "Null bytes are not allowed."
-msgstr "Нульові символи не допускаються."
+msgstr "Нульові байти не допускаються."
 
 #: warehouse/accounts/forms.py:78
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
 msgstr ""
+"Імена користувачів - це не те саме, що електронні адреси. Введіть ім'я "
+"користувача замість електронної адреси."
 
 #: warehouse/accounts/forms.py:91
 msgid "No user found with that username"
@@ -106,8 +109,8 @@ msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"Таким ім'ям користувача уже користується хтось інший. Оберіть інше ім'я "
-"користувача."
+"Це ім'я користувача вже використовується іншим обліковим записом. Виберіть "
+"інше ім'я користувача."
 
 #: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
 #: warehouse/accounts/forms.py:230
@@ -472,7 +475,7 @@ msgstr "Попередній перегляд банера"
 
 #: warehouse/manage/forms.py:292
 msgid "Specify an association ID"
-msgstr ""
+msgstr "Вкажіть ідентифікатор асоціації"
 
 #: warehouse/manage/forms.py:293
 #, fuzzy
@@ -482,15 +485,15 @@ msgstr "Видавник має бути вказаний за ідентифі�
 
 #: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
-msgstr ""
+msgstr "Асоціацію облікового запису із заданим ідентифікатором не знайдено"
 
 #: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
-msgstr ""
+msgstr "Ця асоціація не належить вам"
 
 #: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "Вкажіть вашу відповідь на запит."
 
 #: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
@@ -879,6 +882,8 @@ msgid ""
 "This publisher has already been registered in your organization. See your "
 "existing pending publishers below."
 msgstr ""
+"Цей видавець уже зареєстрований у вашій організації. Перегляньте своїх "
+"наявних очікуваних видавців нижче."
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
 #: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
@@ -1020,21 +1025,23 @@ msgstr "Назва файлу робочого процесу має прост�
 
 #: warehouse/oidc/forms/github.py:156
 msgid "Environment name is too long (maximum is 255 characters)"
-msgstr ""
+msgstr "Назва змінної середовища занадто довга (максимум 255 символів)"
 
 #: warehouse/oidc/forms/github.py:161
 msgid "Environment name may not start with whitespace"
-msgstr ""
+msgstr "Назва змінної середовища не може починатися на пробіл"
 
 #: warehouse/oidc/forms/github.py:166
 msgid "Environment name may not end with whitespace"
-msgstr ""
+msgstr "Назва змінної середовища не може закінчуватися на пробіл"
 
 #: warehouse/oidc/forms/github.py:172
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
 msgstr ""
+"Назва змінної середовища не може мати недруковані символи або символи \"'\", "
+"\"\"\", \"`\", \",\", \";\", \"\\\""
 
 #: warehouse/oidc/forms/gitlab.py:23
 msgid "Name ends with .git or .atom"
@@ -1060,7 +1067,7 @@ msgstr "Недійсна назва середовища"
 
 #: warehouse/oidc/forms/gitlab.py:86
 msgid "Choose GitLab issuer URL"
-msgstr ""
+msgstr "Виберіть URL емітента GitLab"
 
 #: warehouse/oidc/forms/gitlab.py:111
 #, fuzzy
@@ -1144,20 +1151,20 @@ msgstr[2] "Реєстрація"
 #: warehouse/static/js/warehouse/utils/timeago.js:26
 msgid "About an hour ago"
 msgid_plural "About %1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Приблизно годину тому"
+msgstr[1] "Приблизно %1 години тому"
+msgstr[2] "Приблизно %1 годин тому"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:28
 msgid "About a minute ago"
 msgid_plural "About %1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Приблизно хвилину тому"
+msgstr[1] "Приблизно %1 хвилини тому"
+msgstr[2] "Приблизно %1 хвилин тому"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:30
 msgid "Just now"
-msgstr ""
+msgstr "Щойно"
 
 #: warehouse/subscriptions/models.py:24
 #: warehouse/templates/manage/project/history.html:209
@@ -1405,7 +1412,7 @@ msgstr "Допомога"
 
 #: warehouse/templates/base.html:37 warehouse/templates/base.html:71
 msgid "Docs"
-msgstr ""
+msgstr "Документація"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -2118,9 +2125,9 @@ msgstr "%(user)s ще не завантажував(-ла) жодних проє
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "%(count)s<a href=\"%(href)s#archived-project\">архівований</a>проєкт"
+msgstr[1] "%(count)s<a href=\"%(href)s#archived-project\">архівованих</a>проєкти"
+msgstr[2] "%(count)s<a href=\"%(href)s#archived-project\">архівованих</a>проєктів"
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/manage/projects.html:80
@@ -2250,6 +2257,8 @@ msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
+"Будь ласка, переконайтеся, що ваша адреса електронної пошти <strong data-"
+"email-confirmation-target=\"email\"></strong>."
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Confirm"
@@ -2679,6 +2688,8 @@ msgid ""
 "Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
 "your account."
 msgstr ""
+"Привіт, %(username)s. Нова електронна пошта '%(new_email_address)s' була "
+"додана до вашого облікового запису."
 
 #: warehouse/templates/email/new-email-added/body.html:8
 #, fuzzy, python-format
@@ -2712,6 +2723,8 @@ msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
 msgstr ""
+"Ви власник нової організації та можете увійти, щоб керувати проєктами, "
+"колабораторами, командами чи налаштуваннями організації."
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
 #, fuzzy, python-format
@@ -2740,7 +2753,7 @@ msgstr ""
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:10
 #, python-format
 msgid "Submit your response on %(domain)s"
-msgstr ""
+msgstr "Надішліть свою відповідь на %(domain)s"
 
 #: warehouse/templates/email/new-organization-requested/body.html:5
 #, fuzzy, python-format
@@ -2825,7 +2838,7 @@ msgstr "Роль"
 #: warehouse/templates/email/organization-member-removed/body.html:17
 #: warehouse/templates/email/organization-member-role-changed/body.html:20
 msgid "Member of"
-msgstr ""
+msgstr "Учасник"
 
 #: warehouse/templates/email/organization-member-added/body.html:23
 #: warehouse/templates/email/team-collaborator-added/body.html:23
@@ -2852,6 +2865,8 @@ msgid ""
 "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join the "
 "\"%(organization_name)s\" organization has been canceled"
 msgstr ""
+"Запрошення для <a href=\"%(user_profile)s\">%(username)s</a> приєднатися до "
+"організації \"%(organization_name)s\" скасовано"
 
 #: warehouse/templates/email/organization-member-invite-declined/body.html:5
 #, fuzzy, python-format

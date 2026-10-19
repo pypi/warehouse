@@ -11,12 +11,5 @@ set -ex
 # linting catches.
 bin/reformat
 
-# Then we lint, because if there are any remaining issues, we want to catch them
-# before doing anything else because fixing them may change line numbers so the
-# later steps may not be valid after the fix anyways.
+# Then we lint, to catch anything reformatting could not fix.
 bin/lint
-
-# Then we extract our translatable strings, this embeds line numbers of where it
-# finds theose strings, so this comes last because if the above changes the
-# line numbers at all, this would need to be re-ran.
-bin/translations

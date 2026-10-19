@@ -5,8 +5,6 @@
  *
  * It replaces the javascript translation function arguments with the locale-specific data.
  * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
- *
- * Run 'make translations' before webpack to extract the translatable text to gettext format files.
  */
 
 // ref: https://webpack.js.org/contribute/writing-a-plugin/

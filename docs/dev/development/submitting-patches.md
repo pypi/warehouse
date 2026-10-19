@@ -51,9 +51,9 @@ To ensure it builds and passes documentation style checks you can run
 
 ## Translations
 
-When making changes to files with strings marked for translation, it's
-necessary to update references to these files any time source strings are change, or the
-line numbers of the source strings in the source files. This can be done by running `make translations`.
+Mark user-facing strings for translation as you write them. You don't
+need to regenerate `warehouse/locale/messages.pot`; after your change merges,
+CI proposes the update in a bot pull request.
 
 For instructions on how to mark strings and views for translation,
 see the [translations](../translations.md) docs.

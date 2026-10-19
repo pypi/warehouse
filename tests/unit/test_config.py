@@ -359,6 +359,15 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.packaging.project_create_organization_ratelimit_string": (
             "10 per day"
         ),
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string": (
+            "100 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string": (
+            "200 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string": (
+            "50 per day"
+        ),
         "warehouse.search.ratelimit_string": "5 per second",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "integrity.backend": "warehouse.attestations.services.IntegrityService",
