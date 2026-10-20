@@ -543,6 +543,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         )
 
     def deactivate(self, reason: OrganizationDeactivationReason) -> None:
+        """Deactivate once, preserving the original timestamp and reason."""
+        if not self.is_active:
+            return
         self.is_active = False
         self.deactivated = datetime.datetime.now(datetime.UTC)
         self.deactivated_reason = reason

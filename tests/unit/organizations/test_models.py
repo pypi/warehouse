@@ -837,6 +837,27 @@ class TestOrganizationBillingMethods:
         assert organization.deactivated is None
         assert organization.deactivated_reason is None
 
+    @pytest.mark.parametrize(
+        "reason",
+        [OrganizationDeactivationReason.NoPaidSeat, None],
+    )
+    @freeze_time("2026-10-19 01:00:00")
+    def test_deactivate_preserves_inactive_metadata(self, db_session, reason):
+        deactivated = (
+            datetime.datetime(2026, 7, 1, tzinfo=datetime.UTC) if reason else None
+        )
+        organization = DBOrganizationFactory.create(
+            is_active=False, deactivated=deactivated, deactivated_reason=reason
+        )
+
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        db_session.flush()
+        db_session.refresh(organization)
+
+        assert not organization.is_active
+        assert organization.deactivated == deactivated
+        assert organization.deactivated_reason == reason
+
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""
         organization = DBOrganizationFactory.create(orgtype="Company")
