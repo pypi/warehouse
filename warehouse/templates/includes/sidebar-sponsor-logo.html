@@ -1,0 +1,24 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if include_sponsor_logos and request.sponsors["sidebar"] %}
+  <div class="sidebar-section"
+       data-controller="sponsor"
+       data-sponsor-placement-value="pypi-sidebar">
+    {% for sponsor in request.sponsors["sidebar"] %}
+      <div class="sidebar-section__sponsor"
+           data-sponsor-target="item"
+           data-sponsor-slug="{{ sponsor.slug or sponsor.name }}"
+           hidden>
+        <a class="sidebar-section__sponsor-logo"
+           href="{{ sponsor.link_url }}"
+           target="_blank"
+           rel="sponsored noopener"
+           data-action="sponsor#click">
+          <img src="{{ request.camo_url(sponsor.color_logo_url) }}"
+               alt="{{ sponsor.name }}"
+               loading="lazy">
+        </a>
+        {% if sponsor.service %}<p class="sidebar-section__sponsor-text">{{ sponsor.service }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

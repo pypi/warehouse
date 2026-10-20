@@ -27,6 +27,8 @@
               {% endif %}
             </div>
           </div>
+          {% set include_sponsor_logos = organization.orgtype != OrganizationType.Company %}
+          {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
         </div>
         {% set projects_with_releases = organization.projects|selectattr("latest_version")|list %}
         <div class="vertical-tabs__panel">

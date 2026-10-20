@@ -293,6 +293,28 @@
     }
   }
 
+  // PSF sponsor logo placement, revealed by sponsor_controller.js
+  &__sponsor {
+    border: 2px solid colors.$border-color;
+    border-radius: 5px;
+    padding: 1rem 1rem 0.25rem;
+    text-align: center;
+  }
+
+  &__sponsor-logo {
+    @include link-utilities.link-without-underline;
+
+    img {
+      width: 60%;
+      display: inline-block;
+    }
+  }
+
+  &__sponsor-text {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
   // Remove bottom styling from final sidebar section
   &:last-of-type:not(&--manage-project) {
     margin-bottom: 0;
