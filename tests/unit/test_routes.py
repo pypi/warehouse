@@ -100,11 +100,6 @@ def test_routes(warehouse, mocker):
             domain=warehouse,
         ),
         mocker.call(
-            "includes.sidebar-sponsor-logo",
-            "/_includes/unauthed/sidebar-sponsor-logo/",
-            domain=warehouse,
-        ),
-        mocker.call(
             "includes.administer-project-include",
             "/_includes/authed/administer-project-include/{project_name}",
             domain=warehouse,
