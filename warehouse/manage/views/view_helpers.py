@@ -90,7 +90,16 @@ def deactivate_organization_for_owner_removal(
             "reason": reason,
         },
     )
-    organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+    if organization.is_active:
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationDeactivate,
+            request=request,
+            additional={
+                "reason": OrganizationDeactivationReason.OwnerRemoved.value,
+                "deactivated_by_user_id": str(request.user.id),
+            },
+        )
 
 
 def add_organization_project_and_notify(
