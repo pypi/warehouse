@@ -253,6 +253,10 @@
       padding-bottom: 0;
     }
 
+    p + p {
+      margin-top: grid.$half-spacing-unit;
+    }
+
     code {
       margin-right: 0.4em;
       margin-bottom: 0.4em;
