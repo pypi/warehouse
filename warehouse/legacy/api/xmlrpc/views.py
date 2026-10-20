@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import functools
 import json
 import re
@@ -295,7 +295,7 @@ def changelog_since_serial(request, serial: StrictInt):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
+            int(e.submitted_date.replace(tzinfo=dt.UTC).timestamp()),
             _clean_for_xml(e.action),
             e.id,
         )

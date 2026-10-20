@@ -22,7 +22,7 @@ def seed(config):  # pragma: no cover # dev-only tool
     """
     # Imported here because we don't want to trigger an import from anything
     # but warehouse.cli at the module scope.
-    import datetime
+    import datetime as dt
 
     from pypi_attestations import AttestationType
     from sqlalchemy import delete, select
@@ -343,7 +343,7 @@ def seed(config):  # pragma: no cover # dev-only tool
         "cp312-cp312-manylinux2014_x86_64",
         "cp311-cp311-macosx_11_0_arm64",
     ]
-    now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+    now = dt.datetime.now(dt.UTC).replace(tzinfo=None)
 
     user = session.scalar(select(User).where(User.username == "seed-user"))
     if user is None:
@@ -363,7 +363,7 @@ def seed(config):  # pragma: no cover # dev-only tool
         RoleFactory.create(project=project, user=user, role_name="Owner")
 
         for version, days_ago, file_specs in scenario["releases"]:
-            created = now - datetime.timedelta(days=days_ago)
+            created = now - dt.timedelta(days=days_ago)
             release = ReleaseFactory.create(
                 project=project,
                 version=version,
@@ -398,7 +398,7 @@ def seed(config):  # pragma: no cover # dev-only tool
                         if filename.endswith(".tar.gz")
                         else filename.split("-")[-3]
                     ),
-                    upload_time=created + datetime.timedelta(days=days_after),
+                    upload_time=created + dt.timedelta(days=days_after),
                 )
                 if predicate_types is not None:
                     repository, workflow = repo

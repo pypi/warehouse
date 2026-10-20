@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-import datetime
+import datetime as dt
 import shutil
 import tempfile
 import typing
@@ -324,7 +324,7 @@ def update_bigquery_release_files(task, request, dist_metadata) -> None:
         for sch in table_schema:
             field_data = dist_metadata.get(sch.name, None)
 
-            if isinstance(field_data, datetime.datetime):
+            if isinstance(field_data, dt.datetime):
                 field_data = field_data.isoformat()
 
             # Replace all empty objects to None will ensure

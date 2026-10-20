@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import typing
 
 from uuid import UUID
@@ -647,7 +647,7 @@ class DatabaseOrganizationService:
         #    -> organizations.models -> organizations.services
         #  Figure out circular imports and move to top of module,
         #  or better, cascade https://github.com/pypi/warehouse/issues/19748
-        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415,I001
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415
 
         self.db.execute(
             delete(OIDCPublisherProjectAssociation).where(
@@ -673,7 +673,7 @@ class DatabaseOrganizationService:
             OrganizationTermsOfServiceEngagement(
                 organization_id=organization_id,
                 revision=revision,
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
                 engagement=engagement,
             )
         )

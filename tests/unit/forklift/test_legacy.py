@@ -2,7 +2,7 @@
 
 import base64
 import builtins
-import datetime
+import datetime as dt
 import gzip
 import hashlib
 import io
@@ -5658,7 +5658,7 @@ class TestFileUpload:
         limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
         limiter.test.return_value = False
         limiter.hit.return_value = False
-        limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        limiter.resets_in.return_value = dt.timedelta(seconds=60)
         limiter.get_window_stats.return_value = []
         limiter.override.return_value = limiter
         project_service.ratelimiters[failing_limiter] = limiter
@@ -7016,8 +7016,8 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        now = datetime.datetime.now()
-        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+        now = dt.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(seconds=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -7067,8 +7067,8 @@ class TestFileUpload:
         # 'Closed release' error, as this is a non-error outcome
         # when used with --skip-existing on old releases.
 
-        now = datetime.datetime.now()
-        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+        now = dt.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(seconds=1)
 
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytest
 
@@ -112,8 +112,8 @@ class TestRateLimiting:
     @pytest.mark.parametrize(
         ("resets_in_delta", "expected"),
         [
-            (datetime.timedelta(minutes=11, seconds=6.9), 666),
-            (datetime.timedelta(seconds=0), 1),
+            (dt.timedelta(minutes=11, seconds=6.9), 666),
+            (dt.timedelta(seconds=0), 1),
         ],
     )
     def test_ratelimiting_block_with_hint(
@@ -340,7 +340,7 @@ def test_changelog_since_serial(db_request):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
+            int(e.submitted_date.replace(tzinfo=dt.UTC).timestamp()),
             e.action,
             e.id,
         )
