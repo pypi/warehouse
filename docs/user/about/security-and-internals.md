@@ -50,8 +50,8 @@ To enhance account security, PyPI [mandates 2FA for all users](https://blog.pypi
 
 To perform certain actions, such as registering a new project, users must have a verified email address (proving that they own the email address). Verified email addresses are also required to receive password-reset emails. See [Email address verification](../your-account/managing-your-account.md#email-address-verification) for more information. PyPI also:
 
-* Maintains a blocklist of email domains that are frequently used for spam or other abuse, helping to mitigate automated attacks. See our [blog post on prohibiting outlook domains](https://blog.pypi.org/posts/2024-06-16-prohibiting-msn-emails/) for more information.
-* Checks the reputation of an email address at registration time, and rejects addresses identified as disposable or temporary — even on domains that aren't otherwise blocklisted. See [account registration limits](../your-account/managing-your-account.md#account-registration-limits) for more information.
+* Maintains a blocklist of domains flagged for spam or other abuse, using that list to reject email addresses from those domains.
+* Checks the reputation of email addresses on account registration, or when a user adds an email address to their account. Addresses identified as disposable or temporary are rejected, and domains identified as disposable providers are added to the blocklist. See our [blog post on email reputation checks](https://blog.pypi.org/posts/2026-10-16-email-reputation-and-outlook/) and [account registration limits](../your-account/managing-your-account.md#account-registration-limits) for more information.
 * Checks that email domains are valid on account registration, or when a user adds or changes the email addresses associated with their account.
 * Periodically scans for verified emails with expired email domains or MX records, removing verification from those emails vulnerable to attack. See our [blog post on preventing domain resurrection attacks](https://blog.pypi.org/posts/2025-08-18-preventing-domain-resurrections/) for more information.
 
