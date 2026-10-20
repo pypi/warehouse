@@ -1,0 +1,130 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/grid";
+
+/*
+  A row of segments, one per item, colored by that item's own status.
+
+  Use to show how a total splits across a small number of categories,
+  one segment per underlying thing (e.g. one per file in a release).
+
+  <div class="provenance-bar">
+    <div class="provenance-bar__row">
+      <span class="provenance-bar__label provenance-bar__label--with-provenance" aria-hidden="true"></span>
+      <span class="provenance-bar__name">Category name</span>
+      <div class="provenance-bar__files" role="img" aria-label="3 of 17 files with provenance">
+        <!-- one span per item, only the matching ones get --with-provenance -->
+        <span class="provenance-bar__file provenance-bar__file--with-provenance"></span>
+        <span class="provenance-bar__file"></span>
+      </div>
+      <span class="provenance-bar__count">3 / 17</span>
+    </div>
+  </div>
+
+  Modifiers (label and file share the same set):
+    - with-provenance: Blue
+    - without-provenance: Grey
+
+  Root modifiers:
+    - with-gap: Adds a small gap between segments; use only for a small
+      number of segments, since it eats into the group's total width
+*/
+
+.provenance-bar {
+  color: colors.$text-color;
+  margin: grid.$quarter-spacing-unit 0;
+
+  &--with-gap {
+    .provenance-bar__files {
+      gap: 2px;
+    }
+
+    .provenance-bar__file {
+      border-radius: 2px;
+    }
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: grid.$quarter-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      display: block;
+      position: relative;
+    }
+
+    & + & {
+      margin-top: grid.$quarter-spacing-unit;
+
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        margin-top: grid.$half-spacing-unit;
+      }
+    }
+  }
+
+  &__label {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    border-radius: 2px;
+
+    &--with-provenance {
+      background-color: colors.$primary-color;
+    }
+
+    &--without-provenance {
+      background-color: colors.$mid-grey;
+    }
+  }
+
+  &__name {
+    flex: 0 0 auto;
+    width: 160px;
+    font-size: 0.9rem;
+  }
+
+  &__files {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    margin-left: grid.$quarter-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      margin-top: 3px;
+      margin-left: 0;
+    }
+  }
+
+  &__file {
+    flex: 1 1 0;
+    min-width: 2px;
+    height: 20px;
+    background-color: colors.$base-grey;
+
+    &--with-provenance {
+      background-color: colors.$primary-color;
+    }
+
+    &--without-provenance {
+      background-color: colors.$mid-grey;
+    }
+  }
+
+  &__count {
+    flex: 0 0 auto;
+    text-align: right;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-left: grid.$half-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+}

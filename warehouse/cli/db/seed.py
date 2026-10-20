@@ -312,6 +312,12 @@ def seed(config):  # pragma: no cover # dev-only tool
                 "1.0.0": [("Source", "https://github.com/seed-org/epsilon", True)]
             },
         },
+        # Enough wheels to render the file filters on the Files and Security
+        {
+            "name": "seed-wheel-filters",
+            "summary": "Dev seed: aliased manylinux tags for the file filters",
+            "releases": [("1.0.0", 1, [pypi_a] * 10)],
+        },
     ]
 
     # `file_specs` fails loudly on a miscount via `zip(strict=True)` below, but a
@@ -331,6 +337,11 @@ def seed(config):  # pragma: no cover # dev-only tool
         "cp313-cp313-manylinux_2_28_x86_64",
         "cp313-cp313-win_amd64",
         "cp314-cp314-manylinux_2_28_x86_64",
+        "cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp314-cp314-manylinux_2_17_x86_64",
+        "cp312-cp312-manylinux2014_x86_64",
+        "cp311-cp311-macosx_11_0_arm64",
     ]
     now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
