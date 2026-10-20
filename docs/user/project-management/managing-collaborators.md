@@ -29,6 +29,9 @@ To add a new owner or maintainer to your project:
 8. Click "Invite"  
 9. Enter your password, if prompted
 
+The person you invite will receive an email asking them to confirm the invitation.
+They can also accept or decline the invitation from the "Pending invitations" section of their "Your projects" page. 
+
 !!! warning
 
     Granting owner status to another user gives them full administrative rights to your project. A new owner will have the ability to remove you from the project entirely. Only grant ownership to individuals you trust completely.
