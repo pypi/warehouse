@@ -40,7 +40,7 @@ To protect yourself, use pip with [hash checking mode](https://pip.pypa.io/en/st
 
 In this attack, an attacker gains access to a maintainer's PyPI account and pushes a new, malicious version of a popular, legitimate package. From your perspective, the malicious version appears to come from the original author, making it difficult to detect.
 
-Since you can't know if a maintainer's account has been compromised, your best defense is to look for signals of good security practice. Prefer packages that use [Trusted Publishing](../../trusted-publishers/index.md), which you can identify by the presence of an [attestation](provenance.md) on the release's security page.
+Since you can't know if a maintainer's account has been compromised, your best defense is to look for signals of good security practice. Prefer packages that use [Trusted Publishing](../../trusted-publishers/index.md), which you can identify by the presence of an [attestation](provenance.md) on the project's security tab.
 
 This indicates the package was uploaded via an automated process without the use of API tokens that can be stolen.
 

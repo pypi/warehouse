@@ -16,8 +16,6 @@ The project name, release version, and a one-line summary are shown at the top o
 * **Version**: The version of the release being viewed, from the `version` field.
 * **Summary**: A short, one-line description of the project, set via the `description` field in `pyproject.toml`. Also called the "short description" — see [Project Descriptions](project-management/project-descriptions.md) for how to write one.
 
-<!-- TODO: add screenshot here -->
-
 ## Project links
 
 Packages owners can specify various URLs related to their project using
