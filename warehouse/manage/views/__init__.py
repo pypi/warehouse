@@ -679,12 +679,23 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
+        # Record whether the secret rendered by the GET survived in the session;
+        # if not, `get_totp_secret` generates a fresh one the code can't match.
+        session_secret = (
+            "present" if self.request.session.has_totp_secret() else "missing"
+        )
         form = ProvisionTOTPForm(
             self.request.POST,
             totp_secret=self.request.session.get_totp_secret(),
         )
+        valid = form.validate()
+        result = "success" if valid else form.totp_failure or "malformed"
+        self.request.metrics.increment(
+            "warehouse.manage.account.totp_provision",
+            tags=[f"result:{result}", f"session_secret:{session_secret}"],
+        )
 
-        if form.validate():
+        if valid:
             old_totp_secret = self.user_service.get_totp_secret(self.request.user.id)
             self.user_service.update_user(
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()

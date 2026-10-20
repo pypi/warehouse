@@ -2,6 +2,8 @@
 title: Storage Limits
 ---
 
+# Storage Limits
+
 PyPI imposes storage limits on the size of individually uploaded files,
 as well as the total size of all files in a project.
 
