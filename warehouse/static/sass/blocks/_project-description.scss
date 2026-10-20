@@ -40,8 +40,11 @@
     width: 250px;
     flex-shrink: 0;
 
+    // Below this width the sidebar has its own "Metadata" tab
+    // (see project-tabs__tab--mobile-only) rather than sitting under
+    // the (potentially very long) README.
     @media only screen and (max-width: breakpoints.$tablet) {
-      width: 100%;
+      display: none;
     }
   }
 
@@ -108,19 +111,21 @@
 
     ol,
     ul {
-      margin: grid.$half-spacing-unit 0 0 grid.$spacing-unit;
+      margin-block: grid.$half-spacing-unit 0;
+      margin-inline: grid.$spacing-unit 0;
       padding-bottom: 0;
 
       @media only screen and (max-width: breakpoints.$mobile) {
-        margin-left: grid.$half-spacing-unit;
+        margin-inline-start: grid.$half-spacing-unit;
       }
 
       ul,
       ol {
-        margin: 0 0 0 grid.$spacing-unit;
+        margin-block: 0;
+        margin-inline: grid.$spacing-unit 0;
 
         @media only screen and (max-width: breakpoints.$mobile) {
-          margin-left: grid.$half-spacing-unit;
+          margin-inline-start: grid.$half-spacing-unit;
         }
       }
     }
@@ -131,6 +136,21 @@
 
     li {
       padding: 2px 0;
+    }
+
+    li:has(> input[type="checkbox"]) {
+      list-style-type: none;
+
+      > input[type="checkbox"] {
+        margin-block: 0 0.25em;
+        margin-inline: calc(-1 * #{grid.$half-spacing-unit}) 0.2em;
+        vertical-align: middle;
+        cursor: default;
+      }
+
+      > input[type="checkbox"] + p {
+        display: inline;
+      }
     }
 
     li p:first-child {

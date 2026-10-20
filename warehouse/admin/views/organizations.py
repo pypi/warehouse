@@ -115,6 +115,7 @@ class OrganizationForm(wtforms.Form):
     )
 
     link_url = wtforms.URLField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message="Specify organization URL"),
             wtforms.validators.Length(
@@ -124,7 +125,7 @@ class OrganizationForm(wtforms.Form):
                 r"^https?://",
                 message="Organization URL must start with http:// or https://",
             ),
-        ]
+        ],
     )
 
     description = wtforms.TextAreaField(
@@ -348,7 +349,41 @@ def organization_detail(request):
     )
 
     if request.method == "POST" and form.validate():
+        previous_orgtype = organization.orgtype
         form.populate_obj(organization)
+
+        if (
+            previous_orgtype == OrganizationType.Company
+            and organization.orgtype == OrganizationType.Community
+        ):
+            for subscription in organization.subscriptions:
+                if subscription.is_restricted:
+                    continue
+                billing_service.cancel_subscription(subscription.subscription_id)
+                organization.record_event(
+                    tag=EventTag.Organization.SubscriptionCancel,
+                    request=request,
+                    additional={
+                        "subscription_id": subscription.subscription_id,
+                        "at_period_end": False,
+                        "canceled_by": request.user.username,
+                    },
+                )
+                request.session.flash(
+                    f"Subscription for {organization.name!r} canceled",
+                    queue="success",
+                )
+
+        if previous_orgtype != organization.orgtype:
+            organization.record_event(
+                tag=EventTag.Organization.OrganizationSetOrgType,
+                request=request,
+                additional={
+                    "old_orgtype": previous_orgtype.value,
+                    "new_orgtype": organization.orgtype.value,
+                    "actor": request.user.username,
+                },
+            )
 
         # Update Stripe customer if organization has one
         if organization.customer is not None:
@@ -362,6 +397,7 @@ def organization_detail(request):
             f"Organization {organization.name!r} updated successfully",
             queue="success",
         )
+
         return HTTPSeeOther(
             request.route_path(
                 "admin.organization.detail", organization_id=organization.id

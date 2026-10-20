@@ -110,7 +110,11 @@ from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    DELETE_FILE_ACKNOWLEDGMENTS,
+    DELETE_PROJECT_ACKNOWLEDGMENTS,
+    DELETE_RELEASE_ACKNOWLEDGMENTS,
     archive_project,
+    confirm_acknowledgments,
     confirm_project,
     destroy_docs,
     remove_project,
@@ -608,6 +612,7 @@ def manage_two_factor(request):
     permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
@@ -663,6 +668,11 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
+
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -758,6 +768,7 @@ class ProvisionTOTPViews:
     permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionWebAuthnViews:
     def __init__(self, request):
@@ -796,6 +807,15 @@ class ProvisionWebAuthnViews:
         renderer="json",
     )
     def validate_webauthn_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return {
+                "fail": {
+                    "errors": [
+                        "Confirm your recovery codes before adding a security device"
+                    ]
+                }
+            }
+
         form = ProvisionWebAuthnForm(
             self.request.POST,
             user_service=self.user_service,
@@ -1326,6 +1346,15 @@ def delete_project(project, request):
         )
 
     confirm_project(project, request, fail_route="manage.project.settings")
+    confirm_acknowledgments(
+        request,
+        "manage.project.settings",
+        DELETE_PROJECT_ACKNOWLEDGMENTS,
+        error_message=request._(
+            "Could not delete project - acknowledge all of the consequences to continue"
+        ),
+        project_name=project.normalized_name,
+    )
 
     submitter_role = get_user_role_in_project(project, request.user, request)
 
@@ -1680,6 +1709,18 @@ class ManageProjectRelease:
                 )
             )
 
+        confirm_acknowledgments(
+            self.request,
+            "manage.project.release",
+            DELETE_RELEASE_ACKNOWLEDGMENTS,
+            error_message=self.request._(
+                "Could not delete release - "
+                "acknowledge all of the consequences to continue"
+            ),
+            project_name=self.release.project.name,
+            version=self.release.version,
+        )
+
         submitter_role = get_user_role_in_project(
             self.release.project, self.request.user, self.request
         )
@@ -1778,6 +1819,18 @@ class ManageProjectRelease:
                     f"{self.release.project.name!r}"
                 )
             )
+
+        confirm_acknowledgments(
+            self.request,
+            "manage.project.release",
+            DELETE_FILE_ACKNOWLEDGMENTS,
+            error_message=self.request._(
+                "Could not delete file - "
+                "acknowledge all of the consequences to continue"
+            ),
+            project_name=self.release.project.name,
+            version=self.release.version,
+        )
 
         self.request.db.add(
             JournalEntry(

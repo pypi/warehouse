@@ -21,6 +21,11 @@ const tabsHTML = `
         </a>
       </li>
       <li role="presentation">
+        <a id="metadata-tab" href="#metadata" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab project-tabs__tab--mobile-only" style="display: none" aria-selected="false" aria-controls="metadata" tabindex="-1" aria-label="Metadata. Focus will be moved to the metadata panel.">
+          <span><i class="fa fa-circle-info" aria-hidden="true"></i> Metadata</span>
+        </a>
+      </li>
+      <li role="presentation">
         <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" aria-controls="history" tabindex="-1" aria-label="Release history. Focus will be moved to the release history panel.">
           <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
         </a>
@@ -55,6 +60,11 @@ const tabsHTML = `
     <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
       <h2 class="page-title">File details</h2>
       <p>Details for the file sample-1.0.tar.gz.</p>
+    </div>
+
+    <!-- Tab: Metadata (hidden on this viewport, e.g. desktop) -->
+    <div id="metadata" data-project-tabs-target="content" role="tabpanel" aria-labelledby="metadata-tab" tabindex="-1">
+      <h2 class="page-title">Metadata</h2>
     </div>
 
     <!-- Tab: Release history -->
@@ -241,6 +251,14 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("history")).toHaveStyle("display: block");
         expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("skips tabs hidden on the current viewport (e.g. mobile-only tabs on desktop)", () => {
+        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("metadata-tab")).not.toHaveClass("project-tabs__tab--is-active");
       });
 
       it("ignores non-arrow keys", () => {

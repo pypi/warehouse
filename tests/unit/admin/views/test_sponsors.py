@@ -7,7 +7,6 @@ import uuid
 from cgi import FieldStorage
 from unittest import TestCase
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
@@ -15,6 +14,7 @@ from sqlalchemy.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
+from warehouse.admin.services import LocalSponsorLogoStorage
 from warehouse.admin.views import sponsors as views
 from warehouse.sponsors.models import Sponsor
 
@@ -115,35 +115,28 @@ class TestCreateSponsor:
         assert isinstance(result["form"], views.SponsorForm)
         assert result["form"].errors
 
-    def test_create_sponsor(self, db_request):
+    def test_create_sponsor(self, db_request, pyramid_services, tmp_path, mocker):
         db_request.method = "POST"
         db_request.POST["name"] = "Sponsor"
         db_request.POST["link_url"] = "https://newsponsor.com"
         db_request.POST["color_logo"] = COLOR_LOGO_FILE
         db_request.POST = MultiDict(db_request.POST)
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/admin/sponsors/"
         )
-        db_request.route_url = pretend.call_recorder(lambda r: "/admin/sponsors/")
-        storage_service = pretend.stub(
-            store=pretend.call_recorder(
-                lambda path, file_path, ct: f"http://files/sponsorlogos/{path}"
-            )
-        )
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                ISponsorLogoStorage: storage_service,
-            }.get(svc)
+        pyramid_services.register_service(
+            LocalSponsorLogoStorage(str(tmp_path)), ISponsorLogoStorage
         )
 
         resp = views.create_sponsor(db_request)
 
         assert resp.status_code == 303
         assert resp.location == "/admin/sponsors/"
-        assert db_request.session.flash.calls == [
-            pretend.call("Added new sponsor 'Sponsor'", queue="success")
-        ]
-        assert db_request.route_url.calls == [pretend.call("admin.sponsor.list")]
+        db_request.session.flash.assert_called_once_with(
+            "Added new sponsor 'Sponsor'", queue="success"
+        )
+        db_request.route_url.assert_called_once_with("admin.sponsor.list")
 
 
 class TestEditSponsor:
@@ -164,7 +157,9 @@ class TestEditSponsor:
         with pytest.raises(HTTPNotFound):
             views.edit_sponsor(db_request)
 
-    def test_update_sponsor(self, monkeypatch, db_request):
+    def test_update_sponsor(
+        self, monkeypatch, db_request, pyramid_services, tmp_path, mocker
+    ):
         sponsor = SponsorFactory.create()
         form = views.SponsorForm(MultiDict({}), sponsor)
         data = form.data.copy()
@@ -174,21 +169,15 @@ class TestEditSponsor:
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/sponsors/{sponsor.id}/"
+        mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value=f"/admin/sponsors/{sponsor.id}/",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        storage_service = pretend.stub(
-            store=pretend.call_recorder(
-                lambda path, file_path, ct: f"http://files/sponsorlogos/{path}"
-            )
-        )
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                ISponsorLogoStorage: storage_service,
-            }.get(svc)
+        mocker.spy(db_request.session, "flash")
+        pyramid_services.register_service(
+            LocalSponsorLogoStorage(str(tmp_path)), ISponsorLogoStorage
         )
 
         monkeypatch.setattr(secrets, "token_urlsafe", lambda x: "deadbeef")
@@ -202,15 +191,15 @@ class TestEditSponsor:
         assert db_sponsor.name == "New Name"
         assert (
             db_sponsor.white_logo_url
-            == "http://files/sponsorlogos/new-name-white-logo-deadbeef.png"
+            == "http://files:9001/sponsorlogos/new-name-white-logo-deadbeef.png"
         )
         assert (
             db_sponsor.color_logo_url
-            == "http://files/sponsorlogos/new-name-color-logo-deadbeef.png"
+            == "http://files:9001/sponsorlogos/new-name-color-logo-deadbeef.png"
         )
-        assert db_request.session.flash.calls == [
-            pretend.call("Sponsor updated", queue="success")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Sponsor updated", queue="success"
+        )
 
     def test_form_errors_if_invalid_post_data(self, db_request):
         sponsor = SponsorFactory.create()
@@ -233,15 +222,15 @@ class TestDeleteSponsor:
         with pytest.raises(HTTPNotFound):
             views.delete_sponsor(db_request)
 
-    def test_delete_sponsor(self, db_request):
+    def test_delete_sponsor(self, db_request, mocker):
         sponsor = SponsorFactory.create()
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.params = {"sponsor": sponsor.name}
         db_request.method = "POST"
-        db_request.route_url = pretend.call_recorder(lambda s: "/admin/sponsors/")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/admin/sponsors/"
         )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.delete_sponsor(db_request)
         with pytest.raises(NoResultFound):
@@ -249,31 +238,34 @@ class TestDeleteSponsor:
 
         assert resp.status_code == 303
         assert resp.location == "/admin/sponsors/"
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Deleted sponsor {sponsor.name}", queue="success")
-        ]
-        assert db_request.route_url.calls == [pretend.call("admin.sponsor.list")]
+        db_request.session.flash.assert_called_once_with(
+            f"Deleted sponsor {sponsor.name}", queue="success"
+        )
+        db_request.route_url.assert_called_once_with("admin.sponsor.list")
 
-    def test_do_not_delete_sponsor_if_invalid_confirmation_param(self, db_request):
+    def test_do_not_delete_sponsor_if_invalid_confirmation_param(
+        self, db_request, mocker
+    ):
         sponsor = SponsorFactory.create()
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.params = {"sponsor": "not the sponsor name"}
         db_request.method = "POST"
-        db_request.route_url = pretend.call_recorder(
-            lambda s, sponsor_id: f"/admin/sponsors/{sponsor_id}"
+        mocker.patch.object(
+            db_request,
+            "route_url",
+            autospec=True,
+            side_effect=lambda s, sponsor_id: f"/admin/sponsors/{sponsor_id}",
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         resp = views.delete_sponsor(db_request)
         sponsor = db_request.db.query(Sponsor).filter(Sponsor.id == sponsor.id).one()
 
         assert resp.status_code == 303
         assert resp.location == f"/admin/sponsors/{sponsor.id}"
-        assert db_request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error")
-        ]
-        assert db_request.route_url.calls == [
-            pretend.call("admin.sponsor.edit", sponsor_id=sponsor.id)
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Wrong confirmation input", queue="error"
+        )
+        db_request.route_url.assert_called_once_with(
+            "admin.sponsor.edit", sponsor_id=sponsor.id
+        )

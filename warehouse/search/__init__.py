@@ -16,6 +16,7 @@ from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
 from warehouse.search.tasks import reindex
 from warehouse.search.utils import get_index
+from warehouse.utils.db import has_only_audit_changes
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -31,7 +32,12 @@ def store_projects_for_project_reindex(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a Project to reindex for when the session has been committed.
-    for obj in session.new | session.dirty:
+    dirty = session.dirty
+    for obj in session.new | dirty:
+        if obj.__class__ not in (Project, Release):
+            continue
+        if has_only_audit_changes(obj, dirty):
+            continue
         if obj.__class__ == Project:
             # Un-index archived/quarantined projects
             if obj.lifecycle_status in [

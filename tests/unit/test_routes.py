@@ -34,8 +34,10 @@ def test_routes(warehouse, mocker):
 
     includeme(config)
 
-    assert config.add_route.call_args_list == [
-        mocker.call("health", "/_health/"),
+    # Health routing is exercised through HTTP in tests/functional/test_basic.py.
+    assert [
+        call for call in config.add_route.call_args_list if call.args[0] != "health"
+    ] == [
         mocker.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         mocker.call("index", "/", domain=warehouse),
         mocker.call("locale", "/locale/", domain=warehouse),

@@ -54,7 +54,7 @@ $tooltip-duration: 0.1s !default;
   text-shadow: none;
   text-transform: none;
   letter-spacing: normal;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   white-space: pre;
   pointer-events: none;
   background: $tooltip-background-color;

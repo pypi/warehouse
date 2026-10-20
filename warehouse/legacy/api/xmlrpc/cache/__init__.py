@@ -12,7 +12,7 @@ from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
 from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
 from warehouse.legacy.api.xmlrpc.cache.services import NullXMLRPCCache, RedisXMLRPCCache
-from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db import has_only_audit_changes, orm_session_from_obj
 
 __all__ = ["RedisLru"]
 
@@ -41,10 +41,14 @@ def store_purge_keys(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a cache key that we'll want to purge when the session has been committed.
-    for obj in session.new | session.dirty | session.deleted:
+    dirty = session.dirty
+    for obj in session.new | dirty | session.deleted:
         try:
             key_maker = cache_keys[obj.__class__]
         except KeyError:
+            continue
+
+        if has_only_audit_changes(obj, dirty):
             continue
 
         purges.update(key_maker(obj).purge)

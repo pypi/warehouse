@@ -2,6 +2,7 @@
 
 import datetime
 import functools
+import json
 import re
 import xmlrpc.client
 import xmlrpc.server
@@ -24,13 +25,10 @@ from pyramid_rpc.xmlrpc import (
 from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
-from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
-    Release,
-    ReleaseClassifiers,
     Role,
 )
 from warehouse.rate_limiting import IRateLimiter
@@ -64,8 +62,10 @@ _illegal_ranges = [
 ]
 _illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
+XMLRPC_LOGGED_ARGS_LENGTH = 200
+
 XMLRPC_DEPRECATION_URL = (
-    "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
+    "https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods"
 )
 
 
@@ -89,6 +89,12 @@ def submit_xmlrpc_metrics(method=None):
 
     def decorator(f):
         def wrapped(context, request):
+            # The method and its arguments travel in the POST body, so the access
+            # log can't see them. Stash them where GunicornLogger reads them.
+            request.environ["warehouse.xmlrpc.method"] = method
+            request.environ["warehouse.xmlrpc.args"] = json.dumps(
+                request.rpc_args, default=str
+            )[:XMLRPC_LOGGED_ARGS_LENGTH]
             metrics = request.find_service(IMetricsService, context=None)
             metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
             with metrics.timed(
@@ -157,7 +163,7 @@ def xmlrpc_method(**kwargs):
     return decorator
 
 
-# Caching wrappers for XML-RPC methods. Both store the view's return value in
+# Caching wrappers for XML-RPC methods. They all store the view's return value in
 # Redis as JSON (see `warehouse.legacy.api.xmlrpc.cache`), so a view is only safe
 # to wrap if its return value survives a `json.dumps()`/`json.loads()` round
 # trip. Known limitations, roughly in order of how likely they are to bite:
@@ -178,24 +184,20 @@ def xmlrpc_method(**kwargs):
 #    `float("inf")` serialize to the non-standard `NaN`/`Infinity` literals,
 #    which round-trip through our own cache but are not valid JSON.
 #
-# 4. Falsy results are never hits. `RedisLru.fetch` is `get(...) or add(...)`,
-#    so a view returning `[]`, `{}`, `0` or `None` re-runs its query on every
-#    request and rewrites the same entry each time.
-#
-# 5. The cache key is the JSON-encoded arguments verbatim while the purge tag is
+# 4. The cache key is the JSON-encoded arguments verbatim while the purge tag is
 #    canonicalized, so `package_roles("Django")` and `package_roles("django")`
 #    occupy separate entries holding identical data. Both are purged together.
 #
-# 6. Invalidation is only as good as the `purge_keys` registered for the models
+# 5. Invalidation is only as good as the `purge_keys` registered for the models
 #    a view reads (see `warehouse.packaging.includeme`). Wrapping a view whose
 #    result depends on a model with no matching purge key leaves it stale for up
 #    to `xmlrpc_cache_expires`.
 #
-# 7. Changing the serializer or the key format invalidates everything, and the
-#    orphans are not self-cleaning: `add` re-`expire`s the whole hash on every
-#    write, and Redis EXPIRE replaces the existing TTL, so a field written in the
-#    old format survives as long as any field in that hash keeps being written.
-#    `RedisLru` has no `hdel`, so only a `purge_tag` or Redis eviction clears it.
+# 6. Changing the serializer or the key format invalidates everything, and
+#    `RedisLru` has no `hdel` to clear the orphans one at a time. They do age
+#    out on their own: `add` sets the hash TTL with `nx`, so the hash is dropped
+#    whole one `xmlrpc_cache_expires` after its first write however much traffic
+#    it sees in between. A `purge_tag` clears it sooner.
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
@@ -343,33 +345,6 @@ def user_packages(request, username: StrictStr):
     return [(r.role_name, r.project.name) for r in roles]
 
 
-@xmlrpc_method(method="browse")
-def browse(request, classifiers: list[StrictStr]):
-    classifiers_q = (
-        request.db.query(Classifier)
-        .filter(Classifier.classifier.in_(classifiers))
-        .subquery()
-    )
-
-    release_classifiers_q = (
-        select(ReleaseClassifiers)
-        .where(ReleaseClassifiers.trove_id == classifiers_q.c.id)
-        .alias("rc")
-    )
-
-    releases = (
-        request.db.query(Project.name, Release.version)
-        .join(Release)
-        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
-        .group_by(Project.name, Release.version)
-        .having(func.count() == len(classifiers))
-        .order_by(Project.name, Release.version)
-        .all()
-    )
-
-    return [(r.name, r.version) for r in releases]
-
-
 # Synthetic methods
 
 
@@ -391,6 +366,18 @@ def changelog(request, since: StrictInt, with_ids: StrictBool = False):
         ValueError(
             "The changelog method has been deprecated, use changelog_since_serial "
             "instead."
+        )
+    )
+
+
+@xmlrpc_method(method="browse")
+def browse(request, classifiers: list[StrictStr]):
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            "PyPI no longer supports the XMLRPC browse method. "
+            "Use BigQuery instead. "
+            f"See {XMLRPC_DEPRECATION_URL} "
+            "for more information."
         )
     )
 

@@ -745,7 +745,7 @@ This is useful in scenarios like passing a
 TESTARGS="--randomly-seed=1234" make tests
 ```
 
-You can run the common tools (formatters, linting, translations) to make sure
+You can run the common tools (formatters, linting) to make sure
 that a patch is ready by running:
 
 ```shell
@@ -784,24 +784,15 @@ disable test parallelism and enable the snapshot approval dialogue. For example:
 T=tests/functional/api/test_simple.py make tests
 ```
 
-## Building translations
+## Translations
 
 Warehouse is translated into a number of different locales, which are stored in
 the `warehouse/locale/` directory.
 
-These translation files contain references to untranslated text in source code
-and HTML templates, as well as the translations which have been submitted by
-our volunteer translators.
-
-When making changes to files with strings marked for translation, it's
-necessary to update these references any time source strings are change, or the
-line numbers of the source strings in the source files.
-
-Use `make` to build the translations. For example:
-
-```shell
-make translations
-```
+`warehouse/locale/messages.pot` lists every translatable string. After each
+merge, CI regenerates it and proposes the change in a bot pull request, so you
+don't need to run anything. To inspect what extraction produces locally, run
+`make translations`, which writes to `.state/messages.pot`.
 
 ## What next?
 

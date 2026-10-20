@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from warehouse.admin import components  # noqa: F401  (registers the components)
 from warehouse.admin.services import ISponsorLogoStorage
 from warehouse.utils.static import ManifestCacheBuster
 
@@ -14,6 +15,11 @@ def includeme(config):
 
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
+
+    # Register the {% component %} tag. The components register themselves on
+    # import (see the module-level import above). Their templates are asset
+    # specs (warehouse.admin:components/...), so no search path is needed.
+    config.include("pyramid_components")
 
     # Setup our static assets
     prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)

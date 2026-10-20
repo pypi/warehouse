@@ -5,7 +5,6 @@ import hashlib
 import hmac
 import json
 
-import pretend
 import pytest
 
 from warehouse.admin.views import helpscout as views
@@ -102,21 +101,21 @@ class TestHelpscoutApp:
             ("wutang@loudrecords.com", "wutang+tag.test@loudrecords.com"),
         ],
     )
-    def test_valid_auth_email_found(self, db_request, search_email, user_email):
+    def test_valid_auth_email_found(self, db_request, mocker, search_email, user_email):
         email = EmailFactory.create(email=user_email)
 
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": f"{search_email}"}}
         db_request.body = json.dumps(db_request.json_body).encode()
         _sign_request(db_request)
-        db_request.route_url = pretend.call_recorder(
-            lambda *a, **kw: "http://example.com"
+        route_url = mocker.patch.object(
+            db_request, "route_url", return_value="http://example.com"
         )
         result = views.helpscout(db_request)
 
-        assert db_request.route_url.calls == [
-            pretend.call("accounts.profile", username=email.user.username),
-            pretend.call("admin.user.detail", username=email.user.username),
+        assert route_url.call_args_list == [
+            mocker.call("accounts.profile", username=email.user.username),
+            mocker.call("admin.user.detail", username=email.user.username),
         ]
         assert result["html"][:26] == '<div class="c-sb-section">'
 

@@ -9,6 +9,7 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 
 import warehouse
+import warehouse.admin.components  # registers the components
 
 FILTERS = {
     "format_date": "warehouse.i18n.filters:format_date",
@@ -29,7 +30,6 @@ FILTERS = {
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
     "is_recent": "warehouse.filters:is_recent",
-    "natsort": "natsort:natsorted",
 }
 
 # A compiled regex that matches a subject block, possibly with newlines inside
@@ -38,7 +38,7 @@ SUBJECT_BLOCK_EXPRESSION = re.compile(
 )
 
 
-def _make_env(dir_name: Path) -> Environment:
+def _make_env(dir_name: Path, extensions: tuple[str, ...] = ()) -> Environment:
     env = Environment(
         autoescape=True,
         loader=FileSystemLoader(dir_name),
@@ -46,6 +46,7 @@ def _make_env(dir_name: Path) -> Environment:
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
             "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+            *extensions,
         ],
         cache_size=0,
     )
@@ -109,7 +110,10 @@ def test_render_admin_templates(template):
     The admin templates live outside `warehouse/templates`, so neither
     `test_render_templates` nor `bin/lint`'s djlint invocation reaches them.
     """
-    env = _make_env(Path(warehouse.__path__[0]) / "admin" / "templates")
+    env = _make_env(
+        Path(warehouse.__path__[0]) / "admin" / "templates",
+        extensions=("pyramid_components.jinja2.ComponentExtension",),
+    )
 
     assert env.get_template(str(template))
 

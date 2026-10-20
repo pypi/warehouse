@@ -85,6 +85,10 @@ class TestAuthMethodsPredicate:
         with pytest.raises(ValueError, match="not a valid AuthenticationMethod"):
             AuthMethodsPredicate({"not-a-real-method"}, None)
 
+    def test_rejects_basic_auth_without_macaroon(self):
+        with pytest.raises(ConfigurationError, match="requires macaroon"):
+            AuthMethodsPredicate({"basic-auth"}, None)
+
 
 class TestAuthMethodsForRoute:
     def test_returns_predicate_val(self):
@@ -216,8 +220,10 @@ class TestActiveOrganizationPredicate:
 
         route_path.assert_called_once_with("manage.organizations")
         assert db_request.session.peek_flash("error") == [
-            "This organization's billing is inactive. Activate billing to "
-            "manage its projects, teams, and members."
+            (
+                "This organization's billing is inactive. Activate billing to "
+                "manage its projects, teams, and members."
+            )
         ]
 
     @pytest.mark.parametrize("value", [True, "or_awaiting_billing"])

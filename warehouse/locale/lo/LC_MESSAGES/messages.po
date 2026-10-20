@@ -138,7 +138,7 @@ msgstr "ທີ່ຢູ່ອີເມວບໍ່ຖືກຕ້ອງ. ກະ�
 msgid "You can't use a disposable email address. Use a different email."
 msgstr "ທ່ານບໍ່ສາມາດໃຊ້ທີ່ຢູ່ອີເມວຈາກໂດເມນນີ້ໄດ້. ກະລຸນາໃຊ້ອີເມວອື່ນ."
 
-#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:130
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ຊື່ຍາວເກີນໄປ. ກະລຸນາເລືອກຊື່ທີ່ມີຄວາມຍາວບໍ່ເກີນ 100 ຕົວອັກສອນ."
 
@@ -146,23 +146,27 @@ msgstr "ຊື່ຍາວເກີນໄປ. ກະລຸນາເລືອກ�
 msgid "URLs are not allowed in the name field."
 msgstr "ບໍ່ອະນຸຍາດໃຫ້ໃສ່ URL ໃນຫ້ອງປ້ອນຊື່."
 
-#: warehouse/accounts/forms.py:679
+#: warehouse/accounts/forms.py:600
+msgid "You must agree to the Terms of Service and Acceptable Use Policy."
+msgstr ""
+
+#: warehouse/accounts/forms.py:688
 msgid "Invalid TOTP code."
 msgstr "ລະຫັດ TOTP ບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/forms.py:696
+#: warehouse/accounts/forms.py:705
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "ການຢືນຢັນ WebAuthn ບໍ່ຖືກຕ້ອງ: Payload ຜິດພາດ"
 
-#: warehouse/accounts/forms.py:760
+#: warehouse/accounts/forms.py:769
 msgid "Invalid recovery code."
 msgstr "ລະຫັດກູ້ຄືນບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/forms.py:769
+#: warehouse/accounts/forms.py:778
 msgid "Recovery code has been previously used."
 msgstr "ລະຫັດກູ້ຄືນນີ້ເຄີຍຖືກໃຊ້ໄປແລ້ວ."
 
-#: warehouse/accounts/forms.py:798
+#: warehouse/accounts/forms.py:807
 msgid "The username isn't valid. Try again."
 msgstr "ຊື່ຜູ້ໃຊ້ບໍ່ຖືກຕ້ອງ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ."
 
@@ -207,7 +211,7 @@ msgstr "ຢືນຢັນຕົວຕົນແລ້ວ"
 msgid "Successful WebAuthn assertion"
 msgstr "ການຢືນຢັນ WebAuthn ສຳເລັດແລ້ວ"
 
-#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:957
+#: warehouse/accounts/views.py:623 warehouse/manage/views/__init__.py:977
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ຍອມຮັບລະຫັດກູ້ຄືນແລ້ວ. ລະຫັດທີ່ໃຫ້ມານີ້ຈະບໍ່ສາມາດນຳມາໃຊ້ໄດ້ອີກ."
 
@@ -237,174 +241,191 @@ msgstr ""
 "ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
 "ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:934
+#: warehouse/accounts/views.py:849
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. You have been "
+#| "locked out for Please try again later."
+msgid ""
+"Too many password reset requests from your network. Please try again later."
+msgstr ""
+"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
+"ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
+
+#: warehouse/accounts/views.py:946
 msgid "Expired token: request a new password reset link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:936
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: request a new password reset link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:938 warehouse/accounts/views.py:1051
-#: warehouse/accounts/views.py:1116 warehouse/accounts/views.py:1222
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:950 warehouse/accounts/views.py:1063
+#: warehouse/accounts/views.py:1128 warehouse/accounts/views.py:1234
+#: warehouse/accounts/views.py:1412
 msgid "Invalid token: no token supplied"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີການສົ່ງໂທເຄັນມາ"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:954
 msgid "Invalid token: not a password reset token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:947 warehouse/accounts/views.py:1060
+#: warehouse/accounts/views.py:959 warehouse/accounts/views.py:1072
 msgid "Invalid token: user not found"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ພົບຜູ້ໃຊ້"
 
-#: warehouse/accounts/views.py:958
+#: warehouse/accounts/views.py:970
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ຜູ້ໃຊ້ໄດ້ເຂົ້າສູ່ລະບົບແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:976
+#: warehouse/accounts/views.py:988
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ລະຫັດຜ່ານຖືກປ່ຽນແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:1007
+#: warehouse/accounts/views.py:1019
 msgid "You have reset your password"
 msgstr "ທ່ານໄດ້ຕັ້ງລະຫັດຜ່ານໃໝ່ແລ້ວ"
 
-#: warehouse/accounts/views.py:1047
+#: warehouse/accounts/views.py:1059
 msgid "Expired token: please try to login again"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1049
+#: warehouse/accounts/views.py:1061
 msgid "Invalid token: please try to login again"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1055
+#: warehouse/accounts/views.py:1067
 msgid "Invalid token: not a login confirmation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນການເຂົ້າສູ່ລະບົບ"
 
-#: warehouse/accounts/views.py:1070
+#: warehouse/accounts/views.py:1082
 msgid "Invalid login attempt."
 msgstr "ການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1075
+#: warehouse/accounts/views.py:1087
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr "ລາຍລະອຽດອຸປະກອນບໍ່ກົງກັນ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງຈາກອຸປະກອນທີ່ທ່ານເຄີຍໃຊ້ເຂົ້າສູ່ລະບົບກ່ອນໜ້ານີ້."
 
-#: warehouse/accounts/views.py:1086
+#: warehouse/accounts/views.py:1098
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr "ຢືນຢັນການເຂົ້າສູ່ລະບົບຂອງທ່ານແລ້ວ ແລະ ລະບົບຈື່ຈຳອຸປະກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1112
+#: warehouse/accounts/views.py:1124
 msgid "Expired token: request a new email verification link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1114
+#: warehouse/accounts/views.py:1126
 msgid "Invalid token: request a new email verification link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1120
+#: warehouse/accounts/views.py:1132
 msgid "Invalid token: not an email verification token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນອີເມວ"
 
-#: warehouse/accounts/views.py:1129
+#: warehouse/accounts/views.py:1141
 msgid "Email not found"
 msgstr "ບໍ່ພົບອີເມວ"
 
-#: warehouse/accounts/views.py:1132
+#: warehouse/accounts/views.py:1144
 msgid "Email already verified"
 msgstr "ອີເມວຖືກຢືນຢັນແລ້ວ"
 
-#: warehouse/accounts/views.py:1152
+#: warehouse/accounts/views.py:1164
 msgid "You can now set this email as your primary address"
 msgstr "ຕອນນີ້ທ່ານສາມາດຕັ້ງອີເມວນີ້ນີ້ເປັນທີ່ຢູ່ຫຼັກຂອງທ່ານໄດ້ແລ້ວ"
 
-#: warehouse/accounts/views.py:1155
+#: warehouse/accounts/views.py:1167
 msgid "This is your primary address"
 msgstr "ນີ້ແມ່ນທີ່ຢູ່ຫຼັກຂອງທ່ານ"
 
-#: warehouse/accounts/views.py:1161
+#: warehouse/accounts/views.py:1173
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ຢືນຢັນທີ່ຢູ່ອີເມວ ${email_address} ແລ້ວ. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1218
+#: warehouse/accounts/views.py:1230
 msgid "Expired token: request a new organization invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1220
+#: warehouse/accounts/views.py:1232
 msgid "Invalid token: request a new organization invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1226
+#: warehouse/accounts/views.py:1238
 msgid "Invalid token: not an organization invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ"
 
-#: warehouse/accounts/views.py:1230 warehouse/accounts/views.py:1241
+#: warehouse/accounts/views.py:1242 warehouse/accounts/views.py:1253
 msgid "Organization invitation is not valid."
 msgstr "ຄຳເຊີນເຂົ້າຮ່ວມອົງກອນບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1239
+#: warehouse/accounts/views.py:1251
 msgid "Organization invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນເຂົ້າຮ່ວມອົງກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1293
+#: warehouse/accounts/views.py:1259 warehouse/accounts/views.py:1446
+msgid ""
+"Invalid invitation: the inviting user no longer exists. Please ask a "
+"remaining owner to reissue your invitation."
+msgstr ""
+
+#: warehouse/accounts/views.py:1313
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1356
+#: warehouse/accounts/views.py:1375
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງອົງກອນ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1389
+#: warehouse/accounts/views.py:1408
 msgid "Expired token: request a new project role invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1391
+#: warehouse/accounts/views.py:1410
 msgid "Invalid token: request a new project role invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1397
+#: warehouse/accounts/views.py:1416
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນຮ່ວມມື"
 
-#: warehouse/accounts/views.py:1401 warehouse/accounts/views.py:1421
+#: warehouse/accounts/views.py:1420 warehouse/accounts/views.py:1440
 msgid "Role invitation is not valid."
 msgstr "ຄຳເຊີນຮັບບົດບາດບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1408
+#: warehouse/accounts/views.py:1427
 msgid "Invalid token: project does not exist"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີໂຄງການນີ້"
 
-#: warehouse/accounts/views.py:1419
+#: warehouse/accounts/views.py:1438
 msgid "Role invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນຮັບບົດບາດນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1453
+#: warehouse/accounts/views.py:1480
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1519
+#: warehouse/accounts/views.py:1545
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1630
+#: warehouse/accounts/views.py:1656
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 "ກະລຸນາກວດເບິ່ງ <a href=\"${tos_url}\">ຂໍ້ກຳນົດການບໍລິການ</a> ທີ່ໄດ້ຮັບການປັບປຸງໃໝ່ຂອງພວກເຮົາ."
 
-#: warehouse/accounts/views.py:1857 warehouse/accounts/views.py:2125
+#: warehouse/accounts/views.py:1883 warehouse/accounts/views.py:2151
 #: warehouse/manage/views/oidc_publishers.py:126
-#: warehouse/manage/views/organizations.py:1768
+#: warehouse/manage/views/organizations.py:1772
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -412,12 +433,12 @@ msgstr ""
 "ການເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1878
-#: warehouse/manage/views/organizations.py:1791
+#: warehouse/accounts/views.py:1904
+#: warehouse/manage/views/organizations.py:1795
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr "ປິດໃຊ້ງານແລ້ວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-intervention"
 
-#: warehouse/accounts/views.py:1894
+#: warehouse/accounts/views.py:1920
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -425,11 +446,11 @@ msgstr ""
 "ທ່ານຕ້ອງມີອີເມວທີ່ຢືນຢັນແລ້ວ ເພື່ອລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://"
 "pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1907
+#: warehouse/accounts/views.py:1933
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "ທ່ານບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເກີນ 3 ລາຍການໃນເວລາດຽວກັນ."
 
-#: warehouse/accounts/views.py:1922
+#: warehouse/accounts/views.py:1948
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -439,23 +460,23 @@ msgid ""
 "again later."
 msgstr "ມີການພະຍາຍາມລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຫຼາຍເກີນໄປ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:1932
+#: warehouse/accounts/views.py:1958
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
 #: warehouse/manage/views/oidc_publishers.py:664
-#: warehouse/manage/views/organizations.py:1807
+#: warehouse/manage/views/organizations.py:1811
 msgid "The trusted publisher could not be registered"
 msgstr "ບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້"
 
-#: warehouse/accounts/views.py:1947
+#: warehouse/accounts/views.py:1973
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 "ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ນີ້ຖືກລົງທະບຽນແລ້ວ. ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:1972
+#: warehouse/accounts/views.py:1998
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
@@ -464,17 +485,17 @@ msgstr ""
 "ມີຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເຊິ່ງມີການຕັ້ງຄ່ານີ້ ຖືກລົງທະບຽນສຳລັບຊື່ໂຄງການອື່ນແລ້ວ. "
 "ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:1995
-#: warehouse/manage/views/organizations.py:1859
+#: warehouse/accounts/views.py:2021
+#: warehouse/manage/views/organizations.py:1863
 msgid "Registered a new pending publisher to create "
 msgstr "ລົງທະບຽນຜູ້ເຜີຍແຜ່ໃໝ່ທີ່ຍັງຄ້າງຢູ່ເພື່ອສ້າງ "
 
-#: warehouse/accounts/views.py:2138 warehouse/accounts/views.py:2151
-#: warehouse/accounts/views.py:2158
+#: warehouse/accounts/views.py:2164 warehouse/accounts/views.py:2177
+#: warehouse/accounts/views.py:2184
 msgid "Invalid publisher ID"
 msgstr "ID ຜູ້ເຜີຍແຜ່ບໍ່ຖືກຕ້ອງ"
 
-#: warehouse/accounts/views.py:2165
+#: warehouse/accounts/views.py:2191
 msgid "Removed trusted publisher for project "
 msgstr "ຖອນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ສຳລັບໂຄງການອອກແລ້ວ "
 
@@ -482,31 +503,31 @@ msgstr "ຖອນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄ
 msgid "Banner Preview"
 msgstr "ຕົວຢ່າງປ້າຍປະກາດ"
 
-#: warehouse/manage/forms.py:288
+#: warehouse/manage/forms.py:289
 msgid "Specify an association ID"
 msgstr "ລະບຸ ID ການເຊື່ອມໂຍງ"
 
-#: warehouse/manage/forms.py:289
+#: warehouse/manage/forms.py:290
 msgid "Association must be specified by ID"
 msgstr "ຕ້ອງລະບຸການເຊື່ອມໂຍງດ້ວຍ ID"
 
-#: warehouse/manage/forms.py:304
+#: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
 msgstr "ບໍ່ມີການເຊື່ອມໂຍງບັນຊີກັບ ID ທີ່ໃຫ້ມາ"
 
-#: warehouse/manage/forms.py:309
+#: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
 msgstr "ການເຊື່ອມໂຍງນີ້ບໍ່ແມ່ນຂອງທ່ານ"
 
-#: warehouse/manage/forms.py:413
+#: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
 msgstr "ກະລຸນາໃຫ້ຄຳຕອບຂອງທ່ານຕໍ່ກັບການຮ້ອງຂໍ."
 
-#: warehouse/manage/forms.py:455
+#: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "ກະລຸນາເລືອກຊື່ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 50 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:463
+#: warehouse/manage/forms.py:467
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -516,28 +537,28 @@ msgstr ""
 "ຊື່ອົງກອນບໍ່ຖືກຕ້ອງ. ຊື່ອົງກອນຕ້ອງປະກອບດ້ວຍ ຕົວອັກສອນ, ຕົວເລກ, ຈໍ້າ (.), ຂີດຕໍ່ (-) ແລະ ຂີດກ້ອງ "
 "(_). ທັງຕ້ອງເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກເທົ່ານັ້ນ. ກະລຸນາເລືອກຊື່ອົງກອນອື່ນ."
 
-#: warehouse/manage/forms.py:486
+#: warehouse/manage/forms.py:490
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr "ຊື່ອົງກອນນີ້ຖືກໃຊ້ໄປແລ້ວ. ກະລຸນາເລືອກຊື່ອົງກອນອື່ນ."
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:505
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr "ທ່ານໄດ້ສົ່ງໃບສະໝັກສຳລັບຊື່ນັ້ນແລ້ວ. ກະລຸນາເລືອກຊື່ອົງກອນອື່ນ."
 
-#: warehouse/manage/forms.py:535
+#: warehouse/manage/forms.py:539
 msgid "Select project"
 msgstr "ເລືອກໂຄງການ"
 
-#: warehouse/manage/forms.py:540 warehouse/oidc/forms/_core.py:32
+#: warehouse/manage/forms.py:544 warehouse/oidc/forms/_core.py:32
 #: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr "ລະບຸຊື່ໂຄງການ"
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:548
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -545,56 +566,60 @@ msgstr ""
 "ເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກ ແລະ ປະກອບດ້ວຍຕົວເລກ ASCII, '.', '_' ແລະ '-' "
 "ເທົ່ານັ້ນ."
 
-#: warehouse/manage/forms.py:551
+#: warehouse/manage/forms.py:555
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "ຊື່ໂຄງການນີ້ຖືກໃຊ້ໄປແລ້ວ. ກະລຸນາເລືອກຊື່ໂຄງການອື່ນ."
 
-#: warehouse/manage/forms.py:584
+#: warehouse/manage/forms.py:588
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr "ບໍ່ສາມາດໂອນຍ້າຍໄປຍັງອົງກອນບໍລິສັດທີ່ມີສະຖານະການຊຳລະເງິນບໍ່ເຄື່ອນໄຫວ"
 
-#: warehouse/manage/forms.py:652
+#: warehouse/manage/forms.py:656
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "ຊື່ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກຊື່ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 100 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:669
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "URL ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກ URL ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 400 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:670
+#: warehouse/manage/forms.py:675
 msgid "The organization URL must start with http:// or https://"
 msgstr "URL ອົງກອນຕ້ອງເລີ່ມຕົ້ນດ້ວຍ http:// ຫຼື https://"
 
-#: warehouse/manage/forms.py:682
+#: warehouse/manage/forms.py:687
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr ""
 "ຄຳອະທິບາຍອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກຄຳອະທິບາຍອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 400 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:725
+#: warehouse/manage/forms.py:728
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
 msgstr ""
 "ພວກເຮົາບໍ່ຕ້ອງການຂໍ້ມູນຫຼາຍປານນັ້ນ :), ກະລຸນາຈຳກັດຄຳອະທິບາຍການໃຊ້ງານໃຫ້ບໍ່ເກີນ 1024 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:747
-#, python-format
+#: warehouse/manage/forms.py:759
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "You have already submitted the maximum number of Organization requests "
+#| "(%s)."
 msgid ""
-"You have already submitted the maximum number of Organization requests (%s)."
+"You have already submitted the maximum number of Organization requests ($"
+"{count})."
 msgstr "ທ່ານໄດ້ສົ່ງຄຳຮ້ອງຂໍສ້າງອົງກອນຮອດຈຳນວນສູງສຸດແລ້ວ (%s)."
 
-#: warehouse/manage/forms.py:777
+#: warehouse/manage/forms.py:790
 msgid "Choose a team name with 50 characters or less."
 msgstr "ກະລຸນາເລືອກຊື່ທີມທີ່ມີຄວາມຍາວບໍ່ເກີນ 50 ຕົວອັກສອນ."
 
-#: warehouse/manage/forms.py:784
+#: warehouse/manage/forms.py:797
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -602,42 +627,42 @@ msgstr ""
 "ຊື່ທີມບໍ່ຖືກຕ້ອງ. ຊື່ທີມບໍ່ສາມາດເລີ່ມຕົ້ນ ຫຼື ລົງທ້າຍດ້ວຍ ວ່າງ, ຈໍ້າ, ຂີດກ້ອງ, ຂີດຕໍ່ ຫຼື ເຄື່ອງໝາຍທັບ. "
 "ກະລຸນາເລືອກຊື່ທີມອື່ນ."
 
-#: warehouse/manage/forms.py:811
+#: warehouse/manage/forms.py:824
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ຊື່ທີມນີ້ຖືກໃຊ້ໄປແລ້ວ. ກະລຸນາເລືອກຊື່ທີມອື່ນ."
 
-#: warehouse/manage/views/__init__.py:411
+#: warehouse/manage/views/__init__.py:415
 msgid "Account details updated"
 msgstr "ອັບເດດລາຍລະອຽດບັນຊີແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:442
+#: warehouse/manage/views/__init__.py:446
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ເພີ່ມອີເມວ ${email_address} ແລ້ວ - ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຫາລິ້ງຢືນຢັນ"
 
-#: warehouse/manage/views/__init__.py:904
+#: warehouse/manage/views/__init__.py:924
 msgid "Recovery codes already generated"
 msgstr "ສ້າງລະຫັດກູ້ຄືນແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:906
+#: warehouse/manage/views/__init__.py:926
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "ການສ້າງລະຫັດກູ້ຄືນໃໝ່ຈະເຮັດໃຫ້ລະຫັດເດີມທີ່ມີຢູ່ໃຊ້ການບໍ່ໄດ້."
 
-#: warehouse/manage/views/__init__.py:1014
+#: warehouse/manage/views/__init__.py:1034
 msgid "Verify your email to create an API token."
 msgstr "ກະລຸນາຢືນຢັນອີເມວຂອງທ່ານເພື່ອສ້າງໂທເຄັນ API."
 
-#: warehouse/manage/views/__init__.py:1116
+#: warehouse/manage/views/__init__.py:1136
 msgid "API Token does not exist."
 msgstr "ບໍ່ມີໂທເຄັນ API ນີ້."
 
-#: warehouse/manage/views/__init__.py:1148
+#: warehouse/manage/views/__init__.py:1168
 msgid "Invalid credentials. Try again"
 msgstr "ຂໍ້ມູນປະຈຳຕົວບໍ່ຖືກຕ້ອງ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/manage/views/__init__.py:1319
-#: warehouse/manage/views/__init__.py:1641
-#: warehouse/manage/views/__init__.py:1752
+#: warehouse/manage/views/__init__.py:1339
+#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1793
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -645,53 +670,67 @@ msgstr ""
 "ການລຶບໂຄງການຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/manage/views/__init__.py:1441
+#: warehouse/manage/views/__init__.py:1354
+msgid ""
+"Could not delete project - acknowledge all of the consequences to continue"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1470
 msgid "This release is in quarantine and cannot be modified."
 msgstr "ລຸ້ນນີ້ຖືກກັກບໍລິເວນ (quarantine) ແລະ ບໍ່ສາມາດແກ້ໄຂໄດ້."
 
-#: warehouse/manage/views/__init__.py:1465
-#: warehouse/manage/views/__init__.py:1553
-#: warehouse/manage/views/__init__.py:1657
-#: warehouse/manage/views/__init__.py:1760
+#: warehouse/manage/views/__init__.py:1494
+#: warehouse/manage/views/__init__.py:1582
+#: warehouse/manage/views/__init__.py:1686
+#: warehouse/manage/views/__init__.py:1801
 msgid "Confirm the request"
 msgstr "ຢືນຢັນຄຳຮ້ອງຂໍ"
 
-#: warehouse/manage/views/__init__.py:1478
+#: warehouse/manage/views/__init__.py:1507
 msgid "Could not yank release - "
 msgstr "ບໍ່ສາມາດຖອນການເຜີຍແຜ່ (yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1566
+#: warehouse/manage/views/__init__.py:1595
 msgid "Could not un-yank release - "
 msgstr "ບໍ່ສາມາດຍົກເລີກການຖອນ (un-yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1699
 msgid "Could not delete release - "
 msgstr "ບໍ່ສາມາດລຶບລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1772
+#: warehouse/manage/views/__init__.py:1717
+msgid ""
+"Could not delete release - acknowledge all of the consequences to continue"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1813
 msgid "Could not find file"
 msgstr "ບໍ່ພົບໄຟລ໌"
 
-#: warehouse/manage/views/__init__.py:1777
+#: warehouse/manage/views/__init__.py:1818
 msgid "Could not delete file - "
 msgstr "ບໍ່ສາມາດລຶບໄຟລ໌ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1925
+#: warehouse/manage/views/__init__.py:1828
+msgid "Could not delete file - acknowledge all of the consequences to continue"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1978
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "ທີມ '${team_name}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2032
+#: warehouse/manage/views/__init__.py:2085
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "ຜູ້ໃຊ້ '${username}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2099
+#: warehouse/manage/views/__init__.py:2152
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ ${username} ເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2130
+#: warehouse/manage/views/__init__.py:2183
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -700,29 +739,29 @@ msgstr ""
 "ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
 "ສຳລັບໂຄງການໄດ້"
 
-#: warehouse/manage/views/__init__.py:2143
-#: warehouse/manage/views/organizations.py:955
+#: warehouse/manage/views/__init__.py:2196
+#: warehouse/manage/views/organizations.py:959
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "ຜູ້ໃຊ້ '${username}' ມີຄຳເຊີນທີ່ຍັງບໍ່ທັນໝົດອາຍຸຢູ່ແລ້ວ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/manage/views/__init__.py:2208
-#: warehouse/manage/views/organizations.py:1035
+#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/organizations.py:1039
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "ສົ່ງຄຳເຊີນໄປໃຫ້ '${username}' ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2240
+#: warehouse/manage/views/__init__.py:2293
 msgid "Could not find role invitation."
 msgstr "ບໍ່ພົບຄຳເຊີນຮັບບົດບາດ."
 
-#: warehouse/manage/views/__init__.py:2251
+#: warehouse/manage/views/__init__.py:2304
 msgid "Invitation already expired."
 msgstr "ຄຳເຊີນໝົດອາຍຸແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2284
-#: warehouse/manage/views/organizations.py:1242
+#: warehouse/manage/views/__init__.py:2337
+#: warehouse/manage/views/organizations.py:1246
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "ຖອນຄືນຄຳເຊີນຈາກ '${username}' ແລ້ວ."
@@ -823,25 +862,25 @@ msgstr ""
 "ການເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຜ່ານ ActiveState ຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://"
 "pypi.org/help#admin-intervention"
 
-#: warehouse/manage/views/organizations.py:874
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "This organization has created too many new projects recently. Try again "
 "later."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/organizations.py:886
 #, python-brace-format
 msgid ""
 "This organization has created too many new projects recently. Try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:931
+#: warehouse/manage/views/organizations.py:935
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "ຜູ້ໃຊ້ '${username}' ມີບົດບາດ ${role_name} ສຳລັບອົງກອນນີ້ແລ້ວ"
 
-#: warehouse/manage/views/organizations.py:942
+#: warehouse/manage/views/organizations.py:946
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -850,25 +889,25 @@ msgstr ""
 "ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
 "ສຳລັບອົງກອນໄດ້"
 
-#: warehouse/manage/views/organizations.py:971
+#: warehouse/manage/views/organizations.py:975
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr "ບໍ່ສາມາດເຊີນສະມາຊິກໃໝ່ໄດ້. ອົງກອນມີສະຖານະບໍ່ປົກກະຕິ."
 
-#: warehouse/manage/views/organizations.py:1137
-#: warehouse/manage/views/organizations.py:1179
+#: warehouse/manage/views/organizations.py:1141
+#: warehouse/manage/views/organizations.py:1183
 msgid "Could not find organization invitation."
 msgstr "ບໍ່ພົບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ."
 
-#: warehouse/manage/views/organizations.py:1147
+#: warehouse/manage/views/organizations.py:1151
 msgid "Organization invitation could not be re-sent."
 msgstr "ບໍ່ສາມາດສົ່ງຄຳເຊີນເຂົ້າຮ່ວມອົງກອນຄືນໃໝ່ໄດ້."
 
-#: warehouse/manage/views/organizations.py:1195
+#: warehouse/manage/views/organizations.py:1199
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "ລຶບຄຳເຊີນທີ່ໝົດອາຍຸຂອງ '${username}' ອອກແລ້ວ."
 
-#: warehouse/manage/views/organizations.py:1823
+#: warehouse/manage/views/organizations.py:1827
 msgid ""
 "This publisher has already been registered in your organization. See your "
 "existing pending publishers below."
@@ -1061,7 +1100,7 @@ msgstr "ເສັ້ນທາງໄຟລ໌ pipeline ລະດັບເທິ�
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "ໃຫ້ລິ້ງ Inspector ໄປຫາແຖວລະຫັດ (code) ທີ່ລະບຸ."
 
-#: warehouse/packaging/views.py:350
+#: warehouse/packaging/views.py:356
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "ບັນທຶກການລາຍງານຂອງທ່ານແລ້ວ. ຂອບໃຈສຳລັບການຊ່ວຍເຫຼືອ."
 
@@ -1069,9 +1108,18 @@ msgstr "ບັນທຶກການລາຍງານຂອງທ່ານແລ
 msgid "Copied"
 msgstr "ຄັດລອກແລ້ວ"
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:69
-msgid "Showing %1 of %2 file."
-msgid_plural "Showing %1 of %2 files."
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:497
+#, fuzzy
+#| msgid "Copy a direct link to the current filters"
+msgid "No built distributions (wheels) match the current filters."
+msgstr "ຄັດລອກລິ້ງໂດຍກົງໄປຫາຕົວກັ່ນຕອງປະຈຸບັນ"
+
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:504
+#, fuzzy
+#| msgid "Showing %1 of %2 file."
+#| msgid_plural "Showing %1 of %2 files."
+msgid "Showing %1 of %2 built distribution (wheel) file."
+msgid_plural "Showing %1 of %2 built distribution (wheel) files."
 msgstr[0] "ກຳລັງສະແດງ %1 ຈາກທັງໝົດ %2 ໄຟລ໌."
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:36
@@ -1168,6 +1216,8 @@ msgid "Monty Python - The Cheese Shop Sketch"
 msgstr "Monty Python - The Cheese Shop Sketch"
 
 #: warehouse/templates/404.html:33 warehouse/templates/500.html:18
+#: warehouse/templates/accounts/register.html:36
+#: warehouse/templates/accounts/register.html:222
 #: warehouse/templates/accounts/two-factor.html:35
 #: warehouse/templates/base.html:365 warehouse/templates/base.html:370
 #: warehouse/templates/base.html:386 warehouse/templates/base.html:392
@@ -1179,11 +1229,10 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/base.html:500 warehouse/templates/base.html:522
 #: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
-#: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:80
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:19
-#: warehouse/templates/includes/packaging/project-files.html:48
-#: warehouse/templates/includes/packaging/project-files.html:66
-#: warehouse/templates/includes/packaging/project-files.html:82
+#: warehouse/templates/includes/packaging/project-files.html:11
 #: warehouse/templates/index.html:102 warehouse/templates/index.html:109
 #: warehouse/templates/manage/account.html:241
 #: warehouse/templates/manage/account.html:248
@@ -1193,8 +1242,8 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:51
 #: warehouse/templates/manage/account/webauthn-provision.html:68
 #: warehouse/templates/manage/manage_base.html:210
-#: warehouse/templates/manage/project/release.html:184
-#: warehouse/templates/manage/project/release.html:253
+#: warehouse/templates/manage/project/release.html:153
+#: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
 #: warehouse/templates/manage/project/releases.html:210
 #: warehouse/templates/pages/classifiers.html:17
@@ -1437,15 +1486,15 @@ msgstr "ປ່ຽນເປັນເວີຊັນມືຖື"
 #: warehouse/templates/includes/flash-messages.html:32
 #: warehouse/templates/includes/session-notifications.html:8
 #: warehouse/templates/manage/account.html:1027
-#: warehouse/templates/manage/manage_base.html:360
-#: warehouse/templates/manage/manage_base.html:438
+#: warehouse/templates/manage/manage_base.html:361
+#: warehouse/templates/manage/manage_base.html:439
 #: warehouse/templates/manage/organization/settings.html:296
 #: warehouse/templates/manage/organization/settings.html:302
 #: warehouse/templates/manage/project/documentation.html:13
-#: warehouse/templates/manage/project/release.html:236
+#: warehouse/templates/manage/project/release.html:204
 #: warehouse/templates/manage/project/settings.html:78
 #: warehouse/templates/manage/project/settings.html:123
-#: warehouse/templates/manage/project/settings.html:230
+#: warehouse/templates/manage/project/settings.html:229
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "ຄຳເຕືອນ"
@@ -1750,8 +1799,8 @@ msgstr "ຮຽນຮູ່ວິທີການສ້າງແພັກເກດ
 msgid "Error processing form"
 msgstr "ເກີດຂໍ້ຜິດພາດໃນການປະມວນຜົນແບບຟອມ"
 
-#: warehouse/templates/accounts/register.html:178
-#: warehouse/templates/accounts/register.html:183
+#: warehouse/templates/accounts/register.html:180
+#: warehouse/templates/accounts/register.html:185
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
 #: warehouse/templates/manage/account.html:441
@@ -1764,9 +1813,9 @@ msgid "Confirm password to continue"
 msgstr "ຢືນຢັນລະຫັດຜ່ານເພື່ອດຳເນີນການຕໍ່"
 
 #: warehouse/templates/accounts/login.html:57
-#: warehouse/templates/accounts/register.html:142
+#: warehouse/templates/accounts/register.html:144
 #: warehouse/templates/accounts/reset-password.html:28
-#: warehouse/templates/manage/manage_base.html:447
+#: warehouse/templates/manage/manage_base.html:448
 #: warehouse/templates/re-auth.html:36
 msgid "Password"
 msgstr "ລະຫັດຜ່ານ"
@@ -1774,11 +1823,12 @@ msgstr "ລະຫັດຜ່ານ"
 #: warehouse/templates/accounts/login.html:34
 #: warehouse/templates/accounts/login.html:59
 #: warehouse/templates/accounts/recovery-code.html:28
-#: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/accounts/register.html:91
-#: warehouse/templates/accounts/register.html:119
-#: warehouse/templates/accounts/register.html:144
-#: warehouse/templates/accounts/register.html:180
+#: warehouse/templates/accounts/register.html:71
+#: warehouse/templates/accounts/register.html:93
+#: warehouse/templates/accounts/register.html:121
+#: warehouse/templates/accounts/register.html:146
+#: warehouse/templates/accounts/register.html:182
+#: warehouse/templates/accounts/register.html:230
 #: warehouse/templates/accounts/request-password-reset.html:28
 #: warehouse/templates/accounts/reset-password.html:30
 #: warehouse/templates/accounts/reset-password.html:64
@@ -1880,7 +1930,7 @@ msgid "Your password"
 msgstr "ລະຫັດຜ່ານຂອງທ່ານ"
 
 #: warehouse/templates/accounts/login.html:68
-#: warehouse/templates/manage/manage_base.html:453
+#: warehouse/templates/manage/manage_base.html:454
 #: warehouse/templates/re-auth.html:69
 msgid "Show password"
 msgstr "ສະແດງລະຫັດຜ່ານ"
@@ -1968,7 +2018,7 @@ msgstr "ເຂົ້າສູ່ລະບົບ %(title)s"
 
 #: warehouse/templates/accounts/login.html:32
 #: warehouse/templates/accounts/profile.html:30
-#: warehouse/templates/accounts/register.html:117
+#: warehouse/templates/accounts/register.html:119
 #: warehouse/templates/email/organization-member-added/body.html:14
 #: warehouse/templates/email/organization-member-invited/body.html:14
 #: warehouse/templates/email/organization-member-removed/body.html:14
@@ -2087,7 +2137,7 @@ msgstr[0] ""
 
 #: warehouse/templates/accounts/profile.html:102
 #: warehouse/templates/includes/packaging/project-release-history.html:91
-#: warehouse/templates/includes/packaging/project-status.html:55
+#: warehouse/templates/includes/packaging/project-status.html:72
 msgid "Archived"
 msgstr "ເກັບຖາວອນແລ້ວ"
 
@@ -2153,49 +2203,55 @@ msgid ""
 "following guidelines:"
 msgstr "ກ່ອນຈະສ້າງບັນຊີໃນ %(title)s, ກະລຸນາສຶກສາຄຳແນະນຳດັ່ງຕໍ່ໄປນີ້:"
 
-#: warehouse/templates/accounts/register.html:25
+#: warehouse/templates/accounts/register.html:26
+#, python-format
+msgid ""
+"Do not use %(title)s for <strong>security research of any kind</strong>, "
+"including bug bounties, pentesting, red teaming, or dependency confusion, "
+"without written authorization from the %(title)s team."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:28
 #, python-format
 msgid "Do not use %(title)s for any illegal or harmful activities."
 msgstr "ຫ້າມໃຊ້ %(title)s ເພື່ອກິດຈະກຳໃດໆ ທີ່ຜິດກົດໝາຍ ຫຼື ເປັນອັນຕະລາຍ."
 
-#: warehouse/templates/accounts/register.html:26
+#: warehouse/templates/accounts/register.html:29
 msgid ""
 "Do not impersonate others or post private information without their consent."
 msgstr "ຫ້າມແອບອ້າງເປັນບຸກຄົນອື່ນ ຫຼື ໂພສຂໍ້ມູນສ່ວນຕົວໂດຍບໍ່ໄດ້ຮັບການຍິນຍອມ."
 
-#: warehouse/templates/accounts/register.html:27
+#: warehouse/templates/accounts/register.html:30
 msgid ""
 "Be respectful of other users and avoid abusive or discriminatory language."
 msgstr "ໃຫ້ກຽດຜູ້ໃຊ້ຄົນອື່ນ ແລະ ຫຼີກເວັ້ນການໃຊ້ພາສາທີ່ຫຍາບຄາຍ ຫຼື ເປັນການຈຳແນກ."
 
-#: warehouse/templates/accounts/register.html:28
+#: warehouse/templates/accounts/register.html:31
 msgid "Do not post spam or distribute malware."
 msgstr "ຫ້າມໂພສສະແປມ ຫຼື ແຈກຢາຍມາລແວ (malware)."
 
-#: warehouse/templates/accounts/register.html:29
-#, python-format
-msgid "Do not use %(title)s to conduct security research."
-msgstr "ຫ້າມໃຊ້ %(title)s ເພື່ອເຮັດການວິໄຈດ້ານຄວາມປອດໄພ."
-
 #: warehouse/templates/accounts/register.html:32
+msgid "Do not upload deliberately obfuscated code."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:33
+#, fuzzy, python-format
+#| msgid "Do not use %(title)s for any illegal or harmful activities."
+msgid ""
+"Do not use %(title)s as a file host, or split large files across releases."
+msgstr "ຫ້າມໃຊ້ %(title)s ເພື່ອກິດຈະກຳໃດໆ ທີ່ຜິດກົດໝາຍ ຫຼື ເປັນອັນຕະລາຍ."
+
+#: warehouse/templates/accounts/register.html:36
 #, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
-"rel=\"noopener\">Acceptable Use Policy</a>."
+"title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
+"Policy</a>. If you are a security researcher, refer to our <a "
+"href=\"%(security_page)s\">published security policy</a> and coordinate "
+"through proper disclosure channels."
 msgstr ""
-"ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ, ກະລຸນາອ່ານ <a href=\"%(aup)s\" "
-"rel=\"noopener\">ນະໂຍບາຍການນຳໃຊ້ທີ່ຍອມຮັບໄດ້</a> ສະບັບເຕັມ."
 
-#: warehouse/templates/accounts/register.html:37
-#, python-format
-msgid ""
-"By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
-"a>."
-msgstr ""
-"ໂດຍການລົງທະບຽນ, ທ່ານຕົກລົງເຫັນດີກັບ <a href=\"%(tos)s\">ເງື່ອນໄຂການໃຫ້ບໍລິການຂອງ PyPI</"
-"a>."
-
-#: warehouse/templates/accounts/register.html:47
+#: warehouse/templates/accounts/register.html:49
 msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
@@ -2203,19 +2259,19 @@ msgstr ""
 "ກະລຸນາຍືນຢັນວ່າທີ່ຢູ່ອີເມລຂອງທ່ານແມ່ນ <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 
-#: warehouse/templates/accounts/register.html:50
+#: warehouse/templates/accounts/register.html:52
 msgid "Confirm"
 msgstr "ຢືນຢັນ"
 
-#: warehouse/templates/accounts/register.html:51
+#: warehouse/templates/accounts/register.html:53
 #: warehouse/templates/manage/account.html:561
-#: warehouse/templates/manage/manage_base.html:394
-#: warehouse/templates/manage/manage_base.html:469
+#: warehouse/templates/manage/manage_base.html:395
+#: warehouse/templates/manage/manage_base.html:470
 #: warehouse/templates/manage/organization/activate_subscription.html:41
 msgid "Cancel"
 msgstr "ຍົກເລີກ"
 
-#: warehouse/templates/accounts/register.html:67
+#: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:137
 #: warehouse/templates/manage/account.html:623
 #: warehouse/templates/manage/project/history.html:286
@@ -2226,40 +2282,40 @@ msgstr "ຍົກເລີກ"
 msgid "Name"
 msgstr "ຊື່"
 
-#: warehouse/templates/accounts/register.html:72
+#: warehouse/templates/accounts/register.html:74
 msgid "Your name"
 msgstr "ຊື່ຂອງທ່ານ"
 
-#: warehouse/templates/accounts/register.html:89
+#: warehouse/templates/accounts/register.html:91
 #: warehouse/templates/manage/account.html:338
 #: warehouse/templates/manage/unverified-account.html:258
 msgid "Email address"
 msgstr "ທີ່ຢູ່ອີເມລ"
 
-#: warehouse/templates/accounts/register.html:94
+#: warehouse/templates/accounts/register.html:96
 #: warehouse/templates/manage/account.html:358
 msgid "Your email address"
 msgstr "ທີ່ຢູ່ອີເມລຂອງທ່ານ"
 
-#: warehouse/templates/accounts/register.html:111
+#: warehouse/templates/accounts/register.html:113
 msgid "Confirm form"
 msgstr "ຢືນຢັນແບບຟອມ"
 
-#: warehouse/templates/accounts/register.html:122
+#: warehouse/templates/accounts/register.html:124
 msgid "Select a username"
 msgstr "ເລືອກຊື່ຜູ້ໃຊ້"
 
-#: warehouse/templates/accounts/register.html:152
+#: warehouse/templates/accounts/register.html:154
 #: warehouse/templates/accounts/reset-password.html:39
 #: warehouse/templates/manage/account.html:397
 msgid "Show passwords"
 msgstr "ສະແດງລະຫັດຜ່ານ"
 
-#: warehouse/templates/accounts/register.html:155
+#: warehouse/templates/accounts/register.html:157
 msgid "Select a password"
 msgstr "ເລືອກລະຫັດຜ່ານ"
 
-#: warehouse/templates/accounts/register.html:207
+#: warehouse/templates/accounts/register.html:209
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"/help/#compromised-"
@@ -2268,7 +2324,31 @@ msgstr ""
 "ລະຫັດຜ່ານນີ້ປາກົດຢູ່ໃນເຫດການຂໍ້ມູນຮົ່ວໄຫຼ ຫຼື ຖືກບຸກລຸກ ແລະ ບໍ່ສາມາດນຳໃຊ້ໄດ້. ກະລຸນາເບິ່ງທີ່ <a href=\"/"
 "help/#compromised-password\">ຄຳຖາມທີ່ພົບເລື້ອຍ (FAQ)</a> ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ."
 
-#: warehouse/templates/accounts/register.html:214
+#: warehouse/templates/accounts/register.html:217
+msgid ""
+"Violations of these policies will result in <strong>immediate account "
+"suspension</strong>, and may include removal of all associated projects and "
+"files."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:222
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Android</a> or <a "
+#| "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">iOS</a>"
+msgid ""
+"I agree to the <a href=\"%(tos)s\" title=\"%(external)s\" target=\"_blank\" "
+"rel=\"noopener\">PyPI Terms of Service</a> and <a href=\"%(aup)s\" "
+"title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
+"Policy</a>."
+msgstr ""
+"Duo Mobile ສຳລັບ <a href=\"%(android_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Android</a> ຫຼື <a href=\"%(ios_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+
+#: warehouse/templates/accounts/register.html:243
 msgid "Create account"
 msgstr "ສ້າງບັນຊີ"
 
@@ -3388,9 +3468,9 @@ msgstr "ປິດການແຈ້ງເຕືອນນີ້"
 #: warehouse/templates/manage/account.html:222
 #: warehouse/templates/manage/account.html:531
 #: warehouse/templates/manage/account.html:534
-#: warehouse/templates/manage/manage_base.html:340
-#: warehouse/templates/manage/manage_base.html:343
-#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/manage_base.html:341
+#: warehouse/templates/manage/manage_base.html:344
+#: warehouse/templates/manage/project/release.html:149
 #: warehouse/templates/manage/project/releases.html:206
 #: warehouse/templates/manage/project/settings.html:63
 #: warehouse/templates/manage/unverified-account.html:186
@@ -3437,81 +3517,133 @@ msgstr "ໂປຣໄຟລ໌ສາທາລະນະ"
 msgid "Sponsors"
 msgstr "ຜູ້ສະໜັບສະໜູນ"
 
-#: warehouse/templates/includes/file-details.html:32
-msgid "File details"
-msgstr "ລາຍລະອຽດໄຟລ໌"
+#: warehouse/templates/includes/file-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:55
+#, fuzzy
+#| msgid "Releases"
+msgid "Release files"
+msgstr "ລຸ້ນທີ່ເຜີຍແຜ່"
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:18
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:65
+#: warehouse/templates/includes/packaging/project-files.html:17
+#: warehouse/templates/includes/packaging/project-status.html:7
+msgid "File added late"
+msgid_plural "Files added late"
+msgstr[0] ""
+
+#: warehouse/templates/includes/file-details.html:20
 #, python-format
-msgid "Upload date: %(upload_time)s"
-msgstr "ວັນທີອັບໂຫຼດ: %(upload_time)s"
+msgid ""
+"This file was uploaded more than %(days)s days after the first file in this "
+"release."
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:44
-#, python-format
-msgid "Size: %(size)s"
-msgstr "ຂະໜາດ: %(size)s"
+#: warehouse/templates/includes/file-details.html:21
+#: warehouse/templates/includes/packaging/project-files.html:26
+msgid ""
+"While project maintainers occasionally add legitimate files to an existing "
+"release, late additions can also indicate a security compromise."
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:46
-#, python-format
-msgid "Tags: %(tags)s"
-msgstr "ແທັກ: %(tags)s"
+#: warehouse/templates/includes/file-details.html:22
+msgid "We recommend inspecting the release file before installing."
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:48
-#, python-format
-msgid "Uploaded using Trusted Publishing? %(is_tp)s"
-msgstr "ອັບໂຫຼດໂດຍໃຊ້ Trusted Publishing ບໍ? %(is_tp)s"
+#: warehouse/templates/includes/file-details.html:29
+#, fuzzy
+#| msgid "Download"
+msgid "Download URL"
+msgstr "ດາວໂຫຼດ"
 
-#: warehouse/templates/includes/file-details.html:56
-#, python-format
-msgid "Uploaded via: %(uploaded_via)s"
-msgstr "ອັບໂຫຼດຜ່ານ: %(uploaded_via)s"
+#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/packaging/project-files.html:44
+msgid "Size"
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:63
-#, python-format
-msgid "Hashes for %(filename)s"
-msgstr "ຄ່າແຮຊ (Hashes) ສຳລັບ %(filename)s"
+#: warehouse/templates/includes/file-details.html:43
+#: warehouse/templates/includes/packaging/metadata/tags.html:3
+msgid "Tags"
+msgstr "ແທັກ"
 
-#: warehouse/templates/includes/file-details.html:66
-msgid "Algorithm"
-msgstr "ອັລກໍຣິທຶມ"
+#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/packaging/provenance/attestation.html:221
+msgid "SHA-256 checksum"
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:67
-msgid "Hash digest"
-msgstr "ຄ່າແຮຊ"
-
+#: warehouse/templates/includes/file-details.html:60
 #: warehouse/templates/includes/file-details.html:82
-#: warehouse/templates/includes/file-details.html:97
-#: warehouse/templates/includes/file-details.html:112
-#: warehouse/templates/includes/packaging/project-files.html:102
+msgid "How to use checksums"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:69
+#: warehouse/templates/includes/file-details.html:91
 #: warehouse/templates/includes/packaging/project-header.html:43
+#: warehouse/templates/includes/packaging/provenance/attestation.html:230
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:200
-#: warehouse/templates/pages/classifiers.html:42
+#: warehouse/templates/pages/classifiers.html:50
 msgid "Copy to clipboard"
 msgstr "ຄັດລອກໄປທີ່ຄລິບບອດ"
 
-#: warehouse/templates/includes/file-details.html:83
-#: warehouse/templates/includes/file-details.html:98
-#: warehouse/templates/includes/file-details.html:113
-#: warehouse/templates/includes/packaging/project-files.html:103
-#: warehouse/templates/manage/account.html:219
-#: warehouse/templates/manage/account/recovery_codes-provision.html:54
-#: warehouse/templates/manage/account/totp-provision.html:47
-#: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:43
-msgid "Copy"
-msgstr "ຄັດລອກ"
+#: warehouse/templates/includes/file-details.html:77
+msgid "BLAKE2b-256 checksum"
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/file-details.html:98
+#: warehouse/templates/manage/project/release.html:60
+#: warehouse/templates/manage/project/release.html:82
+msgid "Upload date"
+msgstr "ວັນທີອັບໂຫຼດ"
+
+#: warehouse/templates/includes/file-details.html:99
+#, fuzzy, python-format
+#| msgid "Uploaded %(upload_time)s"
+msgid "%(upload_time)s"
+msgstr "ອັບໂຫຼດເມື່ອ %(upload_time)s"
+
+#: warehouse/templates/includes/file-details.html:103
+#, fuzzy
+#| msgid "Uploaded using Trusted Publishing? %(is_tp)s"
+msgid "Uploaded using Trusted Publishing?"
+msgstr "ອັບໂຫຼດໂດຍໃຊ້ Trusted Publishing ບໍ? %(is_tp)s"
+
+#: warehouse/templates/includes/file-details.html:105
+#, fuzzy
+#| msgid "Remove trusted publisher"
+msgid "What is trusted publishing?"
+msgstr "ລຶບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ອອກ"
+
+#: warehouse/templates/includes/file-details.html:109
+msgid "Yes"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:111
+#, fuzzy
+#| msgid "None"
+msgid "No"
+msgstr "ບໍ່ມີ"
+
+#: warehouse/templates/includes/file-details.html:117
+#, fuzzy
+#| msgid "Upload date"
+msgid "Uploaded via"
+msgstr "ວັນທີອັບໂຫຼດ"
+
+#: warehouse/templates/includes/file-details.html:127
+msgid "Provenance"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:130
 #, python-format
 msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">See more details on using hashes here.</a>"
+"<strong>Provenance</strong> describes where a file came from. On PyPI, "
+"provenance is shared via <strong>attestations</strong>, which provide a "
+"verifiable record of the build or publishing details. <a "
+"href=\"%(href)s\">View details, limitations and caveats.</a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">ເບິ່ງລາຍລະອຽດເພີ່ມເຕີມກ່ຽວກັບການໃຊ້ hashes ໄດ້ທີ່ນີ້.</a>"
 
 #: warehouse/templates/includes/flash-messages.html:10
 msgid "Error"
@@ -3606,7 +3738,7 @@ msgid "Email"
 msgstr "ອີເມລ"
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:8
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:146
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
@@ -3726,91 +3858,136 @@ msgstr "ສະມາຊິກ"
 msgid "The author of this package has not provided a project description"
 msgstr "ຜູ້ຂຽນແພັກເກດນີ້ຍັງບໍ່ໄດ້ໃຫ້ຄຳອະທິບາຍໂປຣເຈັກ"
 
-#: warehouse/templates/includes/packaging/project-files.html:15
-msgid "view details"
-msgstr "ເບິ່ງລາຍລະອຽດ"
+#: warehouse/templates/includes/packaging/project-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:37
+msgid "Metadata"
+msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:17
-#, python-format
-msgid "Uploaded %(upload_time)s"
-msgstr "ອັບໂຫຼດເມື່ອ %(upload_time)s"
+#: warehouse/templates/includes/packaging/project-files.html:9
+#, fuzzy, python-format
+#| msgid "Releases for %(project_name)s"
+msgid "Release files for %(name)s %(version)s"
+msgstr "ເວີຊັນທີ່ເຜີຍແຜ່ສຳລັບ %(project_name)s"
 
-#: warehouse/templates/includes/packaging/project-files.html:25
-#: warehouse/templates/includes/packaging/project-files.html:32
-#, python-format
-msgid "%(title)s"
-msgstr "%(title)s"
+#: warehouse/templates/includes/packaging/project-files.html:11
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to create a new release on the <a href=\"%(href)s\" "
+#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+#| "User Guide</a>"
+msgid ""
+"For a detailed explanation of source distributions (sdists) and built "
+"distributions (wheels), please see the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">package formats "
+"documentation</a>."
+msgstr ""
+"ຮຽນຮູ່ວິທີສ້າງເວີຊັນໃໝ່ໄດ້ທີ່ <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ Python Packaging</a>"
 
-#: warehouse/templates/includes/packaging/project-files.html:46
-#: warehouse/templates/includes/packaging/project-navigation.html:38
-msgid "Download files"
-msgstr "ດາວໂຫຼດໄຟລ໌"
-
-#: warehouse/templates/includes/packaging/project-files.html:48
+#: warehouse/templates/includes/packaging/project-files.html:22
 #, python-format
 msgid ""
-"Download the file for your platform. If you're not sure which to choose, "
-"learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">installing packages</a>."
-msgstr ""
-"ດາວໂຫຼດໄຟລ໌ສຳລັບແພລັດຟອມຂອງທ່ານ. ຖ້າທ່ານບໍ່ແນ່ໃຈວ່າຄວນເລືອກອັນໃດ, ສາມາດສຶກສາເພີ່ມເຕີມໄດ້ທີ່ <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">ການຕິດຕັ້ງແພັກເກດ</a>."
+"%(count)s file was uploaded more than %(days)s days after the first file in "
+"this release."
+msgid_plural ""
+"%(count)s files were uploaded more than %(days)s days after the first file "
+"in this release."
+msgstr[0] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:51
-msgid "Source Distribution"
-msgid_plural "Source Distributions"
+#: warehouse/templates/includes/packaging/project-files.html:27
+msgid "We recommend inspecting the release files before installing."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:33
+#, fuzzy
+#| msgid "Source Distribution"
+#| msgid_plural "Source Distributions"
+msgid "Source distribution (sdist)"
+msgid_plural "Source distributions (sdists)"
 msgstr[0] "ຊອດແຈກຢາຍ (Source Distribution)"
 
-#: warehouse/templates/includes/packaging/project-files.html:65
-msgid "No source distribution files available for this release."
-msgstr "ບໍ່ມີໄຟລ໌ຊອດແຈກຢາຍສຳລັບລຸ້ນນີ້."
-
-#: warehouse/templates/includes/packaging/project-files.html:66
+#: warehouse/templates/includes/packaging/project-files.html:40
 #, python-format
-msgid ""
-"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">generating distribution archives</a>."
+msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
-"ເບິ່ງບົດຮຽນກ່ຽວກັບ <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">ການສ້າງໄຟລ໌ເກັບມ້ຽນສຳລັບການແຈກຢາຍ</a>."
 
-#: warehouse/templates/includes/packaging/project-files.html:72
-msgid "Built Distribution"
-msgid_plural "Built Distributions"
+#: warehouse/templates/includes/packaging/project-files.html:43
+#: warehouse/templates/includes/packaging/project-files.html:122
+#, fuzzy
+#| msgid "Files"
+msgid "File"
+msgstr "ໄຟລ໌"
+
+#: warehouse/templates/includes/packaging/project-files.html:45
+#, fuzzy
+#| msgid "Upload date"
+msgid "Uploaded"
+msgstr "ວັນທີອັບໂຫຼດ"
+
+#: warehouse/templates/includes/packaging/project-files.html:75
+#: warehouse/templates/includes/packaging/project-files.html:251
+#: warehouse/templates/manage/account/publishing.html:416
+#: warehouse/templates/manage/organization/publishing.html:416
+#: warehouse/templates/manage/project/publishing.html:364
+msgid "Details"
+msgstr "ລາຍລະອຽດ"
+
+#: warehouse/templates/includes/packaging/project-files.html:87
+#, fuzzy
+#| msgid "Built Distribution"
+#| msgid_plural "Built Distributions"
+msgid "Built distribution (wheel)"
+msgid_plural "Built distributions (wheels)"
 msgstr[0] "ບິລແຈກຢາຍ (Built Distribution)"
 
-#: warehouse/templates/includes/packaging/project-files.html:79
-msgid "Filter files by name, interpreter, ABI, and platform."
-msgstr "ກັ່ນຕອງໄຟລ໌ຕາມຊື່, ອິນເຕີພຣີເຕີ (interpreter), ABI, ແລະ ແພລັດຟອມ."
-
-#: warehouse/templates/includes/packaging/project-files.html:82
-#, python-format
-msgid ""
-"If you're not sure about the file name format, learn more about <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">wheel file names</a>."
-msgstr ""
-"ຖ້າທ່ານບໍ່ແນ່ໃຈກ່ຽວກັບຮູບແບບຊື່ໄຟລ໌, ສາມາດສຶກສາເພີ່ມເຕີມໄດ້ທີ່ <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ຊື່ໄຟລ໌ wheel</a>."
-
-#: warehouse/templates/includes/packaging/project-files.html:86
-msgid ""
-"The dropdown lists show the available interpreters, ABIs, and platforms."
-msgstr "ລາຍການແບບດຣັອບດາວຈະສະແດງອິນເຕີພຣີເຕີ, ABI, ແລະ ແພລັດຟອມ ທີ່ມີໃຫ້ໃຊ້."
-
-#: warehouse/templates/includes/packaging/project-files.html:89
+#: warehouse/templates/includes/packaging/project-files.html:96
 msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr "ເປີດໃຊ້ javascript ເພື່ອໃຫ້ສາມາດກັ່ນຕອງລາຍການໄຟລ໌ wheel ໄດ້."
 
-#: warehouse/templates/includes/packaging/project-files.html:93
-msgid "Copy a direct link to the current filters"
-msgstr "ຄັດລອກລິ້ງໂດຍກົງໄປຫາຕົວກັ່ນຕອງປະຈຸບັນ"
+#: warehouse/templates/includes/packaging/project-files.html:101
+#, fuzzy
+#| msgid "Search results"
+msgid "Search wheels"
+msgstr "ຜົນການຄົ້ນຫາ"
 
-#: warehouse/templates/includes/packaging/project-files.html:111
-#: warehouse/templates/includes/packaging/project-files.html:116
-msgid "File name"
-msgstr "ຊື່ໄຟລ໌"
+#: warehouse/templates/includes/packaging/project-files.html:106
+msgid "Search wheels by file name"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:119
+#, python-format
+msgid "Table of built distributions (wheels) for %(name)s %(version)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:125
+#: warehouse/templates/includes/packaging/project-files.html:136
+#: warehouse/templates/includes/packaging/project-files.html:143
+msgid "Interpreter"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:148
+#: warehouse/templates/includes/packaging/project-files.html:159
+#: warehouse/templates/includes/packaging/project-files.html:166
+msgid "ABI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:171
+#: warehouse/templates/includes/packaging/project-files.html:182
+#: warehouse/templates/includes/packaging/project-files.html:189
+msgid "Platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:196
+msgid "Reset"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:229
+msgid "Legacy Egg format"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:267
+msgid "Total release size:"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-header.html:45
 msgid "Copy PIP instructions"
@@ -3834,15 +4011,21 @@ msgstr "ຄຳອະທິບາຍໂປຣເຈັກ. ຈຸດໂຟກັ�
 msgid "Description"
 msgstr "ຄຳອະທິບາຍ"
 
-#: warehouse/templates/includes/packaging/project-navigation.html:35
+#: warehouse/templates/includes/packaging/project-navigation.html:34
+#, fuzzy
+#| msgid "Release history. Focus will be moved to the release history panel."
+msgid "Metadata. Focus will be moved to the metadata panel."
+msgstr "ປະຫວັດການປ່ອຍລຸ້ນ. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ແຖບປະຫວັດການປ່ອຍລຸ້ນ."
+
+#: warehouse/templates/includes/packaging/project-navigation.html:52
 msgid "Files. Focus will be moved to the project files."
 msgstr "ໄຟລ໌. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ໄຟລ໌ຂອງໂປຣເຈັກ."
 
-#: warehouse/templates/includes/packaging/project-navigation.html:61
+#: warehouse/templates/includes/packaging/project-navigation.html:78
 msgid "Release history. Focus will be moved to the release history panel."
 msgstr "ປະຫວັດການປ່ອຍລຸ້ນ. ຈຸດໂຟກັດຈະຖືກຍ້າຍໄປທີ່ແຖບປະຫວັດການປ່ອຍລຸ້ນ."
 
-#: warehouse/templates/includes/packaging/project-navigation.html:64
+#: warehouse/templates/includes/packaging/project-navigation.html:81
 #: warehouse/templates/includes/packaging/project-release-history.html:8
 msgid "Release history"
 msgstr "ປະຫວັດການປ່ອຍລຸ້ນ"
@@ -3884,7 +4067,7 @@ msgid "Release yanked on %(date)s"
 msgstr "ລຸ້ນທີ່ຖືກຖອນອອກ (yanked) ເມື່ອ %(date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:81
-#: warehouse/templates/includes/packaging/project-status.html:35
+#: warehouse/templates/includes/packaging/project-status.html:52
 msgid "Yanked"
 msgstr "ຖືກຖອນອອກ (Yanked)"
 
@@ -3894,15 +4077,16 @@ msgid "Project archived on %(date)s"
 msgstr "ໂປຣເຈັກທີ່ຖືກເກັບເຂົ້າຄັງເມື່ອ %(date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:95
-#: warehouse/templates/includes/packaging/project-status.html:67
+#: warehouse/templates/includes/packaging/project-status.html:84
 msgid "Pre-release"
 msgstr "ລຸ້ນກ່ອນເຜີຍແຜ່ຕົວຈິງ (Pre-release)"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:110
-#: warehouse/templates/manage/project/releases.html:32
-#, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
+#, fuzzy, python-format
+#| msgid "%(count)s file"
+#| msgid_plural "%(count)s files"
+msgid "%(count)s release file"
+msgid_plural "%(count)s release files"
 msgstr[0] "%(count)s ໄຟລ໌"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:118
@@ -3913,13 +4097,25 @@ msgstr "ເຫດຜົນທີ່ຖອນອອກ:"
 msgid "Security for"
 msgstr "ຄວາມປອດໄພສຳລັບ"
 
-#: warehouse/templates/includes/packaging/project-status.html:7
-#: warehouse/templates/includes/packaging/project-status.html:19
+#: warehouse/templates/includes/packaging/project-status.html:12
+#, python-format
+msgid ""
+"%(count)s file was added to this release more than %(days)s days after its "
+"initial publication. <a href=\"%(href)s\">Inspect the release files</a> "
+"before installing."
+msgid_plural ""
+"%(count)s files were added to this release more than %(days)s days after its "
+"initial publication. <a href=\"%(href)s\">Inspect the release files</a> "
+"before installing."
+msgstr[0] ""
+
+#: warehouse/templates/includes/packaging/project-status.html:24
+#: warehouse/templates/includes/packaging/project-status.html:36
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
 msgstr "ຖືກກັກກັນ"
 
-#: warehouse/templates/includes/packaging/project-status.html:10
+#: warehouse/templates/includes/packaging/project-status.html:27
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
@@ -3928,7 +4124,7 @@ msgstr ""
 "ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື "
 "ແກ້ໄຂໄດ້ຈົນກວ່າການກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
 
-#: warehouse/templates/includes/packaging/project-status.html:22
+#: warehouse/templates/includes/packaging/project-status.html:39
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
@@ -3937,13 +4133,13 @@ msgstr ""
 "ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື "
 "ແກ້ໄຂໄດ້ຈົນກວ່າການກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
 
-#: warehouse/templates/includes/packaging/project-status.html:25
-#: warehouse/templates/includes/packaging/project-status.html:41
+#: warehouse/templates/includes/packaging/project-status.html:42
+#: warehouse/templates/includes/packaging/project-status.html:58
 #, python-format
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
 msgstr "ພິຈາລະນາໃຊ້ <a href=\"%(href)s\">ລຸ້ນ %(version)s</a> ແທນ."
 
-#: warehouse/templates/includes/packaging/project-status.html:38
+#: warehouse/templates/includes/packaging/project-status.html:55
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">yanked</a> by its maintainers, "
@@ -3952,11 +4148,11 @@ msgstr ""
 "ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ຖອນອອກ (yanked)</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ "
 "ຈະຖືກລະເລີຍໂດຍຕົວຕິດຕັ້ງ ຍົກເວັ້ນແຕ່ຈະມີການລະບຸໄວ້ຢ່າງຊັດເຈນ."
 
-#: warehouse/templates/includes/packaging/project-status.html:45
+#: warehouse/templates/includes/packaging/project-status.html:62
 msgid "Reason given by maintainers:"
 msgstr "ເຫດຜົນຈາກຜູ້ດູແລແພັກເກດ:"
 
-#: warehouse/templates/includes/packaging/project-status.html:58
+#: warehouse/templates/includes/packaging/project-status.html:75
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">archived</a> by its maintainers, "
@@ -3965,7 +4161,7 @@ msgstr ""
 "ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ເກັບເຂົ້າຄັງ</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ "
 "ຈະບໍ່ມີການອັບເດດໃດໆ ອີກຕໍ່ໄປ."
 
-#: warehouse/templates/includes/packaging/project-status.html:70
+#: warehouse/templates/includes/packaging/project-status.html:87
 #, python-format
 msgid ""
 "This release is a <a href=\"%(href)s\">pre-release</a> and may not be stable "
@@ -3986,18 +4182,22 @@ msgid "Credits"
 msgstr "ເຄຣດິດ"
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:8
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
-#: warehouse/templates/includes/packaging/metadata/organization.html:7
-msgid "PyPI data"
-msgstr "ຂໍ້ມູນ PyPI"
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
+#, python-format
+msgid "Data verified by PyPI on&nbsp;%(date)s"
+msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ເມື່ອ&nbsp;%(date)s"
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:9
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
-#: warehouse/templates/includes/packaging/metadata/organization.html:8
-msgid "Data sourced directly from PyPI's database."
-msgstr "ຂໍ້ມູນມາຈາກຖານຂໍ້ມູນຂອງ PyPI ໂດຍກົງ."
+#, fuzzy
+#| msgid ""
+#| "Data provided by the project maintainers, verified at the time the "
+#| "release was uploaded to PyPI."
+msgid ""
+"Data provided by the project maintainers, verified at the time the release "
+"was uploaded to PyPI. Confirms that the provided email matches a verified, "
+"public email address on a PyPI user account associated with the project."
+msgstr "ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:16
 #: warehouse/templates/includes/packaging/metadata/credits.html:40
@@ -4021,12 +4221,6 @@ msgstr "ຜູ້ດູແລ:"
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:8
 msgid "GitHub Statistics"
 msgstr "ສະຖິຕິ GitHub"
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
-#, python-format
-msgid "Data verified by PyPI on&nbsp;%(date)s"
-msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ເມື່ອ&nbsp;%(date)s"
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
 msgid ""
@@ -4084,41 +4278,57 @@ msgstr "ຄຳຮ້ອງຂໍລວມທີ່ເປີດຢູ່ (Open me
 msgid "Key dates"
 msgstr "ວັນທີທີ່ສຳຄັນ"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:27
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
+#: warehouse/templates/includes/packaging/metadata/organization.html:7
+msgid "PyPI data"
+msgstr "ຂໍ້ມູນ PyPI"
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
+#: warehouse/templates/includes/packaging/metadata/organization.html:8
+msgid "Data sourced directly from PyPI's database."
+msgstr "ຂໍ້ມູນມາຈາກຖານຂໍ້ມູນຂອງ PyPI ໂດຍກົງ."
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:30
 msgid "Released:"
 msgstr "ວັນທີເຜີຍແຜ່:"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:29
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:32
+msgid "Last file added:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:34
 msgid "Yanked:"
 msgstr "ວັນທີຖອນອອກ:"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:31
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:36
 #, fuzzy
 #| msgid "Project quarantined"
 msgid "Project quarantined:"
 msgstr "ໂປຣເຈັກທີ່ຖືກກັກກັນ"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:33
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:38
 #, fuzzy
 #| msgid "Release quarantined"
 msgid "Release quarantined:"
 msgstr "ລຸ້ນທີ່ຖືກກັກກັນ"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:35
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:40
 msgid "Archived:"
 msgstr "ວັນທີເກັບເຂົ້າຄັງ:"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:44
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:49
 #, python-format
 msgid "Stable release available (%(version)s)"
 msgstr "ມີລຸ້ນສະຖຽນໃຫ້ໃຊ້ງານ (%(version)s)"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:49
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:54
 #, python-format
 msgid "Newer release available (%(version)s)"
 msgstr "ມີລຸ້ນໃໝ່ກວ່າໃຫ້ໃຊ້ງານ (%(version)s)"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:52
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:57
 msgid "Latest release"
 msgstr "ລຸ້ນລ້າສຸດ"
 
@@ -4188,9 +4398,173 @@ msgstr "ສ່ວນເສີມທີ່ໃຫ້ມາ (Provides Extra)"
 msgid "Requires"
 msgstr "ຕ້ອງການ"
 
-#: warehouse/templates/includes/packaging/metadata/tags.html:3
-msgid "Tags"
-msgstr "ແທັກ"
+#: warehouse/templates/includes/packaging/provenance/attestation.html:49
+#: warehouse/templates/includes/packaging/provenance/attestation.html:56
+msgid "SLSA Build Provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:51
+#: warehouse/templates/includes/packaging/provenance/attestation.html:58
+#, fuzzy
+#| msgid "Publisher"
+msgid "PyPI Publish"
+msgstr "ຜູ້ເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:61
+#, fuzzy
+#| msgid "Authentication"
+msgid "Attestation"
+msgstr "ການຢືນຢັນຕົວຕົນ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:65
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"builder listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:67
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"publisher listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:73
+#, fuzzy, python-format
+#| msgid "Data verified by PyPI on %(date)s"
+msgid "Built by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ເມື່ອ %(date)s"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:75
+#, fuzzy, python-format
+#| msgid "Data verified by PyPI on %(date)s"
+msgid "Signed by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ເມື່ອ %(date)s"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
+msgid "Sigstore transparency entry"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
+msgid "Transparency log"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:93
+msgid "Identity"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:98
+msgid "Build platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:100
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing platform"
+msgstr "ການເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:109
+#, fuzzy
+#| msgid "repository"
+msgid "Build repository"
+msgstr "ຄັງເກັບ (repository)"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:111
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing repository"
+msgstr "ການເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:121
+msgid "Build commit"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:123
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing commit"
+msgstr "ການເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:135
+#, fuzzy
+#| msgid "Your account"
+msgid "Build account"
+msgstr "ບັນຊີຂອງທ່ານ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:137
+#, fuzzy
+#| msgid "Publisher"
+msgid "Publisher account"
+msgstr "ຜູ້ເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:146
+#, fuzzy
+#| msgid "More information needed"
+msgid "No identity information found"
+msgstr "ຕ້ອງການຂໍ້ມູນເພີ່ມເຕີມ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:162
+msgid "Build"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:164
+#, fuzzy
+#| msgid "Workflow:"
+msgid "Workflow"
+msgstr "ຂະບວນການວຽກ (Workflow):"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:172
+#, fuzzy
+#| msgid "Built Distribution"
+#| msgid_plural "Built Distributions"
+msgid "Build instructions"
+msgstr "ບິລແຈກຢາຍ (Built Distribution)"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:174
+msgid "Publishing configuration"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:184
+msgid "Build logs"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:186
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing logs"
+msgstr "ການເຜີຍແຜ່"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:196
+#, fuzzy
+#| msgid "Copy PIP instructions"
+msgid "No build instructions found"
+msgstr "ຄັດລອກຄຳສັ່ງ PIP"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:200
+msgid "No publishing configuration found"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:211
+msgid "Artifact"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:215
+#: warehouse/templates/manage/account/publishing.html:257
+#: warehouse/templates/manage/organization/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:243
+msgid "Subject"
+msgstr "Subject"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:236
+#, fuzzy
+#| msgid "Verify application"
+msgid "Verifying attestations"
+msgstr "ຢືນຢັນແອັບພລິເຄຊັນ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:241
+#, fuzzy
+#| msgid "More information needed"
+msgid "No artifact information found"
+msgstr "ຕ້ອງການຂໍ້ມູນເພີ່ມເຕີມ"
 
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/unverified-account.html:14
@@ -4352,6 +4726,14 @@ msgstr "ແອັບພລິເຄຊັນ ຫຼື ສະຄຣິບ ທີ
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "ລະຫັດລະບຸຕົວຕົນສະເພາະສຳລັບໂທເຄັນ API \"%(token_description)s\""
+
+#: warehouse/templates/manage/account.html:219
+#: warehouse/templates/manage/account/recovery_codes-provision.html:54
+#: warehouse/templates/manage/account/totp-provision.html:47
+#: warehouse/templates/manage/unverified-account.html:201
+#: warehouse/templates/pages/classifiers.html:51
+msgid "Copy"
+msgstr "ຄັດລອກ"
 
 #: warehouse/templates/manage/account.html:232
 msgid "Profile picture"
@@ -4521,7 +4903,7 @@ msgstr "ລຶບການເຊື່ອມໂຍງ %(service)s ອອກ"
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:613
+#: warehouse/templates/manage/manage_base.html:736
 #: warehouse/templates/manage/organization/roles.html:275
 #: warehouse/templates/manage/organization/roles.html:279
 #: warehouse/templates/manage/organization/roles.html:290
@@ -5016,7 +5398,7 @@ msgid "Recent account activity"
 msgstr "ກິດຈະກຳບັນຊີຫວ່າງມໍ່ໆນີ້"
 
 #: warehouse/templates/manage/account.html:938
-#: warehouse/templates/manage/organization/history.html:213
+#: warehouse/templates/manage/organization/history.html:216
 #: warehouse/templates/manage/project/history.html:335
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
@@ -5024,8 +5406,8 @@ msgid "Event"
 msgstr "ເຫດການ"
 
 #: warehouse/templates/manage/account.html:939
-#: warehouse/templates/manage/organization/history.html:214
-#: warehouse/templates/manage/organization/history.html:223
+#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/organization/history.html:226
 #: warehouse/templates/manage/project/history.html:336
 #: warehouse/templates/manage/project/history.html:345
 #: warehouse/templates/manage/team/history.html:88
@@ -5035,7 +5417,7 @@ msgid "Time"
 msgstr "ເວລາ"
 
 #: warehouse/templates/manage/account.html:940
-#: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/organization/history.html:218
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
@@ -5047,13 +5429,13 @@ msgid "Date / time"
 msgstr "ວັນທີ / ເວລາ"
 
 #: warehouse/templates/manage/account.html:952
-#: warehouse/templates/manage/organization/history.html:227
+#: warehouse/templates/manage/organization/history.html:230
 #: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr "ຂໍ້ມູນສະຖານທີ່"
 
 #: warehouse/templates/manage/account.html:955
-#: warehouse/templates/manage/organization/history.html:230
+#: warehouse/templates/manage/organization/history.html:233
 #: warehouse/templates/manage/project/history.html:352
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
@@ -5350,33 +5732,142 @@ msgstr "ບັນຊີຂອງທ່ານ"
 msgid "Account navigation"
 msgstr "ການນຳທາງບັນຊີ"
 
-#: warehouse/templates/manage/manage_base.html:361
-#: warehouse/templates/manage/manage_base.html:439
+#: warehouse/templates/manage/manage_base.html:362
+#: warehouse/templates/manage/manage_base.html:440
 msgid "This action cannot be undone!"
 msgstr "ການດຳເນີນການນີ້ບໍ່ສາມາດກັບຄືນໄດ້!"
 
-#: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/manage_base.html:372
 msgid "Confirm your username to continue."
 msgstr "ຢືນຢັນຊື່ຜູ້ໃຊ້ຂອງທ່ານເພື່ອດຳເນີນການຕໍ່."
 
-#: warehouse/templates/manage/manage_base.html:373
+#: warehouse/templates/manage/manage_base.html:374
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "ຢືນຢັນ %(item)s ເພື່ອດຳເນີນການຕໍ່."
 
-#: warehouse/templates/manage/manage_base.html:424
+#: warehouse/templates/manage/manage_base.html:425
 msgid "close"
 msgstr "ປິດ"
 
-#: warehouse/templates/manage/manage_base.html:444
+#: warehouse/templates/manage/manage_base.html:445
 msgid "Enter your password to continue."
 msgstr "ປ້ອນລະຫັດຜ່ານຂອງທ່ານເພື່ອດຳເນີນການຕໍ່."
 
-#: warehouse/templates/manage/manage_base.html:531
+#: warehouse/templates/manage/manage_base.html:500
+#, fuzzy
+#| msgid ""
+#| "I understand that I am permanently deleting all files for the %"
+#| "(release_version)s release of this project."
+msgid ""
+"I understand that I am permanently deleting all releases for this project."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍກຳລັງລຶບທຸກໄຟລ໌ສຳລັບເວີຊັນ %(release_version)s ຂອງໂຄງການນີ້ຢ່າງຖາວອນ."
+
+#: warehouse/templates/manage/manage_base.html:506
+#, fuzzy
+#| msgid ""
+#| "I understand that my users will no longer be able to install this release "
+#| "of this project."
+msgid ""
+"I understand that my users will no longer be able to install this project."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+
+#: warehouse/templates/manage/manage_base.html:512
+#, fuzzy, python-format
+#| msgid ""
+#| "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+#| "rel=\"noopener\">not be able to re-upload any deleted files using the "
+#| "same file names</a>."
+msgid ""
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">not be able to re-upload any deleted versions</a>."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+
+#: warehouse/templates/manage/manage_base.html:518
+msgid ""
+"I understand that I am releasing this project name for use by any other PyPI "
+"user."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:524
+#, fuzzy, python-format
+#| msgid ""
+#| "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+#| "rel=\"noopener\">not be able to re-upload any deleted files using the "
+#| "same file names</a>."
+msgid ""
+"I understand that I may not be able to re-register the project name <a "
+"href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">under some "
+"circumstances</a>."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+
+#: warehouse/templates/manage/manage_base.html:530
+#: warehouse/templates/manage/manage_base.html:564
+#: warehouse/templates/manage/manage_base.html:592
+msgid "I understand that I will not be able to undo this."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະບໍ່ສາມາດກັບຄືນການກະທຳນີ້ໄດ້."
+
+#: warehouse/templates/manage/manage_base.html:536
+#: warehouse/templates/manage/manage_base.html:570
+#: warehouse/templates/manage/manage_base.html:598
+msgid ""
+"I understand that the PyPI administrators will not be able to undo this."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ດູແລລະບົບ PyPI ຈະບໍ່ສາມາດກັບຄືນການກະທຳນີ້ໄດ້."
+
+#: warehouse/templates/manage/manage_base.html:546
+#, python-format
+msgid ""
+"I understand that I am permanently deleting all files for the "
+"%(release_version)s release of this project."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍກຳລັງລຶບທຸກໄຟລ໌ສຳລັບເວີຊັນ %(release_version)s ຂອງໂຄງການນີ້ຢ່າງຖາວອນ."
+
+#: warehouse/templates/manage/manage_base.html:552
+msgid ""
+"I understand that my users will no longer be able to install this release of "
+"this project."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+
+#: warehouse/templates/manage/manage_base.html:558
+#, python-format
+msgid ""
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">not be able to re-upload any deleted files using the same "
+"file names</a>."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+
+#: warehouse/templates/manage/manage_base.html:580
+msgid ""
+"I understand that my users will no longer be able to install this file for "
+"this release of this project."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງໄຟລ໌ນີ້ສຳລັບເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+
+#: warehouse/templates/manage/manage_base.html:586
+#, fuzzy, python-format
+#| msgid ""
+#| "I understand that I will <a href=%(href)s target=\"_blank\" "
+#| "rel=\"noopener\">not be able to re-upload a file using the same file "
+#| "name</a> %(filename)s."
+msgid ""
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">not be able to re-upload a file using the same file name</"
+"a> %(filename)s."
+msgstr ""
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=%(href)s target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໂດຍໃຊ້ຊື່ເດີມຄືນໄດ້</a> %(filename)s."
+
+#: warehouse/templates/manage/manage_base.html:654
 msgid "Trusted Publisher Management"
 msgstr "ການຈັດການຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້"
 
-#: warehouse/templates/manage/manage_base.html:535
+#: warehouse/templates/manage/manage_base.html:658
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
@@ -5386,7 +5877,7 @@ msgstr ""
 "ສຳລັບການມອບໝາຍສິດທິໃນການເຜີຍແຜ່ແພັກເກດ PyPI ໃຫ້ກັບບໍລິການພາກສ່ວນທີສາມທີ່ເຊື່ອຖືໄດ້ ເຊັ່ນ GitHub "
 "Actions."
 
-#: warehouse/templates/manage/manage_base.html:542
+#: warehouse/templates/manage/manage_base.html:665
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
@@ -5394,7 +5885,7 @@ msgstr ""
 "ຜູ້ໃຊ້ ແລະ ໂຄງການ PyPI ສາມາດໃຊ້ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ເພື່ອເຮັດໃຫ້ຂະບວນການອອກເວີຊັນ "
 "ເປັນແບບອັດຕະໂນມັດ ໂດຍບໍ່ຕ້ອງໃຊ້ໂທເຄັນ API ຫຼື ລະຫັດຜ່ານ."
 
-#: warehouse/templates/manage/manage_base.html:548
+#: warehouse/templates/manage/manage_base.html:671
 #, python-format
 msgid ""
 "You can read more about trusted publishers and how to use them <a "
@@ -5403,17 +5894,17 @@ msgstr ""
 "ທ່ານສາມາດອ່ານເພີ່ມເຕີມກ່ຽວກັບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ ແລະ ວິທີການໃຊ້ງານ <a "
 "href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/manage_base.html:586
-#: warehouse/templates/manage/manage_base.html:597
+#: warehouse/templates/manage/manage_base.html:698
+#: warehouse/templates/manage/manage_base.html:709
+#: warehouse/templates/manage/manage_base.html:720
 msgid "Any"
 msgstr "ໃດໆກໍຕາມ"
 
-#: warehouse/templates/manage/manage_base.html:618
+#: warehouse/templates/manage/manage_base.html:741
 msgid "Remove trusted publisher"
 msgstr "ລຶບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ອອກ"
 
-#: warehouse/templates/manage/manage_base.html:621
+#: warehouse/templates/manage/manage_base.html:744
 #, python-format
 msgid ""
 "Removing this %(publisher_name)s trusted publisher will prevent automated "
@@ -5422,13 +5913,13 @@ msgstr ""
 "ການລຶບຜູ້ເຜີຍແຜ່ %(publisher_name)s ທີ່ເຊື່ອຖືໄດ້ນີ້ ຈະປ້ອງກັນການອັບໂຫຼດແພັກເກດ "
 "ແບບອັດຕະໂນມັດຈາກແຫຼ່ງນີ້. ທ່ານສາມາດເພີ່ມມັນຄືນໃໝ່ໄດ້ໃນພາຍຫຼັງຫາກຕ້ອງການ."
 
-#: warehouse/templates/manage/manage_base.html:627
+#: warehouse/templates/manage/manage_base.html:750
 msgid "Remove publisher"
 msgstr "ລຶບຜູ້ເຜີຍແຜ່ອອກ"
 
-#: warehouse/templates/manage/manage_base.html:631
-#: warehouse/templates/manage/organization/history.html:113
-#: warehouse/templates/manage/organization/history.html:179
+#: warehouse/templates/manage/manage_base.html:754
+#: warehouse/templates/manage/organization/history.html:116
+#: warehouse/templates/manage/organization/history.html:182
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -5440,9 +5931,9 @@ msgstr "ລຶບຜູ້ເຜີຍແຜ່ອອກ"
 msgid "Added by:"
 msgstr "ເພີ່ມໂດຍ:"
 
-#: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:121
-#: warehouse/templates/manage/organization/history.html:184
+#: warehouse/templates/manage/manage_base.html:756
+#: warehouse/templates/manage/organization/history.html:124
+#: warehouse/templates/manage/organization/history.html:187
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -5452,24 +5943,24 @@ msgstr "ເພີ່ມໂດຍ:"
 msgid "Removed by:"
 msgstr "ລຶບໂດຍ:"
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:758
 msgid "Submitted by:"
 msgstr "ສົ່ງໂດຍ:"
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:761
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr "ຂະບວນການວຽກ (Workflow):"
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:763
 msgid "Specifier:"
 msgstr "ຕົວລະບຸ:"
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:765
 msgid "Publisher:"
 msgstr "ຜູ້ເຜີຍແຜ່:"
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:767
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
@@ -5871,7 +6362,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
 #: warehouse/templates/manage/project/settings.html:170
-#: warehouse/templates/manage/project/settings.html:304
+#: warehouse/templates/manage/project/settings.html:259
 msgid "Project Name"
 msgstr "ຊື່ໂຄງການ"
 
@@ -6052,7 +6543,7 @@ msgstr "ຊື່ຜູ້ໃຊ້ GitLab ຫຼື namespace ຂອງກຸ�
 #: warehouse/templates/manage/organization/publishing.html:156
 #: warehouse/templates/manage/project/documentation.html:21
 #: warehouse/templates/manage/project/publishing.html:141
-#: warehouse/templates/manage/project/release.html:160
+#: warehouse/templates/manage/project/release.html:129
 #: warehouse/templates/pages/stats.html:65
 msgid "Project name"
 msgstr "ຊື່ໂຄງການ"
@@ -6139,12 +6630,6 @@ msgstr "ອີເມວ"
 #: warehouse/templates/manage/project/publishing.html:237
 msgid "The email address of the account or service account used to publish."
 msgstr "ທີ່ຢູ່ອີເມວຂອງບັນຊີ ຫຼື ບັນຊີບໍລິການ (service account) ທີ່ໃຊ້ເພື່ອເຜີຍແຜ່."
-
-#: warehouse/templates/manage/account/publishing.html:257
-#: warehouse/templates/manage/organization/publishing.html:270
-#: warehouse/templates/manage/project/publishing.html:243
-msgid "Subject"
-msgstr "Subject"
 
 #: warehouse/templates/manage/account/publishing.html:264
 #: warehouse/templates/manage/organization/publishing.html:277
@@ -6257,12 +6742,6 @@ msgstr "ຊື່ໂຄງການທີ່ລໍຖ້າການສ້າງ
 #: warehouse/templates/manage/project/publishing.html:363
 msgid "Publisher"
 msgstr "ຜູ້ເຜີຍແຜ່"
-
-#: warehouse/templates/manage/account/publishing.html:416
-#: warehouse/templates/manage/organization/publishing.html:416
-#: warehouse/templates/manage/project/publishing.html:364
-msgid "Details"
-msgstr "ລາຍລະອຽດ"
 
 #: warehouse/templates/manage/account/publishing.html:426
 #: warehouse/templates/manage/organization/publishing.html:426
@@ -6830,53 +7309,65 @@ msgid ""
 msgstr "ປ່ຽນຊື່ອົງກອນ %(previous_organization_name)s ເປັນ %(organization_name)s ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:26
+#, fuzzy, python-format
+#| msgid "Organization Type: %(org_type)s"
+msgid "Organization type changed from %(old_orgtype)s to %(new_orgtype)s"
+msgstr "ປະເພດອົງກອນ: %(org_type)s"
+
+#: warehouse/templates/manage/organization/history.html:27
+#, fuzzy, python-format
+#| msgid "Changed by:"
+msgid "Changed by: %(actor)s"
+msgstr "ປ່ຽນແປງໂດຍ:"
+
+#: warehouse/templates/manage/organization/history.html:29
 #, python-format
 msgid "%(organization_name)s organization approved"
 msgstr "ອະນຸມັດອົງກອນ %(organization_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:28
+#: warehouse/templates/manage/organization/history.html:31
 #, python-format
 msgid "%(organization_name)s organization declined"
 msgstr "ປະຕິເສດອົງກອນ %(organization_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:32
+#: warehouse/templates/manage/organization/history.html:35
 #, python-format
 msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
 msgstr "ເພີ່ມໂຄງການ <a href=\"%(href)s\">%(project_name)s</a> ເຂົ້າໃນອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:36
+#: warehouse/templates/manage/organization/history.html:39
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
 msgstr "ເອົາໂຄງການ <a href=\"%(href)s\">%(project_name)s</a> ອອກຈາກອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:42
+#: warehouse/templates/manage/organization/history.html:45
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
 msgstr ""
 "ເພີ່ມ <a href=\"%(href)s\">%(username)s</a> ເປັນ %(role_name)s ຂອງອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:48
+#: warehouse/templates/manage/organization/history.html:51
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
 msgstr ""
 "ເອົາ <a href=\"%(href)s\">%(username)s</a> ອອກຈາກ %(role_name)s ຂອງອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:50
+#: warehouse/templates/manage/organization/history.html:53
 #, python-format
 msgid "A deleted user was removed as organization %(role_name)s"
 msgstr "ຜູ້ໃຊ້ທີ່ຖືກລຶບແລ້ວຖືກເອົາອອກຈາກບົດບາດ %(role_name)s ຂອງອົງກອນ"
 
-#: warehouse/templates/manage/organization/history.html:56
+#: warehouse/templates/manage/organization/history.html:59
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
 msgstr ""
 "ປ່ຽນ <a href=\"%(href)s\">%(username)s</a> ເປັນ %(role_name)s ຂອງອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:61
+#: warehouse/templates/manage/organization/history.html:64
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
@@ -6884,7 +7375,7 @@ msgid ""
 msgstr ""
 "ເຊີນ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າຮ່ວມເປັນ %(role_name)s ຂອງອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:66
+#: warehouse/templates/manage/organization/history.html:69
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
@@ -6893,7 +7384,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມເປັນ %(role_name)s "
 "ຂອງອົງກອນ"
 
-#: warehouse/templates/manage/organization/history.html:71
+#: warehouse/templates/manage/organization/history.html:74
 #, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
@@ -6902,7 +7393,7 @@ msgstr ""
 "ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ "
 "%(role_name)s ຂອງອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:76
+#: warehouse/templates/manage/organization/history.html:79
 #, python-format
 msgid ""
 "Invitation for <a href=\"%(href)s\">%(username)s</a> to join as organization "
@@ -6911,19 +7402,19 @@ msgstr ""
 "ຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ %(role_name)s "
 "ຂອງອົງກອນໝົດອາຍຸແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:80
+#: warehouse/templates/manage/organization/history.html:83
 #: warehouse/templates/manage/team/history.html:17
 #, python-format
 msgid "%(team_name)s team created"
 msgstr "ສ້າງທີມ %(team_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:82
+#: warehouse/templates/manage/organization/history.html:85
 #: warehouse/templates/manage/team/history.html:19
 #, python-format
 msgid "%(team_name)s team deleted"
 msgstr "ລຶບທີມ %(team_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:86
+#: warehouse/templates/manage/organization/history.html:89
 #: warehouse/templates/manage/team/history.html:25
 #, python-format
 msgid ""
@@ -6933,7 +7424,7 @@ msgstr ""
 "ເພີ່ມທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
 "href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:90
+#: warehouse/templates/manage/organization/history.html:93
 #: warehouse/templates/manage/team/history.html:29
 #, python-format
 msgid ""
@@ -6943,7 +7434,7 @@ msgstr ""
 "ເອົາທີມ %(team_name)s ອອກຈາກບົດບາດ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
 "href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:94
+#: warehouse/templates/manage/organization/history.html:97
 #: warehouse/templates/manage/team/history.html:33
 #, python-format
 msgid ""
@@ -6953,19 +7444,19 @@ msgstr ""
 "ປ່ຽນທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
 "href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:100
+#: warehouse/templates/manage/organization/history.html:103
 #: warehouse/templates/manage/team/history.html:39
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr "ເພີ່ມ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າໃນທີມ %(team_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:104
+#: warehouse/templates/manage/organization/history.html:107
 #: warehouse/templates/manage/team/history.html:43
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr "ເອົາ <a href=\"%(href)s\">%(username)s</a> ອອກຈາກທີມ %(team_name)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:110
+#: warehouse/templates/manage/organization/history.html:113
 #, python-format
 msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
@@ -6974,7 +7465,7 @@ msgstr ""
 "ເພີ່ມຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບກຳນົດເອງ '%(issuer_type)s' ສຳລັບ <code>%(issuer_url)s</"
 "code> ເຂົ້າໃນອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:118
+#: warehouse/templates/manage/organization/history.html:121
 #, python-format
 msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
@@ -6983,78 +7474,78 @@ msgstr ""
 "ເອົາຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບກຳນົດເອງ '%(issuer_type)s' ສຳລັບ <code>%(issuer_url)s</"
 "code> ອອກຈາກອົງກອນແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:128
 msgid "Subscription started"
 msgstr "ເລີ່ມການຕິດຕາມແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:127
+#: warehouse/templates/manage/organization/history.html:130
 #, python-format
 msgid "Subscription status changed to %(status)s"
 msgstr "ສະຖານະການຕິດຕາມປ່ຽນເປັນ %(status)s ແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:133
 msgid "Subscription set to cancel at period end"
 msgstr "ຕັ້ງຄ່າການຕິດຕາມໃຫ້ຍົກເລີກເມື່ອສິ້ນສຸດໄລຍະເວລາ"
 
-#: warehouse/templates/manage/organization/history.html:132
+#: warehouse/templates/manage/organization/history.html:135
 msgid "Subscription canceled"
 msgstr "ຍົກເລີກການຕິດຕາມແລ້ວ"
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:138
 #, python-format
 msgid "Canceled by: %(canceled_by)s"
 msgstr "ຍົກເລີກໂດຍ: %(canceled_by)s"
 
-#: warehouse/templates/manage/organization/history.html:147
+#: warehouse/templates/manage/organization/history.html:150
 msgid "Registered by:"
 msgstr "ລົງທະບຽນໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:153
+#: warehouse/templates/manage/organization/history.html:156
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr "ສ້າງໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:158
+#: warehouse/templates/manage/organization/history.html:161
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:317
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr "ລຶບໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:163
+#: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr "ປ່ຽນຊື່ໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:168
+#: warehouse/templates/manage/organization/history.html:171
 msgid "Approved by:"
 msgstr "ອະນຸມັດໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:173
+#: warehouse/templates/manage/organization/history.html:176
 msgid "Declined by:"
 msgstr "ປະຕິເສດໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr "ປ່ຽນແປງໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:194
-#: warehouse/templates/manage/organization/history.html:199
+#: warehouse/templates/manage/organization/history.html:197
+#: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr "ເຊີນໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:204
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr "ຍົກເລີກໂດຍ:"
 
-#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/organization/history.html:213
 #: warehouse/templates/manage/project/history.html:332
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
@@ -7753,7 +8244,7 @@ msgstr "ເພີ່ມໄຟລ໌ເຂົ້າໃນ <a href=\"%(href)s\">�
 
 #: warehouse/templates/manage/project/history.html:77
 #: warehouse/templates/manage/project/history.html:108
-#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:120
 msgid "Filename:"
 msgstr "ຊື່ໄຟລ໌:"
 
@@ -8093,11 +8584,6 @@ msgstr "ປະເພດ"
 msgid "Python version"
 msgstr "ເວີຊັນ Python"
 
-#: warehouse/templates/manage/project/release.html:60
-#: warehouse/templates/manage/project/release.html:82
-msgid "Upload date"
-msgstr "ວັນທີອັບໂຫຼດ"
-
 #: warehouse/templates/manage/project/release.html:91
 msgid "View file options"
 msgstr "ເບິ່ງຕົວເລືອກໄຟລ໌"
@@ -8118,42 +8604,15 @@ msgstr "ລຶບໄຟລ໌ຈາກ"
 msgid "Delete file"
 msgstr "ລຶບໄຟລ໌"
 
-#: warehouse/templates/manage/project/release.html:130
-msgid ""
-"I understand that my users will no longer be able to install this file for "
-"this release of this project."
-msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງໄຟລ໌ນີ້ສຳລັບເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
-
-#: warehouse/templates/manage/project/release.html:137
-#, python-format
-msgid ""
-"I understand that I will <a href=%(href)s target=\"_blank\" "
-"rel=\"noopener\">not be able to re-upload a file using the same file name</"
-"a> %(filename)s."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=%(href)s target=\"_blank\" "
-"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໂດຍໃຊ້ຊື່ເດີມຄືນໄດ້</a> %(filename)s."
-
-#: warehouse/templates/manage/project/release.html:144
-#: warehouse/templates/manage/project/release.html:284
-msgid "I understand that I will not be able to undo this."
-msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະບໍ່ສາມາດກັບຄືນການກະທຳນີ້ໄດ້."
-
-#: warehouse/templates/manage/project/release.html:151
-#: warehouse/templates/manage/project/release.html:290
-msgid ""
-"I understand that the PyPI administrators will not be able to undo this."
-msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ດູແລລະບົບ PyPI ຈະບໍ່ສາມາດກັບຄືນການກະທຳນີ້ໄດ້."
-
-#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/release.html:141
 msgid "Uploading new files"
 msgstr "ກຳລັງອັບໂຫຼດໄຟລ໌ໃໝ່"
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:143
 msgid "No files found"
 msgstr "ບໍ່ພົບໄຟລ໌"
 
-#: warehouse/templates/manage/project/release.html:184
+#: warehouse/templates/manage/project/release.html:153
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8162,22 +8621,22 @@ msgstr ""
 "ຮຽນຮູ່ວິທີການອັບໂຫຼດໄຟລ໌ໄດ້ທີ່ <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ Python Packaging</a>"
 
-#: warehouse/templates/manage/project/release.html:187
+#: warehouse/templates/manage/project/release.html:156
 msgid "Release settings"
 msgstr "ການຕັ້ງຄ່າການເຜີຍແຜ່"
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:159
 msgid ""
 "Yank and delete actions are unavailable while this release is in quarantine."
 msgstr "ການຖອນ (Yank) ແລະ ການລຶບ ບໍ່ສາມາດໃຊ້ງານໄດ້ໃນຂະນະທີ່ເວີຊັນນີ້ຢູ່ໃນການກັກບໍລິເວນ."
 
-#: warehouse/templates/manage/project/release.html:195
-#: warehouse/templates/manage/project/release.html:229
+#: warehouse/templates/manage/project/release.html:164
+#: warehouse/templates/manage/project/release.html:198
 #: warehouse/templates/manage/project/releases.html:131
 msgid "Yank release"
 msgstr "ຖອນການເຜີຍແຜ່ (Yank) ເວີຊັນນີ້"
 
-#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:167
 #, python-format
 msgid ""
 "Yanking will mark this release (and %(count)s file within it) to be ignored "
@@ -8189,13 +8648,13 @@ msgstr[0] ""
 "ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ (ແລະ %(count)s ໄຟລ໌ພາຍໃນ) "
 "ໃຫ້ຖືກລະເລີຍໃນເວລາຕິດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
 
-#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:173
 msgid ""
 "Yanking will mark this release to be ignored when installing in most common "
 "scenarios."
 msgstr "ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ໃຫ້ຖືກລະເລີຍໃນເວລາຕິດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
 
-#: warehouse/templates/manage/project/release.html:208
+#: warehouse/templates/manage/project/release.html:177
 #, python-format
 msgid ""
 "This release will still be installable for users pinning to this exact "
@@ -8204,12 +8663,12 @@ msgstr ""
 "ເວີຊັນນີ້ຍັງຄົງສາມາດຕິດຕັ້ງໄດ້ສຳລັບຜູ້ໃຊ້ທີ່ລະບຸເວີຊັນທີ່ແນ່ນອນ ເຊັ່ນ: ເມື່ອໃຊ້ "
 "<code>%(project_name)s==%(version)s</code>."
 
-#: warehouse/templates/manage/project/release.html:211
+#: warehouse/templates/manage/project/release.html:180
 #, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr "ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ, ກະລຸນາເບິ່ງ <a href=\"%(href)s\">PEP 592</a>."
 
-#: warehouse/templates/manage/project/release.html:217
+#: warehouse/templates/manage/project/release.html:186
 #: warehouse/templates/manage/project/releases.html:134
 #, python-format
 msgid ""
@@ -8219,13 +8678,13 @@ msgstr ""
 "ທ່ານສາມາດລະບຸເຫດຜົນໃນການຖອນການເຜີຍແຜ່ນີ້, ເຊິ່ງຈະຖືກສະແດງໂດຍ pip ໃຫ້ກັບຜູ້ໃຊ້ທີ່ຕິດຕັ້ງ "
 "<code>%(project_name)s==%(version)s</code>."
 
-#: warehouse/templates/manage/project/release.html:221
+#: warehouse/templates/manage/project/release.html:190
 #: warehouse/templates/manage/project/releases.html:138
 msgid "Reason (optional)"
 msgstr "ເຫດຜົນ (ບໍ່ບັງຄັບ)"
 
-#: warehouse/templates/manage/project/release.html:229
-#: warehouse/templates/manage/project/release.html:294
+#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:230
 #: warehouse/templates/manage/project/releases.html:9
 #: warehouse/templates/manage/project/releases.html:128
 #: warehouse/templates/manage/project/releases.html:146
@@ -8233,13 +8692,13 @@ msgstr "ເຫດຜົນ (ບໍ່ບັງຄັບ)"
 msgid "Version"
 msgstr "ເວີຊັນ"
 
-#: warehouse/templates/manage/project/release.html:234
-#: warehouse/templates/manage/project/release.html:294
+#: warehouse/templates/manage/project/release.html:202
+#: warehouse/templates/manage/project/release.html:230
 #: warehouse/templates/manage/project/releases.html:148
 msgid "Delete release"
 msgstr "ລຶບເວີຊັນທີ່ເຜີຍແຜ່"
 
-#: warehouse/templates/manage/project/release.html:238
+#: warehouse/templates/manage/project/release.html:206
 #, python-format
 msgid ""
 "Deleting will irreversibly delete this release along with %(count)s file."
@@ -8247,18 +8706,18 @@ msgid_plural ""
 "Deleting will irreversibly delete this release along with %(count)s files."
 msgstr[0] "ການລຶບຈະເຮັດໃຫ້ເວີຊັນນີ້ ແລະ %(count)s ໄຟລ໌ ຖືກລຶບຖາວອນໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້."
 
-#: warehouse/templates/manage/project/release.html:244
+#: warehouse/templates/manage/project/release.html:212
 msgid "Deleting will irreversibly delete this release."
 msgstr "ການລຶບຈະເຮັດໃຫ້ເວີຊັນນີ້ຖືກລຶບຖາວອນໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້."
 
-#: warehouse/templates/manage/project/release.html:247
+#: warehouse/templates/manage/project/release.html:215
 #: warehouse/templates/manage/project/releases.html:151
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number."
 msgstr "ທ່ານຈະບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ການແຈກຢາຍໃໝ່ໃນປະເພດເດີມ ແລະ ເວີຊັນເດີມໄດ້ອີກ."
 
-#: warehouse/templates/manage/project/release.html:250
+#: warehouse/templates/manage/project/release.html:218
 #: warehouse/templates/manage/project/releases.html:154
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -8268,7 +8727,7 @@ msgstr ""
 "ການລຶບຈະເຮັດໃຫ້ໂຄງການອື່ນໆທີ່ໃຊ້ເວີຊັນນີ້ຢູ່ເກີດຄວາມເສຍຫາຍ. "
 "ຄວນເຮັດໃນກໍລະນີສຸດທ້າຍເພື່ອແກ້ໄຂບັນຫາທາງກົດໝາຍ ຫຼື ເອົາເວີຊັນທີ່ເປັນອັນຕະລາຍອອກເທົ່ານັ້ນ."
 
-#: warehouse/templates/manage/project/release.html:253
+#: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
 #, python-format
 msgid ""
@@ -8281,30 +8740,6 @@ msgstr ""
 "rel=\"noopener\">ຖອນການເຜີຍແຜ່ (yanking)</a> ເວີຊັນນີ້, ການສ້າງເວີຊັນໃໝ່ ຫຼື <a "
 "href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> ແທນ."
-
-#: warehouse/templates/manage/project/release.html:266
-#, python-format
-msgid ""
-"I understand that I am permanently deleting all files for the "
-"%(release_version)s release of this project."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍກຳລັງລຶບທຸກໄຟລ໌ສຳລັບເວີຊັນ %(release_version)s ຂອງໂຄງການນີ້ຢ່າງຖາວອນ."
-
-#: warehouse/templates/manage/project/release.html:272
-msgid ""
-"I understand that my users will no longer be able to install this release of "
-"this project."
-msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
-
-#: warehouse/templates/manage/project/release.html:278
-#, python-format
-msgid ""
-"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">not be able to re-upload any deleted files using the same "
-"file names</a>."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -8326,6 +8761,12 @@ msgstr "ເຫດຜົນທີ່ຖອນການເຜີຍແຜ່"
 #: warehouse/templates/manage/project/releases.html:23
 msgid "Manage version"
 msgstr "ຈັດການເວີຊັນ"
+
+#: warehouse/templates/manage/project/releases.html:32
+#, python-format
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] "%(count)s ໄຟລ໌"
 
 #: warehouse/templates/manage/project/releases.html:45
 msgid "No files"
@@ -8717,16 +9158,16 @@ msgstr ""
 "ການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະບລັອກການອັບໂຫຼດໄຟລ໌ໃໝ່ ແລະ "
 "ເອົາໂຄງການອອກຈາກດັດຊະນີການຄົ້ນຫາ."
 
-#: warehouse/templates/manage/project/settings.html:228
-#: warehouse/templates/manage/project/settings.html:304
+#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:259
 msgid "Delete project"
 msgstr "ລຶບໂຄງການ"
 
-#: warehouse/templates/manage/project/settings.html:231
+#: warehouse/templates/manage/project/settings.html:230
 msgid "Deleting this project will:"
 msgstr "ການລຶບໂຄງການນີ້ຈະ:"
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:235
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -8737,15 +9178,15 @@ msgid_plural ""
 msgstr[0] ""
 "ລຶບໂຄງການນີ້ຢ່າງຖາວອນພ້ອມກັບ <a href=\"%(href)s\">%(count)s ລຸ້ນ</a> ໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້"
 
-#: warehouse/templates/manage/project/settings.html:242
+#: warehouse/templates/manage/project/settings.html:241
 msgid "Irreversibly delete the project"
 msgstr "ລຶບໂຄງການຢ່າງຖາວອນໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້"
 
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:245
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr "ເຮັດໃຫ້ຊື່ໂຄງການວ່າງສຳລັບຜູ້ໃຊ້ <strong>PyPI ຄົນອື່ນໆ</strong>"
 
-#: warehouse/templates/manage/project/settings.html:249
+#: warehouse/templates/manage/project/settings.html:248
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -8884,12 +9325,12 @@ msgstr "ໂປຣໄຟລ໌ຂອງ %(orgname)s"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr "%(org)s ຍັງບໍ່ໄດ້ອັບໂຫຼດໂຄງການໃດໆໄປຫາ PyPI ເທື່ອ"
 
-#: warehouse/templates/packaging/detail.html:9
+#: warehouse/templates/packaging/detail.html:8
 #, python-format
 msgid "%(project_name)s is a package on the Python Package Index (PyPI)."
 msgstr "%(project_name)s ແມ່ນແພັກເກດຢູ່ໃນ Python Package Index (PyPI)."
 
-#: warehouse/templates/packaging/detail.html:14
+#: warehouse/templates/packaging/detail.html:13
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: ລຸ້ນຫຼ້າສຸດສຳລັບ %(project_name)s"
@@ -8977,15 +9418,30 @@ msgstr ""
 "enhancement proposal\">PEP</abbr> 301</a>."
 
 #: warehouse/templates/pages/classifiers.html:29
+#, fuzzy
+#| msgid ""
+#| "To prevent a package from being uploaded to PyPI, use the special "
+#| "\"Private :: Do Not Upload\" classifier. PyPI will always reject packages "
+#| "with classifiers beginning with \"Private ::\"."
 msgid ""
 "To prevent a package from being uploaded to PyPI, use the special "
-"\"Private :: Do Not Upload\" classifier. PyPI will always reject packages "
-"with classifiers beginning with \"Private ::\"."
+"<code>Private :: Do Not Upload</code> classifier. PyPI will always reject "
+"packages with classifiers beginning with <code>Private ::</code>."
 msgstr ""
 "ເພື່ອປ້ອງກັນບໍ່ໃຫ້ແພັກເກດຖືກອັບໂຫຼດໄປຫາ PyPI, ໃຫ້ໃຊ້ຕົວຈຳແນກປະເພດພິເສດ \"Private :: Do Not "
 "Upload\". PyPI ຈະປະຕິເສດແພັກເກດທີ່ມີຕົວຈຳແນກປະເພດທີ່ຂຶ້ນຕົ້ນດ້ວຍ \"Private ::\" ສະເໝີ."
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:33
+msgid ""
+"Note: As of <a href=\"https://packaging.python.org/en/latest/specifications/"
+"license-expression/\" target=\"_blank\" rel=\"noopener\">PEP 639</a>, the "
+"use of <code>License</code> Trove classifiers is deprecated. Please use <a "
+"href=\"https://packaging.python.org/en/latest/specifications/license-"
+"expression/\" target=\"_blank\" rel=\"noopener\">license expressions</a> in "
+"your <code>pyproject.toml</code> instead."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:39
 msgid "List of classifiers"
 msgstr "ລາຍຊື່ຕົວຈຳແນກປະເພດ"
 
@@ -11765,6 +12221,113 @@ msgstr "ບໍ່ພົບຜົນການຄົ້ນຫາສຳລັບ '%
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "ບໍ່ພົບຜົນການຄົ້ນຫາສຳລັບການກັ່ນຕອງ '%(filters)s'"
+
+#~ msgid "File details"
+#~ msgstr "ລາຍລະອຽດໄຟລ໌"
+
+#, python-format
+#~ msgid "Upload date: %(upload_time)s"
+#~ msgstr "ວັນທີອັບໂຫຼດ: %(upload_time)s"
+
+#, python-format
+#~ msgid "Size: %(size)s"
+#~ msgstr "ຂະໜາດ: %(size)s"
+
+#, python-format
+#~ msgid "Tags: %(tags)s"
+#~ msgstr "ແທັກ: %(tags)s"
+
+#, python-format
+#~ msgid "Uploaded via: %(uploaded_via)s"
+#~ msgstr "ອັບໂຫຼດຜ່ານ: %(uploaded_via)s"
+
+#, python-format
+#~ msgid "Hashes for %(filename)s"
+#~ msgstr "ຄ່າແຮຊ (Hashes) ສຳລັບ %(filename)s"
+
+#~ msgid "Algorithm"
+#~ msgstr "ອັລກໍຣິທຶມ"
+
+#~ msgid "Hash digest"
+#~ msgstr "ຄ່າແຮຊ"
+
+#, python-format
+#~ msgid ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">See more details on using hashes here.</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">ເບິ່ງລາຍລະອຽດເພີ່ມເຕີມກ່ຽວກັບການໃຊ້ hashes ໄດ້ທີ່ນີ້.</a>"
+
+#~ msgid "view details"
+#~ msgstr "ເບິ່ງລາຍລະອຽດ"
+
+#, python-format
+#~ msgid "%(title)s"
+#~ msgstr "%(title)s"
+
+#~ msgid "Download files"
+#~ msgstr "ດາວໂຫຼດໄຟລ໌"
+
+#, python-format
+#~ msgid ""
+#~ "Download the file for your platform. If you're not sure which to choose, "
+#~ "learn more about <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">installing packages</a>."
+#~ msgstr ""
+#~ "ດາວໂຫຼດໄຟລ໌ສຳລັບແພລັດຟອມຂອງທ່ານ. ຖ້າທ່ານບໍ່ແນ່ໃຈວ່າຄວນເລືອກອັນໃດ, ສາມາດສຶກສາເພີ່ມເຕີມໄດ້ທີ່ "
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">ການຕິດຕັ້ງແພັກເກດ</a>."
+
+#~ msgid "No source distribution files available for this release."
+#~ msgstr "ບໍ່ມີໄຟລ໌ຊອດແຈກຢາຍສຳລັບລຸ້ນນີ້."
+
+#, python-format
+#~ msgid ""
+#~ "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
+#~ msgstr ""
+#~ "ເບິ່ງບົດຮຽນກ່ຽວກັບ <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">ການສ້າງໄຟລ໌ເກັບມ້ຽນສຳລັບການແຈກຢາຍ</a>."
+
+#~ msgid "Filter files by name, interpreter, ABI, and platform."
+#~ msgstr "ກັ່ນຕອງໄຟລ໌ຕາມຊື່, ອິນເຕີພຣີເຕີ (interpreter), ABI, ແລະ ແພລັດຟອມ."
+
+#, python-format
+#~ msgid ""
+#~ "If you're not sure about the file name format, learn more about <a "
+#~ "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">wheel file names</a>."
+#~ msgstr ""
+#~ "ຖ້າທ່ານບໍ່ແນ່ໃຈກ່ຽວກັບຮູບແບບຊື່ໄຟລ໌, ສາມາດສຶກສາເພີ່ມເຕີມໄດ້ທີ່ <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ຊື່ໄຟລ໌ wheel</a>."
+
+#~ msgid ""
+#~ "The dropdown lists show the available interpreters, ABIs, and platforms."
+#~ msgstr "ລາຍການແບບດຣັອບດາວຈະສະແດງອິນເຕີພຣີເຕີ, ABI, ແລະ ແພລັດຟອມ ທີ່ມີໃຫ້ໃຊ້."
+
+#~ msgid "File name"
+#~ msgstr "ຊື່ໄຟລ໌"
+
+#, python-format
+#~ msgid "Do not use %(title)s to conduct security research."
+#~ msgstr "ຫ້າມໃຊ້ %(title)s ເພື່ອເຮັດການວິໄຈດ້ານຄວາມປອດໄພ."
+
+#, python-format
+#~ msgid ""
+#~ "For more information, please read the full <a href=\"%(aup)s\" "
+#~ "rel=\"noopener\">Acceptable Use Policy</a>."
+#~ msgstr ""
+#~ "ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ, ກະລຸນາອ່ານ <a href=\"%(aup)s\" "
+#~ "rel=\"noopener\">ນະໂຍບາຍການນຳໃຊ້ທີ່ຍອມຮັບໄດ້</a> ສະບັບເຕັມ."
+
+#, python-format
+#~ msgid ""
+#~ "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of "
+#~ "Service</a>."
+#~ msgstr ""
+#~ "ໂດຍການລົງທະບຽນ, ທ່ານຕົກລົງເຫັນດີກັບ <a href=\"%(tos)s\">ເງື່ອນໄຂການໃຫ້ບໍລິການຂອງ "
+#~ "PyPI</a>."
 
 #~ msgid "Quarantined:"
 #~ msgstr "ວັນທີຖືກກັກກັນ:"

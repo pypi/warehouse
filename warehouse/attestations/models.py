@@ -97,6 +97,9 @@ class ProvenanceCounts:
     unreadable_files: int = 0
     source_counts: dict[PublisherSource, int] = field(default_factory=dict, hash=False)
     workflow_counts: dict[str, int] = field(default_factory=dict, hash=False)
+    # Count file presence separately: one file may name multiple publishers.
+    files_with_sources: int = 0
+    files_with_workflows: int = 0
 
 
 @dataclass(frozen=True)
@@ -286,6 +289,8 @@ def counts_from_provenance(
     source_counter: Counter[PublisherSource] = Counter()
     workflow_counter: Counter[str] = Counter()
     unreadable_files = 0
+    files_with_sources = 0
+    files_with_workflows = 0
 
     for provenance_object in provenance_objects:
         extracted = get_provenance_sources(provenance_object)
@@ -293,6 +298,8 @@ def counts_from_provenance(
             unreadable_files += 1
             continue
         sources, workflows = extracted
+        files_with_sources += bool(sources)
+        files_with_workflows += bool(workflows)
         source_counter.update(sources)
         workflow_counter.update(workflows)
 
@@ -302,4 +309,6 @@ def counts_from_provenance(
         unreadable_files=unreadable_files,
         source_counts=dict(source_counter),
         workflow_counts=dict(workflow_counter),
+        files_with_sources=files_with_sources,
+        files_with_workflows=files_with_workflows,
     )
