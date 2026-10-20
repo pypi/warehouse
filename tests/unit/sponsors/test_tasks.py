@@ -172,8 +172,10 @@ def test_do_not_update_if_not_psf_sponsor(
         psf_sponsor=False,
         infra_sponsor=True,
         one_time=False,
+        sidebar=False,
         origin="manual",
     )
+    fake_requests.payloads["sidebar"] = sponsor_api_data
 
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
@@ -183,6 +185,7 @@ def test_do_not_update_if_not_psf_sponsor(
     assert db_sponsor.id == infra_sponsor.id
     assert db_sponsor.origin == "manual"
     assert db_sponsor.slug != "sponsor-name"
+    assert db_sponsor.sidebar is False
 
 
 def test_update_remote_sponsor_with_same_slug_with_new_logo(
