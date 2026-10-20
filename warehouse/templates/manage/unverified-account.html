@@ -520,8 +520,8 @@
       {% endif %}
     {%- endmacro %}
     <p>
-      {% trans faq_url=request.help_url(_anchor='suspicious-activity') %}
-      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+      {% trans docs_url=request.user_docs_url('/your-account/security-alerts/') %}
+      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ docs_url }}">secure your account</a> as soon as possible.
     {% endtrans %}
   </p>
   <table class="table table--security-logs">

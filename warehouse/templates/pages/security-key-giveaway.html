@@ -42,7 +42,7 @@
         <h3 id="critical-eligiblity">What determines if a project is a critical project?</h3>
         <p>
           PyPI determines eligibility based on download counts derived
-          from PyPI's <a href="https://docs.pypi.org/api/bigquery/">public
+          from PyPI's <a href="{{ request.user_docs_url('/api/bigquery/') }}">public
           dataset of download statistics</a>. Any project in the top 1% of
           downloads over the prior 6 months is designated as critical.
         </p>
@@ -96,13 +96,12 @@
              title="External link"
              target="_blank"
              rel="noopener">Thetis</a>.
-          See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor authentication
-        with a security device (e.g. USB key) work? How do I set it up on PyPI?</a>
+          See <a href="{{ request.user_docs_url('/your-account/two-factor-authentication/', anchor='security-device-webauthn') }}">Setting up two-factor authentication with a
+          security device (WebAuthn)</a>.
       </p>
       <p>
-        Alternatively, you should enable 2FA via a TOTP application instead. See <a href="{{ request.help_url(_anchor='totp') }}">How does two factor
-        authentication with an authentication application (TOTP) work? How do I
-      set it up on PyPI?</a>
+        Alternatively, you should enable 2FA via a TOTP application instead. See <a href="{{ request.user_docs_url('/your-account/two-factor-authentication/', anchor='authentication-application-totp') }}">Setting up
+        two-factor authentication with an authentication application (TOTP)</a>.
     </p>
     <h3 id="key-quantity">How many keys are available?</h3>
     <p>A total of 4,000 keys are available to maintainers.</p>
@@ -142,13 +141,12 @@
       </p>
       <h3 id="key-setup">I've got security keys already, what should I do?</h3>
       <p>
-        See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor
-        authentication with a security device (e.g. USB key) work? How do I
-      set it up on PyPI?</a>
+        See <a href="{{ request.user_docs_url('/your-account/two-factor-authentication/', anchor='security-device-webauthn') }}">Setting up
+        two-factor authentication with a security device (WebAuthn)</a>.
     </p>
     <h3 id="contact">What should I do if I have a question that isn't answered here?</h3>
     <p>
-      See <a href="{{ request.help_url() }}">PyPI's help page</a> or contact
+      See <a href="{{ request.user_docs_url('/about/getting-help/') }}">PyPI's user documentation</a> or contact
       <a href="mailto:admin@pypi.org">admin@pypi.org</a>.
     </p>
   </section>
