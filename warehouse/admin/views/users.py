@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import shlex
 import typing
 
@@ -783,7 +783,7 @@ def user_recover_account_initiate(user, request):
                 actor=request.user,
                 summary="Account Recovery",
                 payload={
-                    "initiated": str(datetime.datetime.now(datetime.UTC)),
+                    "initiated": str(dt.datetime.now(dt.UTC)),
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
@@ -841,7 +841,7 @@ def user_recover_account_initiate(user, request):
 def user_recover_account_cancel(user, request):
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "cancelled"
-        account_recovery.payload["cancelled"] = str(datetime.datetime.now(datetime.UTC))
+        account_recovery.payload["cancelled"] = str(dt.datetime.now(dt.UTC))
     request.session.flash(
         f"Cancelled account recovery for {user.username!r}", queue="success"
     )
@@ -874,7 +874,7 @@ def user_recover_account_complete(user: User, request):
 
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "completed"
-        account_recovery.payload["completed"] = str(datetime.datetime.now(datetime.UTC))
+        account_recovery.payload["completed"] = str(dt.datetime.now(dt.UTC))
         # Set the primary email to the override email if it exists, and mark as verified
         if override_to_email := account_recovery.payload.get("override_to_email"):
             for email in user.emails:

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import datetime
+import datetime as dt
 import uuid
 
 import pretend
@@ -3019,22 +3019,22 @@ class TestProvisionMacaroonViews:
 
 class TestManageProjects:
     def test_manage_projects(self, db_request):
-        older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
+        older_release = ReleaseFactory(created=dt.datetime(2015, 1, 1))
         project_with_older_release = older_release.project
-        newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
+        newer_release = ReleaseFactory(created=dt.datetime(2017, 1, 1))
         project_with_newer_release = newer_release.project
         older_project_with_no_releases = ProjectFactory(
-            releases=[], created=datetime.datetime(2016, 1, 1)
+            releases=[], created=dt.datetime(2016, 1, 1)
         )
         newer_project_with_no_releases = ProjectFactory(
-            releases=[], created=datetime.datetime(2018, 1, 1)
+            releases=[], created=dt.datetime(2018, 1, 1)
         )
         team_project = ProjectFactory(
-            name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
+            name="team-proj", releases=[], created=dt.datetime(2022, 3, 3)
         )
         archived_project = ProjectFactory(
             releases=[],
-            created=datetime.datetime(2019, 1, 1),
+            created=dt.datetime(2019, 1, 1),
             lifecycle_status=LifecycleStatus.Archived,
         )
 
@@ -4423,7 +4423,7 @@ class TestManageProjectRelease:
 
         assert release.yanked
         assert release.yanked_reason == "Yanky Doodle went to town"
-        assert isinstance(release.yanked_date, datetime.datetime)
+        assert isinstance(release.yanked_date, dt.datetime)
 
         assert send_yanked_project_release_email.calls == [
             pretend.call(
@@ -6259,7 +6259,7 @@ class TestManageProjectHistory:
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+                time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
                 },
@@ -6267,17 +6267,17 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+                time=dt.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             ),
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                time=datetime.datetime(2019, 2, 5, 17, 18, 18, 462_634),
+                time=dt.datetime(2019, 2, 5, 17, 18, 18, 462_634),
             ),
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                time=datetime.datetime(2016, 2, 5, 17, 18, 18, 462_634),
+                time=dt.datetime(2016, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
                 },

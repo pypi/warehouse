@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import factory
 import faker
@@ -50,8 +50,8 @@ class OrganizationApplicationFactory(WarehouseFactory):
     submitted_by = factory.SubFactory(UserFactory)
     submitted = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2020, 1, 1),
-        datetime_end=datetime.datetime(2022, 1, 1),
+        datetime_start=dt.datetime(2020, 1, 1),
+        datetime_end=dt.datetime(2022, 1, 1),
     )
 
 
@@ -65,8 +65,8 @@ class OrganizationApplicationObservationFactory(WarehouseFactory):
 
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2020, 1, 1),
-        datetime_end=datetime.datetime(2022, 1, 1),
+        datetime_start=dt.datetime(2020, 1, 1),
+        datetime_end=dt.datetime(2022, 1, 1),
     )
     kind = ObservationKind.InformationRequest.value[0]
     payload = factory.Faker("json")
@@ -95,8 +95,8 @@ class OrganizationFactory(WarehouseFactory):
     is_active = True
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2020, 1, 1),
-        datetime_end=datetime.datetime(2022, 1, 1),
+        datetime_start=dt.datetime(2020, 1, 1),
+        datetime_end=dt.datetime(2022, 1, 1),
     )
 
 
@@ -142,7 +142,7 @@ class OrganizationManualActivationFactory(WarehouseFactory):
     organization = factory.SubFactory(OrganizationFactory)
     seat_limit = 10
     expires = factory.LazyFunction(
-        lambda: datetime.date.today() + datetime.timedelta(days=365)
+        lambda: dt.date.today() + dt.timedelta(days=365)
     )
     created_by_id = factory.SelfAttribute("created_by.id")
     created_by = factory.SubFactory(UserFactory)
@@ -183,8 +183,8 @@ class TeamFactory(WarehouseFactory):
     name = factory.Faker("pystr", max_chars=12)
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2020, 1, 1),
-        datetime_end=datetime.datetime(2022, 1, 1),
+        datetime_start=dt.datetime(2020, 1, 1),
+        datetime_end=dt.datetime(2022, 1, 1),
     )
     organization = factory.SubFactory(OrganizationFactory)
 

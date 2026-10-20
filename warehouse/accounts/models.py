@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import enum
 
 from typing import TYPE_CHECKING
@@ -93,7 +93,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     username: Mapped[str] = mapped_column(CITEXT, unique=True)
     name: Mapped[str] = mapped_column(String(length=100))
     password: Mapped[str] = mapped_column(String(length=128))
-    password_date: Mapped[datetime.datetime | None] = mapped_column(
+    password_date: Mapped[dt.datetime | None] = mapped_column(
         TZDateTime, server_default=sql.func.now()
     )
     is_active: Mapped[bool_false]
@@ -108,7 +108,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     prohibit_password_reset: Mapped[bool_false]
     hide_avatar: Mapped[bool_false]
     date_joined: Mapped[datetime_now | None]
-    last_login: Mapped[datetime.datetime | None] = mapped_column(
+    last_login: Mapped[dt.datetime | None] = mapped_column(
         TZDateTime, server_default=sql.func.now()
     )
     disabled_for: Mapped[DisableReason | None]
@@ -281,7 +281,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     @property
     def recent_events(self):
         session = orm_session_from_obj(self)
-        last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
+        last_ninety = dt.datetime.now() - dt.timedelta(days=90)
         return (
             session.query(User.Event)
             .filter(
@@ -406,7 +406,7 @@ class UserTermsOfServiceEngagement(db.Model):
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     revision: Mapped[str]
-    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    created: Mapped[dt.datetime] = mapped_column(TZDateTime)
     engagement: Mapped[TermsOfServiceEngagement]
 
     user: Mapped[User] = orm.relationship(
@@ -443,7 +443,7 @@ class RecoveryCode(db.Model):
     user: Mapped[User] = orm.relationship(back_populates="recovery_codes")
     code: Mapped[str] = mapped_column(String(length=128))
     generated: Mapped[datetime_now]
-    burned: Mapped[datetime.datetime | None]
+    burned: Mapped[dt.datetime | None]
 
 
 class UnverifyReasons(enum.Enum):
@@ -480,7 +480,7 @@ class Email(db.ModelBase):
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
     # Domain validation information
-    domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
+    domain_last_checked: Mapped[dt.datetime | None] = mapped_column(
         comment="Last time domain was checked with the domain validation service.",
         index=True,
     )
@@ -583,7 +583,7 @@ class UserUniqueLogin(db.Model):
         default=UniqueLoginStatus.PENDING,
         server_default=UniqueLoginStatus.PENDING.value,
     )
-    expires: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    expires: Mapped[dt.datetime | None] = mapped_column(TZDateTime)
 
     def __repr__(self):
         return (
@@ -620,7 +620,7 @@ class AccountAssociation(db.Model):
     )
 
     created: Mapped[datetime_now]
-    updated: Mapped[datetime.datetime | None] = mapped_column(onupdate=sql.func.now())
+    updated: Mapped[dt.datetime | None] = mapped_column(onupdate=sql.func.now())
 
     _user_id: Mapped[UUID] = mapped_column(
         "user_id",

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import json
 import uuid
 
@@ -102,7 +102,7 @@ from ...common.db.packaging import (
 
 class TestFailedLoginView:
     def test_too_many_failed_logins(self, pyramid_request):
-        exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
+        exc = TooManyFailedLogins(resets_in=dt.timedelta(seconds=600))
 
         resp = views.failed_logins(exc, pyramid_request)
 
@@ -115,7 +115,7 @@ class TestFailedLoginView:
         assert dict(resp.headers).get("Retry-After") == "600"
 
     def test_too_many_emails_added(self, pyramid_request):
-        exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
+        exc = TooManyEmailsAdded(resets_in=dt.timedelta(seconds=600))
 
         resp = views.unverified_emails(exc, pyramid_request)
 
@@ -128,7 +128,7 @@ class TestFailedLoginView:
         assert dict(resp.headers).get("Retry-After") == "600"
 
     def test_too_many_password_reset_requests(self, pyramid_request):
-        exc = TooManyPasswordResetRequests(resets_in=datetime.timedelta(seconds=600))
+        exc = TooManyPasswordResetRequests(resets_in=dt.timedelta(seconds=600))
 
         resp = views.incomplete_password_resets(exc, pyramid_request)
 
@@ -178,15 +178,15 @@ class TestUserProfile:
             RoleFactory.create(user=user, project=project)
             # Add some releases, with time skew to ensure the ordering is correct
             ReleaseFactory.create(
-                project=project, created=project.created + datetime.timedelta(minutes=1)
+                project=project, created=project.created + dt.timedelta(minutes=1)
             )
             ReleaseFactory.create(
-                project=project, created=project.created + datetime.timedelta(minutes=2)
+                project=project, created=project.created + dt.timedelta(minutes=2)
             )
             # Add a prerelease, shouldn't affect any results
             ReleaseFactory.create(
                 project=project,
-                created=project.created + datetime.timedelta(minutes=3),
+                created=project.created + dt.timedelta(minutes=3),
                 is_prerelease=True,
             )
         # add one more project, associated to the user, but no releases
@@ -254,7 +254,7 @@ def two_factor_user(db_session):
     A TOTP-enabled user whose last login predates any token signed in the test.
     """
     return UserFactory.create(
-        last_login=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+        last_login=dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
     )
 
 
@@ -456,7 +456,7 @@ class TestLogin:
             db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
 
         with freezegun.freeze_time(now):
             result = views.login(db_request, _form_class=form_class)
@@ -686,7 +686,7 @@ class TestLogin:
         mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         # Create a unique login with a timestamp in the distant past.
-        past_timestamp = datetime.datetime(1970, 1, 1)
+        past_timestamp = dt.datetime(1970, 1, 1)
         UserUniqueLoginFactory.create(
             user=user,
             ip_address=db_request.ip_address,
@@ -721,10 +721,10 @@ class TestTwoFactor:
     def test_get_two_factor_data_invalid_after_login(
         self, db_request, two_factor_token_service
     ):
-        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(seconds=30)
+        sign_time = dt.datetime.now(dt.UTC) - dt.timedelta(seconds=30)
         user = UserFactory.create(
-            last_login=datetime.datetime.now(datetime.UTC)
-            - datetime.timedelta(seconds=1)
+            last_login=dt.datetime.now(dt.UTC)
+            - dt.timedelta(seconds=1)
         )
 
         with freezegun.freeze_time(sign_time):
@@ -758,8 +758,8 @@ class TestTwoFactor:
             name="Joe",
             password="any",
             is_active=True,
-            last_login=datetime.datetime.now(datetime.UTC)
-            + datetime.timedelta(days=+1),
+            last_login=dt.datetime.now(dt.UTC)
+            + dt.timedelta(days=+1),
         )
         token_data = {"userid": user.id}
 
@@ -900,7 +900,7 @@ class TestTwoFactor:
             username="testuser",
             name="Test User",
             last_login=(
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+                dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
             ),
         )
         if has_recovery_codes:
@@ -1284,7 +1284,7 @@ class TestRememberDevice:
         pyramid_request.user = UserFactory.build()
         mocker.patch.object(pyramid_request.user, "record_event", autospec=True)
         pyramid_request.registry.settings = {
-            "remember_device.seconds": datetime.timedelta(days=30).total_seconds()
+            "remember_device.seconds": dt.timedelta(days=30).total_seconds()
         }
         response = pyramid_request.response
         mocker.spy(response, "set_cookie")
@@ -1295,7 +1295,7 @@ class TestRememberDevice:
         response.set_cookie.assert_called_once_with(
             REMEMBER_DEVICE_COOKIE,
             remember_device_token_service.dumps.spy_return,
-            max_age=datetime.timedelta(days=30).total_seconds(),
+            max_age=dt.timedelta(days=30).total_seconds(),
             httponly=True,
             secure=True,
             samesite=b"strict",
@@ -1383,7 +1383,7 @@ class TestRecoveryCode:
         user = UserFactory.create(
             with_terms_of_service_agreement=True,
             last_login=(
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+                dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
             ),
         )
         # A confirmed login from this IP makes the device known.
@@ -1683,7 +1683,7 @@ class TestRegister:
         ("resets_in", "retry_after", "message"),
         [
             (
-                datetime.timedelta(seconds=3300),
+                dt.timedelta(seconds=3300),
                 "3300",
                 (
                     "Too many registration attempts from your network. Please try "
@@ -2243,7 +2243,7 @@ class TestResetPassword:
         if never_logged_in:
             # The factory always fills these in, so clear them afterwards.
             user.last_login = user.password_date = None
-            min_date = datetime.datetime.min.replace(tzinfo=datetime.UTC)
+            min_date = dt.datetime.min.replace(tzinfo=dt.UTC)
             token = password_reset_token(
                 user, last_login=min_date, password_date=min_date
             )
@@ -2353,8 +2353,8 @@ class TestResetPassword:
     def test_reset_password_last_login_changed(
         self, error_request, password_reset_token
     ):
-        now = datetime.datetime.now(datetime.UTC)
-        later = now + datetime.timedelta(hours=1)
+        now = dt.datetime.now(dt.UTC)
+        later = now + dt.timedelta(hours=1)
         user = UserFactory.create(last_login=later, username="time-traveler")
         error_request.GET["token"] = password_reset_token(user, last_login=now)
 
@@ -2371,8 +2371,8 @@ class TestResetPassword:
     def test_reset_password_password_date_changed(
         self, error_request, password_reset_token
     ):
-        now = datetime.datetime.now(datetime.UTC)
-        later = now + datetime.timedelta(hours=1)
+        now = dt.datetime.now(dt.UTC)
+        later = now + dt.timedelta(hours=1)
         user = UserFactory.create(last_login=now)
         user.password_date = later
         error_request.GET["token"] = password_reset_token(user, password_date=now)
@@ -3471,10 +3471,10 @@ class TestManageAccountPublishingViews:
     ):
         user_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         user_rate_limiter.test.return_value = not user_exceeded
-        user_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        user_rate_limiter.resets_in.return_value = dt.timedelta(seconds=60)
         ip_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         ip_rate_limiter.test.return_value = not ip_exceeded
-        ip_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=30)
+        ip_rate_limiter.resets_in.return_value = dt.timedelta(seconds=30)
         pyramid_services.register_service(
             user_rate_limiter, IRateLimiter, None, name="user_oidc.publisher.register"
         )
@@ -3504,7 +3504,7 @@ class TestManageAccountPublishingViews:
         if user_exceeded or ip_exceeded:
             with pytest.raises(TooManyOIDCRegistrations) as excinfo:
                 view._check_ratelimits()
-            assert excinfo.value.resets_in == datetime.timedelta(
+            assert excinfo.value.resets_in == dt.timedelta(
                 seconds=60 if user_exceeded else 30
             )
         else:
@@ -3825,7 +3825,7 @@ class TestManageAccountPublishingViews:
     ):
         user_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         user_rate_limiter.test.return_value = False
-        user_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        user_rate_limiter.resets_in.return_value = dt.timedelta(seconds=60)
         pyramid_services.register_service(
             user_rate_limiter, IRateLimiter, None, name="user_oidc.publisher.register"
         )
@@ -4662,7 +4662,7 @@ class TestConfirmLogin:
         )
 
     def test_unique_login_not_found(self, confirm_request, confirm_token):
-        user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
         confirm_request.params["token"] = confirm_token(user, uuid.uuid4())
 
         result = views.confirm_login(confirm_request)
@@ -4674,7 +4674,7 @@ class TestConfirmLogin:
         )
 
     def test_ip_address_mismatch(self, confirm_request, confirm_token):
-        user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
         ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
         unique_login = UserUniqueLoginFactory.create(user=user, ip_address=ip_address)
         confirm_request.params["token"] = confirm_token(user, unique_login.id)
@@ -4690,7 +4690,7 @@ class TestConfirmLogin:
         )
 
     def test_success(self, confirm_request, confirm_token, mocker):
-        user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
         unique_login = UserUniqueLoginFactory.create(
             user=user,
             ip_address=confirm_request.ip_address,

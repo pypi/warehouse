@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import itertools
 
 from typing import Any, NamedTuple
@@ -13,7 +13,7 @@ from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project
 
-AGE_BEFORE_INDEX = datetime.timedelta(days=14)
+AGE_BEFORE_INDEX = dt.timedelta(days=14)
 SITEMAP_MAXSIZE = 50000
 
 
@@ -62,7 +62,7 @@ def sitemap_index(request):
             Project.sitemap_bucket, func.max(Project.created).label("modified")
         )
         .filter(
-            Project.created < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX
+            Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX
         )
         .group_by(Project.sitemap_bucket)
         .all()
@@ -74,14 +74,14 @@ def sitemap_index(request):
         .filter(
             or_(
                 User.date_joined
-                < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX,
+                < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )
         .group_by(User.sitemap_bucket)
         .all()
     )
-    buckets: dict[str, datetime.datetime] = {}
+    buckets: dict[str, dt.datetime] = {}
     for b in itertools.chain(projects, users):
         current = buckets.setdefault(b.sitemap_bucket, b.modified)
         if current is None or (b.modified is not None and b.modified > current):
@@ -113,7 +113,7 @@ def sitemap_bucket(request):
     projects = (
         request.db.query(Project.normalized_name)
         .filter(
-            Project.created < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX
+            Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX
         )
         .filter(Project.sitemap_bucket == bucket)
         .all()
@@ -124,7 +124,7 @@ def sitemap_bucket(request):
         .filter(
             or_(
                 User.date_joined
-                < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX,
+                < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )

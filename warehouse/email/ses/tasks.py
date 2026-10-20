@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from warehouse import tasks
 from warehouse.email.ses.models import EmailMessage
 
-CLEANUP_DELIVERED_AFTER = datetime.timedelta(days=14)
+CLEANUP_DELIVERED_AFTER = dt.timedelta(days=14)
 
-CLEANUP_AFTER = datetime.timedelta(days=90)
+CLEANUP_AFTER = dt.timedelta(days=90)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -21,7 +21,7 @@ def cleanup(request):
         .filter(EmailMessage.status.in_(["Accepted", "Delivered"]))
         .filter(
             EmailMessage.created
-            < (datetime.datetime.now(datetime.UTC) - CLEANUP_DELIVERED_AFTER)
+            < (dt.datetime.now(dt.UTC) - CLEANUP_DELIVERED_AFTER)
         )
         .delete(synchronize_session=False)
     )
@@ -31,7 +31,7 @@ def cleanup(request):
     (
         request.db.query(EmailMessage)
         .filter(
-            EmailMessage.created < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER)
+            EmailMessage.created < (dt.datetime.now(dt.UTC) - CLEANUP_AFTER)
         )
         .delete(synchronize_session=False)
     )

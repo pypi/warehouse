@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import collections
-import datetime
+import datetime as dt
 import functools
 import hashlib
 import http
@@ -712,7 +712,7 @@ class DatabaseUserService:
             raise BurnedRecoveryCode
 
         # The code is valid and not burned. Mark it as burned
-        stored_recovery_code.burned = datetime.datetime.now()
+        stored_recovery_code.burned = dt.datetime.now()
         self._metrics.increment("warehouse.authentication.recovery_code.ok")
         return True
 
@@ -735,7 +735,7 @@ class DatabaseUserService:
         engagements_30_days_before_tos_active = (
             query.filter(
                 UserTermsOfServiceEngagement.created
-                < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
+                < dt.datetime.now(dt.UTC) - dt.timedelta(days=30)
             )
             .order_by(
                 UserTermsOfServiceEngagement.created,
@@ -771,7 +771,7 @@ class DatabaseUserService:
             UserTermsOfServiceEngagement(
                 user_id=user_id,
                 revision=revision,
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
                 engagement=engagement,
             )
         )
@@ -803,8 +803,8 @@ class DatabaseUserService:
                 user_id=userid,
                 ip_address=request.ip_address,
                 status=UniqueLoginStatus.PENDING,
-                expires=datetime.datetime.now(datetime.UTC)
-                + datetime.timedelta(seconds=token_service.max_age),
+                expires=dt.datetime.now(dt.UTC)
+                + dt.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
             request.db.flush()  # ast-grep-ignore: db-flush -- generaten token id
@@ -817,13 +817,13 @@ class DatabaseUserService:
         # Check if the login had expired
         window_lapsed = (
             unique_login.expires is not None
-            and unique_login.expires < datetime.datetime.now(datetime.UTC)
+            and unique_login.expires < dt.datetime.now(dt.UTC)
         )
         if window_lapsed:
             # The previous confirmation window has lapsed, extend the expiry
-            unique_login.expires = datetime.datetime.now(
-                datetime.UTC
-            ) + datetime.timedelta(seconds=token_service.max_age)
+            unique_login.expires = dt.datetime.now(
+                dt.UTC
+            ) + dt.timedelta(seconds=token_service.max_age)
 
         # Get User Agent Information
         user_agent_info_data = {}
@@ -853,7 +853,7 @@ class DatabaseUserService:
                 "action": "login-confirmation",
                 "user.id": str(user.id),
                 "user.last_login": str(
-                    user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                    user.last_login or dt.datetime.min.replace(tzinfo=pytz.UTC)
                 ),
                 "unique_login_id": unique_login.id,
             }

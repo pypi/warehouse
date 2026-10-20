@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from typing import Annotated
 
@@ -11,7 +11,7 @@ from sqlalchemy.orm import mapped_column
 bool_false = Annotated[bool, mapped_column(server_default=sql.false())]
 bool_true = Annotated[bool, mapped_column(server_default=sql.true())]
 datetime_now = Annotated[
-    datetime.datetime, mapped_column(server_default=sql.func.now())
+    dt.datetime, mapped_column(server_default=sql.func.now())
 ]
 
 
@@ -21,10 +21,10 @@ class TZDateTime(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is not None and value.tzinfo:
-            value = value.astimezone(datetime.UTC).replace(tzinfo=None)
+            value = value.astimezone(dt.UTC).replace(tzinfo=None)
         return value
 
     def process_result_value(self, value, dialect):
         if value is not None:
-            value = value.replace(tzinfo=datetime.UTC)
+            value = value.replace(tzinfo=dt.UTC)
         return value

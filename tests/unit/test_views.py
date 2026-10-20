@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from pathlib import Path
 
@@ -395,9 +395,9 @@ class TestIndex:
     def test_index(self, db_request):
         project = ProjectFactory.create()
         release1 = ReleaseFactory.create(project=project)
-        release1.created = datetime.date(2011, 1, 1)
+        release1.created = dt.date(2011, 1, 1)
         release2 = ReleaseFactory.create(project=project)
-        release2.created = datetime.date(2012, 1, 1)
+        release2.created = dt.date(2012, 1, 1)
         FileFactory.create(
             release=release1,
             filename=f"{project.name}-{release1.version}.tar.gz",
@@ -575,7 +575,7 @@ class TestSearch:
 
         project = ProjectFactory.create()
         release1 = ReleaseFactory.create(project=project)
-        release1.created = datetime.date(2011, 1, 1)
+        release1.created = dt.date(2011, 1, 1)
         release1._classifiers.append(classifier1)
         release1._classifiers.append(classifier2)
 
@@ -799,7 +799,7 @@ def test_classifiers(db_request):
 def test_stats(db_request):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project)
-    release1.created = datetime.date(2011, 1, 1)
+    release1.created = dt.date(2011, 1, 1)
     FileFactory.create(
         release=release1,
         filename=f"{project.name}-{release1.version}.tar.gz",

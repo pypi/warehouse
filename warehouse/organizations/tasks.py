@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import stripe
 import structlog
@@ -76,7 +76,7 @@ def delete_declined_organization_applications(request):
         .filter(
             OrganizationApplication.status == OrganizationApplicationStatus.Declined,
             OrganizationApplication.updated
-            < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER),
+            < (dt.datetime.now(dt.UTC) - CLEANUP_AFTER),
         )
         .all()
     )
@@ -207,7 +207,7 @@ def notify_organizations_requiring_subscription(request):
             Organization.is_active.is_(True),
             Organization.orgtype == OrganizationType.Company,
             Organization.created
-            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
+            < (dt.datetime.now(dt.UTC) - SUBSCRIPTION_NOTICE_AFTER),
         )
         .options(
             joinedload(Organization.subscriptions),

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import typing
 
 from uuid import UUID
@@ -673,7 +673,7 @@ class DatabaseOrganizationService:
             OrganizationTermsOfServiceEngagement(
                 organization_id=organization_id,
                 revision=revision,
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
                 engagement=engagement,
             )
         )

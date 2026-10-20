@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import email.utils
 
 import babel.dates
@@ -45,7 +45,7 @@ def test_format_rfc822_datetime(mocker):
     formatdate = mocker.patch.object(
         email.utils, "formatdate", return_value=mocker.sentinel.formatted
     )
-    dt = datetime.datetime(2024, 1, 1, 12, 0, 0)
+    dt = dt.datetime(2024, 1, 1, 12, 0, 0)
 
     result = filters.format_rfc822_datetime(
         {}, dt, mocker.sentinel.extra, foo=mocker.sentinel.foo

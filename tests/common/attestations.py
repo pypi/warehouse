@@ -12,7 +12,7 @@ cryptographic verification.
 """
 
 import base64
-import datetime
+import datetime as dt
 import json
 
 from functools import lru_cache
@@ -64,7 +64,7 @@ def fake_certificate(repository: str, workflow: str, ref: str) -> bytes:
     name = x509.Name(
         [x509.NameAttribute(NameOID.COMMON_NAME, "fake-attestation (not sigstore)")]
     )
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     builder = (
         x509.CertificateBuilder()
         .subject_name(name)
@@ -72,7 +72,7 @@ def fake_certificate(repository: str, workflow: str, ref: str) -> bytes:
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(minutes=10))
+        .not_valid_after(now + dt.timedelta(minutes=10))
     )
     for oid, value in claims.items():
         # Claim values are DER-encoded UTF8Strings; pyasn1 ships with

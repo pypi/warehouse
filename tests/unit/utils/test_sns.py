@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import datetime
+import datetime as dt
 import textwrap
 import types
 
@@ -44,7 +44,7 @@ def sns_publickey(sns_privatekey):
 
 @pytest.fixture(scope="module")
 def sns_certificate(sns_privatekey, sns_publickey):
-    one_day = datetime.timedelta(1, 0, 0)
+    one_day = dt.timedelta(1, 0, 0)
 
     private_key = load_pem_private_key(sns_privatekey, password=None)
     public_key = load_pem_public_key(sns_publickey)
@@ -56,8 +56,8 @@ def sns_certificate(sns_privatekey, sns_publickey):
     builder = builder.issuer_name(
         x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "sns.amazonaws.com")])
     )
-    builder = builder.not_valid_before(datetime.datetime.today() - one_day)
-    builder = builder.not_valid_after(datetime.datetime.today() + one_day)
+    builder = builder.not_valid_before(dt.datetime.today() - one_day)
+    builder = builder.not_valid_after(dt.datetime.today() + one_day)
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(public_key)
     builder = builder.add_extension(
@@ -117,7 +117,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),
@@ -150,8 +150,8 @@ class TestMessageVerifier:
                     "MessageId": "1",
                     "Timestamp": (
                         (
-                            datetime.datetime.now(datetime.UTC)
-                            - datetime.timedelta(days=1)
+                            dt.datetime.now(dt.UTC)
+                            - dt.timedelta(days=1)
                         ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This is My Topic",
@@ -168,7 +168,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),
@@ -209,7 +209,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),
@@ -225,7 +225,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),
@@ -242,7 +242,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),
@@ -260,7 +260,7 @@ class TestMessageVerifier:
                     "SubscribeURL": "https://example.com/subscribe",
                     "Token": "1234",
                     "Timestamp": (
-                        datetime.datetime.now(datetime.UTC).strftime(
+                        dt.datetime.now(dt.UTC).strftime(
                             "%Y-%m-%dT%H:%M:%S.%fZ"
                         )
                     ),

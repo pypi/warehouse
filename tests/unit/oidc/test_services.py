@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import jwt
 import pytest
@@ -370,7 +370,7 @@ class TestOIDCPublisherService:
 
         expiration = int(
             (
-                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
             ).timestamp()
         )
 
@@ -838,7 +838,7 @@ class TestOIDCPublisherService:
 
         expiration = int(
             (
-                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
             ).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
@@ -862,7 +862,7 @@ class TestOIDCPublisherService:
 
         expiration = int(
             (
-                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
             ).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
@@ -887,7 +887,7 @@ class TestOIDCPublisherService:
 
         expiration = int(
             (
-                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
             ).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
@@ -920,7 +920,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         # exp is 10 seconds in the past — within the leeway window
-        expiration = int(datetime.datetime.now(tz=datetime.UTC).timestamp()) - 10
+        expiration = int(dt.datetime.now(tz=dt.UTC).timestamp()) - 10
 
         jwt_identifier = "replay-attempt-jti"
         result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
@@ -951,7 +951,7 @@ class TestOIDCPublisherService:
 
         # exp is far enough in the past that exp + leeway + 5 is also past
         expiration = (
-            int(datetime.datetime.now(tz=datetime.UTC).timestamp())
+            int(dt.datetime.now(tz=dt.UTC).timestamp())
             - services._JWT_LEEWAY
             - 10
         )
