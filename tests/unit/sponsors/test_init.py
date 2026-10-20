@@ -70,6 +70,18 @@ def test_sponsors_grouped_and_ordered(db_request):
     assert result["one_time"] == [onetime]
 
 
+def test_sidebar_sponsors(db_request):
+    c = SponsorFactory.create
+    second = c(name="Bravo", sidebar=True, level_order=2)
+    first = c(name="Alpha", sidebar=True, level_order=1)
+    c(name="Charlie", sidebar=False)
+    c(name="Delta", sidebar=True, is_active=False)
+
+    result = sponsors._sponsors(db_request)
+
+    assert result["sidebar"] == [first, second]
+
+
 def test_footer_grouped_by_tier(db_request):
     c = SponsorFactory.create
     infra = c(
