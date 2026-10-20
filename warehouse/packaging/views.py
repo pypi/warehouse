@@ -282,12 +282,15 @@ def release_detail(release, request):
         key=lambda f: f.filename,
     )
 
-    # Collect all the available bdist details to enable building filters.
-    wheel_filters_all = wheel.filenames_to_grouped_labels(
-        [bdist.filename for bdist in bdists]
-    )
-
     all_files = sdists + bdists
+
+    tags_by_label = wheel.group_tags_by_label(
+        wheel.filenames_to_grouped_labels(bdist.filename for bdist in bdists)
+    )
+    wheel_filter_tags = {
+        file.filename: wheel.expand_filter_tags(file.wheel_filters, tags_by_label)
+        for file in all_files
+    }
 
     return {
         "project": project,
@@ -301,7 +304,8 @@ def release_detail(release, request):
         "maintainers": maintainers,
         "license": license,
         "PEP740AttestationViewer": PEP740AttestationViewer,
-        "wheel_filters_all": wheel_filters_all,
+        "wheel_filter_options": wheel.filter_options(tags_by_label),
+        "wheel_filter_tags": wheel_filter_tags,
         "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
     }
 

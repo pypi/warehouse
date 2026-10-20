@@ -575,3 +575,28 @@ def test_wheel_to_groups_labels(filename, expected_tags):
         }
     )
     assert wheel.filename_to_pretty_tags(filename) == expected_pretty_tags
+
+
+def test_filter_options_match_every_tag_sharing_a_label():
+    filenames = [
+        "foo-1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+        "foo-1.0-cp313-cp313-manylinux_2_17_x86_64.whl",
+        "foo-1.0-cp312-cp312-manylinux2014_x86_64.whl",
+        "foo-1.0-cp313-cp313-manylinux_2_28_x86_64.whl",
+    ]
+    tags_by_label = wheel.group_tags_by_label(
+        wheel.filenames_to_grouped_labels(filenames)
+    )
+
+    assert wheel.filter_options(tags_by_label)["platform"] == [
+        ("manylinux2014_x86_64", "Linux glibc 2.17+ x86-64"),
+        ("manylinux_2_28_x86_64", "Linux glibc 2.28+ x86-64"),
+    ]
+
+    both_aliases = ["manylinux2014_x86_64", "manylinux_2_17_x86_64"]
+    assert [
+        wheel.expand_filter_tags(
+            wheel.filename_to_grouped_labels(filename), tags_by_label
+        )["platform"]
+        for filename in filenames
+    ] == [both_aliases, both_aliases, both_aliases, ["manylinux_2_28_x86_64"]]

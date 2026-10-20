@@ -279,3 +279,38 @@ def test_get_provenance_sources_unparsable_provenance(db_request, mocker):
         provenance_id=provenance.id,
         file_id=provenance.file.id,
     )
+
+
+def test_counts_distinguish_missing_information_from_overlapping_publishers():
+    multiple_publishers = _provenance(
+        pypi_attestations.GitHubPublisher(
+            repository="example/first", workflow="publish.yml"
+        )
+    )
+    second_publisher = _provenance(
+        pypi_attestations.GitHubPublisher(
+            repository="example/second", workflow="release.yml"
+        )
+    )
+    multiple_publishers.provenance["attestation_bundles"].extend(
+        second_publisher.provenance["attestation_bundles"]
+    )
+    google = _provenance(
+        pypi_attestations.GooglePublisher(
+            email="builder@example.iam.gserviceaccount.com"
+        )
+    )
+    unreadable = ProvenanceFactory.build(provenance={"invalid": "provenance"})
+
+    counts = models.counts_from_provenance(4, [multiple_publishers, google, unreadable])
+
+    assert counts.files_with_provenance == 3
+    assert counts.files_with_sources == 2
+    assert counts.files_with_workflows == 1
+    assert counts.unreadable_files == 1
+    assert counts.source_counts == {
+        PublisherSource("GitHub", "example/first"): 1,
+        PublisherSource("GitHub", "example/second"): 1,
+        PublisherSource("Google", "builder@example.iam.gserviceaccount.com"): 1,
+    }
+    assert counts.workflow_counts == {"publish.yml": 1, "release.yml": 1}
