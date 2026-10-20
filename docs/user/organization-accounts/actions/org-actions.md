@@ -2,7 +2,7 @@
 title: Organization Actions
 ---
 
-# Operations
+# Organization actions
 This section describes the actions that can be performed
 within an organization account.
 
@@ -10,9 +10,7 @@ within an organization account.
 
     All actions assume an authorized user has logged into their account.
 
-## Organization actions
-
-#### Create an organization
+## Create an organization
 
 *Actor: Any PyPI user*
 
@@ -26,7 +24,6 @@ a billing page will appear. Enter the billing details.
 
 Once the organization has been created, it will have to be
 approved by the PyPI admin.
-This usually takes <<TODO>> days.
 Once the account request has been approved,
 the user who created the account becomes the Owner of the organization.
 The Owner will be able to manage the organization once it has been approved.
@@ -35,7 +32,7 @@ A user can create any number of organizations.
 
 ---
 
-#### Add member to an organization
+## Add member to an organization
 
 *Actor: Owner*
 
@@ -56,7 +53,7 @@ There is no limit to the number of members within an organization.
 
 ---
 
-#### Cancel user invitation
+## Cancel user invitation
 
 *Actor: Owner*
 
@@ -70,7 +67,7 @@ The user will receive an email that the invitation has been revoked.
 
 ---
 
-#### Remove member from an organization
+## Remove member from an organization
 *Actor: Owner*
 
 * Click on **Your organization**
@@ -81,7 +78,7 @@ The user will receive an email that the invitation has been revoked.
 
 ---
 
-#### Assign a user role
+## Assign a user role
 
 *Actor: Owner*
 
@@ -97,7 +94,7 @@ There can be multiple users with the same role.
 
 ---
 
-#### Accept/Reject an invitation to join an organization
+## Accept/Reject an invitation to join an organization
 
 *Actor: Any user*
 
@@ -115,7 +112,7 @@ invitation and send a new one.
 
 ---
 
-#### Rename an organization account
+## Rename an organization account
 
 *Actor: Owner*
 
@@ -133,7 +130,7 @@ other organizations with the same name.
 
 ---
 
-#### Leave an organization
+## Leave an organization
 
 *Actor: Any member of the organization*
 
@@ -149,7 +146,7 @@ They will have to delete the organization.
 
 ---
 
-#### Delete an organization account
+## Delete an organization account
 
 *Actor: Owner*
 
