@@ -25,14 +25,10 @@ def test_sitemap_index(db_request):
     users = [
         UserFactory.create(
             username="a",
-            date_joined=(
-                dt.datetime.now(dt.UTC) - dt.timedelta(days=15)
-            ),
+            date_joined=(dt.datetime.now(dt.UTC) - dt.timedelta(days=15)),
         ),
         UserFactory.create(username="b"),
-        UserFactory.create(
-            username="c", date_joined=(dt.datetime.now(dt.UTC))
-        ),
+        UserFactory.create(username="c", date_joined=(dt.datetime.now(dt.UTC))),
     ]
 
     # Have to pass this here, because passing date_joined=None to the create

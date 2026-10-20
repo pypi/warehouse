@@ -369,9 +369,7 @@ class TestOIDCPublisherService:
         )
 
         expiration = int(
-            (
-                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
-            ).timestamp()
+            (dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)).timestamp()
         )
 
         claims = SignedClaims(
@@ -837,9 +835,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         expiration = int(
-            (
-                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
-            ).timestamp()
+            (dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
         service.store_jwt_identifier(jwt_identifier, expiration=expiration)
@@ -861,9 +857,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         expiration = int(
-            (
-                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
-            ).timestamp()
+            (dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
 
@@ -886,9 +880,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         expiration = int(
-            (
-                dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)
-            ).timestamp()
+            (dt.datetime.now(tz=dt.UTC) + dt.timedelta(minutes=15)).timestamp()
         )
         jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
 
@@ -951,9 +943,7 @@ class TestOIDCPublisherService:
 
         # exp is far enough in the past that exp + leeway + 5 is also past
         expiration = (
-            int(dt.datetime.now(tz=dt.UTC).timestamp())
-            - services._JWT_LEEWAY
-            - 10
+            int(dt.datetime.now(tz=dt.UTC).timestamp()) - services._JWT_LEEWAY - 10
         )
 
         jwt_identifier = "long-expired-jti"

@@ -1664,9 +1664,7 @@ class TestTokenService:
         with freezegun.freeze_time(now) as frozen_time:
             token = token_service.dumps({"foo": "bar"})
 
-            frozen_time.tick(
-                delta=dt.timedelta(seconds=token_service.max_age + 1)
-            )
+            frozen_time.tick(delta=dt.timedelta(seconds=token_service.max_age + 1))
 
             with pytest.raises(TokenExpired):
                 token_service.loads(token)

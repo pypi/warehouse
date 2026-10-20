@@ -141,9 +141,7 @@ class OrganizationManualActivationFactory(WarehouseFactory):
     organization_id = factory.SelfAttribute("organization.id")
     organization = factory.SubFactory(OrganizationFactory)
     seat_limit = 10
-    expires = factory.LazyFunction(
-        lambda: dt.date.today() + dt.timedelta(days=365)
-    )
+    expires = factory.LazyFunction(lambda: dt.date.today() + dt.timedelta(days=365))
     created_by_id = factory.SelfAttribute("created_by.id")
     created_by = factory.SubFactory(UserFactory)
 

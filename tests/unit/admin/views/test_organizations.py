@@ -245,9 +245,7 @@ class TestOrganizationList:
         OrganizationProjectFactory.create(
             organization=dormant_org, project=dormant_project
         )
-        ReleaseFactory.create(
-            project=dormant_project, created=dt.datetime(2020, 1, 1)
-        )
+        ReleaseFactory.create(project=dormant_project, created=dt.datetime(2020, 1, 1))
 
         # Unused: owns no projects.
         unused_org = OrganizationFactory.create()

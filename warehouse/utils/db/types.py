@@ -10,9 +10,7 @@ from sqlalchemy.orm import mapped_column
 # Custom Types for SQLAlchemy Columns `Mapped` values
 bool_false = Annotated[bool, mapped_column(server_default=sql.false())]
 bool_true = Annotated[bool, mapped_column(server_default=sql.true())]
-datetime_now = Annotated[
-    dt.datetime, mapped_column(server_default=sql.func.now())
-]
+datetime_now = Annotated[dt.datetime, mapped_column(server_default=sql.func.now())]
 
 
 class TZDateTime(TypeDecorator):

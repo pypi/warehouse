@@ -61,9 +61,7 @@ def sitemap_index(request):
         request.db.query(
             Project.sitemap_bucket, func.max(Project.created).label("modified")
         )
-        .filter(
-            Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX
-        )
+        .filter(Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX)
         .group_by(Project.sitemap_bucket)
         .all()
     )
@@ -73,8 +71,7 @@ def sitemap_index(request):
         )
         .filter(
             or_(
-                User.date_joined
-                < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
+                User.date_joined < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )
@@ -112,9 +109,7 @@ def sitemap_bucket(request):
 
     projects = (
         request.db.query(Project.normalized_name)
-        .filter(
-            Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX
-        )
+        .filter(Project.created < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX)
         .filter(Project.sitemap_bucket == bucket)
         .all()
     )
@@ -123,8 +118,7 @@ def sitemap_bucket(request):
         .filter(User.sitemap_bucket == bucket)
         .filter(
             or_(
-                User.date_joined
-                < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
+                User.date_joined < dt.datetime.now(dt.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )

@@ -117,9 +117,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This is My Topic",
                 },
@@ -149,10 +147,9 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        (
-                            dt.datetime.now(dt.UTC)
-                            - dt.timedelta(days=1)
-                        ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        (dt.datetime.now(dt.UTC) - dt.timedelta(days=1)).strftime(
+                            "%Y-%m-%dT%H:%M:%S.%fZ"
+                        )
                     ),
                     "TopicArn": "This is My Topic",
                 },
@@ -168,9 +165,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This topic I got but didn't expect",
                 },
@@ -209,9 +204,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },
@@ -225,9 +218,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "another valid topic",
                 },
@@ -242,9 +233,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },
@@ -260,9 +249,7 @@ class TestMessageVerifier:
                     "SubscribeURL": "https://example.com/subscribe",
                     "Token": "1234",
                     "Timestamp": (
-                        dt.datetime.now(dt.UTC).strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ"
-                        )
+                        dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },

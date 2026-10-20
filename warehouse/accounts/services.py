@@ -821,9 +821,9 @@ class DatabaseUserService:
         )
         if window_lapsed:
             # The previous confirmation window has lapsed, extend the expiry
-            unique_login.expires = dt.datetime.now(
-                dt.UTC
-            ) + dt.timedelta(seconds=token_service.max_age)
+            unique_login.expires = dt.datetime.now(dt.UTC) + dt.timedelta(
+                seconds=token_service.max_age
+            )
 
         # Get User Agent Information
         user_agent_info_data = {}

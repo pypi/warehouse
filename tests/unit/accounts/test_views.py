@@ -253,9 +253,7 @@ def two_factor_user(db_session):
     """
     A TOTP-enabled user whose last login predates any token signed in the test.
     """
-    return UserFactory.create(
-        last_login=dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
-    )
+    return UserFactory.create(last_login=dt.datetime.now(dt.UTC) - dt.timedelta(days=1))
 
 
 @pytest.fixture
@@ -723,8 +721,7 @@ class TestTwoFactor:
     ):
         sign_time = dt.datetime.now(dt.UTC) - dt.timedelta(seconds=30)
         user = UserFactory.create(
-            last_login=dt.datetime.now(dt.UTC)
-            - dt.timedelta(seconds=1)
+            last_login=dt.datetime.now(dt.UTC) - dt.timedelta(seconds=1)
         )
 
         with freezegun.freeze_time(sign_time):
@@ -758,8 +755,7 @@ class TestTwoFactor:
             name="Joe",
             password="any",
             is_active=True,
-            last_login=dt.datetime.now(dt.UTC)
-            + dt.timedelta(days=+1),
+            last_login=dt.datetime.now(dt.UTC) + dt.timedelta(days=+1),
         )
         token_data = {"userid": user.id}
 
@@ -899,9 +895,7 @@ class TestTwoFactor:
             with_terms_of_service_agreement=True,
             username="testuser",
             name="Test User",
-            last_login=(
-                dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
-            ),
+            last_login=(dt.datetime.now(dt.UTC) - dt.timedelta(days=1)),
         )
         if has_recovery_codes:
             RecoveryCodeFactory.create(user=user)
@@ -1382,9 +1376,7 @@ class TestRecoveryCode:
 
         user = UserFactory.create(
             with_terms_of_service_agreement=True,
-            last_login=(
-                dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
-            ),
+            last_login=(dt.datetime.now(dt.UTC) - dt.timedelta(days=1)),
         )
         # A confirmed login from this IP makes the device known.
         UserUniqueLoginFactory.create(

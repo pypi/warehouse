@@ -1957,9 +1957,7 @@ class TestRelease:
         SELECT; a template reading several attributes off the status must not
         pay for each one.
         """
-        release = _release_with_uploads(
-            dt.timedelta(0), dt.timedelta(days=30)
-        )
+        release = _release_with_uploads(dt.timedelta(0), dt.timedelta(days=30))
         db_session.flush()
         assert release.created is not None  # load the release row before counting
 

@@ -102,9 +102,7 @@ class TestDeleteOrganizationApplications:
         organization_application = OrganizationApplicationFactory.create()
         organization_application.is_active = False
         organization_application.status = OrganizationApplicationStatus.Declined
-        organization_application.updated = dt.datetime.now() - dt.timedelta(
-            days=31
-        )
+        organization_application.updated = dt.datetime.now() - dt.timedelta(days=31)
 
         # Create an organization_application that's not ready to be cleaned up yet
         organization_application2 = OrganizationApplicationFactory.create()
