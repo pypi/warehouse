@@ -18,7 +18,12 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import orm
 from webob.multidict import MultiDict
 
-from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
+from warehouse.accounts.interfaces import (
+    ITokenService,
+    IUserService,
+    TokenException,
+    TokenExpired,
+)
 from warehouse.accounts.models import User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
@@ -926,7 +931,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     # has not updated invite status
     try:
         invite_token = token_service.loads(organization_invite.token)
-    except TokenExpired, AttributeError:
+    except TokenException, AttributeError:
         invite_token = None
 
     if existing_role:
@@ -1193,14 +1198,18 @@ def revoke_organization_invitation(organization, request):
 
     try:
         token_data = token_service.loads(organization_invite.token)
-    except TokenExpired:
-        request.session.flash(
-            request._(
+    except TokenException as exc:
+        if isinstance(exc, TokenExpired):
+            message = request._(
                 "Expired invitation for '${username}' deleted.",
                 mapping={"username": user.username},
-            ),
-            queue="success",
-        )
+            )
+        else:
+            message = request._(
+                "Invalid invitation for '${username}' deleted.",
+                mapping={"username": user.username},
+            )
+        request.session.flash(message, queue="success")
         return HTTPSeeOther(
             request.route_path(
                 "manage.organization.roles",
