@@ -24,4 +24,4 @@ def list_banner_messages(request):
             (Banner.active == True) & (Banner.end >= today)  # noqa: E712
         )
 
-    return {"banners": query.all()}
+    return {"banners": query.all(), "is_preview": bool(banner_id)}
