@@ -108,9 +108,9 @@ Python package "wheels" (or "binary distributions") are actually a ZIP archive i
 
 ### What powers PyPI?
 
-PyPI is powered by [Warehouse](https://warehouse.pypa.io/) and by a variety of tools and services provided by our [generous sponsors](https://pypi.org/sponsors/). For more information, see the:
+PyPI is powered by [Warehouse](https://github.com/pypi/warehouse) and by a variety of tools and services provided by our [generous sponsors](https://pypi.org/sponsors/). For more information, see the:
 
-* [Warehouse documentation](https://warehouse.pypa.io/)  
+* [Warehouse developer documentation](https://dev.pypi.org/)  
 * [Warehouse codebase and issue tracker](https://github.com/pypi/warehouse)
 
 ### How can I get a list of PyPI's IP addresses?

@@ -6,7 +6,7 @@ As a Python user, you can use PyPI to find the code you need for your projects.
 
 As a developer, you can use PyPI to publish and share your Python code with the world.
 
-This documentation site (docs.pypi.org) covers how to use the PyPI website and [API](api/index.md). To learn about the codebase that powers PyPI itself, visit the [Warehouse documentation](https://warehouse.pypa.io).
+This documentation site (docs.pypi.org) covers how to use the PyPI website and [API](api/index.md). To learn about the codebase that powers PyPI itself, visit the [Warehouse developer documentation](https://dev.pypi.org).
 
 ## Contents
 
