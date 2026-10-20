@@ -207,7 +207,7 @@ clean: ## Remove generated project files
 	rm -rf warehouse/static/dist/ warehouse/admin/static/dist/
 
 purge: stop clean ## Remove generated files, containers, and volumes
-	rm -rf .state .coverage* .cache .state/db-populated .state/db-migrated
+	rm -rf .state .coverage* .cache docs/.cache .state/db-populated .state/db-migrated
 	docker compose down -v --remove-orphans
 	docker compose rm --force
 
