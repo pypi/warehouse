@@ -695,7 +695,7 @@ class StripeSubscriptionService:
                 product_name="PyPI",
                 description="Organization account for companies",
                 product_id=None,
-                # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories # noqa: E501
+                # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
                 tax_code="txcd_10103001",  # Software as a service (SaaS) - business use
             )
             subscription_price = self.add_subscription_price(
