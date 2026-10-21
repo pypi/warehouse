@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 import dataclasses
-import datetime
+import datetime as dt
 import typing
 import uuid
 
@@ -414,7 +414,7 @@ class DatabaseMacaroonService:
                         .with_for_update(skip_locked=True)
                     )
                 )
-                .values(last_used=datetime.datetime.now())
+                .values(last_used=dt.datetime.now())
             )
 
             return True
