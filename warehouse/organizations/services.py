@@ -867,6 +867,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(member)
+        self.db.flush()  # ast-grep-ignore: db-flush -- load team role relationships
 
         return member
 
