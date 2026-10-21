@@ -964,50 +964,62 @@ class TestProjectService:
         with pytest.raises(TooManyProjectsCreated):
             project_service.create_project("some-new-project", creator, db_request)
 
-    @pytest.mark.parametrize(
-        ("success", "remote_addr"),
-        [(True, "1.2.3.4"), (True, None), (False, "1.2.3.4")],
-        ids=["committed", "committed-without-remote-addr", "failed-commit"],
-    )
     def test_create_project_spends_creation_limits_only_after_commit(
-        self,
-        project_service,
-        db_request,
-        ratelimit_service,
-        mocker,
-        success,
-        remote_addr,
+        self, project_service, db_request, ratelimit_service, mocker
     ):
-        """
-        Creation limiters are hit after commit,
-        so rolled-back requests don't spend them.
-        """
         creator = UserFactory.create()
-        db_request.remote_addr = remote_addr
+        db_request.remote_addr = "1.2.3.4"
         project_service.ratelimiters["project.create.user"] = ratelimit_service
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
 
         project_service.create_project("some-new-project", creator, db_request)
 
         ratelimit_service.hit.assert_not_called()
-        if success:
-            db_request.tm.commit()
-        else:
-            resource = mocker.Mock()
-            resource.sortKey.return_value = "failing-resource"
-            resource.tpc_vote.side_effect = RuntimeError("commit failed")
-            db_request.tm.get().join(resource)
-            with pytest.raises(RuntimeError, match="commit failed"):
-                db_request.tm.commit()
-            db_request.tm.abort()
+        db_request.tm.commit()
         db_request.tm.begin()
 
-        expected = []
-        if success:
-            if remote_addr is not None:
-                expected.append(mocker.call(remote_addr))
-            expected.append(mocker.call(creator.id))
-        assert ratelimit_service.hit.call_args_list == expected
+        assert ratelimit_service.hit.call_args_list == [
+            mocker.call("1.2.3.4"),
+            mocker.call(creator.id),
+        ]
+
+    def test_create_project_spends_only_user_creation_limit_without_remote_addr(
+        self, project_service, db_request, ratelimit_service
+    ):
+        creator = UserFactory.create()
+        db_request.remote_addr = None
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service.create_project("some-new-project", creator, db_request)
+
+        ratelimit_service.hit.assert_not_called()
+        db_request.tm.commit()
+        db_request.tm.begin()
+
+        ratelimit_service.hit.assert_called_once_with(creator.id)
+
+    def test_create_project_does_not_spend_creation_limits_after_failed_commit(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        creator = UserFactory.create()
+        db_request.remote_addr = "1.2.3.4"
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service.create_project("some-new-project", creator, db_request)
+
+        ratelimit_service.hit.assert_not_called()
+        resource = mocker.Mock()
+        resource.sortKey.return_value = "failing-resource"
+        resource.tpc_vote.side_effect = RuntimeError("commit failed")
+        db_request.tm.get().join(resource)
+        with pytest.raises(RuntimeError, match="commit failed"):
+            db_request.tm.commit()
+        db_request.tm.abort()
+        db_request.tm.begin()
+
+        ratelimit_service.hit.assert_not_called()
 
     @pytest.mark.parametrize("organization_owned", [False, True])
     @pytest.mark.parametrize("used", [4, 20])
