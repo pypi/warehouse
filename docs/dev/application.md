@@ -30,7 +30,7 @@ discussion of the differences between URL dispatch and traversal in Pyramid.
 
 ## Usage assumptions and concepts
 
-See [PyPI help](https://pypi.org/help/#packages) and the glossary
+See [PyPI's user documentation](https://docs.pypi.org/using-pypi/pypi-basics/#projects-releases-and-files-packages-on-pypi) and the glossary
 section of [UI Principles](ui-principles.md) to understand projects, releases,
 packages, maintainers, authors, and owners.
 
