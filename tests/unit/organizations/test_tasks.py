@@ -559,12 +559,13 @@ class TestScheduleUnpaidOrganizationDeactivations:
         _unverified_owner(unreachable)
         ownerless = OrganizationFactory.create(orgtype=OrganizationType.Company)
 
-        # None of these are processed.
+        # Payment recovery uses the same bounded countdown as other unpaid orgs.
         past_due, _ = _unpaid_org()
         OrganizationStripeSubscriptionFactory.create(
             organization=past_due,
             subscription__status=StripeSubscriptionStatus.PastDue,
         )
+        # None of these are processed.
         good_standing, _ = _unpaid_org()
         OrganizationManualActivationFactory.create(organization=good_standing)
         OrganizationFactory.create(orgtype=OrganizationType.Community)
@@ -589,6 +590,7 @@ class TestScheduleUnpaidOrganizationDeactivations:
             secondary_only.id,
             unreachable.id,
             ownerless.id,
+            past_due.id,
         }
 
     def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
@@ -655,8 +657,21 @@ def _queued(db_request):
 
 @freeze_time(TODAY.isoformat() + " 01:00:00")
 class TestDeactivateUnpaidOrganization:
-    def test_starts_notice_period(self, db_request, metrics):
+    @pytest.mark.parametrize(
+        "status",
+        [
+            None,
+            StripeSubscriptionStatus.PastDue,
+            StripeSubscriptionStatus.Unpaid,
+            StripeSubscriptionStatus.Incomplete,
+        ],
+    )
+    def test_starts_notice_period(self, db_request, metrics, status):
         organization, _ = _unpaid_org()
+        if status is not None:
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription__status=status
+            )
 
         deactivate_unpaid_organization(db_request, organization.id)
 
@@ -790,9 +805,18 @@ class TestDeactivateUnpaidOrganization:
         )
 
     @pytest.mark.parametrize(
-        "status", [StripeSubscriptionStatus.Active, StripeSubscriptionStatus.PastDue]
+        ("status", "clears"),
+        [
+            (StripeSubscriptionStatus.Active, True),
+            (StripeSubscriptionStatus.Trialing, True),
+            (StripeSubscriptionStatus.PastDue, False),
+            (StripeSubscriptionStatus.Unpaid, False),
+            (StripeSubscriptionStatus.Incomplete, False),
+        ],
     )
-    def test_clears_schedule_once_seat_paid_for(self, db_request, metrics, status):
+    def test_subscription_status_updates_countdown(
+        self, db_request, metrics, status, clears
+    ):
         organization, _ = _unpaid_org()
         _schedule(organization, deactivate_in=3, last_notice_days=14)
         OrganizationStripeSubscriptionFactory.create(
@@ -804,11 +828,15 @@ class TestDeactivateUnpaidOrganization:
         db_request.db.expire(organization)
 
         assert organization.is_active
-        assert organization.deactivation_schedule is None
-        assert _queued(db_request) == []
-        metrics.increment.assert_any_call(
-            "warehouse.organizations.deactivation.cleared"
-        )
+        if clears:
+            assert organization.deactivation_schedule is None
+            assert _queued(db_request) == []
+            metrics.increment.assert_any_call(
+                "warehouse.organizations.deactivation.cleared"
+            )
+        else:
+            assert organization.deactivation_schedule.last_notice_days == 3
+            assert _queued(db_request) == [(organization.id, False)]
 
     def test_ignores_org_in_good_standing(self, db_request, metrics):
         organization, _ = _unpaid_org()

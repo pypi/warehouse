@@ -21,6 +21,8 @@ Continued use of a Corporate Organization requires a paid subscription with at l
 date to purchase a seat by, and remind them 30, 14, and 3 days before that date. If no
 seat is purchased by the end of that date (UTC), we deactivate the Organization.
 Purchasing a seat before then stops the emails and keeps the Organization active.
+A subscription marked past due, unpaid, or incomplete follows the same notice
+period; payment retries do not exempt it from deactivation indefinitely.
 We send these emails to each owner's verified email addresses. If no owner has one
 and the Organization owns no projects, it is still deactivated on the same schedule.
 
