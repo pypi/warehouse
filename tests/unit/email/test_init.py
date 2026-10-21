@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import celery
 import celery.exceptions
@@ -168,7 +168,7 @@ class TestSendEmailToUser:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(seconds=69),
+            return_value=dt.datetime.now() - dt.timedelta(seconds=69),
         )
 
         address = "foo@example.com"
@@ -177,7 +177,7 @@ class TestSendEmailToUser:
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         skip_reason = email._send_email_to_user(
-            db_request, user, msg, repeat_window=datetime.timedelta(seconds=420)
+            db_request, user, msg, repeat_window=dt.timedelta(seconds=420)
         )
 
         assert skip_reason == "repeat-window"
@@ -192,7 +192,7 @@ class TestSendEmailToUser:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(seconds=69),
+            return_value=dt.datetime.now() - dt.timedelta(seconds=69),
         )
 
         user = UserFactory.create(with_verified_primary_email=True)
@@ -200,7 +200,7 @@ class TestSendEmailToUser:
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         email._send_email_to_user(
-            db_request, user, msg, repeat_window=datetime.timedelta(seconds=42)
+            db_request, user, msg, repeat_window=dt.timedelta(seconds=42)
         )
 
         last_sent.assert_called_once_with(to=user.email, subject="My Subject")
@@ -391,8 +391,8 @@ class TestSendPasswordResetEmail:
             verified=True,
             user__username="username_value",
             user__name="name_value",
-            user__last_login=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
-            user__password_date=datetime.datetime(2026, 1, 2, tzinfo=datetime.UTC),
+            user__last_login=dt.datetime(2026, 1, 1, tzinfo=dt.UTC),
+            user__password_date=dt.datetime(2026, 1, 2, tzinfo=dt.UTC),
         ).user
         if email_addr is None:
             user_email = None
@@ -3515,7 +3515,7 @@ class TestYankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="Yanky Doodle went to town",
         )
 
@@ -3624,7 +3624,7 @@ class TestYankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="Yanky Doodle went to town",
         )
 
@@ -3735,7 +3735,7 @@ class TestUnyankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -3843,7 +3843,7 @@ class TestUnyankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -3953,7 +3953,7 @@ class TestRemovedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4062,7 +4062,7 @@ class TestRemovedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4173,7 +4173,7 @@ class TestRemovedReleaseFileEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4283,7 +4283,7 @@ class TestRemovedReleaseFileEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -5081,7 +5081,7 @@ class TestSendUnrecognizedLoginEmail:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+            return_value=dt.datetime.now() - dt.timedelta(minutes=1),
         )
 
         email.send_unrecognized_login_email(
@@ -5128,7 +5128,7 @@ class TestSendUnrecognizedLoginEmail:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+            return_value=dt.datetime.now() - dt.timedelta(minutes=1),
         )
 
         db_request.user = user

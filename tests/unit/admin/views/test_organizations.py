@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from datetime import date, timedelta
 
@@ -245,9 +245,7 @@ class TestOrganizationList:
         OrganizationProjectFactory.create(
             organization=dormant_org, project=dormant_project
         )
-        ReleaseFactory.create(
-            project=dormant_project, created=datetime.datetime(2020, 1, 1)
-        )
+        ReleaseFactory.create(project=dormant_project, created=dt.datetime(2020, 1, 1))
 
         # Unused: owns no projects.
         unused_org = OrganizationFactory.create()
@@ -333,7 +331,7 @@ class TestOrganizationActivity:
         organization = OrganizationFactory.create()
         project = ProjectFactory.create()
         OrganizationProjectFactory.create(organization=organization, project=project)
-        ReleaseFactory.create(project=project, created=datetime.datetime(2020, 1, 1))
+        ReleaseFactory.create(project=project, created=dt.datetime(2020, 1, 1))
         assert views._organization_activity(db_request, organization) == "Dormant"
 
     def test_dormant_with_no_releases(self, db_request):

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytest
 import stripe
@@ -102,15 +102,13 @@ class TestDeleteOrganizationApplications:
         organization_application = OrganizationApplicationFactory.create()
         organization_application.is_active = False
         organization_application.status = OrganizationApplicationStatus.Declined
-        organization_application.updated = datetime.datetime.now() - datetime.timedelta(
-            days=31
-        )
+        organization_application.updated = dt.datetime.now() - dt.timedelta(days=31)
 
         # Create an organization_application that's not ready to be cleaned up yet
         organization_application2 = OrganizationApplicationFactory.create()
         organization_application2.is_active = False
         organization_application2.status = OrganizationApplicationStatus.Declined
-        organization_application2.updated = datetime.datetime.now()
+        organization_application2.updated = dt.datetime.now()
 
         assert (
             db_request.db.query(OrganizationApplication.id)
@@ -583,7 +581,7 @@ class TestNotifyOrganizationsRequiringSubscription:
         organization = OrganizationFactory.create(
             orgtype=OrganizationType.Company,
             is_active=True,
-            created=datetime.datetime.now(datetime.UTC),
+            created=dt.datetime.now(dt.UTC),
         )
         OrganizationRoleFactory.create(
             organization=organization,

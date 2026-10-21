@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import functools
 import typing
 
@@ -109,7 +109,7 @@ def _send_email_to_user(
     if repeat_window is not None:
         sender = request.find_service(IEmailSender)
         last_sent = sender.last_sent(to=email.email, subject=msg.subject)
-        if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
+        if last_sent and (dt.datetime.now() - last_sent) <= repeat_window:
             return "repeat-window"
 
     request.task(send_email).delay(
@@ -143,7 +143,7 @@ def _email(
     name: str,
     *,
     allow_unverified: bool = False,
-    repeat_window: datetime.timedelta | None = None,
+    repeat_window: dt.timedelta | None = None,
     override_from: str | None = None,
 ) -> typing.Callable:
     """
@@ -240,10 +240,10 @@ def send_password_reset_email(request, user_and_email):
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(
-                user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                user.last_login or dt.datetime.min.replace(tzinfo=pytz.UTC)
             ),
             "user.password_date": str(
-                user.password_date or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                user.password_date or dt.datetime.min.replace(tzinfo=pytz.UTC)
             ),
         }
     )
@@ -665,7 +665,7 @@ def send_organization_deleted_email(request, user, *, organization_name):
 
 @_email(
     "organization-subscription-required",
-    repeat_window=datetime.timedelta(days=30),
+    repeat_window=dt.timedelta(days=30),
 )
 def send_organization_subscription_required_email(
     request,
@@ -1051,7 +1051,7 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-UNRECOGNIZED_LOGIN_REPEAT_WINDOW = datetime.timedelta(minutes=15)
+UNRECOGNIZED_LOGIN_REPEAT_WINDOW = dt.timedelta(minutes=15)
 
 
 @_email(

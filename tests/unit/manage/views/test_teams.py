@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
 import pytest
@@ -553,12 +553,12 @@ class TestManageTeamHistory:
         older_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
         assert team_views.manage_team_history(team, db_request) == {

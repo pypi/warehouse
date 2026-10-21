@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
@@ -59,7 +59,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_1_1,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         additional={"publisher_url": "https://fake/url"},
     )
 
@@ -68,7 +68,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_1_2,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
     )
 
     # Scenario: Same project, differences between releases.
@@ -77,7 +77,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_2,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         additional={"publisher_url": "https://fake/url"},
     )
 
@@ -86,7 +86,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_3,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
     )
 
     compute_oidc_metrics(db_request)
@@ -126,7 +126,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         oidc_publisher_id=publisher.id,
         additional={"oidc": publisher.stored_claims(claims)},
     )
-    old_oidc_macaroon.created -= datetime.timedelta(days=1)
+    old_oidc_macaroon.created -= dt.timedelta(days=1)
 
     # Create an OIDC macaroon and set its creation time to 1 hour ago
     macaroon_service.create_macaroon(
@@ -138,7 +138,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         oidc_publisher_id=publisher.id,
         additional={"oidc": publisher.stored_claims(claims)},
     )
-    old_oidc_macaroon.created -= datetime.timedelta(hours=1)
+    old_oidc_macaroon.created -= dt.timedelta(hours=1)
 
     # Create a normal OIDC macaroon
     macaroon_service.create_macaroon(
@@ -157,7 +157,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         [caveats.RequestUser(user_id=str(user.id))],
         user_id=user.id,
     )
-    non_oidc_macaroon.created -= datetime.timedelta(days=1)
+    non_oidc_macaroon.created -= dt.timedelta(days=1)
 
     assert db_request.db.query(Macaroon).count() == 4
 
@@ -188,7 +188,7 @@ def test_delete_expired_pending_publishers(db_request, metrics, mocker):
     expired_publisher = PendingGitHubPublisherFactory.create(
         project_name="expired-project",
         created=pending_publisher_cutoff(PENDING_PUBLISHER_EXPIRY_DAYS)
-        - datetime.timedelta(seconds=1),
+        - dt.timedelta(seconds=1),
     )
     fresh_publisher = PendingGitHubPublisherFactory.create(
         project_name="fresh-project",
@@ -263,11 +263,11 @@ def test_send_pending_publisher_expiration_reminders(db_request, metrics, mocker
     )
     needs_reminder = PendingGitHubPublisherFactory.create(
         project_name="needs-reminder",
-        created=reminder_cutoff - datetime.timedelta(seconds=1),
+        created=reminder_cutoff - dt.timedelta(seconds=1),
     )
     already_reminded = PendingGitHubPublisherFactory.create(
         project_name="already-reminded",
-        created=reminder_cutoff - datetime.timedelta(seconds=1),
+        created=reminder_cutoff - dt.timedelta(seconds=1),
         expiration_reminded=True,
     )
     fresh = PendingGitHubPublisherFactory.create(project_name="fresh-project")

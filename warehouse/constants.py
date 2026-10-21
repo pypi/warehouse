@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import enum
 
 ONE_MIB = 1 * 1024 * 1024
@@ -14,7 +14,7 @@ PROJECT_CREATE_RATELIMIT_CAP = 100
 MAX_PASSWORD_SIZE = 4096
 
 # After a release has been published for this long, reject new uploaded files.
-MAXIMUM_AGE_FOR_NEW_UPLOADS = datetime.timedelta(days=14)
+MAXIMUM_AGE_FOR_NEW_UPLOADS = dt.timedelta(days=14)
 
 
 class RateLimitPeriod(enum.StrEnum):

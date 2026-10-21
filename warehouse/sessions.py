@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import functools
 import time
 
@@ -131,7 +131,7 @@ class Session(dict):
         return self._changed
 
     def record_auth_timestamp(self):
-        self[self._reauth_timestamp_key] = datetime.datetime.now().timestamp()
+        self[self._reauth_timestamp_key] = dt.datetime.now().timestamp()
         self.changed()
 
     def record_password_timestamp(self, timestamp):
@@ -150,7 +150,7 @@ class Session(dict):
 
     def needs_reauthentication(self, time_to_reauth):
         reauth_timestamp = self.get(self._reauth_timestamp_key, 0)
-        current_time = datetime.datetime.now().timestamp()
+        current_time = dt.datetime.now().timestamp()
 
         return current_time - reauth_timestamp >= time_to_reauth
 
@@ -198,6 +198,9 @@ class Session(dict):
         if totp_secret is None:
             totp_secret = self[self._totp_secret_key] = otp.generate_totp_secret()
         return totp_secret
+
+    def has_totp_secret(self):
+        return self.get(self._totp_secret_key) is not None
 
     def clear_totp_secret(self):
         self[self._totp_secret_key] = None

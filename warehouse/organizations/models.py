@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import enum
 import typing
 
@@ -157,7 +157,7 @@ class OrganizationTermsOfServiceEngagement(db.Model):
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     revision: Mapped[str]
-    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    created: Mapped[dt.datetime] = mapped_column(TZDateTime)
     engagement: Mapped[TermsOfServiceEngagement]
 
     organization: Mapped[Organization] = relationship(
@@ -700,7 +700,7 @@ class OrganizationManualActivation(db.Model):
     seat_limit: Mapped[int] = mapped_column(
         comment="Maximum number of organization members allowed"
     )
-    expires: Mapped[datetime.date] = mapped_column(
+    expires: Mapped[dt.date] = mapped_column(
         comment="Expiration date for the manual activation"
     )
     created: Mapped[datetime_now] = mapped_column(
@@ -719,7 +719,7 @@ class OrganizationManualActivation(db.Model):
     @property
     def is_active(self) -> bool:
         """Check if manual activation is currently active (not expired)."""
-        return datetime.date.today() < self.expires
+        return dt.date.today() < self.expires
 
     @property
     def current_member_count(self) -> int:
@@ -778,7 +778,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         index=True,
         comment="Datetime the request was submitted",
     )
-    updated: Mapped[datetime.datetime | None] = mapped_column(
+    updated: Mapped[dt.datetime | None] = mapped_column(
         onupdate=func.now(),
         comment="Datetime the request was last updated",
     )

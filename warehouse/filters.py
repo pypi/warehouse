@@ -2,7 +2,7 @@
 
 import binascii
 import collections
-import datetime
+import datetime as dt
 import enum
 import hmac
 import json
@@ -159,17 +159,17 @@ def localize_datetime(timestamp):
 
 
 def ctime(timestamp):
-    return datetime.datetime.fromtimestamp(timestamp)
+    return dt.datetime.fromtimestamp(timestamp)
 
 
 def is_recent(timestamp):
     if timestamp:
-        return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()
+        return timestamp + dt.timedelta(days=30) > dt.datetime.now()
     return False
 
 
 def parse_isoformat(datestring):
-    return datetime.datetime.fromisoformat(datestring)
+    return dt.datetime.fromisoformat(datestring)
 
 
 def format_email(metadata_email: str) -> tuple[str, str]:
