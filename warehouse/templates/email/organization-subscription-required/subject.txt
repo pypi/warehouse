@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Action required: {{ organizations|map(attribute="name")|join(", ") }} will be deactivated on PyPI{% endblock %}
+{% block subject %}Action required: {% if organizations|length == 1 %}{{ organizations[0].name }} will be deactivated on PyPI{% else %}{{ organizations|length }} organizations will be deactivated on PyPI{% endif %}{% endblock %}
