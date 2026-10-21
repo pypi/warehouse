@@ -171,7 +171,7 @@
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="btn btn-warning btn-block mt-3"
                       {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
-                      onclick="return confirm('Reactivate {{ organization.name }}? If it still has no paid seat, its owners get a new 30-day notice.')">
+                      onclick="return confirm('Reactivate {{ organization.name }}? Unpaid company organizations may enter a new 30-day deactivation countdown. If no owner is reachable, organizations without projects can be deactivated without email.')">
                 <i class="icon fa fa-power-off"></i> Reactivate
               </button>
             </form>
