@@ -557,7 +557,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         self.deactivated_reason = None
 
     @property
-    def reactivation_deadline(self) -> datetime.date | None:
+    def reactivation_deadline(self) -> dt.date | None:
         """Last day (UTC) owners can reactivate by paying."""
         if (
             self.deactivated is None
@@ -571,7 +571,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         deadline = self.reactivation_deadline
         return (
             deadline is not None
-            and datetime.datetime.now(datetime.UTC).date() <= deadline
+            and dt.datetime.now(dt.UTC).date() <= deadline
             and bool(self.owners)
         )
 

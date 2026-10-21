@@ -871,7 +871,7 @@ class TestOrganizationBillingMethods:
             organization = self._deactivated_for(
                 OrganizationDeactivationReason.NoPaidSeat
             )
-        assert organization.reactivation_deadline == datetime.date(2027, 1, 16)
+        assert organization.reactivation_deadline == dt.date(2027, 1, 16)
 
         with freeze_time(now):
             assert organization.reactivates_on_payment is reactivates
