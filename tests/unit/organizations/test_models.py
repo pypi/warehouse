@@ -823,9 +823,7 @@ class TestOrganizationBillingMethods:
         organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
 
         assert not organization.is_active
-        assert organization.deactivated == datetime.datetime(
-            2026, 10, 18, 1, tzinfo=datetime.UTC
-        )
+        assert organization.deactivated == dt.datetime(2026, 10, 18, 1, tzinfo=dt.UTC)
         assert (
             organization.deactivated_reason
             == OrganizationDeactivationReason.OwnerRemoved
@@ -843,9 +841,7 @@ class TestOrganizationBillingMethods:
     )
     @freeze_time("2026-10-19 01:00:00")
     def test_deactivate_preserves_inactive_metadata(self, db_session, reason):
-        deactivated = (
-            datetime.datetime(2026, 7, 1, tzinfo=datetime.UTC) if reason else None
-        )
+        deactivated = dt.datetime(2026, 7, 1, tzinfo=dt.UTC) if reason else None
         organization = DBOrganizationFactory.create(
             is_active=False, deactivated=deactivated, deactivated_reason=reason
         )

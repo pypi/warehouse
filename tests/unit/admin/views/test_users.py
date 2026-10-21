@@ -592,7 +592,7 @@ class TestUserDelete:
             user=user,
             role_name=OrganizationRoleType.Owner,
         )
-        previous_deactivation = datetime.datetime(2026, 7, 1, tzinfo=datetime.UTC)
+        previous_deactivation = dt.datetime(2026, 7, 1, tzinfo=dt.UTC)
         if already_deactivated:
             sole_owned.is_active = False
             sole_owned.deactivated = previous_deactivation
@@ -635,9 +635,7 @@ class TestUserDelete:
             )
             assert deactivation_events == []
         else:
-            assert sole_owned.deactivated == datetime.datetime(
-                2026, 10, 19, 1, tzinfo=datetime.UTC
-            )
+            assert sole_owned.deactivated == dt.datetime(2026, 10, 19, 1, tzinfo=dt.UTC)
             assert (
                 sole_owned.deactivated_reason
                 == OrganizationDeactivationReason.OwnerRemoved

@@ -155,7 +155,7 @@ class OrganizationDeactivationScheduleFactory(WarehouseFactory):
     organization_id = factory.SelfAttribute("organization.id")
     organization = factory.SubFactory(OrganizationFactory)
     deactivate_on = factory.LazyFunction(
-        lambda: datetime.datetime.now(datetime.UTC).date() + datetime.timedelta(days=30)
+        lambda: dt.datetime.now(dt.UTC).date() + dt.timedelta(days=30)
     )
     last_notice_days = 30
 

@@ -361,7 +361,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
-    deactivated: Mapped[datetime.datetime | None] = mapped_column(
+    deactivated: Mapped[dt.datetime | None] = mapped_column(
         TZDateTime,
         comment="Datetime the organization was deactivated. NULL while active.",
     )
@@ -547,7 +547,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         if not self.is_active:
             return
         self.is_active = False
-        self.deactivated = datetime.datetime.now(datetime.UTC)
+        self.deactivated = dt.datetime.now(dt.UTC)
         self.deactivated_reason = reason
 
     def reactivate(self) -> None:
@@ -794,7 +794,7 @@ class OrganizationDeactivationSchedule(db.ModelBase):
     created: Mapped[datetime_now] = mapped_column(
         comment="Datetime when the deactivation notice period started",
     )
-    deactivate_on: Mapped[datetime.date] = mapped_column(
+    deactivate_on: Mapped[dt.date] = mapped_column(
         comment="Last day (UTC) to purchase a seat before deactivation",
     )
     last_notice_days: Mapped[int] = mapped_column(
