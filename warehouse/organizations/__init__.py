@@ -8,7 +8,6 @@ from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     reconcile_stripe_status,
     schedule_unpaid_organization_deactivations,
-    send_organization_deactivation_notices,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -32,11 +31,7 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0), update_organziation_subscription_usage_record
     )
-    # After reconcile_stripe_status, so a missed webhook can't deactivate a paid org.
+    # Status reconciliation is best effort; notices are dispatched after this commits.
     config.add_periodic_task(
         crontab(minute=0, hour=1), schedule_unpaid_organization_deactivations
-    )
-    # After the per-org tasks queue notices, so each owner gets one email.
-    config.add_periodic_task(
-        crontab(minute=0, hour=2), send_organization_deactivation_notices
     )

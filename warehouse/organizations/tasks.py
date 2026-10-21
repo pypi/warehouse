@@ -242,7 +242,7 @@ def _queue_reminder(
 
 @tasks.task(ignore_result=True, acks_late=True)
 def schedule_unpaid_organization_deactivations(request: Request) -> None:
-    """Daily: dispatch every scheduled org plus a capped batch of new unpaid ones."""
+    """Daily: process scheduled orgs and capped new starts, then dispatch notices."""
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
@@ -280,17 +280,21 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
     )
     unpaid = [org.id for org in candidates if org.lacks_paid_seat]
 
+    # One transaction keeps the owner's batch complete even if processing is slow.
+    # Any failure rolls back every change; organization locks last until commit.
     for organization_id in [*scheduled, *unpaid[:DEACTIVATION_STARTS_PER_DAY]]:
-        request.task(deactivate_unpaid_organization).delay(organization_id)
+        deactivate_unpaid_organization(request, organization_id)
+
+    # WarehouseTask dispatches only after all schedules and notices have committed.
+    request.task(send_organization_deactivation_notices).delay()
 
 
-@tasks.task(ignore_result=True, acks_late=True)
 def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> None:
     """Queue the next notice for one org, deactivate it, or clear its schedule."""
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
-    # Lock so a duplicate task can't queue the same notice twice.
+    # Lock so a duplicate producer can't queue the same notice twice.
     organization = request.db.get(Organization, organization_id, with_for_update=True)
     if organization is None:
         return
@@ -358,7 +362,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
 
 @tasks.task(ignore_result=True, acks_late=True)
 def send_organization_deactivation_notices(request: Request) -> None:
-    """Daily: email each owner one list of their orgs with queued notices."""
+    """After the producer commits, email each owner one batch of queued notices."""
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 

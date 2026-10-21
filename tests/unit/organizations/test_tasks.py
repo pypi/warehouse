@@ -14,6 +14,7 @@ from pyramid_retry import RetryableException
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
+from warehouse.organizations import tasks as organization_tasks
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
@@ -539,17 +540,14 @@ def _schedule(organization, *, deactivate_in, last_notice_days):
 
 @freeze_time(TODAY.isoformat() + " 01:00:00")
 class TestScheduleUnpaidOrganizationDeactivations:
-    def test_dispatches_unpaid_and_scheduled_orgs(self, db_request, mocker):
-        task = mocker.patch.object(db_request, "task")
-
+    def test_processes_unpaid_and_scheduled_orgs(self, db_request):
         unpaid, _ = _unpaid_org()
         canceled, _ = _unpaid_org()
         OrganizationStripeSubscriptionFactory.create(
             organization=canceled,
             subscription__status=StripeSubscriptionStatus.Canceled,
         )
-        # A schedule is dispatched even once the org no longer qualifies, so
-        # the per-org task can clear it.
+        # Scheduled orgs are still processed once they no longer qualify.
         scheduled_inactive, _ = _unpaid_org(is_active=False)
         _schedule(scheduled_inactive, deactivate_in=14, last_notice_days=30)
         # An owner reachable only at a non-primary verified address counts.
@@ -561,14 +559,14 @@ class TestScheduleUnpaidOrganizationDeactivations:
         _unverified_owner(unreachable)
         ownerless = OrganizationFactory.create(orgtype=OrganizationType.Company)
 
-        # None of these are dispatched.
-        good_standing, _ = _unpaid_org()
-        OrganizationManualActivationFactory.create(organization=good_standing)
+        # None of these are processed.
         past_due, _ = _unpaid_org()
         OrganizationStripeSubscriptionFactory.create(
             organization=past_due,
             subscription__status=StripeSubscriptionStatus.PastDue,
         )
+        good_standing, _ = _unpaid_org()
+        OrganizationManualActivationFactory.create(organization=good_standing)
         OrganizationFactory.create(orgtype=OrganizationType.Community)
         _unpaid_org(is_active=False)
         _unpaid_org(created=dt.datetime.now(dt.UTC))
@@ -581,11 +579,13 @@ class TestScheduleUnpaidOrganizationDeactivations:
 
         schedule_unpaid_organization_deactivations(db_request)
 
-        task.assert_called_with(deactivate_unpaid_organization)
-        assert {c.args[0] for c in task.return_value.delay.call_args_list} == {
+        db_request.db.flush()
+        db_request.db.expire(scheduled_inactive)
+
+        assert scheduled_inactive.deactivation_schedule is None
+        assert {organization_id for organization_id, _ in _queued(db_request)} == {
             unpaid.id,
             canceled.id,
-            scheduled_inactive.id,
             secondary_only.id,
             unreachable.id,
             ownerless.id,
@@ -593,7 +593,6 @@ class TestScheduleUnpaidOrganizationDeactivations:
 
     def test_caps_new_notice_periods_oldest_first(self, db_request, mocker):
         mocker.patch("warehouse.organizations.tasks.DEACTIVATION_STARTS_PER_DAY", 1)
-        task = mocker.patch.object(db_request, "task")
 
         oldest, _ = _unpaid_org(created=dt.datetime(2021, 1, 1))
         _unpaid_org(created=dt.datetime(2022, 1, 1))
@@ -603,21 +602,48 @@ class TestScheduleUnpaidOrganizationDeactivations:
 
         schedule_unpaid_organization_deactivations(db_request)
 
-        assert {c.args[0] for c in task.return_value.delay.call_args_list} == {
+        assert {organization_id for organization_id, _ in _queued(db_request)} == {
             oldest.id,
             scheduled.id,
         }
 
-    def test_disallowed_by_admin_flag(self, db_request, mocker):
+    def test_failed_producer_rolls_back_the_batch(self, db_request, mocker):
+        first, _ = _unpaid_org(created=dt.datetime(2021, 1, 1))
+        second, _ = _unpaid_org(created=dt.datetime(2022, 1, 1))
+        queue_reminder = organization_tasks._queue_reminder
+
+        def fail_after_queueing(request, schedule):
+            queue_reminder(request, schedule)
+            if schedule.organization is second:
+                raise RuntimeError("producer failed")
+
+        mocker.patch.object(
+            organization_tasks, "_queue_reminder", side_effect=fail_after_queueing
+        )
+        task = mocker.patch.object(db_request, "task")
+
+        with (
+            pytest.raises(RuntimeError, match="producer failed"),
+            db_request.db.begin_nested(),
+        ):
+            schedule_unpaid_organization_deactivations(db_request)
+
+        db_request.db.expire_all()
+        assert first.deactivation_schedule is None
+        assert second.deactivation_schedule is None
+        assert _queued(db_request) == []
+        task.assert_not_called()
+
+    def test_disallowed_by_admin_flag(self, db_request):
         db_request.db.get(
             AdminFlag, AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION.value
         ).enabled = True
-        task = mocker.patch.object(db_request, "task")
-        _unpaid_org()
+        organization, _ = _unpaid_org()
 
         schedule_unpaid_organization_deactivations(db_request)
 
-        task.assert_not_called()
+        assert organization.deactivation_schedule is None
+        assert _queued(db_request) == []
 
 
 def _queued(db_request):
