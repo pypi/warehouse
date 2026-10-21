@@ -31,7 +31,7 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0), update_organziation_subscription_usage_record
     )
-    # Status reconciliation is best effort; notices are dispatched after this commits.
+    # After reconcile_stripe_status, so a missed webhook can't deactivate a paid org.
     config.add_periodic_task(
         crontab(minute=0, hour=1), schedule_unpaid_organization_deactivations
     )
