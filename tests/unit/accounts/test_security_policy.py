@@ -89,7 +89,9 @@ class TestBasicAuthSecurityPolicy:
         assert_vary = vary_spies(pyramid_request)
         pyramid_request.matched_route = UPLOAD_ROUTE
         pyramid_request.headers["Authorization"] = _basic_auth("user", "password")
-        pyramid_request.help_url = mocker.Mock(return_value="/help")
+        pyramid_request.user_docs_url = mocker.Mock(
+            return_value="https://docs.example.com/publishing/publishing-to-pypi/"
+        )
 
         policy = security_policy.BasicAuthSecurityPolicy()
 

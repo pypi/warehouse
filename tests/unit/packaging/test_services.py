@@ -840,8 +840,8 @@ class TestProjectService:
         )
         admin_flag.enabled = True
 
-        # help_url is added by a request extension, so DummyRequest lacks it
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+        # user_docs_url is added by a request extension, so DummyRequest lacks it
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         service = ProjectService(session=db_request.db)
 
@@ -854,7 +854,7 @@ class TestProjectService:
         assert resp.status_code == 403
         assert resp.detail == (
             "New project registration temporarily disabled. See "
-            "/the/help/url/ for more information."
+            "/the/docs/url/ for more information."
         )
 
     @pytest.mark.parametrize(

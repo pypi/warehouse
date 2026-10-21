@@ -875,7 +875,7 @@ def test_mint_token_with_prohibited_name_fails(mocker, db_request):
 
     db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
-    db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+    db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
     resp = views.mint_token_from_oidc(db_request)
 
@@ -886,7 +886,7 @@ def test_mint_token_with_prohibited_name_fails(mocker, db_request):
         assert err["code"] == "invalid-payload"
         assert err["description"] == (
             f"The name {prohibited_project_name.name!r} isn't allowed. "
-            "See /the/help/url/ "
+            "See /the/docs/url/ "
             "for more information."
         )
 

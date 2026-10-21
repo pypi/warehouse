@@ -1061,27 +1061,29 @@ class HaveIBeenPwnedPasswordBreachedService:
         session,
         metrics,
         api_base="https://api.pwnedpasswords.com",
-        help_url=None,
+        docs_url=None,
     ):
         self._http = session
         self._api_base = api_base
         self._metrics = metrics
-        self._help_url = help_url
+        self._docs_url = docs_url
 
     @classmethod
     def create_service(cls, context, request):
         return cls(
             session=request.http,
             metrics=request.find_service(IMetricsService, context=None),
-            help_url=request.help_url(_anchor="compromised-password"),
+            docs_url=request.user_docs_url(
+                "/your-account/security-alerts/", anchor="compromised-passwords"
+            ),
         )
 
     @property
     def failure_message(self):
         message = self._failure_message_preamble
-        if self._help_url:
+        if self._docs_url:
             message += (
-                f' See <a href="{self._help_url}">this FAQ entry</a> for more '
+                f' See <a href="{self._docs_url}">the user documentation</a> for more '
                 "information."
             )
         return message

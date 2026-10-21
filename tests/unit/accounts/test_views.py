@@ -1879,7 +1879,8 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         db_request.session.flash.assert_called_once_with(
             "New user registration temporarily disabled. "
-            "See https://pypi.org/help#admin-intervention for details.",
+            "See https://docs.pypi.org/your-account/managing-your-account/"
+            "#account-registration-limits for details.",
             queue="error",
         )
         metrics.increment.assert_any_call(
@@ -3550,7 +3551,8 @@ class TestManageAccountPublishingViews:
         publishing_request.session.flash.assert_called_once_with(
             (
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
@@ -3612,8 +3614,8 @@ class TestManageAccountPublishingViews:
         publishing_request.session.flash.assert_called_once_with(
             (
                 f"{publisher_name}-based trusted publishing is temporarily "
-                "disabled. See https://pypi.org/help#admin-intervention for "
-                "details."
+                "disabled. See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
@@ -3679,7 +3681,8 @@ class TestManageAccountPublishingViews:
             (
                 "You must have a verified email in order to register a "
                 "pending trusted publisher. "
-                "See https://pypi.org/help#openid-connect for details."
+                "See https://docs.pypi.org/your-account/managing-your-account/"
+                "#email-address-verification for details."
             ),
             queue="error",
         )
@@ -4324,7 +4327,8 @@ class TestManageAccountPublishingViews:
         publishing_request.session.flash.assert_called_once_with(
             (
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )

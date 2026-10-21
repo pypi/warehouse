@@ -251,7 +251,9 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        return {"help_url": self.request.help_url(_anchor="account-recovery")}
+        return {
+            "docs_url": self.request.user_docs_url("/your-account/account-recovery/")
+        }
 
     @view_config(
         request_method="POST",
@@ -304,7 +306,9 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 
         if not form.validate():
             return {
-                "help_url": self.request.help_url(_anchor="account-recovery"),
+                "docs_url": self.request.user_docs_url(
+                    "/your-account/account-recovery/"
+                ),
                 "change_unverified_primary_email_form": form,
             }
 
@@ -1336,8 +1340,13 @@ def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
         request.session.flash(
             request._(
-                "Project deletion temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "Project deletion temporarily disabled. See ${docs_url} for details.",
+                mapping={
+                    "docs_url": request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                },
             ),
             queue="error",
         )
@@ -1668,7 +1677,13 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Project deletion temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1790,8 +1805,13 @@ class ManageProjectRelease:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             message = self.request._(
-                "Project deletion temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "Project deletion temporarily disabled. See ${docs_url} for details.",
+                mapping={
+                    "docs_url": self.request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                },
             )
             return _error(message)
 

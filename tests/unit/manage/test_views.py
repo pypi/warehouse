@@ -90,15 +90,17 @@ class TestManageUnverifiedAccount:
         request = pretend.stub(
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(name=name, has_primary_verified_email=False),
-            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            user_docs_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
 
         assert view.manage_unverified_account() == {
-            "help_url": "/the/url",
+            "docs_url": "/the/url",
         }
-        assert request.help_url.calls == [pretend.call(_anchor="account-recovery")]
+        assert request.user_docs_url.calls == [
+            pretend.call("/your-account/account-recovery/")
+        ]
         assert view.request == request
         assert view.user_service == user_service
 
@@ -113,7 +115,7 @@ class TestManageUnverifiedAccount:
         request = pretend.stub(
             find_service=lambda *a, **kw: user_service,
             user=user,
-            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            user_docs_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
@@ -234,7 +236,7 @@ class TestManageUnverifiedAccount:
             find_service=lambda svc, *a, name=None, **kw: limiters.get(
                 name, user_service
             ),
-            help_url=lambda *a, **kw: "/help",
+            user_docs_url=lambda *a, **kw: "/docs",
             remote_addr="1.2.3.4",
         )
         form_obj = pretend.stub(validate=lambda: False)
@@ -245,7 +247,7 @@ class TestManageUnverifiedAccount:
         result = view.change_unverified_primary_email()
 
         assert result == {
-            "help_url": "/help",
+            "docs_url": "/docs",
             "change_unverified_primary_email_form": form_obj,
         }
         assert attempt_limiter.hit.calls == [pretend.call(user.id)]
@@ -3977,7 +3979,8 @@ class TestManageProjectSettings:
             pretend.call(
                 (
                     "Project deletion temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See https://docs.pypi.org/about/security-and-internals/"
+                    "#temporarily-disabled-features for details."
                 ),
                 queue="error",
             )
@@ -4373,7 +4376,8 @@ class TestManageProjectRelease:
             pretend.call(
                 (
                     "Project deletion temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See https://docs.pypi.org/about/security-and-internals/"
+                    "#temporarily-disabled-features for details."
                 ),
                 queue="error",
             )
@@ -4922,7 +4926,8 @@ class TestManageProjectRelease:
             pretend.call(
                 (
                     "Project deletion temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See https://docs.pypi.org/about/security-and-internals/"
+                    "#temporarily-disabled-features for details."
                 ),
                 queue="error",
             )

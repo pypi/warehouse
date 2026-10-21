@@ -1964,7 +1964,7 @@ class TestManageOrganizationProjects:
         pyramid_user,
         monkeypatch,
     ):
-        db_request.help_url = lambda *a, **kw: ""
+        db_request.user_docs_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
 
@@ -2062,7 +2062,7 @@ class TestManageOrganizationProjects:
         """`hit` (on the attempt limiter) rejects after the project is in the
         session, so the view must doom the transaction or pyramid_tm commits
         the refused project."""
-        db_request.help_url = lambda *a, **kw: ""
+        db_request.user_docs_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
@@ -2108,7 +2108,7 @@ class TestManageOrganizationProjects:
             (
                 "requirements.txt",
                 (
-                    "The name 'requirements.txt' isn't allowed. See help-url "
+                    "The name 'requirements.txt' isn't allowed. See docs-url "
                     "for more information."
                 ),
             ),
@@ -2123,7 +2123,7 @@ class TestManageOrganizationProjects:
         invalid_name,
         expected,
     ):
-        db_request.help_url = lambda *a, **kw: "help-url"
+        db_request.user_docs_url = lambda *a, **kw: "docs-url"
 
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
@@ -2169,7 +2169,7 @@ class TestManageOrganizationProjects:
         organization_service,
         monkeypatch,
     ):
-        db_request.help_url = lambda *a, **kw: "help-url"
+        db_request.user_docs_url = lambda *a, **kw: "docs-url"
 
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
@@ -2211,7 +2211,7 @@ class TestManageOrganizationProjects:
                 "See {projecthelp} for more information."
             ).format(
                 name=project.name,
-                projecthelp="help-url",
+                projecthelp="docs-url",
             )
         ]
         assert len(organization.projects) == 1
@@ -3619,7 +3619,8 @@ class TestManageOrganizationPublishingViews:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "GitHub-based trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details.",
                 queue="error",
             )
         ]
@@ -3780,7 +3781,8 @@ class TestManageOrganizationPublishingViews:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details.",
                 queue="error",
             )
         ]

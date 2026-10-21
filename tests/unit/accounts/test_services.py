@@ -1871,8 +1871,8 @@ class TestHaveIBeenPwnedPasswordBreachedService:
 
     def test_factory(self, pyramid_request, metrics, mocker):
         pyramid_request.http = mocker.sentinel.http
-        pyramid_request.help_url = mocker.Mock(
-            side_effect=lambda _anchor=None: f"http://localhost/help/#{_anchor}"
+        pyramid_request.user_docs_url = mocker.Mock(
+            side_effect=lambda path, anchor=None: f"http://docs{path}#{anchor}"
         )
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
             mocker.sentinel.context, pyramid_request
@@ -1880,10 +1880,12 @@ class TestHaveIBeenPwnedPasswordBreachedService:
 
         assert svc._http is pyramid_request.http
         assert svc._metrics is metrics
-        assert svc._help_url == "http://localhost/help/#compromised-password"
+        assert svc._docs_url == (
+            "http://docs/your-account/security-alerts/#compromised-passwords"
+        )
 
     @pytest.mark.parametrize(
-        ("help_url", "expected"),
+        ("docs_url", "expected"),
         [
             (
                 None,
@@ -1893,19 +1895,20 @@ class TestHaveIBeenPwnedPasswordBreachedService:
                 ),
             ),
             (
-                "http://localhost/help/#compromised-password",
+                "http://docs/your-account/security-alerts/#compromised-passwords",
                 (
                     "This password appears in a security breach or has been "
                     "compromised and cannot be used. See "
-                    '<a href="http://localhost/help/#compromised-password">'
-                    "this FAQ entry</a> for more information."
+                    '<a href="http://docs/your-account/security-alerts/'
+                    '#compromised-passwords">'
+                    "the user documentation</a> for more information."
                 ),
             ),
         ],
     )
-    def test_failure_message(self, pyramid_request, mocker, help_url, expected):
+    def test_failure_message(self, pyramid_request, mocker, docs_url, expected):
         pyramid_request.http = mocker.sentinel.http
-        pyramid_request.help_url = mocker.Mock(return_value=help_url)
+        pyramid_request.user_docs_url = mocker.Mock(return_value=docs_url)
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
             mocker.sentinel.context, pyramid_request
         )
