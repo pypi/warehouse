@@ -4,7 +4,7 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% set perms_admin_projects_write = request.has_permission(Permissions.AdminProjectsWrite) %}
+{% set perms_admin_projects_quarantine = request.has_permission(Permissions.AdminProjectsQuarantine) %}
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
@@ -171,10 +171,10 @@
               <i class="icon fa fa-download"></i> User account export (JSON)
             </a>
             {% endif %}
-            <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+            <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_quarantine }}>
               <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
             </button>
-            <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#clearQuarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+            <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#clearQuarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_quarantine }}>
               <i class="icon fa fa-unlock"></i> Clear all projects from quarantine
             </button>
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
@@ -257,9 +257,13 @@
                       <ul>
                       {% for organization in sole_owned_organizations %}
                         <li>
+                          {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
                           <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
                             {{ organization.name }}
                           </a>
+                          {% else %}
+                            {{ organization.name }}
+                          {% endif %}
                         </li>
                       {% endfor %}
                       </ul>
@@ -978,9 +982,13 @@
               <tr>
                 <td>Organization</td>
                 <td>
+                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
                   <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
                     {{ invitation.organization.name }}
                   </a>
+                  {% else %}
+                    {{ invitation.organization.name }}
+                  {% endif %}
                 </td>
                 <td>{{ invitation.invite_status.value }}</td>
               </tr>
@@ -1004,6 +1012,7 @@
         </div>
       </div> <!-- .card -->
 
+      {% if request.has_permission(Permissions.AdminDashboardSidebarRead, admin_root) %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">API Tokens</h3>
@@ -1026,9 +1035,13 @@
               {% for token in user.macaroons %}
               <tr>
                 <td>
+                  {% if request.has_permission(Permissions.AdminMacaroonsRead, admin_root) %}
                   <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=token.id) }}">
                     <code>{{ token.id }}</code>
                   </a>
+                  {% else %}
+                    <code>{{ token.id }}</code>
+                  {% endif %}
                 </td>
                 <td>{{ token.description }}</td>
                 <td>{{ token.created }}</td>
@@ -1044,6 +1057,7 @@
           {% endif %}
         </div>
       </div> <!-- .card -->
+      {% endif %}
 
       <div class="card">
         <div class="card-header with-border">
@@ -1103,7 +1117,13 @@
             <tbody>
             {% for organization in user.organization_roles %}
               <tr>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a></td>
+                <td>
+                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                    <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a>
+                  {% else %}
+                    {{ organization.organization.name }}
+                  {% endif %}
+                </td>
                 <td>{{ organization.role_name.value }}</td>
               </tr>
             {% endfor %}
@@ -1113,7 +1133,7 @@
       </div> <!-- .card -->
       {% endif %}
 
-      {% if user.organization_applications %}
+      {% if user.organization_applications and request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Organization Applications</h3>
@@ -1200,7 +1220,13 @@
                 {% for login in user.unique_logins %}
                 <tr>
                   <td>{{ login.created }}</td>
-                  <td><a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address ) }}">{{ login.ip_address }}</a></td>
+                  <td>
+                    {% if request.has_permission(Permissions.AdminIpAddressesRead, admin_root) %}
+                      <a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address) }}">{{ login.ip_address }}</a>
+                    {% else %}
+                      {{ login.ip_address }}
+                    {% endif %}
+                  </td>
                   <td>{{ login.status.value }}</td>
                   <td>
                     {% if login.status.value == 'pending' %}
@@ -1308,10 +1334,12 @@
             </tbody>
           </table>
         </div>
+        {% if request.has_permission(Permissions.AdminJournalRead, admin_root) %}
         <div class="card-footer">
           <a href="{{ request.route_path('admin.journals.list', _query={"submitted_by": user.username}) }}"
              class="btn btn-primary">View all journals for username</a>
         </div>
+        {% endif %}
       </div>
       <!-- .card -->
     {% endif %}

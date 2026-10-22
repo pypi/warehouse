@@ -38,14 +38,16 @@
             <button type="submit"
                     class="btn btn-block btn-outline-success"
                     data-toggle="modal"
-                    data-target="#modal-exit-quarantine">Clear from Quarantine</button>
+                    data-target="#modal-exit-quarantine" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsQuarantine) }}>Clear from Quarantine</button>
           </div>
           <div class="col">
+            {% if request.has_permission(Permissions.AdminProhibitedProjectsWrite) %}
             <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
               <input name="project" type="hidden" value="{{ project.name }}">
               <input name="comment" type="hidden" value="malware" id="prohibitedComment">
               <button type="submit" class="btn btn-block btn-outline-danger">Remove project as malware</button>
             </form>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -77,7 +79,7 @@
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-outline-success">Remove from Quarantine</button>
+            <button type="submit" class="btn btn-outline-success" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsQuarantine) }}>Remove from Quarantine</button>
           </div>
         </div>
       </form>
@@ -188,7 +190,11 @@
                   {% endif %}
                   {% if limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+                <td>
+                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                    <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a>
+                  {% endif %}
+                </td>
               </tr>
               {% endif %}
             </table>
@@ -275,7 +281,11 @@
                   {% endif %}
                   {% if size_limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+                <td>
+                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                    <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a>
+                  {% endif %}
+                </td>
               </tr>
               {% endif %}
             </table>
@@ -324,7 +334,13 @@
         </thead>
         <tbody>
           <tr>
-            <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}">{{ project.organization.display_name }}</a></td>
+            <td>
+              {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}">{{ project.organization.display_name }}</a>
+              {% else %}
+                {{ project.organization.display_name }}
+              {% endif %}
+            </td>
             <td>{{ project.organization.name }}</td>
             <td>{{ project.organization.is_active }}</td>
             <td>{{ project.organization.good_standing }}</td>
