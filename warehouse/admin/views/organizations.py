@@ -187,7 +187,12 @@ def _turbo_mode(request):
     request.session.flash(
         "No more Organization Applications to review!", queue="success"
     )
-    return HTTPSeeOther(request.route_path("admin.dashboard"))
+    route = (
+        "admin.dashboard"
+        if request.has_permission(Permissions.AdminDashboardRead)
+        else "admin.organization_application.list"
+    )
+    return HTTPSeeOther(request.route_path(route))
 
 
 @view_config(
@@ -528,7 +533,7 @@ def cancel_organization_subscription(request):
 @view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
-    permission=Permissions.AdminOrganizationsRead,
+    permission=Permissions.AdminOrganizationApplicationsRead,
     uses_session=True,
 )
 def organization_applications_list(request):
@@ -640,7 +645,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     require_methods=False,
     request_method="GET",
     renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
-    permission=Permissions.AdminOrganizationsRead,
+    permission=Permissions.AdminOrganizationApplicationsRead,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -650,7 +655,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     require_methods=False,
     request_method="POST",
     renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -727,7 +732,7 @@ def organization_application_detail(request):
 @view_config(
     route_name="admin.organization_application.approve",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -753,15 +758,24 @@ def organization_application_approve(request):
     if request.params.get("organization_applications_turbo_mode") == "true":
         return _turbo_mode(request)
 
+    if request.has_permission(Permissions.AdminOrganizationsRead):
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
     return HTTPSeeOther(
-        request.route_path("admin.organization.detail", organization_id=organization.id)
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
     )
 
 
 @view_config(
     route_name="admin.organization_application.defer",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -799,7 +813,7 @@ def organization_application_defer(request):
 @view_config(
     route_name="admin.organization_application.requestmoreinfo",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -842,7 +856,7 @@ def organization_application_request_more_information(request):
 @view_config(
     route_name="admin.organization_application.decline",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -880,7 +894,7 @@ def organization_application_decline(request):
 @view_config(
     route_name="admin.organization_application.addnote",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
