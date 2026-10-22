@@ -70,6 +70,7 @@ class UserFactory(WarehouseFactory):
     )
     is_active = True
     is_superuser = False
+    is_security = False
     is_moderator = False
     is_org_application_reviewer = False
     is_psf_staff = False
