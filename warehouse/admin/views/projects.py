@@ -468,7 +468,7 @@ def add_release_observation(release, request):
 
 @view_config(
     route_name="admin.project.remove_from_quarantine",
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -483,7 +483,7 @@ def remove_from_quarantine(project, request):
 
 @view_config(
     route_name="admin.project.release.quarantine",
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -502,7 +502,7 @@ def release_quarantine(release, request):
 
 @view_config(
     route_name="admin.project.release.remove_from_quarantine",
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     request_method="POST",
     uses_session=True,
     require_methods=False,
