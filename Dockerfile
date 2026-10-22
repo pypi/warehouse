@@ -99,6 +99,11 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
         -r requirements/docs-user.txt \
         -r requirements/docs-blog.txt
 
+# Material for MkDocs and ProperDocs each print a large "MkDocs 2.0" banner on
+# every build/serve; silence both.
+ENV NO_MKDOCS_2_WARNING=true \
+    DISABLE_MKDOCS_2_WARNING=true
+
 # We'll make the docs container run as a non-root user, ensure that the built
 # documentation belongs to the same user on the host machine.
 ARG USER_ID
