@@ -1687,12 +1687,10 @@ class TestManageOrganizationTeams:
             organization=organization, user=db_request.user, role_name="Owner"
         )
 
-        def add_team(name, *args, **kwargs):
-            team = TeamFactory.create(name=name)
-            organization.teams.append(team)
-            return team
-
-        monkeypatch.setattr(organization_service, "add_team", add_team)
+        # Production IP lookups return a loaded object without autoflushing.
+        db_request.db.refresh(db_request.ip_address)
+        # Authentication also loads the current user before the view runs.
+        db_request.db.refresh(db_request.user)
 
         send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
@@ -1706,8 +1704,22 @@ class TestManageOrganizationTeams:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert len(organization.teams) == 2
-        assert organization.teams[-1].name == "Team Name"
+        teams = organization_service.get_teams_by_organization(organization.id)
+        assert len(teams) == 2
+        team = next(team for team in teams if team.name == "Team Name")
+        assert team.organization == organization
+        assert team.events[0].tag == "team:create"
+        assert team.events[0].additional == {
+            "organization_name": organization.name,
+            "team_name": "Team Name",
+            "created_by_user_id": str(db_request.user.id),
+        }
+        assert organization.events[0].tag == "organization:team:create"
+        assert organization.events[0].additional == {
+            "organization_name": organization.name,
+            "team_name": "Team Name",
+            "created_by_user_id": str(db_request.user.id),
+        }
         assert send_team_created_email.calls == [
             pretend.call(
                 db_request,

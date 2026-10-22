@@ -1014,7 +1014,7 @@ class TestDatabaseOrganizationService:
             name=team.name,
             organization_id=team.organization.id,
         )
-        organization_service.db.flush()
+        assert new_team.organization == team.organization
         team_from_db = organization_service.get_team(new_team.id)
 
         assert team_from_db.name == team.name

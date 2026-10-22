@@ -22,6 +22,13 @@ documentation. There are some places where joins are done using
 name-based logic instead of a foreign key (but this may change in the
 future).
 
+Services that create ORM objects using foreign-key IDs must flush before returning
+if callers immediately need their relationships. For example,
+`DatabaseOrganizationService.add_team` and `add_team_role` flush so callers can
+record audit events using the related organization, team, or user. Do not rely on
+unrelated queries to autoflush pending objects: request IP resolution deliberately
+disables autoflush to preserve database lock ordering.
+
 Warehouse also uses [hybrid URL traversal and dispatch](https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html). Using
 factory classes, resources are provided directly to the views based on the URL
 pattern. This method of handling URLs may be unfamiliar to developers used to
