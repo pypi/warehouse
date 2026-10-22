@@ -13,6 +13,7 @@ from tests.common.db.organizations import (
 )
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 from warehouse.packaging.models import LifecycleStatus
+from warehouse.utils.security_policy import principals_for
 
 
 def _csrf(webtest):
@@ -191,6 +192,26 @@ def test_security_release_quarantine_and_clear(
         status=303,
     )
     assert release.lifecycle_status == LifecycleStatus.QuarantineExit
+
+
+@pytest.mark.parametrize(
+    "role", ["is_security", "is_support", "is_moderator", "is_superuser"]
+)
+def test_security_assignment_requires_superuser(webtest, login_admin, role):
+    login_admin(**{role: True})
+    target = UserFactory.create()
+    path = f"/admin/users/{target.username}/"
+    token = _csrf(webtest)
+    webtest.post(
+        path,
+        {"csrf_token": token, "is_active": "y", "is_security": "y"},
+        status=303 if role == "is_superuser" else 403,
+    )
+    assert target.is_security is (role == "is_superuser")
+    if role == "is_superuser":
+        assert "group:security" in principals_for(target)
+        webtest.post(path, {"csrf_token": token, "is_active": "y"}, status=303)
+        assert "group:security" not in principals_for(target)
 
 
 def test_security_report_csrf(webtest, login_admin, make_malware_report):
