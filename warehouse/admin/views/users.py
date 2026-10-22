@@ -950,7 +950,7 @@ def user_email_domain_check(user, request):
 @view_config(
     route_name="admin.user.quarantine_projects",
     require_methods=["POST"],
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -985,7 +985,7 @@ def user_quarantine_projects(user, request):
 @view_config(
     route_name="admin.user.clear_quarantine_projects",
     require_methods=["POST"],
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     uses_session=True,
     require_csrf=True,
     context=User,
