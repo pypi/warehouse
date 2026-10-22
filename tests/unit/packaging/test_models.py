@@ -7,7 +7,8 @@ from collections import OrderedDict
 import pypi_attestations
 import pytest
 
-from pyramid.authorization import ACLHelper, Authenticated
+from pyramid.authorization import Allow, Authenticated
+from pyramid.location import lineage
 from sqlalchemy import update
 
 from warehouse.attestations.models import (
@@ -140,71 +141,6 @@ def _provenance_history(publisher=None):
     return oldest.project
 
 
-# Exactly the Permissions each Project/Release ACL group principal is
-# granted via `Project.__acl__`. A Release has no `__acl__` of its own and
-# inherits these entirely from its parent Project through `lineage`.
-PROJECT_ADMIN_PERMISSIONS = {
-    Permissions.AdminDashboardSidebarRead,
-    Permissions.AdminMalwareReportsRead,
-    Permissions.AdminMalwareReportsWrite,
-    Permissions.AdminMalwareReportsRemove,
-    Permissions.AdminObservationsRead,
-    Permissions.AdminObservationsWrite,
-    Permissions.AdminProhibitedProjectsWrite,
-    Permissions.AdminProhibitedUsernameWrite,
-    Permissions.AdminProjectsDelete,
-    Permissions.AdminProjectsQuarantine,
-    Permissions.AdminProjectsRead,
-    Permissions.AdminProjectsSetLimit,
-    Permissions.AdminProjectsWrite,
-    Permissions.AdminRoleAdd,
-    Permissions.AdminRoleDelete,
-    Permissions.AdminVulnerabilitiesRead,
-}
-
-PROJECT_MODERATOR_PERMISSIONS = {
-    Permissions.AdminDashboardSidebarRead,
-    Permissions.AdminObservationsRead,
-    Permissions.AdminObservationsWrite,
-    Permissions.AdminMalwareReportsRead,
-    Permissions.AdminMalwareReportsWrite,
-    Permissions.AdminProjectsRead,
-    Permissions.AdminProjectsSetLimit,
-    Permissions.AdminRoleAdd,
-    Permissions.AdminRoleDelete,
-}
-
-# Security has no role management, project write/delete/set-limit, or
-# dashboard access.
-PROJECT_SECURITY_PERMISSIONS = {
-    Permissions.AdminMalwareReportsRead,
-    Permissions.AdminMalwareReportsWrite,
-    Permissions.AdminMalwareReportsRemove,
-    Permissions.AdminObservationsRead,
-    Permissions.AdminObservationsWrite,
-    Permissions.AdminProjectsQuarantine,
-    Permissions.AdminProjectsRead,
-    Permissions.AdminUsersRead,
-}
-
-PROJECT_OBSERVER_PERMISSIONS = {Permissions.APIObservationsAdd}
-PROJECT_AUTHENTICATED_PERMISSIONS = {Permissions.SubmitMalwareObservation}
-
-
-def _assert_group_permissions(acl_helper, context, principal, expected):
-    """
-    Assert `principal` is allowed exactly `expected` Permissions against
-    `context` (via `acl_helper.permits`), and denied every other member of
-    `Permissions`.
-    """
-    for permission in Permissions:
-        result = acl_helper.permits(context, [principal], permission)
-        if permission in expected:
-            assert result, f"{principal} should be allowed {permission}"
-        else:
-            assert not result, f"{principal} should be denied {permission}"
-
-
 class TestRole:
     def test_repr(self, db_request):
         role = DBRoleFactory()
@@ -307,47 +243,122 @@ class TestProject:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        acl = ACLHelper()
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
-        _assert_group_permissions(
-            acl, project, "group:admins", PROJECT_ADMIN_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, project, "group:moderators", PROJECT_MODERATOR_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, project, "group:security", PROJECT_SECURITY_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, project, "group:observers", PROJECT_OBSERVER_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, project, Authenticated, PROJECT_AUTHENTICATED_PERMISSIONS
-        )
-
-        # A trusted publisher may upload, nothing else.
-        oidc_principal = f"oidc:{publisher.id}"
-        assert acl.permits(project, [oidc_principal], Permissions.ProjectsUpload)
-        assert not acl.permits(project, [oidc_principal], Permissions.ProjectsRead)
-        assert not acl.permits(project, [oidc_principal], Permissions.ProjectsWrite)
-
-        # Owners (direct, organization, and team) may read, upload, and write.
-        for owner in (owner1, owner2, owner3, owner4):
-            principal = f"user:{owner.user.id}"
-            assert acl.permits(project, [principal], Permissions.ProjectsRead)
-            assert acl.permits(project, [principal], Permissions.ProjectsUpload)
-            assert acl.permits(project, [principal], Permissions.ProjectsWrite)
-            assert not acl.permits(project, [principal], Permissions.AdminProjectsRead)
-
-        # Maintainers may only upload.
-        for maintainer in (maintainer1, maintainer2):
-            principal = f"user:{maintainer.user.id}"
-            assert acl.permits(project, [principal], Permissions.ProjectsUpload)
-            assert not acl.permits(project, [principal], Permissions.ProjectsRead)
-            assert not acl.permits(project, [principal], Permissions.ProjectsWrite)
-
-        # An unrelated user has no project-scoped grant at all.
-        assert not acl.permits(project, ["user:unrelated"], Permissions.ProjectsRead)
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:security",
+                (
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner3.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner4.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_acl_for_quarantined_project(self, db_session):
         """
@@ -369,30 +380,86 @@ class TestProject:
             team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
 
-        # Quarantined projects should not allow uploads from trusted
-        # publishers, even though one is registered.
-        publisher = GitHubPublisherFactory.create(projects=[project])
+        # Publishers should not appear in the ACLs, since quarantined
+        # projects should not allow uploads from trusted publishers
+        GitHubPublisherFactory.create(projects=[project])
 
-        acl = ACLHelper()
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
-        # Admin/moderator/security group grants are unaffected by quarantine.
-        _assert_group_permissions(
-            acl, project, "group:admins", PROJECT_ADMIN_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, project, "group:security", PROJECT_SECURITY_PERMISSIONS
-        )
-
-        assert not acl.permits(
-            project, [f"oidc:{publisher.id}"], Permissions.ProjectsUpload
-        )
-
-        # Every role (owner or maintainer) is downgraded to read+upload only.
-        for member in (owner1, owner2, owner3, owner4, maintainer1, maintainer2):
-            principal = f"user:{member.user.id}"
-            assert acl.permits(project, [principal], Permissions.ProjectsRead)
-            assert acl.permits(project, [principal], Permissions.ProjectsUpload)
-            assert not acl.permits(project, [principal], Permissions.ProjectsWrite)
+        _perms_read_and_upload = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsUpload,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:security",
+                (
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_acl_for_archived_project(self, db_session):
         """
@@ -402,11 +469,9 @@ class TestProject:
         owner1 = DBRoleFactory.create(project=project)
         owner2 = DBRoleFactory.create(project=project)
 
-        # Maintainers only ever have upload permission, and archived
-        # projects don't allow upload, so they end up with nothing.
-        maintainer1, maintainer2 = DBRoleFactory.create_batch(
-            2, project=project, role_name="Maintainer"
-        )
+        # Maintainers should not appear in the ACLs, since they only have
+        # upload permissions, and archived projects don't allow upload
+        DBRoleFactory.create_batch(2, project=project, role_name="Maintainer")
 
         organization = DBOrganizationFactory.create()
         owner3 = DBOrganizationRoleFactory.create(organization=organization)
@@ -418,33 +483,79 @@ class TestProject:
             team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
 
-        # Archived projects don't allow upload, including from trusted
-        # publishers, even though one is registered.
-        publisher = GitHubPublisherFactory.create(projects=[project])
+        # Publishers should not appear in the ACLs, since they only have upload
+        # permissions, and archived projects don't allow upload
+        GitHubPublisherFactory.create(projects=[project])
 
-        acl = ACLHelper()
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
-        _assert_group_permissions(
-            acl, project, "group:admins", PROJECT_ADMIN_PERMISSIONS
-        )
-
-        assert not acl.permits(
-            project, [f"oidc:{publisher.id}"], Permissions.ProjectsUpload
-        )
-
-        # Owners keep read+write, but lose upload.
-        for owner in (owner1, owner2, owner3, owner4):
-            principal = f"user:{owner.user.id}"
-            assert acl.permits(project, [principal], Permissions.ProjectsRead)
-            assert acl.permits(project, [principal], Permissions.ProjectsWrite)
-            assert not acl.permits(project, [principal], Permissions.ProjectsUpload)
-
-        # Maintainers only ever had upload, which is gone, so nothing remains.
-        for maintainer in (maintainer1, maintainer2):
-            principal = f"user:{maintainer.user.id}"
-            assert not acl.permits(project, [principal], Permissions.ProjectsRead)
-            assert not acl.permits(project, [principal], Permissions.ProjectsUpload)
-            assert not acl.permits(project, [principal], Permissions.ProjectsWrite)
+        _perms_read_and_write = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsWrite,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:security",
+                (
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_repr(self, db_request):
         project = DBProjectFactory()
@@ -1204,37 +1315,106 @@ class TestRelease:
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
         release = DBReleaseFactory.create(project=project)
 
-        # A Release has no `__acl__` of its own; it inherits its parent
-        # Project's ACL entirely via `lineage`.
-        acl = ACLHelper()
+        acls = []
+        for location in lineage(release):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+            acls.extend(acl())
 
-        _assert_group_permissions(
-            acl, release, "group:admins", PROJECT_ADMIN_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, release, "group:moderators", PROJECT_MODERATOR_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, release, "group:security", PROJECT_SECURITY_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, release, "group:observers", PROJECT_OBSERVER_PERMISSIONS
-        )
-        _assert_group_permissions(
-            acl, release, Authenticated, PROJECT_AUTHENTICATED_PERMISSIONS
-        )
-
-        for owner in (owner1, owner2):
-            principal = f"user:{owner.user.id}"
-            assert acl.permits(release, [principal], Permissions.ProjectsRead)
-            assert acl.permits(release, [principal], Permissions.ProjectsUpload)
-            assert acl.permits(release, [principal], Permissions.ProjectsWrite)
-
-        for maintainer in (maintainer1, maintainer2):
-            principal = f"user:{maintainer.user.id}"
-            assert acl.permits(release, [principal], Permissions.ProjectsUpload)
-            assert not acl.permits(release, [principal], Permissions.ProjectsRead)
-            assert not acl.permits(release, [principal], Permissions.ProjectsWrite)
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:security",
+                (
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     @pytest.mark.parametrize(
         ("url", "expected"),

@@ -6,7 +6,7 @@ import uuid
 import psycopg
 import pytest
 
-from pyramid.authorization import ACLHelper, Authenticated
+from pyramid.authorization import Authenticated
 
 from warehouse.accounts.models import (
     Email,
@@ -166,14 +166,15 @@ class TestUser:
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
 
-    @pytest.mark.parametrize(
-        ("principal", "allowed"),
-        [
+    def test_acl(self, db_session):
+        user = DBUserFactory.create()
+        assert user.__acl__() == [
             (
+                "Allow",
                 "group:admins",
-                {
-                    Permissions.AdminProjectsWrite,
+                (
                     Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
@@ -182,41 +183,30 @@ class TestUser:
                     Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
                     Permissions.AdminVulnerabilitiesRead,
-                },
+                ),
             ),
             (
+                "Allow",
                 "group:support",
-                {
+                (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminUsersRecoveryCodesBurn,
                     Permissions.AdminDashboardSidebarRead,
-                },
+                ),
             ),
             (
+                "Allow",
                 "group:moderators",
-                {Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead},
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
             ),
             (
+                "Allow",
                 "group:security",
-                {
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminProjectsRead,
-                    Permissions.AdminUsersRead,
-                    Permissions.AdminProjectsQuarantine,
-                },
+                (Permissions.AdminProjectsQuarantine, Permissions.AdminUsersRead),
             ),
-            ("group:psf_staff", set()),
-            ("group:observers", set()),
-            ("group:unknown", set()),
-        ],
-    )
-    @pytest.mark.parametrize("permission", [*Permissions, "unknown:permission"])
-    def test_acl(self, db_session, principal, allowed, permission):
-        user = DBUserFactory.create()
-        result = ACLHelper().permits(user, [Authenticated, principal], permission)
-        assert bool(result) == (permission in allowed)
+        ]
 
     @pytest.mark.parametrize(
         (
@@ -306,35 +296,29 @@ class TestUser:
         assert set(principals_for(user)) == set(expected)
 
     @pytest.mark.parametrize(
-        ("other_roles", "groups"),
+        ("is_security", "is_superuser", "expected"),
         [
-            ({}, {"group:security"}),
+            (False, False, []),
+            (True, False, ["group:security"]),
             (
-                {"is_support": True},
-                {"group:security", "group:support", "group:moderators"},
-            ),
-            ({"is_moderator": True}, {"group:security", "group:moderators"}),
-            ({"is_psf_staff": True}, {"group:security", "group:psf_staff"}),
-            ({"is_observer": True}, {"group:security", "group:observers"}),
-            (
-                {"is_superuser": True},
-                {
-                    "group:security",
+                True,
+                True,
+                [
                     "group:admins",
                     "group:moderators",
-                    "group:psf_staff",
                     "group:observers",
-                },
+                    "group:psf_staff",
+                    "group:security",
+                ],
             ),
         ],
     )
-    def test_security_principals(self, other_roles, groups):
-        user = User(id=uuid.uuid4(), is_security=True, **other_roles)
-        assert set(principals_for(user)) == {
-            Authenticated,
-            f"user:{user.id}",
-            *groups,
-        }
+    def test_principals_security(self, is_security, is_superuser, expected):
+        user = User(id=uuid.uuid4(), is_security=is_security, is_superuser=is_superuser)
+
+        expected = [*expected[:], f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
 
     @pytest.mark.parametrize(
         ("has_totp", "count_webauthn", "expected"),

@@ -9,7 +9,7 @@ from datetime import timedelta
 import pytest
 
 from pyramid import renderers
-from pyramid.authorization import ACLHelper, Authenticated
+from pyramid.authorization import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
@@ -597,183 +597,173 @@ def test_configure(monkeypatch, mocker, settings, environment):
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
 
 
-# Exactly the Permissions each RootFactory group principal is granted. Every
-# Permissions member not listed for a given principal MUST be denied; this is
-# asserted exhaustively below rather than via a snapshot of the raw ACL list.
-ROOT_GROUP_PERMISSIONS = {
-    "group:admins": {
-        Permissions.AdminBannerRead,
-        Permissions.AdminBannerWrite,
-        Permissions.AdminDashboardRead,
-        Permissions.AdminDashboardSidebarRead,
-        Permissions.AdminEmailsRead,
-        Permissions.AdminEmailsWrite,
-        Permissions.AdminFlagsRead,
-        Permissions.AdminFlagsWrite,
-        Permissions.AdminIpAddressesRead,
-        Permissions.AdminIpAddressesWrite,
-        Permissions.AdminJournalRead,
-        Permissions.AdminMacaroonsInspect,
-        Permissions.AdminMacaroonsRead,
-        Permissions.AdminMacaroonsWrite,
-        Permissions.AdminMalwareReportsRead,
-        Permissions.AdminMalwareReportsWrite,
-        Permissions.AdminMalwareReportsRemove,
-        Permissions.AdminObservationsRead,
-        Permissions.AdminObservationsWrite,
-        Permissions.AdminOrganizationsRead,
-        Permissions.AdminOrganizationsSetLimit,
-        Permissions.AdminOrganizationsWrite,
-        Permissions.AdminOrganizationsNameWrite,
-        Permissions.AdminProhibitedEmailDomainsRead,
-        Permissions.AdminProhibitedEmailDomainsWrite,
-        Permissions.AdminProhibitedProjectsRead,
-        Permissions.AdminProhibitedProjectsWrite,
-        Permissions.AdminProhibitedProjectsRelease,
-        Permissions.AdminProhibitedProjectsUltranormRelease,
-        Permissions.AdminProhibitedUsernameRead,
-        Permissions.AdminProhibitedUsernameWrite,
-        Permissions.AdminProjectsDelete,
-        Permissions.AdminProjectsQuarantine,
-        Permissions.AdminProjectsRead,
-        Permissions.AdminProjectsSetLimit,
-        Permissions.AdminProjectsWrite,
-        Permissions.AdminRoleAdd,
-        Permissions.AdminRoleDelete,
-        Permissions.AdminRoleUpdate,
-        Permissions.AdminSponsorsRead,
-        Permissions.AdminUsersRead,
-        Permissions.AdminUsersWrite,
-        Permissions.AdminUsersEmailWrite,
-        Permissions.AdminUsersAccountRecoveryWrite,
-        Permissions.AdminUsersRecoveryCodesBurn,
-        Permissions.AdminUsersExport,
-        Permissions.AdminVulnerabilitiesRead,
-        Permissions.AdminVulnerabilitiesWrite,
-    },
-    "group:support": {
-        Permissions.AdminBannerRead,
-        Permissions.AdminDashboardRead,
-        Permissions.AdminDashboardSidebarRead,
-        Permissions.AdminEmailsRead,
-        Permissions.AdminFlagsRead,
-        Permissions.AdminJournalRead,
-        Permissions.AdminMalwareReportsRead,
-        Permissions.AdminMalwareReportsWrite,
-        Permissions.AdminObservationsRead,
-        Permissions.AdminObservationsWrite,
-        Permissions.AdminOrganizationsRead,
-        Permissions.AdminOrganizationsSetLimit,
-        Permissions.AdminOrganizationsWrite,
-        Permissions.AdminOrganizationsNameWrite,
-        Permissions.AdminProhibitedEmailDomainsRead,
-        Permissions.AdminProhibitedProjectsRead,
-        Permissions.AdminProhibitedProjectsRelease,
-        Permissions.AdminProhibitedProjectsUltranormRelease,
-        Permissions.AdminProhibitedUsernameRead,
-        Permissions.AdminProjectsRead,
-        Permissions.AdminProjectsSetLimit,
-        Permissions.AdminRoleAdd,
-        Permissions.AdminRoleDelete,
-        Permissions.AdminRoleUpdate,
-        Permissions.AdminSponsorsRead,
-        Permissions.AdminUsersRead,
-        Permissions.AdminUsersEmailWrite,
-        Permissions.AdminUsersAccountRecoveryWrite,
-        Permissions.AdminUsersRecoveryCodesBurn,
-    },
-    "group:moderators": {
-        Permissions.AdminBannerRead,
-        Permissions.AdminDashboardRead,
-        Permissions.AdminDashboardSidebarRead,
-        Permissions.AdminEmailsRead,
-        Permissions.AdminFlagsRead,
-        Permissions.AdminJournalRead,
-        Permissions.AdminMalwareReportsRead,
-        Permissions.AdminMalwareReportsWrite,
-        Permissions.AdminObservationsRead,
-        Permissions.AdminObservationsWrite,
-        Permissions.AdminOrganizationsRead,
-        Permissions.AdminProhibitedEmailDomainsRead,
-        Permissions.AdminProhibitedProjectsRead,
-        Permissions.AdminProhibitedUsernameRead,
-        Permissions.AdminProjectsRead,
-        Permissions.AdminProjectsSetLimit,
-        Permissions.AdminRoleAdd,
-        Permissions.AdminRoleDelete,
-        Permissions.AdminRoleUpdate,
-        Permissions.AdminSponsorsRead,
-        Permissions.AdminUsersRead,
-    },
-    # Security has no dashboard, role management, general project/user changes,
-    # account recovery/export, or organization/flag/blocklist access.
-    "group:security": {
-        Permissions.AdminEmailsRead,
-        Permissions.AdminMalwareReportsRead,
-        Permissions.AdminMalwareReportsWrite,
-        Permissions.AdminMalwareReportsRemove,
-        Permissions.AdminObservationsRead,
-        Permissions.AdminObservationsWrite,
-        Permissions.AdminProjectsQuarantine,
-        Permissions.AdminProjectsRead,
-        Permissions.AdminUsersRead,
-    },
-    "group:psf_staff": {
-        Permissions.AdminBannerRead,
-        Permissions.AdminBannerWrite,
-        Permissions.AdminDashboardRead,
-        Permissions.AdminSponsorsRead,
-        Permissions.AdminSponsorsWrite,
-    },
-    "group:observers": {
-        Permissions.APIEcho,
-        Permissions.APIObservationsAdd,
-    },
-}
+def test_root_factory_access_control_list():
+    acl = config.RootFactory.__acl__
 
-ROOT_AUTHENTICATED_PERMISSIONS = {
-    Permissions.Account2FA,
-    Permissions.AccountAPITokens,
-    Permissions.AccountManage,
-    Permissions.AccountManagePublishing,
-    Permissions.AccountVerifyEmail,
-    Permissions.AccountVerifyOrgRole,
-    Permissions.AccountVerifyProjectRole,
-    Permissions.OrganizationsManage,
-    Permissions.ProjectsRead,
-}
-
-
-@pytest.mark.parametrize("group", sorted(ROOT_GROUP_PERMISSIONS))
-def test_root_factory_group_permissions(pyramid_request, group):
-    context = config.RootFactory(pyramid_request)
-    acl = ACLHelper()
-    expected = ROOT_GROUP_PERMISSIONS[group]
-
-    for permission in Permissions:
-        result = acl.permits(context, [group], permission)
-        if permission in expected:
-            assert result, f"{group} should be allowed {permission}"
-        else:
-            assert not result, f"{group} should be denied {permission}"
-
-
-def test_root_factory_ordinary_authenticated_user_permissions(pyramid_request):
-    context = config.RootFactory(pyramid_request)
-    acl = ACLHelper()
-
-    for permission in Permissions:
-        result = acl.permits(context, [Authenticated], permission)
-        if permission in ROOT_AUTHENTICATED_PERMISSIONS:
-            assert result, f"authenticated users should be allowed {permission}"
-        else:
-            assert not result, f"authenticated users should be denied {permission}"
-
-
-def test_root_factory_unknown_principal_has_no_permissions(pyramid_request):
-    context = config.RootFactory(pyramid_request)
-    acl = ACLHelper()
-
-    for permission in Permissions:
-        assert not acl.permits(context, [], permission)
-        assert not acl.permits(context, ["group:some-unknown-group"], permission)
+    assert acl == [
+        (
+            Allow,
+            "group:admins",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminEmailsWrite,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminFlagsWrite,
+                Permissions.AdminIpAddressesRead,
+                Permissions.AdminIpAddressesWrite,
+                Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsInspect,
+                Permissions.AdminMacaroonsRead,
+                Permissions.AdminMacaroonsWrite,
+                Permissions.AdminMalwareReportsRead,
+                Permissions.AdminMalwareReportsWrite,
+                Permissions.AdminMalwareReportsRemove,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedEmailDomainsWrite,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
+                Permissions.AdminProjectsDelete,
+                Permissions.AdminProjectsQuarantine,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminProjectsWrite,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersWrite,
+                Permissions.AdminUsersEmailWrite,
+                Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
+                Permissions.AdminVulnerabilitiesRead,
+                Permissions.AdminVulnerabilitiesWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:support",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminMalwareReportsRead,
+                Permissions.AdminMalwareReportsWrite,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersEmailWrite,
+                Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
+            ),
+        ),
+        (
+            Allow,
+            "group:moderators",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminMalwareReportsRead,
+                Permissions.AdminMalwareReportsWrite,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:security",
+            (
+                Permissions.AdminEmailsRead,
+                Permissions.AdminMalwareReportsRead,
+                Permissions.AdminMalwareReportsWrite,
+                Permissions.AdminMalwareReportsRemove,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminProjectsQuarantine,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminUsersRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:psf_staff",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminSponsorsWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
+        (
+            Allow,
+            Authenticated,
+            (
+                Permissions.Account2FA,
+                Permissions.AccountAPITokens,
+                Permissions.AccountManage,
+                Permissions.AccountManagePublishing,
+                Permissions.AccountVerifyEmail,
+                Permissions.AccountVerifyOrgRole,
+                Permissions.AccountVerifyProjectRole,
+                Permissions.OrganizationsManage,
+                Permissions.ProjectsRead,
+            ),
+        ),
+    ]

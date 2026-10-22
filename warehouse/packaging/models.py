@@ -499,9 +499,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminObservationsRead,
                     Permissions.AdminMalwareReportsRead,
                     Permissions.AdminMalwareReportsWrite,
+                    Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -520,7 +520,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsQuarantine,
                     Permissions.AdminProjectsRead,
-                    Permissions.AdminUsersRead,
                 ),
             ),
             (Allow, "group:observers", Permissions.APIObservationsAdd),
