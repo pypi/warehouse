@@ -389,12 +389,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             (
                 Allow,
                 "group:security",
-                (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminProjectsQuarantine,
-                    Permissions.AdminProjectsRead,
-                    Permissions.AdminUsersRead,
-                ),
+                (Permissions.AdminProjectsQuarantine, Permissions.AdminUsersRead),
             ),
         ]
 
