@@ -104,6 +104,7 @@ def test_security_navigation_and_unrelated_writes(
     page = webtest.get("/admin/malware_reports/")
     assert {a["href"] for a in page.html.select(".nav-sidebar a")} == {
         "/admin/malware_reports/",
+        "/admin/observations/",
         "/admin/quarantine/",
         "/admin/projects/",
         "/admin/users/",
@@ -113,7 +114,6 @@ def test_security_navigation_and_unrelated_writes(
     for path in [
         "/admin/",
         "/admin/organizations/",
-        "/admin/observations/",
         "/admin/flags/",
         "/admin/token/decode",
     ]:
@@ -123,6 +123,7 @@ def test_security_navigation_and_unrelated_writes(
         f"/admin/projects/{project.normalized_name}/release/{release.version}",
         f"/admin/users/{owner.username}/",
         "/admin/quarantine/",
+        "/admin/observations/",
     ]:
         webtest.get(path, status=200)
     token = _csrf(webtest)
@@ -140,6 +141,44 @@ def test_security_navigation_and_unrelated_writes(
         )
     assert release in project.releases
     assert not owner.is_frozen
+
+
+def test_security_can_add_project_and_release_observations(webtest, login_admin):
+    reviewer = login_admin(is_security=True)
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    project_path = f"/admin/projects/{project.normalized_name}/"
+    db = webtest.extra_environ["warehouse.db_session"]
+    for resource, path, kind in [
+        (project, project_path, "is_malware"),
+        (
+            release,
+            f"{project_path}release/{release.version}",
+            "is_dependency_confusion",
+        ),
+    ]:
+        page = webtest.get(path)
+        action = page.html.select_one("#addObservationModal form")["action"]
+        form = next(form for form in page.forms.values() if form.action == action)
+        form["kind"] = kind
+        form["summary"] = "Investigation evidence recorded by a security reviewer."
+        form.submit(status=303)
+        observation = (
+            db.query(resource.Observation).filter_by(related_id=resource.id).one()
+        )
+        assert observation.kind == kind
+        assert observation.summary == form["summary"].value
+        assert observation.observer == reviewer.observer
+        assert "/admin/observations/" in {
+            link["href"] for link in page.html.select(".nav-sidebar a")
+        }
+    observations_link = webtest.get(project_path).html.select_one(
+        '#project_observations a[href$="/observations/"]'
+    )
+    observations = webtest.get(observations_link["href"])
+    assert (
+        "Investigation evidence recorded by a security reviewer." in observations.text
+    )
 
 
 @pytest.mark.parametrize(

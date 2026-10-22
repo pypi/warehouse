@@ -61,9 +61,10 @@ Warehouse serves six main classes of users:
    organizations. They can approve or decline requests and ask applicants for
    more information. This role does not give them access to other
    administration tools.
-6. *PyPI security reviewers*. These users review malware reports, quarantine
-   projects and releases, and remove confirmed malware. They can inspect project
-   and user details but have no other administration access.
+6. *PyPI security reviewers*. These users review malware reports, record
+   observations, quarantine projects and releases, and remove confirmed malware.
+   They can inspect project and user details but have no other administration
+   access.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible.

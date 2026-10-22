@@ -243,6 +243,13 @@
             </a>
           </li>
           {% endif %}
+          {% if request.has_permission(Permissions.AdminObservationsRead, admin_root) %}
+          <li class="nav-item">
+            <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
+              <i class="nav-icon fa-solid fa-eye"></i> <p>All Observations</p>
+            </a>
+          </li>
+          {% endif %}
           {% if request.has_permission(Permissions.AdminProjectsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">

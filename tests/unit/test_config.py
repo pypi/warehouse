@@ -725,6 +725,8 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminMalwareReportsRead,
                 Permissions.AdminMalwareReportsWrite,
                 Permissions.AdminMalwareReportsRemove,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
                 Permissions.AdminProjectsQuarantine,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminUsersRead,
