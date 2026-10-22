@@ -74,7 +74,7 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="{{ request.route_path('admin.dashboard' if request.has_permission(Permissions.AdminDashboardRead) else 'admin.organization_application.list') }}" class="brand-link">
+    <a href="{{ request.route_path('admin.dashboard' if has_root_permission(request, Permissions.AdminDashboardRead) else 'admin.organization_application.list') }}" class="brand-link">
       <img src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}" alt="PyPI Logo" class="brand-image">
       <span class="brand-text font-weight-light"><b>Warehouse</b> Admin</span>
     </a>
@@ -87,7 +87,7 @@
           <img src="{{ gravatar(request, request.user.email, size=160) }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          {% if request.has_permission(Permissions.AdminUsersRead) %}
+          {% if has_root_permission(request, Permissions.AdminUsersRead) %}
           <a class="d-block" href="{{ request.route_path('admin.user.detail', username=request.user.username) }}">{{ request.user.name|default(request.user.username, true) }}</a>
           {% else %}
           <span class="d-block text-light">{{ request.user.name|default(request.user.username, true) }}</span>
@@ -110,7 +110,7 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar nav-child-indent flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          {% if request.has_permission(Permissions.AdminOrganizationApplicationsRead) %}
+          {% if has_root_permission(request, Permissions.AdminOrganizationApplicationsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}?q=is%3Asubmitted" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
@@ -235,14 +235,14 @@
             </a>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminBannerRead) %}
+          {% if has_root_permission(request, Permissions.AdminBannerRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.banner.list') }}" class="nav-link">
               <i class="fa fa-quote-right nav-icon"></i> <p>Banners</p>
             </a>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminSponsorsRead) %}
+          {% if has_root_permission(request, Permissions.AdminSponsorsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.sponsor.list') }}" class="nav-link">
               <i class="fa fa-ad nav-icon"></i> <p>Sponsors</p>
@@ -267,7 +267,7 @@
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              {% if request.has_permission(Permissions.AdminDashboardRead) %}
+              {% if has_root_permission(request, Permissions.AdminDashboardRead) %}
               <li class="breadcrumb-item">
                 <a href="{{ request.route_path('admin.dashboard') }}"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
               </li>

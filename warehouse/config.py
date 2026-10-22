@@ -220,6 +220,11 @@ class RootFactory:
         pass
 
 
+def has_root_permission(request, permission):
+    """Check a site-wide permission, ignoring the resource being viewed."""
+    return request.has_permission(permission, RootFactory(request))
+
+
 def require_https_tween_factory(handler, registry):
     if not registry.settings.get("enforce_https", True):
         return handler
@@ -805,6 +810,7 @@ def configure(settings=None):
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
+    jglobals.setdefault("has_root_permission", "warehouse.config:has_root_permission")
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")

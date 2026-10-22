@@ -207,3 +207,26 @@ def test_reviewer_role_assignment_requires_superuser(webtest, login_admin, role)
             for form in detail.forms.values()
             if "is_org_application_reviewer" in form.fields
         )
+
+
+@pytest.mark.parametrize("page", ["user", "project"])
+def test_superuser_navigation_on_resource_pages(webtest, login_admin, page):
+    # User and project pages authorize against their own ACLs; site navigation
+    # must still reflect site-wide permissions there.
+    admin = login_admin()
+    project = ProjectFactory.create()
+    path = (
+        f"/admin/users/{admin.username}/"
+        if page == "user"
+        else f"/admin/projects/{project.normalized_name}/"
+    )
+    response = webtest.get(path, status=HTTPStatus.OK)
+    sidebar = {link["href"] for link in response.html.select("aside.main-sidebar a")}
+    assert response.html.select_one("a.brand-link")["href"] == "/admin/"
+    assert {
+        f"{APPLICATIONS}?q=is%3Asubmitted",
+        "/admin/banners/",
+        "/admin/sponsors/",
+        f"/admin/users/{admin.username}/",
+    } <= sidebar
+    assert response.html.select_one('.breadcrumb a[href="/admin/"]')
