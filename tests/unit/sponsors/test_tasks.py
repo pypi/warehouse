@@ -324,3 +324,26 @@ def test_sidebar_flag_cleared_for_remote_sponsor_absent_from_sidebar_flight(
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.psf_sponsor is True
     assert db_sponsor.sidebar is False
+
+
+@pytest.mark.parametrize("local_flag", ["infra_sponsor", "one_time"])
+def test_locally_managed_remote_sponsor_keeps_flags(
+    db_request, fake_task_request, fake_requests, local_flag
+):
+    created_sponsor = SponsorFactory.create(
+        slug="other-slug",
+        name="Other Sponsor",
+        footer=True,
+        sidebar=True,
+        origin="remote",
+        **{local_flag: True},
+    )
+
+    fake_task_request.db = db_request.db
+    tasks.update_pypi_sponsors(fake_task_request)
+
+    created_sponsor = (
+        db_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
+    )
+    assert created_sponsor.footer is True
+    assert created_sponsor.sidebar is True
