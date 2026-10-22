@@ -61,6 +61,7 @@ Warehouse serves five main classes of users:
    observations, quarantine projects and releases, and remove confirmed malware.
    They can inspect project and user details and view email delivery logs, but
    have no other administration access.
+   Project upload and size limits are read-only.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible.
