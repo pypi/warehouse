@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytest
 
@@ -370,12 +370,12 @@ class TestRenderTabulatorPayload:
 
     def test_submitted_date_filter_includes_whole_day(self, route_request):
         on_day = JournalEntryFactory.create(
-            submitted_date=datetime.datetime(2023, 1, 15, 23, 59)
+            submitted_date=dt.datetime(2023, 1, 15, 23, 59)
         )
         before = JournalEntryFactory.create(
-            submitted_date=datetime.datetime(2023, 1, 10, 8, 0)
+            submitted_date=dt.datetime(2023, 1, 10, 8, 0)
         )
-        JournalEntryFactory.create(submitted_date=datetime.datetime(2023, 1, 16, 0, 0))
+        JournalEntryFactory.create(submitted_date=dt.datetime(2023, 1, 16, 0, 0))
 
         route_request.GET.update(
             _tabulator_params(filters={"submitted_date": "2023-01-15"})
@@ -386,9 +386,9 @@ class TestRenderTabulatorPayload:
 
     def test_submitted_date_filter_with_datetime(self, route_request):
         at_noon = JournalEntryFactory.create(
-            submitted_date=datetime.datetime(2023, 1, 15, 12, 0)
+            submitted_date=dt.datetime(2023, 1, 15, 12, 0)
         )
-        JournalEntryFactory.create(submitted_date=datetime.datetime(2023, 1, 15, 12, 1))
+        JournalEntryFactory.create(submitted_date=dt.datetime(2023, 1, 15, 12, 1))
 
         route_request.GET.update(
             _tabulator_params(filters={"submitted_date": "2023-01-15T12:00:00"})

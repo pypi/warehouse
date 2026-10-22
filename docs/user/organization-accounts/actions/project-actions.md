@@ -11,7 +11,7 @@ within a project in an organization account.
 
     All actions assume an authorized user has logged into their account.
 
-#### Create a project
+## Create a project
 
 *Actor: Any member of the organization*
 
@@ -23,7 +23,7 @@ within a project in an organization account.
 
 ---
 
-#### Transfer a project
+## Transfer a project
 
 *Actor: Owner*
 
@@ -41,7 +41,7 @@ owner has pre-existing projects associated with their individual user account.
 
 ---
 
-#### Add internal collaborator
+## Add internal collaborator
 
 *Actor: Owner*
 
@@ -59,7 +59,7 @@ invitation to join the project as a collaborator.
 
 ---
 
-#### Add external collaborator
+## Add external collaborator
 
 *Actor: Owner*
 
@@ -78,7 +78,7 @@ revoke the old invitation and send a new one.
 
 ---
 
-#### Remove a collaborator
+## Remove a collaborator
 
 *Actor: Owner*
 
@@ -93,7 +93,7 @@ revoke the old invitation and send a new one.
 
 ---
 
-#### Revoke a collaborator invitation
+## Revoke a collaborator invitation
 
 *Actor: Owner*
 
@@ -106,7 +106,7 @@ revoke the old invitation and send a new one.
 
 ---
 
-#### Remove project from organization
+## Remove project from organization
 
 *Actor: Owner*
 
@@ -123,7 +123,7 @@ Individual owners and  maintainers will retain their permissions.
 
 ---
 
-#### Transfer a project to another organization
+## Transfer a project to another organization
 
 *Actor: Owner*
 
@@ -142,7 +142,7 @@ Individual project owners and maintainers will retain their permissions.
 
 ---
 
-#### Delete a project
+## Delete a project
 
 *Actor: Owner*
 

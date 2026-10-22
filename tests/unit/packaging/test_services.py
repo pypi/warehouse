@@ -10,6 +10,7 @@ import botocore.exceptions
 import google.cloud.storage
 import pytest
 
+from limits.storage import MemoryStorage
 from pyramid.httpexceptions import HTTPForbidden
 from zope.interface.verify import verifyClass
 
@@ -47,7 +48,7 @@ from warehouse.packaging.services import (
     project_service_factory,
 )
 from warehouse.packaging.tasks import typo_check_project_name
-from warehouse.rate_limiting import DummyRateLimiter
+from warehouse.rate_limiting import DummyRateLimiter, RateLimiter
 from warehouse.rate_limiting.interfaces import WindowStats
 
 from ...common.db.accounts import UserFactory
@@ -963,50 +964,99 @@ class TestProjectService:
         with pytest.raises(TooManyProjectsCreated):
             project_service.create_project("some-new-project", creator, db_request)
 
-    @pytest.mark.parametrize(
-        ("success", "remote_addr"),
-        [(True, "1.2.3.4"), (True, None), (False, "1.2.3.4")],
-        ids=["committed", "committed-without-remote-addr", "aborted"],
-    )
     def test_create_project_spends_creation_limits_only_after_commit(
-        self,
-        project_service,
-        db_request,
-        ratelimit_service,
-        mocker,
-        success,
-        remote_addr,
+        self, project_service, db_request, ratelimit_service, mocker
     ):
-        """
-        Creation limiters are hit after commit,
-        so rolled-back requests don't spend them.
-        """
         creator = UserFactory.create()
-        db_request.remote_addr = remote_addr
+        db_request.remote_addr = "1.2.3.4"
         project_service.ratelimiters["project.create.user"] = ratelimit_service
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
 
         project_service.create_project("some-new-project", creator, db_request)
 
         ratelimit_service.hit.assert_not_called()
-        hooks = list(db_request.tm.get().getAfterCommitHooks())
-        assert hooks == [
-            (
-                ProjectService._hit_creation_limiters,
-                (ratelimit_service, remote_addr, ratelimit_service, creator.id),
-                {},
-            )
+        db_request.tm.commit()
+        db_request.tm.begin()
+
+        assert ratelimit_service.hit.call_args_list == [
+            mocker.call("1.2.3.4"),
+            mocker.call(creator.id),
         ]
 
-        hook, args, kws = hooks[0]
-        hook(success, *args, **kws)
+    def test_create_project_spends_only_user_creation_limit_without_remote_addr(
+        self, project_service, db_request, ratelimit_service
+    ):
+        creator = UserFactory.create()
+        db_request.remote_addr = None
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
 
-        expected = []
-        if success:
-            if remote_addr is not None:
-                expected.append(mocker.call(remote_addr))
-            expected.append(mocker.call(creator.id))
-        assert ratelimit_service.hit.call_args_list == expected
+        project_service.create_project("some-new-project", creator, db_request)
+
+        ratelimit_service.hit.assert_not_called()
+        db_request.tm.commit()
+        db_request.tm.begin()
+
+        ratelimit_service.hit.assert_called_once_with(creator.id)
+
+    def test_create_project_does_not_spend_creation_limits_after_failed_commit(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        creator = UserFactory.create()
+        db_request.remote_addr = "1.2.3.4"
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service.create_project("some-new-project", creator, db_request)
+
+        ratelimit_service.hit.assert_not_called()
+        resource = mocker.Mock()
+        resource.sortKey.return_value = "failing-resource"
+        resource.tpc_vote.side_effect = RuntimeError("commit failed")
+        db_request.tm.get().join(resource)
+        with pytest.raises(RuntimeError, match="commit failed"):
+            db_request.tm.commit()
+        db_request.tm.abort()
+        db_request.tm.begin()
+
+        ratelimit_service.hit.assert_not_called()
+
+    @pytest.mark.parametrize("organization_owned", [False, True])
+    @pytest.mark.parametrize("used", [4, 20])
+    def test_creation_metrics_include_quota_rejections(
+        self, project_service, db_request, metrics, organization_owned, used
+    ):
+        creator = UserFactory.create()
+        organization = OrganizationFactory.create() if organization_owned else None
+        organization_id = organization.id if organization else None
+        partition = "organization" if organization_owned else "user"
+        limiter = RateLimiter(MemoryStorage(), "20 per day", metrics=metrics)
+        project_service.ratelimiters[f"project.create.attempt.{partition}"] = limiter
+        for _ in range(used):
+            limiter.hit(organization_id or creator.id)
+
+        if used == 20:
+            with pytest.raises(TooManyProjectsCreated):
+                project_service.create_project(
+                    "tracked-project",
+                    creator,
+                    db_request,
+                    organization_id=organization_id,
+                )
+        else:
+            project_service.create_project(
+                "tracked-project", creator, db_request, organization_id=organization_id
+            )
+
+        metrics.increment.assert_any_call(
+            "warehouse.project.create.attempt",
+            tags=[f"partition:{partition}", "ratelimited:true"],
+        )
+        metrics.distribution.assert_any_call(
+            "warehouse.project.create.quota.used",
+            used,
+            tags=[f"ratelimiter:attempt.{partition}", "window_seconds:86400"],
+        )
 
     def test_identity_limiter_applies_user_override_to_attempt_limiter(
         self, project_service, ratelimit_service, mocker

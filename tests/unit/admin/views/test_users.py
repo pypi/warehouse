@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import json
 
 import freezegun
@@ -231,7 +231,7 @@ class TestUserExport:
 
         # The filename names the artifact and its subject, and its timestamp
         # is the document's own generation instant.
-        timestamp = datetime.datetime.fromisoformat(document["generated_at"]).strftime(
+        timestamp = dt.datetime.fromisoformat(document["generated_at"]).strftime(
             "%Y%m%d%H%M%S"
         )
         assert db_request.response.content_disposition == (
@@ -1291,7 +1291,7 @@ class TestUserRecoverAccountInitiate:
             db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
@@ -1360,7 +1360,7 @@ class TestUserRecoverAccountInitiate:
             db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
@@ -1428,7 +1428,7 @@ class TestUserRecoverAccountInitiate:
             db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
@@ -1502,7 +1502,7 @@ class TestUserRecoverAccountInitiate:
             db_request, "route_path", autospec=True, return_value="/user/the-redirect/"
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
@@ -1811,7 +1811,7 @@ class TestUserRecoverAccountCancel:
         db_request.user = user
         mocker.spy(user_service, "disable_password")
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_cancel(user, db_request)
 
@@ -1926,7 +1926,7 @@ class TestUserRecoverAccountComplete:
             views, "send_password_reset_by_admin_email", autospec=True
         )
 
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(now):
             result = views.user_recover_account_complete(user, db_request)
 
@@ -2049,7 +2049,7 @@ class TestUserBurnRecoveryCodes:
         mocker.spy(user_service, "_check_ratelimits")
 
         # Burn one code in advance
-        user.recovery_codes[0].burned = datetime.datetime.now(datetime.UTC)
+        user.recovery_codes[0].burned = dt.datetime.now(dt.UTC)
 
         # Provide all the codes, plus one invalid code
         db_request.POST["to_burn"] = "\n".join(codes) + "\ninvalid"

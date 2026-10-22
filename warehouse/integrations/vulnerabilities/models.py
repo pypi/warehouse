@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 from typing import TYPE_CHECKING
 
@@ -60,7 +60,7 @@ class VulnerabilityRecord(db.ModelBase):
     fixed_in: Mapped[list[str] | None] = mapped_column(ARRAY(String))
 
     # When the vulnerability was withdrawn, if it has been withdrawn.
-    withdrawn: Mapped[datetime.datetime | None]
+    withdrawn: Mapped[dt.datetime | None]
 
     releases: Mapped[list[Release]] = orm.relationship(
         "Release",

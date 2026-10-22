@@ -1,0 +1,4 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<p>
+  {% trans reset_href=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')), recovery_href=request.help_url(_anchor='account-recovery') %}If you have forgotten your password, you can <a href="{{ reset_href }}">reset your password</a>. If you have lost access to your two-factor authentication method and recovery codes, follow the <a href="{{ recovery_href }}">account recovery steps</a> to open an issue on our support tracker instead of emailing the PyPI administrators.{% endtrans %}
+</p>
