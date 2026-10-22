@@ -722,6 +722,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         (
             "group:security",
             {
+                Permissions.AdminEmailsRead,
                 Permissions.AdminMalwareReportsRead,
                 Permissions.AdminMalwareReportsWrite,
                 Permissions.AdminMalwareReportsRemove,
