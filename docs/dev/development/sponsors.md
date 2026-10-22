@@ -17,13 +17,14 @@ is managed through the admin UI and the python.org sync described below.
 | `sidebar`  | `sidebar`                                |
 
 Both flights create or update the sponsor row (name, slug, description, link,
-logos, level) and mark it `origin = "remote"`. Before each run `psf_sponsor`
-is cleared on every sponsor, and `footer` and `sidebar` are cleared on remote
-sponsors, so a sponsor that leaves a flight stops showing there. Sponsors
-flagged `infra_sponsor` or `one_time` are never updated from the API. The
-`footer` and `sidebar` checkboxes in the admin are only authoritative for
-sponsors with `origin = "manual"`; on remote sponsors the API wins on the next
-run.
+logos, level) and mark it `origin = "remote"`. Sponsors flagged
+`infra_sponsor` or `one_time` are never updated from the API. Before each run
+`psf_sponsor` is cleared on every sponsor, and `footer` and `sidebar` are
+cleared on remote sponsors that are not infrastructure or one-time sponsors,
+so a sponsor that leaves a flight stops showing there. The `footer` and
+`sidebar` checkboxes in the admin are only authoritative for sponsors with
+`origin = "manual"` and for infrastructure and one-time sponsors; on other
+remote sponsors the API wins on the next run.
 
 A sponsor that is only in the `sidebar` flight is created with
 `psf_sponsor = False`, so it appears in the sidebar but not on the sponsors

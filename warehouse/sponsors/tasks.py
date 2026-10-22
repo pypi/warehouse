@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from sqlalchemy import or_, true
+from sqlalchemy import false, or_, true
 from sqlalchemy.exc import NoResultFound
 
 from warehouse import tasks
@@ -44,10 +44,13 @@ def update_pypi_sponsors(request):
     request.db.query(Sponsor).filter(Sponsor.psf_sponsor == true()).update(
         {"psf_sponsor": False}
     )
-    # reset API-managed flags, manual sponsors keep the ones set in the admin
-    request.db.query(Sponsor).filter(Sponsor.origin == "remote").update(
-        {"footer": False, "sidebar": False}
-    )
+    # reset API-managed flags; manual, infra and one-time sponsors keep the
+    # ones set in the admin
+    request.db.query(Sponsor).filter(
+        Sponsor.origin == "remote",
+        Sponsor.infra_sponsor == false(),
+        Sponsor.one_time == false(),
+    ).update({"footer": False, "sidebar": False})
 
     for sponsor_info in sponsors_placements:
         sponsor = _sync_sponsor(request, sponsor_info)
