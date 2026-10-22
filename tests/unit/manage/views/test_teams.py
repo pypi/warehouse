@@ -243,6 +243,9 @@ class TestManageTeamRoles:
             role_name=OrganizationRoleType.Member,
         )
 
+        # Production IP lookups return a loaded object without autoflushing.
+        db_request.db.refresh(db_request.ip_address)
+
         db_request.method = "POST"
         db_request.POST = MultiDict({"username": member.username})
         db_request.user = owner

@@ -1079,7 +1079,9 @@ class TestDatabaseOrganizationService:
         team = TeamFactory.create()
         user = UserFactory.create()
 
-        organization_service.add_team_role(team.id, user.id, "Member")
+        role = organization_service.add_team_role(team.id, user.id, "Member")
+        assert role.user == user
+        assert role.team == team
         assert (
             db_request.db.query(TeamRole)
             .filter(
