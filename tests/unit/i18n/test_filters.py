@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import email.utils
 
 import babel.dates
@@ -45,14 +45,14 @@ def test_format_rfc822_datetime(mocker):
     formatdate = mocker.patch.object(
         email.utils, "formatdate", return_value=mocker.sentinel.formatted
     )
-    dt = datetime.datetime(2024, 1, 1, 12, 0, 0)
+    value = dt.datetime(2024, 1, 1, 12, 0, 0)
 
     result = filters.format_rfc822_datetime(
-        {}, dt, mocker.sentinel.extra, foo=mocker.sentinel.foo
+        {}, value, mocker.sentinel.extra, foo=mocker.sentinel.foo
     )
 
     assert result is mocker.sentinel.formatted
-    formatdate.assert_called_once_with(dt.timestamp(), usegmt=True)
+    formatdate.assert_called_once_with(value.timestamp(), usegmt=True)
 
 
 def test_format_number(mocker, pyramid_request):

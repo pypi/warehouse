@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import shlex
 
 import wtforms
@@ -50,12 +50,12 @@ from warehouse.subscriptions.models import (
 )
 from warehouse.utils.paginate import paginate_url_factory
 
-ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
+ACTIVE_RELEASE_WINDOW = dt.timedelta(days=365)
 
 
 def _organization_activity_predicates():
     """activity-tier predicates shared by the list filter and detail view."""
-    release_cutoff = datetime.datetime.now(datetime.UTC) - ACTIVE_RELEASE_WINDOW
+    release_cutoff = dt.datetime.now(dt.UTC) - ACTIVE_RELEASE_WINDOW
     has_projects = Organization.projects.any()
     has_recent_release = Organization.projects.any(
         Project.releases.any(Release.created >= release_cutoff)
@@ -166,7 +166,7 @@ class ManualActivationForm(wtforms.Form):
     )
 
     def validate_expires(self, field):
-        if field.data and field.data <= datetime.date.today():
+        if field.data and field.data <= dt.date.today():
             raise wtforms.ValidationError("Expiration date must be in the future")
 
 

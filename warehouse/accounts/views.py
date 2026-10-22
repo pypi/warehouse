@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import functools
 import hashlib
 import json
@@ -965,7 +965,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return _error(request._("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
-    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
+    last_login = dt.datetime.fromisoformat(data.get("user.last_login"))
     # Before updating itsdangerous to 2.x the last_login was naive,
     # now it's localized to UTC
     if not last_login.tzinfo:
@@ -978,7 +978,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     # Check whether the password has been changed since the token was created
-    password_date = datetime.datetime.fromisoformat(data.get("user.password_date"))
+    password_date = dt.datetime.fromisoformat(data.get("user.password_date"))
     # Before updating itsdangerous to 2.x the password_date was naive,
     # now it's localized to UTC
     if not password_date.tzinfo:
@@ -986,7 +986,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
     current_password_date = (
         user.password_date
         if user.password_date is not None
-        else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+        else dt.datetime.min.replace(tzinfo=pytz.UTC)
     )
     if current_password_date > password_date:
         return _error(
@@ -1605,7 +1605,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     user_service.update_user(userid, last_login=now)
     user = user_service.get_user(userid)
     user.record_event(

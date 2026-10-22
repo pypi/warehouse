@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
 import pytest
@@ -237,10 +237,10 @@ class TestManageOIDCPublisherViews:
     ):
         user_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         user_rate_limiter.test.return_value = not user_exceeded
-        user_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        user_rate_limiter.resets_in.return_value = dt.timedelta(seconds=60)
         ip_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         ip_rate_limiter.test.return_value = not ip_exceeded
-        ip_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=30)
+        ip_rate_limiter.resets_in.return_value = dt.timedelta(seconds=30)
         pyramid_services.register_service(
             user_rate_limiter, IRateLimiter, None, name="user_oidc.publisher.register"
         )
@@ -271,7 +271,7 @@ class TestManageOIDCPublisherViews:
         if user_exceeded or ip_exceeded:
             with pytest.raises(TooManyOIDCRegistrations) as excinfo:
                 view._check_ratelimits()
-            assert excinfo.value.resets_in == datetime.timedelta(
+            assert excinfo.value.resets_in == dt.timedelta(
                 seconds=60 if user_exceeded else 30
             )
         else:
@@ -953,7 +953,7 @@ class TestManageOIDCPublisherViews:
     ):
         user_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         user_rate_limiter.test.return_value = False
-        user_rate_limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        user_rate_limiter.resets_in.return_value = dt.timedelta(seconds=60)
         pyramid_services.register_service(
             user_rate_limiter, IRateLimiter, None, name="user_oidc.publisher.register"
         )

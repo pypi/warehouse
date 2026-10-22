@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import datetime
+import datetime as dt
 import io
 
 import pyqrcode
@@ -683,12 +683,23 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
+        # Record whether the secret rendered by the GET survived in the session;
+        # if not, `get_totp_secret` generates a fresh one the code can't match.
+        session_secret = (
+            "present" if self.request.session.has_totp_secret() else "missing"
+        )
         form = ProvisionTOTPForm(
             self.request.POST,
             totp_secret=self.request.session.get_totp_secret(),
         )
+        valid = form.validate()
+        result = "success" if valid else form.totp_failure or "malformed"
+        self.request.metrics.increment(
+            "warehouse.manage.account.totp_provision",
+            tags=[f"result:{result}", f"session_secret:{session_secret}"],
+        )
 
-        if form.validate():
+        if valid:
             old_totp_secret = self.user_service.get_totp_secret(self.request.user.id)
             self.user_service.update_user(
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
@@ -1551,7 +1562,7 @@ class ManageProjectRelease:
 
         self.release.yanked = True
         self.release.yanked_reason = yanked_reason
-        self.release.yanked_date = datetime.datetime.now(datetime.UTC)
+        self.release.yanked_date = dt.datetime.now(dt.UTC)
 
         self.request.session.flash(
             self.request._(f"Yanked release {self.release.version!r}"), queue="success"

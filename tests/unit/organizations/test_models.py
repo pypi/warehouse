@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import types
 
 import psycopg
@@ -89,12 +89,12 @@ class TestOrganizationApplication:
         older_request = OrganizationApplicationObservationFactory.create(
             related=organization_application,
             kind=ObservationKind.InformationRequest.value[0],
-            created=datetime.datetime(2021, 1, 1),
+            created=dt.datetime(2021, 1, 1),
         )
         newer_note = OrganizationApplicationObservationFactory.create(
             related=organization_application,
             kind=ObservationKind.AdminNote.value[0],
-            created=datetime.datetime(2021, 6, 1),
+            created=dt.datetime(2021, 6, 1),
         )
 
         assert organization_application.conversation == [older_request, newer_note]
@@ -577,7 +577,7 @@ class TestTeam:
             organization = DBOrganizationFactory.create(orgtype="Company")
             DBOrganizationManualActivationFactory.create(
                 organization=organization,
-                expires=datetime.date(2024, 12, 31),  # Future date from frozen time
+                expires=dt.date(2024, 12, 31),  # Future date from frozen time
             )
             assert organization.good_standing
 
@@ -586,7 +586,7 @@ class TestTeam:
             organization = DBOrganizationFactory.create(orgtype="Company")
             DBOrganizationManualActivationFactory.create(
                 organization=organization,
-                expires=datetime.date(2023, 12, 31),  # Past date from frozen time
+                expires=dt.date(2023, 12, 31),  # Past date from frozen time
             )
             assert not organization.good_standing
 
@@ -607,7 +607,7 @@ class TestOrganizationManualActivation:
         with freeze_time("2024-01-15"):
             # Create activation that expires in the future
             activation = DBOrganizationManualActivationFactory.create(
-                expires=datetime.date(2024, 12, 31)
+                expires=dt.date(2024, 12, 31)
             )
             assert activation.is_active
 
@@ -616,7 +616,7 @@ class TestOrganizationManualActivation:
         with freeze_time("2024-01-15"):
             # Create activation that already expired
             activation = DBOrganizationManualActivationFactory.create(
-                expires=datetime.date(2023, 12, 31)
+                expires=dt.date(2023, 12, 31)
             )
             assert not activation.is_active
 
@@ -728,7 +728,7 @@ class TestOrganizationBillingMethods:
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
-            expires=datetime.date.today() + datetime.timedelta(days=365),
+            expires=dt.date.today() + dt.timedelta(days=365),
         )
         assert organization.is_in_good_standing()
 
@@ -795,7 +795,7 @@ class TestOrganizationBillingMethods:
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
-            expires=datetime.date.today() + datetime.timedelta(days=365),
+            expires=dt.date.today() + dt.timedelta(days=365),
         )
         assert organization.is_in_good_standing()
         assert not organization.is_awaiting_initial_billing
@@ -810,7 +810,7 @@ class TestOrganizationBillingMethods:
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
-            expires=datetime.date.today() - datetime.timedelta(days=1),
+            expires=dt.date.today() - dt.timedelta(days=1),
         )
         assert not organization.is_in_good_standing()
         assert not organization.is_awaiting_initial_billing
@@ -821,7 +821,7 @@ class TestOrganizationBillingMethods:
         activation = DBOrganizationManualActivationFactory.create(
             organization=organization,
             seat_limit=1,  # Very low limit
-            expires=datetime.date.today() + datetime.timedelta(days=365),
+            expires=dt.date.today() + dt.timedelta(days=365),
         )
 
         # Create more members than seat limit allows

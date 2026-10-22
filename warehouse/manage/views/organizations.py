@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from urllib.parse import urljoin
 
@@ -286,8 +286,8 @@ class ManageOrganizationApplicationViews:
             if observation is None:
                 raise HTTPBadRequest("Invalid information request.")
             observation.additional["response"] = data["response"]
-            observation.additional["response_time"] = datetime.datetime.now(
-                datetime.UTC
+            observation.additional["response_time"] = dt.datetime.now(
+                dt.UTC
             ).isoformat()
             self.request.db.add(observation)
 

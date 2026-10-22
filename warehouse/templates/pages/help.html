@@ -1322,7 +1322,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
   <h2>{% trans %}About{% endtrans %}</h2>
   <h3 id="maintainers">{{ maintainers() }}</h3>
   <p>
-    {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
+    {% trans href='https://dev.pypi.org/', title=gettext('External link') %}
     PyPI is powered by the Warehouse project; <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
   {% endtrans %}
 </p>
@@ -1347,7 +1347,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 </p>
 <h3 id="sponsors">{{ sponsors() }}</h3>
 <p>
-  {% trans warehouse_href='https://warehouse.pypa.io/', sponsors_href=request.route_path('sponsors'), title=gettext('External link') %}
+  {% trans warehouse_href='https://dev.pypi.org/', sponsors_href=request.route_path('sponsors'), title=gettext('External link') %}
   PyPI is powered by <a href="{{ warehouse_href }}"
     title="{{ title }}"
     target="_blank"
@@ -1379,7 +1379,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 </p>
 <h3 id="contributing">{{ contributing() }}</h3>
 <p>
-  {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
+  {% trans href='https://dev.pypi.org/', title=gettext('External link') %}
   We have a huge amount of work to do to continue to maintain and improve PyPI
   (also known as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">the Warehouse project</a>).
 {% endtrans %}
@@ -1391,7 +1391,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
   <strong>{% trans %}Development:{% endtrans %}</strong> {% trans %}Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!{% endtrans %}
 </p>
 <p>
-  {% trans getting_started_href='https://warehouse.pypa.io/development/getting-started/', issue_tracker_href='https://github.com/pypi/warehouse/issues', good_first_issue_href='https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
+  {% trans getting_started_href='https://dev.pypi.org/development/getting-started/', issue_tracker_href='https://github.com/pypi/warehouse/issues', good_first_issue_href='https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
   If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
   <a href="{{ getting_started_href }}"
      title="{{ title }}"

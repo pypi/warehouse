@@ -211,9 +211,9 @@ celery-redbeat==2.4.2 \
     --hash=sha256:4124d221a798ad983df0874bfa0d2e9beca41ca9ef91e92d073770bb193da000 \
     --hash=sha256:a590fef7ef39d7e4511174ce8bafe310e07ef6cdf84a240cd311946815bd90bb
     # via -r requirements/main.in
-certifi==2026.10.18 \
-    --hash=sha256:73191c47aaa79da394e8fee2dbc2ec827432cab56311122c9e47abf79e390f62 \
-    --hash=sha256:b9995d97b64d0431a5af837d8ca8cd6238104d1f319f04bd93ea43124d6c861e
+certifi==2026.10.19 \
+    --hash=sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae \
+    --hash=sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b
     # via
     #   -r requirements/main.in
     #   opensearch-py
@@ -632,9 +632,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.279 \
-    --hash=sha256:196eeb46842fc8cd19561fba0ef58e631087e1a52378838c3fe586a13d61db5d \
-    --hash=sha256:a52753ed854b757daf81050b2cfe6937ef58b81280dc37d8ef5e5488b147d5b6
+disposable-email-domains==0.0.280 \
+    --hash=sha256:5abcaf2c82fdceee086170c71bda3fa79a4addba023a4ad61ac87e85b477c697 \
+    --hash=sha256:f798bd89a0112154d620c3e080e5af3eec89a63121a933f07eb1201ee159ca53
     # via -r requirements/main.in
 dnspython==2.9.0 \
     --hash=sha256:9a4aedb833c3c1b49214d04d44d3032ab7a9135f7c1d29a549b4ff78fd82fda9 \
@@ -1419,9 +1419,9 @@ mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
     # via markdown-it-py
-more-itertools==11.1.0 \
-    --hash=sha256:48e8f4d9e7e5878571ecf6f2b4e57634f93cd474cc8cfbd2376f2d11b396e30d \
-    --hash=sha256:4b65538ae22f6fed0ce4874efd317463a7489796a0939fa66824dd542125a192
+more-itertools==11.2.0 \
+    --hash=sha256:59960f488835254863a857eb501f69e4ec92fdc8822f098c0f48dba530afd487 \
+    --hash=sha256:e4c522352a24664c974d0be8382944107ae638281a06391a5a538366b5707fe5
     # via
     #   -r requirements/main.in
     #   cssutils

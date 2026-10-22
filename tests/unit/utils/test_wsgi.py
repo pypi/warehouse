@@ -6,6 +6,7 @@ import sentry_sdk
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.ip_addresses.models import IpAddress
+from warehouse.packaging.models import JournalEntry
 from warehouse.utils import wsgi
 
 from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
@@ -263,6 +264,19 @@ def test_ip_address_updates_metadata_on_existing(db_request):
     assert result.id == existing.id
     assert result.hashed_ip_address == "newhash"
     assert result.geoip_info == {"city": "NewCity"}
+
+
+def test_ip_address_does_not_flush_pending_journals(db_request):
+    """Resolving the IP must leave a pending JournalEntry unflushed."""
+    entry = JournalEntry(name="foo", action="create")
+    db_request.db.add(entry)
+    db_request.remote_addr = "192.0.2.69"
+    db_request.remote_addr_hashed = "deadbeef"
+
+    wsgi._ip_address(db_request)
+
+    # Still in session.new means it wasn't flushed, so no advisory lock was taken.
+    assert entry in db_request.db.new
 
 
 def test_remote_addr_hashed(pyramid_request):

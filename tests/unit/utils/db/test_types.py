@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytz
 
@@ -11,7 +11,7 @@ from warehouse.utils.db.types import TZDateTime
 
 def test_tzdatetime_bind_nonnaive_datetime():
     dt_field = TZDateTime()
-    utc_datetime = pytz.UTC.localize(datetime.datetime.now())
+    utc_datetime = pytz.UTC.localize(dt.datetime.now())
     assert utc_datetime.tzinfo is not None
 
     naive_datetime = dt_field.process_bind_param(utc_datetime, dialect)
@@ -21,7 +21,7 @@ def test_tzdatetime_bind_nonnaive_datetime():
 
 def test_tzdatetime_bind_nonnaive_datetime_naive():
     dt_field = TZDateTime()
-    naive_datetime = datetime.datetime.now()
+    naive_datetime = dt.datetime.now()
     assert naive_datetime.tzinfo is None
 
     assert dt_field.process_bind_param(naive_datetime, dialect) is naive_datetime
@@ -35,7 +35,7 @@ def test_tzdatetime_bind_nonnaive_datetime_none():
 
 def test_tzdatetime_process_result_value():
     dt_field = TZDateTime()
-    naive_datetime = datetime.datetime.now(datetime.UTC)
+    naive_datetime = dt.datetime.now(dt.UTC)
 
     utc_datetime = dt_field.process_result_value(naive_datetime, dialect)
     assert utc_datetime

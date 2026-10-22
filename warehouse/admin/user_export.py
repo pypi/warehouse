@@ -13,7 +13,7 @@ See: dev/admin-user-export.md for the document schema.
 """
 
 import dataclasses
-import datetime
+import datetime as dt
 import enum
 
 from collections.abc import Mapping, Sequence, Sized
@@ -114,7 +114,7 @@ _EMAIL_EVENT_FIELDS = {
 }
 
 
-def _dt(value: datetime.datetime | None) -> str | None:
+def _dt(value: dt.datetime | None) -> str | None:
     """
     Serialize an optional timestamp as an ISO-8601 UTC string.
 
@@ -124,7 +124,7 @@ def _dt(value: datetime.datetime | None) -> str | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        value = value.replace(tzinfo=datetime.UTC)
+        value = value.replace(tzinfo=dt.UTC)
     return value.isoformat()
 
 
@@ -325,7 +325,7 @@ def _capped_total(db: Session, rows: Sized, count: Select[int]) -> tuple[int, bo
 
 # One uploaded release, as selected by `_membership_sections`:
 # project_id, version, created, uploaded_via.
-type _UploadRow = Row[UUID, str, datetime.datetime, str | None]
+type _UploadRow = Row[UUID, str, dt.datetime, str | None]
 
 
 def _release_ref(release: _UploadRow) -> dict:
@@ -774,7 +774,7 @@ def _observation_actions(actions: dict | None) -> list[dict]:
         return []
     return [
         {
-            "at": _dt(datetime.datetime.fromtimestamp(int(at), tz=datetime.UTC)),
+            "at": _dt(dt.datetime.fromtimestamp(int(at), tz=dt.UTC)),
             **{
                 field: action[field]
                 for field in _OBSERVATION_ACTION_FIELDS
@@ -1106,7 +1106,7 @@ def _pending_publishers_section(user: User, db: Session) -> dict:
 
 
 def export_user(
-    user: User, request: Request, generated_at: datetime.datetime | None = None
+    user: User, request: Request, generated_at: dt.datetime | None = None
 ) -> dict:
     """
     Assemble the full user account export document.
