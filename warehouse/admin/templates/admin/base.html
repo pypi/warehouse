@@ -268,6 +268,13 @@
             </a>
           </li>
           {% endif %}
+          {% if request.has_permission(Permissions.AdminEmailsRead, admin_root) %}
+          <li class="nav-item">
+            <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
+              <i class="fa fa-envelope nav-icon"></i> <p>Emails</p>
+            </a>
+          </li>
+          {% endif %}
           {% endif %}
           {% if request.has_permission(Permissions.AdminBannerRead, admin_root) %}
           <li class="nav-item">

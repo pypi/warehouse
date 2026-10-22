@@ -708,6 +708,7 @@ ROOT_GROUP_PERMISSIONS = {
     # Security has no dashboard, role management, general project/user changes,
     # account recovery/export, or organization/flag/blocklist access.
     "group:security": {
+        Permissions.AdminEmailsRead,
         Permissions.AdminMalwareReportsRead,
         Permissions.AdminMalwareReportsWrite,
         Permissions.AdminMalwareReportsRemove,

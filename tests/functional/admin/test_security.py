@@ -12,6 +12,7 @@ from tests.common.db.organizations import (
     OrganizationRoleFactory,
 )
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+from tests.common.db.ses import EmailMessageFactory
 from warehouse.packaging.models import LifecycleStatus
 from warehouse.utils.security_policy import principals_for
 
@@ -108,6 +109,7 @@ def test_security_navigation_and_unrelated_writes(
         "/admin/quarantine/",
         "/admin/projects/",
         "/admin/users/",
+        "/admin/emails/",
     }
     fragment = webtest.get("/_includes/authed/current-user-indicator/")
     assert fragment.html.select_one('a[href="/admin/malware_reports/"]')
@@ -124,6 +126,7 @@ def test_security_navigation_and_unrelated_writes(
         f"/admin/users/{owner.username}/",
         "/admin/quarantine/",
         "/admin/observations/",
+        "/admin/emails/",
     ]:
         webtest.get(path, status=200)
     token = _csrf(webtest)
@@ -179,6 +182,51 @@ def test_security_can_add_project_and_release_observations(webtest, login_admin)
     assert (
         "Investigation evidence recorded by a security reviewer." in observations.text
     )
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        "is_security",
+        "is_superuser",
+        "is_support",
+        "is_moderator",
+        "is_psf_staff",
+        "is_observer",
+        None,
+    ],
+)
+def test_email_log_access_is_read_only_for_security(webtest, login_admin, role):
+    login_admin(**({role: True} if role else {"is_superuser": False}))
+    target = UserFactory.create(with_verified_primary_email=True)
+    message = EmailMessageFactory.create(
+        to=target.primary_email.email, subject="Security triage correspondence"
+    )
+    unrelated = EmailMessageFactory.create(subject="Unrelated correspondence")
+    allowed = role in {"is_security", "is_superuser", "is_support", "is_moderator"}
+    expected = 200 if allowed else 403
+    listing = webtest.get("/admin/emails/", status=expected)
+    detail = webtest.get(f"/admin/emails/{message.id}/", status=expected)
+    if allowed:
+        assert message.message_id in detail.text
+        assert message.to in detail.text
+        assert bool(listing.html.select('form[action="/admin/emails/mass/"]')) is (
+            role == "is_superuser"
+        )
+        user_page = webtest.get(f"/admin/users/{target.username}/")
+        assert user_page.html.select_one('.nav-sidebar a[href="/admin/emails/"]')
+        search_link = user_page.html.select_one(
+            '.content-wrapper a[href^="/admin/emails/?"]'
+        )
+        search = webtest.get(search_link["href"])
+        assert message.subject in search.text
+        assert unrelated.subject not in search.text
+    if role != "is_superuser":
+        webtest.post(
+            "/admin/emails/mass/",
+            {"csrf_token": _csrf(webtest)},
+            status=403,
+        )
 
 
 @pytest.mark.parametrize(

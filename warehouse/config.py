@@ -179,6 +179,7 @@ class RootFactory:
             Allow,
             "group:security",
             (
+                Permissions.AdminEmailsRead,
                 Permissions.AdminMalwareReportsRead,
                 Permissions.AdminMalwareReportsWrite,
                 Permissions.AdminMalwareReportsRemove,
