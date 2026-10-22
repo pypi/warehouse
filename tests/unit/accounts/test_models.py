@@ -134,6 +134,10 @@ class TestUser:
         user = DBUserFactory.create(is_superuser=True)
         assert user.can_reset_password is False
 
+    def test_security_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_security=True)
+        assert user.can_reset_password is False
+
     def test_moderator_prohibit_password_reset(self, db_session):
         user = DBUserFactory.create(is_moderator=True)
         assert user.can_reset_password is False
@@ -284,6 +288,37 @@ class TestUser:
         expected = [*expected[:], f"user:{user.id}", Authenticated]
 
         assert set(principals_for(user)) == set(expected)
+
+    @pytest.mark.parametrize(
+        ("other_roles", "groups"),
+        [
+            ({}, {"group:security"}),
+            (
+                {"is_support": True},
+                {"group:security", "group:support", "group:moderators"},
+            ),
+            ({"is_moderator": True}, {"group:security", "group:moderators"}),
+            ({"is_psf_staff": True}, {"group:security", "group:psf_staff"}),
+            ({"is_observer": True}, {"group:security", "group:observers"}),
+            (
+                {"is_superuser": True},
+                {
+                    "group:security",
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:observers",
+                },
+            ),
+        ],
+    )
+    def test_security_principals(self, other_roles, groups):
+        user = User(id=uuid.uuid4(), is_security=True, **other_roles)
+        assert set(principals_for(user)) == {
+            Authenticated,
+            f"user:{user.id}",
+            *groups,
+        }
 
     @pytest.mark.parametrize(
         ("has_totp", "count_webauthn", "expected"),
