@@ -171,3 +171,39 @@ def test_reviewer_turbo_stays_in_applications(webtest, login_admin, has_next):
     assert response.location.endswith(expected)
     response.follow(status=HTTPStatus.OK)
     assert application.status == OrganizationApplicationStatus.Deferred
+
+
+@pytest.mark.parametrize("role", ["is_superuser", "is_support", "is_moderator"])
+def test_reviewer_role_assignment_requires_superuser(webtest, login_admin, role):
+    login_admin(**{role: True})
+    target = UserFactory.create()
+    user_url = f"/admin/users/{target.username}/"
+    detail = webtest.get(user_url, status=HTTPStatus.OK)
+    form = next(
+        form
+        for form in detail.forms.values()
+        if "is_org_application_reviewer" in form.fields
+    )
+    assert target.is_org_application_reviewer is False
+    if role != "is_superuser":
+        webtest.post(
+            user_url,
+            {
+                "csrf_token": form["csrf_token"].value,
+                "is_org_application_reviewer": "y",
+            },
+            status=HTTPStatus.FORBIDDEN,
+        )
+        assert target.is_org_application_reviewer is False
+        return
+
+    for enabled in (True, False):
+        form["is_org_application_reviewer"] = enabled
+        detail = form.submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
+        assert target.is_org_application_reviewer is enabled
+        assert ("group:org_application_reviewers" in target.__principals__()) is enabled
+        form = next(
+            form
+            for form in detail.forms.values()
+            if "is_org_application_reviewer" in form.fields
+        )
