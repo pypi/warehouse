@@ -63,6 +63,7 @@ Warehouse serves six main classes of users:
    administration tools.
 6. *PyPI security reviewers*. These users review malware reports, record
    observations, quarantine projects and releases, and remove confirmed malware.
+   Quarantining a whole project also freezes its owners' accounts.
    They can inspect project and user details and view email delivery logs, but
    have no other administration access.
    Project upload and size limits are read-only.
