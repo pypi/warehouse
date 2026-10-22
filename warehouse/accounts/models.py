@@ -358,6 +358,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:admins",
                 (
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
@@ -384,6 +385,16 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:moderators",
                 (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
+            (
+                Allow,
+                "group:security",
+                (
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminProjectsQuarantine,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminUsersRead,
+                ),
             ),
         ]
 

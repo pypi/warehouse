@@ -6,7 +6,7 @@ import uuid
 import psycopg
 import pytest
 
-from pyramid.authorization import Authenticated
+from pyramid.authorization import ACLHelper, Authenticated
 
 from warehouse.accounts.models import (
     Email,
@@ -170,14 +170,14 @@ class TestUser:
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
 
-    def test_acl(self, db_session):
-        user = DBUserFactory.create()
-        assert user.__acl__() == [
+    @pytest.mark.parametrize(
+        ("principal", "allowed"),
+        [
             (
-                "Allow",
                 "group:admins",
-                (
+                {
                     Permissions.AdminProjectsWrite,
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
@@ -186,25 +186,41 @@ class TestUser:
                     Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
                     Permissions.AdminVulnerabilitiesRead,
-                ),
+                },
             ),
             (
-                "Allow",
                 "group:support",
-                (
+                {
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminUsersRecoveryCodesBurn,
                     Permissions.AdminDashboardSidebarRead,
-                ),
+                },
             ),
             (
-                "Allow",
                 "group:moderators",
-                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+                {Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead},
             ),
-        ]
+            (
+                "group:security",
+                {
+                    Permissions.AdminMalwareReportsRead,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminProjectsQuarantine,
+                },
+            ),
+            ("group:psf_staff", set()),
+            ("group:observers", set()),
+            ("group:unknown", set()),
+        ],
+    )
+    @pytest.mark.parametrize("permission", [*Permissions, "unknown:permission"])
+    def test_acl(self, db_session, principal, allowed, permission):
+        user = DBUserFactory.create()
+        result = ACLHelper().permits(user, [Authenticated, principal], permission)
+        assert bool(result) == (permission in allowed)
 
     @pytest.mark.parametrize(
         (
