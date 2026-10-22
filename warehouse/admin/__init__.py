@@ -15,6 +15,9 @@ def includeme(config):
 
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
+    config.get_settings().setdefault("jinja2.globals", {}).setdefault(
+        "admin_root_factory", "warehouse.config:RootFactory"
+    )
 
     # Register the {% component %} tag. The components register themselves on
     # import (see the module-level import above). Their templates are asset
