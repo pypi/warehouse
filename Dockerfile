@@ -2,7 +2,7 @@
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:26.10.0-trixie AS static-deps
+FROM node:26.11.1-trixie AS static-deps
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -98,6 +98,11 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
         -r requirements/docs-dev.txt \
         -r requirements/docs-user.txt \
         -r requirements/docs-blog.txt
+
+# Material for MkDocs and ProperDocs each print a large "MkDocs 2.0" banner on
+# every build/serve; silence both.
+ENV NO_MKDOCS_2_WARNING=true \
+    DISABLE_MKDOCS_2_WARNING=true
 
 # We'll make the docs container run as a non-root user, ensure that the built
 # documentation belongs to the same user on the host machine.

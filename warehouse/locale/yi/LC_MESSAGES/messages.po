@@ -129,7 +129,7 @@ msgstr ""
 msgid "You can't use a disposable email address. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:130
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -466,31 +466,31 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:288
+#: warehouse/manage/forms.py:289
 msgid "Specify an association ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:289
+#: warehouse/manage/forms.py:290
 msgid "Association must be specified by ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:304
+#: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:309
+#: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
 msgstr ""
 
-#: warehouse/manage/forms.py:413
+#: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
 msgstr ""
 
-#: warehouse/manage/forms.py:455
+#: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:463
+#: warehouse/manage/forms.py:467
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -498,87 +498,88 @@ msgid ""
 "account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:486
+#: warehouse/manage/forms.py:490
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:505
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:535
+#: warehouse/manage/forms.py:539
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:540 warehouse/oidc/forms/_core.py:32
+#: warehouse/manage/forms.py:544 warehouse/oidc/forms/_core.py:32
 #: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:548
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:551
+#: warehouse/manage/forms.py:555
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:584
+#: warehouse/manage/forms.py:588
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr ""
 
-#: warehouse/manage/forms.py:652
+#: warehouse/manage/forms.py:656
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:665
+#: warehouse/manage/forms.py:669
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:671
+#: warehouse/manage/forms.py:675
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:683
+#: warehouse/manage/forms.py:687
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:728
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:748
-#, python-format
+#: warehouse/manage/forms.py:759
+#, python-brace-format
 msgid ""
-"You have already submitted the maximum number of Organization requests (%s)."
+"You have already submitted the maximum number of Organization requests ($"
+"{count})."
 msgstr ""
 
-#: warehouse/manage/forms.py:778
+#: warehouse/manage/forms.py:790
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:785
+#: warehouse/manage/forms.py:797
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:812
+#: warehouse/manage/forms.py:824
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -1033,7 +1034,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:351
+#: warehouse/packaging/views.py:356
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -5027,7 +5028,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:938
-#: warehouse/templates/manage/organization/history.html:213
+#: warehouse/templates/manage/organization/history.html:216
 #: warehouse/templates/manage/project/history.html:335
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
@@ -5035,8 +5036,8 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:939
-#: warehouse/templates/manage/organization/history.html:214
-#: warehouse/templates/manage/organization/history.html:223
+#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/organization/history.html:226
 #: warehouse/templates/manage/project/history.html:336
 #: warehouse/templates/manage/project/history.html:345
 #: warehouse/templates/manage/team/history.html:88
@@ -5046,7 +5047,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:940
-#: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/organization/history.html:218
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
@@ -5058,13 +5059,13 @@ msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:952
-#: warehouse/templates/manage/organization/history.html:227
+#: warehouse/templates/manage/organization/history.html:230
 #: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:955
-#: warehouse/templates/manage/organization/history.html:230
+#: warehouse/templates/manage/organization/history.html:233
 #: warehouse/templates/manage/project/history.html:352
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
@@ -5492,8 +5493,8 @@ msgid "Remove publisher"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:754
-#: warehouse/templates/manage/organization/history.html:113
-#: warehouse/templates/manage/organization/history.html:179
+#: warehouse/templates/manage/organization/history.html:116
+#: warehouse/templates/manage/organization/history.html:182
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -5506,8 +5507,8 @@ msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:756
-#: warehouse/templates/manage/organization/history.html:121
-#: warehouse/templates/manage/organization/history.html:184
+#: warehouse/templates/manage/organization/history.html:124
+#: warehouse/templates/manage/organization/history.html:187
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -6787,89 +6788,99 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:26
 #, python-format
+msgid "Organization type changed from %(old_orgtype)s to %(new_orgtype)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:27
+#, python-format
+msgid "Changed by: %(actor)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:29
+#, python-format
 msgid "%(organization_name)s organization approved"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:28
+#: warehouse/templates/manage/organization/history.html:31
 #, python-format
 msgid "%(organization_name)s organization declined"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:32
+#: warehouse/templates/manage/organization/history.html:35
 #, python-format
 msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:36
+#: warehouse/templates/manage/organization/history.html:39
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:42
+#: warehouse/templates/manage/organization/history.html:45
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:48
+#: warehouse/templates/manage/organization/history.html:51
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:50
+#: warehouse/templates/manage/organization/history.html:53
 #, python-format
 msgid "A deleted user was removed as organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:56
+#: warehouse/templates/manage/organization/history.html:59
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:61
+#: warehouse/templates/manage/organization/history.html:64
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
 "%(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:66
+#: warehouse/templates/manage/organization/history.html:69
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:71
+#: warehouse/templates/manage/organization/history.html:74
 #, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
 "organization %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:76
+#: warehouse/templates/manage/organization/history.html:79
 #, python-format
 msgid ""
 "Invitation for <a href=\"%(href)s\">%(username)s</a> to join as organization "
 "%(role_name)s expired"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:80
+#: warehouse/templates/manage/organization/history.html:83
 #: warehouse/templates/manage/team/history.html:17
 #, python-format
 msgid "%(team_name)s team created"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:82
+#: warehouse/templates/manage/organization/history.html:85
 #: warehouse/templates/manage/team/history.html:19
 #, python-format
 msgid "%(team_name)s team deleted"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:86
+#: warehouse/templates/manage/organization/history.html:89
 #: warehouse/templates/manage/team/history.html:25
 #, python-format
 msgid ""
@@ -6877,7 +6888,7 @@ msgid ""
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:90
+#: warehouse/templates/manage/organization/history.html:93
 #: warehouse/templates/manage/team/history.html:29
 #, python-format
 msgid ""
@@ -6885,7 +6896,7 @@ msgid ""
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:94
+#: warehouse/templates/manage/organization/history.html:97
 #: warehouse/templates/manage/team/history.html:33
 #, python-format
 msgid ""
@@ -6893,104 +6904,104 @@ msgid ""
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:100
+#: warehouse/templates/manage/organization/history.html:103
 #: warehouse/templates/manage/team/history.html:39
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:104
+#: warehouse/templates/manage/organization/history.html:107
 #: warehouse/templates/manage/team/history.html:43
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:110
+#: warehouse/templates/manage/organization/history.html:113
 #, python-format
 msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
 "added to organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:118
+#: warehouse/templates/manage/organization/history.html:121
 #, python-format
 msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
 "removed from organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:128
 msgid "Subscription started"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:127
+#: warehouse/templates/manage/organization/history.html:130
 #, python-format
 msgid "Subscription status changed to %(status)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:133
 msgid "Subscription set to cancel at period end"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:132
+#: warehouse/templates/manage/organization/history.html:135
 msgid "Subscription canceled"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:138
 #, python-format
 msgid "Canceled by: %(canceled_by)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:147
+#: warehouse/templates/manage/organization/history.html:150
 msgid "Registered by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:153
+#: warehouse/templates/manage/organization/history.html:156
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:158
+#: warehouse/templates/manage/organization/history.html:161
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:317
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:163
+#: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:168
+#: warehouse/templates/manage/organization/history.html:171
 msgid "Approved by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:173
+#: warehouse/templates/manage/organization/history.html:176
 msgid "Declined by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:194
-#: warehouse/templates/manage/organization/history.html:199
+#: warehouse/templates/manage/organization/history.html:197
+#: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:204
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/organization/history.html:213
 #: warehouse/templates/manage/project/history.html:332
 #: warehouse/templates/manage/team/history.html:84
 #, python-format

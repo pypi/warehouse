@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-import datetime
+import datetime as dt
 import hashlib
 import hmac
 import os.path
@@ -1167,7 +1167,7 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        if added_late(datetime.datetime.now(), release.created):
+        if added_late(dt.datetime.now(), release.created):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:closed-release"]
             )

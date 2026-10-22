@@ -628,6 +628,24 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_USER_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_IP_RATELIMIT_STRING",
+        default="200 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_ORGANIZATION_RATELIMIT_STRING",
+        default="50 per day",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
@@ -762,7 +780,6 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
-    filters.setdefault("natsort", "natsort:natsorted")
     filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"

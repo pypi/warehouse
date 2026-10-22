@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import shlex
 import uuid
 
@@ -61,8 +61,8 @@ def project_list(request):
     if not q:
         days = parse_days_param(request)
 
-        now = datetime.datetime.now(datetime.UTC)
-        cutoff = now - datetime.timedelta(days=days)
+        now = dt.datetime.now(dt.UTC)
+        cutoff = now - dt.timedelta(days=days)
         created_date = func.date_trunc("day", Project.created)
 
         daily_counts = request.db.execute(
@@ -79,7 +79,7 @@ def project_list(request):
 
         creation_series = []
         for i in range(days):
-            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
+            day = (cutoff + dt.timedelta(days=i + 1)).date().isoformat()
             creation_series.append((day, counts_by_date.get(day, 0)))
 
         latest_release = (

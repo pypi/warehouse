@@ -1,23 +1,31 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import uuid
+
 from types import SimpleNamespace
 
-import pretend
 import pytest
 import wtforms
 
 from webob.multidict import MultiDict
 
 from warehouse.accounts.models import ProhibitedEmailDomain
+from warehouse.accounts.services import NullPasswordBreachedService
 from warehouse.manage import forms
 from warehouse.organizations.models import OrganizationApplicationStatus
 from warehouse.utils import otp
 
-from ...common.constants import REMOTE_ADDR
-from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
+from ...common.db.accounts import (
+    EmailFactory,
+    OAuthAccountAssociationFactory,
+    UserFactory,
+    WebAuthnFactory,
+)
+from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    TeamFactory,
 )
 from ...common.db.packaging import ProjectFactory
 
@@ -54,8 +62,8 @@ def _stub_mx_ptr_resolution(monkeypatch, ptr_host):
 
 
 class TestCreateRoleForm:
-    def test_validate(self):
-        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
+    def test_validate(self, user_service):
+        UserFactory.create(username="valid_username")
         form = forms.CreateRoleForm(
             formdata=MultiDict({"role_name": "Owner", "username": "valid_username"}),
             user_service=user_service,
@@ -64,26 +72,25 @@ class TestCreateRoleForm:
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_validate_username_with_no_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None)
-        )
+    def test_validate_username_with_no_user(self, user_service, mocker):
+        find_userid = mocker.spy(user_service, "find_userid")
         form = forms.CreateRoleForm(user_service=user_service)
-        field = pretend.stub(data="my_username")
+        form.username.data = "my_username"
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_username(field)
+            form.validate_username(form.username)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        find_userid.assert_called_once_with("my_username")
 
-    def test_validate_username_with_user(self):
-        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
+    def test_validate_username_with_user(self, user_service, mocker):
+        UserFactory.create(username="my_username")
+        find_userid = mocker.spy(user_service, "find_userid")
         form = forms.CreateRoleForm(user_service=user_service)
-        field = pretend.stub(data="my_username")
+        form.username.data = "my_username"
 
-        form.validate_username(field)
+        form.validate_username(form.username)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        find_userid.assert_called_once_with("my_username")
 
     @pytest.mark.parametrize(
         ("value", "expected"),
@@ -93,8 +100,8 @@ class TestCreateRoleForm:
             (None, "Select role"),
         ],
     )
-    def test_validate_role_name_fails(self, value, expected):
-        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
+    def test_validate_role_name_fails(self, user_service, value, expected):
+        UserFactory.create(username="valid_username")
         form = forms.CreateRoleForm(
             MultiDict({"role_name": value, "username": "valid_username"}),
             user_service=user_service,
@@ -121,6 +128,7 @@ class TestCreateInternalRoleForm:
     def test_validate(
         self,
         pyramid_request,
+        user_service,
         is_team,
         team_name,
         team_choices,
@@ -139,7 +147,6 @@ class TestCreateInternalRoleForm:
             }
         )
 
-        user_service = pretend.stub()
         form = forms.CreateInternalRoleForm(
             pyramid_request.POST,
             team_choices=team_choices,
@@ -153,41 +160,37 @@ class TestCreateInternalRoleForm:
 
 
 class TestSaveAccountForm:
-    def test_validate(self):
-        email = pretend.stub(verified=True, public=False, email="foo@example.com")
-        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
-        user_service = pretend.stub(get_user=lambda _: user)
+    def test_validate(self, user_service):
+        email = EmailFactory.create(verified=True, public=False)
         form = forms.SaveAccountForm(
             name="some name",
             public_email=email.email,
             user_service=user_service,
-            user_id=user.id,
+            user_id=email.user.id,
         )
 
-        assert form.user_id is user.id
+        assert form.user_id is email.user.id
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_public_email_unverified(self):
-        email = pretend.stub(verified=False, public=False, email=pretend.stub())
-        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+    def test_public_email_unverified(self, user_service):
+        email = EmailFactory.create(verified=False, public=False)
         form = forms.SaveAccountForm(
             name="some name",
             public_email=email.email,
-            user_service=pretend.stub(get_user=lambda _: user),
-            user_id=user.id,
+            user_service=user_service,
+            user_id=email.user.id,
         )
         assert not form.validate()
         assert "is not a verified email for" in form.public_email.errors.pop()
 
-    def test_name_too_long(self, pyramid_config):
-        email = pretend.stub(verified=True, public=False, email="foo@example.com")
-        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+    def test_name_too_long(self, pyramid_config, user_service):
+        email = EmailFactory.create(verified=True, public=False)
         form = forms.SaveAccountForm(
             name="x" * 101,
             public_email=email.email,
-            user_service=pretend.stub(get_user=lambda _: user),
-            user_id=user.id,
+            user_service=user_service,
+            user_id=email.user.id,
         )
 
         assert not form.validate()
@@ -199,35 +202,27 @@ class TestSaveAccountForm:
 
 class TestAddEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics, email_reputation_service):
-        user_id = pretend.stub()
-        user_service = pretend.stub(find_userid_by_email=lambda _: None)
+    def test_validate(self, db_request, user_service):
+        user = UserFactory.create()
         form = forms.AddEmailForm(
-            request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
-                metrics=metrics,
-                find_service=lambda *a, **kw: email_reputation_service,
-            ),
+            request=db_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
-            user_id=user_id,
+            user_id=user.id,
             user_service=user_service,
         )
 
-        assert form.user_id is user_id
+        assert form.user_id is user.id
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_email_exists_error(self, pyramid_request):
-        pyramid_request.db = pretend.stub(
-            query=lambda *a: pretend.stub(scalar=lambda: False)
-        )
-        user_id = pretend.stub()
+    def test_email_exists_error(self, db_request, user_service):
+        email = EmailFactory.create(email="foo@bar.com")
         form = forms.AddEmailForm(
-            request=pyramid_request,
+            request=db_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
-            user_id=user_id,
-            user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
+            user_id=email.user.id,
+            user_service=user_service,
         )
 
         assert not form.validate()
@@ -238,15 +233,13 @@ class TestAddEmailForm:
         )
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_email_exists_other_account_error(self, pyramid_request):
-        pyramid_request.db = pretend.stub(
-            query=lambda *a: pretend.stub(scalar=lambda: False)
-        )
+    def test_email_exists_other_account_error(self, db_request, user_service):
+        EmailFactory.create(email="foo@bar.com")
         form = forms.AddEmailForm(
-            request=pyramid_request,
+            request=db_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
+            user_id=UserFactory.create().id,
+            user_service=user_service,
         )
 
         assert not form.validate()
@@ -257,15 +250,12 @@ class TestAddEmailForm:
         )
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_prohibited_email_error(self, pyramid_request):
-        pyramid_request.db = pretend.stub(
-            query=lambda *a: pretend.stub(scalar=lambda: False)
-        )
+    def test_prohibited_email_error(self, db_request, user_service):
         form = forms.AddEmailForm(
-            request=pyramid_request,
+            request=db_request,
             formdata=MultiDict({"email": "foo@bearsarefuzzy.com"}),
-            user_service=pretend.stub(find_userid_by_email=lambda _: None),
-            user_id=pretend.stub(),
+            user_service=user_service,
+            user_id=UserFactory.create().id,
         )
 
         assert not form.validate()
@@ -300,6 +290,7 @@ class TestAddEmailForm:
         self,
         monkeypatch,
         db_request,
+        user_service,
         email_address,
         mx_record_domain,
         mx_ptr_host,
@@ -333,8 +324,8 @@ class TestAddEmailForm:
         form = forms.AddEmailForm(
             request=db_request,
             formdata=MultiDict({"email": email_address}),
-            user_service=pretend.stub(find_userid_by_email=lambda _: None),
-            user_id=pretend.stub(),
+            user_service=user_service,
+            user_id=UserFactory.create().id,
         )
 
         assert not form.validate()
@@ -358,6 +349,7 @@ class TestAddEmailForm:
         self,
         monkeypatch,
         db_request,
+        user_service,
         email_address,
         mx_record_domain,
         prohibited_domain,
@@ -390,18 +382,18 @@ class TestAddEmailForm:
         form = forms.AddEmailForm(
             request=db_request,
             formdata=MultiDict({"email": email_address}),
-            user_service=pretend.stub(find_userid_by_email=lambda _: None),
-            user_id=pretend.stub(),
+            user_service=user_service,
+            user_id=UserFactory.create().id,
         )
 
         assert form.validate()
 
-    def test_email_too_long_error(self, pyramid_request):
+    def test_email_too_long_error(self, pyramid_request, user_service):
         form = forms.AddEmailForm(
             request=pyramid_request,
             formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
-            user_service=pretend.stub(find_userid_by_email=lambda _: None),
-            user_id=pretend.stub(),
+            user_service=user_service,
+            user_id=uuid.uuid4(),
         )
 
         assert not form.validate()
@@ -412,21 +404,16 @@ class TestAddEmailForm:
 
 class TestChangeUnverifiedPrimaryEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics, email_reputation_service):
-        user_id = pretend.stub()
-        user_service = pretend.stub(find_userid_by_email=lambda _: None)
+    def test_validate(self, db_request, user_service):
+        user = UserFactory.create()
         form = forms.ChangeUnverifiedPrimaryEmailForm(
-            request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
-                metrics=metrics,
-                find_service=lambda *a, **kw: email_reputation_service,
-            ),
+            request=db_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
-            user_id=user_id,
+            user_id=user.id,
             user_service=user_service,
         )
 
-        assert form.user_id is user_id
+        assert form.user_id is user.id
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
@@ -437,12 +424,9 @@ class TestChangeUnverifiedPrimaryEmailForm:
 
 
 class TestChangePasswordForm:
-    def test_validate(self):
-        request = pretend.stub()
-        user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
-        )
-        breach_service = pretend.stub(check_password=lambda p, tags: False)
+    def test_validate(self, db_request, user_service):
+        UserFactory.create(username="username", clear_pwd="password")
+        breach_service = NullPasswordBreachedService()
 
         form = forms.ChangePasswordForm(
             formdata=MultiDict(
@@ -454,12 +438,12 @@ class TestChangePasswordForm:
                     "email": "foo@bar.net",
                 }
             ),
-            request=request,
+            request=db_request,
             user_service=user_service,
             breach_service=breach_service,
         )
 
-        assert form.request is request
+        assert form.request is db_request
         assert form.user_service is user_service
         assert form._breach_service is breach_service
         assert form.validate(), str(form.errors)
@@ -470,94 +454,95 @@ class TestDeleteTOTPForm:
     Covers ConfirmPasswordForm
     """
 
-    def test_validate_confirm_password(self):
-        request = pretend.stub(
-            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
-        )
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: True
-            ),
-        )
+    def test_validate_confirm_password(self, db_request, user_service):
+        UserFactory.create(username="username", clear_pwd="password")
         form = forms.DeleteTOTPForm(
             formdata=MultiDict({"username": "username", "password": "password"}),
-            request=request,
+            request=db_request,
             user_service=user_service,
         )
 
-        assert form.request is request
+        assert form.request is db_request
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
 
 class TestProvisionTOTPForm:
-    def test_validate(self, monkeypatch):
-        verify_totp = pretend.call_recorder(lambda *a: True)
-        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+    def test_validate(self, mocker):
+        verify_totp = mocker.patch.object(
+            otp, "verify_totp", autospec=True, return_value=True
+        )
 
-        totp_secret = pretend.stub()
+        totp_secret = mocker.sentinel.totp_secret
         form = forms.ProvisionTOTPForm(
             formdata=MultiDict({"totp_value": "000000"}), totp_secret=totp_secret
         )
 
         assert form.totp_secret is totp_secret
         assert form.validate(), str(form.errors)
+        verify_totp.assert_called_once_with(totp_secret, b"000000")
 
     @pytest.mark.parametrize(
-        ("exception", "expected_error"),
+        ("exception", "expected_error", "expected_failure"),
         [
-            (otp.InvalidTOTPError, "Invalid TOTP code. Try again?"),
+            (otp.InvalidTOTPError, "Invalid TOTP code. Try again?", "invalid"),
             (
                 otp.OutOfSyncTOTPError,
                 "Invalid TOTP code. Your device time may be out of sync.",
+                "out_of_sync",
             ),
         ],
     )
-    def test_verify_totp_invalid(self, monkeypatch, exception, expected_error):
-        monkeypatch.setattr(otp, "verify_totp", pretend.raiser(exception))
+    def test_verify_totp_invalid(
+        self, mocker, exception, expected_error, expected_failure
+    ):
+        mocker.patch.object(otp, "verify_totp", autospec=True, side_effect=exception)
 
         form = forms.ProvisionTOTPForm(
-            formdata=MultiDict({"totp_value": "123456"}), totp_secret=pretend.stub()
+            formdata=MultiDict({"totp_value": "123456"}),
+            totp_secret=mocker.sentinel.totp_secret,
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == expected_error
+        assert form.totp_failure == expected_failure
+
+    def test_verify_totp_malformed(self):
+        form = forms.ProvisionTOTPForm(
+            formdata=MultiDict({"totp_value": "12345"}),
+            totp_secret=otp.generate_totp_secret(),
+        )
+        assert not form.validate()
+        assert form.totp_failure == "malformed"
 
 
 class TestDeleteWebAuthnForm:
-    def test_validate(self):
-        fake_webauthn = object()
-        user_id = (pretend.stub(),)
-        user_service = pretend.stub(
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: fake_webauthn)
-        )
+    def test_validate(self, user_service):
+        webauthn = WebAuthnFactory.create(label="fake label")
         form = forms.DeleteWebAuthnForm(
             formdata=MultiDict({"label": "fake label"}),
             user_service=user_service,
-            user_id=user_id,
+            user_id=webauthn.user.id,
         )
 
         assert form.user_service is user_service
-        assert form.user_id is user_id
+        assert form.user_id is webauthn.user.id
         assert form.validate(), str(form.errors)
-        assert form.webauthn is fake_webauthn
+        assert form.webauthn == webauthn
 
-    def test_validate_label_missing(self):
+    def test_validate_label_missing(self, user_service):
         form = forms.DeleteWebAuthnForm(
-            user_service=pretend.stub(), user_id=pretend.stub()
+            user_service=user_service, user_id=UserFactory.create().id
         )
 
         assert not form.validate()
         assert form.label.errors.pop() == "Specify a device name"
 
-    def test_validate_label_not_in_use(self):
-        user_service = pretend.stub(
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
-        )
+    def test_validate_label_not_in_use(self, user_service):
+        webauthn = WebAuthnFactory.create(label="another label")
         form = forms.DeleteWebAuthnForm(
             formdata=MultiDict({"label": "fake label"}),
             user_service=user_service,
-            user_id=pretend.stub(),
+            user_id=webauthn.user.id,
         )
 
         assert not form.validate()
@@ -565,15 +550,35 @@ class TestDeleteWebAuthnForm:
 
 
 class TestProvisionWebAuthnForm:
-    def test_validate(self):
-        user_service = pretend.stub(
-            verify_webauthn_credential=lambda *a, **kw: pretend.stub(),
-            get_webauthn_by_label=lambda *a: None,
+    @pytest.fixture
+    def verify_webauthn_credential(self, user_service, mocker):
+        return mocker.patch.object(
+            user_service, "verify_webauthn_credential", autospec=True
         )
-        user_id = pretend.stub()
-        challenge = pretend.stub()
-        rp_id = pretend.stub()
-        origin = pretend.stub()
+
+    @pytest.fixture
+    def make_form(self, user_service, mocker):
+        """
+        Build a ProvisionWebAuthnForm with opaque challenge/rp_id/origin values.
+        """
+
+        def _make(formdata, user_id=None):
+            return forms.ProvisionWebAuthnForm(
+                formdata=MultiDict(formdata),
+                user_service=user_service,
+                user_id=user_id or UserFactory.create().id,
+                challenge=mocker.sentinel.challenge,
+                rp_id=mocker.sentinel.rp_id,
+                origin=mocker.sentinel.origin,
+            )
+
+        return _make
+
+    def test_validate(self, mocker, user_service, verify_webauthn_credential):
+        user_id = UserFactory.create().id
+        challenge = mocker.sentinel.challenge
+        rp_id = mocker.sentinel.rp_id
+        origin = mocker.sentinel.origin
         form = forms.ProvisionWebAuthnForm(
             formdata=MultiDict({"label": "label", "credential": "{}"}),
             user_service=user_service,
@@ -589,20 +594,12 @@ class TestProvisionWebAuthnForm:
         assert form.rp_id is rp_id
         assert form.origin is origin
         assert form.validate(), str(form.errors)
-
-    def test_verify_assertion_invalid_json(self):
-        user_service = pretend.stub(
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
+        verify_webauthn_credential.assert_called_once_with(
+            b"{}", challenge=challenge, rp_id=rp_id, origin=origin
         )
 
-        form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "invalid json", "label": "fake label"}),
-            user_service=user_service,
-            user_id=pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
-        )
+    def test_verify_assertion_invalid_json(self, make_form):
+        form = make_form({"credential": "invalid json", "label": "fake label"})
 
         assert not form.validate()
         assert (
@@ -631,63 +628,50 @@ class TestProvisionWebAuthnForm:
 
         assert not form.validate()
 
-    def test_verify_label_missing(self):
-        user_service = pretend.stub(
-            verify_webauthn_credential=lambda *a, **kw: pretend.stub()
-        )
-        form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}"}),
-            user_service=user_service,
-            user_id=pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
-        )
+    @pytest.mark.usefixtures("verify_webauthn_credential")
+    def test_verify_label_missing(self, make_form):
+        form = make_form({"credential": "{}"})
 
         assert not form.validate()
         assert form.label.errors.pop() == "Specify a label"
 
-    def test_verify_label_already_in_use(self):
-        user_service = pretend.stub(
-            verify_webauthn_credential=lambda *a, **kw: pretend.stub(),
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: pretend.stub()),
-        )
-        form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
-            user_service=user_service,
-            user_id=pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
+    @pytest.mark.usefixtures("verify_webauthn_credential")
+    def test_verify_label_already_in_use(self, make_form):
+        webauthn = WebAuthnFactory.create(label="fake label")
+        form = make_form(
+            {"credential": "{}", "label": "fake label"}, user_id=webauthn.user.id
         )
 
         assert not form.validate()
         assert form.label.errors.pop() == "Label 'fake label' already in use"
 
-    def test_creates_validated_credential(self):
-        fake_validated_credential = object()
-        user_service = pretend.stub(
-            verify_webauthn_credential=lambda *a, **kw: fake_validated_credential,
-            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
-        )
-        form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
-            user_service=user_service,
-            user_id=pretend.stub(),
-            challenge=pretend.stub(),
-            rp_id=pretend.stub(),
-            origin=pretend.stub(),
-        )
+    def test_creates_validated_credential(self, make_form, verify_webauthn_credential):
+        form = make_form({"credential": "{}", "label": "fake label"})
 
         assert form.validate(), str(form.errors)
-        assert form.validated_credential is fake_validated_credential
+        assert form.validated_credential is verify_webauthn_credential.return_value
 
 
 class TestCreateMacaroonForm:
+    @pytest.fixture
+    def make_form(self, macaroon_service):
+        """
+        Build a CreateMacaroonForm for a fresh user.
+        """
+
+        def _make(formdata, project_names=(), user_id=None):
+            return forms.CreateMacaroonForm(
+                formdata=MultiDict(formdata),
+                user_id=user_id or UserFactory.create().id,
+                macaroon_service=macaroon_service,
+                project_names=list(project_names),
+            )
+
+        return _make
+
     @pytest.mark.parametrize("selected_project", [None, "foo"])
-    def test_creation(self, selected_project):
-        user_id = pretend.stub()
-        macaroon_service = pretend.stub(get_macaroon_by_description=lambda *a: None)
+    def test_creation(self, macaroon_service, selected_project):
+        user_id = UserFactory.create().id
         project_names = ["foo"]
         form = forms.CreateMacaroonForm(
             formdata=MultiDict(
@@ -704,50 +688,31 @@ class TestCreateMacaroonForm:
         assert form.project_names is project_names
         assert form.validate()
 
-    def test_validate_description_missing(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"token_scope": "scope:user"}),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(),
-            project_names=pretend.stub(),
-        )
+    def test_validate_description_missing(self, make_form):
+        form = make_form({"token_scope": "scope:user"})
 
         assert not form.validate()
         assert form.description.errors.pop() == "Specify a token name"
 
-    def test_validate_description_in_use(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": "scope:user"}),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(
-                get_macaroon_by_description=lambda *a: pretend.stub()
-            ),
-            project_names=pretend.stub(),
+    def test_validate_description_in_use(self, make_form):
+        user = UserFactory.create()
+        MacaroonFactory.create(user_id=user.id, description="dummy")
+        form = make_form(
+            {"description": "dummy", "token_scope": "scope:user"}, user_id=user.id
         )
 
         assert not form.validate()
         assert form.description.errors.pop() == "API token name already in use"
 
-    def test_validate_token_scope_missing(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy"}),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-        )
-
-        assert not form.validate()
-        assert form.token_scope.errors.pop() == "Specify the token scope"
-
-    def test_validate_token_scope_unspecified(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:unspecified"}
-            ),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-        )
+    @pytest.mark.parametrize(
+        "formdata",
+        [
+            {"description": "dummy"},
+            {"description": "dummy", "token_scope": "scope:unspecified"},
+        ],
+    )
+    def test_validate_token_scope_missing(self, make_form, formdata):
+        form = make_form(formdata)
 
         assert not form.validate()
         assert form.token_scope.errors.pop() == "Specify the token scope"
@@ -755,47 +720,29 @@ class TestCreateMacaroonForm:
     @pytest.mark.parametrize(
         ("scope"), ["not a real scope", "scope:project", "scope:foo:bar"]
     )
-    def test_validate_token_scope_invalid_format(self, scope):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": scope}),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-        )
+    def test_validate_token_scope_invalid_format(self, make_form, scope):
+        form = make_form({"description": "dummy", "token_scope": scope})
 
         assert not form.validate()
         assert form.token_scope.errors.pop() == f"Unknown token scope: {scope}"
 
-    def test_validate_token_scope_invalid_project(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:project:foo"}
-            ),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+    def test_validate_token_scope_invalid_project(self, make_form):
+        form = make_form(
+            {"description": "dummy", "token_scope": "scope:project:foo"},
             project_names=["bar"],
         )
 
         assert not form.validate()
         assert form.token_scope.errors.pop() == "Unknown or invalid project name: foo"
 
-    def test_validate_token_scope_valid_user(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": "scope:user"}),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-        )
+    def test_validate_token_scope_valid_user(self, make_form):
+        form = make_form({"description": "dummy", "token_scope": "scope:user"})
 
         assert form.validate()
 
-    def test_validate_token_scope_valid_project(self):
-        form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:project:foo"}
-            ),
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+    def test_validate_token_scope_valid_project(self, make_form):
+        form = make_form(
+            {"description": "dummy", "token_scope": "scope:project:foo"},
             project_names=["foo"],
         )
 
@@ -803,45 +750,38 @@ class TestCreateMacaroonForm:
 
 
 class TestDeleteMacaroonForm:
-    def test_validate(self):
-        macaroon_service = pretend.stub(
-            find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
-        )
-        request = pretend.stub()
-        user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
-        )
+    @pytest.fixture
+    def user(self):
+        return UserFactory.create(username="username", clear_pwd="password")
+
+    def test_validate(self, db_request, macaroon_service, user_service, user):
+        macaroon = MacaroonFactory.create(user_id=user.id)
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict(
                 {
                     "password": "password",
                     "username": "username",
-                    "macaroon_id": pretend.stub(),
+                    "macaroon_id": str(macaroon.id),
                 }
             ),
-            request=request,
+            request=db_request,
             macaroon_service=macaroon_service,
             user_service=user_service,
         )
 
-        assert form.request is request
+        assert form.request is db_request
         assert form.macaroon_service is macaroon_service
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_validate_macaroon_id_invalid(self):
-        macaroon_service = pretend.stub(
-            find_macaroon=pretend.call_recorder(lambda id: None)
-        )
-        user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
-        )
-        request = pretend.stub(
-            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
-        )
+    def test_validate_macaroon_id_invalid(
+        self, db_request, macaroon_service, user_service, user
+    ):
         form = forms.DeleteMacaroonForm(
-            formdata=MultiDict({"macaroon_id": pretend.stub(), "password": "password"}),
-            request=request,
+            formdata=MultiDict(
+                {"macaroon_id": str(uuid.uuid4()), "password": "password"}
+            ),
+            request=db_request,
             macaroon_service=macaroon_service,
             user_service=user_service,
             username="username",
@@ -849,31 +789,6 @@ class TestDeleteMacaroonForm:
 
         assert not form.validate()
         assert form.macaroon_id.errors.pop() == "No such macaroon"
-
-    def test_validate_macaroon_id(self):
-        macaroon_service = pretend.stub(
-            find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
-        )
-        user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
-        )
-        request = pretend.stub(
-            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
-        )
-        form = forms.DeleteMacaroonForm(
-            formdata=MultiDict(
-                {
-                    "macaroon_id": pretend.stub(),
-                    "username": "username",
-                    "password": "password",
-                }
-            ),
-            request=request,
-            macaroon_service=macaroon_service,
-            user_service=user_service,
-        )
-
-        assert form.validate(), str(form.errors)
 
 
 class TestCreateOrganizationApplicationForm:
@@ -1002,22 +917,16 @@ class TestCreateOrganizationApplicationForm:
 
 
 class TestSaveOrganizationNameForm:
-    def test_save(self, pyramid_request):
+    def test_save(self, pyramid_request, organization_service, mocker):
+        find_organizationid = mocker.spy(organization_service, "find_organizationid")
         pyramid_request.POST = MultiDict({"name": "my_org_name"})
-        user = pretend.stub()
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None),
-            get_organization_applications_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None, undecided=False: []
-            ),
-        )
         form = forms.SaveOrganizationNameForm(
-            pyramid_request.POST, organization_service=organization_service, user=user
+            pyramid_request.POST,
+            organization_service=organization_service,
+            user=UserFactory.create(),
         )
         form.validate()
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_org_name")
-        ]
+        find_organizationid.assert_called_once_with("my_org_name")
 
 
 class TestAddOrganizationProjectForm:
@@ -1122,9 +1031,8 @@ class TestTransferOrganizationProjectForm:
 
 
 class TestCreateOrganizationRoleForm:
-    def test_validate(self):
-        organization_service = pretend.stub()
-        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
+    def test_validate(self, organization_service, user_service):
+        UserFactory.create(username="user")
 
         form = forms.CreateOrganizationRoleForm(
             MultiDict({"username": "user", "role_name": "Owner"}),
@@ -1171,16 +1079,16 @@ class TestCreateTeamForm:
             ("team", []),
         ],
     )
-    def test_validate(self, pyramid_request, name, errors):
+    def test_validate(self, pyramid_request, organization_service, name, errors):
         pyramid_request.POST = MultiDict({"name": name})
-
-        team_id = pretend.stub()
-        organization_service = pretend.stub(find_teamid=lambda org, name: team_id)
+        # Renaming a team to its own name must not collide with itself.
+        team = TeamFactory.create(name="team")
+        team_id = team.id
 
         form = forms.CreateTeamForm(
             pyramid_request.POST,
             team_id=team_id,
-            organization_id=pretend.stub(),
+            organization_id=team.organization.id,
             organization_service=organization_service,
         )
 

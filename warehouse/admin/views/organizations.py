@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import shlex
 
 import wtforms
@@ -50,12 +50,12 @@ from warehouse.subscriptions.models import (
 )
 from warehouse.utils.paginate import paginate_url_factory
 
-ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
+ACTIVE_RELEASE_WINDOW = dt.timedelta(days=365)
 
 
 def _organization_activity_predicates():
     """activity-tier predicates shared by the list filter and detail view."""
-    release_cutoff = datetime.datetime.now(datetime.UTC) - ACTIVE_RELEASE_WINDOW
+    release_cutoff = dt.datetime.now(dt.UTC) - ACTIVE_RELEASE_WINDOW
     has_projects = Organization.projects.any()
     has_recent_release = Organization.projects.any(
         Project.releases.any(Release.created >= release_cutoff)
@@ -166,7 +166,7 @@ class ManualActivationForm(wtforms.Form):
     )
 
     def validate_expires(self, field):
-        if field.data and field.data <= datetime.date.today():
+        if field.data and field.data <= dt.date.today():
             raise wtforms.ValidationError("Expiration date must be in the future")
 
 
@@ -349,7 +349,41 @@ def organization_detail(request):
     )
 
     if request.method == "POST" and form.validate():
+        previous_orgtype = organization.orgtype
         form.populate_obj(organization)
+
+        if (
+            previous_orgtype == OrganizationType.Company
+            and organization.orgtype == OrganizationType.Community
+        ):
+            for subscription in organization.subscriptions:
+                if subscription.is_restricted:
+                    continue
+                billing_service.cancel_subscription(subscription.subscription_id)
+                organization.record_event(
+                    tag=EventTag.Organization.SubscriptionCancel,
+                    request=request,
+                    additional={
+                        "subscription_id": subscription.subscription_id,
+                        "at_period_end": False,
+                        "canceled_by": request.user.username,
+                    },
+                )
+                request.session.flash(
+                    f"Subscription for {organization.name!r} canceled",
+                    queue="success",
+                )
+
+        if previous_orgtype != organization.orgtype:
+            organization.record_event(
+                tag=EventTag.Organization.OrganizationSetOrgType,
+                request=request,
+                additional={
+                    "old_orgtype": previous_orgtype.value,
+                    "new_orgtype": organization.orgtype.value,
+                    "actor": request.user.username,
+                },
+            )
 
         # Update Stripe customer if organization has one
         if organization.customer is not None:
@@ -363,6 +397,7 @@ def organization_detail(request):
             f"Organization {organization.name!r} updated successfully",
             queue="success",
         )
+
         return HTTPSeeOther(
             request.route_path(
                 "admin.organization.detail", organization_id=organization.id

@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
-import pretend
 import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -22,7 +21,6 @@ from tests.common.db.organizations import (
     TeamRoleFactory,
 )
 from tests.common.db.packaging import ProjectFactory
-from warehouse.manage import views
 from warehouse.manage.views import teams as team_views
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -51,10 +49,12 @@ class TestManageTeamSettings:
             "save_team_form": form,
         }
 
-    def test_save_team(self, db_request, pyramid_user, organization_service):
+    def test_save_team(self, db_request, pyramid_user, organization_service, mocker):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "Team name"})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
+        )
 
         view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.save_team()
@@ -95,28 +95,29 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        monkeypatch,
+        mocker,
     ):
         team = TeamFactory.create()
         db_request.POST = MultiDict({"confirm_team_name": team.name})
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
+        )
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(team_views, "send_team_deleted_email", send_email)
+        send_email = mocker.patch.object(
+            team_views, "send_team_deleted_email", autospec=True
+        )
 
         view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.delete_team()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                set(),
-                organization_name=team.organization.name,
-                team_name=team.name,
-            ),
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            set(),
+            organization_name=team.organization.name,
+            team_name=team.name,
+        )
 
     def test_delete_team_no_confirm(
         self,
@@ -124,22 +125,22 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        monkeypatch,
+        mocker,
     ):
         team = TeamFactory.create()
         db_request.POST = MultiDict()
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = team_views.ManageTeamSettingsViews(team, db_request)
         with pytest.raises(HTTPSeeOther):
             view.delete_team()
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
+        )
 
     def test_delete_team_wrong_confirm(
         self,
@@ -147,25 +148,23 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        monkeypatch,
+        mocker,
     ):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"confirm_team_name": "TEAM NAME"})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = team_views.ManageTeamSettingsViews(team, db_request)
         with pytest.raises(HTTPSeeOther):
             view.delete_team()
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                ("Could not delete team - 'TEAM NAME' is not the same as 'Team Name'"),
-                queue="error",
-            )
-        ]
+        db_request.session.flash.assert_called_once_with(
+            ("Could not delete team - 'TEAM NAME' is not the same as 'Team Name'"),
+            queue="error",
+        )
 
 
 class TestManageTeamProjects:
@@ -174,7 +173,6 @@ class TestManageTeamProjects:
         db_request,
         pyramid_user,
         organization_service,
-        monkeypatch,
     ):
         team = TeamFactory.create()
         project = ProjectFactory.create()
@@ -222,7 +220,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        monkeypatch,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -245,24 +243,19 @@ class TestManageTeamRoles:
             role_name=OrganizationRoleType.Member,
         )
 
+        # Production IP lookups return a loaded object without autoflushing.
+        db_request.db.refresh(db_request.ip_address)
+
         db_request.method = "POST"
         db_request.POST = MultiDict({"username": member.username})
         db_request.user = owner
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
-        send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            team_views,
-            "send_team_member_added_email",
-            send_team_member_added_email,
+        send_team_member_added_email = mocker.patch.object(
+            team_views, "send_team_member_added_email", autospec=True
         )
-        send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            team_views,
-            "send_added_as_team_member_email",
-            send_added_as_team_member_email,
+        send_added_as_team_member_email = mocker.patch.object(
+            team_views, "send_added_as_team_member_email", autospec=True
         )
 
         view = team_views.ManageTeamRolesViews(team, db_request)
@@ -272,31 +265,25 @@ class TestManageTeamRoles:
         assert len(roles) == 1
         assert roles[0].team_id == team.id
         assert roles[0].user_id == member.id
-        assert send_team_member_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner, manager},
-                user=member,
-                submitter=db_request.user,
-                organization_name=team.organization.name,
-                team_name=team.name,
-            )
-        ]
-        assert send_added_as_team_member_email.calls == [
-            pretend.call(
-                db_request,
-                member,
-                submitter=db_request.user,
-                organization_name=team.organization.name,
-                team_name=team.name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Added the team {team.name!r} to {team.organization.name!r}",
-                queue="success",
-            )
-        ]
+        send_team_member_added_email.assert_called_once_with(
+            db_request,
+            {owner, manager},
+            user=member,
+            submitter=db_request.user,
+            organization_name=team.organization.name,
+            team_name=team.name,
+        )
+        send_added_as_team_member_email.assert_called_once_with(
+            db_request,
+            member,
+            submitter=db_request.user,
+            organization_name=team.organization.name,
+            team_name=team.name,
+        )
+        db_request.session.flash.assert_called_once_with(
+            f"Added the team {team.name!r} to {team.organization.name!r}",
+            queue="success",
+        )
         assert isinstance(result, HTTPSeeOther)
 
     def test_create_team_role_duplicate_member(
@@ -304,6 +291,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -334,16 +322,14 @@ class TestManageTeamRoles:
         db_request.method = "POST"
         db_request.POST = MultiDict({"username": member.username})
         db_request.user = owner
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
         form = result["form"]
 
         assert organization_service.get_team_roles(team.id) == [role]
-        assert db_request.session.flash.calls == []
+        db_request.session.flash.assert_not_called()
         assert result == {
             "team": team,
             "roles": [role],
@@ -355,6 +341,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -375,9 +362,7 @@ class TestManageTeamRoles:
         db_request.method = "POST"
         db_request.POST = MultiDict({"username": not_a_member.username})
         db_request.user = owner
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        mocker.spy(db_request.session, "flash")
 
         view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
@@ -396,7 +381,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        monkeypatch,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -427,50 +412,40 @@ class TestManageTeamRoles:
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.user = owner
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        send_team_member_removed_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            team_views,
-            "send_team_member_removed_email",
-            send_team_member_removed_email,
+        send_team_member_removed_email = mocker.patch.object(
+            team_views, "send_team_member_removed_email", autospec=True
         )
-        send_removed_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            team_views,
-            "send_removed_as_team_member_email",
-            send_removed_as_team_member_email,
+        send_removed_as_team_member_email = mocker.patch.object(
+            team_views, "send_removed_as_team_member_email", autospec=True
         )
 
         view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == []
-        assert send_team_member_removed_email.calls == [
-            pretend.call(
-                db_request,
-                {owner, manager},
-                user=member,
-                submitter=db_request.user,
-                organization_name=team.organization.name,
-                team_name=team.name,
-            )
-        ]
-        assert send_removed_as_team_member_email.calls == [
-            pretend.call(
-                db_request,
-                member,
-                submitter=db_request.user,
-                organization_name=team.organization.name,
-                team_name=team.name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Removed from team", queue="success")
-        ]
+        send_team_member_removed_email.assert_called_once_with(
+            db_request,
+            {owner, manager},
+            user=member,
+            submitter=db_request.user,
+            organization_name=team.organization.name,
+            team_name=team.name,
+        )
+        send_removed_as_team_member_email.assert_called_once_with(
+            db_request,
+            member,
+            submitter=db_request.user,
+            organization_name=team.organization.name,
+            team_name=team.name,
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Removed from team", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
 
     def test_delete_team_role_not_a_member(
@@ -478,6 +453,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -509,24 +485,25 @@ class TestManageTeamRoles:
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": other_team_role.id})
         db_request.user = owner
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == []
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find member", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
 
     def test_delete_team_role_not_a_manager(
         self,
         db_request,
         organization_service,
+        mocker,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -558,18 +535,18 @@ class TestManageTeamRoles:
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.user = not_a_manager
         db_request.has_permission = lambda *a, **kw: False
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foo/bar/"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == [role]
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove other people from the team", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove other people from the team", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
 
 
@@ -579,12 +556,12 @@ class TestManageTeamHistory:
         older_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
         assert team_views.manage_team_history(team, db_request) == {
@@ -593,28 +570,15 @@ class TestManageTeamHistory:
             "team": team,
         }
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
-        params = MultiDict({"page": "abc"})
-        db_request.params = params
-
-        events_query = pretend.stub()
-        db_request.events_query = pretend.stub(
-            events_query=lambda *a, **kw: events_query
-        )
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+    def test_raises_400_with_pagenum_type_str(self, mocker, db_request):
+        db_request.params = MultiDict({"page": "abc"})
+        page_cls = mocker.patch.object(team_views, "SQLAlchemyORMPage", autospec=True)
 
         team = TeamFactory.create()
         with pytest.raises(HTTPBadRequest):
             team_views.manage_team_history(team, db_request)
 
-        assert page_cls.calls == []
+        page_cls.assert_not_called()
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
@@ -728,7 +692,7 @@ class TestChangeTeamProjectRole:
         organization_member,
         organization_team,
         organization_project,
-        monkeypatch,
+        mocker,
     ):
         role = TeamProjectRoleFactory.create(
             team=organization_team,
@@ -741,57 +705,43 @@ class TestChangeTeamProjectRole:
         db_request.POST = MultiDict(
             {"role_id": role.id, "team_project_role_name": new_role_name}
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_team_collaborator_role_changed_email = pretend.call_recorder(
-            lambda *a, **kw: None
+        send_team_collaborator_role_changed_email = mocker.patch.object(
+            team_views, "send_team_collaborator_role_changed_email", autospec=True
         )
-        monkeypatch.setattr(
-            team_views,
-            "send_team_collaborator_role_changed_email",
-            send_team_collaborator_role_changed_email,
-        )
-        send_role_changed_as_team_collaborator_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            team_views,
-            "send_role_changed_as_team_collaborator_email",
-            send_role_changed_as_team_collaborator_email,
+        send_role_changed_as_team_collaborator_email = mocker.patch.object(
+            team_views, "send_role_changed_as_team_collaborator_email", autospec=True
         )
 
         result = team_views.change_team_project_role(organization_project, db_request)
 
         assert role.role_name == new_role_name
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=organization_project.name)
-        ]
-        assert send_team_collaborator_role_changed_email.calls == [
-            pretend.call(
-                db_request,
-                {pyramid_user},
-                team=organization_team,
-                submitter=pyramid_user,
-                project_name=organization_project.name,
-                role=new_role_name.value,
-            )
-        ]
-        assert send_role_changed_as_team_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                {organization_member},
-                team=organization_team,
-                submitter=pyramid_user,
-                project_name=organization_project.name,
-                role=new_role_name.value,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Changed permissions", queue="success")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=organization_project.name
+        )
+        send_team_collaborator_role_changed_email.assert_called_once_with(
+            db_request,
+            {pyramid_user},
+            team=organization_team,
+            submitter=pyramid_user,
+            project_name=organization_project.name,
+            role=new_role_name.value,
+        )
+        send_role_changed_as_team_collaborator_email.assert_called_once_with(
+            db_request,
+            {organization_member},
+            team=organization_team,
+            submitter=pyramid_user,
+            project_name=organization_project.name,
+            role=new_role_name.value,
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Changed permissions", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -805,7 +755,9 @@ class TestChangeTeamProjectRole:
         assert entry.action == f"change Owner {organization_team.name} to Maintainer"
         assert entry.submitted_by == db_request.user
 
-    def test_change_role_invalid_role_name(self, pyramid_request, organization_project):
+    def test_change_role_invalid_role_name(
+        self, pyramid_request, organization_project, mocker
+    ):
         pyramid_request.method = "POST"
         pyramid_request.POST = MultiDict(
             {
@@ -813,37 +765,37 @@ class TestChangeTeamProjectRole:
                 "team_project_role_name": "Invalid Role Name",
             }
         )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
+        mocker.patch.object(
+            pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
         )
 
         result = team_views.change_team_project_role(
             organization_project, pyramid_request
         )
 
-        assert pyramid_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=organization_project.name)
-        ]
+        pyramid_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=organization_project.name
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_missing_role(self, db_request, organization_project):
+    def test_change_missing_role(self, db_request, organization_project, mocker):
         missing_role_id = str(uuid.uuid4())
 
         db_request.method = "POST"
         db_request.POST = MultiDict(
             {"role_id": missing_role_id, "team_project_role_name": "Owner"}
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = team_views.change_team_project_role(organization_project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find permissions", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find permissions", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -853,6 +805,7 @@ class TestChangeTeamProjectRole:
         organization_member,
         organization_team,
         organization_project,
+        mocker,
     ):
         role = TeamProjectRoleFactory.create(
             team=organization_team,
@@ -865,16 +818,16 @@ class TestChangeTeamProjectRole:
         db_request.POST = MultiDict(
             {"role_id": role.id, "team_project_role_name": "Maintainer"}
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = team_views.change_team_project_role(organization_project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove your own team as Owner", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove your own team as Owner", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -919,7 +872,7 @@ class TestDeleteTeamProjectRole:
         organization_team,
         organization_project,
         pyramid_user,
-        monkeypatch,
+        mocker,
     ):
         role = TeamProjectRoleFactory.create(
             team=organization_team,
@@ -929,55 +882,41 @@ class TestDeleteTeamProjectRole:
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": role.id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_team_collaborator_removed_email = pretend.call_recorder(
-            lambda *a, **kw: None
+        send_team_collaborator_removed_email = mocker.patch.object(
+            team_views, "send_team_collaborator_removed_email", autospec=True
         )
-        monkeypatch.setattr(
-            team_views,
-            "send_team_collaborator_removed_email",
-            send_team_collaborator_removed_email,
-        )
-        send_removed_as_team_collaborator_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            team_views,
-            "send_removed_as_team_collaborator_email",
-            send_removed_as_team_collaborator_email,
+        send_removed_as_team_collaborator_email = mocker.patch.object(
+            team_views, "send_removed_as_team_collaborator_email", autospec=True
         )
 
         result = team_views.delete_team_project_role(organization_project, db_request)
 
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=organization_project.name)
-        ]
+        db_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=organization_project.name
+        )
         assert db_request.db.query(TeamProjectRole).all() == []
-        assert send_team_collaborator_removed_email.calls == [
-            pretend.call(
-                db_request,
-                {pyramid_user},
-                team=organization_team,
-                submitter=pyramid_user,
-                project_name=organization_project.name,
-            )
-        ]
-        assert send_removed_as_team_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                {organization_member},
-                team=organization_team,
-                submitter=pyramid_user,
-                project_name=organization_project.name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Removed permissions", queue="success")
-        ]
+        send_team_collaborator_removed_email.assert_called_once_with(
+            db_request,
+            {pyramid_user},
+            team=organization_team,
+            submitter=pyramid_user,
+            project_name=organization_project.name,
+        )
+        send_removed_as_team_collaborator_email.assert_called_once_with(
+            db_request,
+            {organization_member},
+            team=organization_team,
+            submitter=pyramid_user,
+            project_name=organization_project.name,
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Removed permissions", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -991,21 +930,21 @@ class TestDeleteTeamProjectRole:
         assert entry.action == f"remove Owner {organization_team.name}"
         assert entry.submitted_by == db_request.user
 
-    def test_delete_missing_role(self, db_request, organization_project):
+    def test_delete_missing_role(self, db_request, organization_project, mocker):
         missing_role_id = str(uuid.uuid4())
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": missing_role_id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = team_views.delete_team_project_role(organization_project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find permissions", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find permissions", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -1015,6 +954,7 @@ class TestDeleteTeamProjectRole:
         organization_member,
         organization_team,
         organization_project,
+        mocker,
     ):
         role = TeamProjectRoleFactory.create(
             team=organization_team,
@@ -1025,15 +965,15 @@ class TestDeleteTeamProjectRole:
         db_request.method = "POST"
         db_request.user = organization_member
         db_request.POST = MultiDict({"role_id": role.id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = team_views.delete_team_project_role(organization_project, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove your own team as Owner", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove your own team as Owner", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

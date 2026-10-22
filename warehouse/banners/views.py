@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from pyramid.view import view_config
 
@@ -19,9 +19,9 @@ def list_banner_messages(request):
     if banner_id:
         query = request.db.query(Banner).filter(Banner.id == banner_id)
     else:
-        today = datetime.date.today()
+        today = dt.date.today()
         query = request.db.query(Banner).filter(
             (Banner.active == True) & (Banner.end >= today)  # noqa: E712
         )
 
-    return {"banners": query.all()}
+    return {"banners": query.all(), "is_preview": bool(banner_id)}

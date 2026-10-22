@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from collections import OrderedDict
 
@@ -9,6 +9,7 @@ import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
+from sqlalchemy import update
 
 from warehouse.attestations.models import (
     ProvenanceCounts,
@@ -65,7 +66,7 @@ from ...common.db.packaging import (
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
 
-_RELEASED_AT = datetime.datetime(2024, 3, 1, 12, 0, 0)
+_RELEASED_AT = dt.datetime(2024, 3, 1, 12, 0, 0)
 
 
 def _release_with_uploads(*delays):
@@ -91,11 +92,11 @@ def _release_pair(days_apart=4):
     """An older and a newer release on one project, `days_apart` apart."""
     project = DBProjectFactory.create()
     older = DBReleaseFactory.create(
-        project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+        project=project, created=dt.datetime(2026, 7, 1, 12, 0, 0)
     )
     newer = DBReleaseFactory.create(
         project=project,
-        created=older.created + datetime.timedelta(days=days_apart),
+        created=older.created + dt.timedelta(days=days_apart),
     )
     return older, newer
 
@@ -133,7 +134,7 @@ def _provenance_history(publisher=None):
     DBFileFactory.create(release=oldest, packagetype="bdist_wheel")
     middle = DBReleaseFactory.create(
         project=oldest.project,
-        created=oldest.created + datetime.timedelta(days=2),
+        created=oldest.created + dt.timedelta(days=2),
     )
     DBFileFactory.create(release=middle, packagetype="bdist_wheel")
     _provenanced_file(newest, publisher=publisher)
@@ -796,7 +797,7 @@ class TestProject:
         order disagree and only the tiebreak can produce the expected answer.
         """
         project = DBProjectFactory.create()
-        tied = datetime.datetime(2026, 7, 1, 12, 0, 0)
+        tied = dt.datetime(2026, 7, 1, 12, 0, 0)
         for version in ("1.0", "1.1"):
             _provenanced_file(
                 DBReleaseFactory.create(project=project, version=version, created=tied)
@@ -804,7 +805,7 @@ class TestProject:
         newest = DBReleaseFactory.create(
             project=project,
             version="2.0",
-            created=tied + datetime.timedelta(days=1),
+            created=tied + dt.timedelta(days=1),
         )
         _provenanced_file(newest)
 
@@ -867,13 +868,13 @@ class TestProject:
         elsewhere = pypi_attestations.GitHubPublisher(
             repository="other/repo", workflow="publish.yml"
         )
-        day = datetime.datetime(2026, 7, 1, 12, 0, 0)
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
 
         def _release(version, days):
             return DBReleaseFactory.create(
                 project=project,
                 version=version,
-                created=day + datetime.timedelta(days=days),
+                created=day + dt.timedelta(days=days),
             )
 
         no_prov = _release("1.0", 0)
@@ -1768,7 +1769,7 @@ class TestRelease:
         project = DBProjectFactory.create()
         rel0 = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
+            created=dt.datetime(2026, 7, 1, 12, 0, 0),
         )
         _provenanced_file(rel0, packagetype="sdist", filename="file0.tar.gz")
         DBFileFactory.create(
@@ -1777,13 +1778,13 @@ class TestRelease:
 
         rel1_noprov = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 3, 12, 0, 0),
+            created=dt.datetime(2026, 7, 3, 12, 0, 0),
         )
         DBFileFactory.create(release=rel1_noprov)
 
         rel2_same = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
+            created=dt.datetime(2026, 7, 5, 12, 0, 0),
         )
         _provenanced_file(rel2_same)
 
@@ -1930,7 +1931,7 @@ class TestRelease:
 
     def test_late_file_status_is_none_without_files(self, db_session):
         """A release whose files have all been removed has nothing to report."""
-        release = _release_with_uploads(datetime.timedelta(0))
+        release = _release_with_uploads(dt.timedelta(0))
         for file in release.files:
             db_session.delete(file)
         db_session.flush()
@@ -1956,9 +1957,7 @@ class TestRelease:
         SELECT; a template reading several attributes off the status must not
         pay for each one.
         """
-        release = _release_with_uploads(
-            datetime.timedelta(0), datetime.timedelta(days=30)
-        )
+        release = _release_with_uploads(dt.timedelta(0), dt.timedelta(days=30))
         db_session.flush()
         assert release.created is not None  # load the release row before counting
 
@@ -1973,23 +1972,23 @@ class TestRelease:
     def test_late_file_status_brackets_the_uploads(self, db_session):
         """The first and last arrivals bracket the release's files."""
         release = _release_with_uploads(
-            datetime.timedelta(hours=2),
-            datetime.timedelta(0),
-            datetime.timedelta(days=3),
+            dt.timedelta(hours=2),
+            dt.timedelta(0),
+            dt.timedelta(days=3),
         )
 
         status = release.late_file_status
 
         assert status.total_files == 3
         assert status.first_upload == _RELEASED_AT
-        assert status.last_upload == _RELEASED_AT + datetime.timedelta(days=3)
+        assert status.last_upload == _RELEASED_AT + dt.timedelta(days=3)
 
     def test_late_file_status_ignores_punctual_files(self, db_session):
         """Files arriving inside the window are not late."""
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=1),
-            MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(hours=1),
+            dt.timedelta(0),
+            dt.timedelta(days=1),
+            MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(hours=1),
         )
 
         status = release.late_file_status
@@ -1999,8 +1998,8 @@ class TestRelease:
     def test_late_file_status_finds_a_late_file(self, db_session):
         """A file past the window is reported, with how long it took to arrive."""
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=30),
+            dt.timedelta(0),
+            dt.timedelta(days=30),
         )
 
         status = release.late_file_status
@@ -2008,29 +2007,29 @@ class TestRelease:
         assert status.total_files == 2
         (late,) = status.late_files
         assert late.filename == f"{release.project.name}-1.0-1.whl"
-        assert late.upload_time == _RELEASED_AT + datetime.timedelta(days=30)
-        assert late.delay == datetime.timedelta(days=30)
+        assert late.upload_time == _RELEASED_AT + dt.timedelta(days=30)
+        assert late.delay == dt.timedelta(days=30)
 
     def test_late_file_status_reports_every_late_file_oldest_first(self, db_session):
         """Several late files are all reported, ordered by when they arrived."""
         release = _release_with_uploads(
-            datetime.timedelta(days=90),
-            datetime.timedelta(0),
-            datetime.timedelta(days=20),
+            dt.timedelta(days=90),
+            dt.timedelta(0),
+            dt.timedelta(days=20),
         )
 
         status = release.late_file_status
 
         assert [late.delay for late in status.late_files] == [
-            datetime.timedelta(days=20),
-            datetime.timedelta(days=90),
+            dt.timedelta(days=20),
+            dt.timedelta(days=90),
         ]
 
     @pytest.mark.parametrize(
         ("delay", "late"),
         [
             (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
-            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(hours=23), True),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + dt.timedelta(hours=23), True),
         ],
     )
     def test_late_file_status_measures_the_window_to_the_second(
@@ -2042,7 +2041,7 @@ class TestRelease:
         A file arriving on the window's last day plus twenty-three hours is
         late; truncating the delta to whole days would let it pass.
         """
-        release = _release_with_uploads(datetime.timedelta(0), delay)
+        release = _release_with_uploads(dt.timedelta(0), delay)
 
         assert bool(release.late_file_status.late_files) is late
 
@@ -2052,8 +2051,8 @@ class TestRelease:
         one it was raised for.
         """
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=30),
+            dt.timedelta(0),
+            dt.timedelta(days=30),
         )
         first, _ = sorted(release.files, key=lambda file: file.upload_time)
         db_session.delete(first)
@@ -2063,7 +2062,7 @@ class TestRelease:
 
         assert status.total_files == 1
         assert len(status.late_files) == 1
-        assert status.first_upload == _RELEASED_AT + datetime.timedelta(days=30)
+        assert status.first_upload == _RELEASED_AT + dt.timedelta(days=30)
 
 
 class TestFile:
@@ -2197,9 +2196,9 @@ class TestFile:
     @pytest.mark.parametrize(
         ("delay", "expected"),
         [
-            (datetime.timedelta(0), False),
+            (dt.timedelta(0), False),
             (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
-            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(seconds=1), True),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + dt.timedelta(seconds=1), True),
         ],
     )
     def test_added_late(self, db_session, delay, expected):
@@ -2208,6 +2207,44 @@ class TestFile:
         (file,) = release.files
 
         assert file.added_late is expected
+
+    def test_insert_does_not_rewrite_sibling_requires_python(self, db_session):
+        """
+        Inserting a file must only write its own ``requires_python``.
+        """
+        release = DBReleaseFactory.create(requires_python=">=3.9")
+        sibling = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+
+        # A value the trigger can never produce: if the insert below rewrites
+        # the release's other files, this is reset to the release's value.
+        db_session.execute(
+            update(File).where(File.id == sibling.id).values(requires_python="sentinel")
+        )
+
+        new = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+        db_session.refresh(sibling)
+
+        assert sibling.requires_python == "sentinel"
+        assert new.requires_python == ">=3.9"
+
+    def test_cached_update_does_not_recompute_total_size(self, db_session):
+        """
+        Flipping ``cached`` must not touch the parent project row.
+        """
+
+        rfile = DBFileFactory.create(cached=False)
+        project = rfile.release.project
+
+        # A value the trigger can never produce, if it runs on the flush,
+        # update_project_total_size_release_files resets this to the real sum.
+        project.total_size = sentinel = rfile.size + 1
+        db_session.flush()
+
+        rfile.cached = True
+        db_session.flush()
+        db_session.refresh(project)
+
+        assert project.total_size == sentinel
 
 
 class TestProjectLimitProperties:

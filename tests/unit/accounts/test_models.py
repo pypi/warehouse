@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
 import psycopg
@@ -115,12 +115,12 @@ class TestUser:
         legacy_event = DBUserEventFactory(
             source=user,
             tag="wu",
-            time=datetime.datetime.now() - datetime.timedelta(days=1),
+            time=dt.datetime.now() - dt.timedelta(days=1),
         )
         stale_event = DBUserEventFactory(
             source=user,
             tag="bar",
-            time=datetime.datetime.now() - datetime.timedelta(days=91),
+            time=dt.datetime.now() - dt.timedelta(days=91),
         )
 
         assert user.events.all() == [recent_event, legacy_event, stale_event]
@@ -153,7 +153,7 @@ class TestUser:
     def test_has_burned_recovery_codes(self, db_session):
         user = DBUserFactory.create()
         user.recovery_codes.append(
-            RecoveryCode(user_id=user.id, code="hiya", burned=datetime.datetime.now())
+            RecoveryCode(user_id=user.id, code="hiya", burned=dt.datetime.now())
         )
         db_session.flush()
         assert user.has_burned_recovery_codes is True
@@ -327,13 +327,13 @@ class TestUser:
     def test_account_associations_is_ordered_by_created_desc(self, db_session):
         user = DBUserFactory.create()
         assoc1 = DBAccountAssociationFactory.create(
-            user=user, created=datetime.datetime(2020, 1, 1)
+            user=user, created=dt.datetime(2020, 1, 1)
         )
         assoc2 = DBAccountAssociationFactory.create(
-            user=user, created=datetime.datetime(2021, 1, 1)
+            user=user, created=dt.datetime(2021, 1, 1)
         )
         assoc3 = DBAccountAssociationFactory.create(
-            user=user, created=datetime.datetime(2022, 1, 1)
+            user=user, created=dt.datetime(2022, 1, 1)
         )
 
         assert user.account_associations == [assoc3, assoc2, assoc1]

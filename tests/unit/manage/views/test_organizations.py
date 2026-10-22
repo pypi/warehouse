@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import re
 import uuid
 
@@ -83,13 +83,13 @@ class TestManageOrganizationApplication:
             _request_for_more_info0 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we still need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         view = org_views.ManageOrganizationApplicationViews(
@@ -125,13 +125,13 @@ class TestManageOrganizationApplication:
                     "response": "you got it",
                     "response_time": "2025-03-14T15:40:36.485495+00:00",
                 },
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we still need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         view = org_views.ManageOrganizationApplicationViews(
@@ -166,7 +166,7 @@ class TestManageOrganizationApplication:
                     "response": "you got it",
                     "response_time": "2025-03-14T15:40:36.485495+00:00",
                 },
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
@@ -176,7 +176,7 @@ class TestManageOrganizationApplication:
                     "response": "you got it",
                     "response_time": "2025-03-14T15:40:36.485495+00:00",
                 },
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         view = org_views.ManageOrganizationApplicationViews(
@@ -209,13 +209,13 @@ class TestManageOrganizationApplication:
                     "response": "you got it",
                     "response_time": "2025-03-14T15:40:36.485495+00:00",
                 },
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we still need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         db_request.POST = MultiDict({})
@@ -252,13 +252,13 @@ class TestManageOrganizationApplication:
                     "response": "you got it",
                     "response_time": "2025-03-14T15:40:36.485495+00:00",
                 },
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we still need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         db_request.POST = MultiDict(
@@ -290,13 +290,13 @@ class TestManageOrganizationApplication:
             OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
             frozen_datetime.tick(1.0)
             _request_for_more_info1 = OrganizationApplicationObservationFactory(
                 related=_organization_application,
                 payload={"message": "we still need more information"},
-                created=datetime.datetime.now(datetime.UTC),
+                created=dt.datetime.now(dt.UTC),
             )
 
         db_request.POST = MultiDict(
@@ -328,7 +328,7 @@ class TestManageOrganizationApplication:
         OrganizationApplicationObservationFactory(
             related=_organization_application,
             payload={"message": "we need more information"},
-            created=datetime.datetime.now(datetime.UTC),
+            created=dt.datetime.now(dt.UTC),
         )
 
         # Use an invalid UUID that doesn't match the actual observation
@@ -2021,7 +2021,7 @@ class TestManageOrganizationProjects:
         ("resets_in", "retry_after", "expected_error"),
         [
             (
-                datetime.timedelta(seconds=600),
+                dt.timedelta(seconds=600),
                 "600",
                 (
                     "This organization has created too many new projects recently. "
@@ -2040,8 +2040,11 @@ class TestManageOrganizationProjects:
         ids=["with-reset-hint", "without-reset-hint"],
     )
     @pytest.mark.parametrize(
-        "limiter_method",
-        ["test", "hit"],
+        ("limiter_name", "limiter_method"),
+        [
+            ("project.create.organization", "test"),
+            ("project.create.attempt.organization", "hit"),
+        ],
         ids=["rejected-before-writing", "rejected-after-writing"],
     )
     def test_add_organization_project_new_project_ratelimited(
@@ -2053,10 +2056,12 @@ class TestManageOrganizationProjects:
         resets_in,
         retry_after,
         expected_error,
+        limiter_name,
         limiter_method,
     ):
-        """`hit` rejects after the project is in the session, so the view must
-        doom the transaction or pyramid_tm commits the refused project."""
+        """`hit` (on the attempt limiter) rejects after the project is in the
+        session, so the view must doom the transaction or pyramid_tm commits
+        the refused project."""
         db_request.help_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
@@ -2075,11 +2080,11 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj,
         )
 
-        org_limiter = DummyRateLimiter()
-        mocker.patch.object(org_limiter, limiter_method, return_value=False)
-        mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+        limiter = DummyRateLimiter()
+        mocker.patch.object(limiter, limiter_method, return_value=False)
+        mocker.patch.object(limiter, "resets_in", return_value=resets_in)
         project_service = db_request.find_service(IProjectService)
-        project_service.ratelimiters["project.create.organization"] = org_limiter
+        project_service.ratelimiters[limiter_name] = limiter
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
@@ -2238,7 +2243,7 @@ class TestManageOrganizationRoles:
             ],
         }
 
-    @freeze_time(datetime.datetime.now(datetime.UTC))
+    @freeze_time(dt.datetime.now(dt.UTC))
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
         self,
@@ -2514,7 +2519,7 @@ class TestManageOrganizationRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
-    @freeze_time(datetime.datetime.now(datetime.UTC))
+    @freeze_time(dt.datetime.now(dt.UTC))
     def test_reinvite_organization_role_after_expiration(
         self,
         db_request,
@@ -2722,7 +2727,7 @@ class TestManageOrganizationRoles:
 
 
 class TestResendOrganizationInvitations:
-    @freeze_time(datetime.datetime.now(datetime.UTC))
+    @freeze_time(dt.datetime.now(dt.UTC))
     def test_resend_invitation(self, db_request, token_service, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -3410,12 +3415,12 @@ class TestManageOrganizationHistory:
         older_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+            time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
         assert org_views.manage_organization_history(organization, db_request) == {
