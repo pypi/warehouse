@@ -124,11 +124,15 @@
               <i class="fa fa-sitemap nav-icon"></i> <p>Organizations</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminUsersRead, admin_root) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
               <i class="fa fa-user nav-icon"></i> <p>Users</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.macaroon.decode_token') }}" class="nav-link">
               <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons</p>
@@ -139,16 +143,22 @@
               <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.project.list') }}" class="nav-link">
               <i class="fa fa-cubes nav-icon"></i> <p>Projects</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.journals.list') }}" class="nav-link">
               <i class="fa fa-book nav-icon"></i> <p>Journals</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminMalwareReportsRead, admin_root) or request.has_permission(Permissions.AdminObservationsRead, admin_root) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
               <i class="nav-icon fa-solid fa-eye"></i>
@@ -158,17 +168,22 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminMalwareReportsRead, admin_root) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-dumpster-fire"></i>
                   <p>Malware Reports</p>
                 </a>
               </li>
+              {% endif %}
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
                 </a>
               </li>
+              {% endif %}
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminObservationsRead, admin_root) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.observers.reputation') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-chart-bar"></i>
@@ -187,8 +202,11 @@
                   <p>All Observations</p>
                 </a>
               </li>
+              {% endif %}
             </ul>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           {% if request.has_permission(Permissions.AdminVulnerabilitiesRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.vulnerabilities.list') }}" class="nav-link">
@@ -225,57 +243,20 @@
               </li>
             </ul>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminEmailsRead, admin_root) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
               <i class="fa fa-envelope nav-icon"></i> <p>Emails</p>
             </a>
           </li>
+          {% endif %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.flags') }}" class="nav-link">
               <i class="fa fa-flag nav-icon"></i> <p>Flags</p>
             </a>
           </li>
-          {% else %}
-          {% if request.has_permission(Permissions.AdminMalwareReportsRead) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
-              <i class="nav-icon fa-solid fa-dumpster-fire"></i> <p>Malware Reports</p>
-            </a>
-          </li>
-          {% endif %}
-          {% if request.has_permission(Permissions.AdminObservationsRead, admin_root) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
-              <i class="nav-icon fa-solid fa-eye"></i> <p>All Observations</p>
-            </a>
-          </li>
-          {% endif %}
-          {% if request.has_permission(Permissions.AdminProjectsRead) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
-              <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.project.list') }}" class="nav-link">
-              <i class="fa fa-cubes nav-icon"></i> <p>Projects</p>
-            </a>
-          </li>
-          {% endif %}
-          {% if request.has_permission(Permissions.AdminUsersRead) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
-              <i class="fa fa-user nav-icon"></i> <p>Users</p>
-            </a>
-          </li>
-          {% endif %}
-          {% if request.has_permission(Permissions.AdminEmailsRead, admin_root) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
-              <i class="fa fa-envelope nav-icon"></i> <p>Emails</p>
-            </a>
-          </li>
-          {% endif %}
           {% endif %}
           {% if has_root_permission(request, Permissions.AdminBannerRead) %}
           <li class="nav-item">

@@ -93,6 +93,62 @@ def test_security_removed_project_disables_project_actions(
         )
 
 
+@pytest.mark.parametrize(
+    "role", ["is_security", "is_superuser", "is_support", "is_moderator"]
+)
+def test_observations_navigation_keeps_existing_dropdown(webtest, login_admin, role):
+    login_admin(**{role: True})
+    page = webtest.get("/admin/malware_reports/")
+    reports_link = page.html.select_one(
+        '.nav-sidebar a[href="/admin/malware_reports/"]'
+    )
+    dropdown = reports_link.find_parent("ul", class_="nav-treeview")
+    assert dropdown is not None
+    assert {a["href"] for a in dropdown.select("a")} == {
+        "/admin/malware_reports/",
+        "/admin/quarantine/",
+        "/admin/observers/reputation/",
+        "/admin/observations/insights/",
+        "/admin/observations/",
+    }
+
+
+@pytest.mark.parametrize(
+    ("role", "can_set_limits"),
+    [
+        ("is_security", False),
+        ("is_superuser", True),
+        ("is_support", True),
+        ("is_moderator", True),
+    ],
+)
+def test_project_limit_controls_require_permission(
+    webtest, login_admin, role, can_set_limits
+):
+    login_admin(**{role: True})
+    project = ProjectFactory.create(
+        upload_limit=256 * 1024**2, total_size_limit=32 * 1024**3
+    )
+    project_path = f"/admin/projects/{project.normalized_name}/"
+    page = webtest.get(project_path)
+    attributes = page.html.select_one("#attributes")
+    assert "256.0 MiB" in attributes.get_text()
+    assert "32.0 GiB" in attributes.get_text()
+    for field in ["upload_limit", "total_size_limit"]:
+        assert bool(attributes.select(f'input[name="{field}"]')) is can_set_limits
+        assert (
+            bool(attributes.select(f'form[action$="/set_{field}/"]')) is can_set_limits
+        )
+        if not can_set_limits:
+            webtest.post(
+                f"{project_path}set_{field}/",
+                {"csrf_token": _csrf(webtest), field: "512"},
+                status=403,
+            )
+    assert project.upload_limit == 256 * 1024**2
+    assert project.total_size_limit == 32 * 1024**3
+
+
 def test_security_navigation_and_unrelated_writes(
     webtest, login_admin, make_malware_report
 ):
@@ -103,9 +159,13 @@ def test_security_navigation_and_unrelated_writes(
     owner = UserFactory.create()
     RoleFactory.create(user=owner, project=project, role_name="Owner")
     page = webtest.get("/admin/malware_reports/")
-    assert {a["href"] for a in page.html.select(".nav-sidebar a")} == {
+    assert {
+        a["href"] for a in page.html.select(".nav-sidebar a") if a["href"] != "#"
+    } == {
         "/admin/malware_reports/",
         "/admin/observations/",
+        "/admin/observations/insights/",
+        "/admin/observers/reputation/",
         "/admin/quarantine/",
         "/admin/projects/",
         "/admin/users/",
@@ -126,6 +186,8 @@ def test_security_navigation_and_unrelated_writes(
         f"/admin/users/{owner.username}/",
         "/admin/quarantine/",
         "/admin/observations/",
+        "/admin/observations/insights/",
+        "/admin/observers/reputation/",
         "/admin/emails/",
     ]:
         webtest.get(path, status=200)
