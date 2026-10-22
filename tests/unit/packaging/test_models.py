@@ -174,13 +174,14 @@ PROJECT_MODERATOR_PERMISSIONS = {
     Permissions.AdminRoleDelete,
 }
 
-# Per contract: security gets EXACTLY these six grants on a Project -- no
-# role add/delete, no general project write/delete/set-limit, no
-# observations, no dashboard.
+# Security has no role management, project write/delete/set-limit, or
+# dashboard access.
 PROJECT_SECURITY_PERMISSIONS = {
     Permissions.AdminMalwareReportsRead,
     Permissions.AdminMalwareReportsWrite,
     Permissions.AdminMalwareReportsRemove,
+    Permissions.AdminObservationsRead,
+    Permissions.AdminObservationsWrite,
     Permissions.AdminProjectsQuarantine,
     Permissions.AdminProjectsRead,
     Permissions.AdminUsersRead,

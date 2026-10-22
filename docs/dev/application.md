@@ -57,9 +57,10 @@ Warehouse serves five main classes of users:
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are fewer than ten such admins.
-5. *PyPI security reviewers*. These users review malware reports, quarantine
-   projects and releases, and remove confirmed malware. They can inspect project
-   and user details but have no other administration access.
+5. *PyPI security reviewers*. These users review malware reports, record
+   observations, quarantine projects and releases, and remove confirmed malware.
+   They can inspect project and user details but have no other administration
+   access.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible.

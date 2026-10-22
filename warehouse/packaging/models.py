@@ -516,6 +516,8 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminMalwareReportsRead,
                     Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsQuarantine,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminUsersRead,

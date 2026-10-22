@@ -705,13 +705,14 @@ ROOT_GROUP_PERMISSIONS = {
         Permissions.AdminSponsorsRead,
         Permissions.AdminUsersRead,
     },
-    # Per contract: security gets EXACTLY these six grants at the root -- no
-    # dashboard, no roles, no general project/user write or delete, no
-    # recovery/export, no observations, no organizations/flags/blocklists.
+    # Security has no dashboard, role management, general project/user changes,
+    # account recovery/export, or organization/flag/blocklist access.
     "group:security": {
         Permissions.AdminMalwareReportsRead,
         Permissions.AdminMalwareReportsWrite,
         Permissions.AdminMalwareReportsRemove,
+        Permissions.AdminObservationsRead,
+        Permissions.AdminObservationsWrite,
         Permissions.AdminProjectsQuarantine,
         Permissions.AdminProjectsRead,
         Permissions.AdminUsersRead,
