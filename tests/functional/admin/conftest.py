@@ -10,7 +10,14 @@ from warehouse.observations.models import ObservationKind, Observer
 # so a test asserting that a moderator is turned away cannot accidentally get a
 # superuser as well and pass without exercising anything.
 _ADMIN_ROLES = frozenset(
-    {"is_superuser", "is_support", "is_moderator", "is_psf_staff", "is_observer"}
+    {
+        "is_superuser",
+        "is_support",
+        "is_security",
+        "is_moderator",
+        "is_psf_staff",
+        "is_observer",
+    }
 )
 
 
