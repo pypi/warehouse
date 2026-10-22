@@ -17,6 +17,7 @@ from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
+    OrganizationApplication,
     OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationRoleType,
@@ -98,6 +99,28 @@ class TestOrganizationApplication:
         )
 
         assert organization_application.conversation == [older_request, newer_note]
+
+    @pytest.mark.parametrize(
+        ("link_url", "expected"),
+        [
+            ("https://www.python.org/psf/", "python.org"),
+            ("https://python.org/psf/", "python.org"),
+            ("https://www.example.com", "example.com"),
+            ("https://example.com", "example.com"),
+            ("https://sub.domain.example.com", "sub.domain.example.com"),
+            (" https://www.example.com ", "example.com"),
+            ("http://www.foo.org/path", "foo.org"),
+            ("", "NONE"),
+            ("   ", "NONE"),
+            (None, "NONE"),
+            ("/", "NONE"),
+            ("/path/only", "NONE"),
+            ("https://[invalid", "NONE"),
+        ],
+    )
+    def test_suggested_email_domain(self, link_url, expected):
+        organization_application = OrganizationApplication(link_url=link_url)
+        assert organization_application.suggested_email_domain == expected
 
 
 class TestOrganizationFactory:
