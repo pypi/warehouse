@@ -13,6 +13,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer._services import generate_api_key
 from warehouse.authnz import Permissions
 from warehouse.macaroons import caveats, security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -35,6 +36,11 @@ from ...common.db.macaroons import MacaroonFactory
         ("token foobar", "foobar"),
         ("bearer foobar", "foobar"),
         ("basic X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
+        ("basic Zm9vOmJhcg==", None),  # "foo:bar"
+        ("bearer pypi_mapi_v1_foobar", None),
+        ("token pypi_mapi_v1_foobar", None),
+        # "__token__:pypi_mapi_v1_foobar"
+        ("basic X190b2tlbl9fOnB5cGlfbWFwaV92MV9mb29iYXI=", None),
     ],
 )
 def test_extract_http_macaroon(auth, result, pyramid_request):
@@ -42,6 +48,14 @@ def test_extract_http_macaroon(auth, result, pyramid_request):
         pyramid_request.headers["Authorization"] = auth
 
     assert security_policy._extract_http_macaroon(pyramid_request) == result
+
+
+def test_extract_http_macaroon_skips_api_key_metric(pyramid_request, metrics):
+    """A Maintainer API key is not macaroon traffic."""
+    pyramid_request.headers["Authorization"] = "bearer pypi_mapi_v1_foobar"
+
+    assert security_policy._extract_http_macaroon(pyramid_request) is None
+    metrics.increment.assert_not_called()
 
 
 def test_extract_http_macaroon_counts_once_per_request(pyramid_request, metrics):
@@ -176,6 +190,16 @@ class TestMacaroonSecurityPolicy:
 
         add_vary_cb.assert_called_once_with("Authorization")
         add_response_callback.assert_called_once_with(add_vary_cb.spy_return)
+
+    def test_identity_rejects_api_key(self, pyramid_request, macaroon_service, mocker):
+        """A Maintainer API key never reaches the macaroon service."""
+        policy = security_policy.MacaroonSecurityPolicy()
+        pyramid_request.matched_route = types.SimpleNamespace(predicates=[])
+        pyramid_request.headers["Authorization"] = f"Bearer {generate_api_key()}"
+        verify_signature_only = mocker.spy(macaroon_service, "verify_signature_only")
+
+        assert policy.identity(pyramid_request) is None
+        verify_signature_only.assert_not_called()
 
     def test_identity_forged_signature(self, db_request, macaroon_service, metrics):
         """

@@ -292,6 +292,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -301,6 +302,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -310,6 +312,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -319,6 +322,7 @@ class TestProject:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                 ],
@@ -454,6 +458,7 @@ class TestProject:
         _perms_read_and_write = [
             Permissions.ProjectsRead,
             Permissions.ProjectsWrite,
+            Permissions.ProjectsYank,
         ]
         assert acls == [
             (
@@ -1309,6 +1314,7 @@ class TestRelease:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                     (
@@ -1318,6 +1324,7 @@ class TestRelease:
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
+                            Permissions.ProjectsYank,
                         ],
                     ),
                 ],
