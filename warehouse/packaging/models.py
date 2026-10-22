@@ -1574,8 +1574,12 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
     # projects, not rows a later flush in the same transaction touches.
     session.execute(
         select(Project.id)
-        .where(Project.name.in_([je.name for je in journal_entries]))
-        .order_by(Project.name)
+        .where(
+            Project.normalized_name.in_(
+                [func.normalize_pep426_name(je.name) for je in journal_entries]
+            )
+        )
+        .order_by(Project.normalized_name)
         .with_for_update(key_share=True)
     )
 
