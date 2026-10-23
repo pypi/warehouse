@@ -2,7 +2,8 @@
 
 To be in good standing, a company organization must be active. It must also
 have a subscription with the status `active`, or a manual
-activation that is not expired.
+activation that is not expired. The code also accepts `trialing`, but
+Warehouse does not create subscriptions with a trial.
 
 Stripe owns the subscription status. Warehouse keeps a copy in
 `StripeSubscription.status`, so it does not call Stripe on every request.
@@ -64,11 +65,9 @@ flowchart TD
     classDef fail fill:#dc262640,stroke:#dc2626
 ```
 
-The task does not cancel a missing subscription. The Stripe list includes
-canceled subscriptions and the subscriptions of deleted customers, so a
-missing ID does not mean that the subscription is canceled. If
-`reconcile.missing` or `reconcile.skipped` keeps going up, examine those
-subscriptions by hand.
+The task does not cancel a missing subscription. It logs a warning and skips
+it. If `reconcile.missing` or `reconcile.skipped` keeps going up, examine
+those subscriptions by hand.
 
 ## Usage reports
 
