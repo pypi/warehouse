@@ -148,10 +148,10 @@ class TestBuildkitePublisher:
         )
 
         if valid:
-            assert publisher.verify_claims(claims(**overrides), publisher_service)
+            assert publisher.verify_claims(_claims(**overrides), publisher_service)
         else:
             with pytest.raises(errors.InvalidPublisherError):
-                publisher.verify_claims(claims(**overrides), publisher_service)
+                publisher.verify_claims(_claims(**overrides), publisher_service)
 
     @pytest.mark.parametrize("claim", ["build_branch", "build_tag", "step_key"])
     @pytest.mark.parametrize(
@@ -183,7 +183,7 @@ class TestBuildkitePublisher:
             pipeline_id=PIPELINE_ID,
             **{claim: configured},
         )
-        signed_claims = claims(**{claim: signed_value})
+        signed_claims = _claims(**{claim: signed_value})
         if not present:
             signed_claims.pop(claim)
 
@@ -210,7 +210,7 @@ class TestBuildkitePublisher:
     @pytest.mark.parametrize("claim", ["organization_id", "pipeline_id", "jti"])
     @pytest.mark.parametrize("value", [None, "", 123])
     def test_required_identity_claims(self, publisher_class, claim, value):
-        signed_claims = claims(**{claim: value})
+        signed_claims = _claims(**{claim: value})
         with pytest.raises(errors.InvalidPublisherError, match=claim):
             publisher_class.check_claims_existence(signed_claims)
 
@@ -236,7 +236,7 @@ class TestBuildkitePublisher:
             build_tag=None,
             step_key="publish",
         )
-        signed_claims = claims()
+        signed_claims = _claims()
 
         buildkite.BuildkitePublisher.check_claims_existence(signed_claims)
         assert publisher.verify_claims(signed_claims, publisher_service)
@@ -245,7 +245,7 @@ class TestBuildkitePublisher:
         assert publisher.pipeline_id == PIPELINE_ID
 
     def test_sub_is_required(self):
-        signed_claims = claims()
+        signed_claims = _claims()
         signed_claims.pop("sub")
 
         with pytest.raises(errors.InvalidPublisherError, match="Missing claim"):
@@ -253,7 +253,7 @@ class TestBuildkitePublisher:
 
     @pytest.mark.parametrize("claim", ["build_tag", "step_key"])
     def test_nullable_claims_are_not_required(self, claim):
-        signed_claims = claims()
+        signed_claims = _claims()
         signed_claims.pop(claim, None)
 
         buildkite.BuildkitePublisher.check_claims_existence(signed_claims)
@@ -290,7 +290,7 @@ class TestBuildkitePublisher:
         }
 
         publisher = buildkite.BuildkitePublisher.lookup_by_claims(
-            db_request.db, claims()
+            db_request.db, _claims()
         )
 
         assert publisher.id in matching_publishers
@@ -302,7 +302,7 @@ class TestBuildkitePublisher:
             buildkite_organization_id=None,
             pipeline_id=None,
         )
-        signed_claims = claims()
+        signed_claims = _claims()
 
         assert (
             buildkite.BuildkitePublisher.lookup_by_claims(
@@ -334,21 +334,21 @@ class TestBuildkitePublisher:
             with Session(engine) as session, session.begin():
                 publisher = buildkite.BuildkitePublisher.lookup_by_claims(
                     session,
-                    claims(
+                    _claims(
                         organization_slug="locking-org",
                         pipeline_slug="locking-pipeline",
                     ),
                 )
                 locked.set()
                 release.wait(timeout=5)
-                publisher.pin_claims(claims())
+                publisher.pin_claims(_claims())
 
         def lookup_while_locked():
             with Session(engine) as session, session.begin():
                 session.execute(text("SET LOCAL lock_timeout = '100ms'"))
                 buildkite.BuildkitePublisher.lookup_by_claims(
                     session,
-                    claims(
+                    _claims(
                         organization_slug="locking-org",
                         pipeline_slug="locking-pipeline",
                     ),
@@ -368,7 +368,7 @@ class TestBuildkitePublisher:
             with pytest.raises(errors.InvalidPublisherError, match="does not match"):
                 buildkite.BuildkitePublisher.lookup_by_claims(
                     session,
-                    claims(
+                    _claims(
                         organization_slug="locking-org",
                         pipeline_slug="locking-pipeline",
                         organization_id="different-organization",
@@ -387,6 +387,42 @@ class TestBuildkitePublisher:
 
 
 class TestPendingBuildkitePublisher:
+    @pytest.mark.parametrize(
+        ("pinned_ids", "valid"),
+        [
+            (None, True),
+            ({}, True),
+            (
+                {
+                    "buildkite_organization_id": ORGANIZATION_ID,
+                    "pipeline_id": PIPELINE_ID,
+                },
+                True,
+            ),
+            ({"buildkite_organization_id": "previous-organization"}, False),
+            ({"pipeline_id": "previous-pipeline"}, False),
+        ],
+    )
+    def test_verify_claims_before_reification(
+        self, db_request, publisher_service, pinned_ids, valid
+    ):
+        fields = {
+            "organization_slug": "acme",
+            "pipeline_slug": "widgets",
+            "buildkite_organization_id": None,
+            "pipeline_id": None,
+        }
+        pending = PendingBuildkitePublisherFactory.create(**fields)
+        if pinned_ids is not None:
+            BuildkitePublisherFactory.create(**(fields | pinned_ids))
+        publisher_service.db = db_request.db
+
+        if valid:
+            assert pending.verify_claims(_claims(), publisher_service)
+        else:
+            with pytest.raises(errors.InvalidPublisherError, match="does not match"):
+                pending.verify_claims(_claims(), publisher_service)
+
     @pytest.mark.parametrize("existing", [True, False])
     def test_reify(self, db_request, existing):
         pending = PendingBuildkitePublisherFactory.create(

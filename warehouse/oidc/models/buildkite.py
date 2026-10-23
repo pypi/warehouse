@@ -271,6 +271,17 @@ class PendingBuildkitePublisher(BuildkitePublisherMixin, PendingOIDCPublisher):
         ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
+    def verify_claims(
+        self,
+        signed_claims: SignedClaims,
+        publisher_service: OIDCPublisherService,
+    ) -> bool:
+        super().verify_claims(signed_claims, publisher_service)
+        # Reject conflicting pins before creating the pending project.
+        if publisher := self._reification_target(publisher_service.db):
+            publisher._verify_pinned_ids(signed_claims)
+        return True
+
     def _reification_target(self, session: Session) -> BuildkitePublisher | None:
         return (
             session.query(BuildkitePublisher)
