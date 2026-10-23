@@ -649,13 +649,17 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
-        _see_url = (
-            "https://packaging.python.org/en/latest/specifications/"
-            "version-specifiers/#local-version-identifiers"
-            if field_name == "version"
-            and any("use of local versions" in str(e) for e in errors["version"])
-            else "https://packaging.python.org/specifications/core-metadata"
-        )
+        _see_url = "https://packaging.python.org/specifications/core-metadata"
+        if field_name == "version":
+            if any("use of local versions" in str(e) for e in errors["version"]):
+                _see_url = (
+                    "https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers"
+                )
+            elif any("after normalization" in str(e) for e in errors["version"]):
+                _see_url = request.user_docs_url(
+                    "/project_metadata/", anchor="version-length-limit"
+                )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
