@@ -134,7 +134,8 @@ Each night, the task does these steps:
 
 1. If the `disallow-organization-deactivation` admin flag is enabled, stop.
    The flag is disabled by default.
-2. Process each organization that has a schedule.
+2. Process each organization that has a schedule, oldest deadline first. The
+   maximum is 500 deactivations each night. The others wait a night.
 3. Start a schedule for each unpaid company organization that is older than
    7 days, oldest first. The maximum is 500 new schedules each night. An
    organization that owns projects, but has no owner with a verified email,
@@ -163,7 +164,9 @@ flowchart TD
     LATE --> QUEUE
     DUE -->|no| PAST{Deadline<br/>passed?}:::warehouse
     PAST -->|no| WAIT[Do nothing]:::warehouse
-    PAST -->|yes| CUST{Has a Stripe<br/>customer?}:::warehouse
+    PAST -->|yes| CAP{500 deactivated<br/>tonight already?}:::warehouse
+    CAP -->|yes| LATER[Try again tomorrow<br/><code>deferred</code>]:::warehouse
+    CAP -->|no| CUST{Has a Stripe<br/>customer?}:::warehouse
     CUST -->|yes| ASK{Paid on Stripe?}:::stripe
     ASK -->|yes, or Stripe fails| RETRY2[Try again tomorrow<br/><code>skipped</code>]:::warehouse
     ASK -->|no| DEACT

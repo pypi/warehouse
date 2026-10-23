@@ -652,6 +652,40 @@ class TestScheduleUnpaidOrganizationDeactivations:
             scheduled.id,
         }
 
+    def test_caps_deactivations_oldest_deadline_first(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        mocker.patch("warehouse.organizations.tasks.DEACTIVATIONS_PER_DAY", 1)
+        list_customer_subscriptions = mocker.spy(
+            billing_service, "list_customer_subscriptions"
+        )
+        oldest, _ = _unpaid_org()
+        _schedule(oldest, deactivate_in=-2, last_notice_days=3)
+        # Over the cap: waits a night, without asking Stripe.
+        deferred, _ = _unpaid_org()
+        OrganizationStripeCustomerFactory.create(organization=deferred)
+        _schedule(deferred, deactivate_in=-1, last_notice_days=3)
+        # The cap only holds back deactivations.
+        reminded, _ = _unpaid_org()
+        _schedule(reminded, deactivate_in=14, last_notice_days=30)
+        paid, _ = _unpaid_org()
+        OrganizationManualActivationFactory.create(organization=paid)
+        _schedule(paid, deactivate_in=-1, last_notice_days=3)
+
+        schedule_unpaid_organization_deactivations(db_request)
+        db_request.db.flush()
+        db_request.db.expire_all()
+
+        assert not oldest.is_active
+        assert deferred.is_active
+        assert deferred.deactivation_schedule is not None
+        list_customer_subscriptions.assert_not_called()
+        assert paid.deactivation_schedule is None
+        assert _queued(db_request) == sorted([(oldest.id, True), (reminded.id, False)])
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.deferred"
+        )
+
     def test_failed_producer_rolls_back_the_batch(self, db_request, mocker):
         first, _ = _unpaid_org(created=dt.datetime(2021, 1, 1))
         second, _ = _unpaid_org(created=dt.datetime(2022, 1, 1))

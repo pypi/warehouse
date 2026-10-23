@@ -28,6 +28,7 @@ from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
     DEACTIVATION_STARTS_PER_DAY,
+    DEACTIVATIONS_PER_DAY,
     RECONCILE_MAX_DOWNGRADES,
     SUBSCRIPTION_NOTICE_AFTER,
 )
@@ -308,8 +309,12 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
         return
 
+    # Oldest deadline first, so a capped night defers the most recent ones.
     scheduled = request.db.scalars(
-        select(Organization.id).where(Organization.deactivation_schedule.has())
+        select(OrganizationDeactivationSchedule.organization_id).order_by(
+            OrganizationDeactivationSchedule.deactivate_on,
+            OrganizationDeactivationSchedule.created,
+        )
     ).all()
 
     candidates = (
@@ -344,29 +349,40 @@ def schedule_unpaid_organization_deactivations(request: Request) -> None:
 
     # One transaction keeps the owner's batch complete even if processing is slow.
     # Any failure rolls back every change; organization locks last until commit.
+    deactivations = 0
     for organization_id in [*scheduled, *unpaid[:DEACTIVATION_STARTS_PER_DAY]]:
-        deactivate_unpaid_organization(request, organization_id)
+        if deactivate_unpaid_organization(
+            request,
+            organization_id,
+            may_deactivate=deactivations < DEACTIVATIONS_PER_DAY,
+        ):
+            deactivations += 1
 
     # WarehouseTask dispatches only after all schedules and notices have committed.
     request.task(send_organization_deactivation_notices).delay()
 
 
-def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> None:
-    """Queue the next notice for one org, deactivate it, or clear its schedule."""
+def deactivate_unpaid_organization(
+    request: Request, organization_id: UUID, *, may_deactivate: bool = True
+) -> bool:
+    """Queue the next notice for one org, deactivate it, or clear its schedule.
+
+    Returns whether it deactivated the org.
+    """
     if request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION):
-        return
+        return False
 
     # Lock so a duplicate producer can't queue the same notice twice.
     organization = request.db.get(Organization, organization_id, with_for_update=True)
     if organization is None:
-        return
+        return False
 
     schedule = organization.deactivation_schedule
     if not organization.lacks_paid_seat:
         if schedule is not None:
             request.db.delete(schedule)
             request.metrics.increment("warehouse.organizations.deactivation.cleared")
-        return
+        return False
 
     # Nobody to warn: only deactivate if no project uploads would break.
     if not _reachable_owners(organization) and organization.projects:
@@ -376,7 +392,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
             "warehouse.organizations.deactivation.skipped",
             tags=["reason:no_recipients"],
         )
-        return
+        return False
 
     today = dt.datetime.now(dt.UTC).date()
 
@@ -389,7 +405,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         )
         request.db.add(schedule)
         _queue_reminder(request, schedule)
-        return
+        return False
 
     days_remaining = (schedule.deactivate_on - today).days
     due = [
@@ -403,11 +419,17 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         schedule.deactivate_on = today + dt.timedelta(days=notice_days)
         schedule.last_notice_days = notice_days
         _queue_reminder(request, schedule)
-        return
+        return False
 
     # Owners have all of deactivate_on (UTC) to purchase a seat.
     if days_remaining >= 0:
-        return
+        return False
+
+    # A pause or missed runs can make many deadlines fall on one night. Keep the
+    # schedule so the org is deactivated on a later night instead.
+    if not may_deactivate:
+        request.metrics.increment("warehouse.organizations.deactivation.deferred")
+        return False
 
     # The stored status can be wrong (a lost webhook, a reconciliation bug), so
     # ask Stripe before the one step owners can't undo themselves. Keep the
@@ -419,7 +441,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
                 "warehouse.organizations.deactivation.skipped",
                 tags=[f"reason:{skip_reason}"],
             )
-            return
+            return False
 
     organization.deactivate(OrganizationDeactivationReason.NoPaidSeat)
     organization.record_event(
@@ -432,6 +454,7 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
         OrganizationDeactivationNotice(organization=organization, deactivated=True)
     )
     request.metrics.increment("warehouse.organizations.deactivation.deactivated")
+    return True
 
 
 @tasks.task(ignore_result=True, acks_late=True)
