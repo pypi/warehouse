@@ -13,10 +13,14 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import algorithms
 from pyramid_services import IServiceRegistry, ProxyFactory
 
-from tests.common.db.oidc import BuildkitePublisherFactory
+from tests.common.db.oidc import (
+    BuildkitePublisherFactory,
+    PendingBuildkitePublisherFactory,
+)
 from tests.common.db.packaging import ProjectFactory
 from warehouse.oidc import interfaces as oidc_interfaces, services as oidc_services
-from warehouse.oidc.models import BUILDKITE_OIDC_ISSUER_URL
+from warehouse.oidc.models import BUILDKITE_OIDC_ISSUER_URL, PendingBuildkitePublisher
+from warehouse.packaging.models import Project
 
 
 class _InMemoryOIDCPublisherService(oidc_services.OIDCPublisherService):
@@ -114,6 +118,40 @@ def test_buildkite_publisher_mints_api_token(
     )
     _InMemoryOIDCPublisherService.keysets.clear()
     try:
+        pending_fields = {
+            "project_name": "pending-buildkite-project",
+            "organization_slug": "acme",
+            "pipeline_slug": "widgets",
+            "build_branch": "main",
+            "step_key": "publish",
+            "buildkite_organization_id": None,
+            "pipeline_id": None,
+        }
+        # A recycled slug must not attach a new project to an old pinned identity,
+        # even if the token exchange itself would subsequently be rejected.
+        for attribute in ("buildkite_organization_id", "pipeline_id"):
+            pending = PendingBuildkitePublisherFactory.create(**pending_fields)
+            setattr(publisher, attribute, "previous-owner-id")
+            db.flush()
+            rejected = webtest.post_json(
+                "/_/oidc/mint-token",
+                {"token": oidc_token},
+                status=HTTPStatus.UNPROCESSABLE_ENTITY,
+            )
+            assert "does not match" in rejected.json["errors"][0]["description"]
+            assert (
+                db.query(Project).filter_by(name="pending-buildkite-project").count()
+                == 0
+            )
+            assert db.get(PendingBuildkitePublisher, pending.id) is pending
+            db.refresh(publisher)
+            assert [project.name for project in publisher.projects] == [
+                "buildkite-project"
+            ]
+            setattr(publisher, attribute, None)
+            db.delete(pending)
+            db.flush()
+
         # Neither missing nor empty identity claims may establish the pins.
         for claim in ("organization_id", "pipeline_id", "jti"):
             for missing in (True, False):
@@ -137,9 +175,16 @@ def test_buildkite_publisher_mints_api_token(
         assert publisher.buildkite_organization_id is None
         assert publisher.pipeline_id is None
 
+        pending = PendingBuildkitePublisherFactory.create(**pending_fields)
         response = webtest.post_json(
             "/_/oidc/mint-token", {"token": oidc_token}, status=HTTPStatus.OK
         )
+        assert db.get(PendingBuildkitePublisher, pending.id) is None
+        db.refresh(publisher)
+        assert {project.name for project in publisher.projects} == {
+            "buildkite-project",
+            "pending-buildkite-project",
+        }
         replay_response = webtest.post_json(
             "/_/oidc/mint-token",
             {"token": oidc_token},
