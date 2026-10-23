@@ -115,7 +115,7 @@ ddtrace==4.16.0 \
     --hash=sha256:f21ee5db33b44d58d35a37c2defa2f9dbc89caffde0e5d8485e3129fb7b7888f \
     --hash=sha256:fca62acad642dbdab35a26452c9801713cf2725069bd46b014e324b588b6d586 \
     --hash=sha256:fca62acad642dbdab35a26452c9801713cf2725069bd46b014e324b588b6d586
-    # via -r requirements/deploy.in
+    # via -r deploy.in
 ddtrace-internal==0.1.0 \
     --hash=sha256:7390721276ab5f174cb103088be7d0de22d452f2817c949e8bde1182ff5b961e \
     --hash=sha256:7390721276ab5f174cb103088be7d0de22d452f2817c949e8bde1182ff5b961e \
@@ -129,10 +129,10 @@ envier==0.6.1 \
 gunicorn==26.2.0 \
     --hash=sha256:62b864895d9ebff0b2f9867ba04fe811c93121596540830c9c916d0769668447 \
     --hash=sha256:bd249d0b3f7972f7432f0a6b6ff3b3ee2d129f70cd1ff6c09a9dd9e29a2b88e3
-    # via -r requirements/deploy.in
-opentelemetry-api==1.43.0 \
-    --hash=sha256:107d0d03857ea8fc7c5fcbbbd83f800c281f0d560553d61c1d675fccfd1761c1 \
-    --hash=sha256:20acf45e9b21851926835292e4045d290acade1edd2ff3de86d2f069687ba1fd
+    # via -r deploy.in
+opentelemetry-api==1.45.1 \
+    --hash=sha256:aa38ed19bcc084ba42782a73255b3582283eced7ad6dddbd6695189e69adfb75 \
+    --hash=sha256:b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb
     # via ddtrace
 typing-extensions==4.16.0 \
     --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
