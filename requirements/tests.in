@@ -4,6 +4,7 @@ freezegun
 inline-snapshot
 pretend
 pytest
+pytest-github-actions-annotate-failures
 pytest-icdiff
 pytest-mock
 pytest-postgresql
