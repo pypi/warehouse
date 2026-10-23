@@ -36,6 +36,7 @@ from warehouse.packaging.models import (
     PROVENANCE_COMPARISON_WINDOW_DAYS,
     Description,
     File,
+    JournalEntry,
     LifecycleStatus,
     Project,
     ProjectFactory,
@@ -2245,6 +2246,31 @@ class TestFile:
         db_session.refresh(project)
 
         assert project.total_size == sentinel
+
+
+class TestEnsureMonotonicJournals:
+    def test_locks_project_row_before_advisory_lock(self, db_session, query_recorder):
+        """
+        A journal flush must lock the project row before the advisory lock.
+        """
+        project = DBProjectFactory.create()
+        db_session.add(JournalEntry(name=project.name, action="remove release"))
+
+        with query_recorder:
+            db_session.flush()
+
+        order = [
+            kind
+            for statement in query_recorder.queries
+            for kind, needle in (
+                ("project row", "FOR NO KEY UPDATE"),
+                ("advisory lock", "pg_advisory_xact_lock"),
+            )
+            if needle in statement
+        ]
+        # the test suite registers the listeners once per app config,
+        # so the hook can fire more than once.
+        assert order[:2] == ["project row", "advisory lock"]
 
 
 class TestProjectLimitProperties:
