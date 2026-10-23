@@ -126,13 +126,9 @@ the task can start a notice period for an organization that pays. The task
 examines each schedule every night, and deletes it when the organization has a
 paid seat again.
 
-The stored status is not sufficient to deactivate an organization. Before the
-task deactivates an organization that has a Stripe customer, it gets the
-customer's subscriptions from Stripe. If one of them is `active` or `trialing`,
-or if Stripe returns an error, the task logs an error and does not deactivate.
-It keeps the schedule, so it asks Stripe again the next night. An organization
-without a Stripe customer did not start checkout, so it cannot have a paid
-subscription.
+Before it deactivates an organization with a Stripe customer, the task asks
+Stripe for that customer's subscriptions. If one is paid, or Stripe fails, it
+does not deactivate and tries again the next night.
 
 Each night, the task does these steps:
 
@@ -168,10 +164,9 @@ flowchart TD
     DUE -->|no| PAST{Deadline<br/>passed?}:::warehouse
     PAST -->|no| WAIT[Do nothing]:::warehouse
     PAST -->|yes| CUST{Has a Stripe<br/>customer?}:::warehouse
-    CUST -->|yes| ASK[Get the customer's subscriptions from Stripe]:::stripe
-    ASK -->|one is active or trialing| HOLD[Keep the schedule<br/><code>skipped</code>, tag <code>reason:paid_on_stripe</code>]:::warehouse
-    ASK -->|Stripe error| HOLD2[Keep the schedule<br/><code>skipped</code>, tag <code>reason:stripe_error</code>]:::warehouse
-    ASK -->|none is paid| DEACT
+    CUST -->|yes| ASK{Paid on Stripe?}:::stripe
+    ASK -->|yes, or Stripe fails| RETRY2[Try again tomorrow<br/><code>skipped</code>]:::warehouse
+    ASK -->|no| DEACT
     CUST -->|no| DEACT[Deactivate with the reason <code>no_paid_seat</code><br/>Delete the schedule and queue a notice<br/><code>deactivated</code>]:::data
     classDef warehouse fill:#0284c740,stroke:#0284c7
     classDef data fill:#d9770640,stroke:#d97706

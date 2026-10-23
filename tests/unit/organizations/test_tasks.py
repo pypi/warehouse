@@ -848,6 +848,93 @@ class TestDeactivateUnpaidOrganization:
         )
 
     @pytest.mark.parametrize(
+        ("remote_statuses", "deactivated"),
+        [
+            ([], True),
+            (
+                [
+                    StripeSubscriptionStatus.PastDue,
+                    StripeSubscriptionStatus.Unpaid,
+                    StripeSubscriptionStatus.Incomplete,
+                ],
+                True,
+            ),
+            (
+                [StripeSubscriptionStatus.PastDue, StripeSubscriptionStatus.Active],
+                False,
+            ),
+            ([StripeSubscriptionStatus.Trialing], False),
+        ],
+    )
+    def test_checks_stripe_before_deactivating(
+        self, db_request, billing_service, metrics, mocker, remote_statuses, deactivated
+    ):
+        # The stored status says unpaid, but Stripe has the final word.
+        organization, _ = _unpaid_org()
+        customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        ).customer
+        _schedule(organization, deactivate_in=-1, last_notice_days=3)
+        list_customer_subscriptions = mocker.patch.object(
+            billing_service,
+            "list_customer_subscriptions",
+            return_value=[{"status": status.value} for status in remote_statuses],
+        )
+
+        deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        list_customer_subscriptions.assert_called_once_with(customer.customer_id)
+        assert organization.is_active is not deactivated
+        if deactivated:
+            assert organization.deactivation_schedule is None
+            assert _queued(db_request) == [(organization.id, True)]
+        else:
+            # The schedule stays, so the next run asks Stripe again.
+            assert organization.deactivation_schedule is not None
+            assert _queued(db_request) == []
+            metrics.increment.assert_any_call(
+                "warehouse.organizations.deactivation.skipped",
+                tags=["reason:paid_on_stripe"],
+            )
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            stripe.error.APIConnectionError("Network error"),
+            stripe.error.InvalidRequestError("No such customer", param="customer"),
+        ],
+    )
+    def test_stripe_error_postpones_deactivation(
+        self, db_request, billing_service, metrics, mocker, error
+    ):
+        organization, _ = _unpaid_org()
+        OrganizationStripeCustomerFactory.create(organization=organization)
+        _schedule(organization, deactivate_in=-1, last_notice_days=3)
+
+        # Paging is lazy, so the error can surface mid-iteration.
+        def pages(customer_id):
+            yield {"status": StripeSubscriptionStatus.PastDue.value}
+            raise error
+
+        mocker.patch.object(
+            billing_service, "list_customer_subscriptions", side_effect=pages
+        )
+
+        deactivate_unpaid_organization(db_request, organization.id)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert organization.is_active
+        assert organization.deactivation_schedule is not None
+        assert _queued(db_request) == []
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.deactivation.skipped",
+            tags=["reason:stripe_error"],
+        )
+
+    @pytest.mark.parametrize(
         ("status", "clears"),
         [
             (StripeSubscriptionStatus.Active, True),

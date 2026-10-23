@@ -276,6 +276,32 @@ def _queue_reminder(
     )
 
 
+def _stripe_skip_reason(request: Request, organization: Organization) -> str | None:
+    """Why Stripe says not to deactivate, or None if it agrees the org is unpaid."""
+    billing_service = request.find_service(IBillingService, context=None)
+    try:
+        paid_on_stripe = any(
+            remote["status"] in ACTIVE_SUBSCRIPTION_STATUSES
+            for remote in billing_service.list_customer_subscriptions(
+                organization.customer.customer_id
+            )
+        )
+    except stripe.error.StripeError:
+        # Raising would roll back the whole run, so only this org waits a night.
+        logger.exception(
+            "Failed to check Stripe before deactivation",
+            organization_name=organization.name,
+        )
+        return "stripe_error"
+    if paid_on_stripe:
+        logger.error(
+            "Stored status lacks a paid seat, but Stripe has one",
+            organization_name=organization.name,
+        )
+        return "paid_on_stripe"
+    return None
+
+
 @tasks.task(ignore_result=True, acks_late=True)
 def schedule_unpaid_organization_deactivations(request: Request) -> None:
     """Daily: process scheduled orgs and capped new starts, then dispatch notices."""
@@ -382,6 +408,18 @@ def deactivate_unpaid_organization(request: Request, organization_id: UUID) -> N
     # Owners have all of deactivate_on (UTC) to purchase a seat.
     if days_remaining >= 0:
         return
+
+    # The stored status can be wrong (a lost webhook, a reconciliation bug), so
+    # ask Stripe before the one step owners can't undo themselves. Keep the
+    # schedule, so the next run asks again.
+    if organization.customer is not None:
+        skip_reason = _stripe_skip_reason(request, organization)
+        if skip_reason is not None:
+            request.metrics.increment(
+                "warehouse.organizations.deactivation.skipped",
+                tags=[f"reason:{skip_reason}"],
+            )
+            return
 
     organization.deactivate(OrganizationDeactivationReason.NoPaidSeat)
     organization.record_event(
