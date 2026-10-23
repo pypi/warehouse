@@ -383,6 +383,7 @@ pytest==9.1.1 \
     # via
     #   -r tests.in
     #   inline-snapshot
+    #   pytest-github-actions-annotate-failures
     #   pytest-icdiff
     #   pytest-mock
     #   pytest-postgresql
@@ -390,6 +391,10 @@ pytest==9.1.1 \
     #   pytest-socket
     #   pytest-sugar
     #   pytest-xdist
+pytest-github-actions-annotate-failures==0.4.2 \
+    --hash=sha256:02911cd3b55f235328a334f8ca6037a89944398b8e8b028c82de97111eff4071 \
+    --hash=sha256:5dd18304512361788bc7b5c5c805db853f03f4950c6be09b088de6bab8e2e6c9
+    # via -r tests.in
 pytest-icdiff==0.9 \
     --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
     --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
