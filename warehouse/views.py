@@ -620,19 +620,6 @@ def session_notifications(request):
     return {}
 
 
-@view_config(
-    route_name="includes.sidebar-sponsor-logo",
-    renderer="warehouse:templates/includes/sidebar-sponsor-logo.html",
-    uses_session=False,
-    has_translations=False,
-    decorator=[
-        cache_control(30),  # 30 seconds
-    ],
-)
-def sidebar_sponsor_logo(request):
-    return {}
-
-
 @view_config(route_name="health", renderer="string")
 def health(request):
     # This will ensure that we can access the database and run queries against
