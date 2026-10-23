@@ -149,8 +149,7 @@ class BasicAuthSecurityPolicy:
             HTTPForbidden(),
             "Username/Password authentication is no longer supported. "
             "Migrate to API Tokens or Trusted Publishers instead. "
-            f"See {request.help_url(_anchor='apitoken')} "
-            f"and {request.help_url(_anchor='trusted-publishers')}",
+            f"See {request.user_docs_url('/publishing/publishing-to-pypi/')}",
         )
 
     def forget(self, request, **kw):

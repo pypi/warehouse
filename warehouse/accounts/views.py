@@ -728,7 +728,13 @@ def register(request, _form_class=RegistrationForm):
         request.session.flash(
             request._(
                 "New user registration temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See ${docs_url} for details.",
+                mapping={
+                    "docs_url": request.user_docs_url(
+                        "/your-account/managing-your-account/",
+                        anchor="account-registration-limits",
+                    )
+                },
             ),
             queue="error",
         )
@@ -1881,7 +1887,13 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1902,8 +1914,14 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See https://pypi.org/help#admin-intervention for "
-                    "details."
+                    "disabled. See ${docs_url} for "
+                    "details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1919,7 +1937,13 @@ class ManageAccountPublishingViews:
                 self.request._(
                     "You must have a verified email in order to register a "
                     "pending trusted publisher. "
-                    "See https://pypi.org/help#openid-connect for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/your-account/managing-your-account/",
+                            anchor="email-address-verification",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -2149,7 +2173,13 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )

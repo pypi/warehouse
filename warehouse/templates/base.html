@@ -30,10 +30,10 @@
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
         <li class="site-menu__item">
-          <a href="{{ request.route_path('help') }}" class="site-menu__link">{% trans %}Help{% endtrans %}</a>
+          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li class="site-menu__item">
-          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
+          <a href="https://blog.pypi.org" class="site-menu__link">{% trans %}Blog{% endtrans %}</a>
         </li>
         <li class="site-menu__item">
           <a href="{{ login_url }}" class="site-menu__link">{% trans %}Log in{% endtrans %}</a>
@@ -57,10 +57,10 @@
           aria-hidden="true"
           aria-label="{% trans %}Main menu{% endtrans %}">
         <li>
-          <a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>
+          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li>
-          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
+          <a class="dropdown__link" href="https://blog.pypi.org">{% trans %}Blog{% endtrans %}</a>
         </li>
         <li>
           <a class="dropdown__link" href="{{ login_url }}">{% trans %}Log in{% endtrans %}</a>
@@ -378,6 +378,12 @@
         <nav aria-label="{% trans %}Help navigation{% endtrans %}">
           <ul>
             <li>
+              <a href="{{ request.user_docs_url('/') }}">{% trans %}PyPI documentation{% endtrans %}</a>
+            </li>
+            <li>
+              <a href="{{ request.user_docs_url('/about/getting-help/') }}">{% trans %}Getting help{% endtrans %}</a>
+            </li>
+            <li>
               <a href="https://packaging.python.org/tutorials/installing-packages/"
                  title="{% trans %}External link{% endtrans %}"
                  target="_blank"
@@ -393,16 +399,7 @@
               <a href="https://packaging.python.org/"
                  title="{% trans %}External link{% endtrans %}"
                  target="_blank"
-                 rel="noopener">{% trans %}User guide{% endtrans %}</a>
-            </li>
-            <li>
-              <a href="https://www.python.org/dev/peps/pep-0541/"
-                 title="{% trans %}External link{% endtrans %}"
-                 target="_blank"
-                 rel="noopener">{% trans %}Project name retention{% endtrans %}</a>
-            </li>
-            <li>
-              <a href="{{ request.route_path('help') }}">{% trans %}FAQs{% endtrans %}</a>
+                 rel="noopener">{% trans %}Packaging user guide{% endtrans %}</a>
             </li>
           </ul>
         </nav>
@@ -412,10 +409,7 @@
         <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
           <ul>
             <li>
-              <a href="https://blog.pypi.org"
-                 title="{% trans %}External link{% endtrans %}"
-                 target="_blank"
-                 rel="noopener">{% trans %}PyPI Blog{% endtrans %}</a>
+              <a href="https://blog.pypi.org">{% trans %}PyPI blog{% endtrans %}</a>
             </li>
             <li>
               <a href="https://dtdg.co/pypi"
@@ -440,7 +434,7 @@
         <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
           <ul>
             <li>
-              <a href="{{ request.route_path('help') }}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a>
+              <a href="{{ request.user_docs_url('/about/contributing/', anchor='reporting-bugs') }}">{% trans %}Bugs and feedback{% endtrans %}</a>
             </li>
             <li>
               <a href="https://github.com/pypi/warehouse"

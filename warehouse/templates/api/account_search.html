@@ -6,6 +6,8 @@
         data-autocomplete-value="{{ user.username }}"
         data-autocomplete-query-param-value="username">
       <img src="{{ gravatar(request, user.email, size=20) }}"
+           srcset="{{ gravatar(request, user.email, size=40) }} 2x,
+                   {{ gravatar(request, user.email, size=60) }} 3x"
            class="img-circle"
            alt="User Image">
       {{ user.username }}

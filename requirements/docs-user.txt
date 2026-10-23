@@ -283,7 +283,7 @@ markupsafe==3.0.3 \
 material-plausible-plugin==0.3.0 \
     --hash=sha256:31c872608bfa4e94ef05c128f7bf1e476c55b0576ba418a983977a75216d10cc \
     --hash=sha256:4e1cbaf0eef86dbd34fafa2f25830960416c989f80e0b1d1fabceed6cf6b40aa
-    # via -r docs-user.in
+    # via -r requirements/docs-user.in
 mergedeep==1.3.4 \
     --hash=sha256:0096d52e9dad9939c3d975a774666af186eda617e6ca84df4c94dec30004f2a8 \
     --hash=sha256:70775750742b25c0d8f36c55aed03d24c3384d17c951b3175d898bd778ef0307
@@ -294,7 +294,7 @@ mkdocs==1.6.1 \
     --hash=sha256:7b432f01d928c084353ab39c57282f29f92136665bdd6abf7c1ec8d822ef86f2 \
     --hash=sha256:db91759624d1647f3f34aa0c3f327dd2601beae39a366d6e064c03468d35c20e
     # via
-    #   -r docs-user.in
+    #   -r requirements/docs-user.in
     #   material-plausible-plugin
     #   mkdocs-macros-plugin
     #   mkdocs-material
@@ -305,12 +305,12 @@ mkdocs-get-deps==0.2.2 \
 mkdocs-macros-plugin==1.5.0 \
     --hash=sha256:12aa45ce7ecb7a445c66b9f649f3dd05e9b92e8af6bc65e4acd91d26f878c01f \
     --hash=sha256:c10fabd812bf50f9170609d0ed518e54f1f0e12c334ac29141723a83c881dd6f
-    # via -r docs-user.in
+    # via -r requirements/docs-user.in
 mkdocs-material==9.7.7 \
     --hash=sha256:8ea9bb1737a5b524a5f9dcf2e1b4ebda8274ae3008aa7845720a97083bef708f \
     --hash=sha256:c0649c065b1b0512d60aad8c10f947f8e455284475239b364b610f2deb4d0855
     # via
-    #   -r docs-user.in
+    #   -r requirements/docs-user.in
     #   material-plausible-plugin
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
@@ -332,9 +332,9 @@ pathspec==1.1.1 \
     # via
     #   mkdocs
     #   mkdocs-macros-plugin
-platformdirs==4.13.0 \
-    --hash=sha256:1aa0b0d3f224c1f07c295121e312a5a24a180d6ae5a8425ea1784b3e3863e9c0 \
-    --hash=sha256:3dbcf4cd708f21cf876c4eaa90e58412bc4f033d87143f41b1493ff77c25b7e1
+platformdirs==4.13.3 \
+    --hash=sha256:5e567f664eb087ab8521c0179cd8d1bd60857d271136567a39719e28e2d383ce \
+    --hash=sha256:f6ad7f447f24f8a3b82cce5976387428bff894a0eca6c3488f4a17f153c130c4
     # via mkdocs-get-deps
 pygments==2.20.0 \
     --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \

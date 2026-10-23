@@ -315,6 +315,12 @@ def pyramid_request(pyramid_services, jinja):
 
     dummy_request._ = localize
 
+    def user_docs_url(path, anchor=None):
+        url = f"https://docs.pypi.org{path}"
+        return f"{url}#{anchor}" if anchor else url
+
+    dummy_request.user_docs_url = user_docs_url
+
     yield dummy_request
 
     pyramid.testing.tearDown()

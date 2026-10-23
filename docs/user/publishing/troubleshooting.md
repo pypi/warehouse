@@ -7,6 +7,8 @@ title: Troubleshooting
 ## Why am I getting "the description failed to render" error?
 PyPI will reject uploads if the package description fails to render. You may [use twine's check command](https://twine.readthedocs.io/#twine-check) to locally check a description for validity.
 
+If your description is rendering in the wrong format, check that your readme file has the correct extension. See [specifying the long description](../project-management/project-descriptions.md#specifying-the-long-description) for more information.
+
 ## Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?
 PyPI will return these errors for one of these reasons:
 

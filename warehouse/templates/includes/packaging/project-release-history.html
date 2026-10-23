@@ -7,7 +7,7 @@
   <h2 class="page-title split-layout">
     <span>{% trans %}Release history{% endtrans %}</span>
     <span class="reset-text margin-top">
-      <a href="{{ request.route_path('help') }}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
+      <a href="{{ request.user_docs_url('/api/feeds/', anchor='project-releases-feed') }}">{% trans %}Release notifications{% endtrans %}</a> |
       <a href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">{% trans %}RSS feed{% endtrans %} <i class="fa fa-rss" aria-hidden="true"></i></a>
     </span>
   </h2>
@@ -67,7 +67,7 @@
                   {% endset %}
                 {% endif %}
               {% endif %}
-              <a href="{{ request.route_path('help') }}#project_in_quarantine"
+              <a href="{{ request.user_docs_url('/using-pypi/pypi-basics/', anchor='quarantined-project-or-release') }}"
                  {% if quarantine_title is defined %}title="{{ quarantine_title }}"{% endif %}><i class="fa fa-shield-halved" aria-hidden="true"></i> <span>{{ quarantine_label }}</span></a>
             </div>
           {% elif hversion.yanked %}
@@ -77,7 +77,7 @@
                   {% trans date=hversion.yanked_date|format_date %}Release yanked on {{ date }}{% endtrans %}
                 {% endset %}
               {% endif %}
-              <a href="{{ request.route_path('help') }}#yanked"
+              <a href="{{ request.user_docs_url('/using-pypi/pypi-basics/', anchor='yanked-release') }}"
                  {% if yanked_title is defined %}title="{{ yanked_title }}"{% endif %}><i class="fa fa-ban" aria-hidden="true"></i> <span>{% trans %}Yanked{% endtrans %}</span></a>
             </div>
           {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
@@ -87,12 +87,12 @@
                   {% trans date=project.lifecycle_status_changed|format_date %}Project archived on {{ date }}{% endtrans %}
                 {% endset %}
               {% endif %}
-              <a href="{{ request.route_path('help') }}#archived-project"
+              <a href="{{ request.user_docs_url('/using-pypi/pypi-basics/', anchor='archived-project') }}"
                  {% if archived_title is defined %}title="{{ archived_title }}"{% endif %}><i class="fa fa-box-archive" aria-hidden="true"></i> <span>{% trans %}Archived{% endtrans %}</span></a>
             </div>
           {% elif hversion.is_prerelease %}
             <div class="release__card-header">
-              <a href="{{ request.route_path('help') }}#pre-release-versioning"><i class="fa fa-flask" aria-hidden="true"></i> <span>{% trans %}Pre-release{% endtrans %}</span></a>
+              <a href="{{ request.user_docs_url('/using-pypi/pypi-basics/', anchor='pre-release') }}"><i class="fa fa-flask" aria-hidden="true"></i> <span>{% trans %}Pre-release{% endtrans %}</span></a>
             </div>
           {% endif %}
           <div class="release__card-body">

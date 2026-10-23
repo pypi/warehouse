@@ -87,9 +87,17 @@ PyPI relies on its users and the wider security community to help identify and r
 
 Projects that are flagged as malicious are placed in "quarantine." A quarantined project cannot be downloaded, and its owners cannot modify it. This immediately neutralizes the threat while the report is reviewed. See our [blog post on project quarantine](https://blog.pypi.org/posts/2024-12-30-quarantine/) for more information.
 
-#### Disabling new registrations or uploads
+#### Temporarily disabling features { #temporarily-disabled-features }
 
-During a large-scale spam or malware attack, PyPI administrators can temporarily disable new user or new project registrations (see [account registration limits](../your-account/managing-your-account.md#account-registration-limits)), or, in severe cases, disable new package uploads entirely or enter a full read-only mode (see [troubleshooting](../publishing/troubleshooting.md#why-am-i-getting-a-new-uploads-are-temporarily-disabled-or-read-only-mode-error)). The PyPI [status page](https://status.python.org/) provides updates during either kind of event.
+During a large-scale spam or malware attack, or another threat to PyPI, administrators can temporarily disable some features site-wide to contain the threat. These include:
+
+* New user registration (see [account registration limits](../your-account/managing-your-account.md#account-registration-limits))
+* New project registration
+* New package uploads, or in severe cases, all writes via a full read-only mode (see [publishing troubleshooting](../publishing/troubleshooting.md#why-am-i-getting-a-new-uploads-are-temporarily-disabled-or-read-only-mode-error))
+* Project deletion
+* Trusted Publishing, either for all providers or for a single provider (e.g. GitHub or GitLab)
+
+These restrictions apply to all users and are not specific to your account or project. The PyPI [status page](https://status.python.org/) provides updates and the reason for the intervention during any such event.
 
 #### Typosquatting protection
 
@@ -108,9 +116,9 @@ Python package "wheels" (or "binary distributions") are actually a ZIP archive i
 
 ### What powers PyPI?
 
-PyPI is powered by [Warehouse](https://warehouse.pypa.io/) and by a variety of tools and services provided by our [generous sponsors](https://pypi.org/sponsors/). For more information, see the:
+PyPI is powered by [Warehouse](https://github.com/pypi/warehouse) and by a variety of tools and services provided by our [generous sponsors](https://pypi.org/sponsors/). For more information, see the:
 
-* [Warehouse documentation](https://warehouse.pypa.io/)  
+* [Warehouse developer documentation](https://dev.pypi.org/)  
 * [Warehouse codebase and issue tracker](https://github.com/pypi/warehouse)
 
 ### How can I get a list of PyPI's IP addresses?
