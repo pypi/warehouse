@@ -138,7 +138,7 @@ def _create_session(request):
     try:
         connection = request.registry["sqlalchemy.engine"].connect()
     except OperationalError:
-        # When we tried to connection to PostgreSQL, our database was not available for
+        # When we tried to connect to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)

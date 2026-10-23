@@ -171,7 +171,7 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
-    # This happens sometimes. The email will stay unverfied, but this allows us
+    # This happens sometimes. The email will stay unverified, but this allows us
     # to record the event
     bounced.upon(
         deliver,

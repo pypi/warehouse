@@ -43,7 +43,7 @@ class GenericBillingService:
 
     def get_checkout_session(self, session_id, **kwargs):
         """
-        Fetch the Checkout Session to based on the session_id passed to the success page
+        Fetch the Checkout Session based on the session_id passed to the success page
         """
         return self.api.checkout.Session.retrieve(
             session_id,
@@ -105,7 +105,7 @@ class GenericBillingService:
 
     def create_portal_session(self, customer_id, return_url):
         """
-        Return customer portal session to allow customer to managing their subscription
+        Return customer portal session to allow customer to manage their subscription
         """
         return self.api.billing_portal.Session.create(
             customer=customer_id,

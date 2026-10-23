@@ -11,7 +11,7 @@ class IGenericBillingService(Interface):
 
     def get_checkout_session(session_id):
         """
-        Fetch the Checkout Session to based on the session_id passed to the success page
+        Fetch the Checkout Session based on the session_id passed to the success page
         """
 
     def get_customer(subscription_id):
@@ -42,7 +42,7 @@ class IGenericBillingService(Interface):
 
     def create_portal_session(customer_id, return_url):
         """
-        Return customer portal session to allow customer to managing their subscription
+        Return customer portal session to allow customer to manage their subscription
         """
 
     def webhook_received(payload, sig_header):
