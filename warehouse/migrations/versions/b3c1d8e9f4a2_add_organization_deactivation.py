@@ -3,7 +3,7 @@
 add organization deactivation
 
 Revision ID: b3c1d8e9f4a2
-Revises: f555f02f7688
+Revises: 5d826d835063
 Create Date: 2026-10-17 00:00:00.000000
 """
 
@@ -15,7 +15,7 @@ from sqlalchemy.dialects import postgresql
 from warehouse.utils.db.types import TZDateTime
 
 revision = "b3c1d8e9f4a2"
-down_revision = "f555f02f7688"
+down_revision = "5d826d835063"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
