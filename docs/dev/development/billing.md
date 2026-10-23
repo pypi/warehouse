@@ -34,28 +34,47 @@ on test clocks.
 
 The task ignores local subscriptions that are `canceled`, because Stripe
 cannot reactivate a canceled subscription. It compares each other local
-subscription with the Stripe copy. In the table, "local subscriptions" means
-these subscriptions that are not canceled.
-Metric names start with `warehouse.organizations.subscription.status.`
+subscription with the Stripe copy. Metric names start with
+`warehouse.organizations.subscription.status.`
 
-| Case | Result | Metric |
-| ---- | ------ | ------ |
-| Stripe has a different status | Updated, if the stored status still has the value the task read | `reconciled`, tag `status` |
-| The ID is not in the Stripe list, but the ID of at least one other local subscription is | Skipped | `reconcile.missing` |
-| There are local subscriptions, but none of their IDs is in the Stripe list | The task fails before it changes anything. Look for an API key for the wrong account or mode. | - |
-| Warehouse does not know the Stripe status, for example `paused` | Skipped | `reconcile.skipped`, tag `remote_status` |
-| Stripe returns a temporary error | The task raises `RetryableException` | - |
+The diagram uses these colors:
 
-The task does not cancel a missing subscription. A missing ID does not mean
-that the subscription is canceled: the list includes canceled subscriptions,
-also the subscriptions of deleted customers. If `reconcile.missing` or
-`reconcile.skipped` keeps going up, examine those subscriptions by hand.
+- <span style="background-color:#0284c740; border: 1px solid #0284c7; padding: 2px 6px;">Warehouse</span> code and checks
+- <span style="background-color:#d9770640; border: 1px solid #d97706; padding: 2px 6px;">Database</span> reads, writes, and organization events
+- <span style="background-color:#16a34a40; border: 1px solid #16a34a; padding: 2px 6px;">Stripe</span> API calls
+- <span style="background-color:#dc262640; border: 1px solid #dc2626; padding: 2px 6px;">Failure</span> the task raises
+
+```mermaid
+flowchart TD
+    START[<code>reconcile_stripe_status</code>]:::warehouse --> LIST[Get the subscriptions from Stripe]:::stripe
+    LIST -->|temporary error| RETRY[Raise <code>RetryableException</code><br/>Celery runs the task again]:::fail
+    LIST --> NONE{Local subscriptions exist,<br/>but none is in the list?}:::warehouse
+    NONE -->|yes| FAIL[Fail and change nothing<br/>Is the API key for the wrong account or mode?]:::fail
+    NONE -->|no| EACH[For each local subscription]:::data
+    EACH --> FOUND{ID in the list?}:::warehouse
+    FOUND -->|no| MISS[Skip<br/><code>reconcile.missing</code>]:::warehouse
+    FOUND -->|yes| KNOWN{Warehouse knows<br/>the Stripe status?}:::warehouse
+    KNOWN -->|no, for example paused| SKIP[Skip<br/><code>reconcile.skipped</code>, tag <code>remote_status</code>]:::warehouse
+    KNOWN -->|yes| SYNC[<code>sync_subscription_status</code>]:::warehouse
+    SYNC -->|status changed| OK[<code>reconciled</code>, tag <code>status</code><br/>and an organization event]:::data
+    SYNC -->|no change| DONE[Do nothing]:::warehouse
+    classDef warehouse fill:#0284c740,stroke:#0284c7
+    classDef data fill:#d9770640,stroke:#d97706
+    classDef stripe fill:#16a34a40,stroke:#16a34a
+    classDef fail fill:#dc262640,stroke:#dc2626
+```
+
+The task does not cancel a missing subscription. The Stripe list includes
+canceled subscriptions and the subscriptions of deleted customers, so a
+missing ID does not mean that the subscription is canceled. If
+`reconcile.missing` or `reconcile.skipped` keeps going up, examine those
+subscriptions by hand.
 
 ## Usage reports
 
 `update_organziation_subscription_usage_record` runs at 00:00 UTC, one hour
-after reconciliation. The hour is the only thing that puts them in order, so
-usage can go out against a status that is not current.
+after reconciliation. Only the clock puts the two tasks in order. If
+reconciliation is late or fails, the usage task uses the old status.
 
 The task skips canceled subscriptions. A temporary Stripe error makes the task
 raise `RetryableException`. Other Stripe errors go to the log and to the
@@ -65,5 +84,6 @@ continues with the next subscription.
 ## Local development
 
 `dev/environment` sets `BILLING_BACKEND` to `MockStripeBillingService`,
-which talks to the `stripe` mock container. The mock does not keep state and
-returns fixed data, so it does not show how reconciliation works against Stripe.
+which sends requests to the `stripe` mock container. The mock does not save
+changes and returns fixed data, so you cannot use it to see how
+reconciliation works with Stripe.
