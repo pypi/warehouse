@@ -51,15 +51,21 @@ class BuildkitePublisherMixin:
         claims_obj = claims or SignedClaims({})
         return {
             "build_number": claims_obj.get("build_number"),
-            "build_branch": claims_obj.get("build_branch"),
-            "build_tag": claims_obj.get("build_tag"),
-            "build_commit": claims_obj.get("build_commit"),
-            "step_key": claims_obj.get("step_key"),
             "job_id": claims_obj.get("job_id"),
         }
 
     def __str__(self) -> str:
-        return f"{self.organization_slug}/{self.pipeline_slug}"
+        specifier = f"{self.organization_slug}/{self.pipeline_slug}"
+        restrictions = ", ".join(
+            f"{name}={value}"
+            for name, value in (
+                ("branch", self.build_branch),
+                ("tag", self.build_tag),
+                ("step", self.step_key),
+            )
+            if value is not None
+        )
+        return f"{specifier} ({restrictions})" if restrictions else specifier
 
     def exists(self, session: Session) -> bool:
         return session.query(
@@ -130,8 +136,8 @@ class PendingBuildkitePublisher(BuildkitePublisherMixin, PendingOIDCPublisher):
         ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session: Session) -> BuildkitePublisher:
-        maybe_publisher = (
+    def _reification_target(self, session: Session) -> BuildkitePublisher | None:
+        return (
             session.query(BuildkitePublisher)
             .filter(
                 BuildkitePublisher.organization_slug == self.organization_slug,
@@ -140,10 +146,12 @@ class PendingBuildkitePublisher(BuildkitePublisherMixin, PendingOIDCPublisher):
                 BuildkitePublisher.build_tag == self.build_tag,
                 BuildkitePublisher.step_key == self.step_key,
             )
+            .with_for_update()
             .one_or_none()
         )
 
-        publisher = maybe_publisher or BuildkitePublisher(
+    def reify(self, session: Session) -> BuildkitePublisher:
+        publisher = self._reification_target(session) or BuildkitePublisher(
             organization_slug=self.organization_slug,
             pipeline_slug=self.pipeline_slug,
             buildkite_organization_id=self.buildkite_organization_id,
