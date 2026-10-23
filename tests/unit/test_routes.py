@@ -670,13 +670,6 @@ def test_routes(warehouse, mocker):
             view_kw={"has_translations": True},
         ),
         mocker.call(
-            "help",
-            "/help/",
-            "pages/help.html",
-            route_kw={"domain": warehouse},
-            view_kw={"has_translations": True},
-        ),
-        mocker.call(
             "security",
             "/security/",
             "pages/security.html",

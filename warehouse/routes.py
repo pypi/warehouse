@@ -37,13 +37,6 @@ def includeme(config):
         view_kw={"has_translations": True},
     )
     config.add_template_view(
-        "help",
-        "/help/",
-        "pages/help.html",
-        route_kw={"domain": warehouse},
-        view_kw={"has_translations": True},
-    )
-    config.add_template_view(
         "security",
         "/security/",
         "pages/security.html",
