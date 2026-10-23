@@ -121,7 +121,7 @@
           <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
           {% trans %}Your organization request will be withdrawn and permanently deleted. You can submit a new request afterwards.{% endtrans %}
         </p>
-        {{ confirm_button(gettext("Delete organization request") , gettext("Organization Name"), "organization_application_name", organization_application.name) }}
+        {{ confirm_button(gettext("Delete organization request") , gettext("Organization account name"), "organization_application_name", organization_application.name) }}
       </div>
     </section>
   {% endif %}
