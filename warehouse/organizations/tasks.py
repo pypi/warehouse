@@ -189,17 +189,25 @@ def reconcile_stripe_status(request):
 
     # Webhooks normally apply these first, so a run that takes many subscriptions
     # off a paid status points at a bug or a bad Stripe response. Each one would
-    # start a deactivation notice period, so write nothing and fail loudly.
-    downgrades = sum(
-        org_subscription.subscription.status in ACTIVE_SUBSCRIPTION_STATUSES
+    # start a deactivation notice period, so hold them all and apply the rest.
+    # Held subscriptions keep their paid status and are checked again next run.
+    downgrades = {
+        org_subscription.subscription.id
+        for org_subscription in organization_subscriptions
+        if org_subscription.subscription.status in ACTIVE_SUBSCRIPTION_STATUSES
         and remote_statuses.get(org_subscription.subscription.subscription_id)
         in UNPAID_SUBSCRIPTION_STATUSES
-        for org_subscription in organization_subscriptions
-    )
-    if downgrades > RECONCILE_MAX_DOWNGRADES:
-        raise RuntimeError(
-            f"{downgrades} subscriptions would lose their paid status, more than "
-            f"the limit of {RECONCILE_MAX_DOWNGRADES}"
+    }
+    held = downgrades if len(downgrades) > RECONCILE_MAX_DOWNGRADES else set()
+    if held:
+        logger.error(
+            "Holding subscription downgrades over the limit",
+            downgrades=len(held),
+            limit=RECONCILE_MAX_DOWNGRADES,
+        )
+        request.metrics.increment(
+            "warehouse.organizations.subscription.status.reconcile.held",
+            len(held),
         )
 
     for org_subscription in organization_subscriptions:
@@ -225,6 +233,9 @@ def reconcile_stripe_status(request):
                 "warehouse.organizations.subscription.status.reconcile.skipped",
                 tags=[f"remote_status:{remote_status}"],
             )
+            continue
+
+        if subscription.id in held:
             continue
 
         if not subscription_service.sync_subscription_status(

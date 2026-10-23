@@ -506,8 +506,8 @@ class TestReconcileStripeStatus:
         assert subscription.status == StripeSubscriptionStatus.Active.value
 
     @pytest.mark.parametrize("downgrades", [1, 2])
-    def test_limits_downgrades_from_paid(
-        self, db_request, billing_service, subscription_service, mocker, downgrades
+    def test_holds_downgrades_over_the_limit(
+        self, db_request, billing_service, metrics, mocker, downgrades
     ):
         mocker.patch.object(organization_tasks, "RECONCILE_MAX_DOWNGRADES", 1)
         # Only a paid status moving to a known unpaid one counts toward the limit.
@@ -530,16 +530,23 @@ class TestReconcileStripeStatus:
                 ),
             ),
         )
-        sync_status = mocker.spy(subscription_service, "sync_subscription_status")
+        held_metric = mock.call(
+            "warehouse.organizations.subscription.status.reconcile.held", downgrades
+        )
 
+        reconcile_stripe_status(db_request)
+
+        # Changes that don't take away a paid seat apply either way.
+        assert already_unpaid.status == StripeSubscriptionStatus.Canceled.value
+        assert trialing.status == StripeSubscriptionStatus.Trialing.value
         if downgrades > 1:
-            with pytest.raises(RuntimeError, match="2 subscriptions would lose"):
-                reconcile_stripe_status(db_request)
-            sync_status.assert_not_called()
+            assert {subscription.status for subscription in downgraded} == {
+                StripeSubscriptionStatus.Active.value
+            }
+            assert held_metric in metrics.increment.call_args_list
         else:
-            reconcile_stripe_status(db_request)
             assert downgraded[0].status == StripeSubscriptionStatus.PastDue.value
-            assert already_unpaid.status == StripeSubscriptionStatus.Canceled.value
+            assert held_metric not in metrics.increment.call_args_list
 
 
 TODAY = dt.date(2026, 10, 17)

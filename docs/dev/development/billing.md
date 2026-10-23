@@ -75,9 +75,10 @@ flowchart TD
     LIST -->|temporary error| RETRY[Raise <code>RetryableException</code><br/>Celery runs the task again]:::fail
     LIST --> NONE{Local subscriptions exist,<br/>but none is in the list?}:::warehouse
     NONE -->|yes| FAIL[Fail and change nothing<br/>Is the API key for the wrong account or mode?]:::fail
-    NONE -->|no| DOWN{More than 10 go from <code>active</code> or<br/><code>trialing</code> to a status that is not paid?}:::warehouse
-    DOWN -->|yes| FAILDOWN[Fail and change nothing<br/>Are webhooks or the task broken?]:::fail
+    NONE -->|no| DOWN{More than 10 go<br/>from paid to unpaid?}:::warehouse
+    DOWN -->|yes| HOLD[Skip those, do the rest<br/><code>reconcile.held</code>]:::fail
     DOWN -->|no| EACH[For each local subscription]:::data
+    HOLD --> EACH
     EACH --> FOUND{ID in the list?}:::warehouse
     FOUND -->|no| MISS[Skip<br/><code>reconcile.missing</code>]:::warehouse
     FOUND -->|yes| KNOWN{Warehouse knows<br/>the Stripe status?}:::warehouse
@@ -95,13 +96,11 @@ The task does not cancel a missing subscription. It logs a warning and skips
 it. If `reconcile.missing` or `reconcile.skipped` keeps going up, examine
 those subscriptions by hand.
 
-Webhooks usually change a status before reconciliation sees it, so one run
-changes almost nothing. Each subscription that loses a paid status starts a
-deactivation notice period. Thus, if more than `RECONCILE_MAX_DOWNGRADES` (10)
-subscriptions go from `active` or `trialing` to a status that is not paid, the
-task raises `RuntimeError` before it writes. The failure increments
-`warehouse.task.failed` with the tag `task:` and the task name. Compare the
-subscriptions with Stripe before you increase the limit.
+If more than 10 subscriptions would go from paid (`active` or `trialing`) to
+unpaid in one run, the task skips those and does the rest. Webhooks usually
+make these changes first, so this many points to a bug. The task logs an error,
+counts them in `reconcile.held`, and tries them again the next night. Check
+them in Stripe, then raise `RECONCILE_MAX_DOWNGRADES` or fix them by hand.
 
 ## Usage reports
 
