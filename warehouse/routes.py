@@ -7,6 +7,7 @@ def includeme(config):
     # Forklift is properly split out into it's own project.
     warehouse = config.get_settings().get("warehouse.domain")
     files_url = config.get_settings()["files.url"]
+    userdocs = config.get_settings()["userdocs.domain"]
 
     # Suffixes let ingress route probes to independently served process types.
     config.add_route("health", "/_health/*subpath")
@@ -50,6 +51,9 @@ def includeme(config):
         route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
+    # The help page moved to the user docs. Browsers carry the #anchor over,
+    # and the docs map old help anchors to their new pages.
+    config.add_redirect("/help/", f"{userdocs}/", domain=warehouse)
     # Redirect the old "sponsor PyPI" page to the sponsors page
     config.add_redirect("/sponsor/", "/sponsors/", domain=warehouse)
     config.add_template_view(
