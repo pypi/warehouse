@@ -22,7 +22,7 @@ ORGANIZATION_ID = "00000000-1111-2222-3333-444444444444"
 PIPELINE_ID = "11111111-2222-3333-4444-555555555555"
 
 
-def claims(**overrides):
+def _claims(**overrides):
     values = {
         "iss": buildkite.BUILDKITE_OIDC_ISSUER_URL,
         "sub": (
@@ -76,11 +76,11 @@ class TestBuildkitePublisher:
             == "https://buildkite.com/acme/widgets/builds/7"
         )
         assert (
-            publisher.publisher_url(claims())
+            publisher.publisher_url(_claims())
             == "https://buildkite.com/acme/widgets/builds/42"
             "#aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         )
-        assert str(publisher) == "acme/widgets"
+        assert str(publisher) == "acme/widgets (branch=main, tag=v1.0.0, step=publish)"
         assert publisher.admin_details == [
             ("Organization", "acme"),
             ("Pipeline", "widgets"),
@@ -104,6 +104,7 @@ class TestBuildkitePublisher:
         assert publisher.build_branch is None
         assert publisher.build_tag is None
         assert publisher.step_key is None
+        assert str(publisher) == "acme/widgets"
         assert publisher.admin_details == [
             ("Organization", "acme"),
             ("Pipeline", "widgets"),
@@ -112,14 +113,15 @@ class TestBuildkitePublisher:
     def test_stored_claims(self):
         publisher = BuildkitePublisherFactory.build()
 
-        assert publisher.stored_claims(claims()) == {
+        stored_claims = publisher.stored_claims(_claims())
+        assert stored_claims == {
             "build_number": 42,
-            "build_branch": "main",
-            "build_tag": None,
-            "build_commit": "abc123",
-            "step_key": "publish",
             "job_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
         }
+        assert publisher.publisher_url(stored_claims) == (
+            f"{publisher.publisher_base_url}/builds/42"
+            "#aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        )
 
     @pytest.mark.parametrize(
         ("overrides", "valid"),
