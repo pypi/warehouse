@@ -28,6 +28,7 @@ from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
     DEACTIVATION_STARTS_PER_DAY,
+    RECONCILE_MAX_DOWNGRADES,
     SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
@@ -45,7 +46,11 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
-from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+    StripeSubscriptionStatus,
+)
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -54,6 +59,11 @@ TRANSIENT_STRIPE_ERRORS = (
     stripe.error.APIConnectionError,
     stripe.error.APIError,
     stripe.error.RateLimitError,
+)
+UNPAID_SUBSCRIPTION_STATUSES = frozenset(
+    status.value
+    for status in StripeSubscriptionStatus
+    if status.value not in ACTIVE_SUBSCRIPTION_STATUSES
 )
 
 logger = structlog.get_logger(__name__)
@@ -175,6 +185,21 @@ def reconcile_stripe_status(request):
     ):
         raise RuntimeError(
             f"None of {len(organization_subscriptions)} subscriptions found on Stripe"
+        )
+
+    # Webhooks normally apply these first, so a run that takes many subscriptions
+    # off a paid status points at a bug or a bad Stripe response. Each one would
+    # start a deactivation notice period, so write nothing and fail loudly.
+    downgrades = sum(
+        org_subscription.subscription.status in ACTIVE_SUBSCRIPTION_STATUSES
+        and remote_statuses.get(org_subscription.subscription.subscription_id)
+        in UNPAID_SUBSCRIPTION_STATUSES
+        for org_subscription in organization_subscriptions
+    )
+    if downgrades > RECONCILE_MAX_DOWNGRADES:
+        raise RuntimeError(
+            f"{downgrades} subscriptions would lose their paid status, more than "
+            f"the limit of {RECONCILE_MAX_DOWNGRADES}"
         )
 
     for org_subscription in organization_subscriptions:

@@ -16,3 +16,5 @@ DEACTIVATION_STARTS_PER_DAY = 500
 """Most unpaid Company orgs whose notice period starts each night."""
 REACTIVATE_BY_PAYING_WITHIN = dt.timedelta(days=90)
 """How long after deactivation for no paid seat owners can reactivate by paying."""
+RECONCILE_MAX_DOWNGRADES = 10
+"""Most subscriptions one reconciliation run may move off a paid status."""
