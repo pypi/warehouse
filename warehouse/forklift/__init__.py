@@ -7,11 +7,6 @@
 from rfc3986 import builder
 
 
-def _help_url(request, **kwargs):
-    warehouse_domain = request.registry.settings.get("warehouse.domain")
-    return request.route_url("help", _host=warehouse_domain, **kwargs)
-
-
 def _user_docs_url(request, path, anchor: str | None = None):
     docs_domain = request.registry.settings.get("userdocs.domain")
     return (
@@ -52,7 +47,6 @@ def includeme(config):
         "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift
     )
 
-    config.add_request_method(_help_url, name="help_url")
     config.add_request_method(_user_docs_url, name="user_docs_url")
 
     if forklift:
