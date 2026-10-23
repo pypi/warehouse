@@ -58,6 +58,7 @@
         <td>
           {% set pypi_roles = [] %}
           {% if user.is_superuser %}{% set _ = pypi_roles.append("Admin") %}{% endif %}
+          {% if user.is_security %}{% set _ = pypi_roles.append("Security") %}{% endif %}
           {% if user.is_moderator %}{% set _ = pypi_roles.append("Moderator") %}{% endif %}
           {% if user.is_psf_staff %}{% set _ = pypi_roles.append("PSF Staff") %}{% endif %}
           {% if user.is_observer %}{% set _ = pypi_roles.append("Observer") %}{% endif %}

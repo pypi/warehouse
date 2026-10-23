@@ -213,6 +213,7 @@ def _user_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
         "is_frozen": user.is_frozen,
         "is_superuser": user.is_superuser,
         "is_support": user.is_support,
+        "is_security": user.is_security,
         "is_moderator": user.is_moderator,
         "is_psf_staff": user.is_psf_staff,
         "is_observer": user.is_observer,

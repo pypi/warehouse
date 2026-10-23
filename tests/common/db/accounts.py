@@ -70,6 +70,7 @@ class UserFactory(WarehouseFactory):
     )
     is_active = True
     is_superuser = False
+    is_security = False
     is_moderator = False
     is_psf_staff = False
     date_joined = factory.Faker(

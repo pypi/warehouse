@@ -134,6 +134,10 @@ class TestUser:
         user = DBUserFactory.create(is_superuser=True)
         assert user.can_reset_password is False
 
+    def test_security_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_security=True)
+        assert user.can_reset_password is False
+
     def test_moderator_prohibit_password_reset(self, db_session):
         user = DBUserFactory.create(is_moderator=True)
         assert user.can_reset_password is False
@@ -169,6 +173,7 @@ class TestUser:
                 "Allow",
                 "group:admins",
                 (
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
@@ -195,6 +200,11 @@ class TestUser:
                 "Allow",
                 "group:moderators",
                 (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
+            (
+                "Allow",
+                "group:security",
+                (Permissions.AdminProjectsQuarantine, Permissions.AdminUsersRead),
             ),
         ]
 
@@ -280,6 +290,31 @@ class TestUser:
             is_moderator=is_moderator,
             is_psf_staff=is_psf_staff,
         )
+
+        expected = [*expected[:], f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
+
+    @pytest.mark.parametrize(
+        ("is_security", "is_superuser", "expected"),
+        [
+            (False, False, []),
+            (True, False, ["group:security"]),
+            (
+                True,
+                True,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                    "group:security",
+                ],
+            ),
+        ],
+    )
+    def test_principals_security(self, is_security, is_superuser, expected):
+        user = User(id=uuid.uuid4(), is_security=is_security, is_superuser=is_superuser)
 
         expected = [*expected[:], f"user:{user.id}", Authenticated]
 

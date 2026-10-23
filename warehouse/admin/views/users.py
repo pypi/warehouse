@@ -143,6 +143,7 @@ class UserForm(wtforms.Form):
     is_frozen = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
     is_support = wtforms.fields.BooleanField()
+    is_security = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
     is_observer = wtforms.fields.BooleanField()
@@ -949,7 +950,7 @@ def user_email_domain_check(user, request):
 @view_config(
     route_name="admin.user.quarantine_projects",
     require_methods=["POST"],
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -984,7 +985,7 @@ def user_quarantine_projects(user, request):
 @view_config(
     route_name="admin.user.clear_quarantine_projects",
     require_methods=["POST"],
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsQuarantine,
     uses_session=True,
     require_csrf=True,
     context=User,
