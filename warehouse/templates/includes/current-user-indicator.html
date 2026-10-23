@@ -55,15 +55,15 @@
           </a>
         </li>
         <li>
-          <a href="{{ request.route_path('help') }}" class="dropdown__link">
-            <i class="fa fa-question-circle" aria-hidden="true"></i>
-            {% trans %}Help{% endtrans %}
+          <a href="{{ request.user_docs_url('/') }}" class="dropdown__link">
+            <i class="fa fa-book" aria-hidden="true"></i>
+            {% trans %}Docs{% endtrans %}
           </a>
         </li>
         <li>
-          <a href="{{ request.route_path('sponsors') }}" class="dropdown__link">
-            <i class="fa fa-heart" aria-hidden="true"></i>
-            {% trans %}Sponsors{% endtrans %}
+          <a href="https://blog.pypi.org" class="dropdown__link">
+            <i class="fa fa-newspaper" aria-hidden="true"></i>
+            {% trans %}Blog{% endtrans %}
           </a>
         </li>
         <li>

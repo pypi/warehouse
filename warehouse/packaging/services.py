@@ -637,7 +637,12 @@ class ProjectService:
                 (
                     "New project registration temporarily disabled. "
                     "See {projecthelp} for more information."
-                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
+                ).format(
+                    projecthelp=request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                ),
             ) from None
 
         # Verify that the project name is both valid and currently available.
@@ -653,7 +658,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableProhibitedError:
@@ -663,7 +671,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableSimilarError:
@@ -673,7 +684,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableStdlibError:
@@ -684,7 +698,10 @@ class ProjectService:
                     "{projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
 
