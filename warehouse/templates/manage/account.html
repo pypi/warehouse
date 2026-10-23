@@ -233,6 +233,8 @@
     {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
     <div class="gravatar-form">
       <img src="{{ gravatar(request, user.email, size=140) }}"
+           srcset="{{ gravatar(request, user.email, size=280) }} 2x,
+                   {{ gravatar(request, user.email, size=420) }} 3x"
            alt="{{ alt }}"
            title="{{ alt }}"
            class="gravatar-form__image">

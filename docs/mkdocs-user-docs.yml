@@ -1,6 +1,17 @@
 site_name: PyPI Docs
 docs_dir: user
+exclude_docs:
+  README.md
+not_in_nav: |
+  # Linked from upload error messages, intentionally not in the nav.
+  archives.md
+hooks:
+  - user/main.py
 site_dir: user-site
+validation:
+  # Links into pymdownx.tabbed tabs (e.g. `#github-actions`) are valid, but
+  # MkDocs only knows about heading anchors and reports them as missing.
+  anchors: ignore
 plugins:
   - search
   - material-plausible
