@@ -324,6 +324,9 @@ class ManageOrganizationApplicationViews:
         require_reauth=True,
     )
     def delete_organization_application(self):
+        # Lock the row and re-read its status so a concurrent admin approve or
+        # decline either completes before this check or fails against the delete.
+        self.request.db.refresh(self.organization_application, with_for_update=True)
         if self.organization_application.status in (
             OrganizationApplicationStatus.Approved,
             OrganizationApplicationStatus.Declined,
