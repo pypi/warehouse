@@ -28,6 +28,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
+from warehouse.packaging import models as packaging_models
 from warehouse.packaging.models import (
     GITHUB_REPO_HOSTS,
     GITHUB_RESERVED_NAMES,
@@ -2264,7 +2265,7 @@ class TestProjectLimitProperties:
 
     def test_upload_limit_size_with_organization_limit(self, db_session):
 
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2280,7 +2281,7 @@ class TestProjectLimitProperties:
     def test_upload_limit_size_with_both_limits(self, db_session):
 
         project_limit = 50 * ONE_MIB
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2332,6 +2333,28 @@ class TestProjectLimitProperties:
         expected = max(MAX_PROJECT_SIZE, project_limit, org_limit)
         assert project.total_size_limit_value == expected
 
+    def test_organization_default_limits(self, db_session, monkeypatch):
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_FILESIZE", 200 * ONE_MIB
+        )
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_PROJECT_SIZE", 20 * ONE_GIB
+        )
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        assert project.upload_limit_size == MAX_FILESIZE
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+        project.organization = DBOrganizationFactory.create(
+            upload_limit=None, total_size_limit=None
+        )
+        assert project.upload_limit_size == 200 * ONE_MIB
+        assert project.total_size_limit_value == 20 * ONE_GIB
+
+        project.organization.upload_limit = 300 * ONE_MIB
+        project.organization.total_size_limit = 30 * ONE_GIB
+        assert project.upload_limit_size == 300 * ONE_MIB
+        assert project.total_size_limit_value == 30 * ONE_GIB
+
     def test_upload_limit_size_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
 
@@ -2342,8 +2365,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(upload_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.upload_limit_size == MAX_FILESIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.upload_limit_size == 2 * MAX_FILESIZE
 
     def test_total_size_limit_value_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
@@ -2355,8 +2378,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(total_size_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.total_size_limit_value == 2 * MAX_PROJECT_SIZE
 
     def test_upload_limit_size_edge_case_all_none_fallback(self, db_session):
         """Edge case: test fallback when all custom limits are None"""
