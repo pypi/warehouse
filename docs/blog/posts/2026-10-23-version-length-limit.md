@@ -39,7 +39,7 @@ are recommended.
 
 PyPI counts the version in its normalized, standard form, which is the same
 form it shows on project pages. Python's packaging tools already
-[noramlzied] this way: `1.00` becomes `1.0`, and `1.0-RC1` becomes
+[normalize versions][normalized] this way: `1.00` becomes `1.0`, and `1.0-RC1` becomes
 `1.0rc1`. The meaning doesn't change, only how it's written.
 
 ## What happens if my upload is rejected?
