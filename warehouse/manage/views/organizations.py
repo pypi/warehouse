@@ -321,6 +321,7 @@ class ManageOrganizationApplicationViews:
     @view_config(
         request_method="POST",
         request_param=["confirm_organization_application_name"],
+        require_reauth=True,
     )
     def delete_organization_application(self):
         if self.organization_application.status in (
