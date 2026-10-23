@@ -23,6 +23,25 @@ EXPECTED_SEARCH_FIELDS = [
 ]
 
 
+def expected_classifier_filter(classifiers):
+    """Expected classifier filter, each must match exactly or as a parent prefix."""
+    return {
+        "bool": {
+            "must": [
+                {
+                    "bool": {
+                        "should": [
+                            {"term": {"classifiers": classifier}},
+                            {"prefix": {"classifiers": classifier + " :: "}},
+                        ]
+                    }
+                }
+                for classifier in classifiers
+            ]
+        }
+    }
+
+
 class TestQueries:
     def test_no_terms(self):
         opensearch = Search()
@@ -219,30 +238,6 @@ class TestQueries:
                                             "type": "best_fields",
                                         }
                                     },
-                                    {
-                                        "bool": {
-                                            "must": [
-                                                {
-                                                    "bool": {
-                                                        "should": [
-                                                            {
-                                                                "term": {
-                                                                    "classifiers": classifier  # noqa: E501
-                                                                }
-                                                            },
-                                                            {
-                                                                "prefix": {
-                                                                    "classifiers": classifier  # noqa: E501
-                                                                    + " :: "
-                                                                }
-                                                            },
-                                                        ]
-                                                    }
-                                                }
-                                                for classifier in classifiers
-                                            ]
-                                        }
-                                    },
                                 ],
                                 "should": [
                                     {
@@ -254,7 +249,9 @@ class TestQueries:
                             }
                         },
                         {"prefix": {"normalized_name": terms}},
-                    ]
+                    ],
+                    "filter": [expected_classifier_filter(classifiers)],
+                    "minimum_should_match": 1,
                 }
             },
             "suggest": {"name_suggestion": {"text": terms, "term": {"field": "name"}}},
@@ -268,21 +265,7 @@ class TestQueries:
         query = queries.get_opensearch_query(opensearch, terms, "", classifiers)
 
         assert query.to_dict() == {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "bool": {
-                                "should": [
-                                    {"term": {"classifiers": classifier}},
-                                    {"prefix": {"classifiers": classifier + " :: "}},
-                                ]
-                            }
-                        }
-                        for classifier in classifiers
-                    ]
-                }
-            }
+            "query": {"bool": {"filter": [expected_classifier_filter(classifiers)]}}
         }
 
     def test_with_classifier_with_no_terms_and_order(self):
@@ -293,19 +276,6 @@ class TestQueries:
         query = queries.get_opensearch_query(opensearch, terms, "-created", classifiers)
 
         assert query.to_dict() == {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "bool": {
-                                "should": [
-                                    {"term": {"classifiers": "foo :: bar"}},
-                                    {"prefix": {"classifiers": "foo :: bar :: "}},
-                                ]
-                            }
-                        }
-                    ]
-                }
-            },
+            "query": {"bool": {"filter": [expected_classifier_filter(classifiers)]}},
             "sort": [{"created": {"order": "desc", "unmapped_type": "long"}}],
         }
