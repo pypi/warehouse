@@ -59,7 +59,7 @@
                     {% if organization.upload_limit %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </span>
                 </a>
@@ -71,7 +71,7 @@
                     {% if organization.total_size_limit %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </span>
                 </a>
@@ -412,7 +412,7 @@
                     {% if organization.upload_limit %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </td>
                   <td>
@@ -421,7 +421,7 @@
                     {% else %}
                     {% set upload_limit_value = '' %}
                     {% endif %}
-                    <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+                    <input type="number" name="upload_limit" id="uploadLimit" min="{{ ORGANIZATION_MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
                   </td>
                   <td>
                     <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
@@ -436,7 +436,7 @@
                     {% if organization.total_size_limit %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </td>
                   <td>
@@ -445,7 +445,7 @@
                     {% else %}
                     {% set total_size_limit_value = '' %}
                     {% endif %}
-                    <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
+                    <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ ORGANIZATION_MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
                   </td>
                   <td>
                     <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
