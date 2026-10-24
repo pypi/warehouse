@@ -21,7 +21,8 @@ Projects owned by a [PyPI organization] now get higher limits by default:
 <!-- more -->
 
 There's nothing to turn on.
-Every project owned by an organization gets the new limits automatically,
+Every project owned by either a company or community organization gets the new limits automatically,
+
 including projects you move into an organization later.
 
 ## Creating new projects
