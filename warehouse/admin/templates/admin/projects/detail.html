@@ -702,32 +702,8 @@
   </div>
 
   <div class="card-body">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Event</th>
-          <th scope="col">Time</th>
-          <th scope="col">IP address</th>
-          <th scope="col">Hashed IP address</th>
-          <th scope="col">Location Info</th>
-          <th scope="col">User-Agent</th>
-          <th scope="col">Additional information</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for event in project.events %}
-        <tr>
-          <td>{{ event.tag }}</td>
-          <td>{{ event.time }}</td>
-          <td>{{ event.ip_address }}</td>
-          <td>{{ event.ip_address.hashed_ip_address }}</td>
-          <td>{{ event.location_info }}</td>
-          <td>{{ event.user_agent_info }}</td>
-          <td>{{ event.additional }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+       <div id="project-activity-table"
+         data-url="{{ request.route_path('admin.project.activity', project_name=project.normalized_name) }}"></div>
   </div>
 </div> <!-- .card #projectActivity -->
 
