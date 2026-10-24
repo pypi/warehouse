@@ -38,11 +38,11 @@ class EventTagEnum(enum.StrEnum):
 
     # Name = "source_type:subject_type:action"
     def __new__(cls, value: str):
-        values = value.split(":")
+        values: list[str] = value.split(":")
         obj = str.__new__(cls, value)
         obj._value_ = value
         obj.source_type = values[0]
-        obj.subject_type = ":".join(values[1:-1]) or value[0]
+        obj.subject_type = ":".join(values[1:-1]) or values[0]
         obj.action = values[-1]
         return obj
 
