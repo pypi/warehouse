@@ -69,6 +69,14 @@ class GenericBillingService:
         """
         return self.api.Subscription.list(status="all", limit=100).auto_paging_iter()
 
+    def list_customer_subscriptions(self, customer_id):
+        """
+        Iterate over the Customer's Subscription resources, except canceled ones
+        """
+        return self.api.Subscription.list(
+            customer=customer_id, limit=100
+        ).auto_paging_iter()
+
     def create_customer(self, name, description):
         """
         Create the Customer resource via Billing API with the given name and description

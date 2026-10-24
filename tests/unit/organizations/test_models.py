@@ -736,6 +736,28 @@ class TestOrganizationBillingMethods:
     def test_is_in_good_standing_company_without_billing(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         assert not organization.is_in_good_standing()
+        assert organization.lacks_paid_seat
+
+    @pytest.mark.parametrize(
+        ("status", "lacks_paid_seat"),
+        [
+            (StripeSubscriptionStatus.Active.value, False),
+            (StripeSubscriptionStatus.Trialing.value, False),
+            (StripeSubscriptionStatus.PastDue.value, True),
+            (StripeSubscriptionStatus.Unpaid.value, True),
+            (StripeSubscriptionStatus.Incomplete.value, True),
+        ],
+    )
+    def test_lacks_paid_seat_subscription_status(
+        self, db_session, status, lacks_paid_seat
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        subscription = DBStripeSubscriptionFactory.create(status=status)
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        assert organization.lacks_paid_seat is lacks_paid_seat
 
     def test_is_awaiting_initial_billing_new_company_org(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")

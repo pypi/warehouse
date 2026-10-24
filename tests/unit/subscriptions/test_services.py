@@ -144,6 +144,17 @@ class TestMockStripeBillingService:
         list_subscriptions.assert_called_once_with(status="all", limit=100)
         list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
 
+    def test_list_customer_subscriptions(self, billing_service, mocker):
+        # Scoped to one customer: an unscoped list would find someone's paid seat.
+        list_subscriptions = mocker.patch.object(
+            billing_service.api.Subscription, "list"
+        )
+
+        billing_service.list_customer_subscriptions("cus_123")
+
+        list_subscriptions.assert_called_once_with(customer="cus_123", limit=100)
+        list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
+
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
 

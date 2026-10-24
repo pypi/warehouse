@@ -2287,30 +2287,48 @@ class TestOrganizationRenameEmails:
 
 
 class TestOrganizationSubscriptionRequiredEmail:
-    def test_send_organization_subscription_required_email(
+    @pytest.mark.parametrize(
+        ("send", "template", "organization"),
+        [
+            (
+                email.send_organization_subscription_required_email,
+                "organization-subscription-required",
+                {
+                    "name": "example",
+                    "deactivate_on": dt.date(2026, 11, 16),
+                    "days_remaining": 30,
+                },
+            ),
+            (
+                email.send_organization_deactivated_email,
+                "organization-deactivated",
+                {"name": "example", "reactivate_by": dt.date(2027, 1, 16)},
+            ),
+        ],
+    )
+    def test_send(
         self,
         db_request,
         pyramid_user,
         make_email_renderers,
         send_email,
+        send,
+        template,
+        organization,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user, verified=True)
-        organization_name = "example"
 
-        subject_renderer, body_renderer, html_renderer = make_email_renderers(
-            "organization-subscription-required"
-        )
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(template)
+        organizations = [organization]
 
-        result = email.send_organization_subscription_required_email(
-            db_request,
-            user,
-            organization_name=organization_name,
+        result = send(
+            db_request, (user, user.primary_email), organizations=organizations
         )
 
         assert result == {
             "username": user.username,
-            "organization_name": organization_name,
+            "organizations": organizations,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
