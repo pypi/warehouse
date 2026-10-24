@@ -318,6 +318,58 @@ class ManageOrganizationApplicationViews:
             }
         return HTTPSeeOther(self.request.path)
 
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_organization_application_name"],
+        require_reauth=True,
+    )
+    def delete_organization_application(self):
+        # Lock the row and re-read its status so a concurrent admin approve or
+        # decline either completes before this check or fails against the delete.
+        self.request.db.refresh(self.organization_application, with_for_update=True)
+        if self.organization_application.status in (
+            OrganizationApplicationStatus.Approved,
+            OrganizationApplicationStatus.Declined,
+        ):
+            self.request.session.flash(
+                "Cannot delete an organization request that has been decided",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
+        confirm = self.request.POST.get(
+            "confirm_organization_application_name", ""
+        ).strip()
+        if confirm != self.organization_application.name:
+            self.request.session.flash(
+                f"Could not delete organization request - {confirm!r} is not "
+                f"the same as {self.organization_application.name!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.path)
+
+        self.request.db.delete(self.organization_application)
+        tags = [
+            f"status:{self.organization_application.status}",
+            f"orgtype:{self.organization_application.orgtype}",
+        ]
+        self.request.metrics.increment(
+            "warehouse.organizations.application.withdrawn", tags=tags
+        )
+        self.request.metrics.distribution(
+            "warehouse.organizations.application.withdrawn.age_seconds",
+            (
+                dt.datetime.now(dt.UTC).replace(tzinfo=None)
+                - self.organization_application.submitted
+            ).total_seconds(),
+            tags=tags,
+        )
+        self.request.session.flash(
+            f"Organization request for {self.organization_application.name!r} deleted",
+            queue="success",
+        )
+        return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
 
 @view_defaults(
     route_name="manage.organization.settings",

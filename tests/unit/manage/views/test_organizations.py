@@ -10,6 +10,7 @@ import pytest
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from sqlalchemy import update
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
@@ -42,6 +43,7 @@ from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
@@ -349,6 +351,76 @@ class TestManageOrganizationApplication:
             HTTPBadRequest, match=re.escape("Invalid information request.")
         ):
             view.manage_organization_application_submit()
+
+    @pytest.mark.parametrize(
+        ("status", "confirm", "deleted"),
+        [
+            (OrganizationApplicationStatus.Submitted, " example ", True),
+            (OrganizationApplicationStatus.Submitted, "wrong", False),
+            (OrganizationApplicationStatus.Declined, "example", False),
+        ],
+    )
+    def test_delete_organization_application(
+        self, db_request, metrics, status, confirm, deleted
+    ):
+        app = OrganizationApplicationFactory.create(
+            name="example",
+            status=status,
+            orgtype=OrganizationType.Company,
+            submitted=dt.datetime(2026, 1, 1),
+        )
+        db_request.POST = MultiDict({"confirm_organization_application_name": confirm})
+        db_request.route_path = lambda *a, **kw: "/manage/organizations/"
+
+        view = org_views.ManageOrganizationApplicationViews(app, db_request)
+        with freeze_time("2026-01-02"):
+            assert isinstance(view.delete_organization_application(), HTTPSeeOther)
+        db_request.db.flush()
+
+        assert (db_request.db.get(OrganizationApplication, app.id) is None) == deleted
+        tags = ["status:submitted", "orgtype:Company"]
+        assert metrics.increment.calls == (
+            [pretend.call("warehouse.organizations.application.withdrawn", tags=tags)]
+            if deleted
+            else []
+        )
+        assert metrics.distribution.calls == (
+            [
+                pretend.call(
+                    "warehouse.organizations.application.withdrawn.age_seconds",
+                    86400.0,
+                    tags=tags,
+                )
+            ]
+            if deleted
+            else []
+        )
+
+    def test_delete_organization_application_decided_concurrently(
+        self, db_request, metrics
+    ):
+        app = OrganizationApplicationFactory.create(
+            name="example", status=OrganizationApplicationStatus.Submitted
+        )
+        # An admin decides the request after this request loaded it.
+        db_request.db.execute(
+            update(OrganizationApplication)
+            .where(OrganizationApplication.id == app.id)
+            .values(status=OrganizationApplicationStatus.Approved)
+            .execution_options(synchronize_session=False)
+        )
+        assert app.status == OrganizationApplicationStatus.Submitted
+        db_request.POST = MultiDict(
+            {"confirm_organization_application_name": "example"}
+        )
+        db_request.route_path = lambda *a, **kw: "/manage/organizations/"
+
+        view = org_views.ManageOrganizationApplicationViews(app, db_request)
+        assert isinstance(view.delete_organization_application(), HTTPSeeOther)
+        db_request.db.flush()
+
+        assert db_request.db.get(OrganizationApplication, app.id) is not None
+        assert metrics.increment.calls == []
 
 
 class TestManageOrganizations:
