@@ -61,6 +61,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization.reactivate",
+            "/admin/organizations/{organization_id}/reactivate/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization.set_upload_limit",
             "/admin/organizations/{organization_id}/set_upload_limit/",
             domain=warehouse,

@@ -49,6 +49,23 @@
           {% with mode="mobile" %}
             {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
           {% endwith %}
+          {% set can_pay = organization.is_active or organization.reactivates_on_payment %}
+          {% if not organization.is_active %}
+            <div class="callout-block callout-block--danger">
+              <p>
+                {% if can_pay %}
+                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org", reactivate_by=organization.reactivation_deadline|format_date(format="long") %}This organization is deactivated because it does not have a paid seat. It cannot upload new releases to its projects or invite members. To reactivate it, purchase a seat by {{ reactivate_by }}. After that, or for help, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+                {% else %}
+                  {% trans href="mailto:support+orgs@pypi.org", email="support+orgs@pypi.org" %}This organization is deactivated. It cannot upload new releases to its projects or invite members. To reactivate it, email <a href="{{ href }}">{{ email }}</a>.{% endtrans %}
+                {% endif %}
+              </p>
+              {% if can_pay and request.has_permission(Permissions.OrganizationsBillingManage) and request.matched_route.name != "manage.organization.activate_subscription" %}
+                <p>
+                  <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Activate billing{% endtrans %}</a>
+                </p>
+              {% endif %}
+            </div>
+          {% endif %}
           {% block main %}
           {% endblock %}
         </div>

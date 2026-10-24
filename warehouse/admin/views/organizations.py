@@ -7,6 +7,7 @@ import wtforms
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.request import Request
 from pyramid.view import view_config
 from sqlalchemy import desc, func, or_
 from sqlalchemy.exc import NoResultFound
@@ -1423,6 +1424,47 @@ def delete_manual_activation(request):
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
     )
+
+
+@view_config(
+    route_name="admin.organization.reactivate",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reactivate_organization(request: Request) -> HTTPSeeOther:
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    detail_url = request.route_path(
+        "admin.organization.detail", organization_id=organization.id
+    )
+
+    if organization.is_active:
+        request.session.flash(
+            f"Organization '{organization.name}' is already active", queue="error"
+        )
+        return HTTPSeeOther(detail_url)
+
+    organization.reactivate()
+    # Drop any stale deadline; if still unpaid, it gets a fresh 30 days.
+    organization.deactivation_schedule = None
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationReactivate,
+        additional={"reactivated_by_user_id": str(request.user.id)},
+    )
+
+    request.session.flash(
+        f"Organization '{organization.name}' reactivated", queue="success"
+    )
+    return HTTPSeeOther(detail_url)
 
 
 @view_config(
