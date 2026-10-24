@@ -171,6 +171,8 @@ class EventTag:
         OrganizationCreate = "organization:create"
         OrganizationDecline = "organization:decline"
         OrganizationDelete = "organization:delete"
+        OrganizationDeactivate = "organization:deactivate"
+        OrganizationReactivate = "organization:reactivate"
         OrganizationRename = "organization:rename"
         OrganizationSetOrgType = "admin:organization:set_orgtype"
         OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
