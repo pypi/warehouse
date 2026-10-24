@@ -144,6 +144,17 @@ class TestMockStripeBillingService:
         list_subscriptions.assert_called_once_with(status="all", limit=100)
         list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
 
+    def test_list_customer_subscriptions(self, billing_service, mocker):
+        # Scoped to one customer: an unscoped list would find someone's paid seat.
+        list_subscriptions = mocker.patch.object(
+            billing_service.api.Subscription, "list"
+        )
+
+        billing_service.list_customer_subscriptions("cus_123")
+
+        list_subscriptions.assert_called_once_with(customer="cus_123", limit=100)
+        list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
+
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
 
@@ -555,6 +566,32 @@ class TestStripeSubscriptionService:
 
         assert changed is False
         record_event.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("status", "reactivates"),
+        [
+            (StripeSubscriptionStatus.Active, True),
+            (StripeSubscriptionStatus.PastDue, False),
+        ],
+    )
+    def test_sync_subscription_status_reactivates_paid_org(
+        self, subscription_service, db_request, mocker, status, reactivates
+    ):
+        org_subscription = OrganizationStripeSubscriptionFactory.create(
+            subscription__status=StripeSubscriptionStatus.Incomplete
+        )
+        reactivate = mocker.patch.object(
+            org_subscription.organization, "reactivate_after_payment", autospec=True
+        )
+
+        subscription_service.sync_subscription_status(
+            org_subscription.subscription.id, status, request=db_request
+        )
+
+        if reactivates:
+            reactivate.assert_called_once_with(request=db_request)
+        else:
+            reactivate.assert_not_called()
 
     def test_delete_subscription(self, subscription_service, db_request):
         organization = OrganizationFactory.create()

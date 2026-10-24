@@ -34,7 +34,7 @@
   {% set provenance_states = release.provenance_status.states %}
   <h3 class="no-top-margin">{% trans %}Provenance{% endtrans %}</h3>
   <p>
-    {% trans href=request.user_docs_url('/attestations/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
+    {% trans href=request.user_docs_url('/using-pypi/package-security/provenance/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
   </p>
   <div class="provenance-status">
     {# These states are not mutually exclusive; show only the most important one. #}
@@ -284,5 +284,8 @@
   <h3>{% trans %}A note on package security{% endtrans %}</h3>
   <p>
     {% trans %}PyPI is a repository for distributing packages, not a service for auditing them. While third-party security researchers and our staff do their best to detect and remove malicious packages, PyPI cannot guarantee the quality, security or suitability of any given package.{% endtrans %}
+  </p>
+  <p>
+    {% trans href=request.user_docs_url('/using-pypi/package-security/introduction/') %}To learn more about protecting yourself from malicious actors, visit our <a href="{{ href }}">package security documentation</a>.{% endtrans %}
   </p>
 </div>

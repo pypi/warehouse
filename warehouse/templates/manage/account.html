@@ -615,7 +615,7 @@
 <section id="api-tokens">
   <h2>{% trans %}API tokens{% endtrans %}</h2>
   <p>
-    {% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %} <a href="{{ request.help_url(_anchor='apitoken') }}">{% trans %}Learn more about API tokens{% endtrans %}</a>.
+    {% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %} <a href="{{ request.user_docs_url('/publishing/publishing-to-pypi/', anchor='using-an-api-token') }}">{% trans %}Learn more about API tokens{% endtrans %}</a>.
   </p>
   {% if user.macaroons|length > 0 %}
     <table class="table table--api-tokens">
@@ -929,8 +929,8 @@
 {% endif %}
 {%- endmacro %}
 <p>
-  {% trans faq_url=request.help_url(_anchor='suspicious-activity') %}
-  Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+  {% trans docs_url=request.user_docs_url('/your-account/security-alerts/') %}
+  Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ docs_url }}">secure your account</a> as soon as possible.
 {% endtrans %}
 </p>
 <table class="table table--security-logs">

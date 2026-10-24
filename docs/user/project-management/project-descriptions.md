@@ -36,6 +36,8 @@ PyPI supports several markup languages for rendering the long description. The m
 
 The long description is set via the `readme` field in `pyproject.toml`. See [Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#readme) for more information. PyPI infers the markup language from your readme file's extension — for example, `readme = "README.md"` renders as Markdown, while `readme = "README.rst"` renders as reStructuredText.
 
+For how to check a description for validity, see [Why am I getting "the description failed to render" error?](../publishing/troubleshooting.md#why-am-i-getting-the-description-failed-to-render-error)
+
 ### Considerations for long descriptions
 
 * **Keep it updated:** Ensure your README accurately reflects the current state of your project  

@@ -13,6 +13,7 @@ from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
 from tests.common.db.organizations import (
+    OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
@@ -31,6 +32,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OIDCIssuerType,
+    OrganizationDeactivationReason,
     OrganizationManualActivation,
     OrganizationOIDCIssuer,
     OrganizationRole,
@@ -1668,6 +1670,56 @@ class TestDeleteManualActivation:
 
         with pytest.raises(HTTPNotFound):
             views.delete_manual_activation(db_request)
+
+
+class TestReactivateOrganization:
+    @pytest.fixture
+    def flash(self, db_request, mocker):
+        db_request.route_path = mocker.Mock(return_value="/admin/organizations/")
+        return mocker.spy(db_request.session, "flash")
+
+    def test_reactivates_and_clears_stale_schedule(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org")
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        OrganizationDeactivationScheduleFactory.create(organization=organization)
+        db_request.user = UserFactory.create()
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
+        assert organization.deactivation_schedule is None
+        event = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationReactivate
+        ).one()
+        assert event.additional["reactivated_by_user_id"] == str(db_request.user.id)
+        flash.assert_called_once_with(
+            "Organization 'test-org' reactivated", queue="success"
+        )
+
+    def test_already_active(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=True)
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        flash.assert_called_once_with(
+            "Organization 'test-org' is already active", queue="error"
+        )
+
+    def test_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.reactivate_organization(db_request)
 
 
 class TestSetUploadLimit:

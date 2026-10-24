@@ -809,6 +809,7 @@ class DatabaseOrganizationService:
             organization_id=organization_id,
         )
         self.db.add(team)
+        self.db.flush()  # ast-grep-ignore: db-flush -- load team organization
 
         return team
 

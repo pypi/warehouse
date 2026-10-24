@@ -71,6 +71,7 @@ class UserFactory(WarehouseFactory):
     is_active = True
     is_superuser = False
     is_moderator = False
+    is_org_application_reviewer = False
     is_psf_staff = False
     date_joined = factory.Faker(
         "date_time_between_dates",
