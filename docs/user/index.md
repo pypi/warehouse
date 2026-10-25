@@ -1,4 +1,4 @@
-# Welcome to PyPI User Documentation
+# Welcome to PyPI's user documentation
 
 The Python Package Index (PyPI), pronounced "pie-pea-eye"[^1], is the official package repository for Python. PyPI hosts packages created and shared by the global Python community.
 
