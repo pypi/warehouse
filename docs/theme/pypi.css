@@ -5,10 +5,49 @@
   --md-primary-fg-color:        #0073b7;
   --md-primary-fg-color--light: #009ffd;
   --md-primary-fg-color--dark:  #009ffd;
+
+  /* From warehouse/static/sass/blocks/_footer.scss */
+  --md-footer-bg-color:         #0070b2;
+  --md-footer-bg-color--dark:   #004d7a;
+  /* Material's default (45% white) fails WCAG AA on the darker blue */
+  --md-footer-fg-color--lighter: #ffffffcc;
+}
+
+/* Material's 70% opacity fails WCAG AA on the footer blue */
+.md-footer__direction {
+  opacity: 1;
 }
 
 [data-md-color-scheme="slate"][data-md-color-primary="indigo"] {
   --md-typeset-a-color: #009ffd;
+}
+
+.md-typeset a:hover,
+.md-typeset a:focus {
+  color: #006dad;
+  text-decoration: underline;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover,
+[data-md-color-scheme="slate"] .md-typeset a:focus {
+  color: #009ffd;
+}
+
+.md-typeset .headerlink,
+.md-typeset .headerlink:hover,
+.md-typeset .headerlink:focus,
+.md-typeset :hover > .headerlink,
+.md-typeset :target > .headerlink {
+  color: #006dad;
+  text-decoration: none;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .headerlink,
+[data-md-color-scheme="slate"] .md-typeset .headerlink:hover,
+[data-md-color-scheme="slate"] .md-typeset .headerlink:focus,
+[data-md-color-scheme="slate"] .md-typeset :hover > .headerlink,
+[data-md-color-scheme="slate"] .md-typeset :target > .headerlink {
+  color: #009ffd;
 }
 
 readthedocs-flyout { display: none; }
