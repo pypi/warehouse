@@ -27,6 +27,7 @@ markdown_extensions:
   - footnotes
   - md_in_html
   - toc:
+      permalink: true
       toc_depth: 3
   - pymdownx.caret
   - pymdownx.details

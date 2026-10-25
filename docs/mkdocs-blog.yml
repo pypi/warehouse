@@ -48,6 +48,8 @@ markdown_extensions:
   - abbr
   - attr_list
   - md_in_html
+  - toc:
+      permalink: true
 extra_css:
   - pypi.css
 plugins:
