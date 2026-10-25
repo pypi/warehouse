@@ -369,9 +369,22 @@
             <i class="fa fa-clipboard-question text-orange"></i> Conflicting applications
           </h3>
         </div>
-        <div class="card-body table-responsive p-0">
-          <table class="table">
-            <thead><tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requester</th></tr></thead>
+        <div class="card-body">
+          <table class="table table-hover"
+                 data-tabulator
+                 tabulator-layout="fitDataFill"
+                 tabulator-responsiveLayout="collapse"
+                 tabulator-pagination="true"
+                 tabulator-paginationSize="10"
+                 tabulator-placeholder="No matching applications">
+            <thead>
+              <tr>
+                <th>Application</th>
+                <th>Status</th>
+                <th tabulator-headerFilter="false" tabulator-responsive="2">Submitted</th>
+                <th tabulator-responsive="2">Requester</th>
+              </tr>
+            </thead>
             <tbody>
             {% for application in conflicting_applications %}
               <tr>

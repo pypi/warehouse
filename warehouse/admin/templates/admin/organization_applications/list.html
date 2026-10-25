@@ -43,15 +43,22 @@
 </div>
 
 <div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover" id="organization-applications">
+  <div class="card-body">
+    <table class="table table-hover"
+           data-tabulator
+           data-tabulator-column-menu
+           tabulator-layout="fitDataFill"
+           tabulator-responsiveLayout="collapse"
+           tabulator-pagination="true"
+           tabulator-paginationSize="25"
+           tabulator-placeholder="No matching applications">
       <thead>
       <tr>
         <th>Account Name</th>
         <th>Organization</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Submitted</th>
+        <th tabulator-responsive="3">Description</th>
+        <th tabulator-responsive="2">Type</th>
+        <th tabulator-responsive="2">Submitted</th>
         <th>Status</th>
       </tr>
       </thead>
@@ -70,7 +77,7 @@
         </td>
         <td>{{ organization_application.description }}</td>
         <td>{{ organization_application.orgtype.value }}</td>
-        <td>{{ organization_application.submitted }}</td>
+        <td>{{ organization_application.submitted.strftime("%Y-%m-%d %H:%M") }}</td>
         {% if organization_application.status == 'approved' %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
         {% elif organization_application.status == 'declined' %}
