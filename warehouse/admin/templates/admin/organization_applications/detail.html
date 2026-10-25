@@ -210,7 +210,9 @@
               >
                 <i class="icon fa fa-stopwatch"></i> Defer <span class="org-review-key">d</span>
               </button>
+            </div>
 
+            <div class="form-group org-review-tools">
               <button
                 type="button"
                 class="btn btn-outline-secondary btn-block"
@@ -221,21 +223,10 @@
               >
                 <i class="icon fa fa-note-sticky"></i> Add Note <span class="org-review-key">n</span>
               </button>
-            </div>
-
-            <div class="form-group mb-0">
-              <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="organizationApplicationTurboMode">
-                <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
-              </div>
-              <small class="text-muted">Open the next submitted application after approve, decline, or defer.</small>
-            </div>
-
-            {% if can_write %}
-            <div class="form-group mt-3 mb-0">
+              {% if can_write %}
               <button
                 type="button"
-                class="btn btn-warning btn-sm btn-block"
+                class="btn btn-outline-secondary btn-block"
                 id="editModalButton"
                 data-toggle="modal"
                 data-hotkey-binding=69
@@ -244,8 +235,16 @@
               >
                 <i class="fa-solid fa-pen-to-square"></i> Edit <span class="org-review-key">e</span>
               </button>
+              {% endif %}
             </div>
-            {% endif %}
+
+            <div class="form-group mb-0 org-review-tools">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="organizationApplicationTurboMode">
+                <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
+              </div>
+              <small class="text-muted">Open the next submitted application after approve, decline, or defer.</small>
+            </div>
           </div>
         </div>
       </div>
@@ -420,7 +419,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="editModalLabel">
-              Edit {{ organization_application.name }}?
+              Edit application: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -452,7 +451,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="approveModalLabel">
-              Approve {{ organization_application.name }}?
+              Approve application: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -491,7 +490,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="deferModalLabel">
-              Defer {{ organization_application.name }}?
+              Defer application: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -574,7 +573,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="requestMoreInfoModalLabel">
-              Request More Info for {{ organization_application.name }}?
+              Request more information: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -621,7 +620,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="declineModalLabel">
-              Decline {{ organization_application.name }}?
+              Decline application: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -659,7 +658,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="addNoteModalLabel">
-              Add Internal Note to {{ organization_application.name }}?
+              Add internal note: {{ organization_application.name }}
             </h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>

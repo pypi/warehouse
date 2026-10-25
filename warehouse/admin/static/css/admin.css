@@ -138,6 +138,17 @@ table.dataTable {
   }
 }
 
+/* Groups below the decisions: the note/edit tools, then the Turbo Mode setting. */
+.org-review-tools {
+  padding-top: 1rem;
+  border-top: 1px solid rgb(0 0 0 / 8%);
+
+  /* The form wrapper breaks Bootstrap's `.btn-block + .btn-block` spacing. */
+  & form {
+    margin-top: 0.5rem;
+  }
+}
+
 /* Outline each cell, so borders survive wrapping. */
 .org-review-checks {
   display: flex;
