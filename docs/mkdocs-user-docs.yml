@@ -1,4 +1,4 @@
-site_name: PyPI Docs
+site_name: PyPI User Documentation
 docs_dir: user
 exclude_docs:
   README.md
