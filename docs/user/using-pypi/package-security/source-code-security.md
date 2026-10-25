@@ -15,7 +15,7 @@ When a full code audit is not practical, the signals listed below can help you b
 This tells you that the package owner had control over the project's official URLs (e.g. its GitHub repository) at the time of upload to PyPI. You can read more about how this works (including limitations) in the [project metadata docs](../../project_metadata.md).
 
 <figure markdown="1">
-  ![Verified project link](../../assets/verified-project-links.png){ loading=lazy }
+  ![Verified project link](../../assets/verified-project-links.png){ loading=lazy width="400" }
   <figcaption markdown="span">A verified project link in the project sidebar</figcaption>
 </figure>
 
