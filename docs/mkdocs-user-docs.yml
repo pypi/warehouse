@@ -76,8 +76,9 @@ theme:
 extra_css:
   - pypi.css
 extra_javascript:
-  - assets/js/help-redirects.js
+  - assets/js/redirect.js
 extra:
+  pypi_site: user-docs
   analytics:
     provider: plausible
     domain: docs.pypi.org
@@ -98,7 +99,7 @@ repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
 nav:
-  - "index.md"
+  - "Home": "index.md"
   - "Using PyPI":
       - "using-pypi/pypi-basics.md"
       - "using-pypi/finding-and-installing.md"
@@ -167,7 +168,6 @@ nav:
   - "About PyPI":
       - "about/who-maintains-pypi.md"
       - "about/contributing.md"
-      - "about/pypi-roadmap.md"
       - "about/service-availability.md"
       - "about/pypi-statistics.md"
       - "about/security-and-internals.md"
