@@ -9,18 +9,25 @@ theme:
   logo: assets/logo.png
   favicon: assets/favicon.ico
   homepage: https://pypi.org
-  custom_dir: blog/overrides
+  custom_dir: theme
   palette:
-    - scheme: pypi
-      media: "(prefers-color-scheme: light)"
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
       toggle:
-        icon: material/weather-night
-        name: Switch to Dark mode
-    - scheme: slate
-      media: "(prefers-color-scheme: dark)"
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
-        icon: material/weather-sunny
-        name: Switch to Light mode
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
   features:
     - navigation.expand
     - navigation.top
@@ -41,10 +48,14 @@ markdown_extensions:
   - abbr
   - attr_list
   - md_in_html
+  - toc:
+      permalink: true
 extra_css:
-  - stylesheets/extra.css
+  - pypi.css
 plugins:
-  - social
+  - social:
+      cards_layout_options:
+        background_color: "#0073b7"
   # See https://squidfunk.github.io/mkdocs-material/plugins/blog/
   - blog:
       blog_dir: .
@@ -81,6 +92,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/pypi
+    - icon: fontawesome/brands/discourse
+      link: https://discuss.python.org/c/packaging/14
     - icon: fontawesome/brands/mastodon
       link: https://fosstodon.org/@pypi
     - icon: fontawesome/brands/bluesky
