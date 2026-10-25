@@ -15,9 +15,6 @@ validation:
 plugins:
   - search
   - material-plausible
-  - redirects:
-      redirect_maps:
-        "about/pypi-roadmap.md": "index.md"
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -79,7 +76,7 @@ theme:
 extra_css:
   - pypi.css
 extra_javascript:
-  - assets/js/help-redirects.js
+  - assets/js/redirect.js
 extra:
   pypi_site: user-docs
   analytics:

@@ -1,9 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-// pypi.org/help/ redirects to the root of these docs, and the browser keeps
-// the #anchor. Send links to the old help page's sections on to the page
-// that now covers them. Anchors not listed here stay on the homepage.
+// Client-side redirects for URLs that no longer exist.
 (function () {
+  // Pages that have been removed. These URLs serve the 404 page, which
+  // loads this script and sends visitors on to the replacement page.
+  const removedPages = {
+    "/about/pypi-roadmap/": "/",
+  };
+
+  const page = removedPages[window.location.pathname];
+  if (page) {
+    window.location.replace(page);
+    return;
+  }
+
+  // pypi.org/help/ redirects to the root of these docs, and the browser keeps
+  // the #anchor. Send links to the old help page's sections on to the page
+  // that now covers them. Anchors not listed here stay on the homepage.
   if (window.location.pathname !== "/") {
     return;
   }
