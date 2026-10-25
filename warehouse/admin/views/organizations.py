@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime as dt
+import inspect
 import shlex
 
 from typing import Any
@@ -31,6 +32,8 @@ from warehouse.constants import (
     PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.email import send_new_organization_moreinformationneeded_email
+from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.checks import application_domain, review_checks
@@ -937,6 +940,46 @@ def organization_application_request_more_information(request: Request) -> HTTPS
             organization_application_id=organization_application.id,
         )
     )
+
+
+@view_config(
+    route_name="admin.organization_application.requestmoreinfo.preview",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationApplicationsWrite,
+    renderer="json",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_request_more_information_preview(
+    request: Request,
+) -> dict[str, str]:
+    """
+    The email an information request would send, without sending it.
+
+    Renders through the real email function's context and templates, so the
+    preview cannot drift from what the applicant receives.
+    """
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    context = inspect.unwrap(send_new_organization_moreinformationneeded_email)(
+        request,
+        organization_application.submitted_by,
+        organization_name=organization_application.name,
+        organization_application_id=organization_application.id,
+        message=request.params.get("message", ""),
+    )
+    message = EmailMessage.from_template(
+        "new-organization-moreinformationneeded", context, request=request
+    )
+    return {"subject": message.subject, "body": message.body_text}
 
 
 @view_config(
