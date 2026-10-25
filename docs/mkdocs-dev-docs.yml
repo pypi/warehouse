@@ -68,11 +68,9 @@ theme:
   features:
     - content.action.edit
     - content.code.copy
-    - navigation.expand
     - navigation.footer
     - navigation.instant
     - navigation.path
-    - navigation.sections
     - navigation.top
     - navigation.tracking
     - search.highlight
@@ -100,32 +98,35 @@ edit_uri: blob/main/docs/dev/
 
 nav:
   - Home: index.md
-  - Development:
-      - Overview: development/index.md
-      - Getting Started: development/getting-started.md
-      - Frontend: development/frontend.md
-      - Patterns: development/patterns.md
-      - Logging: development/logging.md
-      - Database Migrations: development/database-migrations.md
-      - Submitting Patches: development/submitting-patches.md
-      - Reviewing Patches: development/reviewing-patches.md
-      - Legacy Application Structure: development/legacy-application-structure.md
+  - Working on Warehouse:
       - Development Database: development/development-database.md
-      - Cloud: development/cloud.md
+      - Database Migrations: development/database-migrations.md
+      - Logging: development/logging.md
       - Email: development/email.md
+      - Frontend: development/frontend.md
+      - UI Principles: ui-principles.md
+  - Architecture:
+      - System Architecture: architecture.md
+      - Warehouse Codebase: application.md
+      - Patterns: development/patterns.md
+      - Legacy URL Structure: development/legacy-application-structure.md
+  - Subsystems:
       - Account Associations: development/account-associations.md
-      - Token Scanning: development/token-scanning.md
       - Billing: development/billing.md
-      - Documentation: development/documentation.md
-  - Warehouse codebase: application.md
-  - System Architecture: architecture.md
-  - API Reference:
-      - Overview: api-reference/index.md
-      - XML-RPC: api-reference/xml-rpc.md
-  - UI Principles: ui-principles.md
   - Security:
       - Overview: security/index.md
       - Security Policy Flow: security/security-policy-flow.md
+      - Token Scanning: development/token-scanning.md
       - Attestation Internals: security/attestation-internals.md
-  - Translations: translations.md
-  - Roadmap and Sprints: roadmap.md
+  - API Reference:
+      - Overview: api-reference/index.md
+      - XML-RPC: api-reference/xml-rpc.md
+  - Contributing:
+      - Overview: development/index.md
+      - Getting Started: development/getting-started.md
+      - Developing in the Cloud: development/cloud.md
+      - Submitting Patches: development/submitting-patches.md
+      - Reviewing Patches: development/reviewing-patches.md
+      - Writing Documentation: development/documentation.md
+      - Translations: translations.md
+      - Roadmap and Sprints: roadmap.md
