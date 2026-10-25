@@ -2,38 +2,8 @@
 
 ## Roadmap
 
-As we develop Warehouse, here are our plans along the way. To talk
-about them with us, please [contact us](https://github.com/pypi/warehouse/blob/master/README.rst#discussion).
-
-### OTF grant work
-
-The current priority: [security, accessibility, and localization work
-funded by the Open Technology Fund](https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html), starting with [two-factor
-authentication for PyPI](https://github.com/pypi/warehouse/issues/996).
-
-On GitHub: [Security milestone](https://github.com/pypi/warehouse/milestone/13), [accessibility milestone](https://github.com/pypi/warehouse/milestone/15),
-[localisation milestone](https://github.com/pypi/warehouse/milestone/14).
-
-### Package signing and detection/verification
-
-We will work on further improving PyPI security with features such as
-cryptographic signing, verifying files uploaded to and installed from
-the index, and automatically detecting malicious uploads. [This work
-is funded by a gift from Facebook.](https://pyfound.blogspot.com/2018/12/upcoming-pypi-improvements-for-2019.html)
-
-See [package signing & detection/verification milestone](https://github.com/pypi/warehouse/milestone/16) on GitHub.
-
-### Post legacy shutdown
-
-Issues that are unblocked now that legacy is dead (RIP).
-
-See [issues marked with the post-legacy shutdown milestone](https://github.com/pypi/warehouse/milestone/12) on GitHub.
-
-### Cool but not urgent
-
-Wishlist.
-
-See [issues marked with the cool-but-not-urgent milestone](https://github.com/pypi/warehouse/milestone/11) on GitHub.
+See the [PyPI roadmap](https://docs.pypi.org/about/pypi-roadmap/) in the PyPI user documentation
+for upcoming features and improvements.
 
 ### History
 
