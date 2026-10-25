@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
+import datetime as dt
 import uuid
+
+from types import SimpleNamespace
 
 import pytest
 
@@ -233,6 +236,12 @@ class TestOrganizationApplicationList:
 
 
 class TestOrganizationApplicationDetail:
+    @pytest.fixture(autouse=True)
+    def _csp(self, pyramid_services):
+        pyramid_services.register_service(
+            SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
+        )
+
     def test_detail(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
         db_request.matchdict["organization_application_id"] = (
@@ -422,6 +431,36 @@ class TestOrganizationApplicationDetail:
         with pytest.raises(HTTPNotFound):
             views.organization_application_detail(db_request)
 
+    def test_detail_queue(self, db_request):
+        def submitted_at(day, **kw):
+            return OrganizationApplicationFactory.create(
+                submitted=dt.datetime(2024, 1, day), **kw
+            )
+
+        oldest, middle, newest = submitted_at(1), submitted_at(2), submitted_at(4)
+        deferred = submitted_at(3, status=OrganizationApplicationStatus.Deferred)
+
+        def queue_for(application):
+            db_request.matchdict["organization_application_id"] = application.id
+            return views.organization_application_detail(db_request)["queue"]
+
+        assert queue_for(middle) == {
+            "total": 3,
+            "position": 2,
+            "previous": oldest,
+            "next": newest,
+        }
+        # The next application wraps around to the oldest; the previous does not.
+        assert queue_for(newest)["next"] == oldest
+        assert queue_for(oldest)["previous"] is None
+        # An application outside the queue still knows its neighbours, by date.
+        assert queue_for(deferred) == {
+            "total": 3,
+            "position": None,
+            "previous": middle,
+            "next": newest,
+        }
+
 
 class TestOrganizationApplicationActions:
     def test_approve(self, db_request, mocker):
@@ -587,6 +626,21 @@ class TestOrganizationApplicationActions:
             result.location
             == f"/admin/organization_applications/{next_application.id}/"
         )
+
+    def test_defer_turbo_mode_moves_to_following_application(self, db_request):
+        _oldest, current, newer = (
+            OrganizationApplicationFactory.create(submitted=dt.datetime(2024, 1, day))
+            for day in (1, 2, 3)
+        )
+        db_request.matchdict["organization_application_id"] = current.id
+        db_request.params["organization_applications_turbo_mode"] = "true"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_defer(db_request)
+
+        # Not back to the oldest: the reviewer carries on down the queue.
+        assert result.location == f"/admin/organization_applications/{newer.id}/"
 
     def test_defer_not_found(self, db_request):
         db_request.matchdict["organization_application_id"] = uuid.uuid4()

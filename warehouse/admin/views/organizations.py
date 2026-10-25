@@ -3,13 +3,15 @@
 import datetime as dt
 import shlex
 
+from typing import Any
+
 import wtforms
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.request import Request
 from pyramid.view import view_config
-from sqlalchemy import desc, func, or_
+from sqlalchemy import desc, func, or_, tuple_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -172,12 +174,39 @@ class ManualActivationForm(wtforms.Form):
             raise wtforms.ValidationError("Expiration date must be in the future")
 
 
-def _turbo_mode(request):
-    next_organization_application = (
-        request.db.query(OrganizationApplication)
-        .filter(OrganizationApplication.status == "submitted")
-        .order_by(OrganizationApplication.submitted)
-        .first()
+def _queue_neighbors(
+    request: Request, organization_application: OrganizationApplication
+) -> tuple[OrganizationApplication | None, OrganizationApplication | None]:
+    """
+    The submitted applications either side of this one, oldest first.
+
+    Works whether or not this application is itself still submitted, so a decision
+    can move on to whatever followed it. The next application wraps around to the
+    oldest one; the previous one does not.
+    """
+    queue = request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status == OrganizationApplicationStatus.Submitted,
+        OrganizationApplication.id != organization_application.id,
+    )
+    key = tuple_(OrganizationApplication.submitted, OrganizationApplication.id)
+    here = tuple_(organization_application.submitted, organization_application.id)
+    oldest_first = (OrganizationApplication.submitted, OrganizationApplication.id)
+
+    previous = (
+        queue.filter(key < here).order_by(*(desc(c) for c in oldest_first)).first()
+    )
+    following = (
+        queue.filter(key > here).order_by(*oldest_first).first()
+        or queue.order_by(*oldest_first).first()
+    )
+    return previous, following
+
+
+def _turbo_mode(
+    request: Request, organization_application: OrganizationApplication
+) -> HTTPSeeOther:
+    _, next_organization_application = _queue_neighbors(
+        request, organization_application
     )
     if next_organization_application:
         return HTTPSeeOther(
@@ -682,7 +711,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_detail(request):
+def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
@@ -744,6 +773,28 @@ def organization_application_detail(request):
 
     checks = review_checks(organization_application, user, conflicting_applications)
 
+    submitted = request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status == OrganizationApplicationStatus.Submitted
+    )
+    queue_key = tuple_(OrganizationApplication.submitted, OrganizationApplication.id)
+    here = tuple_(organization_application.submitted, organization_application.id)
+    previous, following = _queue_neighbors(request, organization_application)
+    queue = {
+        "total": submitted.count(),
+        "position": (
+            submitted.filter(queue_key < here).count() + 1
+            if organization_application.status
+            == OrganizationApplicationStatus.Submitted
+            else None
+        ),
+        "previous": previous,
+        "next": following,
+    }
+    # The page prerenders its queue neighbours so `j`/`k` land instantly.
+    request.find_service(name="csp").merge(
+        {"script-src": ["'inline-speculation-rules'"]}
+    )
+
     return {
         "organization_application": organization_application,
         "form": form,
@@ -751,6 +802,7 @@ def organization_application_detail(request):
         "user": user,
         "checks": checks,
         "link_domain": application_domain(organization_application),
+        "queue": queue,
     }
 
 
@@ -762,7 +814,7 @@ def organization_application_detail(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_approve(request):
+def organization_application_approve(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -784,7 +836,7 @@ def organization_application_approve(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     if request.has_permission(Permissions.AdminOrganizationsRead):
         return HTTPSeeOther(
@@ -808,7 +860,7 @@ def organization_application_approve(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_defer(request):
+def organization_application_defer(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -831,7 +883,7 @@ def organization_application_defer(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     return HTTPSeeOther(
         request.route_path(
@@ -849,7 +901,7 @@ def organization_application_defer(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_request_more_information(request):
+def organization_application_request_more_information(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -875,7 +927,7 @@ def organization_application_request_more_information(request):
         )
 
         if request.params.get("organization_applications_turbo_mode") == "true":
-            return _turbo_mode(request)
+            return _turbo_mode(request, organization_application)
     except ValueError:
         request.session.flash("No message provided", queue="error")
 
@@ -895,7 +947,7 @@ def organization_application_request_more_information(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_decline(request):
+def organization_application_decline(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -918,7 +970,7 @@ def organization_application_decline(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     return HTTPSeeOther(
         request.route_path(

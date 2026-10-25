@@ -125,40 +125,7 @@
   {% set is_decided = status.value in ['approved', 'declined', 'withdrawn'] %}
   {% set can_write = request.has_permission(Permissions.AdminOrganizationApplicationsWrite) %}
 
-  <div class="card card-outline card-secondary">
-    <div class="card-header with-border">
-      <h3 class="card-title">Review checks</h3>
-    </div>
-    <div class="card-body p-0">
-      <ul class="org-review-checks">
-        {% for check in checks %}
-        <li class="org-review-check">
-          <i class="fa-solid {{ check_icons[check.status.value] }} org-review-check-icon" aria-hidden="true"></i>
-          <span class="sr-only">{{ check.status.value }}:</span>
-          <div class="org-review-check-body">
-            <span class="org-review-check-label">{{ check.label }}</span>
-            <span class="org-review-check-detail text-muted">{{ check.detail }}</span>
-            {% set reply_template = reply_templates.get(check.key) %}
-            {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
-            <button
-              type="button"
-              class="btn btn-xs btn-outline-info saved-reply-button org-review-check-ask"
-              data-toggle="modal"
-              data-target="#requestMoreInfoModal"
-              data-template="{{ reply_template }}"
-            >
-              <i class="fa-solid fa-reply"></i> Ask about this
-            </button>
-
-            {% endif %}
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-
-  <div class="row text-break">
+  <div class="row text-break org-review-layout">
     <div class="col-xl-3 col-md-4">
       <div class="org-review-rail">
         <div class="card">
@@ -166,6 +133,44 @@
             <h2 class="card-title">Actions</h2>
           </div>
           <div class="card-body">
+            <nav class="pb-3 mb-3 border-bottom" aria-label="Submitted applications queue">
+              <p class="small text-muted mb-2">
+                {% if queue.position %}
+                <strong class="text-body">{{ queue.position }}</strong> of {{ queue.total }} submitted
+                {% elif queue.total %}
+                Not in the queue &middot; {{ queue.total }} submitted
+                {% else %}
+                No submitted applications
+                {% endif %}
+              </p>
+              {% if queue.previous or queue.next %}
+              <div class="d-flex">
+                {% if queue.previous %}
+                <a class="btn btn-sm btn-outline-secondary d-flex align-items-center flex-fill overflow-hidden mr-2"
+                   rel="prev"
+                   href="{{ request.route_path('admin.organization_application.detail', organization_application_id=queue.previous.id) }}"
+                   data-hotkey-binding=75
+                   title="Previous submitted application: {{ queue.previous.name }}">
+                  <span class="org-review-key org-review-key-inline ml-0 mr-2">k</span>
+                  <i class="fa-solid fa-arrow-left mr-1" aria-hidden="true"></i>
+                  <span class="text-truncate">{{ queue.previous.name }}</span>
+                </a>
+                {% endif %}
+                {% if queue.next %}
+                <a class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-end flex-fill overflow-hidden"
+                   rel="next"
+                   href="{{ request.route_path('admin.organization_application.detail', organization_application_id=queue.next.id) }}"
+                   data-hotkey-binding=74
+                   title="Next submitted application: {{ queue.next.name }}">
+                  <span class="text-truncate">{{ queue.next.name }}</span>
+                  <i class="fa-solid fa-arrow-right ml-1" aria-hidden="true"></i>
+                  <span class="org-review-key org-review-key-inline">j</span>
+                </a>
+                {% endif %}
+              </div>
+              {% endif %}
+            </nav>
+
             <div class="form-group">
               <button
                 type="button"
@@ -267,6 +272,38 @@
     {% set information_requests = organization_application.information_requests %}
     {% set outstanding_information_requests = information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
     <div class="col-xl-9 col-md-8">
+      <div class="card card-outline card-secondary">
+        <div class="card-header with-border">
+          <h3 class="card-title">Review checks</h3>
+        </div>
+        <div class="card-body p-0">
+          <ul class="org-review-checks">
+            {% for check in checks %}
+            <li class="org-review-check">
+              <i class="fa-solid {{ check_icons[check.status.value] }} org-review-check-icon" aria-hidden="true"></i>
+              <span class="sr-only">{{ check.status.value }}:</span>
+              <div class="org-review-check-body">
+                <span class="org-review-check-label">{{ check.label }}</span>
+                <span class="org-review-check-detail text-muted">{{ check.detail }}</span>
+                {% set reply_template = reply_templates.get(check.key) %}
+                {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline-info saved-reply-button org-review-check-ask"
+                  data-toggle="modal"
+                  data-target="#requestMoreInfoModal"
+                  data-template="{{ reply_template }}"
+                >
+                  <i class="fa-solid fa-reply"></i> Ask about this
+                </button>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">
@@ -699,5 +736,18 @@
       </div>
     </form>
   </div>
+  {% endif %}
+
+  {#- Warm the queue neighbours so `j`/`k` (and Turbo Mode's hand-off) land
+      without a round trip. Browsers without speculation rules ignore this. -#}
+  {% set next_urls = [request.route_path('admin.organization_application.detail', organization_application_id=queue.next.id)] if queue.next else [] %}
+  {% set previous_urls = [request.route_path('admin.organization_application.detail', organization_application_id=queue.previous.id)] if queue.previous and queue.previous != queue.next else [] %}
+  {% if next_urls or previous_urls %}
+  <script type="speculationrules">
+    {{ {
+      "prerender": [{"source": "list", "urls": next_urls, "eagerness": "immediate"}] if next_urls else [],
+      "prefetch": [{"source": "list", "urls": previous_urls, "eagerness": "immediate"}] if previous_urls else [],
+    }|tojson }}
+  </script>
   {% endif %}
 {% endblock %}
