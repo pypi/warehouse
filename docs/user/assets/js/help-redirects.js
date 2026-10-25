@@ -62,7 +62,7 @@
     "sponsors": "/about/security-and-internals/#what-powers-pypi",
     "availability": "/about/service-availability/",
     "contributing": "/about/contributing/",
-    "upcoming-changes": "/about/pypi-roadmap/",
+    "upcoming-changes": "/",
     "ips": "/about/security-and-internals/#how-can-i-get-a-list-of-pypis-ip-addresses",
   };
 

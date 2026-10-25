@@ -12,6 +12,7 @@ plugins:
         'api-reference/stats.md': 'https://docs.pypi.org/api/stats/'
         'api-reference/integration-guide.md': 'https://docs.pypi.org/api/#integration-guide'
         'api-reference/bigquery-datasets.md': 'https://docs.pypi.org/api/bigquery'
+        'roadmap.md': 'index.md'
 markdown_extensions:
   - admonition
   - attr_list
@@ -106,7 +107,6 @@ nav:
       - Reviewing Patches: development/reviewing-patches.md
       - Writing Documentation: development/documentation.md
       - Translations: translations.md
-      - Roadmap and Sprints: roadmap.md
   - Working on Warehouse:
       - Development Database: development/development-database.md
       - Database Migrations: development/database-migrations.md

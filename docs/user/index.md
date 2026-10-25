@@ -68,7 +68,6 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 
 * [Who Maintains PyPI](about/who-maintains-pypi.md) - The PyPI maintainers and governance structure
 * [Contributing](about/contributing.md) - How to contribute to PyPI and report issues or bugs
-* [PyPI Roadmap](about/pypi-roadmap.md) - Upcoming features and improvements
 * [Service Availability](about/service-availability.md) - Current status and service availability information
 * [PyPI Statistics](about/pypi-statistics.md) - Usage and project statistics
 * [Security and Internals](about/security-and-internals.md) - Technical security details and internal information

@@ -15,6 +15,9 @@ validation:
 plugins:
   - search
   - material-plausible
+  - redirects:
+      redirect_maps:
+        "about/pypi-roadmap.md": "index.md"
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -168,7 +171,6 @@ nav:
   - "About PyPI":
       - "about/who-maintains-pypi.md"
       - "about/contributing.md"
-      - "about/pypi-roadmap.md"
       - "about/service-availability.md"
       - "about/pypi-statistics.md"
       - "about/security-and-internals.md"
