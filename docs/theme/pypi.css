@@ -52,7 +52,7 @@
 
 readthedocs-flyout { display: none; }
 
-.md-content img {
+.md-content img:not(.md-author img) {
   padding: 10px;
   border-width: 1px;
   border-style: solid;
