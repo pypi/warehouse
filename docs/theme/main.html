@@ -12,3 +12,25 @@
           href="{{ 'feed_json_updated.json' | url }}" />
   {% endif %}
 {% endblock %}
+{% block header %}
+  {# Switcher between PyPI's web properties. Each site sets
+     `extra.pypi_site` in its mkdocs config to mark itself as current. #}
+  {% set pypi_sites = [
+    ("pypi", "https://pypi.org/", "PyPI.org"),
+    ("user-docs", "https://docs.pypi.org/", "User Documentation"),
+    ("dev-docs", "https://dev.pypi.org/", "Developer Documentation"),
+    ("blog", "https://blog.pypi.org/", "PyPI blog"),
+  ] %}
+  <nav class="pypi-switcher" aria-label="PyPI sites">
+    <ul class="pypi-switcher__list md-grid">
+      {% for id, href, title in pypi_sites %}
+        <li class="pypi-switcher__item">
+          <a href="{{ href }}"
+             class="pypi-switcher__link{% if id == config.extra.pypi_site %} pypi-switcher__link--active{% endif %}"
+             {% if id == config.extra.pypi_site %}aria-current="true"{% endif %}>{{ title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+  {{ super() }}
+{% endblock %}

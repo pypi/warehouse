@@ -78,6 +78,7 @@ extra_css:
 extra_javascript:
   - assets/js/help-redirects.js
 extra:
+  pypi_site: user-docs
   analytics:
     provider: plausible
     domain: docs.pypi.org

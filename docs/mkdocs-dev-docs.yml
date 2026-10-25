@@ -73,7 +73,6 @@ theme:
     - navigation.instant
     - navigation.path
     - navigation.sections
-    - navigation.tabs
     - navigation.top
     - navigation.tracking
     - search.highlight
@@ -82,6 +81,7 @@ theme:
 extra_css:
   - pypi.css
 extra:
+  pypi_site: dev-docs
   homepage: https://github.com/pypi/warehouse
   social:
     - icon: fontawesome/brands/github
