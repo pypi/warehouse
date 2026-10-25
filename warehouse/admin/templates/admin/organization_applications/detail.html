@@ -5,7 +5,7 @@
 {% block title %}Application for {{ organization_application.name }}{% endblock %}
 
 {% block breadcrumb %}
-  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.organization_application.list') }}">Organizations</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.organization_application.list') }}">Organization Applications</a></li>
   <li class="breadcrumb-item active">{{ organization_application.name }}</li>
 {% endblock %}
 
@@ -25,6 +25,16 @@
   {% endif %}
 </div>
 {% endmacro %}
+
+{% macro user_link(user, class=None) -%}
+{% if request.has_permission(Permissions.AdminUsersRead) -%}
+<a {% if class %}class="{{ class }}" {% endif %}href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>
+{%- elif class -%}
+<span class="{{ class }}">{{ user.username }}</span>
+{%- else -%}
+{{ user.username }}
+{%- endif %}
+{%- endmacro %}
 
 {% macro chat_message(name, timestamp, email, text, right=False) %}
 <div class="direct-chat-msg{% if right %} right{% endif %}">
@@ -113,7 +123,7 @@
   {% set status = organization_application.status %}
   {% set status_style, status_label = status_display[status.value] %}
   {% set is_decided = status.value in ['approved', 'declined', 'withdrawn'] %}
-  {% set can_write = request.has_permission(Permissions.AdminOrganizationsWrite) %}
+  {% set can_write = request.has_permission(Permissions.AdminOrganizationApplicationsWrite) %}
 
   <div class="card card-outline card-secondary">
     <div class="card-header with-border">
@@ -286,7 +296,7 @@
           {% if user %}
           {% set other_applications = user.organization_applications|sort(attribute='status', reverse=True)|rejectattr('status', 'equalto', 'approved')|rejectattr('id', 'equalto', organization_application.id)|list %}
           <div class="org-review-identity">
-            <a class="org-review-identity-name" href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>
+            {{ user_link(user, class='org-review-identity-name') }}
             {% for association in user.account_associations %}
               {% if association.service == 'github' %}
               <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
@@ -311,7 +321,7 @@
               <summary>Organizations <span class="badge badge-pill badge-light org-review-count">{{ organization_roles|length }}</span></summary>
               <div class="org-review-facet-body">
                 {% for organization_role in organization_roles %}
-                <span class="org-review-chip"><a href="{{ request.route_path('admin.organization.detail', organization_id=organization_role.organization.id) }}">{{ organization_role.organization.name }}</a><span class="org-review-chip-meta text-muted">{{ organization_role.role_name.value }}</span></span>
+                <span class="org-review-chip">{% if request.has_permission(Permissions.AdminOrganizationsRead) %}<a href="{{ request.route_path('admin.organization.detail', organization_id=organization_role.organization.id) }}">{{ organization_role.organization.name }}</a>{% else %}{{ organization_role.organization.name }}{% endif %}<span class="org-review-chip-meta text-muted">{{ organization_role.role_name.value }}</span></span>
                 {% endfor %}
               </div>
             </details>
@@ -338,7 +348,7 @@
               <summary>Projects <span class="badge badge-pill badge-light org-review-count">{{ projects|length }}</span></summary>
               <div class="org-review-facet-body">
                 {% for project in projects %}
-                <span class="org-review-chip"><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></span>
+                <span class="org-review-chip">{% if request.has_permission(Permissions.AdminProjectsRead) %}<a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</span>
                 {% endfor %}
               </div>
             </details>
@@ -371,7 +381,7 @@
                 </td>
                 <td>{{ status_display[application.status.value][1] }}</td>
                 <td>{{ application.submitted|format_date() }}</td>
-                <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
+                <td>{{ user_link(application.submitted_by) }}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -436,7 +446,7 @@
           </div>
           <div class="modal-body">
             <p>
-              This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>
+              This will approve {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>
             </p>
             <div class="form-group">
               <label for="approveModalMessage">
@@ -475,7 +485,7 @@
           </div>
           <div class="modal-body">
             <p>
-              This will defer <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+              This will defer {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
             </p>
             <div class="form-group">
               <label for="deferModalMessage">
@@ -558,7 +568,7 @@
           </div>
           <div class="modal-body">
             <p>
-              This will request more information for <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+              This will request more information for {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
             </p>
             <div class="form-group">
               <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="AddOrgEmailTemplate">Add Org Email</button>
@@ -605,7 +615,7 @@
           </div>
           <div class="modal-body">
             <p>
-              This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+              This will decline {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
             </p>
             <div class="form-group">
               <label for="declineModalMessage">
