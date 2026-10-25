@@ -71,6 +71,7 @@ theme:
     - navigation.footer
     - navigation.instant
     - navigation.path
+    - navigation.sections
     - navigation.top
     - navigation.tracking
     - search.highlight
@@ -78,6 +79,7 @@ theme:
     - toc.follow
 extra_css:
   - pypi.css
+  - dev-docs.css
 extra:
   pypi_site: dev-docs
   homepage: https://github.com/pypi/warehouse
@@ -98,35 +100,36 @@ edit_uri: blob/main/docs/dev/
 
 nav:
   - Home: index.md
-  - Working on Warehouse:
-      - Development Database: development/development-database.md
-      - Database Migrations: development/database-migrations.md
-      - Logging: development/logging.md
-      - Email: development/email.md
-      - Frontend: development/frontend.md
-      - UI Principles: ui-principles.md
-  - Architecture:
-      - System Architecture: architecture.md
-      - Warehouse Codebase: application.md
-      - Patterns: development/patterns.md
-      - Legacy URL Structure: development/legacy-application-structure.md
-  - Subsystems:
-      - Account Associations: development/account-associations.md
-      - Billing: development/billing.md
-  - Security:
-      - Overview: security/index.md
-      - Security Policy Flow: security/security-policy-flow.md
-      - Token Scanning: development/token-scanning.md
-      - Attestation Internals: security/attestation-internals.md
-  - API Reference:
-      - Overview: api-reference/index.md
-      - XML-RPC: api-reference/xml-rpc.md
   - Contributing:
       - Overview: development/index.md
       - Getting Started: development/getting-started.md
       - Developing in the Cloud: development/cloud.md
       - Submitting Patches: development/submitting-patches.md
       - Reviewing Patches: development/reviewing-patches.md
-      - Writing Documentation: development/documentation.md
-      - Translations: translations.md
+  - Documentation:
+      - Working on Warehouse:
+          - Development Database: development/development-database.md
+          - Database Migrations: development/database-migrations.md
+          - Logging: development/logging.md
+          - Email: development/email.md
+          - Frontend: development/frontend.md
+          - UI Principles: ui-principles.md
+          - Writing Documentation: development/documentation.md
+          - Translations: translations.md
+      - Architecture:
+          - System Architecture: architecture.md
+          - Warehouse Codebase: application.md
+          - Patterns: development/patterns.md
+          - Legacy URL Structure: development/legacy-application-structure.md
+      - Subsystems:
+          - Account Associations: development/account-associations.md
+          - Billing: development/billing.md
+      - Security:
+          - Overview: security/index.md
+          - Security Policy Flow: security/security-policy-flow.md
+          - Token Scanning: development/token-scanning.md
+          - Attestation Internals: security/attestation-internals.md
+      - API Reference:
+          - Overview: api-reference/index.md
+          - XML-RPC: api-reference/xml-rpc.md
       - Roadmap and Sprints: roadmap.md
