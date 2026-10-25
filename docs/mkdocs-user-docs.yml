@@ -86,12 +86,14 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/pypi
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/pypi
+    - icon: fontawesome/brands/discourse
+      link: https://discuss.python.org/c/packaging/14
     - icon: fontawesome/brands/mastodon
       link: https://fosstodon.org/@pypi
     - icon: fontawesome/brands/bluesky
       link: https://bsky.app/profile/pypi.org
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pypi
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
