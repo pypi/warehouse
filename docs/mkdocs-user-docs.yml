@@ -53,6 +53,7 @@ theme:
   homepage: https://pypi.org
   features:
     - content.action.edit
+    - navigation.footer
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
