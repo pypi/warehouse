@@ -257,40 +257,40 @@ if (editModalForm !== null) {
   }
 }
 
+// Single-key shortcuts for the review rail. They stand down while any dialog is
+// open, however it was opened, and while a field has focus, so a stray key never
+// stacks a second decision dialog over the first.
 $(document).ready(function() {
-  const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
-  var keyBindings = new Map();
-  function bindHotKeys() {
-    document.onkeyup = hotKeys;
-  }
-  function unbindHotKeys() {
-    document.onkeyup = function(){};
-  }
-  function hotKeys(e) {
-    if (keyBindings.has(String(e.which))) {
-      unbindHotKeys();
-      const targetModal = $(keyBindings.get(String(e.which)));
-      targetModal.one("shown.bs.modal", function () {
-        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
-        if (firstFocusableElement.length) {
-          firstFocusableElement.focus();
-        }
-      });
-      targetModal.modal("show");
-      targetModal.on("hidden.bs.modal", bindHotKeys);
-    }
-  }
-  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
-    if (! modalHotKeyBinding.disabled) {
-      keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
+  const keyBindings = new Map();
+  document.querySelectorAll("[data-hotkey-binding]").forEach(function(element) {
+    if (!element.disabled) {
+      keyBindings.set(element.dataset.hotkeyBinding, element);
     }
   });
-  const focusable = document.querySelectorAll("input, textarea");
-  focusable.forEach(function(element) {
-    element.addEventListener("focusin", unbindHotKeys);
-    element.addEventListener("focusout", bindHotKeys);
+  if (keyBindings.size === 0) {
+    return;
+  }
+  $(".modal").on("shown.bs.modal", function() {
+    $(this).find("input:visible, textarea:visible").first().trigger("focus");
   });
-  bindHotKeys();
+  document.addEventListener("keyup", function(event) {
+    if (event.metaKey || event.ctrlKey || event.altKey || document.querySelector(".modal.show")) {
+      return;
+    }
+    if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]")) {
+      return;
+    }
+    const element = keyBindings.get(String(event.which));
+    if (element === undefined) {
+      return;
+    }
+    if (element.dataset.toggle === "modal") {
+      $(element.dataset.target).modal("show");
+    } else {
+      // Not a dialog opener (the queue links, the type swap): act on it directly.
+      element.click();
+    }
+  });
 });
 
 // User Files Modal

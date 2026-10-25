@@ -238,10 +238,11 @@
                 class="btn btn-warning btn-sm btn-block"
                 id="editModalButton"
                 data-toggle="modal"
+                data-hotkey-binding=69
                 data-target="#editModal" {{ 'disabled' if is_decided }}
                 title="Edit organization request"
               >
-                <i class="fa-solid fa-pen-to-square"></i> Edit application
+                <i class="fa-solid fa-pen-to-square"></i> Edit <span class="org-review-key">e</span>
               </button>
             </div>
             {% endif %}
