@@ -48,7 +48,7 @@ PyPI lists all URLs together on the project page, marking those that have been v
 PyPI currently supports several ways of verifying project URLs. When a URL is verified, PyPI labels it accordingly:
 
 <figure markdown="1">
-  ![Verified project link](assets/verified-project-links.png){ loading=lazy }
+  ![Verified project link](assets/verified-project-links.png){ loading=lazy width="400" }
   <figcaption markdown="span">A verified project link, together with unverified project links</figcaption>
 </figure>
 
@@ -160,7 +160,7 @@ Shown only for projects owned by a [PyPI Organization](organization-accounts/ind
 Projects owned by an individual account don't show an "Owner" section — that account instead appears in [Maintainers](#2-maintainers) below.
 
 <figure markdown="1">
-  ![Owner metadata on PyPI](assets/owner.png){ loading=lazy }
+  ![Owner metadata on PyPI](assets/owner.png){ loading=lazy width="400" }
   <figcaption markdown="span">Owner metadata in the project sidebar</figcaption>
 </figure>
 
@@ -169,7 +169,7 @@ Projects owned by an individual account don't show an "Owner" section — that a
 This shows every PyPI user account with a role on the project. This data is taken directly from the project's PyPI settings, and is **not** provided by the package maintainers via `pyproject.toml`. When there are more than three users associated with a project, PyPI displays the first three with a "+N more" disclosure to expand the rest.
 
 <figure markdown="1">
-  ![Maintainer metadata on PyPI](assets/maintainers.png){ loading=lazy }
+  ![Maintainer metadata on PyPI](assets/maintainers.png){ loading=lazy width="400" }
   <figcaption markdown="span">Maintainer metadata in the project sidebar</figcaption>
 </figure>
 
@@ -180,14 +180,14 @@ Packages can specify an author or maintainer (name, email address, or both) in t
 By default, this is shown in the "Credits" section of the project page exactly as provided in the package's metadata:
 
 <figure markdown="1">
-  ![Project credit on PyPI](assets/unverified-credit.png){ loading=lazy }
+  ![Project credit on PyPI](assets/unverified-credit.png){ loading=lazy width="400" }
   <figcaption markdown="span">Project credit in the project sidebar</figcaption>
 </figure>
 
 If an email address was given, PyPI also cross-references it at upload time against the public, verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as verified:
 
 <figure markdown="1">
-  ![Project credit on PyPI](assets/verified-credit.png){ loading=lazy }
+  ![Project credit on PyPI](assets/verified-credit.png){ loading=lazy width="400" }
   <figcaption markdown="span">Project credit in the project sidebar</figcaption>
 </figure>
 
@@ -198,7 +198,7 @@ As with project URLs, this cross-referencing only happens once, at the time a re
 If a release has a [verified](#verifying-links-via-trusted-publishing) GitHub or GitLab repository URL, PyPI shows a "GitHub Statistics" or "GitLab Statistics" panel with live stats for that repository — stars/forks, open issues, and open pull/merge requests.
 
 <figure markdown="1">
-  ![Verified urls](assets/repository-statistics.png){ loading=lazy }
+  ![Verified urls](assets/repository-statistics.png){ loading=lazy width="400" }
   <figcaption markdown="span">GitHub repository statistics in the project sidebar</figcaption>
 </figure>
 
