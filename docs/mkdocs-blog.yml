@@ -53,7 +53,9 @@ markdown_extensions:
 extra_css:
   - pypi.css
 plugins:
-  - social
+  - social:
+      cards_layout_options:
+        background_color: "#0073b7"
   # See https://squidfunk.github.io/mkdocs-material/plugins/blog/
   - blog:
       blog_dir: .
