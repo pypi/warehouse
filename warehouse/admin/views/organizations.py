@@ -649,10 +649,17 @@ def organization_applications_list(request):
 
 
 class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
-    def __init__(self, *args, organization_service, user, **kwargs):
-        super().__init__(*args, **kwargs)
+    outstanding_application_message = (
+        "The applicant already has an open application for that name."
+    )
+
+    def __init__(self, formdata, organization_application, *, organization_service):
+        super().__init__(formdata, organization_application)
         self.organization_service = organization_service
-        self.user = user
+        # Name conflicts are the applicant's, not the reviewer's, and the
+        # application being edited never conflicts with itself.
+        self.user = organization_application.submitted_by
+        self.organization_application_id = organization_application.id
 
 
 @view_config(
@@ -690,7 +697,6 @@ def organization_application_detail(request):
         request.POST if request.method == "POST" else None,
         organization_application,
         organization_service=organization_service,
-        user=request.user,
     )
 
     if request.method == "POST" and form.validate():

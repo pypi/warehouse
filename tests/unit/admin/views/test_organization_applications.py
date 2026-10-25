@@ -295,6 +295,66 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
 
+    def test_detail_edit_keeps_own_name(self, db_request):
+        # The reviewer is also the applicant: the application being edited must
+        # not count as a competing application for its own name.
+        applicant = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            submitted_by=applicant, orgtype=OrganizationType.Company
+        )
+        db_request.user = applicant
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "name": organization_application.name,
+                "description": organization_application.description,
+                "display_name": organization_application.display_name,
+                "link_url": organization_application.link_url,
+                "orgtype": "Community",
+            }
+        )
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        result = views.organization_application_detail(db_request)
+
+        assert result.status_code == 303
+        assert organization_application.orgtype == OrganizationType.Community
+
+    def test_detail_edit_checks_applicants_applications(self, db_request):
+        applicant = UserFactory.create()
+        reviewer = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            submitted_by=applicant
+        )
+        OrganizationApplicationFactory.create(submitted_by=applicant, name="taken")
+        OrganizationApplicationFactory.create(submitted_by=reviewer, name="free")
+        db_request.user = reviewer
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        fields = {
+            "description": organization_application.description,
+            "display_name": organization_application.display_name,
+            "link_url": organization_application.link_url,
+            "orgtype": organization_application.orgtype.value,
+        }
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        db_request.POST = MultiDict({"name": "taken", **fields})
+        result = views.organization_application_detail(db_request)
+        assert result["form"].name.errors == [
+            "The applicant already has an open application for that name."
+        ]
+
+        db_request.POST = MultiDict({"name": "free", **fields})
+        result = views.organization_application_detail(db_request)
+        assert result.status_code == 303
+        assert organization_application.name == "free"
+
     def test_detail_is_approved_true(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
             status=OrganizationApplicationStatus.Approved
