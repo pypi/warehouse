@@ -224,6 +224,7 @@
                 <i class="icon fa fa-note-sticky"></i> Add Note <span class="org-review-key">n</span>
               </button>
               {% if can_write %}
+              {% set other_orgtype = 'Community' if organization_application.orgtype.value == 'Company' else 'Company' %}
               <button
                 type="button"
                 class="btn btn-outline-secondary btn-block"
@@ -234,6 +235,19 @@
                 title="Edit organization request"
               >
                 <i class="fa-solid fa-pen-to-square"></i> Edit <span class="org-review-key">e</span>
+              </button>
+              {#- Submits the edit form with only the type changed. Fields submit in
+                  document order and WTForms reads the first `orgtype`, so this value
+                  wins over the edit dialog's own select, which comes later. -#}
+              <button
+                type="submit"
+                form="editModalForm"
+                name="orgtype"
+                value="{{ other_orgtype }}"
+                class="btn btn-outline-secondary btn-block"
+                data-hotkey-binding=84 {{ 'disabled' if is_decided }}
+              >
+                <i class="fa-solid fa-right-left"></i> Make {{ other_orgtype }} <span class="org-review-key">t</span>
               </button>
               {% endif %}
             </div>
