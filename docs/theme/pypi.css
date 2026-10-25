@@ -1,0 +1,32 @@
+/* Shared styles for the PyPI blog, dev docs and user docs.
+   Published with each site via the shared theme custom_dir. */
+
+:root, [data-md-color-scheme="pypi"], [data-md-color-scheme="default"], [data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0073b7;
+  --md-primary-fg-color--light: #009ffd;
+  --md-primary-fg-color--dark:  #009ffd;
+}
+
+[data-md-color-scheme="slate"][data-md-color-primary="indigo"] {
+  --md-typeset-a-color: #009ffd;
+}
+
+readthedocs-flyout { display: none; }
+
+.md-content img {
+  padding: 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ccc;
+  background: white;
+}
+
+.md-typeset .blogging-tag code {
+  white-space: nowrap;
+  display: block;
+}
+
+/* From warehouse/static/sass/blocks/_verified.scss */
+.checked {
+  color: #148024;
+}

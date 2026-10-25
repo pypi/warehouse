@@ -9,7 +9,7 @@ theme:
   logo: assets/logo.png
   favicon: assets/favicon.ico
   homepage: https://pypi.org
-  custom_dir: blog/overrides
+  custom_dir: theme
   palette:
     - scheme: pypi
       media: "(prefers-color-scheme: light)"
@@ -42,7 +42,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
 extra_css:
-  - stylesheets/extra.css
+  - pypi.css
 plugins:
   - social
   # See https://squidfunk.github.io/mkdocs-material/plugins/blog/

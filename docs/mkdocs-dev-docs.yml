@@ -46,6 +46,7 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/favicon.ico
+  custom_dir: theme
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -78,6 +79,8 @@ theme:
     - search.highlight
     - search.suggest
     - toc.follow
+extra_css:
+  - pypi.css
 extra:
   homepage: https://github.com/pypi/warehouse
   social:

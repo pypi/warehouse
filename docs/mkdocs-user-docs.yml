@@ -49,6 +49,7 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/favicon.ico
+  custom_dir: theme
   homepage: https://pypi.org
   features:
     - content.action.edit
@@ -64,7 +65,7 @@ theme:
         icon: material/weather-sunny
         name: Switch to Light mode
 extra_css:
-  - stylesheets/extra.css
+  - pypi.css
 extra_javascript:
   - assets/js/help-redirects.js
 extra:
