@@ -99,7 +99,7 @@ repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
 nav:
-  - "index.md"
+  - "Home": "index.md"
   - "Using PyPI":
       - "using-pypi/pypi-basics.md"
       - "using-pypi/finding-and-installing.md"
