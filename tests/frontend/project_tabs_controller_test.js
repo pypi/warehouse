@@ -327,6 +327,23 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
 
+      it("focuses the matching panel", () => {
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        window.location.hash = "#history";
+        window.dispatchEvent(new Event("hashchange"));
+        expect(focus.mock.contexts).toContain(document.getElementById("history"));
+        expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+        focus.mockRestore();
+      });
+
+      it("does not move focus for an unknown hash", () => {
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        window.location.hash = "#not-a-panel";
+        window.dispatchEvent(new Event("hashchange"));
+        expect(focus).not.toHaveBeenCalled();
+        focus.mockRestore();
+      });
+
       it("falls back to the first tab when the hash is cleared", () => {
         document.getElementById("history-tab").click();
         window.location.hash = "";

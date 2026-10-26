@@ -94,6 +94,9 @@ export default class extends Controller {
       const tab = this._getTabForContentId(contentId);
       if (tab) {
         this.toggleTab(tab);
+        // Links outside the controller (e.g. the project status bar) only
+        // change the hash, so move focus into the newly shown panel here.
+        document.getElementById(contentId)?.focus({ preventScroll: true });
       }
     }
   }
