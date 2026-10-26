@@ -15,6 +15,7 @@ from warehouse.attestations.models import (
     ProvenanceCounts,
     ProvenanceState,
     PublisherSource,
+    PublisherWorkflow,
 )
 from warehouse.authnz import Permissions
 from warehouse.constants import (
@@ -760,8 +761,12 @@ class TestProject:
         assert status.removed_sources == {
             PublisherSource("GitHub", "example-org/example")
         }
-        assert status.added_workflows == {"publish.yml"}
-        assert status.removed_workflows == {"release.yml"}
+        assert status.added_workflows == {
+            PublisherWorkflow("GitHub", "other/repo", "publish.yml")
+        }
+        assert status.removed_workflows == {
+            PublisherWorkflow("GitHub", "example-org/example", "release.yml")
+        }
 
     def test_provenance_statuses_suppress_a_change_against_unreadable(self, db_session):
         """
@@ -1596,7 +1601,10 @@ class TestRelease:
                     PublisherSource("GitHub", "foo/bar"): 1,
                     PublisherSource("GitHub", "foo/baz"): 1,
                 },
-                {"publish.yml": 2},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/baz", "publish.yml"): 1,
+                },
                 id="two-repositories",
             ),
             pytest.param(
@@ -1607,7 +1615,10 @@ class TestRelease:
                     repository="foo/bar", workflow="release.yml"
                 ),
                 {PublisherSource("GitHub", "foo/bar"): 2},
-                {"publish.yml": 1, "release.yml": 1},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/bar", "release.yml"): 1,
+                },
                 id="two-workflows",
             ),
             pytest.param(
@@ -1695,8 +1706,12 @@ class TestRelease:
                 {
                     "added_sources": {PublisherSource("GitHub", "foo/baz")},
                     "removed_sources": {PublisherSource("GitHub", "foo/bar")},
-                    "added_workflows": set(),
-                    "removed_workflows": set(),
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/baz", "publish.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="repository-changed",
             ),
@@ -1710,8 +1725,12 @@ class TestRelease:
                 {
                     "added_sources": set(),
                     "removed_sources": set(),
-                    "added_workflows": {"release.yml"},
-                    "removed_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "release.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="workflow-changed",
             ),
@@ -1727,10 +1746,31 @@ class TestRelease:
                     "removed_sources": {
                         PublisherSource("Google", "builder@example.gserviceaccount.com")
                     },
-                    "added_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                     "removed_workflows": set(),
                 },
                 id="moved-from-google-to-github",
+            ),
+            pytest.param(
+                pypi_attestations.GooglePublisher(
+                    email="old@example.gserviceaccount.com"
+                ),
+                pypi_attestations.GooglePublisher(
+                    email="new@example.gserviceaccount.com"
+                ),
+                {
+                    "added_sources": {
+                        PublisherSource("Google", "new@example.gserviceaccount.com")
+                    },
+                    "removed_sources": {
+                        PublisherSource("Google", "old@example.gserviceaccount.com")
+                    },
+                    "added_workflows": set(),
+                    "removed_workflows": set(),
+                },
+                id="google-email-changed",
             ),
         ],
     )
