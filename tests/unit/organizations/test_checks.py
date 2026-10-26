@@ -91,11 +91,19 @@ class TestDomainMatch:
         assert check.status == CheckStatus.Unknown
         assert "No domain could be read" in check.detail
 
-    def test_shared_host_is_unknown(self, db_request):
+    @pytest.mark.parametrize(
+        ("url", "email"),
+        [
+            ("https://github.com/acme", "jdoe@acme.com"),
+            # A free email address can't show affiliation, even with the provider
+            ("https://yahoo.com", "jdoe@yahoo.com"),
+        ],
+    )
+    def test_shared_host_is_unknown(self, db_request, url, email):
         user = UserFactory.create()
-        EmailFactory.create(user=user, email="jdoe@acme.com", verified=True)
+        EmailFactory.create(user=user, email=email, verified=True)
         application = OrganizationApplicationFactory.create(
-            link_url="https://github.com/acme", submitted_by=user
+            link_url=url, submitted_by=user
         )
 
         check = find(review_checks(application, user), "domain_match")

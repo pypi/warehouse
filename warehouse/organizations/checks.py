@@ -35,7 +35,7 @@ _extractor = TLDExtract(
     cache_dir=None, suffix_list_urls=(), include_psl_private_domains=True
 )
 
-# Shared website hosts whose domains do not identify the applicant's organization.
+# Shared hosts whose domains don't identify the applicant's organization
 UNVERIFIABLE_URL_HOSTS = {
     "bitbucket.org",
     "codeberg.org",
@@ -48,6 +48,17 @@ UNVERIFIABLE_URL_HOSTS = {
     "readthedocs.io",
     "readthedocs.org",
     "sourceforge.net",
+    # Most common free email providers among verified PyPI accounts
+    "163.com",
+    "gmail.com",
+    "hotmail.com",
+    "icloud.com",
+    "mail.ru",
+    "outlook.com",
+    "proton.me",
+    "protonmail.com",
+    "qq.com",
+    "yahoo.com",
 }
 
 GITHUB_HOSTS = {"github.com", "github.io"}
