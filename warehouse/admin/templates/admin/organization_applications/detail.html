@@ -752,8 +752,7 @@
   </div>
   {% endif %}
 
-  {#- Warm the queue neighbours so `j`/`k` (and Turbo Mode's hand-off) land
-      without a round trip. Browsers without speculation rules ignore this. -#}
+  {#- Prerender the next/previous applications for j/k -#}
   {% set next_urls = [request.route_path('admin.organization_application.detail', organization_application_id=queue.next.id)] if queue.next else [] %}
   {% set previous_urls = [request.route_path('admin.organization_application.detail', organization_application_id=queue.previous.id)] if queue.previous and queue.previous != queue.next else [] %}
   {% if next_urls or previous_urls %}
