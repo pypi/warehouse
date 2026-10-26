@@ -12,6 +12,9 @@ for the entire project.
 Projects owned by an [organization](../organization-accounts/index.md)
 get higher defaults: **200.0 MB** for individual files and **20.0 GB**
 for the entire project.
+A project that leaves an organization goes back to the personal defaults;
+if it is already over them, new uploads fail until you free up space
+or request an increase.
 
 You can see your project's current size and storage limits on
 the project settings page (`https://pypi.org/manage/project/YOUR-PROJECT/settings/`):
