@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from sqlalchemy import update
 from webob.multidict import MultiDict
 
@@ -886,19 +886,18 @@ class TestOrganizationApplicationActions:
         db_request.params["message"] = "Sorry!"
         db_request.route_path = _organization_application_routes
 
-        result = view(db_request)
+        with pytest.raises(HTTPSeeOther) as redirect:
+            view(db_request)
 
         assert (
             organization_application.status == OrganizationApplicationStatus.Withdrawn
         )
         assert organization_application.organization is None
         assert db_request.session.pop_flash("error") == [
-            'Request for "example" organization was withdrawn'
+            '"example" is already withdrawn'
         ]
-        assert result.status_code == 303
-        assert (
-            result.location
-            == f"/admin/organization_applications/{organization_application.id}/"
+        assert redirect.value.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
         )
 
     def test_addnote(self, db_request):
@@ -964,3 +963,51 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_request_more_information_preview(db_request)
+
+    @pytest.mark.parametrize(
+        "status",
+        [
+            OrganizationApplicationStatus.Approved,
+            OrganizationApplicationStatus.Declined,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "view",
+        [
+            views.organization_application_approve,
+            views.organization_application_defer,
+            views.organization_application_request_more_information,
+            views.organization_application_decline,
+        ],
+    )
+    def test_decided_application_keeps_its_decision(
+        self, db_request, mocker, status, view
+    ):
+        emails = [
+            mocker.patch.object(services, f"send_new_organization_{name}_email")
+            for name in ("approved", "declined", "moreinformationneeded")
+        ]
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", status=status
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["message"] = "Stale page"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        with pytest.raises(HTTPSeeOther) as redirect:
+            view(db_request)
+
+        assert redirect.value.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
+        )
+        assert db_request.session.pop_flash("error") == [
+            f'"example" is already {status.value}'
+        ]
+        assert organization_application.status == status
+        assert organization_application.organization is None
+        assert organization_application.observations == []
+        for email in emails:
+            email.assert_not_called()
