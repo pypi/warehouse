@@ -33,7 +33,8 @@ This isn't new, but we want to make sure organizations know about it.
 
 ## Need more?
 
-If your project needs more room, you can still [request an increase].
+Personal and organization projects can both still [request an increase]
+through the regular support channels.
 Any increase you already have stays in place:
 your project always gets whichever limit is higher.
 
