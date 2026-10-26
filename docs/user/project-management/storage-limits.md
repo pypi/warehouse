@@ -4,11 +4,19 @@ title: Storage Limits
 
 # Storage Limits
 
+_Updated 2026-10-26: added higher defaults for projects owned by an organization._
+
 PyPI imposes storage limits on the size of individually uploaded files,
 as well as the total size of all files in a project.
 
 The current default limits are **100.0 MB** for individual files and **10.0 GB**
 for the entire project.
+Projects owned by an [organization](../organization-accounts/index.md)
+get higher defaults: **200.0 MB** for individual files and **20.0 GB**
+for the entire project.
+A project that leaves an organization goes back to the personal defaults;
+if it is already over them, new uploads fail until you free up space
+or request an increase.
 
 You can see your project's current size and storage limits on
 the project settings page (`https://pypi.org/manage/project/YOUR-PROJECT/settings/`):
@@ -17,7 +25,8 @@ the project settings page (`https://pypi.org/manage/project/YOUR-PROJECT/setting
 
 ## File size limits
 
-By default, PyPI limits the size of individual files to **100.0 MB**.
+By default, PyPI limits the size of individual files to **100.0 MB**
+(**200.0 MB** for projects owned by an organization).
 If you attempt to upload a file that exceeds this limit, you'll receive
 an error like the following:
 
@@ -48,7 +57,8 @@ us:
 
 ## Project size limits
 
-By default, PyPI limits the total size of all files in a project to **10.0 GB**.
+By default, PyPI limits the total size of all files in a project to **10.0 GB**
+(**20.0 GB** for projects owned by an organization).
 If you attempt to upload a file that would exceed this limit, you'll receive
 an error like the following:
 
