@@ -346,9 +346,11 @@ if (editModalForm !== null) {
   }
 
   // Sets the edit form's own type field: the server rejects a field sent twice.
+  // Resetting first drops anything typed into the edit dialog and not saved.
   const orgTypeSwap = document.querySelector("[data-orgtype-swap]");
   if (orgTypeSwap !== null) {
     orgTypeSwap.addEventListener("click", function() {
+      editModalForm.reset();
       editModalForm.elements.orgtype.value = orgTypeSwap.dataset.orgtypeSwap;
       editModalForm.submit();
     });
