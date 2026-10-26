@@ -15,8 +15,8 @@ Projects owned by a [PyPI organization] now get higher limits by default:
 
 |                             | Personal projects | Organization projects |
 |-----------------------------|-------------------|-----------------------|
-| Largest file you can upload | 100 MiB           | **200 MiB**           |
-| Total size of a project     | 10 GiB            | **20 GiB**            |
+| Largest file you can upload | 100 MB            | **200 MB**            |
+| Total size of a project     | 10 GB             | **20 GB**             |
 
 <!-- more -->
 
