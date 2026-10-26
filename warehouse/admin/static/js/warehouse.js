@@ -211,6 +211,14 @@ if (organizationApplicationTurboModeSwitch !== null) {
   document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
     input.value = organizationApplicationTurboModeEnabled;
   });
+  // A prerendered queue page ran this before the reviewer last toggled Turbo.
+  document.addEventListener("prerenderingchange", () => {
+    const enabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+    organizationApplicationTurboModeSwitch.checked = enabled;
+    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+      input.value = enabled;
+    });
+  });
   if (organizationApplicationTurboModeEnabled) {
     [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
       setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
