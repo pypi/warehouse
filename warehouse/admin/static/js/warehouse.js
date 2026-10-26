@@ -344,6 +344,15 @@ if (editModalForm !== null) {
   if (editModalForm.classList.contains("edit-form-errors")) {
     document.getElementById("editModalButton").click();
   }
+
+  // Sets the edit form's own type field: the server rejects a field sent twice.
+  const orgTypeSwap = document.querySelector("[data-orgtype-swap]");
+  if (orgTypeSwap !== null) {
+    orgTypeSwap.addEventListener("click", function() {
+      editModalForm.elements.orgtype.value = orgTypeSwap.dataset.orgtypeSwap;
+      editModalForm.submit();
+    });
+  }
 }
 
 // Single-key shortcuts for the review rail. They stand down while any dialog is

@@ -241,15 +241,11 @@
               >
                 <i class="fa-solid fa-pen-to-square"></i> Edit <span class="org-review-key">e</span>
               </button>
-              {#- Submits the edit form with only the type changed. Fields submit in
-                  document order and WTForms reads the first `orgtype`, so this value
-                  wins over the edit dialog's own select, which comes later. -#}
+              {#- Changes the type in the edit form and saves it (see warehouse.js). -#}
               <button
-                type="submit"
-                form="editModalForm"
-                name="orgtype"
-                value="{{ other_orgtype }}"
+                type="button"
                 class="btn btn-outline-secondary btn-block"
+                data-orgtype-swap="{{ other_orgtype }}"
                 data-hotkey-binding=84 {{ 'disabled' if is_decided }}
               >
                 <i class="fa-solid fa-right-left"></i> Make {{ other_orgtype }} <span class="org-review-key">t</span>
