@@ -255,10 +255,9 @@ def _github_association_check(link: _Link, user: User) -> Check | None:
     return check(CheckStatus.Warn, "No GitHub account linked.")
 
 
-def _projects_check(user: User) -> Check:
+def _projects_check(count: int) -> Check:
     check = functools.partial(Check, "has_projects", "Applicant has projects")
 
-    count = len(user.projects)
     if count:
         return check(
             CheckStatus.Ok,
@@ -298,6 +297,8 @@ def review_checks(
     application: OrganizationApplication,
     user: User,
     related_applications: Sequence[OrganizationApplication] = (),
+    *,
+    project_count: int | None = None,
 ) -> list[Check]:
     """
     Build the reviewer-facing checks, most actionable first.
@@ -309,7 +310,8 @@ def review_checks(
         _name_domain_check(application, link),
         _email_verified_check(user),
         _github_association_check(link, user),
-        _projects_check(user),
+        # The list view passes a count instead of loading every project
+        _projects_check(len(user.projects) if project_count is None else project_count),
         _name_conflict_check(application, related_applications),
     ]
     return sorted(

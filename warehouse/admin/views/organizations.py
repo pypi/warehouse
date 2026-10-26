@@ -59,7 +59,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Project, Release, Role
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import (
     ACTIVE_SUBSCRIPTION_STATUSES,
@@ -609,11 +609,17 @@ def _check_summaries(
         .options(
             selectinload(OrganizationApplication.submitted_by).options(
                 selectinload(User.emails),
-                selectinload(User.projects),
                 selectinload(User.account_associations),
             )
         )
         .all()
+    )
+
+    applicant_ids = {application.submitted_by_id for application in open_applications}
+    project_counts = dict(
+        request.db.query(Role.user_id, func.count())
+        .filter(Role.user_id.in_(applicant_ids))
+        .group_by(Role.user_id)
     )
 
     rivals = collections.defaultdict(list)
@@ -635,6 +641,7 @@ def _check_summaries(
                 for rival in rivals[application.normalized_name]
                 if rival.id != application.id
             ],
+            project_count=project_counts.get(application.submitted_by_id, 0),
         )
         summaries[application.id] = {
             status: [check.label for check in checks if check.status == status]

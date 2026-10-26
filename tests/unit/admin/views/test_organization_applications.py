@@ -15,6 +15,7 @@ from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
 )
+from tests.common.db.packaging import RoleFactory
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
 from warehouse.organizations.checks import CheckStatus
@@ -251,6 +252,7 @@ class TestOrganizationApplicationList:
         decided = OrganizationApplicationFactory.create(
             name=application.name, status=OrganizationApplicationStatus.Approved
         )
+        RoleFactory.create(user=application.submitted_by)
 
         summaries = views.organization_applications_list(db_request)["check_summaries"]
 
@@ -258,9 +260,14 @@ class TestOrganizationApplicationList:
         assert summaries[application.id][CheckStatus.Fail] == [
             "Applicant has a verified email"
         ]
-        for open_application in (application, rival):
-            warnings = summaries[open_application.id][CheckStatus.Warn]
-            assert "No competing applications" in warnings
+        warnings = {
+            open_application: summaries[open_application.id][CheckStatus.Warn]
+            for open_application in (application, rival)
+        }
+        assert "No competing applications" in warnings[application]
+        assert "No competing applications" in warnings[rival]
+        assert "Applicant has projects" not in warnings[application]
+        assert "Applicant has projects" in warnings[rival]
 
 
 class TestOrganizationApplicationDetail:
