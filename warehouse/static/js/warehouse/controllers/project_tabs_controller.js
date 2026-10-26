@@ -12,10 +12,14 @@ export default class extends Controller {
     this.toggleTab(this._getTabForContentId(contentId) || this.tabTargets[0]);
     this._handleHashChange = this._handleHashChange.bind(this);
     window.addEventListener("hashchange", this._handleHashChange, false);
+    // Back/forward between URLs that differ in more than the hash (e.g. after
+    // a filter updates the query string) fires popstate but not hashchange.
+    window.addEventListener("popstate", this._handleHashChange, false);
   }
 
   disconnect() {
     window.removeEventListener("hashchange", this._handleHashChange);
+    window.removeEventListener("popstate", this._handleHashChange);
   }
 
   tabClick(event) {
@@ -47,7 +51,8 @@ export default class extends Controller {
     const nextTab = navTabs[nextIndex];
     nextTab.focus();
     this.toggleTab(nextTab);
-    history.pushState(null, "", nextTab.hash);
+    // Replace rather than push, so arrowing through tabs doesn't fill the history
+    history.replaceState(null, "", nextTab.hash);
   }
 
   toggleTab(btn) {
