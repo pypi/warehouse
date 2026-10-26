@@ -3,6 +3,7 @@
 import re
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -116,6 +117,22 @@ def test_render_admin_templates(template):
     )
 
     assert env.get_template(str(template))
+
+
+@pytest.mark.parametrize(
+    "email_name", ["organization-deactivated", "organization-subscription-required"]
+)
+def test_organization_email_subject_is_bounded(email_name: str) -> None:
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
+    organizations = [{"name": f"organization-{i:04}-{'x' * 32}"} for i in range(100)]
+    request = SimpleNamespace(registry=SimpleNamespace(settings={"site.name": "PyPI"}))
+
+    subject = env.get_template(f"email/{email_name}/subject.txt").render(
+        organizations=organizations, request=request
+    )
+
+    assert len(subject) <= 100
+    assert "100" in subject
 
 
 @pytest.mark.parametrize(

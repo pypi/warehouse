@@ -1114,6 +1114,22 @@ class TestFileUpload:
                     "for more information."
                 ),
             ),
+            # version length error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": ".".join(["1"] * 65),
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                (
+                    "The version must be 128 characters or less after "
+                    "normalization, but is 129 characters. See "
+                    "https://docs.pypi.org/project_metadata/#version-length-limit "
+                    "for more information."
+                ),
+            ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")

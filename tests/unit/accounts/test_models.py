@@ -142,6 +142,10 @@ class TestUser:
         user = DBUserFactory.create(is_psf_staff=True)
         assert user.can_reset_password is False
 
+    def test_org_application_reviewer_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_org_application_reviewer=True)
+        assert user.can_reset_password is False
+
     def test_flag_prohibit_password_reset(self, db_session):
         user = DBUserFactory.create(prohibit_password_reset=True)
         assert user.can_reset_password is False
@@ -279,6 +283,47 @@ class TestUser:
             is_support=is_support,
             is_moderator=is_moderator,
             is_psf_staff=is_psf_staff,
+        )
+
+        expected = [*expected[:], f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
+
+    @pytest.mark.parametrize(
+        ("is_org_application_reviewer", "is_superuser", "expected"),
+        [
+            (False, False, []),
+            (True, False, ["group:org_application_reviewers"]),
+            (
+                False,
+                True,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
+            ),
+            (
+                True,
+                True,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                    "group:org_application_reviewers",
+                ],
+            ),
+        ],
+    )
+    def test_principals_org_application_reviewer(
+        self, is_org_application_reviewer, is_superuser, expected
+    ):
+        user = User(
+            id=uuid.uuid4(),
+            is_org_application_reviewer=is_org_application_reviewer,
+            is_superuser=is_superuser,
         )
 
         expected = [*expected[:], f"user:{user.id}", Authenticated]

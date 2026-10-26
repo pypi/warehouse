@@ -8,9 +8,14 @@ import stripe
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 
 from warehouse.api import billing
+from warehouse.organizations.models import (
+    OrganizationDeactivationReason,
+    OrganizationRoleType,
+)
 
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -108,7 +113,11 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_checkout_complete_add(
         self, db_request, subscription_service, mocker, billing_service
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype="Company")
+        OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Owner
+        )
+        organization.deactivate(OrganizationDeactivationReason.NoPaidSeat)
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
@@ -150,6 +159,8 @@ class TestHandleBillingWebhookEvent:
         )
 
         billing.handle_billing_webhook_event(db_request, event)
+
+        assert organization.is_active
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_status(
         self, db_request
