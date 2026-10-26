@@ -91,7 +91,6 @@
   {#- Each check key names the saved reply that resolves it. -#}
   {% set reply_templates = {
     "domain_match": "AddOrgEmailTemplate",
-    "email_verified": "VerifyEmailTemplate",
     "url_shape_github": "GitHubAssociationTemplate",
     "url_shape_codehost": "UnverifiableURLTemplate",
     "has_projects": "ReasonForApplicationTemplate",
@@ -562,7 +561,6 @@
       by warehouse.js, ahead of whichever replies the reviewer combines. -#}
   {% set saved_replies = [
     ("AddOrgEmailTemplate", "Add Org Email"),
-    ("VerifyEmailTemplate", "Verify Email"),
     ("BadURLTemplate", "Bad URL"),
     ("UnverifiableURLTemplate", "Unverifiable URL"),
     ("ShouldBeCompanyTemplate", "Should Be Company"),
@@ -585,11 +583,6 @@
           but ask that you first add an @{{ link_domain or "NONE" }}
           email address to your PyPI account,
           complete the verification,
-          and respond using the linked form.
-      </div>
-      <div class="hidden" id="VerifyEmailTemplate">
-          We'd be happy to approve this organization request,
-          but ask that you first verify an email address on your PyPI account,
           and respond using the linked form.
       </div>
       <div class="hidden" id="BadURLTemplate">
