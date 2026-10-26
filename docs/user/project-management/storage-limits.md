@@ -4,6 +4,8 @@ title: Storage Limits
 
 # Storage Limits
 
+_Updated 2026-10-26: added higher defaults for projects owned by an organization._
+
 PyPI imposes storage limits on the size of individually uploaded files,
 as well as the total size of all files in a project.
 
