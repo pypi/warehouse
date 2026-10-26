@@ -56,7 +56,7 @@
                 <a href="#organization-limits" class="nav-link">
                   Upload Limit	
                   <span class="float-right badge bg-info">
-                    {% if organization.upload_limit %}
+                    {% if organization.upload_limit and organization.upload_limit >= ORGANIZATION_MAX_FILESIZE %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
@@ -68,7 +68,7 @@
                 <a href="#organization-limits" class="nav-link">
                   Total Size Limit
                   <span class="float-right badge bg-info">
-                    {% if organization.total_size_limit %}
+                    {% if organization.total_size_limit and organization.total_size_limit >= ORGANIZATION_MAX_PROJECT_SIZE %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
@@ -382,10 +382,13 @@
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>Upload limit</td>
                   <td>
-                    {% if organization.upload_limit %}
+                    {% if organization.upload_limit and organization.upload_limit >= ORGANIZATION_MAX_FILESIZE %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% if organization.upload_limit %}
+                    <br><small class="text-muted">Stored {{ organization.upload_limit|filesizeformat(binary=True) }} is below the organization default and has no effect</small>
+                    {% endif %}
                     {% endif %}
                   </td>
                   <td>
@@ -406,10 +409,13 @@
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>Total size limit</td>
                   <td>
-                    {% if organization.total_size_limit %}
+                    {% if organization.total_size_limit and organization.total_size_limit >= ORGANIZATION_MAX_PROJECT_SIZE %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% if organization.total_size_limit %}
+                    <br><small class="text-muted">Stored {{ organization.total_size_limit|filesizeformat(binary=True) }} is below the organization default and has no effect</small>
+                    {% endif %}
                     {% endif %}
                   </td>
                   <td>
