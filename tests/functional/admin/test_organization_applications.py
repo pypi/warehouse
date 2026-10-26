@@ -41,8 +41,7 @@ def test_review_actions(webtest, login_admin, mocker, role, action, status):
     form = next(
         form for form in detail.forms.values() if form.action.endswith(f"/{action}/")
     )
-    if "message" in form.fields:
-        form["message"] = "Reviewed application"
+    form["message"] = "Reviewed application"
     response = form.submit(status=HTTPStatus.SEE_OTHER)
     response.follow(status=HTTPStatus.OK)
 
