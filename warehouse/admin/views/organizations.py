@@ -774,9 +774,13 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
         self.current_normalized_name = organization_application.normalized_name
 
     def validate_name(self, field: wtforms.Field) -> None:
-        # Only a rename can clash with the applicant's other open applications.
+        """Check the applicant's other open applications only on a rename."""
         if canonicalize_name(field.data) != self.current_normalized_name:
             super().validate_name(field)
+        elif self.organization_service.find_organizationid(field.data) is not None:
+            raise wtforms.validators.ValidationError(
+                "An organization already has that name."
+            )
 
 
 @view_config(

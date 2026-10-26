@@ -399,6 +399,31 @@ class TestOrganizationApplicationDetail:
         assert result.status_code == 303
         assert organization_application.name == "free"
 
+    def test_detail_edit_name_taken_by_organization(self, db_request):
+        # Another application for the name was approved while this one waited
+        organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Deferred
+        )
+        OrganizationFactory.create(name=organization_application.name)
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "name": organization_application.name,
+                "description": "Typo fixed",
+                "display_name": organization_application.display_name,
+                "link_url": organization_application.link_url,
+                "orgtype": organization_application.orgtype.value,
+            }
+        )
+
+        result = views.organization_application_detail(db_request)
+
+        assert result["form"].name.errors == ["An organization already has that name."]
+        assert organization_application.description != "Typo fixed"
+
     def test_detail_is_approved_true(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
             status=OrganizationApplicationStatus.Approved
