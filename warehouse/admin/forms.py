@@ -77,7 +77,7 @@ class SetTotalSizeLimitForm(wtforms.Form):
     """
     Form for validating total size limit input in admin interface.
 
-    Used by project admin views; orgs use ``SetOrganizationUploadLimitForm`` below.
+    Used by project admin views; orgs use ``SetOrganizationTotalSizeLimitForm`` below.
     """
 
     minimum = MAX_PROJECT_SIZE
