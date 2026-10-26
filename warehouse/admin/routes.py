@@ -60,6 +60,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.reactivate",
+        "/admin/organizations/{organization_id}/reactivate/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.set_upload_limit",
         "/admin/organizations/{organization_id}/set_upload_limit/",
         domain=warehouse,

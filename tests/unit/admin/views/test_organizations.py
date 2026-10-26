@@ -13,6 +13,7 @@ from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
 from tests.common.db.organizations import (
+    OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
@@ -31,6 +32,7 @@ from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OIDCIssuerType,
+    OrganizationDeactivationReason,
     OrganizationManualActivation,
     OrganizationOIDCIssuer,
     OrganizationRole,
@@ -1670,6 +1672,56 @@ class TestDeleteManualActivation:
             views.delete_manual_activation(db_request)
 
 
+class TestReactivateOrganization:
+    @pytest.fixture
+    def flash(self, db_request, mocker):
+        db_request.route_path = mocker.Mock(return_value="/admin/organizations/")
+        return mocker.spy(db_request.session, "flash")
+
+    def test_reactivates_and_clears_stale_schedule(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org")
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        OrganizationDeactivationScheduleFactory.create(organization=organization)
+        db_request.user = UserFactory.create()
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
+        assert organization.deactivation_schedule is None
+        event = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationReactivate
+        ).one()
+        assert event.additional["reactivated_by_user_id"] == str(db_request.user.id)
+        flash.assert_called_once_with(
+            "Organization 'test-org' reactivated", queue="success"
+        )
+
+    def test_already_active(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=True)
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        flash.assert_called_once_with(
+            "Organization 'test-org' is already active", queue="error"
+        )
+
+    def test_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.reactivate_organization(db_request)
+
+
 class TestSetUploadLimit:
     def test_set_upload_limit_with_integer(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
@@ -1684,22 +1736,22 @@ class TestSetUploadLimit:
         mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "150"})
+        db_request.POST = MultiDict({"upload_limit": "250"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "Upload limit set to 150.0MiB", queue="success"
+            "Upload limit set to 250.0MiB", queue="success"
         )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
-        assert organization.upload_limit == 150 * views.ONE_MIB
+        assert organization.upload_limit == 250 * views.ONE_MIB
         event = organization.events.one()
         assert event.tag == "admin:organization:set_upload_limit"
         assert event.additional == {
             "organization_name": organization.name,
             "old_upload_limit": None,
-            "new_upload_limit": 150 * views.ONE_MIB,
+            "new_upload_limit": 250 * views.ONE_MIB,
             "actor": user.username,
         }
 
@@ -1794,12 +1846,13 @@ class TestSetUploadLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"upload_limit": "150"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "upload_limit: Upload limit can not be less than 100.0MiB", queue="error"
+            "upload_limit: Upload limit can not be less than 200.0MiB", queue="error"
         )
         assert result.status_code == 303
 
@@ -1908,12 +1961,13 @@ class TestSetTotalSizeLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"total_size_limit": "15"})
 
         result = views.set_total_size_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "total_size_limit: Total organization size can not be less than 10.0GiB",
+            "total_size_limit: Total organization size can not be less than 20.0GiB",
             queue="error",
         )
         assert result.status_code == 303

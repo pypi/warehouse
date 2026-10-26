@@ -24,6 +24,11 @@ class IGenericBillingService(Interface):
         Iterate over every Subscription resource from the Billing API
         """
 
+    def list_customer_subscriptions(customer_id):
+        """
+        Iterate over the Customer's Subscription resources, except canceled ones
+        """
+
     def create_customer(name, description):
         """
         Create the Customer resource via Billing API with the given name and description

@@ -23,6 +23,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_BUILDKITE_OIDC = "disallow-buildkite-oidc"
     READ_ONLY = "read-only"
     AUTO_PROHIBIT_DISPOSABLE_DOMAINS = "auto-prohibit-disposable-domains"
+    DISALLOW_ORGANIZATION_DEACTIVATION = "disallow-organization-deactivation"
 
 
 class AdminFlag(db.ModelBase):
