@@ -625,11 +625,31 @@ class ManageOrganizationBillingViews:
             )
         return HTTPSeeOther(manage_subscription_url)
 
+    def deactivated_redirect(self) -> HTTPSeeOther | None:
+        """Only orgs deactivated for having no paid seat come back by paying."""
+        if self.organization.is_active or self.organization.reactivates_on_payment:
+            return None
+        self.request.session.flash(
+            self.request._(
+                "This organization is deactivated. To reactivate it, email "
+                "support+orgs@pypi.org."
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.settings",
+                organization_name=self.organization.normalized_name,
+            )
+        )
+
     @view_config(
         route_name="manage.organization.activate_subscription",
         renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
+        if redirect := self.deactivated_redirect():
+            return redirect
         form = OrganizationActivateBillingForm(self.request.POST)
         if self.request.method == "POST" and form.validate():
             self.organization_service.record_tos_engagement(
@@ -650,6 +670,8 @@ class ManageOrganizationBillingViews:
             # Create subscription if there are no manageable subscription.
             # This occurs if no subscription exists, or all subscriptions have reached
             # a terminal state of Canceled.
+            if redirect := self.deactivated_redirect():
+                return redirect
             return self.create_subscription()
         # Manage subscription if there is an existing subscription.
         return self.manage_subscription()
@@ -1770,7 +1792,13 @@ class ManageOrganizationPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1793,8 +1821,14 @@ class ManageOrganizationPublishingViews:
             self.request.session.flash(
                 self.request._(
                     f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See https://pypi.org/help#admin-intervention for "
-                    "details."
+                    "disabled. See ${docs_url} for "
+                    "details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )

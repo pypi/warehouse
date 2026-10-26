@@ -1503,6 +1503,54 @@ class TestManageOrganizationBillingViews:
             "Terms of Service must be accepted."
         ]
 
+    @pytest.mark.parametrize(
+        "view_method", ["activate_subscription", "create_or_manage_subscription"]
+    )
+    def test_deactivated_organization_cannot_start_subscription(
+        self, db_request, organization_no_customer, mocker, view_method
+    ):
+        organization_no_customer.is_active = False
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"terms_of_service_agreement": "1"})
+        db_request.route_path = mocker.Mock(return_value="/settings/")
+        flash = mocker.spy(db_request.session, "flash")
+
+        view = org_views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
+        create_subscription = mocker.patch.object(view, "create_subscription")
+        result = getattr(view, view_method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/settings/"
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.settings",
+            organization_name=organization_no_customer.normalized_name,
+        )
+        flash.assert_called_once_with(
+            "This organization is deactivated. To reactivate it, email "
+            "support+orgs@pypi.org.",
+            queue="error",
+        )
+        create_subscription.assert_not_called()
+
+    def test_org_deactivated_for_no_paid_seat_can_start_subscription(
+        self, db_request, organization_no_customer, mocker
+    ):
+        organization_no_customer.is_active = False
+        mocker.patch.object(
+            type(organization_no_customer),
+            "reactivates_on_payment",
+            new_callable=mocker.PropertyMock,
+            return_value=True,
+        )
+        view = org_views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
+        create_subscription = mocker.patch.object(view, "create_subscription")
+
+        assert view.create_or_manage_subscription() is create_subscription.return_value
+
     def test_create_subscription(
         self,
         db_request,
@@ -1687,12 +1735,10 @@ class TestManageOrganizationTeams:
             organization=organization, user=db_request.user, role_name="Owner"
         )
 
-        def add_team(name, *args, **kwargs):
-            team = TeamFactory.create(name=name)
-            organization.teams.append(team)
-            return team
-
-        monkeypatch.setattr(organization_service, "add_team", add_team)
+        # Production IP lookups return a loaded object without autoflushing.
+        db_request.db.refresh(db_request.ip_address)
+        # Authentication also loads the current user before the view runs.
+        db_request.db.refresh(db_request.user)
 
         send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
@@ -1706,8 +1752,22 @@ class TestManageOrganizationTeams:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert len(organization.teams) == 2
-        assert organization.teams[-1].name == "Team Name"
+        teams = organization_service.get_teams_by_organization(organization.id)
+        assert len(teams) == 2
+        team = next(team for team in teams if team.name == "Team Name")
+        assert team.organization == organization
+        assert team.events[0].tag == "team:create"
+        assert team.events[0].additional == {
+            "organization_name": organization.name,
+            "team_name": "Team Name",
+            "created_by_user_id": str(db_request.user.id),
+        }
+        assert organization.events[0].tag == "organization:team:create"
+        assert organization.events[0].additional == {
+            "organization_name": organization.name,
+            "team_name": "Team Name",
+            "created_by_user_id": str(db_request.user.id),
+        }
         assert send_team_created_email.calls == [
             pretend.call(
                 db_request,
@@ -1964,7 +2024,7 @@ class TestManageOrganizationProjects:
         pyramid_user,
         monkeypatch,
     ):
-        db_request.help_url = lambda *a, **kw: ""
+        db_request.user_docs_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
 
@@ -2062,7 +2122,7 @@ class TestManageOrganizationProjects:
         """`hit` (on the attempt limiter) rejects after the project is in the
         session, so the view must doom the transaction or pyramid_tm commits
         the refused project."""
-        db_request.help_url = lambda *a, **kw: ""
+        db_request.user_docs_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
@@ -2108,7 +2168,7 @@ class TestManageOrganizationProjects:
             (
                 "requirements.txt",
                 (
-                    "The name 'requirements.txt' isn't allowed. See help-url "
+                    "The name 'requirements.txt' isn't allowed. See docs-url "
                     "for more information."
                 ),
             ),
@@ -2123,7 +2183,7 @@ class TestManageOrganizationProjects:
         invalid_name,
         expected,
     ):
-        db_request.help_url = lambda *a, **kw: "help-url"
+        db_request.user_docs_url = lambda *a, **kw: "docs-url"
 
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
@@ -2169,7 +2229,7 @@ class TestManageOrganizationProjects:
         organization_service,
         monkeypatch,
     ):
-        db_request.help_url = lambda *a, **kw: "help-url"
+        db_request.user_docs_url = lambda *a, **kw: "docs-url"
 
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
@@ -2211,7 +2271,7 @@ class TestManageOrganizationProjects:
                 "See {projecthelp} for more information."
             ).format(
                 name=project.name,
-                projecthelp="help-url",
+                projecthelp="docs-url",
             )
         ]
         assert len(organization.projects) == 1
@@ -3619,7 +3679,8 @@ class TestManageOrganizationPublishingViews:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "GitHub-based trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details.",
                 queue="error",
             )
         ]
@@ -3780,7 +3841,8 @@ class TestManageOrganizationPublishingViews:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details.",
                 queue="error",
             )
         ]

@@ -796,7 +796,7 @@ don't need to run anything. To inspect what extraction produces locally, run
 
 ## What next?
 
-Look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), find one you
+Look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue+for+humans%22), find one you
 want to work on, comment on it to say you're working on it, then submit a pull
 request. Use our [submitting patches](submitting-patches.md) documentation to help.
 
@@ -810,7 +810,6 @@ involved. And you can meet us in person at [packaging sprints](https://wiki.pyth
 
 Resources to help you learn Warehouse's context:
 
-- [Roadmap](../roadmap.md)
 - [blog posts, mailing list messages, and notes from our core developer meetings](https://wiki.python.org/psf/PackagingWG)
 - [Warehouse codebase](../application.md)
 - [the PyPA's list of presentations and articles](https://www.pypa.io/en/latest/presentations/)

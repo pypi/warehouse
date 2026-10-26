@@ -206,7 +206,7 @@
           <li data-password-match-target="matchMessage" class="hidden"></li>
           <li data-password-breach-target="message" class="hidden">
             {# djlint:off H025 #}
-            {{ gettext("This password appears in a security breach or has been compromised and cannot be used. Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.") }}
+            {% trans href=request.user_docs_url('/your-account/security-alerts/', anchor='compromised-passwords') %}This password appears in a security breach or has been compromised and cannot be used. Please refer to the <a href="{{ href }}">documentation</a> for more information.{% endtrans %}
             {# djlint:on #}
           </li>
         </ul>

@@ -11,7 +11,7 @@ tags:
 ---
 
 Beginning today, all uploads from user accounts with 2FA enabled
-will be required to use an [API Token](https://pypi.org/help/#apitoken)
+will be required to use an [API Token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token)
 or [Trusted Publisher](https://docs.pypi.org/trusted-publishers/) configuration
 in place of their password.
 

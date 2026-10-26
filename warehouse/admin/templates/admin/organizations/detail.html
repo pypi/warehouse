@@ -156,6 +156,33 @@
               </form>
             </div>
 
+            {% if organization.lacks_paid_seat and organization.deactivation_schedule and not request.flags.enabled(AdminFlagValue.DISALLOW_ORGANIZATION_DEACTIVATION) %}
+            <div class="alert alert-warning mt-3" id="deactivation-schedule">
+              No paid seat. Deadline: {{ organization.deactivation_schedule.deactivate_on|format_date() }}; deactivated the next day.
+              Last notice: {{ organization.deactivation_schedule.last_notice_days }} days.
+            </div>
+            {% endif %}
+
+            {% if not organization.is_active %}
+            <div class="alert alert-secondary mt-3" id="deactivation-reason">
+              {% if organization.deactivated %}
+              Deactivated {{ organization.deactivated|format_date() }}.
+              {% endif %}
+              Reason: {{ organization.deactivated_reason.value if organization.deactivated_reason else "unknown" }}.
+              {% if organization.reactivates_on_payment %}
+              Owners can reactivate by paying through {{ organization.reactivation_deadline|format_date() }}.
+              {% endif %}
+            </div>
+
+            <form method="POST" action="{{ request.route_path('admin.organization.reactivate', organization_id=organization.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="btn btn-warning btn-block mt-3"
+                      {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+                      onclick="return confirm('Reactivate {{ organization.name }}? Unpaid company organizations may enter a new 30-day deactivation countdown. If no owner is reachable, organizations without projects can be deactivated without email.')">
+                <i class="icon fa fa-power-off"></i> Reactivate
+              </button>
+            </form>
+            {% endif %}
         </div>
       </div>
     </div>

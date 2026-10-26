@@ -1,4 +1,4 @@
-site_name: PyPI Docs
+site_name: PyPI User Documentation
 docs_dir: user
 exclude_docs:
   README.md
@@ -27,6 +27,7 @@ markdown_extensions:
   - footnotes
   - md_in_html
   - toc:
+      permalink: true
       toc_depth: 3
   - pymdownx.caret
   - pymdownx.details
@@ -49,23 +50,35 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/favicon.ico
+  custom_dir: theme
   homepage: https://pypi.org
   features:
     - content.action.edit
+    - navigation.footer
   palette:
-    - scheme: default
-      media: "(prefers-color-scheme: light)"
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
       toggle:
-        icon: material/weather-night
-        name: Switch to Dark mode
-    - scheme: slate
-      media: "(prefers-color-scheme: dark)"
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
-        icon: material/weather-sunny
-        name: Switch to Light mode
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
 extra_css:
-  - stylesheets/extra.css
+  - pypi.css
+extra_javascript:
+  - assets/js/redirect.js
 extra:
+  pypi_site: user-docs
   analytics:
     provider: plausible
     domain: docs.pypi.org
@@ -74,17 +87,19 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/pypi
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/pypi
+    - icon: fontawesome/brands/discourse
+      link: https://discuss.python.org/c/packaging/14
     - icon: fontawesome/brands/mastodon
       link: https://fosstodon.org/@pypi
     - icon: fontawesome/brands/bluesky
       link: https://bsky.app/profile/pypi.org
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pypi
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
 nav:
-  - "index.md"
+  - "Home": "index.md"
   - "Using PyPI":
       - "using-pypi/pypi-basics.md"
       - "using-pypi/finding-and-installing.md"
@@ -153,7 +168,6 @@ nav:
   - "About PyPI":
       - "about/who-maintains-pypi.md"
       - "about/contributing.md"
-      - "about/pypi-roadmap.md"
       - "about/service-availability.md"
       - "about/pypi-statistics.md"
       - "about/security-and-internals.md"

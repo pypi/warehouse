@@ -314,7 +314,8 @@ class TestManageOIDCPublisherViews:
         publishing_request.session.flash.assert_called_once_with(
             (
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
@@ -614,7 +615,8 @@ class TestManageOIDCPublisherViews:
         request.session.flash.assert_called_once_with(
             (
                 "Trusted publishing is temporarily disabled. See "
-                "https://pypi.org/help#admin-intervention for details."
+                "https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
@@ -993,8 +995,8 @@ class TestManageOIDCPublisherViews:
         publishing_request.session.flash.assert_called_once_with(
             (
                 f"{publisher_name}-based trusted publishing is temporarily "
-                "disabled. See https://pypi.org/help#admin-intervention for "
-                "details."
+                "disabled. See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
@@ -1175,7 +1177,8 @@ class TestManageOIDCPublisherViews:
         request.session.flash.assert_called_once_with(
             (
                 "Trusted publishing is temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
             ),
             queue="error",
         )
