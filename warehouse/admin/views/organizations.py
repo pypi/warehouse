@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import datetime as dt
 import inspect
 import shlex
 
+from collections.abc import Sequence
 from typing import Any
+from uuid import UUID
 
 import wtforms
 
@@ -14,7 +17,7 @@ from pyramid.request import Request
 from pyramid.view import view_config
 from sqlalchemy import desc, func, or_, tuple_
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
@@ -36,7 +39,12 @@ from warehouse.email import send_new_organization_moreinformationneeded_email
 from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
-from warehouse.organizations.checks import application_domain, review_checks
+from warehouse.organizations.checks import (
+    OPEN_APPLICATION_STATUSES,
+    CheckStatus,
+    application_domain,
+    review_checks,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OIDCIssuerType,
@@ -577,13 +585,64 @@ def cancel_organization_subscription(request):
     )
 
 
+def _check_summaries(
+    request: Request, applications: Sequence[OrganizationApplication]
+) -> dict[UUID, dict[CheckStatus, list[str]]]:
+    open_ids = [
+        application.id
+        for application in applications
+        if application.status in OPEN_APPLICATION_STATUSES
+    ]
+    if not open_ids:
+        return {}
+
+    open_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(OrganizationApplication.id.in_(open_ids))
+        .options(
+            selectinload(OrganizationApplication.submitted_by).options(
+                selectinload(User.emails),
+                selectinload(User.projects),
+                selectinload(User.account_associations),
+            )
+        )
+        .all()
+    )
+
+    rivals = collections.defaultdict(list)
+    for rival in request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status.in_(OPEN_APPLICATION_STATUSES),
+        OrganizationApplication.normalized_name.in_(
+            {application.normalized_name for application in open_applications}
+        ),
+    ):
+        rivals[rival.normalized_name].append(rival)
+
+    summaries = {}
+    for application in open_applications:
+        checks = review_checks(
+            application,
+            application.submitted_by,
+            [
+                rival
+                for rival in rivals[application.normalized_name]
+                if rival.id != application.id
+            ],
+        )
+        summaries[application.id] = {
+            status: [check.label for check in checks if check.status == status]
+            for status in (CheckStatus.Fail, CheckStatus.Warn)
+        }
+    return summaries
+
+
 @view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationApplicationsRead,
     uses_session=True,
 )
-def organization_applications_list(request):
+def organization_applications_list(request: Request) -> dict[str, Any]:
     q = request.params.get("q", "")
     terms = shlex.split(q)
 
@@ -673,8 +732,10 @@ def organization_applications_list(request):
         joinedload(OrganizationApplication.observations)
     )
 
+    organization_applications = organization_applications_query.all()
     return {
-        "organization_applications": organization_applications_query.all(),
+        "organization_applications": organization_applications,
+        "check_summaries": _check_summaries(request, organization_applications),
         "query": q,
         "terms": terms,
     }
