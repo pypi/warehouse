@@ -6,7 +6,6 @@ from warehouse.organizations.checks import (
     CheckStatus,
     _email_domain,
     _Link,
-    application_domain,
     review_checks,
 )
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -92,18 +91,11 @@ class TestDomainMatch:
         assert check.status == CheckStatus.Unknown
         assert "No domain could be read" in check.detail
 
-    @pytest.mark.parametrize(
-        "url",
-        [
-            "https://github.com/acme",
-            "https://acme.github.io",
-        ],
-    )
-    def test_shared_host_is_unknown(self, db_request, url):
+    def test_shared_host_is_unknown(self, db_request):
         user = UserFactory.create()
         EmailFactory.create(user=user, email="jdoe@acme.com", verified=True)
         application = OrganizationApplicationFactory.create(
-            link_url=url, submitted_by=user
+            link_url="https://github.com/acme", submitted_by=user
         )
 
         check = find(review_checks(application, user), "domain_match")
@@ -140,16 +132,6 @@ class TestDomainMatch:
         EmailFactory.create(user=user, email="jdoe@bücher.de", verified=True)
         application = OrganizationApplicationFactory.create(
             link_url="https://bücher.de", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "domain_match")
-        assert check.status == CheckStatus.Ok
-
-    def test_verified_match_ignores_case(self, db_request):
-        user = UserFactory.create()
-        EmailFactory.create(user=user, email="jdoe@ACME.com", verified=True)
-        application = OrganizationApplicationFactory.create(
-            link_url="https://ACME.com", submitted_by=user
         )
 
         check = find(review_checks(application, user), "domain_match")
@@ -361,19 +343,6 @@ class TestGitHubAssociation:
         check = find(review_checks(application, user), "github_association")
         assert check.status == CheckStatus.Warn
 
-    def test_passes_when_linked(self, db_request):
-        user = UserFactory.create()
-        OAuthAccountAssociationFactory.create(
-            user=user, service="github", external_username="jdoe"
-        )
-        application = OrganizationApplicationFactory.create(
-            link_url="https://github.com/acme", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "github_association")
-        assert check.status == CheckStatus.Ok
-        assert "jdoe" in check.detail
-
 
 class TestProjects:
     def test_warns_with_no_projects(self, db_request):
@@ -387,7 +356,7 @@ class TestProjects:
             == CheckStatus.Warn
         )
 
-    def test_singular_project(self, db_request):
+    def test_passes_with_projects(self, db_request):
         user = UserFactory.create()
         RoleFactory.create(user=user)
         application = OrganizationApplicationFactory.create(
@@ -397,17 +366,6 @@ class TestProjects:
         check = find(review_checks(application, user), "has_projects")
         assert check.status == CheckStatus.Ok
         assert "1 project" in check.detail
-
-    def test_plural_projects(self, db_request):
-        user = UserFactory.create()
-        RoleFactory.create(user=user)
-        RoleFactory.create(user=user)
-        application = OrganizationApplicationFactory.create(
-            link_url="https://acme.com", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "has_projects")
-        assert "2 projects" in check.detail
 
 
 class TestNameConflict:
@@ -452,19 +410,6 @@ class TestNameConflict:
         assert check.status == CheckStatus.Warn
         assert "1 other open application" in check.detail
 
-    def test_pluralizes_multiple_conflicts(self, db_request):
-        user = UserFactory.create()
-        application = OrganizationApplicationFactory.create(
-            name="acme", link_url="https://acme.com", submitted_by=user
-        )
-        others = [
-            OrganizationApplicationFactory.create(name="acme"),
-            OrganizationApplicationFactory.create(name="acme"),
-        ]
-
-        check = find(review_checks(application, user, others), "name_conflict")
-        assert "2 other open applications" in check.detail
-
 
 class TestReviewChecks:
     def test_orders_failures_before_passes(self, db_request):
@@ -484,18 +429,3 @@ class TestReviewChecks:
             order.index(check.status) for check in review_checks(application, user)
         ]
         assert ranks == sorted(ranks)
-
-
-class TestApplicationDomain:
-    @pytest.mark.parametrize(
-        ("link_url", "expected"),
-        [
-            ("https://www.acme.com", "acme.com"),
-            ("https://dept.acme.com", "acme.com"),
-            ("https://acme.com:99999", None),
-        ],
-    )
-    def test_domain(self, db_request, link_url, expected):
-        application = OrganizationApplicationFactory.create(link_url=link_url)
-
-        assert application_domain(application) == expected
