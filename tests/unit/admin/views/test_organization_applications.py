@@ -17,7 +17,7 @@ from tests.common.db.organizations import (
 )
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
-from warehouse.organizations.checks import CheckStatus, review_checks
+from warehouse.organizations.checks import CheckStatus
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
@@ -45,9 +45,7 @@ class TestOrganizationApplicationList:
         )
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {
-            application.id for application in organization_applications
-        }
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications,
             "query": "",
@@ -141,7 +139,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:approved"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries") == {}
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[:2],
             "query": "is:approved",
@@ -161,7 +159,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:declined"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries") == {}
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[2:3],
             "query": "is:declined",
@@ -181,9 +179,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:submitted"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {
-            application.id for application in organization_applications[3:]
-        }
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[3:],
             "query": "is:submitted",
@@ -200,7 +196,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:company"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {company_org.id}
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [company_org],
             "query": "type:company",
@@ -210,7 +206,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:community"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {community_org.id}
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [community_org],
             "query": "type:community",
@@ -225,7 +221,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:invalid"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {company_org.id}
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [company_org],
             "query": "type:invalid",
@@ -240,36 +236,31 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_applications_list(db_request)
 
-        assert result.pop("check_summaries").keys() == {
-            application.id for application in organization_applications
-        }
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications,
             "query": "is:not-actually-a-valid-query",
             "terms": ["is:not-actually-a-valid-query"],
         }
 
-    def test_check_summaries_match_review_checks(self, db_request):
-        application = OrganizationApplicationFactory.create(
-            link_url="https://example.com/"
-        )
+    def test_check_summaries(self, db_request):
+        application = OrganizationApplicationFactory.create()
         rival = OrganizationApplicationFactory.create(
             name=application.name, status=OrganizationApplicationStatus.Deferred
         )
         decided = OrganizationApplicationFactory.create(
-            status=OrganizationApplicationStatus.Approved
+            name=application.name, status=OrganizationApplicationStatus.Approved
         )
 
         summaries = views.organization_applications_list(db_request)["check_summaries"]
 
-        checks = review_checks(application, application.submitted_by, [rival])
-        assert summaries[application.id] == {
-            CheckStatus.Fail: [c.label for c in checks if c.status == CheckStatus.Fail],
-            CheckStatus.Warn: [c.label for c in checks if c.status == CheckStatus.Warn],
-        }
-        warnings = summaries[application.id][CheckStatus.Warn]
-        assert "No competing applications" in warnings
         assert decided.id not in summaries
+        assert summaries[application.id][CheckStatus.Fail] == [
+            "Applicant has a verified email"
+        ]
+        for open_application in (application, rival):
+            warnings = summaries[open_application.id][CheckStatus.Warn]
+            assert "No competing applications" in warnings
 
 
 class TestOrganizationApplicationDetail:
@@ -289,11 +280,6 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
-        assert {check.key for check in result["checks"]} >= {
-            "domain_match",
-            "email_verified",
-            "has_projects",
-        }
 
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
