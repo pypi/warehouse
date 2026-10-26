@@ -324,7 +324,12 @@
             </div>
             {{ field_row("Type", organization_application.orgtype.value) }}
             {{ field_row("Membership size", organization_application.membership_size.value) }}
-            {{ field_row("Submitted", organization_application.submitted|format_date()) }}
+            {% set submitted = organization_application.submitted|format_date() %}
+            {% if not is_decided %}
+            {% set waiting_days = (now() - organization_application.submitted).days %}
+            {% set submitted = submitted ~ " · " ~ ("submitted today" if waiting_days == 0 else (waiting_days ~ (" day" if waiting_days == 1 else " days") ~ " waiting")) %}
+            {% endif %}
+            {{ field_row("Submitted", submitted) }}
             {{ field_row("Description", organization_application.description, extra_class="preserve-whitespace") }}
             {{ field_row("Anticipated usage", organization_application.usage, extra_class="preserve-whitespace") }}
           </dl>
