@@ -289,7 +289,7 @@
                 {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
                 <button
                   type="button"
-                  class="btn btn-xs btn-outline-info saved-reply-button org-review-check-ask"
+                  class="btn btn-xs btn-outline-info org-review-check-ask"
                   data-toggle="modal"
                   data-target="#requestMoreInfoModal"
                   data-template="{{ reply_template }}"
@@ -572,10 +572,29 @@
     </form>
   </div>
 
+  {#- Saved replies, each one paragraph of the message. The greeting is added once,
+      by warehouse.js, ahead of whichever replies the reviewer combines. -#}
+  {% set saved_replies = [
+    ("AddOrgEmailTemplate", "Add Org Email"),
+    ("VerifyEmailTemplate", "Verify Email"),
+    ("BadURLTemplate", "Bad URL"),
+    ("UnverifiableURLTemplate", "Unverifiable URL"),
+    ("ShouldBeCompanyTemplate", "Should Be Company"),
+    ("ReasonForApplicationTemplate", "Reason For Application"),
+    ("GitHubAssociationTemplate", "GitHub Association"),
+  ] %}
+  {#- Replies that answer a failing or warning check come first. -#}
+  {% set replies = namespace(suggested=[]) %}
+  {% for check in checks if check.status.value in ["fail", "warn"] and check.key in reply_templates %}
+  {% set replies.suggested = replies.suggested + [reply_templates[check.key]] %}
+  {% endfor %}
+  {% set ordered_replies = (saved_replies|selectattr("0", "in", replies.suggested)|list) + (saved_replies|rejectattr("0", "in", replies.suggested)|list) %}
   <div class="modal fade text-break" id="requestMoreInfoModal" tabindex="-1" role="dialog" aria-labelledby="requestMoreInfoModalLabel">
-    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
+    <form method="POST"
+          data-hotkey-submit
+          action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}"
+          data-preview-url="{{ request.route_path('admin.organization_application.requestmoreinfo.preview', organization_application_id=organization_application.id) }}">
       <div class="hidden" id="AddOrgEmailTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           We'd be happy to approve this organization request,
           but ask that you first add an @{{ link_domain or "NONE" }}
           email address to your PyPI account,
@@ -583,29 +602,24 @@
           and respond using the linked form.
       </div>
       <div class="hidden" id="VerifyEmailTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           We'd be happy to approve this organization request,
           but ask that you first verify an email address on your PyPI account,
           and respond using the linked form.
       </div>
       <div class="hidden" id="BadURLTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           Upon reviewing this organization application request, we were unable to find a related organization at the provided URL ({{ organization_application.link_url  }}).
           Please let us know if there is an updated URL we should use instead, otherwise we will decline this request.
       </div>
       <div class="hidden" id="UnverifiableURLTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           Upon reviewing this organization application request, we were unable to determine your affiliation with the provided URL ({{ organization_application.link_url  }}).
           Please let us know if there is some other way for us to verify this, otherwise we will decline this request.
       </div>
       <div class="hidden" id="ShouldBeCompanyTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           We're reviewing your organization request and noticed that you might be a better fit for a Company organization.
           We can proceed with this request, but would need to change the name to suit, "{{ organization_application.name }}-community" or "{{ organization_application.name }}-opensource".
           Let us know if you'd like to do that, or switch this to a Company Organization request.
       </div>
       <div class="hidden" id="ReasonForApplicationTemplate">
-          Hello {{ organization_application.submitted_by.username }}!
           We'd be happy to approve this organization request, but we need some more information first.
           We noticed that you don't have an existing project on PyPI yet.
           Since you don't have a project already, we need to know what your reason for applying for a PyPI Org account is and how having a PyPI Org account might help you.
@@ -620,7 +634,7 @@
       </div>
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="requestMoreInfoModalLabel">
@@ -631,25 +645,46 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>
-              This will request more information for {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
-            </p>
-            <div class="form-group">
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="AddOrgEmailTemplate">Add Org Email</button>
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="BadURLTemplate">Bad URL</button>
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ReasonForApplicationTemplate">Reason For Application</button>
-              <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="GitHubAssociationTemplate">GitHub Organization and Association</button>
-            </div>
-            <div class="form-group">
-              <label for="requestMoreInfoModalMessage">
-                Message
-              </label>
-              <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting" rows=8></textarea>
-              <span id="requestMoreInfoModalMessageHelpBlock">
-                This message will be included in the notification email.
-              </span>
+            <div class="row">
+              <div class="col-lg-6">
+                <p>
+                  This will request more information for {{ user_link(user) }}'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                </p>
+                <div class="form-group org-review-replies" role="group" aria-label="Saved replies">
+                  {% for template_id, label in ordered_replies %}
+                  <button type="button"
+                          class="btn btn-sm btn-outline-primary saved-reply-button"
+                          data-template="{{ template_id }}"
+                          aria-pressed="false">
+                    {{ label }}
+                    {% if template_id in replies.suggested %}<span class="badge badge-info">Suggested</span>{% endif %}
+                    <span class="org-review-key org-review-key-inline" title="Alt/&#8997; + {{ loop.index }}">&#8997;{{ loop.index }}</span>
+                  </button>
+                  {% endfor %}
+                </div>
+                <div class="form-group mb-lg-0">
+                  <label for="requestMoreInfoModalMessage">
+                    Message
+                  </label>
+                  <textarea id="requestMoreInfoModalMessage"
+                            class="form-control"
+                            name="message"
+                            placeholder="Information you are requesting"
+                            rows=10
+                            required
+                            data-greeting="Hello {{ organization_application.submitted_by.username }}!"></textarea>
+                  <small id="requestMoreInfoModalMessageHelpBlock" class="text-muted">
+                    Replies combine: each one toggles its own paragraph.
+                  </small>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <section class="org-review-preview" aria-labelledby="requestMoreInfoPreviewLabel">
+                  <h5 class="org-review-preview-label" id="requestMoreInfoPreviewLabel">Email the applicant will receive</h5>
+                  <p class="org-review-preview-subject" id="requestMoreInfoPreviewSubject"></p>
+                  <pre class="org-review-preview-body" id="requestMoreInfoPreviewBody"></pre>
+                </section>
+              </div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">

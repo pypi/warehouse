@@ -218,21 +218,110 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
-const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
+// Request-more-information composer. Each saved reply is one paragraph, and its
+// button toggles that paragraph in or out, so replies combine under one greeting.
+// A button reads as pressed while its paragraph is in the message, so hand edits
+// that remove one release its button too.
+const replyField = document.getElementById("requestMoreInfoModalMessage");
+if (replyField !== null) {
+  const replyForm = replyField.form;
+  const replyModal = replyForm.closest(".modal");
+  const replyButtons = [...replyForm.querySelectorAll(".saved-reply-button")];
+  const greeting = replyField.dataset.greeting;
+  const previewSection = document.querySelector(".org-review-preview");
+  const previewSubject = document.getElementById("requestMoreInfoPreviewSubject");
+  const previewBody = document.getElementById("requestMoreInfoPreviewBody");
 
-savedReplyButtons.forEach(button => {
-  button.addEventListener("click", () => {
-    const templateElement = document.getElementById(button.dataset.template);
-    const field = document.getElementById("requestMoreInfoModalMessage");
+  // `textContent`, so a URL's `&amp;` is not pasted into the reply. A blank line in
+  // a template separates paragraphs; any other whitespace is source indentation.
+  const replyText = (id) => document.getElementById(id).textContent
+    .trim()
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .join("\n\n");
+  const tidy = (text) => text.replace(/\n{3,}/g, "\n\n").trim();
 
-    if (templateElement && field) {
-      // `textContent`, so a URL's `&amp;` is not pasted into the reply.
-      field.value = templateElement.textContent
-        .trim()
-        .replace(/\s+/g, " ");
+  let previewTimer;
+  let previewSequence = 0;
+  const refreshPreview = async () => {
+    const sequence = ++previewSequence;
+    try {
+      const response = await fetch(replyForm.dataset.previewUrl, {
+        method: "POST",
+        headers: {Accept: "application/json"},
+        body: new URLSearchParams({
+          csrf_token: replyForm.elements.csrf_token.value,
+          message: replyField.value,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`preview failed: ${response.status}`);
+      }
+      const preview = await response.json();
+      if (sequence === previewSequence) {
+        previewSection.classList.remove("is-unavailable");
+        previewSubject.textContent = preview.subject;
+        previewBody.textContent = preview.body.trim();
+      }
+    } catch {
+      if (sequence === previewSequence) {
+        previewSection.classList.add("is-unavailable");
+        previewSubject.textContent = "Preview unavailable; the message will still send.";
+      }
+    }
+  };
+
+  const replyChanged = () => {
+    for (const button of replyButtons) {
+      const included = replyField.value.includes(replyText(button.dataset.template));
+      button.setAttribute("aria-pressed", String(included));
+      button.classList.toggle("btn-primary", included);
+      button.classList.toggle("btn-outline-primary", !included);
+    }
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(refreshPreview, 250);
+  };
+  const addReply = (id) => {
+    const reply = replyText(id);
+    const current = tidy(replyField.value);
+    if (!current.includes(reply)) {
+      replyField.value = current ? `${current}\n\n${reply}` : `${greeting}\n\n${reply}`;
+    }
+    replyChanged();
+  };
+  const removeReply = (id) => {
+    const remaining = tidy(replyField.value.replace(replyText(id), ""));
+    replyField.value = remaining === greeting ? "" : remaining;
+    replyChanged();
+  };
+
+  replyButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const included = button.getAttribute("aria-pressed") === "true";
+      (included ? removeReply : addReply)(button.dataset.template);
+    });
+  });
+  // "Ask about this" on a review check adds its reply to whatever is drafted.
+  document.querySelectorAll(".org-review-check-ask").forEach((button) => {
+    button.addEventListener("click", () => addReply(button.dataset.template));
+  });
+  replyField.addEventListener("input", replyChanged);
+  $(replyModal).on("show.bs.modal", refreshPreview);
+
+  // Alt+1..9 toggles the matching reply. `code`, not `key`: Option+digit types a
+  // symbol on macOS.
+  document.addEventListener("keydown", (event) => {
+    if (!event.altKey || event.metaKey || event.ctrlKey || !replyModal.classList.contains("show")) {
+      return;
+    }
+    const digit = /^Digit([1-9])$/.exec(event.code);
+    const button = digit && replyButtons[Number(digit[1]) - 1];
+    if (button) {
+      event.preventDefault();
+      button.click();
     }
   });
-});
+}
 
 // Focus stays outside the form while a modal is open - on the rail button that opened
 // it, or on the modal shell - so a listener bound to the form never sees the keystroke.

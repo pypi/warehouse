@@ -262,6 +262,56 @@ table.dataTable {
   }
 }
 
+.org-review-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  & .badge {
+    margin-left: 0.25rem;
+    vertical-align: 0.1em;
+  }
+}
+
+/* The email the applicant will receive, beside (or, narrow, below) the composer. */
+.org-review-preview {
+  height: 100%;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa; /* Bootstrap $gray-100 */
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 0.25rem;
+}
+
+.org-review-preview-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057; /* Bootstrap $gray-700 */
+}
+
+.org-review-preview-subject {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(0 0 0 / 8%);
+}
+
+.org-review-preview-body {
+  max-height: 26rem;
+  margin: 0;
+  overflow-y: auto;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #212529; /* Bootstrap $gray-900 */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.org-review-preview.is-unavailable .org-review-preview-body {
+  opacity: 0.5;
+}
+
 /* Inline variant, for the modal buttons. */
 .org-review-key-inline {
   float: none;

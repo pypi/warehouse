@@ -128,6 +128,14 @@ def test_includeme(mocker):
             "/admin/organization_applications/{organization_application_id}/addnote/",
             domain=warehouse,
         ),
+        mocker.call(
+            "admin.organization_application.requestmoreinfo.preview",
+            (
+                "/admin/organization_applications/{organization_application_id}"
+                "/requestmoreinfo/preview/"
+            ),
+            domain=warehouse,
+        ),
         mocker.call("admin.user.list", "/admin/users/", domain=warehouse),
         mocker.call(
             "admin.user.detail",

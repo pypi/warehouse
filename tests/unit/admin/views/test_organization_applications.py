@@ -930,3 +930,9 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_add_note(db_request)
+
+    def test_request_more_information_preview_not_found(self, db_request):
+        db_request.matchdict["organization_application_id"] = uuid.uuid4()
+
+        with pytest.raises(HTTPNotFound):
+            views.organization_application_request_more_information_preview(db_request)

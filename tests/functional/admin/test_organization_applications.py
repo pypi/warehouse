@@ -71,6 +71,31 @@ def test_reviewer_edits_application(webtest, login_admin):
     assert application.display_name == "Reviewed organization"
 
 
+def test_reviewer_previews_information_request(webtest, login_admin, mocker):
+    login_admin(is_org_application_reviewer=True)
+    send = mocker.patch("warehouse.email._send_email_to_user")
+    application = OrganizationApplicationFactory.create(name="example")
+    detail_url = f"{APPLICATIONS}{application.id}/"
+    detail = webtest.get(detail_url, status=HTTPStatus.OK)
+
+    preview = webtest.post(
+        f"{detail_url}requestmoreinfo/preview/",
+        {
+            "csrf_token": detail.forms["editModalForm"]["csrf_token"].value,
+            "message": "First ask.\r\n\r\nSecond ask.",
+        },
+        status=HTTPStatus.OK,
+    ).json
+
+    assert "'example'" in preview["subject"]
+    assert "First ask.\r\n\r\nSecond ask." in preview["body"]
+    assert f"/manage/organizations/application/{application.id}/" in preview["body"]
+    # A preview never sends, and never changes the application.
+    send.assert_not_called()
+    assert application.status == OrganizationApplicationStatus.Submitted
+    assert application.observations == []
+
+
 def test_reviewer_navigation_and_unrelated_access(webtest, login_admin):
     reviewer = login_admin(is_org_application_reviewer=True)
     application = OrganizationApplicationFactory.create()
@@ -145,6 +170,7 @@ def test_other_roles_cannot_review(webtest, login_admin, role):
         "decline/",
         "defer/",
         "requestmoreinfo/",
+        "requestmoreinfo/preview/",
         "addnote/",
     ):
         webtest.post(
