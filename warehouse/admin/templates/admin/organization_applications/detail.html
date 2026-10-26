@@ -47,7 +47,7 @@
 </div>
 {% endmacro %}
 
-{% macro correspondence_card(application, has_requests, outstanding, can_write, is_decided) %}
+{% macro correspondence_card(application, has_requests, outstanding) %}
 <div class="card">
   <div class="card-header with-border">
     <h3 class="card-title">
@@ -77,23 +77,13 @@
   <p class="text-muted mb-0">No information requests or internal notes yet.</p>
   {% endfor %}
   </div>
-  {% if can_write and not is_decided %}
-  <div class="card-footer text-right">
-    <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#addNoteModal">
-      <i class="fa fa-note-sticky"></i> Add Note
-    </button>
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#requestMoreInfoModal">
-      <i class="fa fa-question"></i> Request Info
-    </button>
-  </div>
-  {% endif %}
 </div>
 {% endmacro %}
 
 {% macro field_row(label, value, extra_class='') %}
 <div>
   <dt>{{ label }}</dt>
-  <dd class="{{ extra_class or '' }}">{{ value if value else "n/a" }}</dd>
+  <dd class="{{ extra_class or '' }}">{% if value %}{{ value }}{% else %}<span class="text-muted">n/a</span>{% endif %}</dd>
 </div>
 {% endmacro %}
 
@@ -178,7 +168,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=65
                 data-target="#approveModal" {{ 'disabled' if not can_write or is_decided }}
-                title="Approve organization request"
               >
                 <i class="icon fa fa-check"></i> Approve <span class="org-review-key">a</span>
               </button>
@@ -189,7 +178,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=82
                 data-target="#requestMoreInfoModal" {{ 'disabled' if not can_write or is_decided }}
-                title="Request more information on this organization request"
               >
                 <i class="icon fa fa-question"></i> Request Info <span class="org-review-key">r</span>
               </button>
@@ -200,7 +188,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=49
                 data-target="#declineModal" {{ 'disabled' if not can_write or is_decided }}
-                title="Decline organization request"
               >
                 <i class="icon fa fa-times"></i> Decline <span class="org-review-key">1</span>
               </button>
@@ -211,7 +198,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=68
                 data-target="#deferModal" {{ 'disabled' if not can_write or organization_application.status in ['deferred', 'approved', 'declined', 'withdrawn'] }}
-                title="Defer organization request"
               >
                 <i class="icon fa fa-stopwatch"></i> Defer <span class="org-review-key">d</span>
               </button>
@@ -224,7 +210,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=78
                 data-target="#addNoteModal" {{ 'disabled' if not can_write }}
-                title="Add an internal note to this organization request"
               >
                 <i class="icon fa fa-note-sticky"></i> Add Note <span class="org-review-key">n</span>
               </button>
@@ -237,7 +222,6 @@
                 data-toggle="modal"
                 data-hotkey-binding=69
                 data-target="#editModal" {{ 'disabled' if is_decided }}
-                title="Edit organization request"
               >
                 <i class="fa-solid fa-pen-to-square"></i> Edit <span class="org-review-key">e</span>
               </button>
@@ -280,7 +264,8 @@
               <span class="sr-only">{{ check.status.value }}:</span>
               <div class="org-review-check-body">
                 <span class="org-review-check-label">{{ check.label }}</span>
-                <span class="org-review-check-detail text-muted">{{ check.detail }}</span>
+                {#- <wbr> lets an email address wrap at its "@" instead of mid-word. -#}
+                <span class="org-review-check-detail text-muted">{% for part in check.detail.split("@") %}{% if not loop.first %}<wbr>@{% endif %}{{ part }}{% endfor %}</span>
                 {% set reply_template = reply_templates.get(check.key) %}
                 {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
                 <button
@@ -337,7 +322,7 @@
       </div>
 
       {% if outstanding_information_requests %}
-      {{ correspondence_card(organization_application, information_requests, outstanding_information_requests, can_write, is_decided) }}
+      {{ correspondence_card(organization_application, information_requests, outstanding_information_requests) }}
       {% endif %}
 
       <div class="card">
@@ -357,9 +342,9 @@
               {% endif %}
             {% endfor %}
             {% for email in user.emails|sort(attribute='primary', reverse=True) %}
-            <span class="org-review-email" title="{{ 'Verified' if email.verified else 'Not verified' }}">
-              {% if email.verified %}<i class="fa fa-circle-check text-success"></i>{% else %}<i class="fa fa-circle-xmark text-danger"></i>{% endif %}
-              <a href="mailto:{{ email.email }}">{{ email.email }}</a>{% if email.primary %}<span class="badge badge-light">primary</span>{% endif %}
+            <span class="org-review-email{{ ' text-muted' if not email.verified }}" title="{{ 'Verified' if email.verified else 'Not verified' }}">
+              {% if email.verified %}<i class="fa fa-circle-check text-success"></i>{% else %}<i class="fa-regular fa-circle"></i>{% endif %}
+              <a {% if not email.verified %}class="text-muted" {% endif %}href="mailto:{{ email.email }}">{{ email.email }}</a>{% if email.primary %}<span class="badge badge-light">primary</span>{% endif %}
             </span>
             {% else %}
             <span class="text-muted">No email addresses on file.</span>
@@ -456,7 +441,7 @@
       {% endif %}
 
       {% if not outstanding_information_requests %}
-      {{ correspondence_card(organization_application, information_requests, outstanding_information_requests, can_write, is_decided) }}
+      {{ correspondence_card(organization_application, information_requests, outstanding_information_requests) }}
       {% endif %}
     </div>
   </div>

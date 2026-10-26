@@ -353,24 +353,21 @@ table.dataTable {
 .org-review-facet-empty,
 .org-review-facet > summary {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #6c757d;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057; /* Bootstrap $gray-700 */
 }
 
 .org-review-facet > summary {
   cursor: pointer;
 
   &:hover {
-    color: #495057;
+    color: #212529; /* Bootstrap $gray-900 */
   }
 }
 
 .org-review-count {
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
 }
 
 .org-review-facet-body {
@@ -400,9 +397,7 @@ table.dataTable {
 }
 
 .org-review-chip-meta {
-  font-size: 0.6875rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
 .org-review-entry {
