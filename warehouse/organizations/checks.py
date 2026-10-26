@@ -30,7 +30,10 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
 )
 
-_extractor = TLDExtract(suffix_list_urls=(), include_psl_private_domains=True)
+# Only the bundled suffix list is used, so skip the disk cache
+_extractor = TLDExtract(
+    cache_dir=None, suffix_list_urls=(), include_psl_private_domains=True
+)
 
 # Shared website hosts whose domains do not identify the applicant's organization.
 UNVERIFIABLE_URL_HOSTS = {
