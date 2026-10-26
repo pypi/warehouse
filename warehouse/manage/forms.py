@@ -480,7 +480,6 @@ class OrganizationNameMixin:
     )
 
     organization_id = None
-    organization_application_id = None
     outstanding_application_message = _(
         "You have already submitted an application for that name. "
         "Choose a different organization account name."
@@ -501,18 +500,14 @@ class OrganizationNameMixin:
                 )
             )
 
-        outstanding_applications = [
-            application
-            for application in (
-                self.organization_service.get_organization_applications_by_name(
-                    field.data, submitted_by=self.user, undecided=True
-                )
+        outstanding_applications = (
+            self.organization_service.get_organization_applications_by_name(
+                field.data, submitted_by=self.user, undecided=True
             )
-            if application.id != self.organization_application_id
-        ]
+        )
 
-        # Name is valid if the user has no other outstanding applications for the name
-        if outstanding_applications:
+        # Name is valid if the user has no outstanding applications for the same name
+        if len(outstanding_applications) > 0:
             raise wtforms.validators.ValidationError(
                 self.outstanding_application_message
             )

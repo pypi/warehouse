@@ -11,6 +11,7 @@ from uuid import UUID
 
 import wtforms
 
+from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.request import Request
@@ -18,6 +19,7 @@ from pyramid.view import view_config
 from sqlalchemy import desc, func, or_, tuple_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload, selectinload
+from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
@@ -746,13 +748,23 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
         "The applicant already has an open application for that name."
     )
 
-    def __init__(self, formdata, organization_application, *, organization_service):
+    def __init__(
+        self,
+        formdata: MultiDict | None,
+        organization_application: OrganizationApplication,
+        *,
+        organization_service: IOrganizationService,
+    ) -> None:
         super().__init__(formdata, organization_application)
         self.organization_service = organization_service
-        # Name conflicts are the applicant's, not the reviewer's, and the
-        # application being edited never conflicts with itself.
+        # Name conflicts are the applicant's, not the reviewer's.
         self.user = organization_application.submitted_by
-        self.organization_application_id = organization_application.id
+        self.current_normalized_name = organization_application.normalized_name
+
+    def validate_name(self, field: wtforms.Field) -> None:
+        # Only a rename can clash with the applicant's other open applications.
+        if canonicalize_name(field.data) != self.current_normalized_name:
+            super().validate_name(field)
 
 
 @view_config(

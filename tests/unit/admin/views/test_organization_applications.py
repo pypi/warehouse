@@ -328,11 +328,16 @@ class TestOrganizationApplicationDetail:
         assert result["organization_application"] == organization_application
 
     def test_detail_edit_keeps_own_name(self, db_request):
-        # The reviewer is also the applicant: the application being edited must
-        # not count as a competing application for its own name.
+        # The applicant's other open application, and the application itself,
+        # only conflict on a rename.
         applicant = UserFactory.create()
         organization_application = OrganizationApplicationFactory.create(
-            submitted_by=applicant, orgtype=OrganizationType.Company
+            submitted_by=applicant,
+            orgtype=OrganizationType.Company,
+            status=OrganizationApplicationStatus.MoreInformationNeeded,
+        )
+        OrganizationApplicationFactory.create(
+            submitted_by=applicant, name=organization_application.name
         )
         db_request.user = applicant
         db_request.matchdict["organization_application_id"] = (
