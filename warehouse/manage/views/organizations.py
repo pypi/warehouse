@@ -147,7 +147,11 @@ class ManageOrganizationsViews:
         all_user_organizations = user_organizations(self.request)
 
         # Get list of applications for Organizations
-        organization_applications = self.request.user.organization_applications
+        organization_applications = [
+            app
+            for app in self.request.user.organization_applications
+            if app.status != OrganizationApplicationStatus.Withdrawn
+        ]
 
         # Get list of invites as (organization, token) tuples.
         organization_invites = (
@@ -194,6 +198,7 @@ class ManageOrganizationsViews:
                         not in (
                             OrganizationApplicationStatus.Approved,
                             OrganizationApplicationStatus.Declined,
+                            OrganizationApplicationStatus.Withdrawn,
                         )
                     ]
                 )
@@ -323,16 +328,17 @@ class ManageOrganizationApplicationViews:
         request_param=["confirm_organization_application_name"],
         require_reauth=True,
     )
-    def delete_organization_application(self):
-        # Lock the row and re-read its status so a concurrent admin approve or
-        # decline either completes before this check or fails against the delete.
+    def withdraw_organization_application(self):
+        # Lock the row and re-read its status so a concurrent admin decision
+        # is seen before withdrawing.
         self.request.db.refresh(self.organization_application, with_for_update=True)
         if self.organization_application.status in (
             OrganizationApplicationStatus.Approved,
             OrganizationApplicationStatus.Declined,
+            OrganizationApplicationStatus.Withdrawn,
         ):
             self.request.session.flash(
-                "Cannot delete an organization request that has been decided",
+                "This organization request can no longer be withdrawn",
                 queue="error",
             )
             return HTTPSeeOther(self.request.route_path("manage.organizations"))
@@ -342,17 +348,17 @@ class ManageOrganizationApplicationViews:
         ).strip()
         if confirm != self.organization_application.name:
             self.request.session.flash(
-                f"Could not delete organization request - {confirm!r} is not "
+                f"Could not withdraw organization request - {confirm!r} is not "
                 f"the same as {self.organization_application.name!r}",
                 queue="error",
             )
             return HTTPSeeOther(self.request.path)
 
-        self.request.db.delete(self.organization_application)
         tags = [
             f"status:{self.organization_application.status}",
             f"orgtype:{self.organization_application.orgtype}",
         ]
+        self.organization_application.status = OrganizationApplicationStatus.Withdrawn
         self.request.metrics.increment(
             "warehouse.organizations.application.withdrawn", tags=tags
         )
@@ -365,7 +371,8 @@ class ManageOrganizationApplicationViews:
             tags=tags,
         )
         self.request.session.flash(
-            f"Organization request for {self.organization_application.name!r} deleted",
+            f"Organization request for {self.organization_application.name!r} "
+            "withdrawn",
             queue="success",
         )
         return HTTPSeeOther(self.request.route_path("manage.organizations"))
