@@ -644,8 +644,9 @@ class TestFileValidation:
         ) == (
             False,
             (
-                "tar archive not accepted: unrecognized format. "
-                "See https://docs.pypi.org/archives for more information"
+                "tar archive not accepted: must be pax. "
+                "See https://docs.pypi.org/archives"
+                "#source-distributions-must-be-in-pax-format for more information"
             ),
         )
         metric = mock.call(

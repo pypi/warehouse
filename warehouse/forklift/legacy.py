@@ -220,8 +220,9 @@ def _is_valid_sdist_tar(tar: tarfile.TarFile, metrics) -> tuple[bool, str | None
             return (
                 False,
                 (
-                    "tar archive not accepted: unrecognized format. "
-                    "See https://docs.pypi.org/archives for more information"
+                    "tar archive not accepted: must be pax. "
+                    "See https://docs.pypi.org/archives"
+                    "#source-distributions-must-be-in-pax-format for more information"
                 ),
             )
 
