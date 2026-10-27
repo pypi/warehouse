@@ -196,6 +196,19 @@ def _turbo_mode(request):
     return HTTPSeeOther(request.route_path(route))
 
 
+def _withdrawn(request, organization_application):
+    request.session.flash(
+        f'Request for "{organization_application.name}" organization was withdrawn',
+        queue="error",
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
 @view_config(
     route_name="admin.organization.list",
     renderer="warehouse.admin:templates/admin/organizations/list.html",
@@ -747,6 +760,9 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -790,6 +806,9 @@ def organization_application_defer(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization_service.defer_organization_application(
         organization_application.id, request
@@ -828,6 +847,9 @@ def organization_application_request_more_information(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     try:
         organization_service.request_more_information(
@@ -871,6 +893,9 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization_service.decline_organization_application(
         organization_application.id, request
