@@ -107,7 +107,12 @@ def delete_declined_organization_applications(request):
     organization_applications = (
         request.db.query(OrganizationApplication)
         .filter(
-            OrganizationApplication.status == OrganizationApplicationStatus.Declined,
+            OrganizationApplication.status.in_(
+                (
+                    OrganizationApplicationStatus.Declined,
+                    OrganizationApplicationStatus.Withdrawn,
+                )
+            ),
             OrganizationApplication.updated < (dt.datetime.now(dt.UTC) - CLEANUP_AFTER),
         )
         .all()

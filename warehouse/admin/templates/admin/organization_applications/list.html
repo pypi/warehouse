@@ -75,6 +75,8 @@
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
         {% elif organization_application.status == 'declined' %}
         <td><i class="fa fa-fw fa-times text-red"></i> Declined</td>
+        {% elif organization_application.status == 'withdrawn' %}
+        <td><i class="fa fa-fw fa-rotate-left text-muted"></i> Withdrawn</td>
         {% elif organization_application.status == 'deferred' %}
         <td><i class="fa fa-fw fa-stopwatch"></i> Deferred</td>
         {% elif organization_application.status == 'moreinformationneeded' %}
