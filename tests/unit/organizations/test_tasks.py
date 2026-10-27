@@ -111,17 +111,24 @@ class TestUpdateInvitationStatus:
 
 
 class TestDeleteOrganizationApplications:
-    def test_delete_declined_organization_applications(self, db_request):
+    @pytest.mark.parametrize(
+        "status",
+        [
+            OrganizationApplicationStatus.Declined,
+            OrganizationApplicationStatus.Withdrawn,
+        ],
+    )
+    def test_delete_declined_organization_applications(self, db_request, status):
         # Create an organization_application that's ready for cleanup
         organization_application = OrganizationApplicationFactory.create()
         organization_application.is_active = False
-        organization_application.status = OrganizationApplicationStatus.Declined
+        organization_application.status = status
         organization_application.updated = dt.datetime.now() - dt.timedelta(days=31)
 
         # Create an organization_application that's not ready to be cleaned up yet
         organization_application2 = OrganizationApplicationFactory.create()
         organization_application2.is_active = False
-        organization_application2.status = OrganizationApplicationStatus.Declined
+        organization_application2.status = status
         organization_application2.updated = dt.datetime.now()
 
         assert (
