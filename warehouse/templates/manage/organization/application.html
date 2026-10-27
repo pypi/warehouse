@@ -16,11 +16,11 @@
         <tr>
           <th scope="row">{% trans %}Request status{% endtrans %}</th>
           <td>
-            {% if organization_application.status == 'declined' %}
+            {% if organization_application.status == "declined" %}
               <strong>{% trans %}Declined{% endtrans %}:</strong>
               <br />
               {% trans %}This organization request has been declined{% endtrans %}
-            {% elif organization_application.status == 'moreinformationneeded' %}
+            {% elif organization_application.status == "moreinformationneeded" %}
               <strong>{% trans %}More information needed{% endtrans %}:</strong>
               <br />
               {% trans %}Please provide more information below{% endtrans %}
@@ -95,9 +95,9 @@
             <div class="form-group form-group--wide">
               <label class="form-group__label" for="public_email">{% trans %}️Your response{% endtrans %}</label>
               {{ response_forms[information_request.id].response(id="response_form-" + information_request.id.__str__() + "-response",
-              class_="form-group__field form-group__field--full-width",
-              rows="4",
-              aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
+                class_="form-group__field form-group__field--full-width",
+                rows="4",
+                aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
               ) }}
               <div id="response_form-{{ information_request.id }}-errors">
                 {{ field_errors(response_forms[information_request.id].response) }}
@@ -111,14 +111,15 @@
       {% endfor %}
     </section>
   {% endif %}
-  {% if organization_application.status not in ['approved', 'declined'] %}
+  {% if organization_application.status not in ["approved", "declined"] %}
     <hr />
     <section id="withdraw-organization-application">
       <h2>{% trans %}Withdraw organization request{% endtrans %}</h2>
       <div class="callout-block callout-block--danger">
         <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
         <p>
-          <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+          <i class="fa fa-exclamation-triangle"
+             aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
           {% trans %}Your organization request will be withdrawn and will no longer be reviewed. You can submit a new request afterwards.{% endtrans %}
         </p>
         {{ confirm_button(gettext("Withdraw organization request") , gettext("Organization account name"), "organization_application_name", organization_application.name) }}

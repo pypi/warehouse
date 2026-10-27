@@ -1,10 +1,7 @@
 ruff
 ast-grep-cli
 codespell
-# TODO: 1.40 onwards fixes indentation after multi-line `{% trans %}` blocks,
-# rewrites quotes inside template tags and adds H025, H036, H043, H046, H050
-# and H053. Upgrade in its own PR.
-djlint<1.40
+djlint
 mypy
 tombi
 celery-types

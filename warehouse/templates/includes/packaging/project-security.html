@@ -19,40 +19,40 @@
       <h3 class="callout-block__heading">
         <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
         {% trans count=release.late_file_status.late_files|length %}File added late
-      {% pluralize %}
-        Files added late{% endtrans %}
-      </h3>
-      <p>
-        {% trans count=release.late_file_status.late_files|length, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
-      {% pluralize %}
-        {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
-      </p>
-      <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+  {% pluralize %}
+    Files added late{% endtrans %}
+    </h3>
+    <p>
+      {% trans count=release.late_file_status.late_files|length, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+  {% pluralize %}
+    {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
+    </p>
+    <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
     </div>
     <hr />
   {% endif %}
   {% set provenance_states = release.provenance_status.states %}
   <h3 class="no-top-margin">{% trans %}Provenance{% endtrans %}</h3>
   <p>
-    {% trans href=request.user_docs_url('/using-pypi/package-security/provenance/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
+    {% trans href=request.user_docs_url("/using-pypi/package-security/provenance/") %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
   </p>
   <div class="provenance-status">
     {# These states are not mutually exclusive; show only the most important one. #}
-    {% if 'lost-provenance' in provenance_states %}
+    {% if "lost-provenance" in provenance_states %}
       {% include "includes/packaging/security/lost-provenance.html" %}
-    {% elif 'changed-provenance' in provenance_states %}
+    {% elif "changed-provenance" in provenance_states %}
       {% include "includes/packaging/security/changed-provenance.html" %}
-    {% elif 'inconsistent-provenance' in provenance_states %}
+    {% elif "inconsistent-provenance" in provenance_states %}
       {% include "includes/packaging/security/inconsistent-provenance.html" %}
-    {% elif 'partial-provenance' in provenance_states %}
+    {% elif "partial-provenance" in provenance_states %}
       {% include "includes/packaging/security/partial-provenance.html" %}
-    {% elif 'full-provenance' in provenance_states %}
+    {% elif "full-provenance" in provenance_states %}
       {% include "includes/packaging/security/full-provenance.html" %}
-    {% elif 'no-provenance' in provenance_states %}
+    {% elif "no-provenance" in provenance_states %}
       {% include "includes/packaging/security/no-provenance.html" %}
     {% endif %}
   </div>
-  {% if 'no-provenance' not in provenance_states %}
+  {% if "no-provenance" not in provenance_states %}
     {% set viewer_files = files %}
     {% set selected_file = viewer_files[0] %}
     <div class="attestations-viewer"
@@ -62,8 +62,8 @@
           {% if viewer_files|length > 1 %}
             <div class="attestations-viewer__sidebar-title">
               {% trans count=viewer_files|length %}Select from {{ count }} file
-            {% pluralize %}
-              Select from {{ count }} files{% endtrans %}
+          {% pluralize %}
+            Select from {{ count }} files{% endtrans %}
             </div>
           {% endif %}
           {% if files|length > 8 %}
@@ -91,7 +91,7 @@
                      class="dropdown__content attestations-viewer__filter-panel"
                      aria-hidden="true"
                      data-filter-dropdown-target="content">
-                  {% if 'partial-provenance' in provenance_states %}
+                  {% if "partial-provenance" in provenance_states %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Provenance{% endtrans %}</legend>
                       <label for="security-filter-provenance-with">
@@ -147,7 +147,7 @@
                       {% trans %}Wheel{% endtrans %}
                     </label>
                   </fieldset>
-                  {% if wheel_filter_options['interpreter'] %}
+                  {% if wheel_filter_options["interpreter"] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Interpreter{% endtrans %}</legend>
                       {% for value, label in wheel_filter_options['interpreter'] %}
@@ -166,7 +166,7 @@
                       {% endfor %}
                     </fieldset>
                   {% endif %}
-                  {% if wheel_filter_options['platform'] %}
+                  {% if wheel_filter_options["platform"] %}
                     <fieldset class="attestations-viewer__filter-group">
                       <legend>{% trans %}Platform{% endtrans %}</legend>
                       {% for value, label in wheel_filter_options['platform'] %}
@@ -256,26 +256,26 @@
               {% trans count=file_attestation_count, filename=filename, href=href %}Attestation for <a href="{{ href }}"
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">{{ filename }}</a>
-            {% pluralize %}
-              Attestations for <a href="{{ href }}"
+        {% pluralize %}
+          Attestations for <a href="{{ href }}"
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">{{ filename }}</a>{% endtrans %}
-            </h3>
-            {% if vfile.provenance %}
-              {% set file = vfile %}
-              {% set provenance = vfile.provenance.as_model %}
-              {% for bundle in provenance.attestation_bundles %}
-                {% for attestation in bundle.attestations %}
-                  {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
-                  {% include "includes/packaging/security/attestation.html" %}
-                {% endfor %}
+          </h3>
+          {% if vfile.provenance %}
+            {% set file = vfile %}
+            {% set provenance = vfile.provenance.as_model %}
+            {% for bundle in provenance.attestation_bundles %}
+              {% for attestation in bundle.attestations %}
+                {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+                {% include "includes/packaging/security/attestation.html" %}
               {% endfor %}
-            {% else %}
-              <div class="attestations-viewer__empty">
-                <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>
-                {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
-              </div>
-            {% endif %}
+            {% endfor %}
+          {% else %}
+            <div class="attestations-viewer__empty">
+              <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>
+              {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
+            </div>
+          {% endif %}
           </div>
         {% endfor %}
       </div>
@@ -286,6 +286,6 @@
     {% trans %}PyPI is a repository for distributing packages, not a service for auditing them. While third-party security researchers and our staff do their best to detect and remove malicious packages, PyPI cannot guarantee the quality, security or suitability of any given package.{% endtrans %}
   </p>
   <p>
-    {% trans href=request.user_docs_url('/using-pypi/package-security/introduction/') %}To learn more about protecting yourself from malicious actors, visit our <a href="{{ href }}">package security documentation</a>.{% endtrans %}
+    {% trans href=request.user_docs_url("/using-pypi/package-security/introduction/") %}To learn more about protecting yourself from malicious actors, visit our <a href="{{ href }}">package security documentation</a>.{% endtrans %}
   </p>
 </div>

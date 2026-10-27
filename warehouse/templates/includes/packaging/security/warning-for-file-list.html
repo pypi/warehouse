@@ -3,7 +3,7 @@
 {% set provenance_states = release.provenance_status.states %}
 {% set total_files = release.provenance_status.counts.total_files %}
 {# Provenance states are not mutually exclusive; show only the most important one. #}
-{% if 'lost-provenance' in provenance_states %}
+{% if "lost-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin">
     {% if total_files == 1 %}
       <h3 class="callout-block__heading">
@@ -41,7 +41,7 @@
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
     {% endif %}
   </div>
-{% elif 'changed-provenance' in provenance_states %}
+{% elif "changed-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin">
     {% if total_files == 1 %}
       <h3 class="callout-block__heading">
@@ -76,7 +76,7 @@
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
   </div>
-{% elif 'inconsistent-provenance' in provenance_states %}
+{% elif "inconsistent-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin">
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -92,8 +92,8 @@
     {% if late_count %}
       <p>
         {% trans count=late_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was also added more than {{ days }} days after the first file in this release.
-      {% pluralize %}
-        {{ count }} files were also added more than {{ days }} days after the first file in this release.{% endtrans %}
+    {% pluralize %}
+      {{ count }} files were also added more than {{ days }} days after the first file in this release.{% endtrans %}
       </p>
       <p>
         {% trans %}
@@ -104,7 +104,7 @@
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
   </div>
-{% elif 'partial-provenance' in provenance_states %}
+{% elif "partial-provenance" in provenance_states %}
   {% set counts = release.provenance_status.counts %}
   {% set without_count = counts.total_files - counts.files_with_provenance %}
   <div class="callout-block callout-block--warning no-top-margin">
@@ -122,8 +122,8 @@
     {% if late_count %}
       <p>
         {% trans count=late_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was also added more than {{ days }} days after the first file in this release.
-      {% pluralize %}
-        {{ count }} files were also added more than {{ days }} days after the first file in this release.{% endtrans %}
+    {% pluralize %}
+      {{ count }} files were also added more than {{ days }} days after the first file in this release.{% endtrans %}
       </p>
       <p>
         {% trans %}
@@ -139,15 +139,15 @@
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
       {% trans count=late_count %}File added late
-    {% pluralize %}
-      Files added late{% endtrans %}
-    </h3>
-    <p>
-      {% trans count=late_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
-    {% pluralize %}
-      {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
-    </p>
-    <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
-    <p>{% trans %}We recommend inspecting the release files before installing.{% endtrans %}</p>
+{% pluralize %}
+  Files added late{% endtrans %}
+  </h3>
+  <p>
+    {% trans count=late_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+{% pluralize %}
+  {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
+  </p>
+  <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+  <p>{% trans %}We recommend inspecting the release files before installing.{% endtrans %}</p>
   </div>
 {% endif %}
