@@ -760,6 +760,7 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
     if organization_application.status == OrganizationApplicationStatus.Withdrawn:
         return _withdrawn(request, organization_application)
 
@@ -805,6 +806,7 @@ def organization_application_defer(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
     if organization_application.status == OrganizationApplicationStatus.Withdrawn:
         return _withdrawn(request, organization_application)
 
@@ -845,6 +847,7 @@ def organization_application_request_more_information(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
     if organization_application.status == OrganizationApplicationStatus.Withdrawn:
         return _withdrawn(request, organization_application)
 
@@ -890,6 +893,7 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
     if organization_application.status == OrganizationApplicationStatus.Withdrawn:
         return _withdrawn(request, organization_application)
 
