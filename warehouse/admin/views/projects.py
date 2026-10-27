@@ -22,6 +22,8 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     UPLOAD_LIMIT_CAP,
 )
 from warehouse.email import (
@@ -232,6 +234,8 @@ def project_detail(project, request):
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "ORGANIZATION_MAX_FILESIZE": ORGANIZATION_MAX_FILESIZE,
+        "ORGANIZATION_MAX_PROJECT_SIZE": ORGANIZATION_MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "observation_kinds": ObservationKind,
         "observations": observations,

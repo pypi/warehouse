@@ -22,7 +22,8 @@ For issues concerning an individual user or project, or those that need interven
 * **Upload limit requests:** If your project exceeds the default [storage limits](../project-management/storage-limits.md)  
 * **Account recovery:** If you've lost access to your PyPI account
 
-**Note:** By their nature, support issues are labor intensive. The PyPI team has limited resources available for their completion. There may be a delay of a week or more between responses to issues.
+!!! note
+    By their nature, support issues are labor intensive. The PyPI team has limited resources available for their completion. There may be a delay of a week or more between responses to issues.
 
 ## Issues affecting all users
 

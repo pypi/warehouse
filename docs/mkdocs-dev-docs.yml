@@ -12,6 +12,7 @@ plugins:
         'api-reference/stats.md': 'https://docs.pypi.org/api/stats/'
         'api-reference/integration-guide.md': 'https://docs.pypi.org/api/#integration-guide'
         'api-reference/bigquery-datasets.md': 'https://docs.pypi.org/api/bigquery'
+        'roadmap.md': 'index.md'
 markdown_extensions:
   - admonition
   - attr_list
@@ -46,6 +47,7 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/favicon.ico
+  custom_dir: theme
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -67,55 +69,64 @@ theme:
   features:
     - content.action.edit
     - content.code.copy
-    - navigation.expand
     - navigation.footer
     - navigation.instant
     - navigation.path
-    - navigation.sections
-    - navigation.tabs
     - navigation.top
     - navigation.tracking
     - search.highlight
     - search.suggest
     - toc.follow
+extra_css:
+  - pypi.css
 extra:
+  pypi_site: dev-docs
   homepage: https://github.com/pypi/warehouse
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/pypi/warehouse
+      link: https://github.com/pypi
     - icon: fontawesome/brands/discourse
       link: https://discuss.python.org/c/packaging/14
+    - icon: fontawesome/brands/mastodon
+      link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pypi
 repo_url: https://github.com/pypi/warehouse
 repo_name: pypi/warehouse
 edit_uri: blob/main/docs/dev/
 
 nav:
   - Home: index.md
-  - Development:
+  - Contributing:
       - Overview: development/index.md
       - Getting Started: development/getting-started.md
-      - Frontend: development/frontend.md
-      - Patterns: development/patterns.md
-      - Logging: development/logging.md
-      - Database Migrations: development/database-migrations.md
+      - Developing in the Cloud: development/cloud.md
       - Submitting Patches: development/submitting-patches.md
       - Reviewing Patches: development/reviewing-patches.md
-      - Legacy Application Structure: development/legacy-application-structure.md
+      - Writing Documentation: development/documentation.md
+      - Translations: translations.md
+  - Working on Warehouse:
       - Development Database: development/development-database.md
-      - Cloud: development/cloud.md
+      - Database Migrations: development/database-migrations.md
+      - Logging: development/logging.md
       - Email: development/email.md
+      - Frontend: development/frontend.md
+      - UI Principles: ui-principles.md
+  - Architecture:
+      - System Architecture: architecture.md
+      - Warehouse Codebase: application.md
+      - Patterns: development/patterns.md
+      - Legacy URL Structure: development/legacy-application-structure.md
+  - Subsystems:
       - Account Associations: development/account-associations.md
-      - Token Scanning: development/token-scanning.md
-      - Documentation: development/documentation.md
-  - Warehouse codebase: application.md
-  - System Architecture: architecture.md
-  - API Reference:
-      - Overview: api-reference/index.md
-      - XML-RPC: api-reference/xml-rpc.md
-  - UI Principles: ui-principles.md
+      - Billing: development/billing.md
   - Security:
       - Overview: security/index.md
       - Security Policy Flow: security/security-policy-flow.md
+      - Token Scanning: development/token-scanning.md
       - Attestation Internals: security/attestation-internals.md
-  - Translations: translations.md
-  - Roadmap and Sprints: roadmap.md
+  - API Reference:
+      - Overview: api-reference/index.md
+      - XML-RPC: api-reference/xml-rpc.md

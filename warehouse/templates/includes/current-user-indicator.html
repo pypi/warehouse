@@ -17,9 +17,9 @@
       <ul class="dropdown__content"
           aria-hidden="true"
           aria-label="{% trans %}Main menu{% endtrans %}">
-        {% if request.has_permission(Permissions.AdminDashboardRead) %}
+        {% if request.has_permission(Permissions.AdminDashboardRead) or request.has_permission(Permissions.AdminOrganizationApplicationsRead) %}
           <li>
-            <a href="{{ request.route_path('admin.dashboard') }}"
+            <a href="{{ request.route_path('admin.dashboard' if request.has_permission(Permissions.AdminDashboardRead) else 'admin.organization_application.list') }}"
                class="dropdown__link">
               <i class="fa fa-wrench" aria-hidden="true"></i>
               {% trans %}Admin{% endtrans %}
@@ -55,15 +55,15 @@
           </a>
         </li>
         <li>
-          <a href="{{ request.user_docs_url('/') }}" class="dropdown__link">
-            <i class="fa fa-book" aria-hidden="true"></i>
-            {% trans %}Docs{% endtrans %}
-          </a>
-        </li>
-        <li>
           <a href="https://blog.pypi.org" class="dropdown__link">
             <i class="fa fa-newspaper" aria-hidden="true"></i>
             {% trans %}Blog{% endtrans %}
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.user_docs_url('/') }}" class="dropdown__link">
+            <i class="fa fa-book" aria-hidden="true"></i>
+            {% trans %}Docs{% endtrans %}
           </a>
         </li>
         <li>

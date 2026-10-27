@@ -23,7 +23,10 @@ from warehouse.admin.views import users as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
-from warehouse.organizations.models import OrganizationRoleType
+from warehouse.organizations.models import (
+    OrganizationDeactivationReason,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
@@ -573,8 +576,10 @@ class TestUserDelete:
         )
         assert remove_journal.name == project.name
 
+    @pytest.mark.parametrize("already_deactivated", [False, True])
+    @freezegun.freeze_time("2026-10-19 01:00:00")
     def test_deletes_user_deactivates_sole_owned_organizations(
-        self, db_request, mocker
+        self, db_request, mocker, already_deactivated
     ):
         user = UserFactory.create()
         UserFactory.create(username="deleted-user")
@@ -587,6 +592,11 @@ class TestUserDelete:
             user=user,
             role_name=OrganizationRoleType.Owner,
         )
+        previous_deactivation = dt.datetime(2026, 7, 1, tzinfo=dt.UTC)
+        if already_deactivated:
+            sole_owned.is_active = False
+            sole_owned.deactivated = previous_deactivation
+            sole_owned.deactivated_reason = OrganizationDeactivationReason.NoPaidSeat
 
         # Organization with another owner: must be left untouched.
         co_owned = OrganizationFactory.create(is_active=True)
@@ -614,6 +624,28 @@ class TestUserDelete:
         assert EventTag.Organization.OrganizationRoleRemove.value in [
             event.tag for event in sole_owned.events
         ]
+        deactivation_events = sole_owned.events.filter_by(
+            tag=EventTag.Organization.OrganizationDeactivate
+        ).all()
+        if already_deactivated:
+            assert sole_owned.deactivated == previous_deactivation
+            assert (
+                sole_owned.deactivated_reason
+                == OrganizationDeactivationReason.NoPaidSeat
+            )
+            assert deactivation_events == []
+        else:
+            assert sole_owned.deactivated == dt.datetime(2026, 10, 19, 1, tzinfo=dt.UTC)
+            assert (
+                sole_owned.deactivated_reason
+                == OrganizationDeactivationReason.OwnerRemoved
+            )
+            [event] = deactivation_events
+            assert event.additional == {
+                "organization_name": sole_owned.name,
+                "reason": OrganizationDeactivationReason.OwnerRemoved.value,
+                "deactivated_by_user_id": str(db_request.user.id),
+            }
 
     def test_deletes_user_cancels_subscriptions_for_sole_owned_organizations(
         self, db_request, billing_service, mocker
@@ -654,6 +686,10 @@ class TestUserDelete:
 
         cancel_subscription.assert_called_once_with(subscription.subscription_id)
         assert organization.is_active is False
+        assert (
+            organization.deactivated_reason
+            == OrganizationDeactivationReason.OwnerRemoved
+        )
 
     def test_deletes_user_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()

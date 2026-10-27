@@ -7,6 +7,7 @@ import wtforms
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.request import Request
 from pyramid.view import view_config
 from sqlalchemy import desc, func, or_
 from sqlalchemy.exc import NoResultFound
@@ -15,16 +16,16 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import (
+    SetOrganizationTotalSizeLimitForm,
+    SetOrganizationUploadLimitForm,
     SetProjectCreateRateLimitForm,
-    SetTotalSizeLimitForm,
-    SetUploadLimitForm,
 )
 from warehouse.authnz import Permissions
 from warehouse.constants import (
-    MAX_FILESIZE,
-    MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
@@ -187,7 +188,12 @@ def _turbo_mode(request):
     request.session.flash(
         "No more Organization Applications to review!", queue="success"
     )
-    return HTTPSeeOther(request.route_path("admin.dashboard"))
+    route = (
+        "admin.dashboard"
+        if request.has_permission(Permissions.AdminDashboardRead)
+        else "admin.organization_application.list"
+    )
+    return HTTPSeeOther(request.route_path(route))
 
 
 @view_config(
@@ -430,9 +436,9 @@ def organization_detail(request):
         "manual_activation_form": manual_activation_form,
         "oidc_issuer_form": oidc_issuer_form,
         "ONE_MIB": ONE_MIB,
-        "MAX_FILESIZE": MAX_FILESIZE,
+        "ORGANIZATION_MAX_FILESIZE": ORGANIZATION_MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
-        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "ORGANIZATION_MAX_PROJECT_SIZE": ORGANIZATION_MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
         "DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT": request.registry.settings.get(
@@ -528,7 +534,7 @@ def cancel_organization_subscription(request):
 @view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
-    permission=Permissions.AdminOrganizationsRead,
+    permission=Permissions.AdminOrganizationApplicationsRead,
     uses_session=True,
 )
 def organization_applications_list(request):
@@ -640,7 +646,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     require_methods=False,
     request_method="GET",
     renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
-    permission=Permissions.AdminOrganizationsRead,
+    permission=Permissions.AdminOrganizationApplicationsRead,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -650,7 +656,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     require_methods=False,
     request_method="POST",
     renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -727,7 +733,7 @@ def organization_application_detail(request):
 @view_config(
     route_name="admin.organization_application.approve",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -753,15 +759,24 @@ def organization_application_approve(request):
     if request.params.get("organization_applications_turbo_mode") == "true":
         return _turbo_mode(request)
 
+    if request.has_permission(Permissions.AdminOrganizationsRead):
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
     return HTTPSeeOther(
-        request.route_path("admin.organization.detail", organization_id=organization.id)
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
     )
 
 
 @view_config(
     route_name="admin.organization_application.defer",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -799,7 +814,7 @@ def organization_application_defer(request):
 @view_config(
     route_name="admin.organization_application.requestmoreinfo",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -842,7 +857,7 @@ def organization_application_request_more_information(request):
 @view_config(
     route_name="admin.organization_application.decline",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -880,7 +895,7 @@ def organization_application_decline(request):
 @view_config(
     route_name="admin.organization_application.addnote",
     require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationApplicationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -1228,7 +1243,7 @@ def set_upload_limit(request):
     if organization is None:
         raise HTTPNotFound
 
-    form = SetUploadLimitForm(request.POST)
+    form = SetOrganizationUploadLimitForm(request.POST)
 
     if not form.validate():
         for field, errors in form.errors.items():
@@ -1412,6 +1427,47 @@ def delete_manual_activation(request):
 
 
 @view_config(
+    route_name="admin.organization.reactivate",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reactivate_organization(request: Request) -> HTTPSeeOther:
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    detail_url = request.route_path(
+        "admin.organization.detail", organization_id=organization.id
+    )
+
+    if organization.is_active:
+        request.session.flash(
+            f"Organization '{organization.name}' is already active", queue="error"
+        )
+        return HTTPSeeOther(detail_url)
+
+    organization.reactivate()
+    # Drop any stale deadline; if still unpaid, it gets a fresh 30 days.
+    organization.deactivation_schedule = None
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationReactivate,
+        additional={"reactivated_by_user_id": str(request.user.id)},
+    )
+
+    request.session.flash(
+        f"Organization '{organization.name}' reactivated", queue="success"
+    )
+    return HTTPSeeOther(detail_url)
+
+
+@view_config(
     route_name="admin.organization.set_total_size_limit",
     permission=Permissions.AdminOrganizationsSetLimit,
     request_method="POST",
@@ -1425,7 +1481,7 @@ def set_total_size_limit(request):
     if organization is None:
         raise HTTPNotFound
 
-    form = SetTotalSizeLimitForm(request.POST)
+    form = SetOrganizationTotalSizeLimitForm(request.POST)
 
     if not form.validate():
         for field, errors in form.errors.items():

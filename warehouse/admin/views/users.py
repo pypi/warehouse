@@ -144,6 +144,7 @@ class UserForm(wtforms.Form):
     is_superuser = wtforms.fields.BooleanField()
     is_support = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
+    is_org_application_reviewer = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
     is_observer = wtforms.fields.BooleanField()
 

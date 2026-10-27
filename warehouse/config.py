@@ -79,6 +79,8 @@ class RootFactory:
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -121,6 +123,8 @@ class RootFactory:
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -154,6 +158,7 @@ class RootFactory:
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
@@ -176,6 +181,14 @@ class RootFactory:
                 Permissions.AdminDashboardRead,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminSponsorsWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:org_application_reviewers",
+            (
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
             ),
         ),
         (
@@ -205,6 +218,11 @@ class RootFactory:
 
     def __init__(self, request):
         pass
+
+
+def has_root_permission(request, permission):
+    """Check a site-wide permission, ignoring the resource being viewed."""
+    return request.has_permission(permission, RootFactory(request))
 
 
 def require_https_tween_factory(handler, registry):
@@ -792,6 +810,7 @@ def configure(settings=None):
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
+    jglobals.setdefault("has_root_permission", "warehouse.config:has_root_permission")
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
