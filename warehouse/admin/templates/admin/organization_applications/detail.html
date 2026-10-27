@@ -84,7 +84,7 @@
               class="btn btn-primary btn-block"
               data-toggle="modal"
               data-hotkey-binding=65
-              data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined', 'withdrawn'] }}
               title="Approve organization request"
             >
               <i class="icon fa fa-check"></i> Approve
@@ -95,7 +95,7 @@
               class="btn btn-info btn-block"
               data-toggle="modal"
               data-hotkey-binding=82
-              data-target="#requestMoreInfoModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              data-target="#requestMoreInfoModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined', 'withdrawn'] }}
               title="Request more information on this organization request"
             >
               <i class="icon fa fa-question"></i> Request Info
@@ -106,7 +106,7 @@
               class="btn btn-danger btn-block"
               data-toggle="modal"
               data-hotkey-binding=49
-              data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status.value in ['approved', 'declined', 'withdrawn'] }}
               title="Decline organization request"
             >
               <i class="icon fa fa-times"></i> Decline
@@ -117,7 +117,7 @@
               class="btn btn-secondary btn-block"
               data-toggle="modal"
               data-hotkey-binding=68
-              data-target="#deferModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status in ['deferred', 'approved', 'declined'] }}
+              data-target="#deferModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationApplicationsWrite) or organization_application.status in ['deferred', 'approved', 'declined', 'withdrawn'] }}
               title="Defer organization request"
             >
               <i class="icon fa fa-stopwatch"></i> Defer
@@ -398,7 +398,7 @@
               class="btn btn-warning btn-block"
               id="editModalButton"
               data-toggle="modal"
-              data-target="#editModal" {{ 'disabled' if organization_application.status.value in ['approved', 'declined'] }}
+              data-target="#editModal" {{ 'disabled' if organization_application.status.value in ['approved', 'declined', 'withdrawn'] }}
               title="Edit organization request"
             >
               <i class="fa-solid fa-pen-to-square"></i> Edit
