@@ -44,6 +44,7 @@
               {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  <span class="sr-only">{% trans %}File added late{% endtrans %}:</span>
                   {{ humanize(file.upload_time) }}
                 </span>
               {% else %}
@@ -196,6 +197,7 @@
               {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  <span class="sr-only">{% trans %}File added late{% endtrans %}:</span>
                   {{ humanize(file.upload_time) }}
                 </span>
               {% else %}
