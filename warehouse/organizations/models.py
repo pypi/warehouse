@@ -866,6 +866,7 @@ class OrganizationApplicationStatus(enum.StrEnum):
     Deferred = "deferred"
     MoreInformationNeeded = "moreinformationneeded"
     Approved = "approved"
+    Withdrawn = "withdrawn"
 
 
 class OrganizationMembershipSize(enum.StrEnum):
