@@ -22,6 +22,10 @@ def upgrade():
 
 
 def downgrade():
+    op.execute(
+        "UPDATE organization_applications SET status = 'declined' "
+        "WHERE status = 'withdrawn'"
+    )
     op.alter_column("organization_applications", "status", server_default=None)
     op.sync_enum_values(
         enum_schema="public",
