@@ -375,9 +375,9 @@ def _is_valid_dist_file(
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
 
-                maybe_ok, reason = _is_valid_sdist_tar(tar, metrics)
-                if not maybe_ok:
-                    return (maybe_ok, reason)
+                sdist_is_valid_tar, reason = _is_valid_sdist_tar(tar, metrics)
+                if not sdist_is_valid_tar:
+                    return (sdist_is_valid_tar, reason)
 
                 if (alias := _non_canonical_member_path(tar.getnames())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
