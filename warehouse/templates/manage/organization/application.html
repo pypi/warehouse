@@ -113,15 +113,15 @@
   {% endif %}
   {% if organization_application.status not in ['approved', 'declined'] %}
     <hr />
-    <section id="delete-organization-application">
-      <h2>{% trans %}Delete organization request{% endtrans %}</h2>
+    <section id="withdraw-organization-application">
+      <h2>{% trans %}Withdraw organization request{% endtrans %}</h2>
       <div class="callout-block callout-block--danger">
         <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
         <p>
           <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-          {% trans %}Your organization request will be withdrawn and permanently deleted. You can submit a new request afterwards.{% endtrans %}
+          {% trans %}Your organization request will be withdrawn and will no longer be reviewed. You can submit a new request afterwards.{% endtrans %}
         </p>
-        {{ confirm_button(gettext("Delete organization request") , gettext("Organization account name"), "organization_application_name", organization_application.name) }}
+        {{ confirm_button(gettext("Withdraw organization request") , gettext("Organization account name"), "organization_application_name", organization_application.name) }}
       </div>
     </section>
   {% endif %}
