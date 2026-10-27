@@ -99,6 +99,12 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
+# The identity for a pax-style tar. This covers both UStar and pax archives.
+TAR_PAX_IDENTITY = b"ustar\x0000"
+
+# The identity for a GNU-style tar. This covers GNU archives.
+TAR_GNU_IDENTITY = b"ustar  \x00"
+
 
 def _valid_platform_tag(platform_tag):
     return is_valid_platform_tag(platform_tag)
@@ -164,6 +170,62 @@ def _open_dist_file(filename, stack: ExitStack):
     if filename.endswith(".tar.gz"):
         return stack.enter_context(tarfile.open(filename, mode="r:gz"))
     raise ValueError(f"Unsupported distribution file: {filename}")
+
+
+def _is_valid_sdist_tar(tar: tarfile.TarFile, metrics) -> tuple[bool, str | None]:
+    """
+    Check whether a given tar is valid as a source distribution.
+    """
+
+    for member in tar:
+        # Sparse members rely on GNU extensions, including when stored
+        # in a pax header, and are not valid in PEP 625 sdists.
+        if member.issparse():
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: Sparse members are not allowed. "
+                    "See https://docs.pypi.org/archives for more information"
+                ),
+            )
+
+        # PEP 625 requires sdists to be pax, not GNU or V7.
+        # We can't ban GNU tar sdists yet because they're too common.
+        # `tarfile` does not provide a magic API, so we need to do it
+        # manually.
+
+        # To get the header, we take the offset to the member's data and
+        # seek + read one block back from it.
+        where = member.offset_data
+        tar.fileobj.seek(where - tarfile.BLOCKSIZE)
+        raw_header = tar.fileobj.read(512)
+
+        # The "identity" of a tar file is the combined 8 bytes from
+        # its magic and version fields.
+        identity = raw_header[257:265]
+        if identity == TAR_GNU_IDENTITY:
+            # We can't ban these yet, but perhaps soon (tm).
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error", tags=["reason:gnu-header"]
+            )
+        elif identity != TAR_PAX_IDENTITY:
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:unknown-header"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: unrecognized format. "
+                    "See https://docs.pypi.org/archives for more information"
+                ),
+            )
+
+    return True, None
 
 
 def _is_valid_dist_file(
@@ -312,20 +374,11 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
-                # Sparse members rely on GNU extensions, including when stored
-                # in a pax header, and are not valid in PEP 625 sdists.
-                if any(member.issparse() for member in tar.getmembers()):
-                    metrics.increment(
-                        "warehouse.upload.tarfile.policy_error",
-                        tags=["reason:sparse-member"],
-                    )
-                    return (
-                        False,
-                        (
-                            "tar archive not accepted: Sparse members are not allowed. "
-                            "See https://docs.pypi.org/archives for more information"
-                        ),
-                    )
+
+                maybe_ok, reason = _is_valid_sdist_tar(tar, metrics)
+                if not maybe_ok:
+                    return (maybe_ok, reason)
+
                 if (alias := _non_canonical_member_path(tar.getnames())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
