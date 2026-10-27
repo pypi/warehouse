@@ -53,6 +53,49 @@
   text-decoration: underline;
 }
 
+/* Switcher between PyPI's web properties, above the site header */
+.pypi-switcher {
+  background-color: var(--md-footer-bg-color--dark);
+  font-size: 0.7rem;
+}
+
+.pypi-switcher__list {
+  display: flex;
+  margin: 0 auto;
+  padding: 0 0.2rem;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+/* Match the height of Material's .md-header */
+.pypi-switcher__link {
+  display: flex;
+  align-items: center;
+  height: 2.4rem;
+  padding: 0 0.6rem;
+  color: #ffffff;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .pypi-switcher__link {
+    padding: 0 0.4rem;
+  }
+}
+
+.pypi-switcher__link:hover,
+.pypi-switcher__link:focus {
+  text-decoration: underline;
+}
+
+/* Join the active site's tab to the header below it */
+.pypi-switcher__link--active {
+  background-color: var(--md-primary-fg-color);
+  color: #ffffff;
+  font-weight: 700;
+}
+
 readthedocs-flyout { display: none; }
 
 .md-content img:not(.md-author img) {

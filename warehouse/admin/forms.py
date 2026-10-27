@@ -7,6 +7,8 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
     RateLimitPeriod,
@@ -17,10 +19,10 @@ class SetUploadLimitForm(wtforms.Form):
     """
     Form for validating upload limit input in admin interface.
 
-    Used by both project and organization admin views to ensure
-    consistent validation of upload limits.
+    Used by project admin views; orgs use ``SetOrganizationUploadLimitForm`` below.
     """
 
+    minimum = MAX_FILESIZE
     upload_limit = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -47,8 +49,8 @@ class SetUploadLimitForm(wtforms.Form):
                 "Upload limit must be a valid integer or empty"
             )
 
-        # Check minimum (must be at least the system default)
-        min_limit = MAX_FILESIZE // ONE_MIB
+        # Check minimum (must be at least the applicable default)
+        min_limit = self.minimum // ONE_MIB
         if limit_value < min_limit:
             raise wtforms.ValidationError(
                 f"Upload limit can not be less than {min_limit:0.1f}MiB"
@@ -65,14 +67,20 @@ class SetUploadLimitForm(wtforms.Form):
         field.data = limit_value * ONE_MIB
 
 
+class SetOrganizationUploadLimitForm(SetUploadLimitForm):
+    """Organization limits below the organization default would have no effect."""
+
+    minimum = ORGANIZATION_MAX_FILESIZE
+
+
 class SetTotalSizeLimitForm(wtforms.Form):
     """
     Form for validating total size limit input in admin interface.
 
-    Used by both project and organization admin views to ensure
-    consistent validation of total size limits.
+    Used by project admin views; orgs use ``SetOrganizationTotalSizeLimitForm`` below.
     """
 
+    minimum = MAX_PROJECT_SIZE
     total_size_limit = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -99,8 +107,8 @@ class SetTotalSizeLimitForm(wtforms.Form):
                 "Total size limit must be a valid integer or empty"
             )
 
-        # Check minimum (must be at least the system default)
-        min_limit = MAX_PROJECT_SIZE // ONE_GIB
+        # Check minimum (must be at least the applicable default)
+        min_limit = self.minimum // ONE_GIB
         if limit_value < min_limit:
             raise wtforms.ValidationError(
                 f"Total organization size can not be less than {min_limit:0.1f}GiB"
@@ -110,6 +118,12 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
         # Convert to bytes for storage
         field.data = limit_value * ONE_GIB
+
+
+class SetOrganizationTotalSizeLimitForm(SetTotalSizeLimitForm):
+    """Organization limits below the organization default would have no effect."""
+
+    minimum = ORGANIZATION_MAX_PROJECT_SIZE
 
 
 class SetProjectCreateRateLimitForm(wtforms.Form):

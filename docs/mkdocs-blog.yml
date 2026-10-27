@@ -88,6 +88,7 @@ plugins:
   - search
   - tags
 extra:
+  pypi_site: blog
   homepage: https://pypi.org
   social:
     - icon: fontawesome/brands/github

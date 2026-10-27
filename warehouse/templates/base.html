@@ -30,10 +30,10 @@
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
         <li class="site-menu__item">
-          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
+          <a href="https://blog.pypi.org" class="site-menu__link">{% trans %}Blog{% endtrans %}</a>
         </li>
         <li class="site-menu__item">
-          <a href="https://blog.pypi.org" class="site-menu__link">{% trans %}Blog{% endtrans %}</a>
+          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li class="site-menu__item">
           <a href="{{ login_url }}" class="site-menu__link">{% trans %}Log in{% endtrans %}</a>
@@ -57,10 +57,10 @@
           aria-hidden="true"
           aria-label="{% trans %}Main menu{% endtrans %}">
         <li>
-          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
+          <a class="dropdown__link" href="https://blog.pypi.org">{% trans %}Blog{% endtrans %}</a>
         </li>
         <li>
-          <a class="dropdown__link" href="https://blog.pypi.org">{% trans %}Blog{% endtrans %}</a>
+          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li>
           <a class="dropdown__link" href="{{ login_url }}">{% trans %}Log in{% endtrans %}</a>

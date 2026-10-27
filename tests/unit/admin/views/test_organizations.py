@@ -1736,22 +1736,22 @@ class TestSetUploadLimit:
         mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "150"})
+        db_request.POST = MultiDict({"upload_limit": "250"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "Upload limit set to 150.0MiB", queue="success"
+            "Upload limit set to 250.0MiB", queue="success"
         )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
-        assert organization.upload_limit == 150 * views.ONE_MIB
+        assert organization.upload_limit == 250 * views.ONE_MIB
         event = organization.events.one()
         assert event.tag == "admin:organization:set_upload_limit"
         assert event.additional == {
             "organization_name": organization.name,
             "old_upload_limit": None,
-            "new_upload_limit": 150 * views.ONE_MIB,
+            "new_upload_limit": 250 * views.ONE_MIB,
             "actor": user.username,
         }
 
@@ -1846,12 +1846,13 @@ class TestSetUploadLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"upload_limit": "150"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "upload_limit: Upload limit can not be less than 100.0MiB", queue="error"
+            "upload_limit: Upload limit can not be less than 200.0MiB", queue="error"
         )
         assert result.status_code == 303
 
@@ -1960,12 +1961,13 @@ class TestSetTotalSizeLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"total_size_limit": "15"})
 
         result = views.set_total_size_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "total_size_limit: Total organization size can not be less than 10.0GiB",
+            "total_size_limit: Total organization size can not be less than 20.0GiB",
             queue="error",
         )
         assert result.status_code == 303

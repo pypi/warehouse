@@ -56,10 +56,10 @@
                 <a href="#organization-limits" class="nav-link">
                   Upload Limit	
                   <span class="float-right badge bg-info">
-                    {% if organization.upload_limit %}
+                    {% if organization.upload_limit and organization.upload_limit >= ORGANIZATION_MAX_FILESIZE %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </span>
                 </a>
@@ -68,10 +68,10 @@
                 <a href="#organization-limits" class="nav-link">
                   Total Size Limit
                   <span class="float-right badge bg-info">
-                    {% if organization.total_size_limit %}
+                    {% if organization.total_size_limit and organization.total_size_limit >= ORGANIZATION_MAX_PROJECT_SIZE %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </span>
                 </a>
@@ -409,10 +409,13 @@
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>Upload limit</td>
                   <td>
-                    {% if organization.upload_limit %}
+                    {% if organization.upload_limit and organization.upload_limit >= ORGANIZATION_MAX_FILESIZE %}
                     {{ organization.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% if organization.upload_limit %}
+                    <br><small class="text-muted">Stored {{ organization.upload_limit|filesizeformat(binary=True) }} is below the organization default and has no effect</small>
+                    {% endif %}
                     {% endif %}
                   </td>
                   <td>
@@ -421,7 +424,7 @@
                     {% else %}
                     {% set upload_limit_value = '' %}
                     {% endif %}
-                    <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+                    <input type="number" name="upload_limit" id="uploadLimit" min="{{ ORGANIZATION_MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
                   </td>
                   <td>
                     <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
@@ -433,10 +436,13 @@
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>Total size limit</td>
                   <td>
-                    {% if organization.total_size_limit %}
+                    {% if organization.total_size_limit and organization.total_size_limit >= ORGANIZATION_MAX_PROJECT_SIZE %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
-                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    Default ({{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% if organization.total_size_limit %}
+                    <br><small class="text-muted">Stored {{ organization.total_size_limit|filesizeformat(binary=True) }} is below the organization default and has no effect</small>
+                    {% endif %}
                     {% endif %}
                   </td>
                   <td>
@@ -445,7 +451,7 @@
                     {% else %}
                     {% set total_size_limit_value = '' %}
                     {% endif %}
-                    <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
+                    <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ ORGANIZATION_MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
                   </td>
                   <td>
                     <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>

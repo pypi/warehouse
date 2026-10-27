@@ -810,7 +810,6 @@ involved. And you can meet us in person at [packaging sprints](https://wiki.pyth
 
 Resources to help you learn Warehouse's context:
 
-- [Roadmap](../roadmap.md)
 - [blog posts, mailing list messages, and notes from our core developer meetings](https://wiki.python.org/psf/PackagingWG)
 - [Warehouse codebase](../application.md)
 - [the PyPA's list of presentations and articles](https://www.pypa.io/en/latest/presentations/)
