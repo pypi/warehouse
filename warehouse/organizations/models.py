@@ -302,6 +302,10 @@ class OrganizationApplicationFactory:
             return (
                 self.request.db.query(OrganizationApplication)
                 .filter(OrganizationApplication.id == organization_application_id)
+                .filter(
+                    OrganizationApplication.status
+                    != OrganizationApplicationStatus.Withdrawn
+                )
                 .one()
             )
         except NoResultFound:
