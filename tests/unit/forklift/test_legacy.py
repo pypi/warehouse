@@ -883,13 +883,8 @@ class TestIsDuplicateFile:
 
 class TestFileUpload:
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
-    def test_fails_invalid_version(
-        self, pyramid_config, pyramid_request, version, mocker
-    ):
+    def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
-        pyramid_request.help_url = mocker.Mock(
-            side_effect=lambda **kw: "/the/help/url/"
-        )
 
         user = UserFactory.create(with_verified_primary_email=True)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1119,6 +1114,22 @@ class TestFileUpload:
                     "for more information."
                 ),
             ),
+            # version length error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": ".".join(["1"] * 65),
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                (
+                    "The version must be 128 characters or less after "
+                    "normalization, but is 129 characters. See "
+                    "https://docs.pypi.org/project_metadata/#version-length-limit "
+                    "for more information."
+                ),
+            ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
@@ -1161,18 +1172,21 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
-            f"400 The name {name!r} isn't allowed. See /the/help/url/ for more "
+            f"400 The name {name!r} isn't allowed. See /the/docs/url/ for more "
             "information."
         )
 
@@ -1212,19 +1226,22 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
             f"400 The name {conflicting_name!r} is too similar to an existing project. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     @pytest.mark.parametrize(
@@ -1235,7 +1252,7 @@ class TestFileUpload:
                 ".. invalid-directive::",
                 (
                     "400 The description failed to render for 'text/x-rst'. "
-                    "See /the/help/url/ for more information."
+                    "See /the/docs/url/ for more information."
                 ),
             ),
             (
@@ -1244,7 +1261,7 @@ class TestFileUpload:
                 (
                     "400 The description failed to render in the default format "
                     "of reStructuredText. "
-                    "See /the/help/url/ for more information."
+                    "See /the/docs/url/ for more information."
                 ),
             ),
         ],
@@ -1282,7 +1299,7 @@ class TestFileUpload:
         if description_content_type is not None:
             db_request.POST.add("description_content_type", description_content_type)
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -1292,7 +1309,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == message
 
-        db_request.help_url.assert_called_once_with(_anchor="description-content-type")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/project-descriptions/",
+            anchor="specifying-the-long-description",
+        )
 
     @pytest.mark.parametrize(
         "name",
@@ -1341,20 +1361,23 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
             f"400 The name {name!r} isn't allowed (conflict "
             "with Python Standard Library module name). "
-            "See /the/help/url/ "
+            "See /the/docs/url/ "
             "for more information."
         )
 
@@ -2039,7 +2062,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2047,13 +2070,13 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-file-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 100 MB. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_too_large_project_size_default_limit(
@@ -2087,7 +2110,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2095,14 +2118,14 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-project-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
             " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_too_large_project_size_custom_limit(
@@ -2143,7 +2166,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2151,14 +2174,14 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-project-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
             " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_succeeds_custom_project_size_limit(
@@ -2368,18 +2391,24 @@ class TestFileUpload:
         )
 
         db_request.db.add(Filename(filename=filename))
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename was previously used by a file that has since been "
-            "deleted. Use a different version. See /the/help/url/ for more information."
+            "deleted. Use a different version. See /the/docs/url/ for more information."
         )
 
     def test_upload_noop_with_existing_filename_same_content(
@@ -2473,18 +2502,24 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({filename!r}, "
             f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_diff_filename_same_blake2(
@@ -2531,19 +2566,25 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({db_request.POST['content'].filename!r}, "
             f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     @pytest.mark.parametrize(
@@ -2607,7 +2648,6 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2676,7 +2716,6 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2884,19 +2923,22 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The user '{user2.username}' "
             f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_without_oidc_publisher_permission(
@@ -2926,18 +2968,20 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/trusted-publishers/troubleshooting/"
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The given token isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_unverified_email_after_permission_check(
@@ -2972,19 +3016,23 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/managing-your-account/",
+            anchor="email-address-verification",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have a verified primary email address. Please add a "
             "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_without_two_factor_after_permission_check(
@@ -3016,19 +3064,22 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/two-factor-authentication/"
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have two-factor authentication enabled. Please enable "
             "two-factor authentication before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_permission_error_surfaces_before_email_check(
@@ -3065,7 +3116,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -3076,7 +3127,7 @@ class TestFileUpload:
         assert resp.status == (
             f"403 The user {intruder.username!r} "
             f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_new_project_fails_with_unverified_email(
@@ -3103,19 +3154,23 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/managing-your-account/",
+            anchor="email-address-verification",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have a verified primary email address. Please add a "
             "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
         # The project must not have been created.
         assert (
@@ -6056,7 +6111,6 @@ class TestFileUpload:
         project_name,
         status,
         storage_service,
-        mocker,
     ):
         project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
@@ -6091,7 +6145,6 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -6128,7 +6181,6 @@ class TestFileUpload:
         version,
         expected,
         storage_service,
-        mocker,
     ):
         project = ProjectFactory.create(name="some_thing")
         owner = UserFactory.create()
@@ -6159,7 +6211,6 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -6783,7 +6834,7 @@ class TestFileUpload:
         # Create organization with generous limit
         organization = OrganizationFactory.create(
             orgtype="Company",
-            upload_limit=150 * (1024**2),  # 150 MiB
+            upload_limit=250 * (1024**2),  # 250 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6796,7 +6847,7 @@ class TestFileUpload:
         ).project
 
         # Verify our model property returns the expected value (most generous)
-        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+        assert project.upload_limit_size == 250 * (1024**2)  # Should be org limit
 
         # Upload file that's between project and org limits (120 MiB)
         filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
@@ -6879,7 +6930,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -6932,7 +6983,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -7112,7 +7163,7 @@ class TestFileUpload:
                 upload_time=then,
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)

@@ -10,14 +10,16 @@
               aria-label="{% trans %}View menu{% endtrans %}">
         {# djlint:off #}<img class="user-image"
              src="{{ gravatar(request, request.user.email, size=22) }}"
+             srcset="{{ gravatar(request, request.user.email, size=44) }} 2x,
+                     {{ gravatar(request, request.user.email, size=66) }} 3x"
         alt="User Image">{{ request.user.username }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
       </button>
       <ul class="dropdown__content"
           aria-hidden="true"
           aria-label="{% trans %}Main menu{% endtrans %}">
-        {% if request.has_permission(Permissions.AdminDashboardRead) %}
+        {% if request.has_permission(Permissions.AdminDashboardRead) or request.has_permission(Permissions.AdminOrganizationApplicationsRead) %}
           <li>
-            <a href="{{ request.route_path('admin.dashboard') }}"
+            <a href="{{ request.route_path('admin.dashboard' if request.has_permission(Permissions.AdminDashboardRead) else 'admin.organization_application.list') }}"
                class="dropdown__link">
               <i class="fa fa-wrench" aria-hidden="true"></i>
               {% trans %}Admin{% endtrans %}
@@ -53,15 +55,15 @@
           </a>
         </li>
         <li>
-          <a href="{{ request.route_path('help') }}" class="dropdown__link">
-            <i class="fa fa-question-circle" aria-hidden="true"></i>
-            {% trans %}Help{% endtrans %}
+          <a href="https://blog.pypi.org" class="dropdown__link">
+            <i class="fa fa-newspaper" aria-hidden="true"></i>
+            {% trans %}Blog{% endtrans %}
           </a>
         </li>
         <li>
-          <a href="{{ request.route_path('sponsors') }}" class="dropdown__link">
-            <i class="fa fa-heart" aria-hidden="true"></i>
-            {% trans %}Sponsors{% endtrans %}
+          <a href="{{ request.user_docs_url('/') }}" class="dropdown__link">
+            <i class="fa fa-book" aria-hidden="true"></i>
+            {% trans %}Docs{% endtrans %}
           </a>
         </li>
         <li>

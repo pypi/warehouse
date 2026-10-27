@@ -20,6 +20,8 @@
           {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
           {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
           <img src="{{ gravatar(request, email, size=225) }}"
+               srcset="{{ gravatar(request, email, size=450) }} 2x,
+                       {{ gravatar(request, email, size=675) }} 3x"
                alt="{{ alt }}"
                title="{{ alt }}">
           <div class="author-profile__info">
@@ -87,10 +89,10 @@
 </div>
 {% if archived_projects %}
   <h3>
-    {% trans count=archived_projects|length, href=request.route_url('help') %}
-    {{ count }} <a href="{{ href }}#archived-project">archived</a> project
+    {% trans count=archived_projects|length, href=request.user_docs_url('/using-pypi/pypi-basics/', anchor='archived-project') %}
+    {{ count }} <a href="{{ href }}">archived</a> project
   {% pluralize %}
-    {{ count }} <a href="{{ href }}#archived-project">archived</a> projects
+    {{ count }} <a href="{{ href }}">archived</a> projects
   {% endtrans %}
 </h3>
 <div class="package-list">

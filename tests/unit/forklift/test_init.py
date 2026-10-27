@@ -11,9 +11,6 @@ def test_includeme(forklift_domain, monkeypatch, mocker):
     if forklift_domain:
         settings["forklift.domain"] = forklift_domain
 
-    _help_url = mocker.sentinel.help_url
-    monkeypatch.setattr(forklift, "_help_url", _help_url)
-
     _user_docs_url = mocker.sentinel.user_docs_url
     monkeypatch.setattr(forklift, "_user_docs_url", _user_docs_url)
 
@@ -51,7 +48,6 @@ def test_includeme(forklift_domain, monkeypatch, mocker):
     )
 
     assert config.add_request_method.call_args_list == [
-        mocker.call(_help_url, name="help_url"),
         mocker.call(_user_docs_url, name="user_docs_url"),
     ]
     if forklift_domain:
@@ -80,18 +76,6 @@ def test_includeme(forklift_domain, monkeypatch, mocker):
         ]
     else:
         config.add_template_view.assert_not_called()
-
-
-def test_help_url(pyramid_request, mocker):
-    warehouse_domain = mocker.sentinel.warehouse_domain
-    result = mocker.sentinel.result
-    pyramid_request.registry.settings["warehouse.domain"] = warehouse_domain
-    route_url = mocker.patch.object(
-        pyramid_request, "route_url", autospec=True, return_value=result
-    )
-
-    assert forklift._help_url(pyramid_request, _anchor="foo") == result
-    route_url.assert_called_once_with("help", _host=warehouse_domain, _anchor="foo")
 
 
 def test_user_docs_url(pyramid_request):

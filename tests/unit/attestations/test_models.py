@@ -12,6 +12,7 @@ from warehouse.attestations.models import (
     ProvenanceState,
     ProvenanceStatus,
     PublisherSource,
+    PublisherWorkflow,
     get_provenance_sources,
 )
 
@@ -65,14 +66,29 @@ def _provenance(publisher: pypi_attestations.Publisher | None = None):
 
 
 @pytest.mark.parametrize(
-    ("publisher", "expected_sources", "expected_workflows"),
+    (
+        "publisher",
+        "expected_sources",
+        "expected_source_urls",
+        "expected_is_account",
+        "expected_workflows",
+        "expected_workflow_urls",
+    ),
     [
         pytest.param(
             pypi_attestations.GitHubPublisher(
                 repository="foo/bar", workflow="publish.yml"
             ),
             {PublisherSource("GitHub", "foo/bar")},
-            {"publish.yml"},
+            {"https://github.com/foo/bar"},
+            {False},
+            {PublisherWorkflow("GitHub", "foo/bar", "publish.yml")},
+            {
+                (
+                    f"https://github.com/foo/bar/blob/{'d' * 40}"
+                    "/.github/workflows/publish.yml"
+                )
+            },
             id="github",
         ),
         pytest.param(
@@ -80,7 +96,10 @@ def _provenance(publisher: pypi_attestations.Publisher | None = None):
                 repository="foo/bar", workflow_filepath=".gitlab-ci.yml"
             ),
             {PublisherSource("GitLab", "foo/bar")},
-            {".gitlab-ci.yml"},
+            {"https://gitlab.com/foo/bar"},
+            {False},
+            {PublisherWorkflow("GitLab", "foo/bar", ".gitlab-ci.yml")},
+            {f"https://gitlab.com/foo/bar/blob/{'d' * 40}//.gitlab-ci.yml"},
             id="gitlab",
         ),
         pytest.param(
@@ -88,13 +107,21 @@ def _provenance(publisher: pypi_attestations.Publisher | None = None):
                 email="builder@example.iam.gserviceaccount.com"
             ),
             {PublisherSource("Google", "builder@example.iam.gserviceaccount.com")},
+            {None},
+            {True},
+            set(),
             set(),
             id="google",
         ),
     ],
 )
 def test_get_provenance_sources_by_publisher_kind(
-    publisher, expected_sources, expected_workflows
+    publisher,
+    expected_sources,
+    expected_source_urls,
+    expected_is_account,
+    expected_workflows,
+    expected_workflow_urls,
 ):
     """
     Every Trusted Publisher contributes an identifiable, kind-prefixed source.
@@ -102,14 +129,18 @@ def test_get_provenance_sources_by_publisher_kind(
     Google has no repository or workflow, so its service account is the only
     identity it can offer.
     """
-    assert get_provenance_sources(_provenance(publisher)) == (
-        expected_sources,
-        expected_workflows,
-    )
+    extracted = get_provenance_sources(_provenance(publisher))
+    assert extracted is not None
+    sources, workflows = extracted
+    assert sources == expected_sources
+    assert {source.url for source in sources} == expected_source_urls
+    assert {source.is_account for source in sources} == expected_is_account
+    assert workflows == expected_workflows
+    assert {workflow.url for workflow in workflows} == expected_workflow_urls
 
 
 def test_get_provenance_sources_distinguishes_kinds_sharing_a_repository():
-    """The same repository path on two forges is two distinct sources."""
+    """The same repository path on two forges is two distinct sources and workflows."""
     github = get_provenance_sources(
         _provenance(
             pypi_attestations.GitHubPublisher(repository="foo/bar", workflow="w.yml")
@@ -126,6 +157,7 @@ def test_get_provenance_sources_distinguishes_kinds_sharing_a_repository():
     assert github is not None
     assert gitlab is not None
     assert github[0] != gitlab[0]
+    assert github[1] != gitlab[1]
 
 
 def _counts(**kwargs) -> ProvenanceCounts:
@@ -135,7 +167,9 @@ def _counts(**kwargs) -> ProvenanceCounts:
             "total_files": 1,
             "files_with_provenance": 1,
             "source_counts": {PublisherSource("GitHub", "foo/bar"): 1},
-            "workflow_counts": {"publish.yml": 1},
+            "workflow_counts": {
+                PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1
+            },
             **kwargs,
         }
     )
@@ -195,18 +229,32 @@ def test_provenance_status_source_deltas(comparison, expected_added, expected_re
         pytest.param(None, set(), set(), id="no-comparison-release"),
         pytest.param(
             _comparison(workflow_counts={}),
-            {"publish.yml"},
+            {PublisherWorkflow("GitHub", "foo/bar", "publish.yml")},
             set(),
             id="comparison-release-yielded-no-workflows",
         ),
         pytest.param(
-            _comparison(workflow_counts={"old.yml": 1}),
-            {"publish.yml"},
-            {"old.yml"},
+            _comparison(
+                workflow_counts={PublisherWorkflow("GitHub", "foo/bar", "old.yml"): 1}
+            ),
+            {PublisherWorkflow("GitHub", "foo/bar", "publish.yml")},
+            {PublisherWorkflow("GitHub", "foo/bar", "old.yml")},
             id="comparison-release-had-a-different-workflow",
         ),
         pytest.param(
-            _comparison(),
+            _comparison(
+                workflow_counts={
+                    PublisherWorkflow(
+                        "GitHub",
+                        "foo/bar",
+                        "publish.yml",
+                        url=(
+                            "https://github.com/foo/bar/blob/old"
+                            "/.github/workflows/publish.yml"
+                        ),
+                    ): 1
+                }
+            ),
             set(),
             set(),
             id="comparison-release-had-the-same-workflow",
@@ -313,4 +361,7 @@ def test_counts_distinguish_missing_information_from_overlapping_publishers():
         PublisherSource("GitHub", "example/second"): 1,
         PublisherSource("Google", "builder@example.iam.gserviceaccount.com"): 1,
     }
-    assert counts.workflow_counts == {"publish.yml": 1, "release.yml": 1}
+    assert counts.workflow_counts == {
+        PublisherWorkflow("GitHub", "example/first", "publish.yml"): 1,
+        PublisherWorkflow("GitHub", "example/second", "release.yml"): 1,
+    }

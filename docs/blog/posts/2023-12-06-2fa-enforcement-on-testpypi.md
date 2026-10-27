@@ -41,6 +41,6 @@ and be redirected to the 2FA setup page for your account.
 You will still be able to log in, browse, and download packages without 2FA.
 But to perform any management actions, you'll need to enable 2FA.
 
-Visit [the 2FA FAQ](https://pypi.org/help/#twofa) for more details.
+Visit [the 2FA documentation](https://docs.pypi.org/your-account/two-factor-authentication/#what-is-two-factor-authentication) for more details.
 
 _Mike Fiedler is the PyPI Safety & Security Engineer since 2023._

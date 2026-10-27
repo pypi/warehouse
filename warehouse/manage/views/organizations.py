@@ -147,7 +147,11 @@ class ManageOrganizationsViews:
         all_user_organizations = user_organizations(self.request)
 
         # Get list of applications for Organizations
-        organization_applications = self.request.user.organization_applications
+        organization_applications = [
+            app
+            for app in self.request.user.organization_applications
+            if app.status != OrganizationApplicationStatus.Withdrawn
+        ]
 
         # Get list of invites as (organization, token) tuples.
         organization_invites = (
@@ -194,6 +198,7 @@ class ManageOrganizationsViews:
                         not in (
                             OrganizationApplicationStatus.Approved,
                             OrganizationApplicationStatus.Declined,
+                            OrganizationApplicationStatus.Withdrawn,
                         )
                     ]
                 )
@@ -317,6 +322,60 @@ class ManageOrganizationApplicationViews:
                 },
             }
         return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_organization_application_name"],
+        require_reauth=True,
+    )
+    def withdraw_organization_application(self):
+        # Lock the row and re-read its status so a concurrent admin decision
+        # is seen before withdrawing.
+        self.request.db.refresh(self.organization_application, with_for_update=True)
+        if self.organization_application.status in (
+            OrganizationApplicationStatus.Approved,
+            OrganizationApplicationStatus.Declined,
+            OrganizationApplicationStatus.Withdrawn,
+        ):
+            self.request.session.flash(
+                "This organization request can no longer be withdrawn",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
+        confirm = self.request.POST.get(
+            "confirm_organization_application_name", ""
+        ).strip()
+        if confirm != self.organization_application.name:
+            self.request.session.flash(
+                f"Could not withdraw organization request - {confirm!r} is not "
+                f"the same as {self.organization_application.name!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.path)
+
+        tags = [
+            f"status:{self.organization_application.status}",
+            f"orgtype:{self.organization_application.orgtype}",
+        ]
+        self.organization_application.status = OrganizationApplicationStatus.Withdrawn
+        self.request.metrics.increment(
+            "warehouse.organizations.application.withdrawn", tags=tags
+        )
+        self.request.metrics.distribution(
+            "warehouse.organizations.application.withdrawn.age_seconds",
+            (
+                dt.datetime.now(dt.UTC).replace(tzinfo=None)
+                - self.organization_application.submitted
+            ).total_seconds(),
+            tags=tags,
+        )
+        self.request.session.flash(
+            f"Organization request for {self.organization_application.name!r} "
+            "withdrawn",
+            queue="success",
+        )
+        return HTTPSeeOther(self.request.route_path("manage.organizations"))
 
 
 @view_defaults(
@@ -625,11 +684,31 @@ class ManageOrganizationBillingViews:
             )
         return HTTPSeeOther(manage_subscription_url)
 
+    def deactivated_redirect(self) -> HTTPSeeOther | None:
+        """Only orgs deactivated for having no paid seat come back by paying."""
+        if self.organization.is_active or self.organization.reactivates_on_payment:
+            return None
+        self.request.session.flash(
+            self.request._(
+                "This organization is deactivated. To reactivate it, email "
+                "support+orgs@pypi.org."
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.settings",
+                organization_name=self.organization.normalized_name,
+            )
+        )
+
     @view_config(
         route_name="manage.organization.activate_subscription",
         renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
+        if redirect := self.deactivated_redirect():
+            return redirect
         form = OrganizationActivateBillingForm(self.request.POST)
         if self.request.method == "POST" and form.validate():
             self.organization_service.record_tos_engagement(
@@ -650,6 +729,8 @@ class ManageOrganizationBillingViews:
             # Create subscription if there are no manageable subscription.
             # This occurs if no subscription exists, or all subscriptions have reached
             # a terminal state of Canceled.
+            if redirect := self.deactivated_redirect():
+                return redirect
             return self.create_subscription()
         # Manage subscription if there is an existing subscription.
         return self.manage_subscription()
@@ -1770,7 +1851,13 @@ class ManageOrganizationPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1793,8 +1880,14 @@ class ManageOrganizationPublishingViews:
             self.request.session.flash(
                 self.request._(
                     f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See https://pypi.org/help#admin-intervention for "
-                    "details."
+                    "disabled. See ${docs_url} for "
+                    "details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )

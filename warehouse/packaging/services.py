@@ -453,27 +453,39 @@ class ProjectService:
         )
         raise TooManyProjectsCreated(resets_in=resets_in)
 
+    @staticmethod
+    def _ip_key(request, identity: _IdentityLimiter):
+        """The address to meter against the IP limiters, if any.
+
+        Organizations are metered by their own limiters only, so creations
+        from a shared office network or CI runner aren't capped per IP.
+        """
+        if identity.partition_key == "organization":
+            return None
+        return request.remote_addr
+
     def _check_ratelimits(self, request, identity: _IdentityLimiter):
         ip_limiter = self.ratelimiters["project.create.ip"]
         attempt_ip_limiter = self.ratelimiters["project.create.attempt.ip"]
         attempt_limiter = identity.attempt_limiter
+        remote_addr = self._ip_key(request, identity)
         snapshot_offset = len(getattr(request, "_rate_limit_snapshots", ()))
 
         # Record the current limiter state so the egress tween can emit
         # RateLimit / RateLimit-Policy headers, whether or not we reject below.
-        if request.remote_addr is not None:
+        if remote_addr is not None:
             record_rate_limit(
                 request,
                 "project.create.ip",
                 ip_limiter,
-                identifiers=(request.remote_addr,),
+                identifiers=(remote_addr,),
                 partition_key="ip",
             )
             record_rate_limit(
                 request,
                 "project.create.attempt.ip",
                 attempt_ip_limiter,
-                identifiers=(request.remote_addr,),
+                identifiers=(remote_addr,),
                 partition_key="ip",
             )
         record_rate_limit(
@@ -504,8 +516,8 @@ class ProjectService:
                 )
 
         # First we want to check if a single IP is exceeding our rate limiter.
-        if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
-            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
+        if remote_addr is not None and not ip_limiter.test(remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(remote_addr))
 
         if not identity.limiter.test(identity.identifier):
             self._reject_create(
@@ -515,12 +527,8 @@ class ProjectService:
 
         # Then the attempt limiters, which also meter creations that are later
         # rolled back (ref: `_hit_ratelimits`).
-        if request.remote_addr is not None and not attempt_ip_limiter.test(
-            request.remote_addr
-        ):
-            self._reject_create(
-                "attempt.ip", attempt_ip_limiter.resets_in(request.remote_addr)
-            )
+        if remote_addr is not None and not attempt_ip_limiter.test(remote_addr):
+            self._reject_create("attempt.ip", attempt_ip_limiter.resets_in(remote_addr))
 
         if not attempt_limiter.test(identity.identifier):
             self._reject_create(
@@ -530,6 +538,7 @@ class ProjectService:
 
     def _hit_ratelimits(self, request, identity: _IdentityLimiter):
         attempt_ip_limiter = self.ratelimiters["project.create.attempt.ip"]
+        remote_addr = self._ip_key(request, identity)
 
         # `.hit()` atomically increments and returns False when the limit is
         # exceeded. Concurrent requests can each pass the optimistic `.test()`
@@ -542,12 +551,8 @@ class ProjectService:
         # a request that fails after creating its project, rolling the project
         # back, doesn't use up its creator's creation quota. The limiters are
         # consulted in the same order as `_check_ratelimits`.
-        if request.remote_addr is not None and not attempt_ip_limiter.hit(
-            request.remote_addr
-        ):
-            self._reject_create(
-                "attempt.ip", attempt_ip_limiter.resets_in(request.remote_addr)
-            )
+        if remote_addr is not None and not attempt_ip_limiter.hit(remote_addr):
+            self._reject_create("attempt.ip", attempt_ip_limiter.resets_in(remote_addr))
 
         if not identity.attempt_limiter.hit(identity.identifier):
             self._reject_create(
@@ -637,7 +642,12 @@ class ProjectService:
                 (
                     "New project registration temporarily disabled. "
                     "See {projecthelp} for more information."
-                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
+                ).format(
+                    projecthelp=request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                ),
             ) from None
 
         # Verify that the project name is both valid and currently available.
@@ -653,7 +663,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableProhibitedError:
@@ -663,7 +676,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableSimilarError:
@@ -673,7 +689,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableStdlibError:
@@ -684,7 +703,10 @@ class ProjectService:
                     "{projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
 
@@ -773,7 +795,7 @@ class ProjectService:
                 self._hit_creation_limiters,
                 args=(
                     self.ratelimiters["project.create.ip"],
-                    request.remote_addr,
+                    self._ip_key(request, identity_limiter),
                     identity_limiter.limiter,
                     identity_limiter.identifier,
                 ),

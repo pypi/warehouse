@@ -92,7 +92,7 @@ within a short time interval, or potentially even captured the session cookies
 provided during the response to the login request, 
 and thus bypassed the need for 2FA for a short time.
 
-If the user had enrolled a [Security Device](https://pypi.org/help/#utfkey)
+If the user had enrolled a [Security Device](https://docs.pypi.org/your-account/two-factor-authentication/#security-device-webauthn)
 for PyPI second factor authentication, the attacker would not have been able to use the second factor,
 as the WebAuthn protocol requires the user to physically interact with a hardware security key,
 or use a browser-based implementation, which would not be possible

@@ -72,12 +72,38 @@ class PublisherSource:
     it back apart. `kind` carries the same values as `Publisher.kind` upstream,
     which is what the existing file-details macro already branches on.
 
-    Both fields are immutable strings, so this hashes and can be counted and
-    diffed like the plain string it replaces.
+    `url` holds the source repository URI extracted from the attestation's
+    certificate claims when available, and `is_account` records whether the
+    publisher identifies an account (such as a service account) rather than a
+    repository. Both are excluded from comparisons and hashing so that sources
+    still count and diff by `(kind, identity)`.
     """
 
     kind: str
     identity: str
+    url: str | None = field(default=None, compare=False)
+    is_account: bool = field(default=False, compare=False)
+
+
+@dataclass(frozen=True)
+class PublisherWorkflow:
+    """
+    A Trusted Publisher workflow configuration: its kind, repository, and path.
+
+    Carrying `kind` and `repository` alongside `workflow` keeps workflows self-
+    describing and prevents two repositories that happen to name their workflow
+    file the same (e.g., `publish.yml`) from being conflated.
+
+    `url` holds the permalink to the workflow configuration extracted from the
+    attestation's certificate claims when available, and is excluded from
+    comparisons and hashing because the permalink embeds the commit digest,
+    which changes on every release even when the workflow does not.
+    """
+
+    kind: str
+    repository: str
+    workflow: str
+    url: str | None = field(default=None, compare=False)
 
 
 @dataclass(frozen=True)
@@ -96,7 +122,9 @@ class ProvenanceCounts:
     # contributed no sources. Their publishers are unknown, not absent.
     unreadable_files: int = 0
     source_counts: dict[PublisherSource, int] = field(default_factory=dict, hash=False)
-    workflow_counts: dict[str, int] = field(default_factory=dict, hash=False)
+    workflow_counts: dict[PublisherWorkflow, int] = field(
+        default_factory=dict, hash=False
+    )
     # Count file presence separately: one file may name multiple publishers.
     files_with_sources: int = 0
     files_with_workflows: int = 0
@@ -191,19 +219,39 @@ class ProvenanceStatus:
         return comparison.source_counts.keys() - self.counts.source_counts.keys()
 
     @property
-    def added_workflows(self) -> set[str]:
+    def added_workflows(self) -> set[PublisherWorkflow]:
         if (comparison := self._comparable_counts) is None:
             return set()
         return self.counts.workflow_counts.keys() - comparison.workflow_counts.keys()
 
     @property
-    def removed_workflows(self) -> set[str]:
+    def removed_workflows(self) -> set[PublisherWorkflow]:
         if (comparison := self._comparable_counts) is None:
             return set()
         return comparison.workflow_counts.keys() - self.counts.workflow_counts.keys()
 
 
-def publisher_source(publisher: pypi_attestations.Publisher) -> PublisherSource:
+def attestation_source_url(claims: dict[str, str]) -> str:
+    """Return the Source Repository URI from Fulcio certificate claims."""
+    return claims.get("1.3.6.1.4.1.57264.1.12", "")
+
+
+def attestation_workflow_url(claims: dict[str, str]) -> str:
+    """
+    Return the Build Config URI permalink from Fulcio certificate claims.
+    """
+    repo_url = attestation_source_url(claims)
+    workflow_url = claims.get("1.3.6.1.4.1.57264.1.18", "")
+    build_digest = claims.get("1.3.6.1.4.1.57264.1.19", "")
+    if not repo_url or not workflow_url or not build_digest:
+        return ""
+    workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
+    return f"{repo_url}/blob/{build_digest}/{workflow_file_path}"
+
+
+def publisher_source(
+    publisher: pypi_attestations.Publisher, url: str | None = None
+) -> PublisherSource:
     """
     Return a Trusted Publisher's identity.
 
@@ -218,14 +266,26 @@ def publisher_source(publisher: pypi_attestations.Publisher) -> PublisherSource:
     """
     match publisher:
         case pypi_attestations.GitHubPublisher() | pypi_attestations.GitLabPublisher():
-            return PublisherSource(publisher.kind, publisher.repository)
+            return PublisherSource(
+                publisher.kind,
+                publisher.repository,
+                url=url,
+                is_account=False,
+            )
         case pypi_attestations.GooglePublisher():  # pragma: no branch
             # No fall-through arc exists to cover: mypy rejects this function
             # if the arms above stop being exhaustive.
-            return PublisherSource(publisher.kind, publisher.email)
+            return PublisherSource(
+                publisher.kind,
+                publisher.email,
+                url=url,
+                is_account=True,
+            )
 
 
-def publisher_workflow(publisher: pypi_attestations.Publisher) -> str | None:
+def publisher_workflow(
+    publisher: pypi_attestations.Publisher, url: str | None = None
+) -> PublisherWorkflow | None:
     """
     Return the workflow a Trusted Publisher ran, if it has the concept.
 
@@ -234,28 +294,35 @@ def publisher_workflow(publisher: pypi_attestations.Publisher) -> str | None:
     """
     match publisher:
         case pypi_attestations.GitHubPublisher():
-            return publisher.workflow
+            return PublisherWorkflow(
+                publisher.kind, publisher.repository, publisher.workflow, url=url
+            )
         case pypi_attestations.GitLabPublisher():
-            return publisher.workflow_filepath
+            return PublisherWorkflow(
+                publisher.kind,
+                publisher.repository,
+                publisher.workflow_filepath,
+                url=url,
+            )
         case _:
             return None
 
 
 def get_provenance_sources(
     provenance: Provenance,
-) -> tuple[set[PublisherSource], set[str]] | None:
+) -> tuple[set[PublisherSource], set[PublisherWorkflow]] | None:
     """
     Return the (sources, workflows) a provenance object attests to.
 
-    Sources are kind-prefixed identities; workflows are bare filenames, since
-    a workflow is only ever read alongside the source it belongs to.
+    Both sources and workflows are structured, kind-qualified records carrying
+    their resolved URLs from the attestation certificate claims when present.
 
     Returns `None` when the payload cannot be parsed. That is distinct from a
     payload that parses and names no sources: one unreadable file must not
     take down the release, but neither should it read as a publisher change.
     """
     sources: set[PublisherSource] = set()
-    workflows: set[str] = set()
+    workflows: set[PublisherWorkflow] = set()
 
     try:
         model = provenance.as_model
@@ -270,8 +337,17 @@ def get_provenance_sources(
         return None
 
     for bundle in model.attestation_bundles:
-        sources.add(publisher_source(bundle.publisher))
-        if workflow := publisher_workflow(bundle.publisher):
+        claims = bundle.attestations[0].certificate_claims
+        sources.add(
+            publisher_source(
+                bundle.publisher,
+                url=attestation_source_url(claims) or None,
+            )
+        )
+        if workflow := publisher_workflow(
+            bundle.publisher,
+            url=attestation_workflow_url(claims) or None,
+        ):
             workflows.add(workflow)
     return sources, workflows
 
@@ -287,7 +363,7 @@ def counts_from_provenance(
     single release does.
     """
     source_counter: Counter[PublisherSource] = Counter()
-    workflow_counter: Counter[str] = Counter()
+    workflow_counter: Counter[PublisherWorkflow] = Counter()
     unreadable_files = 0
     files_with_sources = 0
     files_with_workflows = 0

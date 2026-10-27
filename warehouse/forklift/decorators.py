@@ -83,7 +83,13 @@ def ensure_uploads_allowed(wrapped):
                 HTTPForbidden,
                 "New uploads are temporarily disabled. "
                 "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="admin-intervention")
+                    projecthelp=request.user_docs_url(
+                        "/publishing/troubleshooting/",
+                        anchor=(
+                            "why-am-i-getting-a-new-uploads-are-temporarily-"
+                            "disabled-or-read-only-mode-error"
+                        ),
+                    )
                 ),
             )
 
@@ -97,7 +103,13 @@ def ensure_uploads_allowed(wrapped):
                 HTTPForbidden,
                 "Invalid or non-existent authentication information. "
                 "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="invalid-auth")
+                    projecthelp=request.user_docs_url(
+                        "/publishing/troubleshooting/",
+                        anchor=(
+                            "why-am-i-getting-an-invalid-or-non-existent-"
+                            "authentication-information-error-when-uploading-files"
+                        ),
+                    )
                 ),
             )
 

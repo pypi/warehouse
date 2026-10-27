@@ -1,0 +1,23 @@
+/* Dev docs sidebar: top-level nav sections render as small uppercase captions
+   separated by rules (navigation.sections), with collapsible groups inside.
+   Desktop only: the mobile drawer keeps Material's drill-down navigation. */
+@media screen and (min-width: 76.25em) {
+  /* The header already shows the site name; don't repeat it above the nav. */
+  .md-nav--primary > .md-nav__title {
+    display: none;
+  }
+
+  .md-nav--primary > .md-nav__list > .md-nav__item--section {
+    border-top: 0.05rem solid var(--md-default-fg-color--lightest);
+    margin-top: 1.2em;
+    padding-top: 1em;
+  }
+
+  .md-nav--primary > .md-nav__list > .md-nav__item--section > .md-nav__link {
+    color: var(--md-default-fg-color--light);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}

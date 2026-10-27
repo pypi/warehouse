@@ -3,7 +3,7 @@ Warehouse
 =========
 
 Warehouse is the software that powers `PyPI`_.
-See `our development roadmap`_, `documentation`_, and
+See our `documentation`_ and
 `architectural overview`_.
 
 Getting Started
@@ -41,7 +41,6 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
-.. _`our development roadmap`: https://dev.pypi.org/roadmap/
 .. _`architectural overview`: https://dev.pypi.org/application/
 .. _`documentation`: https://dev.pypi.org
 .. _`Getting started`: https://dev.pypi.org/development/getting-started/

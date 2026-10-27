@@ -511,7 +511,10 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
+                project_help=request.user_docs_url(
+                    "/your-account/managing-your-account/",
+                    anchor="email-address-verification",
+                ),
             ),
         ) from None
 
@@ -526,7 +529,9 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="two-factor-authentication"),
+                project_help=request.user_docs_url(
+                    "/your-account/two-factor-authentication/"
+                ),
             ),
         ) from None
 
@@ -644,13 +649,17 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
-        _see_url = (
-            "https://packaging.python.org/en/latest/specifications/"
-            "version-specifiers/#local-version-identifiers"
-            if field_name == "version"
-            and any("use of local versions" in str(e) for e in errors["version"])
-            else "https://packaging.python.org/specifications/core-metadata"
-        )
+        _see_url = "https://packaging.python.org/specifications/core-metadata"
+        if field_name == "version":
+            if any("use of local versions" in str(e) for e in errors["version"]):
+                _see_url = (
+                    "https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers"
+                )
+            elif any("after normalization" in str(e) for e in errors["version"]):
+                _see_url = request.user_docs_url(
+                    "/project_metadata/", anchor="version-length-limit"
+                )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
@@ -744,7 +753,10 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 )
                 if reason is None
                 else allowed.msg
@@ -756,7 +768,7 @@ def file_upload(request):
                     "See {} for more information."
                 ).format(
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url("/trusted-publishers/troubleshooting/"),
                 )
                 if reason is None
                 else allowed.msg
@@ -849,7 +861,10 @@ def file_upload(request):
                 HTTPBadRequest,
                 "{message} See {projecthelp} for more information.".format(
                     message=message,
-                    projecthelp=request.help_url(_anchor="description-content-type"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/project-descriptions/",
+                        anchor="specifying-the-long-description",
+                    ),
                 ),
             ) from None
 
@@ -1079,7 +1094,7 @@ def file_upload(request):
                         f"{file_size_limit // ONE_MIB} MB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-file-size-limit-increase",
                         )
                         + " for more information.",
@@ -1092,9 +1107,10 @@ def file_upload(request):
                         f"{project_size_limit // ONE_GIB} GB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-project-size-limit-increase",
-                        ),
+                        )
+                        + " for more information.",
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1143,7 +1159,13 @@ def file_upload(request):
                 "File already exists "
                 f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
                 " See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 
@@ -1158,7 +1180,13 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename was previously used by a file that has since been "
                 "deleted. Use a different version. See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 

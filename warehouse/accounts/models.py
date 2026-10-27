@@ -101,6 +101,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     is_superuser: Mapped[bool_false]
     is_support: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
+    is_org_application_reviewer: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
     is_observer: Mapped[bool_false] = mapped_column(
         comment="Is this user allowed to add Observations?"
@@ -298,6 +299,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 self.is_support,
                 self.is_moderator,
                 self.is_psf_staff,
+                self.is_org_application_reviewer,
                 self.prohibit_password_reset,
             ]
         )
@@ -333,6 +335,8 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             principals.append("group:support")
         if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
+        if self.is_org_application_reviewer:
+            principals.append("group:org_application_reviewers")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
         if self.is_observer or self.is_superuser:

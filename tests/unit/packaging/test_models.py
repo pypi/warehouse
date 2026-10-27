@@ -15,6 +15,7 @@ from warehouse.attestations.models import (
     ProvenanceCounts,
     ProvenanceState,
     PublisherSource,
+    PublisherWorkflow,
 )
 from warehouse.authnz import Permissions
 from warehouse.constants import (
@@ -28,6 +29,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
+from warehouse.packaging import models as packaging_models
 from warehouse.packaging.models import (
     GITHUB_REPO_HOSTS,
     GITHUB_RESERVED_NAMES,
@@ -761,8 +763,12 @@ class TestProject:
         assert status.removed_sources == {
             PublisherSource("GitHub", "example-org/example")
         }
-        assert status.added_workflows == {"publish.yml"}
-        assert status.removed_workflows == {"release.yml"}
+        assert status.added_workflows == {
+            PublisherWorkflow("GitHub", "other/repo", "publish.yml")
+        }
+        assert status.removed_workflows == {
+            PublisherWorkflow("GitHub", "example-org/example", "release.yml")
+        }
 
     def test_provenance_statuses_suppress_a_change_against_unreadable(self, db_session):
         """
@@ -1597,7 +1603,10 @@ class TestRelease:
                     PublisherSource("GitHub", "foo/bar"): 1,
                     PublisherSource("GitHub", "foo/baz"): 1,
                 },
-                {"publish.yml": 2},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/baz", "publish.yml"): 1,
+                },
                 id="two-repositories",
             ),
             pytest.param(
@@ -1608,7 +1617,10 @@ class TestRelease:
                     repository="foo/bar", workflow="release.yml"
                 ),
                 {PublisherSource("GitHub", "foo/bar"): 2},
-                {"publish.yml": 1, "release.yml": 1},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/bar", "release.yml"): 1,
+                },
                 id="two-workflows",
             ),
             pytest.param(
@@ -1696,8 +1708,12 @@ class TestRelease:
                 {
                     "added_sources": {PublisherSource("GitHub", "foo/baz")},
                     "removed_sources": {PublisherSource("GitHub", "foo/bar")},
-                    "added_workflows": set(),
-                    "removed_workflows": set(),
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/baz", "publish.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="repository-changed",
             ),
@@ -1711,8 +1727,12 @@ class TestRelease:
                 {
                     "added_sources": set(),
                     "removed_sources": set(),
-                    "added_workflows": {"release.yml"},
-                    "removed_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "release.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="workflow-changed",
             ),
@@ -1728,10 +1748,31 @@ class TestRelease:
                     "removed_sources": {
                         PublisherSource("Google", "builder@example.gserviceaccount.com")
                     },
-                    "added_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                     "removed_workflows": set(),
                 },
                 id="moved-from-google-to-github",
+            ),
+            pytest.param(
+                pypi_attestations.GooglePublisher(
+                    email="old@example.gserviceaccount.com"
+                ),
+                pypi_attestations.GooglePublisher(
+                    email="new@example.gserviceaccount.com"
+                ),
+                {
+                    "added_sources": {
+                        PublisherSource("Google", "new@example.gserviceaccount.com")
+                    },
+                    "removed_sources": {
+                        PublisherSource("Google", "old@example.gserviceaccount.com")
+                    },
+                    "added_workflows": set(),
+                    "removed_workflows": set(),
+                },
+                id="google-email-changed",
             ),
         ],
     )
@@ -2290,7 +2331,7 @@ class TestProjectLimitProperties:
 
     def test_upload_limit_size_with_organization_limit(self, db_session):
 
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2306,7 +2347,7 @@ class TestProjectLimitProperties:
     def test_upload_limit_size_with_both_limits(self, db_session):
 
         project_limit = 50 * ONE_MIB
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2358,6 +2399,28 @@ class TestProjectLimitProperties:
         expected = max(MAX_PROJECT_SIZE, project_limit, org_limit)
         assert project.total_size_limit_value == expected
 
+    def test_organization_default_limits(self, db_session, monkeypatch):
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_FILESIZE", 200 * ONE_MIB
+        )
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_PROJECT_SIZE", 20 * ONE_GIB
+        )
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        assert project.upload_limit_size == MAX_FILESIZE
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+        project.organization = DBOrganizationFactory.create(
+            upload_limit=None, total_size_limit=None
+        )
+        assert project.upload_limit_size == 200 * ONE_MIB
+        assert project.total_size_limit_value == 20 * ONE_GIB
+
+        project.organization.upload_limit = 300 * ONE_MIB
+        project.organization.total_size_limit = 30 * ONE_GIB
+        assert project.upload_limit_size == 300 * ONE_MIB
+        assert project.total_size_limit_value == 30 * ONE_GIB
+
     def test_upload_limit_size_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
 
@@ -2368,8 +2431,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(upload_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.upload_limit_size == MAX_FILESIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.upload_limit_size == 2 * MAX_FILESIZE
 
     def test_total_size_limit_value_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
@@ -2381,8 +2444,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(total_size_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.total_size_limit_value == 2 * MAX_PROJECT_SIZE
 
     def test_upload_limit_size_edge_case_all_none_fallback(self, db_session):
         """Edge case: test fallback when all custom limits are None"""
