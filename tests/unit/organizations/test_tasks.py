@@ -11,7 +11,12 @@ import stripe
 from freezegun import freeze_time
 from pyramid_retry import RetryableException
 
-from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.accounts.interfaces import (
+    ITokenService,
+    TokenExpired,
+    TokenInvalid,
+    TokenMissing,
+)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.organizations import tasks as organization_tasks
@@ -87,6 +92,33 @@ class TestUpdateInvitationStatus:
             request=db_request,
             additional={"target_user_id": str(invite.user.id)},
         )
+
+    @pytest.mark.parametrize("exception", [TokenInvalid, TokenMissing])
+    def test_unreadable_token_skipped(
+        self,
+        db_request,
+        user_service,
+        organization_service,
+        token_service,
+        mocker,
+        exception,
+    ):
+        """
+        An unreadable token leaves the invitation pending, and the invitations
+        after it are still processed.
+        """
+        unreadable = OrganizationInvitationFactory.create(token="unreadable")
+        expired = OrganizationInvitationFactory.create(token="expired")
+
+        def loads(token):
+            raise exception if token == "unreadable" else TokenExpired
+
+        mocker.patch.object(token_service, "loads", side_effect=loads)
+
+        update_organization_invitation_status(db_request)
+
+        assert unreadable.invite_status == OrganizationInvitationStatus.Pending
+        assert expired.invite_status == OrganizationInvitationStatus.Expired
 
     def test_no_updates(
         self, db_request, user_service, organization_service, token_service, mocker
