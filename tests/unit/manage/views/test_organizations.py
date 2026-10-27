@@ -353,15 +353,16 @@ class TestManageOrganizationApplication:
             view.manage_organization_application_submit()
 
     @pytest.mark.parametrize(
-        ("status", "confirm", "deleted"),
+        ("status", "confirm", "withdrawn"),
         [
             (OrganizationApplicationStatus.Submitted, " example ", True),
             (OrganizationApplicationStatus.Submitted, "wrong", False),
             (OrganizationApplicationStatus.Declined, "example", False),
+            (OrganizationApplicationStatus.Withdrawn, "example", False),
         ],
     )
-    def test_delete_organization_application(
-        self, db_request, metrics, status, confirm, deleted
+    def test_withdraw_organization_application(
+        self, db_request, metrics, status, confirm, withdrawn
     ):
         app = OrganizationApplicationFactory.create(
             name="example",
@@ -374,14 +375,17 @@ class TestManageOrganizationApplication:
 
         view = org_views.ManageOrganizationApplicationViews(app, db_request)
         with freeze_time("2026-01-02"):
-            assert isinstance(view.delete_organization_application(), HTTPSeeOther)
+            assert isinstance(view.withdraw_organization_application(), HTTPSeeOther)
         db_request.db.flush()
+        db_request.db.expire(app)
 
-        assert (db_request.db.get(OrganizationApplication, app.id) is None) == deleted
+        assert app.status == (
+            OrganizationApplicationStatus.Withdrawn if withdrawn else status
+        )
         tags = ["status:submitted", "orgtype:Company"]
         assert metrics.increment.calls == (
             [pretend.call("warehouse.organizations.application.withdrawn", tags=tags)]
-            if deleted
+            if withdrawn
             else []
         )
         assert metrics.distribution.calls == (
@@ -392,11 +396,11 @@ class TestManageOrganizationApplication:
                     tags=tags,
                 )
             ]
-            if deleted
+            if withdrawn
             else []
         )
 
-    def test_delete_organization_application_decided_concurrently(
+    def test_withdraw_organization_application_decided_concurrently(
         self, db_request, metrics
     ):
         app = OrganizationApplicationFactory.create(
@@ -416,10 +420,11 @@ class TestManageOrganizationApplication:
         db_request.route_path = lambda *a, **kw: "/manage/organizations/"
 
         view = org_views.ManageOrganizationApplicationViews(app, db_request)
-        assert isinstance(view.delete_organization_application(), HTTPSeeOther)
+        assert isinstance(view.withdraw_organization_application(), HTTPSeeOther)
         db_request.db.flush()
+        db_request.db.expire(app)
 
-        assert db_request.db.get(OrganizationApplication, app.id) is not None
+        assert app.status == OrganizationApplicationStatus.Approved
         assert metrics.increment.calls == []
 
 
@@ -451,9 +456,13 @@ class TestManageOrganizations:
             get_organization_invites_by_user=lambda *a, **kw: [],
         )
         user_service = pretend.stub()
+        submitted = pretend.stub(status=OrganizationApplicationStatus.Submitted)
+        withdrawn = pretend.stub(status=OrganizationApplicationStatus.Withdrawn)
         request = pretend.stub(
             user=pretend.stub(
-                id=pretend.stub(), username=pretend.stub(), organization_applications=[]
+                id=pretend.stub(),
+                username=pretend.stub(),
+                organization_applications=[submitted, withdrawn, withdrawn],
             ),
             find_service=lambda interface, **kw: {
                 IOrganizationService: organization_service,
@@ -461,7 +470,7 @@ class TestManageOrganizations:
             }[interface],
             registry=pretend.stub(
                 settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 3
+                    "warehouse.organizations.max_undecided_organization_applications": 2
                 }
             ),
         )
@@ -469,7 +478,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
-            "organization_applications": [],
+            "organization_applications": [submitted],
             "organization_invites": [],
             "organizations": [organization],
             "organizations_managed": [],
