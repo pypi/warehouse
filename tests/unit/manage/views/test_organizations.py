@@ -9,8 +9,13 @@ import pytest
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
-from sqlalchemy import update
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPTooManyRequests,
+)
+from sqlalchemy import select, update
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
@@ -21,6 +26,7 @@ from tests.common.db.organizations import (
     OrganizationEventFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationOIDCIssuerFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
@@ -35,13 +41,14 @@ from tests.common.db.subscriptions import (
 )
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.accounts.interfaces import TokenExpired
-from warehouse.admin.flags import AdminFlagValue
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views, view_helpers
-from warehouse.oidc.models import PendingGitHubPublisher
+from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
+    OIDCIssuerType,
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
@@ -52,7 +59,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.packaging import IProjectService, Project
-from warehouse.rate_limiting import DummyRateLimiter
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -3672,271 +3679,447 @@ class TestManageOrganizationHistory:
 
 
 class TestManageOrganizationPublishingViews:
-    def test_manage_organization_publishing_get(self, db_request):
-        """Test GET request returns all forms and pending publishers"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create()
-        db_request.POST = MultiDict()
-        db_request.user = user
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+    @pytest.fixture
+    def organization(self):
+        return OrganizationFactory.create()
 
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+    @pytest.fixture
+    def oidc_limiters(self, mocker):
+        """Spied per-user and per-IP OIDC registration rate limiters."""
+        limiters = {"user": DummyRateLimiter(), "ip": DummyRateLimiter()}
+        for limiter in limiters.values():
+            mocker.spy(limiter, "test")
+            mocker.spy(limiter, "hit")
+        return limiters
+
+    @pytest.fixture
+    def publishing_request(self, db_request, pyramid_services, oidc_limiters, mocker):
+        """
+        A POST-less request from a user with a verified primary email, with
+        every trusted publishing provider enabled and the OIDC registration
+        rate limiters backed by ``oidc_limiters``.
+        """
+        db_request.user = UserFactory.create(with_verified_primary_email=True)
+        db_request.registry.settings["github.token"] = "fake-api-token"
+        db_request.POST = MultiDict()
+        db_request.path = "/fake/path"
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/fake/route"
+        )
+        for flag in (
+            AdminFlagValue.DISALLOW_OIDC,
+            AdminFlagValue.DISALLOW_GITHUB_OIDC,
+            AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+            AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        ):
+            db_request.db.get(AdminFlag, flag.value).enabled = False
+        mocker.spy(db_request.session, "flash")
+        for key in ("user", "ip"):
+            pyramid_services.register_service(
+                oidc_limiters[key],
+                IRateLimiter,
+                None,
+                name=f"{key}_oidc.publisher.register",
+            )
+        return db_request
+
+    @pytest.fixture
+    def lookup_owner(self, mocker):
+        """Stub the GitHub API lookup the real form makes."""
+        return mocker.patch.object(
+            org_views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            autospec=True,
+            return_value={"login": "test-owner", "id": "12345"},
+        )
+
+    @pytest.fixture
+    def github_post(self):
+        return MultiDict(
+            {
+                "project_name": "test-project",
+                "owner": "test-owner",
+                "repository": "test-repo",
+                "workflow_filename": "release.yml",
+                "environment": "",
+            }
+        )
+
+    def test_manage_organization_publishing_get(self, publishing_request, organization):
+        """Test GET request returns all forms and pending publishers"""
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
         result = view.manage_organization_publishing()
 
-        assert result["organization"] == organization
-        assert "pending_github_publisher_form" in result
-        assert "pending_gitlab_publisher_form" in result
-        assert "pending_google_publisher_form" in result
-        assert "pending_activestate_publisher_form" in result
-        assert result["pending_oidc_publishers"] == organization.pending_oidc_publishers
+        assert result == {
+            "organization": organization,
+            "pending_github_publisher_form": view.pending_github_publisher_form,
+            "pending_gitlab_publisher_form": view.pending_gitlab_publisher_form,
+            "pending_google_publisher_form": view.pending_google_publisher_form,
+            "pending_activestate_publisher_form": (
+                view.pending_activestate_publisher_form
+            ),
+            "pending_oidc_publishers": organization.pending_oidc_publishers,
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
+        }
+        publishing_request.session.flash.assert_not_called()
 
-    def test_add_pending_github_oidc_publisher_success(self, db_request, monkeypatch):
+    def test_add_pending_github_oidc_publisher_success(
+        self,
+        publishing_request,
+        organization,
+        github_post,
+        lookup_owner,
+        oidc_limiters,
+        metrics,
+        mocker,
+    ):
         """Test successfully adding a pending GitHub OIDC publisher"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-        db_request.POST = MultiDict()
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = user
+        publishing_request.POST = github_post
 
-        # Mock form
-        form = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            project_name=pretend.stub(data="test-project"),
-            repository=pretend.stub(data="test-repo"),
-            normalized_owner="test-owner",
-            owner_id="12345",
-            workflow_filename=pretend.stub(data="release.yml"),
-            normalized_environment="",
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
         )
-        monkeypatch.setattr(
-            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
-        )
-
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
         result = view.add_pending_github_oidc_publisher()
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Registered a new pending publisher to create the project "
-                f"'test-project' owned by the '{organization.name}' organization.",
-                queue="success",
-            )
-        ]
-        assert db_request.metrics.increment.calls == [
-            pretend.call(
+        publisher = publishing_request.db.scalars(
+            select(PendingGitHubPublisher).filter_by(organization_id=organization.id)
+        ).one()
+        assert publisher.project_name == "test-project"
+        assert publisher.repository_owner == "test-owner"
+        assert publisher.repository_owner_id == "12345"
+        assert publisher.added_by == publishing_request.user
+        publishing_request.session.flash.assert_called_once_with(
+            "Registered a new pending publisher to create the project "
+            f"'test-project' owned by the '{organization.name}' organization.",
+            queue="success",
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
                 tags=["publisher:GitHub", "organization:true"],
             ),
-            pretend.call(
+            mocker.call(
                 "warehouse.oidc.add_pending_publisher.ok",
                 tags=["publisher:GitHub", "organization:true"],
             ),
         ]
+        oidc_limiters["user"].hit.assert_called_once_with(publishing_request.user.id)
+        oidc_limiters["ip"].hit.assert_called_once_with(publishing_request.remote_addr)
 
-    def test_add_pending_github_oidc_publisher_disabled(self, db_request):
-        """Test adding GitHub publisher when admin flag disables it"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-        db_request.user = user
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(
-                lambda flag: flag == AdminFlagValue.DISALLOW_GITHUB_OIDC
-            )
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.POST = MultiDict()
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+    def test_add_pending_oidc_publisher_unverified_email(
+        self, publishing_request, organization, github_post, oidc_limiters
+    ):
+        """A user without a verified primary email is refused before the limits."""
+        publishing_request.user = UserFactory.create()
+        publishing_request.POST = github_post
 
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
         result = view.add_pending_github_oidc_publisher()
 
         assert result == view.default_response
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "GitHub-based trusted publishing is temporarily disabled. "
-                "See https://docs.pypi.org/about/security-and-internals/"
-                "#temporarily-disabled-features for details.",
-                queue="error",
-            )
-        ]
+        publishing_request.session.flash.assert_called_once_with(
+            "You must have a verified email in order to register a "
+            "pending trusted publisher. "
+            "See https://docs.pypi.org/your-account/managing-your-account/"
+            "#email-address-verification for details.",
+            queue="error",
+        )
+        oidc_limiters["user"].hit.assert_not_called()
+        oidc_limiters["ip"].hit.assert_not_called()
+        assert publishing_request.db.scalars(select(PendingGitHubPublisher)).all() == []
 
-    def test_add_pending_github_oidc_publisher_over_limit(self, db_request):
-        """Adding GitHub publisher fails when org has too many pending publishers"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-        # Add 3 existing pending publishers
+    def test_add_pending_oidc_publisher_too_many_already(
+        self, publishing_request, organization, github_post, oidc_limiters
+    ):
+        """The cap counts the user's own pending publishers for this organization."""
+        PendingGitHubPublisherFactory.create_batch(
+            3, organization_id=organization.id, added_by=publishing_request.user
+        )
+        publishing_request.POST = github_post
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        result = view.add_pending_github_oidc_publisher()
+
+        assert result == view.default_response
+        publishing_request.session.flash.assert_called_once_with(
+            "You already have 3 pending trusted publishers for this "
+            "organization. Remove one before adding another.",
+            queue="error",
+        )
+        oidc_limiters["user"].hit.assert_not_called()
+        oidc_limiters["ip"].hit.assert_not_called()
+        assert (
+            len(
+                publishing_request.db.scalars(
+                    select(PendingGitHubPublisher).filter_by(
+                        organization_id=organization.id
+                    )
+                ).all()
+            )
+            == 3
+        )
+
+    def test_add_pending_oidc_publisher_other_owners_do_not_count(
+        self, publishing_request, organization, github_post, lookup_owner
+    ):
+        """
+        Another owner's pending publishers do not block this user, who could not
+        remove them.
+        """
         PendingGitHubPublisherFactory.create_batch(3, organization_id=organization.id)
+        publishing_request.POST = github_post
 
-        db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
         )
-        db_request.POST = MultiDict()
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        result = view.add_pending_github_oidc_publisher()
 
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            publishing_request.db.scalars(
+                select(PendingGitHubPublisher).filter_by(
+                    organization_id=organization.id, added_by=publishing_request.user
+                )
+            )
+            .one()
+            .project_name
+            == "test-project"
+        )
+
+    def test_add_pending_oidc_publisher_elsewhere_do_not_count(
+        self, publishing_request, organization, github_post, lookup_owner
+    ):
+        """The user's personal and other-organization pending publishers do not
+        count toward this organization's limit."""
+        PendingGitHubPublisherFactory.create_batch(
+            3, added_by=publishing_request.user, organization_id=None
+        )
+        PendingGitHubPublisherFactory.create_batch(
+            3,
+            added_by=publishing_request.user,
+            organization_id=OrganizationFactory.create().id,
+        )
+        publishing_request.POST = github_post
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        result = view.add_pending_github_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            publishing_request.db.scalars(
+                select(PendingGitHubPublisher).filter_by(
+                    organization_id=organization.id
+                )
+            )
+            .one()
+            .added_by
+            == publishing_request.user
+        )
+
+    @pytest.mark.parametrize(
+        ("limiter_name", "other_limiter_name"), [("user", "ip"), ("ip", "user")]
+    )
+    def test_add_pending_oidc_publisher_ratelimited(
+        self,
+        publishing_request,
+        pyramid_services,
+        organization,
+        github_post,
+        oidc_limiters,
+        metrics,
+        mocker,
+        limiter_name,
+        other_limiter_name,
+    ):
+        """A rate-limited registration spends neither limiter and writes nothing."""
+        limiter = mocker.create_autospec(RateLimiter, instance=True)
+        limiter.test.return_value = False
+        limiter.resets_in.return_value = dt.timedelta(seconds=60)
+        pyramid_services.register_service(
+            limiter, IRateLimiter, None, name=f"{limiter_name}_oidc.publisher.register"
+        )
+        publishing_request.POST = github_post
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        with pytest.raises(HTTPTooManyRequests) as exc:
+            view.add_pending_github_oidc_publisher()
+
+        assert exc.value.headers["Retry-After"] == "60"
+        limiter.test.assert_called_once_with(
+            publishing_request.user.id
+            if limiter_name == "user"
+            else publishing_request.remote_addr
+        )
+        limiter.hit.assert_not_called()
+        oidc_limiters[other_limiter_name].hit.assert_not_called()
+        publishing_request.session.flash.assert_not_called()
+        assert publishing_request.db.scalars(select(PendingGitHubPublisher)).all() == []
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.oidc.add_pending_publisher.attempt",
+                tags=["publisher:GitHub", "organization:true"],
+            ),
+            mocker.call(
+                "warehouse.oidc.add_pending_publisher.ratelimited",
+                tags=["publisher:GitHub", "organization:true"],
+            ),
+        ]
+
+    def test_add_pending_oidc_publisher_ratelimited_without_reset_hint(
+        self, publishing_request, pyramid_services, organization, github_post, mocker
+    ):
+        """A limiter that cannot say when it resets still gives a 429."""
+        limiter = mocker.create_autospec(RateLimiter, instance=True)
+        limiter.test.return_value = False
+        limiter.resets_in.return_value = None
+        pyramid_services.register_service(
+            limiter, IRateLimiter, None, name="user_oidc.publisher.register"
+        )
+        publishing_request.POST = github_post
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        with pytest.raises(HTTPTooManyRequests) as exc:
+            view.add_pending_github_oidc_publisher()
+
+        assert "Retry-After" not in exc.value.headers
+
+    def test_add_pending_github_oidc_publisher_disabled(
+        self, publishing_request, organization
+    ):
+        """Test adding GitHub publisher when admin flag disables it"""
+        publishing_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_GITHUB_OIDC.value
+        ).enabled = True
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
         result = view.add_pending_github_oidc_publisher()
 
         assert result == view.default_response
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "The trusted publisher could not be registered",
-                queue="error",
-            )
-        ]
+        assert result["disabled"]["GitHub"] is True
+        publishing_request.session.flash.assert_called_once_with(
+            "GitHub-based trusted publishing is temporarily disabled. "
+            "See https://docs.pypi.org/about/security-and-internals/"
+            "#temporarily-disabled-features for details.",
+            queue="error",
+        )
 
-    def test_add_pending_gitlab_oidc_publisher_success(self, db_request, monkeypatch):
+    def test_add_pending_github_oidc_publisher_invalid_form(
+        self, publishing_request, organization
+    ):
+        """Adding a GitHub publisher with an empty form flashes an error"""
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        result = view.add_pending_github_oidc_publisher()
+
+        assert result == view.default_response
+        publishing_request.session.flash.assert_called_once_with(
+            "The trusted publisher could not be registered",
+            queue="error",
+        )
+
+    def test_add_pending_gitlab_oidc_publisher_success(
+        self, publishing_request, organization, metrics, mocker
+    ):
         """Test successfully adding a pending GitLab OIDC publisher"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda *a: False)
-        )
-        db_request.POST = MultiDict()
-        db_request.path = "/fake/path"
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
-        db_request.user = user
-
-        # Mock form
-        form = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            project_name=pretend.stub(data="test-project"),
-            namespace=pretend.stub(data="test-namespace"),
-            project=pretend.stub(data="test-project"),
-            workflow_filepath=pretend.stub(data=".gitlab-ci.yml"),
-            environment=pretend.stub(data=""),
-            issuer_url=pretend.stub(data="https://gitlab.com"),
-        )
-        monkeypatch.setattr(
-            org_views, "PendingGitLabPublisherForm", lambda *a, **kw: form
+        publishing_request.POST = MultiDict(
+            {
+                "project_name": "test-project",
+                "namespace": "test-namespace",
+                "project": "test-project",
+                "workflow_filepath": ".gitlab-ci.yml",
+                "environment": "",
+                "issuer_url": "https://gitlab.com",
+            }
         )
 
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
         result = view.add_pending_gitlab_oidc_publisher()
 
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.metrics.increment.calls[-1] == pretend.call(
+        publisher = publishing_request.db.scalars(
+            select(PendingGitLabPublisher).filter_by(organization_id=organization.id)
+        ).one()
+        assert publisher.namespace == "test-namespace"
+        assert metrics.increment.call_args_list[-1] == mocker.call(
             "warehouse.oidc.add_pending_publisher.ok",
             tags=["publisher:GitLab", "organization:true"],
         )
 
-    def test_gitlab_form_includes_issuer_url_choices(self, db_request, monkeypatch):
-        """Test that GitLab form is created with issuer_url_choices"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create()
-        db_request.POST = MultiDict()
-        db_request.user = user
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+    def test_gitlab_form_includes_issuer_url_choices(
+        self, publishing_request, organization
+    ):
+        """The GitLab form offers the organization's custom GitLab issuers"""
+        OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+        )
 
-        # Mock GitLabPublisher.get_available_issuer_urls to return multiple issuers
-        mock_issuers = [
-            ("https://gitlab.com", "GitLab.com"),
-            ("https://gitlab.example.com", "Custom GitLab"),
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+
+        assert view.pending_gitlab_publisher_form.issuer_url.choices == [
+            ("https://gitlab.com", "https://gitlab.com"),
+            ("https://gitlab.example.com", "https://gitlab.example.com"),
         ]
-        monkeypatch.setattr(
-            org_views.GitLabPublisher,
-            "get_available_issuer_urls",
-            lambda organization: mock_issuers,
-        )
-
-        # Track the form creation to verify issuer_url_choices are passed
-        form_calls = []
-
-        def track_form_creation(*args, **kwargs):
-            form_calls.append(kwargs)
-            return pretend.stub(
-                validate=lambda: False,
-                project_name=pretend.stub(data=""),
-                namespace=pretend.stub(data=""),
-                project=pretend.stub(data=""),
-                workflow_filepath=pretend.stub(data=""),
-                environment=pretend.stub(data=""),
-                issuer_url=pretend.stub(data="", choices=mock_issuers),
-            )
-
-        monkeypatch.setattr(
-            org_views, "PendingGitLabPublisherForm", track_form_creation
-        )
-
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
-
-        # Verify that the form was created with issuer_url_choices
-        assert len(form_calls) == 1
-        assert form_calls[0]["issuer_url_choices"] == mock_issuers
-
-        # Verify the form has the correct choices
-        assert view.pending_gitlab_publisher_form.issuer_url.choices == mock_issuers
 
     def test_manage_organization_publishing_get_oidc_disabled(
-        self, db_request, monkeypatch
+        self, publishing_request, organization
     ):
         """Test GET request when global OIDC is disabled"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create()
-        db_request.POST = MultiDict()
-        db_request.user = user
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: True)
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        publishing_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_OIDC.value
+        ).enabled = True
 
-        # Mock all form classes since default_response tries to instantiate them
-        pending_github_publisher_form_obj = pretend.stub()
-        monkeypatch.setattr(
-            org_views,
-            "PendingGitHubPublisherForm",
-            lambda *a, **kw: pending_github_publisher_form_obj,
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
         )
-        pending_gitlab_publisher_form_obj = pretend.stub()
-        monkeypatch.setattr(
-            org_views,
-            "PendingGitLabPublisherForm",
-            lambda *a, **kw: pending_gitlab_publisher_form_obj,
-        )
-        pending_google_publisher_form_obj = pretend.stub()
-        monkeypatch.setattr(
-            org_views,
-            "PendingGooglePublisherForm",
-            lambda *a, **kw: pending_google_publisher_form_obj,
-        )
-        pending_activestate_publisher_form_obj = pretend.stub()
-        monkeypatch.setattr(
-            org_views,
-            "PendingActiveStatePublisherForm",
-            lambda *a, **kw: pending_activestate_publisher_form_obj,
-        )
-
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
         result = view.manage_organization_publishing()
 
-        assert result["organization"] == organization
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Trusted publishing is temporarily disabled. "
-                "See https://docs.pypi.org/about/security-and-internals/"
-                "#temporarily-disabled-features for details.",
-                queue="error",
-            )
-        ]
+        assert result == view.default_response
+        assert result["disabled"] == {
+            "GitHub": True,
+            "GitLab": True,
+            "Google": True,
+            "ActiveState": True,
+        }
+        publishing_request.session.flash.assert_called_once_with(
+            "Trusted publishing is temporarily disabled. "
+            "See https://docs.pypi.org/about/security-and-internals/"
+            "#temporarily-disabled-features for details.",
+            queue="error",
+        )
 
     def test_add_pending_github_oidc_publisher_already_exists(
-        self, db_request, monkeypatch
+        self, publishing_request, organization, github_post, lookup_owner
     ):
         """Test adding GitHub publisher when it already exists"""
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-
-        # Create an existing pending publisher with matching attributes
-        existing_publisher = PendingGitHubPublisherFactory.create(
+        PendingGitHubPublisherFactory.create(
             project_name="test-project",
             repository_name="test-repo",
             repository_owner="test-owner",
@@ -3945,63 +4128,34 @@ class TestManageOrganizationPublishingViews:
             environment="",
             organization_id=organization.id,
         )
-        db_request.db.add(existing_publisher)
-        db_request.db.flush()
+        publishing_request.POST = github_post
 
-        db_request.POST = MultiDict()
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
         )
-        db_request.user = user
-
-        # Mock form with same data as existing publisher
-        form = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            project_name=pretend.stub(data="test-project"),
-            repository=pretend.stub(data="test-repo"),
-            normalized_owner="test-owner",
-            owner_id="12345",
-            workflow_filename=pretend.stub(data="release.yml"),
-            normalized_environment="",
-        )
-        monkeypatch.setattr(
-            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
-        )
-
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
         result = view.add_pending_github_oidc_publisher()
 
         assert result == view.default_response
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "This publisher has already been registered in your organization. "
-                "See your existing pending publishers below.",
-                queue="error",
-            )
-        ]
+        publishing_request.session.flash.assert_called_once_with(
+            "This trusted publisher has already been registered. "
+            "Please contact PyPI's admins if this wasn't intentional.",
+            queue="error",
+        )
 
     def test_add_pending_github_oidc_publisher_unique_violation(
-        self, db_request, monkeypatch
+        self, publishing_request, organization, github_post, lookup_owner
     ):
         """A UniqueViolation raised by the INSERT during ``flush()`` (another
         pending publisher already targets the same external identity under a
-        different ``project_name``) must be handled as double-post protection:
-        roll back the now-aborted transaction so the session stays usable for
-        the end-of-request commit, then redirect. Regression test for GH-20006.
+        different ``project_name``) rolls back the now-aborted transaction so
+        the session stays usable for the end-of-request commit, and tells the
+        user about the conflict. Regression test for GH-20006.
         """
-        organization = OrganizationFactory.create()
-        user = UserFactory.create(with_verified_primary_email=True)
-        db_request.POST = MultiDict()
-        db_request.path = "/fake/path"
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
-        db_request.user = user
-
         # A pending publisher with the same external identity but a *different*
         # project_name. The early duplicate-check query keys on project_name so
         # it misses this row, but the DB unique constraint does not -- so the
         # next conflicting insert raises a real UniqueViolation during flush().
-        existing_publisher = PendingGitHubPublisherFactory.create(
+        PendingGitHubPublisherFactory.create(
             project_name="test-project-existing",
             repository_name="test-repo",
             repository_owner="test-owner",
@@ -4010,38 +4164,30 @@ class TestManageOrganizationPublishingViews:
             environment="",
             organization_id=organization.id,
         )
-        db_request.db.add(existing_publisher)
-        db_request.db.flush()
+        publishing_request.db.flush()
+        publishing_request.POST = github_post
 
-        # Mock form
-        form = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            project_name=pretend.stub(data="test-project"),
-            repository=pretend.stub(data="test-repo"),
-            normalized_owner="test-owner",
-            owner_id="12345",
-            workflow_filename=pretend.stub(data="release.yml"),
-            normalized_environment="",
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
         )
-        monkeypatch.setattr(
-            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
-        )
-
-        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
         result = view.add_pending_github_oidc_publisher()
 
-        # Should return HTTPSeeOther redirect (double-post protection)
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/path"
+        assert result == view.default_response
+        publishing_request.session.flash.assert_called_once_with(
+            "A pending trusted publisher matching this configuration "
+            "has already been registered for a different project name. "
+            "Please contact PyPI's admins if this wasn't intentional.",
+            queue="error",
+        )
         # The conflicting INSERT left the transaction aborted. Without an
         # explicit rollback in the handler this query raises PendingRollbackError
         # -- which is what surfaces to the user as a 500/503. The rollback also
         # discards this request's uncommitted work, including the pre-existing
         # publisher created above, so the count is 0.
-        assert db_request.db.query(PendingGitHubPublisher).count() == 0
+        assert publishing_request.db.query(PendingGitHubPublisher).count() == 0
 
     def test_two_orgs_can_create_pending_publishers_for_same_project_name(
-        self, db_request, monkeypatch
+        self, publishing_request, lookup_owner
     ):
         """
         Two different organizations can create pending OIDC publishers
@@ -4064,15 +4210,8 @@ class TestManageOrganizationPublishingViews:
         )
 
         # Setup request for org1
-        db_request.user = org1_owner
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.registry = pretend.stub(settings={"github.token": "fake-api-token"})
-        db_request.POST = MultiDict(
+        publishing_request.user = org1_owner
+        publishing_request.POST = MultiDict(
             {
                 "project_name": "same-project-name",
                 "owner": "org1",
@@ -4081,22 +4220,16 @@ class TestManageOrganizationPublishingViews:
                 "environment": "",
             }
         )
-
-        # Mock the GitHub API lookup for org1
-        monkeypatch.setattr(
-            org_views.PendingGitHubPublisherForm,
-            "_lookup_owner",
-            lambda *a: {"login": "org1", "id": "11111"},
-        )
+        lookup_owner.return_value = {"login": "org1", "id": "11111"}
 
         # Org1 creates a pending publisher
-        view1 = org_views.ManageOrganizationPublishingViews(org1, db_request)
+        view1 = org_views.ManageOrganizationPublishingViews(org1, publishing_request)
         result1 = view1.add_pending_github_oidc_publisher()
         assert isinstance(result1, HTTPSeeOther)
 
         # Verify org1's pending publisher was created
         pending_publisher_1 = (
-            db_request.db.query(PendingGitHubPublisher)
+            publishing_request.db.query(PendingGitHubPublisher)
             .filter(
                 PendingGitHubPublisher.organization_id == org1.id,
                 PendingGitHubPublisher.project_name == "same-project-name",
@@ -4108,8 +4241,8 @@ class TestManageOrganizationPublishingViews:
         assert pending_publisher_1.organization_id == org1.id
 
         # Setup request for org2 with SAME project name but different credentials
-        db_request.user = org2_owner
-        db_request.POST = MultiDict(
+        publishing_request.user = org2_owner
+        publishing_request.POST = MultiDict(
             {
                 "project_name": "same-project-name",  # SAME PROJECT NAME
                 "owner": "org2",  # DIFFERENT GitHub org
@@ -4118,22 +4251,16 @@ class TestManageOrganizationPublishingViews:
                 "environment": "",
             }
         )
-
-        # Mock the GitHub API lookup for org2
-        monkeypatch.setattr(
-            org_views.PendingGitHubPublisherForm,
-            "_lookup_owner",
-            lambda *a: {"login": "org2", "id": "22222"},
-        )
+        lookup_owner.return_value = {"login": "org2", "id": "22222"}
 
         # Org2 creates a pending publisher for the SAME project name
-        view2 = org_views.ManageOrganizationPublishingViews(org2, db_request)
+        view2 = org_views.ManageOrganizationPublishingViews(org2, publishing_request)
         result2 = view2.add_pending_github_oidc_publisher()
         assert isinstance(result2, HTTPSeeOther)
 
         # Verify org2's pending publisher was also created
         pending_publisher_2 = (
-            db_request.db.query(PendingGitHubPublisher)
+            publishing_request.db.query(PendingGitHubPublisher)
             .filter(
                 PendingGitHubPublisher.organization_id == org2.id,
                 PendingGitHubPublisher.project_name == "same-project-name",
@@ -4146,7 +4273,7 @@ class TestManageOrganizationPublishingViews:
 
         # CRITICAL: Both pending publishers should exist
         all_pending_publishers = (
-            db_request.db.query(PendingGitHubPublisher)
+            publishing_request.db.query(PendingGitHubPublisher)
             .filter(PendingGitHubPublisher.project_name == "same-project-name")
             .all()
         )

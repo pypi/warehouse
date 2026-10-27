@@ -407,7 +407,9 @@
     </p>
   {% endif %}
   <h3>Pending publishers</h3>
-  {% if user.pending_oidc_publishers %}
+  {# Organization pending publishers are listed on each organization's page. #}
+  {% set personal_pending_publishers = user.pending_oidc_publishers|selectattr("organization_id", "none")|list %}
+  {% if personal_pending_publishers %}
     <table class="table table--publisher-list">
       <thead>
         <tr>
@@ -418,7 +420,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for publisher in user.pending_oidc_publishers %}{{ oidc_publisher_row(publisher) }}{% endfor %}
+        {% for publisher in personal_pending_publishers %}{{ oidc_publisher_row(publisher) }}{% endfor %}
       </tbody>
     </table>
   {% else %}
