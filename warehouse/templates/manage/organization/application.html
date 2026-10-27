@@ -16,11 +16,11 @@
         <tr>
           <th scope="row">{% trans %}Request status{% endtrans %}</th>
           <td>
-            {% if organization_application.status == 'declined' %}
+            {% if organization_application.status == "declined" %}
               <strong>{% trans %}Declined{% endtrans %}:</strong>
               <br />
               {% trans %}This organization request has been declined{% endtrans %}
-            {% elif organization_application.status == 'moreinformationneeded' %}
+            {% elif organization_application.status == "moreinformationneeded" %}
               <strong>{% trans %}More information needed{% endtrans %}:</strong>
               <br />
               {% trans %}Please provide more information below{% endtrans %}
@@ -95,9 +95,9 @@
             <div class="form-group form-group--wide">
               <label class="form-group__label" for="public_email">{% trans %}️Your response{% endtrans %}</label>
               {{ response_forms[information_request.id].response(id="response_form-" + information_request.id.__str__() + "-response",
-              class_="form-group__field form-group__field--full-width",
-              rows="4",
-              aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
+                class_="form-group__field form-group__field--full-width",
+                rows="4",
+                aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
               ) }}
               <div id="response_form-{{ information_request.id }}-errors">
                 {{ field_errors(response_forms[information_request.id].response) }}

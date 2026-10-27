@@ -53,20 +53,19 @@
             <p class="team-snippet__meta">
               {% trans member_count=team.members|length %}
               {{ member_count }} member
-            {% pluralize %}
-              {{ member_count }} members
-            {% endtrans %}
-          </p>
-        </div>
-        <!-- mobile nav -->
-        {% with mode="mobile" %}
-          {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}
-        {% endwith %}
-        {% block main %}
-        {% endblock %}
-      </div>
-      {% block mobile_tabs_bottom %}{% endblock %}
-    </div>
+{% pluralize %}
+  {{ member_count }} members
+  {% endtrans %}
+  </p>
   </div>
-</div>
+  <!-- mobile nav -->
+  {% with mode="mobile" %}
+    {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}
+  {% endwith %}
+  {% block main %}{% endblock %}
+  </div>
+  {% block mobile_tabs_bottom %}{% endblock %}
+  </div>
+  </div>
+  </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% set provenance_states = release.provenance_status.states %}
 {# Provenance states are not mutually exclusive; show only the most important one. #}
-{% if 'lost-provenance' in provenance_states %}
+{% if "lost-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -20,7 +20,7 @@
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
   </div>
-{% elif 'changed-provenance' in provenance_states %}
+{% elif "changed-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -39,7 +39,7 @@
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
   </div>
-{% elif 'inconsistent-provenance' in provenance_states %}
+{% elif "inconsistent-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -58,7 +58,7 @@
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
   </div>
-{% elif 'partial-provenance' in provenance_states %}
+{% elif "partial-provenance" in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
     <h3 class="callout-block__heading">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>

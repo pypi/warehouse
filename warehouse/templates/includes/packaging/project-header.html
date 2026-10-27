@@ -35,7 +35,8 @@
       <div data-controller="clipboard"
            data-clipboard-plausible-event-value="Copy Project Install Command">
         <p class="project-header__pip-instructions">
-          <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <span id="pip-command"
+                data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
           <button type="button"
                   class="copy-tooltip copy-tooltip-n"
                   data-action="clipboard#copy"

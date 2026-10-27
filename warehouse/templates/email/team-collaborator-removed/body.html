@@ -7,20 +7,18 @@
   }
 {% endblock %}
 {% block content %}
-  <p>
-    {% trans site=site %}A collaborator was removed from a project you own on {{ site }}{% endtrans %}:
-    <ul class="collaborator-details">
-      <li>
-        <strong>{% trans %}Team{% endtrans %}</strong>: {{ team_name }}
-      </li>
-      <li>
-        <strong>{% trans %}Collaborator for{% endtrans %}</strong>: {{ project }}
-      </li>
-      <li>
-        <strong>{% trans %}Removed by{% endtrans %}</strong>: {{ submitter }}
-      </li>
-    </ul>
-  </p>
+  <p>{% trans site=site %}A collaborator was removed from a project you own on {{ site }}{% endtrans %}:</p>
+  <ul class="collaborator-details">
+    <li>
+      <strong>{% trans %}Team{% endtrans %}</strong>: {{ team_name }}
+    </li>
+    <li>
+      <strong>{% trans %}Collaborator for{% endtrans %}</strong>: {{ project }}
+    </li>
+    <li>
+      <strong>{% trans %}Removed by{% endtrans %}</strong>: {{ submitter }}
+    </li>
+  </ul>
   <p>
     If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
   </p>
