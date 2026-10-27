@@ -4,6 +4,7 @@ import uuid
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy import update
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
@@ -14,6 +15,7 @@ from tests.common.db.organizations import (
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
 from warehouse.organizations.models import (
+    OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationType,
 )
@@ -694,15 +696,25 @@ class TestOrganizationApplicationActions:
         ],
     )
     def test_action_on_withdrawn(self, db_request, view):
+        db_request.user = UserFactory.create()
         organization_application = OrganizationApplicationFactory.create(
-            name="example", status=OrganizationApplicationStatus.Withdrawn
+            name="example", status=OrganizationApplicationStatus.Submitted
+        )
+        # The applicant withdraws after this request loaded the application.
+        db_request.db.execute(
+            update(OrganizationApplication)
+            .where(OrganizationApplication.id == organization_application.id)
+            .values(status=OrganizationApplicationStatus.Withdrawn)
+            .execution_options(synchronize_session=False)
+        )
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
         )
 
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
         db_request.params["message"] = "Sorry!"
-        db_request.user = UserFactory.create()
         db_request.route_path = _organization_application_routes
 
         result = view(db_request)
