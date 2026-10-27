@@ -684,6 +684,42 @@ class TestOrganizationApplicationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_decline(db_request)
 
+    @pytest.mark.parametrize(
+        "view",
+        [
+            views.organization_application_approve,
+            views.organization_application_defer,
+            views.organization_application_request_more_information,
+            views.organization_application_decline,
+        ],
+    )
+    def test_action_on_withdrawn(self, db_request, view):
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", status=OrganizationApplicationStatus.Withdrawn
+        )
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["message"] = "Sorry!"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = view(db_request)
+
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Withdrawn
+        )
+        assert organization_application.organization is None
+        assert db_request.session.pop_flash("error") == [
+            'Request for "example" organization was withdrawn'
+        ]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
     def test_addnote(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
