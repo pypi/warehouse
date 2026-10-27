@@ -230,13 +230,12 @@
                     </span>
                   </span>
                   {% if attestation_count > 1 %}
-                    {% set attestation_count_label %}
+                    <span class="badge badge--neutral badge--compact" aria-hidden="true">{{ attestation_count }}</span>
+                    <span class="sr-only">
                       {% trans count=attestation_count %}{{ count }} attestation
                     {% pluralize %}
                       {{ count }} attestations{% endtrans %}
-                    {% endset %}
-                    <span class="badge badge--neutral badge--compact"
-                          aria-label="{{ attestation_count_label }}">{{ attestation_count }}</span>
+                    </span>
                   {% endif %}
                 </button>
               </li>
