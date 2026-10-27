@@ -452,6 +452,13 @@
   including via their own "pending" publisher.
 {% endtrans %}
 </p>
+{% if not pending_oidc_enabled %}
+  <p class="callout-block callout-block--warning">
+    {% trans href=request.route_path('manage.account') %}
+    You must <a href="{{ href }}">verify your primary email address</a> before adding a new pending publisher.
+  {% endtrans %}
+</p>
+{% endif %}
 {% set publishers = [
   ("GitHub", github_form(request, pending_github_publisher_form, organization)),
   ("GitLab", gitlab_form(request, pending_gitlab_publisher_form, organization)),

@@ -1963,8 +1963,8 @@ class ManageOrganizationPublishingViews:
         if pending_count >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending trusted publishers "
-                    "for an organization at once."
+                    "You already have 3 pending trusted publishers for this "
+                    "organization. Remove one before adding another."
                 ),
                 queue="error",
             )

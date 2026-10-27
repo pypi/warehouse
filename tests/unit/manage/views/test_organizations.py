@@ -3855,8 +3855,8 @@ class TestManageOrganizationPublishingViews:
 
         assert result == view.default_response
         publishing_request.session.flash.assert_called_once_with(
-            "You can't register more than 3 pending trusted publishers "
-            "for an organization at once.",
+            "You already have 3 pending trusted publishers for this "
+            "organization. Remove one before adding another.",
             queue="error",
         )
         oidc_limiters["user"].hit.assert_not_called()
