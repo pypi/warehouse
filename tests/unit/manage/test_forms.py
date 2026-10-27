@@ -851,6 +851,7 @@ class TestCreateOrganizationApplicationForm:
         [
             OrganizationApplicationStatus.Approved,
             OrganizationApplicationStatus.Declined,
+            OrganizationApplicationStatus.Withdrawn,
         ],
     )
     def test_validate_max_applications_ignores_decided(
