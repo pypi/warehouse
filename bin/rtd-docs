@@ -4,8 +4,11 @@ set -e
 # Print all the following commands
 set -x
 
+# Inputs shared by every docs project; a change to any of them rebuilds all.
+COMMON_PATHS="docs/theme .readthedocs.yml bin/rtd-docs"
+
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev docs/theme requirements/docs-dev.txt .readthedocs.yaml docs/mkdocs-dev-docs.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt $COMMON_PATHS docs/mkdocs-dev-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
@@ -16,7 +19,7 @@ if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user docs/theme requirements/docs-user.txt .readthedocs.yaml docs/mkdocs-user-docs.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user requirements/docs-user.txt $COMMON_PATHS docs/mkdocs-user-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
@@ -27,7 +30,7 @@ if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ] || [ "${READTHEDOCS_PROJECT}" = "psf-warehouse-private" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/blog docs/theme requirements/docs-blog.txt .readthedocs.yaml docs/mkdocs-blog.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/blog requirements/docs-blog.txt $COMMON_PATHS docs/mkdocs-blog.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
