@@ -10,6 +10,7 @@ import pytest
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from sqlalchemy import update
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
@@ -42,6 +43,7 @@ from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
@@ -350,6 +352,81 @@ class TestManageOrganizationApplication:
         ):
             view.manage_organization_application_submit()
 
+    @pytest.mark.parametrize(
+        ("status", "confirm", "withdrawn"),
+        [
+            (OrganizationApplicationStatus.Submitted, " example ", True),
+            (OrganizationApplicationStatus.Submitted, "wrong", False),
+            (OrganizationApplicationStatus.Declined, "example", False),
+            (OrganizationApplicationStatus.Withdrawn, "example", False),
+        ],
+    )
+    def test_withdraw_organization_application(
+        self, db_request, metrics, status, confirm, withdrawn
+    ):
+        app = OrganizationApplicationFactory.create(
+            name="example",
+            status=status,
+            orgtype=OrganizationType.Company,
+            submitted=dt.datetime(2026, 1, 1),
+        )
+        db_request.POST = MultiDict({"confirm_organization_application_name": confirm})
+        db_request.route_path = lambda *a, **kw: "/manage/organizations/"
+
+        view = org_views.ManageOrganizationApplicationViews(app, db_request)
+        with freeze_time("2026-01-02"):
+            assert isinstance(view.withdraw_organization_application(), HTTPSeeOther)
+        db_request.db.flush()
+        db_request.db.expire(app)
+
+        assert app.status == (
+            OrganizationApplicationStatus.Withdrawn if withdrawn else status
+        )
+        tags = ["status:submitted", "orgtype:Company"]
+        assert metrics.increment.calls == (
+            [pretend.call("warehouse.organizations.application.withdrawn", tags=tags)]
+            if withdrawn
+            else []
+        )
+        assert metrics.distribution.calls == (
+            [
+                pretend.call(
+                    "warehouse.organizations.application.withdrawn.age_seconds",
+                    86400.0,
+                    tags=tags,
+                )
+            ]
+            if withdrawn
+            else []
+        )
+
+    def test_withdraw_organization_application_decided_concurrently(
+        self, db_request, metrics
+    ):
+        app = OrganizationApplicationFactory.create(
+            name="example", status=OrganizationApplicationStatus.Submitted
+        )
+        # An admin decides the request after this request loaded it.
+        db_request.db.execute(
+            update(OrganizationApplication)
+            .where(OrganizationApplication.id == app.id)
+            .values(status=OrganizationApplicationStatus.Approved)
+            .execution_options(synchronize_session=False)
+        )
+        assert app.status == OrganizationApplicationStatus.Submitted
+        db_request.POST = MultiDict(
+            {"confirm_organization_application_name": "example"}
+        )
+        db_request.route_path = lambda *a, **kw: "/manage/organizations/"
+
+        view = org_views.ManageOrganizationApplicationViews(app, db_request)
+        assert isinstance(view.withdraw_organization_application(), HTTPSeeOther)
+        db_request.db.flush()
+        db_request.db.expire(app)
+
+        assert app.status == OrganizationApplicationStatus.Approved
+        assert metrics.increment.calls == []
+
 
 class TestManageOrganizations:
     def test_default_response(self, monkeypatch):
@@ -379,9 +456,13 @@ class TestManageOrganizations:
             get_organization_invites_by_user=lambda *a, **kw: [],
         )
         user_service = pretend.stub()
+        submitted = pretend.stub(status=OrganizationApplicationStatus.Submitted)
+        withdrawn = pretend.stub(status=OrganizationApplicationStatus.Withdrawn)
         request = pretend.stub(
             user=pretend.stub(
-                id=pretend.stub(), username=pretend.stub(), organization_applications=[]
+                id=pretend.stub(),
+                username=pretend.stub(),
+                organization_applications=[submitted, withdrawn, withdrawn],
             ),
             find_service=lambda interface, **kw: {
                 IOrganizationService: organization_service,
@@ -389,7 +470,7 @@ class TestManageOrganizations:
             }[interface],
             registry=pretend.stub(
                 settings={
-                    "warehouse.organizations.max_undecided_organization_applications": 3
+                    "warehouse.organizations.max_undecided_organization_applications": 2
                 }
             ),
         )
@@ -397,7 +478,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
-            "organization_applications": [],
+            "organization_applications": [submitted],
             "organization_invites": [],
             "organizations": [organization],
             "organizations_managed": [],

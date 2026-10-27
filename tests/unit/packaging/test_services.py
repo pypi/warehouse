@@ -1220,22 +1220,32 @@ class TestProjectService:
 
         ratelimit_service.test.assert_not_called()
 
-    def test_check_ratelimits_for_organization_still_checks_ip_limiter(
+    def test_create_project_for_organization_ignores_ip_limiters(
         self, project_service, db_request, ratelimit_service, mocker
     ):
-        """The IP limiter still applies when the org limiter replaces the user one."""
+        """Organizations are metered per organization, not per IP."""
         organization = OrganizationFactory.create()
-        project_service.ratelimiters["project.create.ip"] = ratelimit_service
-        project_service.ratelimiters["project.create.organization"] = DummyRateLimiter()
-        identity = project_service._identity_limiter(
-            UserFactory.create(), organization.id
+        db_request.remote_addr = "1.2.3.4"
+        ip_limiter = mocker.Mock(
+            **{"test.return_value": False, "hit.return_value": False}
         )
-        mocker.patch.object(ratelimit_service, "test", return_value=False)
+        project_service.ratelimiters["project.create.ip"] = ip_limiter
+        project_service.ratelimiters["project.create.attempt.ip"] = ip_limiter
+        project_service.ratelimiters["project.create.organization"] = ratelimit_service
 
-        with pytest.raises(TooManyProjectsCreated):
-            project_service._check_ratelimits(db_request, identity)
+        project_service.create_project(
+            "some-new-project",
+            UserFactory.create(),
+            db_request,
+            creator_is_owner=False,
+            organization_id=organization.id,
+        )
+        db_request.tm.commit()
+        db_request.tm.begin()
 
-        ratelimit_service.resets_in.assert_called_once_with(db_request.remote_addr)
+        ip_limiter.test.assert_not_called()
+        ip_limiter.hit.assert_not_called()
+        ratelimit_service.hit.assert_called_once_with(organization.id)
 
     def test_create_project_resolves_the_identity_limiter_once(
         self, project_service, db_request, mocker

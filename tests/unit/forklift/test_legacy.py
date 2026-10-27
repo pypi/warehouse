@@ -6834,7 +6834,7 @@ class TestFileUpload:
         # Create organization with generous limit
         organization = OrganizationFactory.create(
             orgtype="Company",
-            upload_limit=150 * (1024**2),  # 150 MiB
+            upload_limit=250 * (1024**2),  # 250 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6847,7 +6847,7 @@ class TestFileUpload:
         ).project
 
         # Verify our model property returns the expected value (most generous)
-        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+        assert project.upload_limit_size == 250 * (1024**2)  # Should be org limit
 
         # Upload file that's between project and org limits (120 MiB)
         filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"

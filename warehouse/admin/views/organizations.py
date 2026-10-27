@@ -16,16 +16,16 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import (
+    SetOrganizationTotalSizeLimitForm,
+    SetOrganizationUploadLimitForm,
     SetProjectCreateRateLimitForm,
-    SetTotalSizeLimitForm,
-    SetUploadLimitForm,
 )
 from warehouse.authnz import Permissions
 from warehouse.constants import (
-    MAX_FILESIZE,
-    MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
@@ -194,6 +194,19 @@ def _turbo_mode(request):
         else "admin.organization_application.list"
     )
     return HTTPSeeOther(request.route_path(route))
+
+
+def _withdrawn(request, organization_application):
+    request.session.flash(
+        f'Request for "{organization_application.name}" organization was withdrawn',
+        queue="error",
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
 
 
 @view_config(
@@ -436,9 +449,9 @@ def organization_detail(request):
         "manual_activation_form": manual_activation_form,
         "oidc_issuer_form": oidc_issuer_form,
         "ONE_MIB": ONE_MIB,
-        "MAX_FILESIZE": MAX_FILESIZE,
+        "ORGANIZATION_MAX_FILESIZE": ORGANIZATION_MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
-        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "ORGANIZATION_MAX_PROJECT_SIZE": ORGANIZATION_MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
         "DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT": request.registry.settings.get(
@@ -747,6 +760,9 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -790,6 +806,9 @@ def organization_application_defer(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization_service.defer_organization_application(
         organization_application.id, request
@@ -828,6 +847,9 @@ def organization_application_request_more_information(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     try:
         organization_service.request_more_information(
@@ -871,6 +893,9 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
+    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
+        return _withdrawn(request, organization_application)
 
     organization_service.decline_organization_application(
         organization_application.id, request
@@ -1243,7 +1268,7 @@ def set_upload_limit(request):
     if organization is None:
         raise HTTPNotFound
 
-    form = SetUploadLimitForm(request.POST)
+    form = SetOrganizationUploadLimitForm(request.POST)
 
     if not form.validate():
         for field, errors in form.errors.items():
@@ -1481,7 +1506,7 @@ def set_total_size_limit(request):
     if organization is None:
         raise HTTPNotFound
 
-    form = SetTotalSizeLimitForm(request.POST)
+    form = SetOrganizationTotalSizeLimitForm(request.POST)
 
     if not form.validate():
         for field, errors in form.errors.items():
