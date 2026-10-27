@@ -7,14 +7,14 @@ EthicalAds in 2021, so its values are stale. The hourly sync from pythondotorg
 sets it again for the sponsors in the PyPI sidebar flight.
 
 Revision ID: 578c931a42e3
-Revises: b3c1d8e9f4a2
+Revises: c7e2a9d41f30
 Create Date: 2026-10-22 10:42:35
 """
 
 from alembic import op
 
 revision = "578c931a42e3"
-down_revision = "b3c1d8e9f4a2"
+down_revision = "c7e2a9d41f30"
 
 
 def upgrade():
