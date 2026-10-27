@@ -7,7 +7,7 @@ import freezegun
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -85,6 +85,32 @@ class TestUserList:
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": users[0].username[:-1] + "%"}
+
+    def test_query_is_case_insensitive(self, db_request):
+        user = UserFactory.create(username="CamelCaseUser")
+        db_request.GET["q"] = "%camelcase%"
+        result = views.user_list(db_request)
+
+        assert result == {"users": [user], "query": "%camelcase%"}
+
+    def test_username_query_uses_trigram_index(self, db_request, mocker):
+        """
+        The trigram index only supports `text` operators, so a bare citext
+        ILIKE cannot use it.
+        """
+        page = mocker.spy(views, "SQLAlchemyORMPage")
+        db_request.GET["q"] = "%dstufft%"
+        views.user_list(db_request)
+
+        statement = page.call_args.args[0].statement.compile(
+            dialect=db_request.db.bind.dialect,
+            compile_kwargs={"literal_binds": True},
+        )
+        db_request.db.execute(text("SET LOCAL enable_seqscan = off"))
+        db_request.db.execute(text("SET LOCAL enable_indexscan = off"))
+        plan = db_request.db.execute(text(f"EXPLAIN {statement}")).scalars().all()
+
+        assert any("idx_users_username_trgm" in line for line in plan)
 
     def test_email_query(self, db_request):
         users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())

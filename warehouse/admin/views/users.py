@@ -17,7 +17,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_, select, update
+from sqlalchemy import Text, cast, func, or_, select, update
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -97,7 +97,7 @@ def user_list(request):
                 elif field.lower() == "id":
                     filters.append(User.id == value)
             else:
-                filters.append(User.username.ilike(term))
+                filters.append(cast(User.username, Text).ilike(term))
 
         filters = filters or [True]
         users_query = users_query.filter(or_(False, *filters))

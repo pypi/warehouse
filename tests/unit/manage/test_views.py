@@ -7,6 +7,7 @@ import uuid
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -23,8 +24,8 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
-    TokenExpired,
 )
+from warehouse.accounts.services import TokenService
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.tags import EventTag
@@ -50,6 +51,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
     RoleInvitation,
+    RoleInvitationStatus,
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
@@ -5719,6 +5721,43 @@ class TestManageProjectRoles:
             )
         ]
 
+    @pytest.mark.parametrize("stored_token", ["", "unverifiable"])
+    def test_reinvite_role_with_unreadable_token(
+        self, db_request, mocker, stored_token
+    ):
+        """
+        A pending invitation whose token can't be read is replaced with a new one.
+        """
+        project = ProjectFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner = UserFactory.create(username="owner")
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        if stored_token:
+            other = TokenService(secret="other", salt="email", max_age=21600)
+            stored_token = other.dumps({})
+        invite = RoleInvitationFactory.create(
+            user=new_user, project=project, token=stored_token
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": "new_user", "role_name": "Owner"})
+        db_request.user = owner
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/manage/roles"
+        )
+        flash = mocker.spy(db_request.session, "flash")
+        send_email = mocker.patch.object(
+            views, "send_project_role_verification_email", autospec=True
+        )
+
+        result = views.manage_project_roles(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        flash.assert_called_once_with("Invitation sent to 'new_user'", queue="success")
+        assert invite.invite_status == RoleInvitationStatus.Pending
+        assert invite.token != stored_token
+        send_email.assert_called_once()
+
     @pytest.mark.parametrize("with_email", [True, False])
     def test_post_unverified_email(self, db_request, with_email):
         project = ProjectFactory.create(name="foobar")
@@ -5939,49 +5978,80 @@ class TestRevokeRoleInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/projects"
 
-    def test_token_expired(self, db_request, token_service):
+    @pytest.mark.parametrize(
+        ("stored_token", "message"),
+        [
+            ("expired", "Expired invitation for 'testuser' deleted."),
+            ("invalid", "Invalid invitation for 'testuser' deleted."),
+            ("", "Invalid invitation for 'testuser' deleted."),
+        ],
+    )
+    def test_token_unusable(
+        self, db_request, token_service, mocker, stored_token, message
+    ):
+        """
+        An invitation whose token can't be loaded is deleted, and the revocation
+        is recorded without a role.
+        """
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
-        RoleInvitationFactory.create(user=user, project=project)
+        if stored_token == "expired":
+            with freeze_time(
+                dt.datetime.now(dt.UTC)
+                - dt.timedelta(seconds=token_service.max_age + 1)
+            ):
+                stored_token = token_service.dumps({})
+        elif stored_token == "invalid":
+            other = TokenService(secret="other", salt="email", max_age=21600)
+            stored_token = other.dumps({})
+        RoleInvitationFactory.create(user=user, project=project, token=stored_token)
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
-
-        user_service = pretend.stub(get_user=lambda userid: user)
-        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None, name=None: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }.get(iface)
-        )
         db_request.method = "POST"
-        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.POST = MultiDict({"user_id": str(user.id)})
         db_request.user = owner_user
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/projects/roles"
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/manage/roles"
         )
-        form_class = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        flash = mocker.spy(db_request.session, "flash")
+        project_event = mocker.patch.object(project, "record_event", autospec=True)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
-        result = views.revoke_project_role_invitation(
-            project, db_request, _form_class=form_class
-        )
+        result = views.revoke_project_role_invitation(project, db_request)
         db_request.db.flush()
 
-        assert not (
+        assert (
             db_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
             .filter(RoleInvitation.project == project)
             .one_or_none()
+        ) is None
+        assert (
+            db_request.db.query(JournalEntry)
+            .filter(JournalEntry.action.like("revoke_invite%"))
+            .all()
+        ) == []
+        project_event.assert_called_once_with(
+            tag=EventTag.Project.RoleRevokeInvite,
+            request=db_request,
+            additional={
+                "submitted_by": owner_user.username,
+                "role_name": None,
+                "target_user": user.username,
+            },
         )
-        assert db_request.session.flash.calls == [
-            pretend.call("Invitation already expired.", queue="success")
-        ]
+        user_event.assert_called_once_with(
+            tag=EventTag.Account.RoleRevokeInvite,
+            request=db_request,
+            additional={
+                "submitted_by": owner_user.username,
+                "project_name": project.name,
+                "role_name": None,
+            },
+        )
+        flash.assert_called_once_with(message, queue="success")
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/manage/projects/roles"
+        assert result.headers["Location"] == "/manage/roles"
 
 
 class TestChangeProjectRole:

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import contextlib
 import datetime as dt
 import io
 
@@ -25,6 +26,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenException,
     TokenExpired,
 )
 from warehouse.accounts.models import Email, User
@@ -2203,10 +2205,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     )
     # Cover edge case where invite is invalid but task
     # has not updated invite status
-    try:
-        invite_token = token_service.loads(user_invite.token)
-    except TokenExpired, AttributeError:
-        invite_token = None
+    invite_token = None
+    if user_invite is not None:
+        with contextlib.suppress(TokenException):
+            invite_token = token_service.loads(user_invite.token)
 
     if user.primary_email is None or not user.primary_email.verified:
         request.session.flash(
@@ -2329,22 +2331,33 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
 
     request.db.delete(user_invite)
 
+    # Only a readable token holds the invited role.
+    role_name = None
     try:
-        token_data = token_service.loads(user_invite.token)
+        role_name = token_service.loads(user_invite.token).get("desired_role")
     except TokenExpired:
-        request.session.flash(request._("Invitation already expired."), queue="success")
-        return HTTPSeeOther(
-            request.route_path("manage.project.roles", project_name=project.name)
+        message = request._(
+            "Expired invitation for '${username}' deleted.",
+            mapping={"username": user.username},
         )
-    role_name = token_data.get("desired_role")
+    except TokenException:
+        message = request._(
+            "Invalid invitation for '${username}' deleted.",
+            mapping={"username": user.username},
+        )
+    else:
+        message = request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        )
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"revoke_invite {role_name} {user.username}",
+                submitted_by=request.user,
+            )
+        )
 
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action=f"revoke_invite {role_name} {user.username}",
-            submitted_by=request.user,
-        )
-    )
     project.record_event(
         tag=EventTag.Project.RoleRevokeInvite,
         request=request,
@@ -2363,13 +2376,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             "role_name": role_name,
         },
     )
-    request.session.flash(
-        request._(
-            "Invitation revoked from '${username}'.",
-            mapping={"username": user.username},
-        ),
-        queue="success",
-    )
+    request.session.flash(message, queue="success")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
