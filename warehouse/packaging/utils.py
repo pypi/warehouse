@@ -64,23 +64,29 @@ def _simple_detail(project, request):
         )
         .select_from(File)
         .join(File.release)
-        .join(Release.project)
         .where(
             Release.project == project,
             # Exclude releases that are in the `quarantine-enter` lifecycle status.
             # Use `is_distinct_from` to keep NULL (unset) statuses.
             Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
-            # Exclude projects that are in the `quarantine-enter` lifecycle status.
-            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
         )
     )
-    files = sorted(
-        request.db.execute(query),
-        key=lambda f: (packaging_legacy.version.parse(f.release__version), f.filename),
-    )
-    versions = sorted(
-        {f.release__version for f in files}, key=packaging_legacy.version.parse
-    )
+
+    # short-circuit here before querying the database for a result we will throw away
+    if project.lifecycle_status == LifecycleStatus.QuarantineEnter:
+        files = []
+        versions = []
+    else:
+        files = sorted(
+            request.db.execute(query),
+            key=lambda f: (
+                packaging_legacy.version.parse(f.release__version),
+                f.filename,
+            ),
+        )
+        versions = sorted(
+            {f.release__version for f in files}, key=packaging_legacy.version.parse
+        )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
