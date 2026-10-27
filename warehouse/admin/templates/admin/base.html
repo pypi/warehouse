@@ -1,6 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {# Template-wide variables #}
-{% set admin_root = admin_root_factory(request) %}
 {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
   {% set testPyPI = true %}
 {% elif request.registry.settings.get("warehouse.env").value == "development" %}
@@ -125,7 +124,7 @@
             </a>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminUsersRead, admin_root) %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminUsersRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
               <i class="fa fa-user nav-icon"></i> <p>Users</p>
@@ -144,7 +143,7 @@
             </a>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminProjectsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.project.list') }}" class="nav-link">
               <i class="fa fa-cubes nav-icon"></i> <p>Projects</p>
@@ -158,7 +157,7 @@
             </a>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminMalwareReportsRead, admin_root) or request.has_permission(Permissions.AdminObservationsRead, admin_root) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminMalwareReportsRead) or has_root_permission(request, Permissions.AdminObservationsRead) or has_root_permission(request, Permissions.AdminProjectsRead) %}
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
               <i class="nav-icon fa-solid fa-eye"></i>
@@ -168,7 +167,7 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
-              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminMalwareReportsRead, admin_root) %}
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminMalwareReportsRead) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-dumpster-fire"></i>
@@ -176,14 +175,14 @@
                 </a>
               </li>
               {% endif %}
-              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminProjectsRead, admin_root) %}
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminProjectsRead) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
                 </a>
               </li>
               {% endif %}
-              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminObservationsRead, admin_root) %}
+              {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminObservationsRead) %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.observers.reputation') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-chart-bar"></i>
@@ -244,7 +243,7 @@
             </ul>
           </li>
           {% endif %}
-          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or request.has_permission(Permissions.AdminEmailsRead, admin_root) %}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) or has_root_permission(request, Permissions.AdminEmailsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
               <i class="fa fa-envelope nav-icon"></i> <p>Emails</p>

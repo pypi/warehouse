@@ -257,7 +257,7 @@
                       <ul>
                       {% for organization in sole_owned_organizations %}
                         <li>
-                          {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                          {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                           <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
                             {{ organization.name }}
                           </a>
@@ -983,7 +983,7 @@
               <tr>
                 <td>Organization</td>
                 <td>
-                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                   <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
                     {{ invitation.organization.name }}
                   </a>
@@ -1013,7 +1013,7 @@
         </div>
       </div> <!-- .card -->
 
-      {% if request.has_permission(Permissions.AdminDashboardSidebarRead, admin_root) %}
+      {% if has_root_permission(request, Permissions.AdminDashboardSidebarRead) %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">API Tokens</h3>
@@ -1036,7 +1036,7 @@
               {% for token in user.macaroons %}
               <tr>
                 <td>
-                  {% if request.has_permission(Permissions.AdminMacaroonsRead, admin_root) %}
+                  {% if has_root_permission(request, Permissions.AdminMacaroonsRead) %}
                   <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=token.id) }}">
                     <code>{{ token.id }}</code>
                   </a>
@@ -1119,7 +1119,7 @@
             {% for organization in user.organization_roles %}
               <tr>
                 <td>
-                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                     <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a>
                   {% else %}
                     {{ organization.organization.name }}
@@ -1134,7 +1134,7 @@
       </div> <!-- .card -->
       {% endif %}
 
-      {% if user.organization_applications and request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+      {% if user.organization_applications and has_root_permission(request, Permissions.AdminOrganizationsRead) %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Organization Applications</h3>
@@ -1222,7 +1222,7 @@
                 <tr>
                   <td>{{ login.created }}</td>
                   <td>
-                    {% if request.has_permission(Permissions.AdminIpAddressesRead, admin_root) %}
+                    {% if has_root_permission(request, Permissions.AdminIpAddressesRead) %}
                       <a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address) }}">{{ login.ip_address }}</a>
                     {% else %}
                       {{ login.ip_address }}
@@ -1335,7 +1335,7 @@
             </tbody>
           </table>
         </div>
-        {% if request.has_permission(Permissions.AdminJournalRead, admin_root) %}
+        {% if has_root_permission(request, Permissions.AdminJournalRead) %}
         <div class="card-footer">
           <a href="{{ request.route_path('admin.journals.list', _query={"submitted_by": user.username}) }}"
              class="btn btn-primary">View all journals for username</a>

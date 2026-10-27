@@ -192,7 +192,7 @@
                   {% if limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td>
-                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                     <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a>
                   {% endif %}
                 </td>
@@ -285,7 +285,7 @@
                   {% if size_limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td>
-                  {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                     <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a>
                   {% endif %}
                 </td>
@@ -340,7 +340,7 @@
         <tbody>
           <tr>
             <td>
-              {% if request.has_permission(Permissions.AdminOrganizationsRead, admin_root) %}
+              {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
                 <a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}">{{ project.organization.display_name }}</a>
               {% else %}
                 {{ project.organization.display_name }}
