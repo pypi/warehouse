@@ -72,6 +72,7 @@
                  data-action="filter-list#filterClear"
                  data-filter-list-target="clear"
                  class="hidden attestations-viewer__filter-clear">{% trans %}Reset{% endtrans %}</a>
+              <span class="sr-only" role="status" data-filter-list-target="summary"></span>
               <div class="attestations-viewer__filter-dropdown"
                    data-controller="filter-dropdown"
                    data-action="keydown->filter-dropdown#keydown focusout->filter-dropdown#focusout">
