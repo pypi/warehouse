@@ -3,7 +3,7 @@
 Add User.is_security
 
 Revision ID: 4d1c7a6bde9f
-Revises: b3c1d8e9f4a2
+Revises: c7e2a9d41f30
 """
 
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "4d1c7a6bde9f"
-down_revision = "b3c1d8e9f4a2"
+down_revision = "c7e2a9d41f30"
 
 
 def upgrade():
