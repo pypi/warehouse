@@ -67,7 +67,10 @@ def _simple_detail(project, request):
         .join(Release.project)
         .where(
             Release.project == project,
+            # Exclude releases that are in the `quarantine-enter` lifecycle status.
+            # Use `is_distinct_from` to keep NULL (unset) statuses.
             Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
+            # Exclude projects that are in the `quarantine-enter` lifecycle status.
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
         )
     )
