@@ -18,6 +18,7 @@ from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
+    OrganizationApplicationStatus,
     OrganizationDeactivationReason,
     OrganizationFactory,
     OrganizationRoleType,
@@ -59,6 +60,14 @@ class TestOrganizationApplicationFactory:
         _organization_application = OrganizationApplicationFactory(db_request)
         with pytest.raises(KeyError):
             _organization_application["deadbeef-dead-beef-dead-beefdeadbeef"]
+
+    def test_traversal_hides_withdrawn(self, db_request):
+        organization_application = DBOrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Withdrawn
+        )
+        _organization_application = OrganizationApplicationFactory(db_request)
+        with pytest.raises(KeyError):
+            _organization_application[organization_application.id]
 
 
 class TestOrganizationApplication:
