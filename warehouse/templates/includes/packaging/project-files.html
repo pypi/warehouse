@@ -28,7 +28,9 @@
           <th scope="col">{% trans %}Size{% endtrans %}</th>
           <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
           <th scope="col">{% trans %}Provenance{% endtrans %}</th>
-          <th scope="col"></th>
+          <th scope="col">
+            <span class="sr-only">{% trans %}Actions{% endtrans %}</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -175,6 +177,7 @@
           {% endif %}
         </th>
         <th scope="col">
+          <span class="sr-only">{% trans %}Actions{% endtrans %}</span>
           <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
              data-action="filter-list#filterClear"
              data-filter-list-target="clear"
