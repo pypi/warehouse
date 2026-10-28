@@ -6,6 +6,7 @@ from warehouse.organizations.checks import (
     CheckStatus,
     _email_domain,
     _Link,
+    can_email,
     review_checks,
 )
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -292,31 +293,48 @@ class TestNameDomainMatch:
 
 
 class TestEmailVerified:
-    def test_passes_with_verified_email(self, db_request):
+    def test_passes_with_verified_primary(self, db_request):
         user = UserFactory.create()
         EmailFactory.create(user=user, email="jdoe@acme.com", verified=True)
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
+        assert can_email(user)
         assert (
             find(review_checks(application, user), "email_verified").status
             == CheckStatus.Ok
         )
 
-    def test_fails_without_any_verified_email(self, db_request):
+    def test_fails_with_unverified_primary_and_verified_secondary(self, db_request):
+        # Mail goes only to the primary, so a verified secondary doesn't help.
         user = UserFactory.create()
+        EmailFactory.create(user=user, email="jdoe@acme.com", verified=False)
         EmailFactory.create(
-            user=user, email="jdoe@acme.com", verified=False, primary=False
+            user=user, email="jdoe@gmail.com", verified=True, primary=False
         )
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
-        assert (
-            find(review_checks(application, user), "email_verified").status
-            == CheckStatus.Fail
+        assert not can_email(user)
+        check = find(review_checks(application, user), "email_verified")
+        assert check.status == CheckStatus.Fail
+        assert "jdoe@acme.com is unverified" in check.detail
+
+    def test_fails_without_primary_email(self, db_request):
+        user = UserFactory.create()
+        EmailFactory.create(
+            user=user, email="jdoe@acme.com", verified=True, primary=False
         )
+        application = OrganizationApplicationFactory.create(
+            link_url="https://acme.com", submitted_by=user
+        )
+
+        assert not can_email(user)
+        check = find(review_checks(application, user), "email_verified")
+        assert check.status == CheckStatus.Fail
+        assert "No primary email" in check.detail
 
 
 class TestGitHubAssociation:
