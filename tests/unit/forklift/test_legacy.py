@@ -609,12 +609,51 @@ class TestFileValidation:
                 "See https://docs.pypi.org/archives for more information"
             ),
         )
-        assert increment.call_args_list == [
-            mock.call(
-                "warehouse.upload.tarfile.policy_error",
-                tags=["reason:sparse-member"],
-            )
-        ]
+        metric = mock.call(
+            "warehouse.upload.tarfile.policy_error",
+            tags=["reason:sparse-member"],
+        )
+        assert metric in increment.call_args_list
+
+    def test_invalid_tar_identity(self, tmp_path, mocker):
+        tar_fn = tmp_path / "test.tar.gz"
+        metrics = NullMetrics()
+        increment = mocker.spy(metrics, "increment")
+
+        sink = io.BytesIO()
+        with tarfile.open(fileobj=sink, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+        # tarfile cannot write V7 headers, so clear the UStar magic and version.
+        raw = sink.getbuffer()
+        raw[257:265] = b"\x00" * 8
+        # The tar checksum counts its own field as eight spaces.
+        raw[148:156] = b" " * 8
+        checksum = sum(raw[: tarfile.BLOCKSIZE])
+        raw[148:156] = f"{checksum:06o}\0 ".encode("ascii")
+        tar_fn.write_bytes(gzip.compress(raw))
+
+        assert legacy._is_valid_dist_file(
+            str(tar_fn),
+            "sdist",
+            metrics,
+            scan=False,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: must be pax. "
+                "See https://docs.pypi.org/archives"
+                "#source-distributions-must-be-in-pax-format for more information"
+            ),
+        )
+        metric = mock.call(
+            "warehouse.upload.tarfile.policy_error",
+            tags=["reason:unknown-header"],
+        )
+        assert metric in increment.call_args_list
 
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
@@ -6834,7 +6873,7 @@ class TestFileUpload:
         # Create organization with generous limit
         organization = OrganizationFactory.create(
             orgtype="Company",
-            upload_limit=150 * (1024**2),  # 150 MiB
+            upload_limit=250 * (1024**2),  # 250 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6847,7 +6886,7 @@ class TestFileUpload:
         ).project
 
         # Verify our model property returns the expected value (most generous)
-        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+        assert project.upload_limit_size == 250 * (1024**2)  # Should be org limit
 
         # Upload file that's between project and org limits (120 MiB)
         filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"

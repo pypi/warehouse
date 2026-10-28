@@ -19,7 +19,7 @@
     {% set unknown_source_files = counts.total_files - counts.files_with_sources %}
     {% set ns = namespace(kinds=[]) %}
     {% for source in counts.source_counts.keys() %}
-      {% set kind = "account" if "@" in source.identity else "repo" %}
+      {% set kind = "account" if source.is_account else "repo" %}
       {% if kind not in ns.kinds %}
         {% set ns.kinds = ns.kinds + [kind] %}
       {% endif %}
@@ -43,7 +43,15 @@
             {% pluralize %}
               {{ count }} files{% endtrans %}
             </span>
-            <span class="provenance-diff__value">{{ source.kind }}: {{ source.identity }}</span>
+            <span class="provenance-diff__value">
+              {% if source.url %}
+                <a href="{{ source.url }}" target="_blank" rel="noopener">{{ source.url | replace('https://', '') }}</a>
+              {% elif source.is_account %}
+                {{ source.identity }}
+              {% else %}
+                {{ source.kind }}: {{ source.identity }}
+              {% endif %}
+            </span>
           </li>
         {% endfor %}
         {% if unknown_source_files > 0 %}
@@ -74,7 +82,13 @@
             {% pluralize %}
               {{ count }} files{% endtrans %}
             </span>
-            <span class="provenance-diff__value">{{ workflow }}</span>
+            <span class="provenance-diff__value">
+              {% if workflow.url %}
+                <a href="{{ workflow.url }}" target="_blank" rel="noopener">{{ workflow.url | replace('https://', '') }}</a>
+              {% else %}
+                {{ workflow.workflow }}
+              {% endif %}
+            </span>
           </li>
         {% endfor %}
         {% if unknown_workflow_files > 0 %}

@@ -632,9 +632,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.280 \
-    --hash=sha256:5abcaf2c82fdceee086170c71bda3fa79a4addba023a4ad61ac87e85b477c697 \
-    --hash=sha256:f798bd89a0112154d620c3e080e5af3eec89a63121a933f07eb1201ee159ca53
+disposable-email-domains==0.0.283 \
+    --hash=sha256:31bb1abb8bbf48b14597bdd4df041006fbc9b6fa8ef6c4a915e54e1a5fdfb827 \
+    --hash=sha256:de1449347a19e034d4436273c90d87ff925a703496d4a8dbf280f39f2a9078b7
     # via -r requirements/main.in
 dnspython==2.9.0 \
     --hash=sha256:9a4aedb833c3c1b49214d04d44d3032ab7a9135f7c1d29a549b4ff78fd82fda9 \
@@ -1639,9 +1639,9 @@ plaster-pastedeploy==1.0.1 \
     --hash=sha256:ad3550cc744648969ed3b810f33c9344f515ee8d8a8cec18e8f2c4a643c2181f \
     --hash=sha256:be262e6d2e41a7264875daa2fe2850cbb0615728bcdc92828fdc72736e381412
     # via pyramid
-platformdirs==4.13.3 \
-    --hash=sha256:5e567f664eb087ab8521c0179cd8d1bd60857d271136567a39719e28e2d383ce \
-    --hash=sha256:f6ad7f447f24f8a3b82cce5976387428bff894a0eca6c3488f4a17f153c130c4
+platformdirs==4.13.5 \
+    --hash=sha256:05831adf87d392760f4b5c3a0a95579ab5a10b18b9b9bd43680dcb47544788a0 \
+    --hash=sha256:53d3ec4280b815c1e0b02edad7f9ee8fda1ba9c0865dd9c2e6e63849ce82fc1e
     # via
     #   -r requirements/main.in
     #   sigstore

@@ -755,6 +755,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
                 not in (
                     OrganizationApplicationStatus.Approved,
                     OrganizationApplicationStatus.Declined,
+                    OrganizationApplicationStatus.Withdrawn,
                 )
             ]
             if len(undecided) >= self.max_applications:

@@ -11,7 +11,12 @@ import stripe
 from freezegun import freeze_time
 from pyramid_retry import RetryableException
 
-from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.accounts.interfaces import (
+    ITokenService,
+    TokenExpired,
+    TokenInvalid,
+    TokenMissing,
+)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.organizations import tasks as organization_tasks
@@ -88,6 +93,33 @@ class TestUpdateInvitationStatus:
             additional={"target_user_id": str(invite.user.id)},
         )
 
+    @pytest.mark.parametrize("exception", [TokenInvalid, TokenMissing])
+    def test_unreadable_token_skipped(
+        self,
+        db_request,
+        user_service,
+        organization_service,
+        token_service,
+        mocker,
+        exception,
+    ):
+        """
+        An unreadable token leaves the invitation pending, and the invitations
+        after it are still processed.
+        """
+        unreadable = OrganizationInvitationFactory.create(token="unreadable")
+        expired = OrganizationInvitationFactory.create(token="expired")
+
+        def loads(token):
+            raise exception if token == "unreadable" else TokenExpired
+
+        mocker.patch.object(token_service, "loads", side_effect=loads)
+
+        update_organization_invitation_status(db_request)
+
+        assert unreadable.invite_status == OrganizationInvitationStatus.Pending
+        assert expired.invite_status == OrganizationInvitationStatus.Expired
+
     def test_no_updates(
         self, db_request, user_service, organization_service, token_service, mocker
     ):
@@ -111,17 +143,24 @@ class TestUpdateInvitationStatus:
 
 
 class TestDeleteOrganizationApplications:
-    def test_delete_declined_organization_applications(self, db_request):
+    @pytest.mark.parametrize(
+        "status",
+        [
+            OrganizationApplicationStatus.Declined,
+            OrganizationApplicationStatus.Withdrawn,
+        ],
+    )
+    def test_delete_declined_organization_applications(self, db_request, status):
         # Create an organization_application that's ready for cleanup
         organization_application = OrganizationApplicationFactory.create()
         organization_application.is_active = False
-        organization_application.status = OrganizationApplicationStatus.Declined
+        organization_application.status = status
         organization_application.updated = dt.datetime.now() - dt.timedelta(days=31)
 
         # Create an organization_application that's not ready to be cleaned up yet
         organization_application2 = OrganizationApplicationFactory.create()
         organization_application2.is_active = False
-        organization_application2.status = OrganizationApplicationStatus.Declined
+        organization_application2.status = status
         organization_application2.updated = dt.datetime.now()
 
         assert (

@@ -1,6 +1,7 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/organization/manage_organization_base.html" %}
 {% set active_tab = "publishing" %}
+{% set pending_oidc_enabled = request.user.has_primary_verified_email %}
 {% block title %}
   {% trans organization_name=organization.name %}Trusted Publisher Management for '{{ organization_name }}'{% endtrans %}
 {% endblock %}
@@ -107,7 +108,8 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}"
+           {{ "disabled" if not pending_oidc_enabled else "" }}>
   </div>
 </form>
 {% endmacro %}
@@ -221,7 +223,8 @@
 <div>
   <input type="submit"
          value="{% trans %}Add{% endtrans %}"
-         class="button button--primary">
+         class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}"
+         {{ "disabled" if not pending_oidc_enabled else "" }}>
 </div>
 </form>
 {% endmacro %}
@@ -289,7 +292,8 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}"
+           {{ "disabled" if not pending_oidc_enabled else "" }}>
   </div>
 </form>
 {% endmacro %}
@@ -382,7 +386,8 @@
   <div>
     <input type="submit"
            value="{% trans %}Add{% endtrans %}"
-           class="button button--primary">
+           class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}"
+           {{ "disabled" if not pending_oidc_enabled else "" }}>
   </div>
 </form>
 {% endmacro %}
@@ -447,6 +452,13 @@
   including via their own "pending" publisher.
 {% endtrans %}
 </p>
+{% if not pending_oidc_enabled %}
+  <p class="callout-block callout-block--warning">
+    {% trans href=request.route_path('manage.account') %}
+    You must <a href="{{ href }}">verify your primary email address</a> before adding a new pending publisher.
+  {% endtrans %}
+</p>
+{% endif %}
 {% set publishers = [
   ("GitHub", github_form(request, pending_github_publisher_form, organization)),
   ("GitLab", gitlab_form(request, pending_gitlab_publisher_form, organization)),
