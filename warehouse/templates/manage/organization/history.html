@@ -75,7 +75,11 @@
     {% elif event.tag == EventTag.Organization.OrganizationRoleRevokeInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }}{% endtrans %}
+        {% if event.additional.role_name %}
+          {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }}{% endtrans %}
+        {% else %}
+          {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join the organization{% endtrans %}
+        {% endif %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleExpireInvite %}
       {% set target_user = get_user(event.additional.target_user_id).username %}

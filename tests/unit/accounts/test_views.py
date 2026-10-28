@@ -87,6 +87,7 @@ from ...common.db.accounts import (
     WebAuthnFactory,
 )
 from ...common.db.ip_addresses import IpAddressFactory
+from ...common.db.oidc import PendingGitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -3787,6 +3788,37 @@ class TestManageAccountPublishingViews:
             queue="error",
         )
         assert len(publishing_request.db.query(publisher_class).all()) == 3
+
+    def test_add_pending_oidc_publisher_ignores_organization_publishers(
+        self, publishing_request, form_lookups
+    ):
+        """Pending publishers registered for an organization count toward that
+        organization's per-user limit, not the user's personal one."""
+        PendingGitHubPublisherFactory.create_batch(
+            3,
+            added_by=publishing_request.user,
+            organization_id=OrganizationFactory.create().id,
+        )
+        publishing_request.POST = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repository",
+                "workflow_filename": "some-workflow-filename.yml",
+                "environment": "",
+                "project_name": "some-project-name",
+            }
+        )
+
+        view = views.ManageAccountPublishingViews(publishing_request)
+
+        assert isinstance(view.add_pending_github_oidc_publisher(), HTTPSeeOther)
+        assert (
+            publishing_request.db.query(PendingGitHubPublisher)
+            .filter_by(organization_id=None)
+            .one()
+            .project_name
+            == "some-project-name"
+        )
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name"),

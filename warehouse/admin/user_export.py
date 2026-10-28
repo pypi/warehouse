@@ -795,10 +795,7 @@ def _observation_fields(obs: Observation) -> dict:
         "related_name": obs.related_name,
         "related_id": str(obs.related_id) if obs.related_id else None,
         "actions": _observation_actions(obs.actions),
-        # `classify_observation` encodes malware-triage rules - a removed
-        # project reads as a confirmed report - which say nothing about an
-        # account_abuse or account_recovery observation, so the verdict is
-        # only offered for the kind it was written for.
+        # See `classify_observation`: its verdict only applies to is_malware.
         "verdict": (
             classify_observation(obs.actions, obs.related_id)
             if obs.kind == ObservationKind.IsMalware.value[0]

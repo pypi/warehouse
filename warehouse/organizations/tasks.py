@@ -16,7 +16,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse import tasks
-from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.accounts.interfaces import ITokenService, TokenException, TokenExpired
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
@@ -100,6 +100,11 @@ def update_organization_invitation_status(request):
                 },
             )
             invite.invite_status = OrganizationInvitationStatus.Expired
+        except TokenException:
+            logger.warning(
+                "Skipping organization invitation with an unreadable token",
+                invitation_id=str(invite.id),
+            )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
