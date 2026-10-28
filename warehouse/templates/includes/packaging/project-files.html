@@ -59,7 +59,7 @@
                  id="{{ file.filename }}-tab"
                  class="button button--small button--outline file-info__details-button"
                  data-project-tabs-target="tab"
-                 data-action="project-tabs#tabClick">{% trans %}Details{% endtrans %}</a>
+                 data-action="project-tabs#tabClick">{% trans %}Details{% endtrans %} <span class="sr-only">for {{ file.filename }}</span></a>
             </td>
           </tr>
         {% endfor %}
@@ -236,7 +236,7 @@
                id="{{ file.filename }}-tab"
                class="button button--small button--outline file-info__details-button"
                data-project-tabs-target="tab"
-               data-action="project-tabs#tabClick">{% trans %}Details{% endtrans %}</a>
+               data-action="project-tabs#tabClick">{% trans %}Details{% endtrans %} <span class="sr-only">{{ file.filename }}</span></a>
           </td>
         </tr>
       {% endfor %}
