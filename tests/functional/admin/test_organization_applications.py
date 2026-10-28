@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.common.db.accounts import UserFactory
+from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
@@ -31,6 +31,7 @@ APPLICATIONS = "/admin/organization_applications/"
 def test_review_actions(webtest, login_admin, mocker, role, action, status):
     reviewer = login_admin(**{role: True})
     application = OrganizationApplicationFactory.create()
+    EmailFactory.create(user=application.submitted_by)
     for email in ("approved", "declined", "moreinformationneeded"):
         mocker.patch(
             f"warehouse.organizations.services.send_new_organization_{email}_email"
@@ -57,6 +58,23 @@ def test_review_actions(webtest, login_admin, mocker, role, action, status):
         assert observation.kind == (
             "admin_note" if action == "addnote" else "information_request"
         )
+
+
+def test_unreachable_applicant_blocks_information_requests(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(link_url="https://acme.com")
+    EmailFactory.create(
+        user=application.submitted_by, email="jdoe@acme.com", verified=False
+    )
+
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+
+    banner = detail.html.select_one(".alert-danger")
+    assert "You can't reach this applicant" in banner.text
+    assert "jdoe@acme.com" in banner.text
+    request_info = detail.html.select_one('[data-target="#requestMoreInfoModal"]')
+    assert request_info.has_attr("disabled")
+    assert detail.html.select(".org-review-check-ask") == []
 
 
 def test_reviewer_edits_application(webtest, login_admin):
