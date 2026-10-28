@@ -212,6 +212,7 @@
                   data-filtered-target-file-platform='{{ wheel_filter_tags[vfile.filename]["platform"] | tojson }}'>
                 <button type="button"
                         data-action="attestations-viewer#select"
+                        aria-controls="attestations-{{ vfile.filename }}"
                         aria-pressed="{{ 'true' if vfile == selected_file else 'false' }}">
                   {% if attestation_count %}
                     <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
@@ -249,7 +250,8 @@
           {% set file_attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
           {% set filename = vfile.filename %}
           {% set href = "#" + filename %}
-          <div class="attestations-viewer__content-panel{{ '' if is_selected else ' hidden' }}"
+          <div id="attestations-{{ filename }}"
+               class="attestations-viewer__content-panel{{ '' if is_selected else ' hidden' }}"
                data-attestations-viewer-target="content"
                data-filename="{{ filename }}">
             <h3 class="no-top-margin">
