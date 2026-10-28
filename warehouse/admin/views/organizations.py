@@ -194,9 +194,10 @@ def _queue_neighbors(
     """
     The submitted applications either side of this one, oldest first.
 
-    Works whether or not this application is itself still submitted, so a decision
-    can move on to whatever followed it. The next application wraps around to the
-    oldest one; the previous one does not.
+    The order is the queue's: submitted date, then id. From the newest
+    application, next starts over at the oldest; from the oldest, previous is
+    None. Works whether or not this application is itself still submitted, so
+    turbo mode moves on to whatever followed it rather than back to the oldest.
     """
     queue = request.db.query(OrganizationApplication).filter(
         OrganizationApplication.status == OrganizationApplicationStatus.Submitted,
