@@ -67,6 +67,18 @@ to avoid smuggling other archive records within comments.
 Source distributions use the "tarball" (gzipped tar archive)
 format, and are subject to the following restrictions.
 
+### Source distributions must be in pax format
+
+The [source distribution specification](https://packaging.python.org/en/latest/specifications/source-distribution-format/)
+says that source distributions must be in pax format. That means that V7 and GNU tarballs
+are **not** valid source distributions.
+
+!!! info
+
+    PyPI currently allows GNU-style tarballs for compatibility reasons.
+    In the future, PyPI will warn users when uploading GNU-style tarballs,
+    and shortly thereafter will begin to reject them.
+
 ### Sparse members are not allowed
 
 Source distributions may not contain GNU or pax-style sparse
