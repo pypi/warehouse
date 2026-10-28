@@ -45,6 +45,7 @@ from warehouse.organizations.checks import (
     OPEN_APPLICATION_STATUSES,
     CheckStatus,
     application_domain,
+    can_email,
     review_checks,
 )
 from warehouse.organizations.interfaces import IOrganizationService
@@ -893,6 +894,7 @@ def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSe
         "conflicting_applications": conflicting_applications,
         "user": user,
         "checks": checks,
+        "applicant_reachable": can_email(user),
         "link_domain": application_domain(organization_application),
         "queue": queue,
     }
@@ -1002,6 +1004,20 @@ def organization_application_request_more_information(request: Request) -> HTTPS
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
     _require_undecided(request, organization_application)
+
+    # The email would be silently dropped, leaving the applicant waiting on it.
+    if not can_email(organization_application.submitted_by):
+        request.session.flash(
+            f'Cannot request more info for "{organization_application.name}": '
+            "the applicant has no verified primary email",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
 
     try:
         organization_service.request_more_information(
