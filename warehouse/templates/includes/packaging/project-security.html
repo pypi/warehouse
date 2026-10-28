@@ -9,8 +9,7 @@
     <div>
       <a class="button button--outline"
          href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
-         rel="nofollow"
-         role="button">{% trans %}Report project as malware{% endtrans %}</a>
+         rel="nofollow">{% trans %}Report project as malware{% endtrans %}</a>
     </div>
   </div>
   {% if release.late_file_status.late_files %}
