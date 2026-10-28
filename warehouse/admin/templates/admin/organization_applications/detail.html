@@ -114,6 +114,25 @@
   {% set is_decided = status.value in ['approved', 'declined', 'withdrawn'] %}
   {% set can_write = request.has_permission(Permissions.AdminOrganizationApplicationsWrite) %}
 
+  {% if not applicant_reachable %}
+  {% set primary_email = user.primary_email %}
+  <div class="alert alert-danger" role="alert">
+    <h2 class="alert-heading">
+      <i class="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true"></i>
+      You can't reach this applicant
+    </h2>
+    <p class="lead mb-0">
+      {% if primary_email %}
+      Their primary email, <strong>{{ primary_email.email }}</strong>, is unverified.
+      {% else %}
+      Their account has no primary email address.
+      {% endif %}
+      PyPI will not send them approval, decline, or information request emails.
+      Request Info is disabled.
+    </p>
+  </div>
+  {% endif %}
+
   <div class="row text-break org-review-layout">
     <div class="col-xl-3 col-md-4">
       <div class="org-review-rail">
@@ -176,7 +195,7 @@
                 class="btn btn-info btn-block"
                 data-toggle="modal"
                 data-hotkey-binding=82
-                data-target="#requestMoreInfoModal" {{ 'disabled' if not can_write or is_decided }}
+                data-target="#requestMoreInfoModal" {{ 'disabled' if not can_write or is_decided or not applicant_reachable }}
               >
                 <i class="icon fa fa-question"></i> Request Info <span class="org-review-key">r</span>
               </button>
@@ -266,7 +285,7 @@
                 {#- <wbr> lets an email address wrap at its "@" instead of mid-word. -#}
                 <span class="org-review-check-detail text-muted">{% for part in check.detail.split("@") %}{% if not loop.first %}<wbr>@{% endif %}{{ part }}{% endfor %}</span>
                 {% set reply_template = reply_templates.get(check.key) %}
-                {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
+                {% if reply_template and can_write and applicant_reachable and not is_decided and check.status.value in ['fail', 'warn'] %}
                 <button
                   type="button"
                   class="btn btn-xs btn-outline-info org-review-check-ask"
