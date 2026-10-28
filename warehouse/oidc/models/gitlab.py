@@ -27,6 +27,7 @@ from warehouse.organizations.models import OIDCIssuerType
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+    from warehouse.oidc.services import OIDCPublisherService
     from warehouse.organizations.models import Organization
 
 GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
@@ -129,6 +130,26 @@ def _check_environment(
     return ground_truth == signed_claim
 
 
+def _check_namespace_id(
+    ground_truth: str | None,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
+    # GitLab's API can't return the ID of a personal namespace, so a publisher
+    # records namespace_id from the first token it verifies instead of at
+    # registration. Until then there is nothing to compare against.
+    # See: https://github.com/pypi/warehouse/issues/15643
+    if ground_truth and signed_claim != ground_truth:
+        raise InvalidPublisherError(
+            "The namespace_id claim does not match the namespace ID recorded for "
+            "this publisher. If the GitLab namespace was deleted and re-created, see "
+            "https://docs.pypi.org/trusted-publishers/security-model/"
+        )
+
+    return True
+
+
 def _check_sub(
     ground_truth: str,
     signed_claim: str | None,
@@ -189,7 +210,7 @@ class GitLabPublisherMixin:
     }
 
     __unchecked_claims__ = {
-        # We are not currently verifying project_id or namespace_id to protect against
+        # We are not currently verifying project_id to protect against
         # resurrection attacks: https://github.com/pypi/warehouse/issues/15643
         "project_id",
         "namespace_id",
@@ -385,6 +406,34 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
     )
 
     id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
+    namespace_id: Mapped[str | None] = mapped_column(
+        comment="GitLab namespace ID, recorded from the first accepted token"
+    )
+
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        **GitLabPublisherMixin.__optional_verifiable_claims__,
+        "namespace_id": _check_namespace_id,
+    }
+
+    # Pending publishers leave namespace_id unchecked. A publisher records it on
+    # first use and verifies it after that, to protect against resurrection
+    # attacks: https://github.com/pypi/warehouse/issues/15643
+    __unchecked_claims__ = GitLabPublisherMixin.__unchecked_claims__ - {"namespace_id"}
+
+    def verify_claims(
+        self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
+    ) -> bool:
+        super().verify_claims(signed_claims, publisher_service)
+        if not self.namespace_id:
+            self.namespace_id = signed_claims.get("namespace_id") or None
+        return True
+
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        details = super().admin_details
+        if self.namespace_id:
+            details.append(("Namespace ID", self.namespace_id))
+        return details
 
     def verify_url(self, url: str) -> bool:
         """
