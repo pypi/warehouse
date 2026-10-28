@@ -181,6 +181,18 @@ def test_other_roles_cannot_review(webtest, login_admin, role):
     assert application.observations == []
 
 
+def test_withdrawn_application_is_read_only(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(
+        status=OrganizationApplicationStatus.Withdrawn
+    )
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+    for target in ("approve", "requestMoreInfo", "decline", "defer", "edit"):
+        assert detail.html.select_one(f'[data-target="#{target}Modal"]').has_attr(
+            "disabled"
+        )
+
+
 @pytest.mark.parametrize("has_next", [False, True])
 def test_reviewer_turbo_stays_in_applications(webtest, login_admin, has_next):
     login_admin(is_org_application_reviewer=True)
