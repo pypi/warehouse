@@ -74,6 +74,8 @@ class Session(dict):
     _csrf_token_key = "_csrf_token"  # noqa: S105
     _flash_key = "_flash_messages"
     _totp_secret_key = "_totp_secret"  # noqa: S105
+    _totp_secret_timestamp_key = "_totp_secret_timestamp"  # noqa: S105
+    _totp_secret_max_age = 15 * 60  # 15 minutes
     _webauthn_challenge_key = "_webauthn_challenge"
     _reauth_timestamp_key = "_reauth_timestamp"
     _password_timestamp_key = "_password_timestamp"  # noqa: S105
@@ -194,16 +196,27 @@ class Session(dict):
         return token
 
     def get_totp_secret(self):
-        totp_secret = self.get(self._totp_secret_key)
-        if totp_secret is None:
-            totp_secret = self[self._totp_secret_key] = otp.generate_totp_secret()
-        return totp_secret
+        """
+        Returns the TOTP secret being provisioned, generating a new one if there
+        isn't one or it has expired. Reusing it across page loads keeps a QR
+        code the user already scanned valid, and each use extends its expiry.
+        """
+        if self.totp_secret_status() != "present":
+            self[self._totp_secret_key] = otp.generate_totp_secret()
+        self[self._totp_secret_timestamp_key] = int(time.time())
+        return self[self._totp_secret_key]
 
-    def has_totp_secret(self):
-        return self.get(self._totp_secret_key) is not None
+    def totp_secret_status(self):
+        if self.get(self._totp_secret_key) is None:
+            return "missing"
+        created = self.get(self._totp_secret_timestamp_key, 0)
+        if time.time() - created >= self._totp_secret_max_age:
+            return "expired"
+        return "present"
 
     def clear_totp_secret(self):
         self[self._totp_secret_key] = None
+        self.pop(self._totp_secret_timestamp_key, None)
 
     def get_webauthn_challenge(self):
         webauthn_challenge = self.get(self._webauthn_challenge_key)

@@ -1430,7 +1430,6 @@ class TestProvisionTOTP:
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
                 get_totp_secret=lambda: b"secret",
-                clear_totp_secret=pretend.call_recorder(lambda: None),
             ),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
@@ -1461,7 +1460,6 @@ class TestProvisionTOTP:
         result = view.totp_provision()
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
-        assert request.session.clear_totp_secret.calls == [pretend.call()]
         assert result == {
             "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
@@ -1519,8 +1517,8 @@ class TestProvisionTOTP:
             POST={"totp_value": "123456"},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
-                has_totp_secret=lambda: True,
-                get_totp_secret=lambda: b"secret",
+                totp_secret_status=lambda: "present",
+                get_totp_secret=pretend.call_recorder(lambda: b"secret"),
                 clear_totp_secret=lambda: None,
             ),
             metrics=pretend.stub(
@@ -1557,6 +1555,8 @@ class TestProvisionTOTP:
         assert user_service.update_user.calls == [
             pretend.call(request.user.id, totp_secret=b"secret")
         ]
+        # A second read could regenerate an expired secret and save the wrong one
+        assert request.session.get_totp_secret.calls == [pretend.call()]
         assert request.session.flash.calls == [
             pretend.call(
                 "Authentication application successfully set up", queue="success"
@@ -1599,24 +1599,20 @@ class TestProvisionTOTP:
             (None, "malformed"),
         ],
     )
-    @pytest.mark.parametrize(
-        ("has_totp_secret", "expected_session_secret"),
-        [(True, "present"), (False, "missing")],
-    )
+    @pytest.mark.parametrize("session_secret", ["present", "missing", "expired"])
     def test_validate_totp_provision_invalid_form(
         self,
         monkeypatch,
         totp_failure,
         expected_result,
-        has_totp_secret,
-        expected_session_secret,
+        session_secret,
     ):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
             POST={},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
-                has_totp_secret=lambda: has_totp_secret,
+                totp_secret_status=lambda: session_secret,
                 get_totp_secret=lambda: b"secret",
             ),
             metrics=pretend.stub(
@@ -1632,11 +1628,12 @@ class TestProvisionTOTP:
                 has_primary_verified_email=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+            _=lambda msg: msg,
         )
 
         provision_totp_obj = pretend.stub(
             validate=lambda: False,
-            totp_value=pretend.stub(data="123456"),
+            totp_value=pretend.stub(data="123456", errors=["Invalid TOTP code."]),
             totp_failure=totp_failure,
         )
         provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
@@ -1658,10 +1655,20 @@ class TestProvisionTOTP:
                 "warehouse.manage.account.totp_provision",
                 tags=[
                     f"result:{expected_result}",
-                    f"session_secret:{expected_session_secret}",
+                    f"session_secret:{session_secret}",
                 ],
             )
         ]
+        assert provision_totp_obj.totp_value.errors == (
+            ["Invalid TOTP code."]
+            if session_secret == "present"
+            else [
+                (
+                    "Your setup code is no longer valid. "
+                    "Scan the new QR code and enter the code it generates."
+                )
+            ]
+        )
         assert result == {
             "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
