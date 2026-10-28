@@ -102,7 +102,7 @@ def tojson(value):
 
 
 def urlparse(value):
-    return parse_url(value.strip())
+    return parse_url(value)
 
 
 def format_tags(tags):
