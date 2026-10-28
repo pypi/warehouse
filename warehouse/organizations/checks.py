@@ -242,12 +242,26 @@ def _name_domain_check(
     )
 
 
-def _email_verified_check(user: User) -> Check:
-    check = functools.partial(Check, "email_verified", "Applicant has a verified email")
+def can_email(user: User) -> bool:
+    """Whether `_send_email_to_user` will deliver to this user's primary address."""
+    primary = user.primary_email
+    return primary is not None and primary.verified
 
-    if any(email.verified for email in user.emails):
-        return check(CheckStatus.Ok, "Verified address on file.")
-    return check(CheckStatus.Fail, "No verified email address on this account.")
+
+def _email_verified_check(user: User) -> Check:
+    check = functools.partial(
+        Check, "email_verified", "Applicant's primary email is verified"
+    )
+
+    primary = user.primary_email
+    if primary is None:
+        return check(CheckStatus.Fail, "No primary email address on this account.")
+    if not primary.verified:
+        return check(
+            CheckStatus.Fail,
+            f"{primary.email} is unverified. No email will reach the applicant.",
+        )
+    return check(CheckStatus.Ok, f"{primary.email} is verified.")
 
 
 def _github_association_check(link: _Link, user: User) -> Check | None:
