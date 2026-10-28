@@ -96,12 +96,12 @@
             </div>
           {% endif %}
           <div class="release__card-body">
-            <p class="release__version">
+            <h3 class="release__version">
               <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">{{ hversion.version }}</a>
               {% if is_current %}
                 <span class="badge">{% trans %}This release{% endtrans %}</span>
               {% endif %}
-            </p>
+            </h3>
             <p class="release__meta">
               <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
               {% if provenance_status %}

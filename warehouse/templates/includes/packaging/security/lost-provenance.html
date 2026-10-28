@@ -1,10 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% set comparison = release.provenance_status.comparison %}
 <div class="callout-block callout-block--warning">
-  <h3 class="callout-block__heading">
+  <h4 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
     {% trans %}Loss of provenance{% endtrans %}
-  </h3>
+  </h4>
   <p>{% trans %}A previous release of these files had provenance metadata, but this release does not.{% endtrans %}</p>
   <p>{% trans %}While this could reflect a routine change by the project maintainers, it may also indicate that the release files have been compromised.{% endtrans %}</p>
   {% if comparison %}

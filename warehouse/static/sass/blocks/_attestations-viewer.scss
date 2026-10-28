@@ -135,13 +135,6 @@
   &__file-item {
     border-bottom: 1px solid colors.$border-color;
 
-    // The button's own focus/active outline (below) is inset within its box,
-    // but the item's border-bottom sits outside that box, right at the very
-    // edge. Showing both at once looks like a double border, so hide the
-    // item's border whenever its button has focus.
-    &:focus-within {
-      border-bottom-color: transparent;
-    }
 
     &--is-selected {
       background-color: color.mix(colors.$white, colors.$primary-color-light, 90%);
@@ -161,8 +154,14 @@
       text-align: left;
       cursor: pointer;
 
+      // Override the global button outline, which the scrolling file list clips
       &:focus,
       &:active {
+        outline: none;
+      }
+
+      // Inset, as the scrolling file list would clip an outline drawn outside the button
+      &:focus-visible {
         outline: 1px solid colors.$primary-color;
         outline-offset: -1px;
       }
