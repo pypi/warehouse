@@ -665,11 +665,6 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        # Clear the TOTP secret in the current session (if it exists) so this
-        # page will generate a new TOTP secret rather than using the existing
-        # secret to render the QR code.
-        self.request.session.clear_totp_secret()
-
         return self.default_response
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
@@ -685,27 +680,31 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        # Record whether the secret rendered by the GET survived in the session;
-        # if not, `get_totp_secret` generates a fresh one the code can't match.
-        session_secret = (
-            "present" if self.request.session.has_totp_secret() else "missing"
-        )
-        form = ProvisionTOTPForm(
-            self.request.POST,
-            totp_secret=self.request.session.get_totp_secret(),
-        )
+        # Record whether the secret rendered by the GET is still usable; if not,
+        # `get_totp_secret` generates a fresh one the code can't match.
+        provision_status = self.request.session.totp_secret_status()
+        totp_secret = self.request.session.get_totp_secret()
+        form = ProvisionTOTPForm(self.request.POST, totp_secret=totp_secret)
         valid = form.validate()
         result = "success" if valid else form.totp_failure or "malformed"
         self.request.metrics.increment(
             "warehouse.manage.account.totp_provision",
-            tags=[f"result:{result}", f"session_secret:{session_secret}"],
+            tags=[f"result:{result}", f"session_secret:{provision_status}"],
         )
+
+        if not valid and provision_status != "present":
+            # The QR code the user scanned no longer matches; the re-rendered
+            # page shows a new one.
+            form.totp_value.errors = [
+                self.request._(
+                    "Your setup code is no longer valid. "
+                    "Scan the new QR code and enter the code it generates."
+                )
+            ]
 
         if valid:
             old_totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-            self.user_service.update_user(
-                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
-            )
+            self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
             self.request.session.clear_totp_secret()
             if old_totp_secret:
                 self.request.user.record_event(

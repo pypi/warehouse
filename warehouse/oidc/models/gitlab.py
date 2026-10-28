@@ -218,6 +218,13 @@ class GitLabPublisherMixin:
         "job_project_id",
         "job_project_path",
         "job_source",
+        # In a merge request pipeline these name the MR's source project, which
+        # project_path already names. Otherwise they match the job_project_*
+        # claims.
+        "source_namespace_id",
+        "source_namespace_path",
+        "source_project_id",
+        "source_project_path",
     }
 
     # Get the most specific publisher from a list of publishers,
