@@ -283,6 +283,10 @@ class TestGitLabPublisher:
             "job_project_id",
             "job_project_path",
             "job_source",
+            "source_namespace_id",
+            "source_namespace_path",
+            "source_project_id",
+            "source_project_path",
         }
 
     def test_gitlab_publisher_computed_properties(self):
@@ -524,6 +528,20 @@ class TestGitLabPublisher:
                 "somesha",
                 True,
                 None,
+            ),
+            # bad: a fork's merge request pipeline run in the parent project,
+            # where GitLab builds the claim from the parent's path
+            (
+                "gitlab.com/upstream/bar//workflows/baz.yml@refs/heads/main",
+                "refs/heads/main",
+                "somesha",
+                False,
+                (
+                    "The ci_config_ref_uri claim does not match, expecting one of "
+                    "['gitlab.com/foo/bar//workflows/baz.yml@refs/heads/main', "
+                    "'gitlab.com/foo/bar//workflows/baz.yml@somesha'], "
+                    "got 'gitlab.com/upstream/bar//workflows/baz.yml@refs/heads/main'"
+                ),
             ),
             # bad: either ref_path or sha empty
             (
