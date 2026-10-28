@@ -95,6 +95,10 @@ const TABLE_OPTIONS = {
   layout: ["layout", String],
   height: ["height", String],
   responsivelayout: ["responsiveLayout", String],
+  responsivelayoutcollapsestartopen: [
+    "responsiveLayoutCollapseStartOpen",
+    (v) => v !== "false",
+  ],
   placeholder: ["placeholder", String],
   groupby: ["groupBy", String],
   pagination: ["pagination", (v) => v !== "false"],

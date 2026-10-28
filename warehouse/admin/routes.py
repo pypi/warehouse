@@ -128,6 +128,14 @@ def includeme(config):
         "/admin/organization_applications/{organization_application_id}/addnote/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization_application.requestmoreinfo.preview",
+        (
+            "/admin/organization_applications/{organization_application_id}"
+            "/requestmoreinfo/preview/"
+        ),
+        domain=warehouse,
+    )
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)

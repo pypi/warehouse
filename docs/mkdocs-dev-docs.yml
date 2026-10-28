@@ -35,8 +35,8 @@ markdown_extensions:
       permalink: true
       toc_depth: 3
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
   - pymdownx.magiclink:
       repo_url_shorthand: true
       normalize_issue_symbols: true
@@ -45,6 +45,7 @@ markdown_extensions:
       repo: warehouse
 theme:
   name: material
+  variant: classic
   logo: assets/logo.png
   favicon: assets/favicon.ico
   custom_dir: theme

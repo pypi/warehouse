@@ -480,6 +480,10 @@ class OrganizationNameMixin:
     )
 
     organization_id = None
+    outstanding_application_message = _(
+        "You have already submitted an application for that name. "
+        "Choose a different organization account name."
+    )
 
     def validate_name(self, field):
         # Find organization by name.
@@ -505,10 +509,7 @@ class OrganizationNameMixin:
         # Name is valid if the user has no outstanding applications for the same name
         if len(outstanding_applications) > 0:
             raise wtforms.validators.ValidationError(
-                _(
-                    "You have already submitted an application for that name. "
-                    "Choose a different organization account name."
-                )
+                self.outstanding_application_message
             )
 
 

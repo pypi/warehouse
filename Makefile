@@ -125,7 +125,7 @@ user-docs-serve: .state/docker-build-docs ## Serve user documentation
 	docker compose up user-docs
 
 blog: .state/docker-build-docs ## Build the blog
-	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
+	docker compose run --rm blog zensical build -f docs/mkdocs-blog.yml
 
 blog-serve: .state/docker-build-docs ## Serve the blog
 	docker compose up blog

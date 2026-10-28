@@ -1,17 +1,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import datetime as dt
+import inspect
 import shlex
+
+from collections.abc import Sequence
+from typing import Any
+from uuid import UUID
 
 import wtforms
 
+from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.request import Request
 from pyramid.view import view_config
-from sqlalchemy import desc, func, or_
+from sqlalchemy import desc, func, or_, tuple_
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
+from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
@@ -29,8 +37,17 @@ from warehouse.constants import (
     PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.email import send_new_organization_moreinformationneeded_email
+from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
+from warehouse.organizations.checks import (
+    OPEN_APPLICATION_STATUSES,
+    CheckStatus,
+    application_domain,
+    can_email,
+    review_checks,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OIDCIssuerType,
@@ -43,7 +60,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Project, Release, Role
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import (
     ACTIVE_SUBSCRIPTION_STATUSES,
@@ -171,12 +188,40 @@ class ManualActivationForm(wtforms.Form):
             raise wtforms.ValidationError("Expiration date must be in the future")
 
 
-def _turbo_mode(request):
-    next_organization_application = (
-        request.db.query(OrganizationApplication)
-        .filter(OrganizationApplication.status == "submitted")
-        .order_by(OrganizationApplication.submitted)
-        .first()
+def _queue_neighbors(
+    request: Request, organization_application: OrganizationApplication
+) -> tuple[OrganizationApplication | None, OrganizationApplication | None]:
+    """
+    The submitted applications either side of this one, oldest first.
+
+    The order is the queue's: submitted date, then id. From the newest
+    application, next starts over at the oldest; from the oldest, previous is
+    None. Works whether or not this application is itself still submitted, so
+    turbo mode moves on to whatever followed it rather than back to the oldest.
+    """
+    queue = request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status == OrganizationApplicationStatus.Submitted,
+        OrganizationApplication.id != organization_application.id,
+    )
+    key = tuple_(OrganizationApplication.submitted, OrganizationApplication.id)
+    here = tuple_(organization_application.submitted, organization_application.id)
+    oldest_first = (OrganizationApplication.submitted, OrganizationApplication.id)
+
+    previous = (
+        queue.filter(key < here).order_by(*(desc(c) for c in oldest_first)).first()
+    )
+    following = (
+        queue.filter(key > here).order_by(*oldest_first).first()
+        or queue.order_by(*oldest_first).first()
+    )
+    return previous, following
+
+
+def _turbo_mode(
+    request: Request, organization_application: OrganizationApplication
+) -> HTTPSeeOther:
+    _, next_organization_application = _queue_neighbors(
+        request, organization_application
     )
     if next_organization_application:
         return HTTPSeeOther(
@@ -196,17 +241,22 @@ def _turbo_mode(request):
     return HTTPSeeOther(request.route_path(route))
 
 
-def _withdrawn(request, organization_application):
-    request.session.flash(
-        f'Request for "{organization_application.name}" organization was withdrawn',
-        queue="error",
-    )
-    return HTTPSeeOther(
-        request.route_path(
-            "admin.organization_application.detail",
-            organization_application_id=organization_application.id,
+def _require_undecided(
+    request: Request, organization_application: OrganizationApplication
+) -> None:
+    """Redirect back if the application was already approved or declined."""
+    if organization_application.status not in OPEN_APPLICATION_STATUSES:
+        request.session.flash(
+            f'"{organization_application.name}" is already '
+            f"{organization_application.status.value}",
+            queue="error",
         )
-    )
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
 
 
 @view_config(
@@ -544,13 +594,71 @@ def cancel_organization_subscription(request):
     )
 
 
+def _check_summaries(
+    request: Request, applications: Sequence[OrganizationApplication]
+) -> dict[UUID, dict[CheckStatus, list[str]]]:
+    open_ids = [
+        application.id
+        for application in applications
+        if application.status in OPEN_APPLICATION_STATUSES
+    ]
+    if not open_ids:
+        return {}
+
+    open_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(OrganizationApplication.id.in_(open_ids))
+        .options(
+            selectinload(OrganizationApplication.submitted_by).options(
+                selectinload(User.emails),
+                selectinload(User.account_associations),
+            )
+        )
+        .all()
+    )
+
+    applicant_ids = {application.submitted_by_id for application in open_applications}
+    project_counts = dict(
+        request.db.query(Role.user_id, func.count())
+        .filter(Role.user_id.in_(applicant_ids))
+        .group_by(Role.user_id)
+    )
+
+    rivals = collections.defaultdict(list)
+    for rival in request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status.in_(OPEN_APPLICATION_STATUSES),
+        OrganizationApplication.normalized_name.in_(
+            {application.normalized_name for application in open_applications}
+        ),
+    ):
+        rivals[rival.normalized_name].append(rival)
+
+    summaries = {}
+    for application in open_applications:
+        checks = review_checks(
+            application,
+            application.submitted_by,
+            [
+                rival
+                for rival in rivals[application.normalized_name]
+                if rival.id != application.id
+            ],
+            project_count=project_counts.get(application.submitted_by_id, 0),
+        )
+        summaries[application.id] = {
+            status: [check.label for check in checks if check.status == status]
+            for status in (CheckStatus.Fail, CheckStatus.Warn)
+        }
+    return summaries
+
+
 @view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationApplicationsRead,
     uses_session=True,
 )
-def organization_applications_list(request):
+def organization_applications_list(request: Request) -> dict[str, Any]:
     q = request.params.get("q", "")
     terms = shlex.split(q)
 
@@ -640,18 +748,41 @@ def organization_applications_list(request):
         joinedload(OrganizationApplication.observations)
     )
 
+    organization_applications = organization_applications_query.all()
     return {
-        "organization_applications": organization_applications_query.all(),
+        "organization_applications": organization_applications,
+        "check_summaries": _check_summaries(request, organization_applications),
         "query": q,
         "terms": terms,
     }
 
 
 class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
-    def __init__(self, *args, organization_service, user, **kwargs):
-        super().__init__(*args, **kwargs)
+    outstanding_application_message = (
+        "The applicant already has an open application for that name."
+    )
+
+    def __init__(
+        self,
+        formdata: MultiDict | None,
+        organization_application: OrganizationApplication,
+        *,
+        organization_service: IOrganizationService,
+    ) -> None:
+        super().__init__(formdata, organization_application)
         self.organization_service = organization_service
-        self.user = user
+        # Name conflicts are the applicant's, not the reviewer's.
+        self.user = organization_application.submitted_by
+        self.current_normalized_name = organization_application.normalized_name
+
+    def validate_name(self, field: wtforms.Field) -> None:
+        """Check the applicant's other open applications only on a rename."""
+        if canonicalize_name(field.data) != self.current_normalized_name:
+            super().validate_name(field)
+        elif self.organization_service.find_organizationid(field.data) is not None:
+            raise wtforms.validators.ValidationError(
+                "An organization already has that name."
+            )
 
 
 @view_config(
@@ -674,7 +805,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_detail(request):
+def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
@@ -689,7 +820,6 @@ def organization_application_detail(request):
         request.POST if request.method == "POST" else None,
         organization_application,
         organization_service=organization_service,
-        user=request.user,
     )
 
     if request.method == "POST" and form.validate():
@@ -735,11 +865,39 @@ def organization_application_detail(request):
 
     user = user_service.get_user(organization_application.submitted_by_id)
 
+    checks = review_checks(organization_application, user, conflicting_applications)
+
+    submitted = request.db.query(OrganizationApplication).filter(
+        OrganizationApplication.status == OrganizationApplicationStatus.Submitted
+    )
+    queue_key = tuple_(OrganizationApplication.submitted, OrganizationApplication.id)
+    here = tuple_(organization_application.submitted, organization_application.id)
+    previous, following = _queue_neighbors(request, organization_application)
+    queue = {
+        "total": submitted.count(),
+        "position": (
+            submitted.filter(queue_key < here).count() + 1
+            if organization_application.status
+            == OrganizationApplicationStatus.Submitted
+            else None
+        ),
+        "previous": previous,
+        "next": following,
+    }
+    # The page prerenders its queue neighbours so `j`/`k` land instantly.
+    request.find_service(name="csp").merge(
+        {"script-src": ["'inline-speculation-rules'"]}
+    )
+
     return {
         "organization_application": organization_application,
         "form": form,
         "conflicting_applications": conflicting_applications,
         "user": user,
+        "checks": checks,
+        "applicant_reachable": can_email(user),
+        "link_domain": application_domain(organization_application),
+        "queue": queue,
     }
 
 
@@ -751,7 +909,7 @@ def organization_application_detail(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_approve(request):
+def organization_application_approve(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -761,8 +919,7 @@ def organization_application_approve(request):
     if organization_application is None:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
-    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
-        return _withdrawn(request, organization_application)
+    _require_undecided(request, organization_application)
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -773,7 +930,7 @@ def organization_application_approve(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     if request.has_permission(Permissions.AdminOrganizationsRead):
         return HTTPSeeOther(
@@ -797,7 +954,7 @@ def organization_application_approve(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_defer(request):
+def organization_application_defer(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -807,8 +964,7 @@ def organization_application_defer(request):
     if organization_application is None:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
-    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
-        return _withdrawn(request, organization_application)
+    _require_undecided(request, organization_application)
 
     organization_service.defer_organization_application(
         organization_application.id, request
@@ -820,7 +976,7 @@ def organization_application_defer(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     return HTTPSeeOther(
         request.route_path(
@@ -838,7 +994,7 @@ def organization_application_defer(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_request_more_information(request):
+def organization_application_request_more_information(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -848,8 +1004,21 @@ def organization_application_request_more_information(request):
     if organization_application is None:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
-    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
-        return _withdrawn(request, organization_application)
+    _require_undecided(request, organization_application)
+
+    # The email would be silently dropped, leaving the applicant waiting on it.
+    if not can_email(organization_application.submitted_by):
+        request.session.flash(
+            f'Cannot request more info for "{organization_application.name}": '
+            "the applicant has no verified primary email",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
 
     try:
         organization_service.request_more_information(
@@ -864,7 +1033,7 @@ def organization_application_request_more_information(request):
         )
 
         if request.params.get("organization_applications_turbo_mode") == "true":
-            return _turbo_mode(request)
+            return _turbo_mode(request, organization_application)
     except ValueError:
         request.session.flash("No message provided", queue="error")
 
@@ -877,6 +1046,46 @@ def organization_application_request_more_information(request):
 
 
 @view_config(
+    route_name="admin.organization_application.requestmoreinfo.preview",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationApplicationsWrite,
+    renderer="json",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_request_more_information_preview(
+    request: Request,
+) -> dict[str, str]:
+    """
+    The email an information request would send, without sending it.
+
+    Renders through the real email function's context and templates, so the
+    preview cannot drift from what the applicant receives.
+    """
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    context = inspect.unwrap(send_new_organization_moreinformationneeded_email)(
+        request,
+        organization_application.submitted_by,
+        organization_name=organization_application.name,
+        organization_application_id=organization_application.id,
+        message=request.params.get("message", ""),
+    )
+    message = EmailMessage.from_template(
+        "new-organization-moreinformationneeded", context, request=request
+    )
+    return {"subject": message.subject, "body": message.body_text}
+
+
+@view_config(
     route_name="admin.organization_application.decline",
     require_methods=["POST"],
     permission=Permissions.AdminOrganizationApplicationsWrite,
@@ -884,7 +1093,7 @@ def organization_application_request_more_information(request):
     uses_session=True,
     require_csrf=True,
 )
-def organization_application_decline(request):
+def organization_application_decline(request: Request) -> HTTPSeeOther:
     organization_service = request.find_service(IOrganizationService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
@@ -894,8 +1103,7 @@ def organization_application_decline(request):
     if organization_application is None:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
-    if organization_application.status == OrganizationApplicationStatus.Withdrawn:
-        return _withdrawn(request, organization_application)
+    _require_undecided(request, organization_application)
 
     organization_service.decline_organization_application(
         organization_application.id, request
@@ -907,7 +1115,7 @@ def organization_application_decline(request):
     )
 
     if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        return _turbo_mode(request, organization_application)
 
     return HTTPSeeOther(
         request.route_path(
