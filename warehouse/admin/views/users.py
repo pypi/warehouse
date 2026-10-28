@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import datetime as dt
-import shlex
 import typing
 
 from collections import defaultdict
@@ -14,7 +13,6 @@ import wtforms
 import wtforms.fields
 import wtforms.validators
 
-from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import Text, cast, func, or_, select, update
@@ -38,7 +36,14 @@ from warehouse.accounts.utils import (
 )
 from warehouse.admin.forms import SetProjectCreateRateLimitForm
 from warehouse.admin.user_export import export_user
+from warehouse.admin.views.helpers import (
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    execute_bounded,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
+from warehouse.cache.http import add_vary
 from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -62,54 +67,167 @@ from warehouse.packaging.models import (
     is_repository_root,
 )
 from warehouse.utils import now
-from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.gravatar import gravatar
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
 if typing.TYPE_CHECKING:
+    from typing import Any
+
     from pyramid.request import Request
+    from sqlalchemy import Select
+    from sqlalchemy.sql import ColumnElement
+
+    from warehouse.admin.views.helpers import TabulatorParams
+
+# The users list is a Tabulator table fed by a JSON endpoint speaking
+# Tabulator's remote pagination/sort/filter protocol, mirroring
+# warehouse.admin.views.journals.
+
+# Username is the only column with an index to sort on.
+_SORTABLE_FIELDS = frozenset({"username"})
+
+_BOOLEAN_VALUES = {"true": True, "false": False}
+
+# The flags shown in the "PyPI Roles" column, in display order.
+_PYPI_ROLES = (
+    ("is_superuser", "Admin"),
+    ("is_moderator", "Moderator"),
+    ("is_org_application_reviewer", "Org Application Reviewer"),
+    ("is_psf_staff", "PSF Staff"),
+    ("is_observer", "Observer"),
+    ("is_support", "Support"),
+)
+
+
+def _boolean_filter(column):
+    def build(value: str) -> ColumnElement[bool]:
+        if value not in _BOOLEAN_VALUES:
+            raise HTTPBadRequest(f"'{column.key}' filter must be 'true' or 'false'.")
+        return column.is_(_BOOLEAN_VALUES[value])
+
+    return build
+
+
+def _role_filter(value: str) -> ColumnElement[bool]:
+    if value != "any":
+        raise HTTPBadRequest("'role' filter must be 'any'.")
+    return or_(*(getattr(User, flag) for flag, _ in _PYPI_ROLES))
+
+
+# The username cast keeps ILIKE on the text operator that
+# idx_users_username_trgm serves; a bare CITEXT ILIKE cannot use it.
+# Emails have no such index: a contains match scans user_emails, which the
+# statement timeout bounds.
+_FILTER_BUILDERS = {
+    "username": lambda v: cast(User.username, Text).icontains(v, autoescape=True),
+    "email": lambda v: User.emails.any(Email.email.icontains(v, autoescape=True)),
+    "is_active": _boolean_filter(User.is_active),
+    "is_frozen": _boolean_filter(User.is_frozen),
+    "role": _role_filter,
+}
+
+
+def _build_users_query(params: TabulatorParams) -> Select[*tuple[Any, ...]]:
+    """Build the page SELECT, fetching one extra row to detect a next page."""
+    conditions = [
+        _FILTER_BUILDERS[field](value) for field, value in params.filters.items()
+    ]
+
+    order_by: list[ColumnElement[Any]] = [
+        User.username.desc() if params.sort_dir == "desc" else User.username.asc()
+    ]
+    if "username" in params.filters:
+        # Alphabetical order puts names that merely contain the search ahead
+        # of the name that equals it, so an exact match is pulled to the top.
+        order_by.insert(0, (User.username == params.filters["username"]).desc())
+
+    return (
+        select(
+            User.username,
+            User.name,
+            User.email.label("email"),
+            User.is_active,
+            User.is_frozen,
+            User.date_joined,
+            *(getattr(User, flag) for flag, _ in _PYPI_ROLES),
+            (User.totp_secret.isnot(None) | User.webauthn.any()).label(
+                "has_two_factor"
+            ),
+        )
+        .where(*conditions)
+        .order_by(*order_by)
+        .limit(params.size + 1)
+        .offset(params.offset)
+    )
+
+
+def _render_tabulator_payload(request: Request) -> dict[str, Any]:
+    """Execute the page query and shape Tabulator's expected response."""
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="username",
+        default_sort_dir="asc",
+        filter_fields=_FILTER_BUILDERS,
+    )
+    rows = execute_bounded(
+        request, _build_users_query(params), timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS
+    )
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=[User.__tablename__]
+    )
+
+    data = [
+        {
+            "username": row.username,
+            "name": row.name,
+            "email": row.email,
+            "avatar_url": gravatar(request, row.email, size=20),
+            "roles": ", ".join(
+                label for flag, label in _PYPI_ROLES if getattr(row, flag)
+            ),
+            "is_active": row.is_active,
+            "has_two_factor": row.has_two_factor,
+            "is_frozen": row.is_frozen,
+            "date_joined": row.date_joined.isoformat() if row.date_joined else None,
+            "detail_link": request.route_path(
+                "admin.user.detail", username=row.username
+            ),
+        }
+        for row in page_rows
+    ]
+
+    return {**pagination, "data": data}
 
 
 @view_config(
     route_name="admin.user.list",
     renderer="warehouse.admin:templates/admin/users/list.html",
+    accept="text/html",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminUsersRead,
+    request_method="GET",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
 )
-def user_list(request):
-    q = request.params.get("q")
+def user_list(request: Request) -> dict[str, Any]:
+    return {}
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
 
-    users_query = request.db.query(User).order_by(User.username)
-
-    if q:
-        terms = shlex.split(q)
-
-        filters = []
-        for term in terms:
-            if ":" in term:
-                field, value = term.split(":", 1)
-                if field.lower() == "email":
-                    filters.append(User.emails.any(Email.email.ilike(value)))
-                elif field.lower() == "id":
-                    filters.append(User.id == value)
-            else:
-                filters.append(cast(User.username, Text).ilike(term))
-
-        filters = filters or [True]
-        users_query = users_query.filter(or_(False, *filters))
-
-    users = SQLAlchemyORMPage(
-        users_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-
-    return {"users": users, "query": q}
+@view_config(
+    route_name="admin.user.list",
+    renderer="json",
+    accept="application/json",
+    decorator=[add_vary("Accept")],
+    permission=Permissions.AdminUsersRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def user_list_json(request: Request) -> dict[str, Any]:
+    return _render_tabulator_payload(request)
 
 
 class EmailForm(wtforms.Form):

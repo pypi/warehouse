@@ -38,6 +38,8 @@ from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql import ColumnElement
+
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
     from warehouse.organizations.models import (
@@ -237,12 +239,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         return None
 
     @hybrid_property
-    def email(self):
+    def email(self) -> str | None:
         primary_email = self.primary_email
         return primary_email.email if primary_email else None
 
-    @email.expression  # type: ignore[no-redef]
-    def email(cls):
+    @email.inplace.expression
+    @classmethod
+    def _email_expression(cls) -> ColumnElement[str | None]:
         return (
             select(Email.email)
             .where((Email.user_id == cls.id) & (Email.primary.is_(True)))
