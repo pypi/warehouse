@@ -14,7 +14,7 @@ if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
   fi
   pip install -r requirements/docs-dev.txt
   asdf reshim
-  mkdocs build -f docs/mkdocs-dev-docs.yml
+  zensical build -f docs/mkdocs-dev-docs.yml
   mkdir _readthedocs && mv docs/dev-site _readthedocs/html
 fi
 
@@ -25,7 +25,7 @@ if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
   fi
   pip install -r requirements/docs-user.txt
   asdf reshim
-  mkdocs build -f docs/mkdocs-user-docs.yml
+  zensical build -f docs/mkdocs-user-docs.yml
   mkdir _readthedocs && mv docs/user-site _readthedocs/html
 fi
 
@@ -36,6 +36,6 @@ if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ] || [ "${READTHEDOCS_PROJECT}" = 
   fi
   pip install -r requirements/docs-blog.txt
   asdf reshim
-  mkdocs build -f docs/mkdocs-blog.yml
+  zensical build -f docs/mkdocs-blog.yml
   mkdir _readthedocs && mv docs/blog-site _readthedocs/html
 fi

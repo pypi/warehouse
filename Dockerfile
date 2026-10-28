@@ -73,14 +73,12 @@ FROM base AS docs
 # because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
-#  - git: mkdocs plugin uses this for created/updated
-#  - libcairo2: mkdocs uses cairosvg
+#  - git: zensical rss plugin uses this for created/updated
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
         apt-install \
             build-essential \
-            git \
-            libcairo2
+            git
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
@@ -98,11 +96,6 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
         -r requirements/docs-dev.txt \
         -r requirements/docs-user.txt \
         -r requirements/docs-blog.txt
-
-# Material for MkDocs and ProperDocs each print a large "MkDocs 2.0" banner on
-# every build/serve; silence both.
-ENV NO_MKDOCS_2_WARNING=true \
-    DISABLE_MKDOCS_2_WARNING=true
 
 # We'll make the docs container run as a non-root user, ensure that the built
 # documentation belongs to the same user on the host machine.
