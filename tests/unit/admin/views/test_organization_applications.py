@@ -10,7 +10,7 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from sqlalchemy import update
 from webob.multidict import MultiDict
 
-from tests.common.db.accounts import UserFactory
+from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
@@ -258,7 +258,7 @@ class TestOrganizationApplicationList:
 
         assert decided.id not in summaries
         assert summaries[application.id][CheckStatus.Fail] == [
-            "Applicant has a verified email"
+            "Applicant's primary email is verified"
         ]
         warnings = {
             open_application: summaries[open_application.id][CheckStatus.Warn]
@@ -287,6 +287,16 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
+        assert result["applicant_reachable"] is False
+
+    def test_detail_reachable_applicant(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        EmailFactory.create(user=organization_application.submitted_by)
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        result = views.organization_application_detail(db_request)
+        assert result["applicant_reachable"] is True
 
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
@@ -714,6 +724,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -757,6 +768,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -797,6 +809,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -812,6 +825,49 @@ class TestOrganizationApplicationActions:
         assert len(organization_application.observations) == 0
         send_email.assert_not_called()
         assert db_request.session.pop_flash("error") == ["No message provided"]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
+    @pytest.mark.parametrize(
+        "email_kwargs", [None, {"verified": False}, {"primary": False}]
+    )
+    def test_request_more_information_unreachable_applicant(
+        self, db_request, mocker, email_kwargs
+    ):
+        send_email = mocker.patch.object(
+            services, "send_new_organization_moreinformationneeded_email"
+        )
+        user = UserFactory.create()
+        if email_kwargs is not None:
+            EmailFactory.create(user=user, **email_kwargs)
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["message"] = "Welcome!"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_request_more_information(db_request)
+
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert len(organization_application.observations) == 0
+        send_email.assert_not_called()
+        assert db_request.session.pop_flash("error") == [
+            (
+                'Cannot request more info for "example": '
+                "the applicant has no verified primary email"
+            )
+        ]
+        assert db_request.session.pop_flash("success") == []
         assert result.status_code == 303
         assert (
             result.location
