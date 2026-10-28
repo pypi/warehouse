@@ -389,7 +389,7 @@ Domain comparisons distinguish separate registrations under
 private suffixes such as `uk.com`. **Ask about this** opens a saved reply for
 review before sending.
 The action buttons show their keyboard shortcuts. In a review modal,
-`Ctrl+Enter` (or `Command+Enter`) submits the form, including required-field
+`Ctrl+Enter` (or `Command+Return`) submits the form, including required-field
 validation. A deferral message is an internal note, not an email to the applicant.
 
 ### Stopping Warehouse and other services
