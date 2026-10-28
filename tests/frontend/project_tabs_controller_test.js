@@ -57,7 +57,7 @@ const tabsHTML = `
     </div>
 
     <!-- File details sub-panel (no nav tab, sibling of Download files) -->
-    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" tabindex="-1">
       <h2 class="page-title">File details</h2>
       <p>Details for the file sample-1.0.tar.gz.</p>
     </div>
