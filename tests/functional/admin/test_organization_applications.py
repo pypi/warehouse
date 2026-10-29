@@ -321,3 +321,22 @@ def test_release_deleted_organization_name(webtest, login_admin, mocker, role):
     )
     approve.submit(status=HTTPStatus.SEE_OTHER)
     assert application.status == OrganizationApplicationStatus.Approved
+
+
+def test_release_locked_name_from_list(webtest, login_admin):
+    login_admin(is_superuser=True)
+    application = OrganizationApplicationFactory.create()
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+
+    page = webtest.get("/admin/organization_names/", status=HTTPStatus.OK)
+    assert application.name in page.text
+    release = next(
+        form for form in page.forms.values() if form.action.endswith("/release/")
+    )
+    page = release.submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
+
+    assert not [
+        form for form in page.forms.values() if "normalized_name" in form.fields
+    ]
