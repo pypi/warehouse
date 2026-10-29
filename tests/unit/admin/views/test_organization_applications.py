@@ -14,6 +14,7 @@ from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
 from tests.common.db.packaging import RoleFactory
 from warehouse.admin.views import organizations as views
@@ -22,6 +23,7 @@ from warehouse.organizations.checks import CheckStatus
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationNameCatalog,
     OrganizationType,
 )
 
@@ -288,6 +290,19 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
         assert result["applicant_reachable"] is False
+        assert result["orphaned_name"] is False
+
+    def test_detail_orphaned_name(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        OrganizationNameCatalogFactory.create(
+            normalized_name=organization_application.normalized_name,
+            organization_id=None,
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        result = views.organization_application_detail(db_request)
+        assert result["orphaned_name"] is True
 
     def test_detail_reachable_applicant(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
@@ -1045,6 +1060,62 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_add_note(db_request)
+
+    def test_release_name(self, db_request):
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        OrganizationNameCatalogFactory.create(
+            normalized_name="example", organization_id=None
+        )
+        other = OrganizationNameCatalogFactory.create(
+            normalized_name="other", organization_id=None
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_release_name(db_request)
+
+        assert db_request.db.query(OrganizationNameCatalog).all() == [other]
+        assert [o.payload for o in organization_application.observations] == [
+            {"message": "Released the name 'example' from a deleted organization."}
+        ]
+        assert db_request.session.pop_flash("success") == [
+            'Released the name "example"'
+        ]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
+    def test_release_name_keeps_live_organization(self, db_request):
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        organization = OrganizationFactory.create(name="example")
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_release_name(db_request)
+
+        assert [
+            entry.organization_id
+            for entry in db_request.db.query(OrganizationNameCatalog).all()
+        ] == [organization.id]
+        assert organization_application.observations == []
+        assert db_request.session.pop_flash("error") == [
+            'The name "example" is not held by a deleted organization'
+        ]
+        assert result.status_code == 303
+
+    def test_release_name_not_found(self, db_request):
+        db_request.matchdict["organization_application_id"] = uuid.uuid4()
+
+        with pytest.raises(HTTPNotFound):
+            views.organization_application_release_name(db_request)
 
     def test_request_more_information_preview_not_found(self, db_request):
         db_request.matchdict["organization_application_id"] = uuid.uuid4()
