@@ -54,7 +54,7 @@
           <form method="POST" action="{{ request.route_path('admin.organization_name.release') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="normalized_name" type="hidden" value="{{ entry.normalized_name }}">
-            <button type="submit" class="btn btn-sm btn-warning text-nowrap" title="{{ 'Releasing requires additional privileges' if not can_release }}" {{ "disabled" if not can_release }} onclick="return confirm('Release {{ entry.normalized_name }}?')">
+            <button type="submit" class="btn btn-sm btn-warning text-nowrap" title="{{ 'Releasing requires additional privileges' if not can_release }}" {{ "disabled" if not can_release }} data-confirm="Release {{ entry.normalized_name }}?">
               <i class="fa-solid fa-unlock mr-1" aria-hidden="true"></i> Release
             </button>
           </form>

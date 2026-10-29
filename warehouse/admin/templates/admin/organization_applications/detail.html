@@ -143,7 +143,7 @@
     {% if request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
     <form class="ml-3 mb-0" method="POST" action="{{ request.route_path('admin.organization_application.releasename', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <button type="submit" class="btn btn-sm btn-warning text-nowrap" onclick="return confirm('Release this name so the application can be approved?')">
+      <button type="submit" class="btn btn-sm btn-warning text-nowrap" data-confirm="Release this name so the application can be approved?">
         <i class="fa-solid fa-unlock mr-1" aria-hidden="true"></i> Release name
       </button>
     </form>
