@@ -129,6 +129,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization_application.releasename",
+        "/admin/organization_applications/{organization_application_id}/releasename/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization_application.requestmoreinfo.preview",
         (
             "/admin/organization_applications/{organization_application_id}"
