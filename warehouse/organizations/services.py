@@ -234,15 +234,15 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
+        applicant = organization_application.submitted_by
+        recipient = reachable_email(applicant)
         send_new_organization_approved_email(
             request,
-            (
-                organization_application.submitted_by,
-                reachable_email(organization_application.submitted_by),
-            ),
+            (applicant, recipient),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message=message,
+            primary_email_unverified=recipient is not None and not recipient.primary,
         )
 
         for competing_application in self.get_organization_applications_by_name(
@@ -287,15 +287,17 @@ class DatabaseOrganizationService:
                 kind=ObservationKind.InformationRequest,
                 payload={"message": message},
             )
+            applicant = organization_application.submitted_by
+            recipient = reachable_email(applicant)
             send_new_organization_moreinformationneeded_email(
                 request,
-                (
-                    organization_application.submitted_by,
-                    reachable_email(organization_application.submitted_by),
-                ),
+                (applicant, recipient),
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
                 message=message,
+                primary_email_unverified=(
+                    recipient is not None and not recipient.primary
+                ),
             )
             return organization_application
         raise ValueError
