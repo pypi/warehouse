@@ -60,6 +60,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimiter
+from warehouse.sessions import Session
 from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
@@ -70,6 +71,7 @@ from warehouse.utils.project import (
 
 from ...common.db.accounts import (
     EmailFactory,
+    OAuthAccountAssociationFactory,
     UserFactory,
 )
 from ...common.db.macaroons import MacaroonFactory
@@ -140,6 +142,29 @@ def verified_request(post_request):
     """``post_request`` from a user with a verified primary email and TOTP."""
     post_request.user = UserFactory.create(with_verified_primary_email=True)
     return post_request
+
+
+@pytest.fixture
+def user_password(verified_request, user_service):
+    """
+    Give the ``verified_request`` user a real, hashed password and return the
+    cleartext. Only tests that check a submitted password need the hashing.
+    """
+    password = "password"
+    user_service.update_user(verified_request.user.id, password=password)
+    return password
+
+
+@pytest.fixture
+def real_session_request(verified_request, mocker):
+    """
+    ``verified_request`` with a real ``Session``, which has the password
+    timestamp, TOTP secret and WebAuthn challenge methods ``DummySession``
+    lacks.
+    """
+    verified_request.session = Session()
+    mocker.spy(verified_request.session, "flash")
+    return verified_request
 
 
 class TestManageUnverifiedAccount:
@@ -356,84 +381,75 @@ class TestManageUnverifiedAccount:
 
 
 class TestManageAccount:
+    @pytest.fixture
+    def default_response(self, mocker):
+        """
+        Replace the real ``default_response``, which builds fresh forms on
+        every access, with one opaque dict a test can compare against.
+        """
+        response = {"_": mocker.sentinel.default_response}
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", response
+        )
+        return response
+
     @pytest.mark.parametrize(
         ("public_email", "expected_public_email"),
-        [(None, ""), (pretend.stub(email="some@email.com"), "some@email.com")],
+        [(None, ""), ("some@email.com", "some@email.com")],
     )
-    def test_default_response(self, monkeypatch, public_email, expected_public_email):
-        breach_service = pretend.stub()
-        account_associations = pretend.stub()
-        user_service = pretend.stub(
-            get_account_associations=pretend.call_recorder(
-                lambda user_id: account_associations
+    def test_default_response(
+        self,
+        verified_request,
+        user_service,
+        breach_service,
+        mocker,
+        public_email,
+        expected_public_email,
+    ):
+        user = verified_request.user
+        if public_email is not None:
+            EmailFactory.create(
+                user=user, email=public_email, primary=False, public=True
             )
-        )
-        organization_service = pretend.stub()
-        name = pretend.stub()
-        user_id = pretend.stub()
-        request = pretend.stub(
-            find_service=lambda iface, **kw: {
-                IPasswordBreachedService: breach_service,
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            user=pretend.stub(name=name, id=user_id, public_email=public_email),
-        )
-        save_account_obj = pretend.stub()
-        save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
-        monkeypatch.setattr(views, "SaveAccountForm", save_account_cls)
+        association = OAuthAccountAssociationFactory.create(user=user)
+        get_account_associations = mocker.spy(user_service, "get_account_associations")
 
-        add_email_obj = pretend.stub()
-        add_email_cls = pretend.call_recorder(lambda **kw: add_email_obj)
-        monkeypatch.setattr(views, "AddEmailForm", add_email_cls)
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.default_response
 
-        change_pass_obj = pretend.stub()
-        change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
-
-        view = views.ManageVerifiedAccountViews(request)
-
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
-        )
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
-
-        assert view.default_response == {
-            "save_account_form": save_account_obj,
-            "add_email_form": add_email_obj,
-            "change_password_form": change_pass_obj,
-            "active_projects": view.active_projects,
-            "sole_organizations": view.sole_organizations,
-            "account_associations": account_associations,
+        save_account_form = result["save_account_form"]
+        add_email_form = result["add_email_form"]
+        change_password_form = result["change_password_form"]
+        assert result == {
+            "save_account_form": save_account_form,
+            "add_email_form": add_email_form,
+            "change_password_form": change_password_form,
+            "active_projects": [],
+            "sole_organizations": [],
+            "account_associations": [association],
         }
-        assert view.request == request
-        assert view.user_service == user_service
-        assert user_service.get_account_associations.calls == [pretend.call(user_id)]
-        assert save_account_cls.calls == [
-            pretend.call(
-                name=name,
-                public_email=expected_public_email,
-                user_service=user_service,
-                user_id=user_id,
-            )
-        ]
-        assert add_email_cls.calls == [
-            pretend.call(request=request, user_id=user_id, user_service=user_service)
-        ]
-        assert change_pass_cls.calls == [
-            pretend.call(
-                request=request,
-                user_service=user_service,
-                breach_service=breach_service,
-            )
-        ]
+        assert view.request is verified_request
+        assert view.user_service is user_service
+        get_account_associations.assert_called_once_with(user.id)
+        assert isinstance(save_account_form, views.SaveAccountForm)
+        assert save_account_form.name.data == user.name
+        assert save_account_form.public_email.data == expected_public_email
+        assert save_account_form.user_service is user_service
+        assert save_account_form.user_id == user.id
+        assert isinstance(add_email_form, views.AddEmailForm)
+        assert add_email_form.request is verified_request
+        assert add_email_form.user_service is user_service
+        assert add_email_form.user_id == user.id
+        assert isinstance(change_password_form, views.ChangePasswordForm)
+        assert change_password_form.request is verified_request
+        assert change_password_form.user_service is user_service
+        assert change_password_form._breach_service is breach_service
 
-    def test_active_projects(self, db_request):
+    def test_active_projects(self, post_request):
         user = UserFactory.create()
         another_user = UserFactory.create()
 
-        db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub()
+        post_request.user = user
 
         # A project with a sole owner that is the user
         with_sole_owner = ProjectFactory.create()
@@ -454,227 +470,147 @@ class TestManageAccount:
         RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
         RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
 
-        view = views.ManageVerifiedAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(post_request)
 
         assert view.active_projects == [with_sole_owner]
 
-    def test_manage_account(self, monkeypatch):
-        user_service = pretend.stub()
-        name = pretend.stub()
-        request = pretend.stub(
-            find_service=lambda *a, **kw: user_service, user=pretend.stub(name=name)
-        )
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
+    def test_manage_account(self, verified_request, user_service, default_response):
+        view = views.ManageVerifiedAccountViews(verified_request)
 
-        assert view.manage_account() == view.default_response
-        assert view.request == request
-        assert view.user_service == user_service
+        assert view.manage_account() == default_response
+        assert view.request is verified_request
+        assert view.user_service is user_service
 
-    def test_save_account(self, monkeypatch, pyramid_request):
-        update_user = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(update_user=update_user)
-        pyramid_request.POST = {"name": "new name", "public_email": ""}
-        pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
-            name=pretend.stub(),
-            emails=[
-                pretend.stub(
-                    primary=True, verified=True, public=True, email=pretend.stub()
-                )
-            ],
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.find_service = lambda *a, **kw: user_service
-        save_account_obj = pretend.stub(
-            validate=lambda: True, data=pyramid_request.POST
-        )
-        monkeypatch.setattr(views, "SaveAccountForm", lambda *a, **kw: save_account_obj)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(pyramid_request)
+    def test_save_account(self, verified_request, user_service, mocker):
+        user = verified_request.user
+        email = user.primary_email
+        email.public = True
+        verified_request.POST = MultiDict({"name": "new name", "public_email": ""})
+        update_user = mocker.spy(user_service, "update_user")
 
-        assert isinstance(view.save_account(), HTTPSeeOther)
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Account details updated", queue="success")
-        ]
-        assert update_user.calls == [
-            pretend.call(pyramid_request.user.id, **pyramid_request.POST)
-        ]
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.save_account()
 
-    def test_save_account_validation_fails(self, monkeypatch):
-        update_user = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(update_user=update_user)
-        request = pretend.stub(
-            POST={"name": "new name", "public_email": ""},
-            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == verified_request.path
+        verified_request.session.flash.assert_called_once_with(
+            "Account details updated", queue="success"
         )
-        save_account_obj = pretend.stub(validate=lambda: False)
-        monkeypatch.setattr(views, "SaveAccountForm", lambda *a, **kw: save_account_obj)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
+        # The view pops ``public_email`` and applies it to the emails itself.
+        update_user.assert_called_once_with(user.id, name="new name")
+        assert user.name == "new name"
+        assert not email.public
 
-        assert view.save_account() == {
-            **view.default_response,
-            "save_account_form": save_account_obj,
-        }
-        assert request.session.flash.calls == []
-        assert update_user.calls == []
+    def test_save_account_validation_fails(
+        self, verified_request, user_service, mocker, default_response
+    ):
+        user = verified_request.user
+        name = user.name
+        verified_request.POST = MultiDict({"name": "x" * 101, "public_email": ""})
+        update_user = mocker.spy(user_service, "update_user")
 
-    def test_add_email(self, monkeypatch, pyramid_request):
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.save_account()
+
+        form = result["save_account_form"]
+        assert result == {**default_response, "save_account_form": form}
+        assert isinstance(form, views.SaveAccountForm)
+        assert form.name.errors
+        verified_request.session.flash.assert_not_called()
+        update_user.assert_not_called()
+        assert user.name == name
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_add_email(self, verified_request, user_service, mocker):
         new_email_address = "new@example.com"
-        email = pretend.stub(id=pretend.stub(), email=new_email_address)
-        existing_email_address = "existing@example.com"
-        existing_email = pretend.stub(id=pretend.stub(), email=existing_email_address)
-        user_service = pretend.stub(
-            add_email=pretend.call_recorder(lambda *a, **kw: email),
+        user = verified_request.user
+        existing_email = user.primary_email
+        verified_request.POST = MultiDict({"email": new_email_address})
+        add_email = mocker.spy(user_service, "add_email")
+        record_event = mocker.spy(user, "record_event")
+        send_email_verification_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
         )
-        pyramid_request.POST = {"email": new_email_address}
-        pyramid_request.db = pretend.stub(flush=lambda: None)
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.find_service = lambda a, **kw: user_service
-        pyramid_request.user = pretend.stub(
-            emails=[existing_email, email],
-            username="username",
-            name="Name",
-            id=pretend.stub(),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        monkeypatch.setattr(
-            views,
-            "AddEmailForm",
-            lambda *a, **kw: pretend.stub(
-                validate=lambda: True, email=pretend.stub(data=new_email_address)
-            ),
+        send_new_email_added_email = mocker.patch.object(
+            views, "send_new_email_added_email", autospec=True
         )
 
-        send_email_verification_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_email_verification_email", send_email_verification_email
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.add_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == verified_request.path
+        add_email.assert_called_once_with(user.id, new_email_address)
+        email = add_email.spy_return
+        assert email.email == new_email_address
+        assert user.emails == [existing_email, email]
+        verified_request.session.flash.assert_called_once_with(
+            f"Email {new_email_address} added - check your email for "
+            "a verification link",
+            queue="success",
         )
-        send_new_email_added_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_new_email_added_email", send_new_email_added_email
+        send_email_verification_email.assert_called_once_with(
+            verified_request, (user, email)
+        )
+        send_new_email_added_email.assert_called_once_with(
+            verified_request,
+            (user, existing_email),
+            new_email_address=new_email_address,
+        )
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.EmailAdd,
+            request=verified_request,
+            additional={"email": new_email_address},
         )
 
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(pyramid_request)
+    def test_add_email_validation_fails(
+        self, verified_request, user_service, mocker, default_response
+    ):
+        user = verified_request.user
+        existing_email = user.primary_email
+        verified_request.POST = MultiDict({"email": "bad"})
+        add_email = mocker.spy(user_service, "add_email")
 
-        assert isinstance(view.add_email(), HTTPSeeOther)
-        assert user_service.add_email.calls == [
-            pretend.call(pyramid_request.user.id, new_email_address),
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                f"Email {new_email_address} added - check your email for "
-                "a verification link",
-                queue="success",
-            )
-        ]
-        assert send_email_verification_email.calls == [
-            pretend.call(pyramid_request, (pyramid_request.user, email)),
-        ]
-        assert send_new_email_added_email.calls == [
-            pretend.call(
-                pyramid_request,
-                (pyramid_request.user, existing_email),
-                new_email_address=new_email_address,
-            ),
-        ]
-        assert pyramid_request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.EmailAdd,
-                request=pyramid_request,
-                additional={"email": new_email_address},
-            )
-        ]
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.add_email()
 
-    def test_add_email_validation_fails(self, monkeypatch):
-        email_address = "test@example.com"
-        request = pretend.stub(
-            POST={"email": email_address},
-            db=pretend.stub(flush=lambda: None),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda a, **kw: pretend.stub(),
-            user=pretend.stub(emails=[], name=pretend.stub(), id=pretend.stub()),
-        )
-        add_email_obj = pretend.stub(
-            validate=lambda: False, email=pretend.stub(data=email_address)
-        )
-        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
-        monkeypatch.setattr(views, "AddEmailForm", add_email_cls)
+        form = result["add_email_form"]
+        assert result == {**default_response, "add_email_form": form}
+        assert isinstance(form, views.AddEmailForm)
+        assert form.email.errors
+        add_email.assert_not_called()
+        verified_request.db.flush()
+        assert verified_request.db.scalars(
+            select(Email).where(Email.user_id == user.id)
+        ).all() == [existing_email]
+        verified_request.session.flash.assert_not_called()
 
-        email_obj = pretend.stub(id=pretend.stub(), email=email_address)
-        email_cls = pretend.call_recorder(lambda **kw: email_obj)
-        monkeypatch.setattr(views, "Email", email_cls)
+    def test_delete_email(self, verified_request, mocker):
+        user = verified_request.user
+        primary_email = user.primary_email
+        email = EmailFactory.create(user=user, primary=False)
+        email_address = email.email
+        verified_request.POST = MultiDict({"delete_email_id": str(email.id)})
+        record_event = mocker.spy(user, "record_event")
 
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.delete_email()
 
-        assert view.add_email() == {
-            **view.default_response,
-            "add_email_form": add_email_obj,
-        }
-        assert request.user.emails == []
-        assert email_cls.calls == []
-        assert request.session.flash.calls == []
-
-    def test_delete_email(self, monkeypatch):
-        email = pretend.stub(id=5, primary=False, email=pretend.stub())
-        some_other_email = pretend.stub()
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == verified_request.path
+        verified_request.session.flash.assert_called_once_with(
+            f"Email address {email_address} removed", queue="success"
         )
-        request = pretend.stub(
-            POST={"delete_email_id": str(email.id)},
-            user=pretend.stub(
-                id=pretend.stub(),
-                emails=[email, some_other_email],
-                name=pretend.stub(),
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            db=pretend.stub(
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: email)
-                )
-            ),
-            find_service=lambda *a, **kw: user_service,
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            remote_addr="0.0.0.0",
-            path="request-path",
+        assert user.emails == [primary_email]
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.EmailRemove,
+            request=verified_request,
+            additional={"email": email_address},
         )
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.delete_email(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call(f"Email address {email.email} removed", queue="success")
-        ]
-        assert request.user.emails == [some_other_email]
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.EmailRemove,
-                request=request,
-                additional={"email": email.email},
-            )
-        ]
+        verified_request.db.flush()
+        assert verified_request.db.scalars(
+            select(Email).where(Email.user_id == user.id)
+        ).all() == [primary_email]
 
     def test_delete_email_not_found(self, monkeypatch):
         email = pretend.stub()
@@ -704,148 +640,107 @@ class TestManageAccount:
         ]
         assert request.user.emails == [email]
 
-    def test_delete_email_is_primary(self, monkeypatch):
-        email = pretend.stub(primary=True)
+    def test_delete_email_is_primary(self, verified_request, default_response):
+        user = verified_request.user
+        email = user.primary_email
+        verified_request.POST = MultiDict({"delete_email_id": str(email.id)})
 
-        request = pretend.stub(
-            POST={"delete_email_id": "99999"},
-            user=pretend.stub(id=pretend.stub(), emails=[email], name=pretend.stub()),
-            db=pretend.stub(
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: email)
-                )
-            ),
-            find_service=lambda *a, **kw: pretend.stub(),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        view = views.ManageVerifiedAccountViews(verified_request)
+
+        assert view.delete_email() == default_response
+        verified_request.session.flash.assert_called_once_with(
+            "Cannot remove primary email address", queue="error"
         )
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
+        assert user.emails == [email]
+
+    def test_change_primary_email(self, post_request, mocker):
+        user = UserFactory.create()
+        old_primary = EmailFactory.create(primary=True, user=user, email="old")
+        new_primary = EmailFactory.create(
+            primary=False, verified=True, user=user, email="new"
         )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_email() == view.default_response
-        assert request.session.flash.calls == [
-            pretend.call("Cannot remove primary email address", queue="error")
-        ]
-        assert request.user.emails == [email]
-
-    def test_change_primary_email(self, monkeypatch, db_request):
-        user = UserFactory()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        old_primary = EmailFactory(primary=True, user=user, email="old")
-        new_primary = EmailFactory(primary=False, verified=True, user=user, email="new")
-
-        db_request.user = user
-
-        user_service = pretend.stub()
-        db_request.find_service = lambda *a, **kw: user_service
-        db_request.POST = {"primary_email_id": str(new_primary.id)}
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
+        post_request.user = user
+        post_request.POST = MultiDict({"primary_email_id": str(new_primary.id)})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_primary_email_change_email", autospec=True
         )
-        view = views.ManageVerifiedAccountViews(db_request)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
+        view = views.ManageVerifiedAccountViews(post_request)
+        result = view.change_primary_email()
 
-        assert isinstance(view.change_primary_email(), HTTPSeeOther)
-        assert send_email.calls == [
-            pretend.call(db_request, (db_request.user, old_primary))
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Email address {new_primary.email} set as primary", queue="success"
-            )
-        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == post_request.path
+        send_email.assert_called_once_with(post_request, (user, old_primary))
+        post_request.session.flash.assert_called_once_with(
+            f"Email address {new_primary.email} set as primary", queue="success"
+        )
         assert not old_primary.primary
         assert new_primary.primary
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.EmailPrimaryChange,
-                request=db_request,
-                additional={"old_primary": "old", "new_primary": "new"},
-            )
-        ]
-
-    def test_change_primary_email_without_current(self, monkeypatch, db_request):
-        user = UserFactory()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        new_primary = EmailFactory(primary=False, verified=True, user=user)
-
-        db_request.user = user
-
-        user_service = pretend.stub()
-        db_request.find_service = lambda *a, **kw: user_service
-        db_request.POST = {"primary_email_id": str(new_primary.id)}
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.EmailPrimaryChange,
+            request=post_request,
+            additional={"old_primary": "old", "new_primary": "new"},
         )
-        view = views.ManageVerifiedAccountViews(db_request)
 
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
+    def test_change_primary_email_without_current(self, post_request, mocker):
+        user = UserFactory.create()
+        new_primary = EmailFactory.create(primary=False, verified=True, user=user)
+        post_request.user = user
+        post_request.POST = MultiDict({"primary_email_id": str(new_primary.id)})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_primary_email_change_email", autospec=True
+        )
 
-        assert isinstance(view.change_primary_email(), HTTPSeeOther)
-        assert send_email.calls == []
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Email address {new_primary.email} set as primary", queue="success"
-            )
-        ]
+        view = views.ManageVerifiedAccountViews(post_request)
+        result = view.change_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == post_request.path
+        send_email.assert_not_called()
+        post_request.session.flash.assert_called_once_with(
+            f"Email address {new_primary.email} set as primary", queue="success"
+        )
         assert new_primary.primary
-        assert db_request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.EmailPrimaryChange,
-                request=db_request,
-                additional={"old_primary": None, "new_primary": new_primary.email},
-            )
-        ]
-
-    def test_change_primary_email_not_found(self, monkeypatch, db_request):
-        user = UserFactory()
-        old_primary = EmailFactory(primary=True, user=user)
-        missing_email_id = 9999
-
-        db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub()
-        db_request.POST = {"primary_email_id": str(missing_email_id)}
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.EmailPrimaryChange,
+            request=post_request,
+            additional={"old_primary": None, "new_primary": new_primary.email},
         )
-        view = views.ManageVerifiedAccountViews(db_request)
 
-        assert view.change_primary_email() == view.default_response
-        assert db_request.session.flash.calls == [
-            pretend.call("Email address not found", queue="error")
-        ]
+    def test_change_primary_email_not_found(self, post_request, default_response):
+        user = UserFactory.create()
+        old_primary = EmailFactory.create(primary=True, user=user)
+        missing_email_id = 9999
+        post_request.user = user
+        post_request.POST = MultiDict({"primary_email_id": str(missing_email_id)})
+
+        view = views.ManageVerifiedAccountViews(post_request)
+
+        assert view.change_primary_email() == default_response
+        post_request.session.flash.assert_called_once_with(
+            "Email address not found", queue="error"
+        )
         assert old_primary.primary
 
-    def test_change_primary_email_2fa_disabled(self, monkeypatch, db_request):
+    def test_change_primary_email_2fa_disabled(self, post_request, default_response):
         user = UserFactory.create(totp_secret=None)
-        _ = EmailFactory(primary=True, verified=False, user=user)
-        secondary = EmailFactory(primary=False, verified=True, user=user)
+        primary = EmailFactory.create(primary=True, verified=False, user=user)
+        secondary = EmailFactory.create(primary=False, verified=True, user=user)
+        post_request.user = user
+        post_request.POST = MultiDict({"primary_email_id": str(secondary.id)})
 
-        db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub(get_user=lambda a: user)
-        db_request.POST = {"primary_email_id": str(secondary.id)}
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-        db_request.route_path = pretend.call_recorder(lambda r, **kw: f"/{r}")
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+        view = views.ManageVerifiedAccountViews(post_request)
+
+        assert view.change_primary_email() == default_response
+        post_request.session.flash.assert_called_once_with(
+            "Two factor authentication must be enabled to change primary "
+            "email address.",
+            queue="error",
         )
-        view = views.ManageVerifiedAccountViews(db_request)
-
-        assert view.change_primary_email() == view.default_response
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Two factor authentication must be enabled to change primary "
-                "email address.",
-                queue="error",
-            )
-        ]
+        assert primary.primary
+        assert not secondary.primary
 
     @pytest.mark.parametrize(
         ("has_primary_verified_email", "expected_redirect"),
@@ -855,114 +750,73 @@ class TestManageAccount:
         ],
     )
     def test_reverify_email(
-        self, monkeypatch, has_primary_verified_email, expected_redirect
+        self,
+        post_request,
+        limiters,
+        mocker,
+        has_primary_verified_email,
+        expected_redirect,
     ):
-        user = pretend.stub(
-            id=pretend.stub(),
-            username="username",
-            name="Name",
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-            has_primary_verified_email=has_primary_verified_email,
+        user = UserFactory.create()
+        if has_primary_verified_email:
+            EmailFactory.create(user=user, primary=True, verified=True)
+        email = EmailFactory.create(
+            user=user, primary=False, verified=False, email="email_address"
         )
-        email = pretend.stub(
-            verified=False,
-            email="email_address",
-            user=user,
+        post_request.user = user
+        post_request.POST = MultiDict({"reverify_email_id": str(email.id)})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
         )
 
-        request = pretend.stub(
-            POST={"reverify_email_id": "99999"},
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: email)
-                )
+        view = views.ManageVerifiedAccountViews(post_request)
+        result = view.reverify_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == f"/{expected_redirect}/"
+        post_request.session.flash.assert_called_once_with(
+            "Verification email for email_address resent", queue="success"
+        )
+        send_email.assert_called_once_with(post_request, (user, email))
+        limiters["email.verify"].test.assert_called_once_with(user.id)
+        limiters["email.verify"].hit.assert_called_once_with(user.id)
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.EmailReverify,
+            request=post_request,
+            additional={"email": email.email},
+        )
+        post_request.route_path.assert_called_once_with(expected_redirect)
+
+    def test_reverify_email_ratelimit_exceeded(
+        self, verified_request, limiters, mocker
+    ):
+        user = verified_request.user
+        email = EmailFactory.create(user=user, primary=False, verified=False)
+        verified_request.POST = MultiDict({"reverify_email_id": str(email.id)})
+        limiters["email.verify"].test.return_value = False
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
+        )
+
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.reverify_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage.account/"
+        verified_request.session.flash.assert_called_once_with(
+            (
+                "Too many incomplete attempts to verify email address(es) for "
+                f"{user.username}. Complete a pending "
+                "verification or wait before attempting again."
             ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda svc, name=None, context=None: {
-                IRateLimiter: pretend.stub(
-                    test=pretend.call_recorder(lambda user_id: True),
-                    hit=pretend.call_recorder(lambda user_id: None),
-                )
-            }.get(svc, pretend.stub()),
-            user=user,
-            remote_addr="0.0.0.0",
-            path="request-path",
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
+            queue="error",
         )
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.reverify_email(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call("Verification email for email_address resent", queue="success")
-        ]
-        assert send_email.calls == [pretend.call(request, (request.user, email))]
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.EmailReverify,
-                request=request,
-                additional={"email": email.email},
-            )
-        ]
-        assert request.route_path.calls == [pretend.call(expected_redirect)]
-
-    def test_reverify_email_ratelimit_exceeded(self, monkeypatch):
-        user = pretend.stub(
-            id=pretend.stub(),
-            username="username",
-            name="Name",
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-            has_primary_verified_email=True,
-        )
-
-        email = pretend.stub(
-            verified=False,
-            email="email_address",
-            user=user,
-        )
-
-        request = pretend.stub(
-            POST={"reverify_email_id": "9999"},
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: email)
-                )
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda svc, name=None, context=None: {
-                IRateLimiter: pretend.stub(
-                    test=pretend.call_recorder(lambda user_id: False),
-                )
-            }.get(svc, pretend.stub()),
-            user=user,
-            remote_addr="0.0.0.0",
-            path="request-path",
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
-        )
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.reverify_email(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Too many incomplete attempts to verify email address(es) for "
-                    f"{request.user.username}. Complete a pending "
-                    "verification or wait before attempting again."
-                ),
-                queue="error",
-            )
-        ]
-        assert send_email.calls == []
-        assert email.user.record_event.calls == []
+        limiters["email.verify"].test.assert_called_once_with(user.id)
+        limiters["email.verify"].hit.assert_not_called()
+        send_email.assert_not_called()
+        record_event.assert_not_called()
 
     @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
     @pytest.mark.parametrize(
@@ -973,359 +827,210 @@ class TestManageAccount:
         ],
     )
     def test_reverify_email_not_found(
-        self, monkeypatch, reverify_email_id, has_primary_verified_email, expected
+        self,
+        post_request,
+        mocker,
+        reverify_email_id,
+        has_primary_verified_email,
+        expected,
     ):
-        def raise_no_result():
-            raise NoResultFound
-
-        request = pretend.stub(
-            POST={"reverify_email_id": reverify_email_id},
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=raise_no_result)
-                )
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(), has_primary_verified_email=has_primary_verified_email
-            ),
-            route_path=pretend.call_recorder(lambda *a: "/some/url"),
-        )
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.reverify_email(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call("Email address not found", queue="error")
-        ]
-        assert send_email.calls == []
-        assert request.route_path.calls == [pretend.call(expected)]
-
-    def test_reverify_email_already_verified(self, monkeypatch):
-        email = pretend.stub(verified=True, email="email_address")
-
-        request = pretend.stub(
-            POST={"reverify_email_id": "9999"},
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: email)
-                )
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-            path="request-path",
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
-        )
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.reverify_email(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call("Email is already verified", queue="error")
-        ]
-        assert send_email.calls == []
-
-    def test_change_password(self, monkeypatch):
-        old_password = "0ld_p455w0rd"
-        new_password = "n3w_p455w0rd"
-        user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-            get_password_timestamp=lambda uid: 0,
-        )
-        request = pretend.stub(
-            POST={
-                "password": old_password,
-                "new_password": new_password,
-                "password_confirm": new_password,
-            },
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                record_password_timestamp=lambda ts: None,
-            ),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            db=pretend.stub(
-                flush=lambda: None,
-                refresh=lambda obj: None,
-            ),
-            remote_addr="0.0.0.0",
-            path="request-path",
-        )
-        change_pwd_obj = pretend.stub(
-            validate=lambda: True, new_password=pretend.stub(data=new_password)
-        )
-        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pwd_cls)
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.change_password(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call("Password updated", queue="success")
-        ]
-        assert send_email.calls == [pretend.call(request, request.user)]
-        assert user_service.update_user.calls == [
-            pretend.call(request.user.id, password=new_password)
-        ]
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordChange,
-                request=request,
-            )
-        ]
-
-    def test_change_password_validation_fails(self, monkeypatch):
-        old_password = "0ld_p455w0rd"
-        new_password = "n3w_p455w0rd"
-        user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        request = pretend.stub(
-            POST={
-                "password": old_password,
-                "new_password": new_password,
-                "password_confirm": new_password,
-            },
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-            ),
-        )
-        change_pwd_obj = pretend.stub(
-            validate=lambda: False, new_password=pretend.stub(data=new_password)
-        )
-        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pwd_cls)
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.change_password() == {
-            **view.default_response,
-            "change_password_form": change_pwd_obj,
-        }
-        assert request.session.flash.calls == []
-        assert send_email.calls == []
-        assert user_service.update_user.calls == []
-
-    def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
+        EmailFactory.create(user=user, verified=has_primary_verified_email)
+        post_request.user = user
+        post_request.POST = MultiDict({"reverify_email_id": reverify_email_id})
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
+        )
+
+        view = views.ManageVerifiedAccountViews(post_request)
+        result = view.reverify_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == f"/{expected}/"
+        post_request.session.flash.assert_called_once_with(
+            "Email address not found", queue="error"
+        )
+        send_email.assert_not_called()
+        post_request.route_path.assert_called_once_with(expected)
+
+    def test_reverify_email_already_verified(self, verified_request, limiters, mocker):
+        email = verified_request.user.primary_email
+        verified_request.POST = MultiDict({"reverify_email_id": str(email.id)})
+        send_email = mocker.patch.object(
+            views, "send_email_verification_email", autospec=True
+        )
+
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.reverify_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage.account/"
+        verified_request.session.flash.assert_called_once_with(
+            "Email is already verified", queue="error"
+        )
+        send_email.assert_not_called()
+        limiters["email.verify"].test.assert_not_called()
+
+    def test_change_password(
+        self, real_session_request, user_password, user_service, mocker
+    ):
+        new_password = "mysupersecurepassword1!"
+        user = real_session_request.user
+        real_session_request.POST = MultiDict(
+            {
+                "password": user_password,
+                "new_password": new_password,
+                "password_confirm": new_password,
+            }
+        )
+        update_user = mocker.spy(user_service, "update_user")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_password_change_email", autospec=True
+        )
+
+        view = views.ManageVerifiedAccountViews(real_session_request)
+        result = view.change_password()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == real_session_request.path
+        real_session_request.session.flash.assert_called_once_with(
+            "Password updated", queue="success"
+        )
+        send_email.assert_called_once_with(real_session_request, user)
+        update_user.assert_called_once_with(user.id, password=new_password)
+        assert user_service.check_password(user.id, new_password)
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.PasswordChange,
+            request=real_session_request,
+        )
+        assert (
+            real_session_request.session[Session._password_timestamp_key]
+            == user.password_date.timestamp()
+        )
+
+    def test_change_password_validation_fails(
+        self, verified_request, user_password, user_service, mocker, default_response
+    ):
+        new_password = "mysupersecurepassword1!"
+        verified_request.POST = MultiDict(
+            {
+                "password": user_password,
+                "new_password": new_password,
+                "password_confirm": "something else",
+            }
+        )
+        update_user = mocker.spy(user_service, "update_user")
+        send_email = mocker.patch.object(
+            views, "send_password_change_email", autospec=True
+        )
+
+        view = views.ManageVerifiedAccountViews(verified_request)
+        result = view.change_password()
+
+        form = result["change_password_form"]
+        assert result == {**default_response, "change_password_form": form}
+        assert isinstance(form, views.ChangePasswordForm)
+        assert form.password_confirm.errors
+        verified_request.session.flash.assert_not_called()
+        send_email.assert_not_called()
+        update_user.assert_not_called()
+
+    def test_delete_account(self, verified_request, user_password, mocker):
+        user = verified_request.user
         deleted_user = UserFactory.create(username="deleted-user")
         jid = JournalEntryFactory.create(submitted_by=user).id
-
-        db_request.user = user
-        db_request.params = {"confirm_password": user.password}
-        db_request.find_service = lambda *a, **kw: pretend.stub()
-
-        confirm_password_obj = pretend.stub(validate=lambda: True)
-        confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj
+        verified_request.params = {"confirm_password": user_password}
+        send_email = mocker.patch.object(
+            views, "send_account_deletion_email", autospec=True
         )
-        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
-
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+        logout = mocker.patch.object(
+            views,
+            "logout",
+            autospec=True,
+            return_value=mocker.sentinel.logout_response,
         )
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_account_deletion_email", send_email)
-        logout_response = pretend.stub()
-        logout = pretend.call_recorder(lambda *a: logout_response)
-        monkeypatch.setattr(views, "logout", logout)
 
-        view = views.ManageVerifiedAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(verified_request)
 
-        assert view.delete_account() == logout_response
+        assert view.delete_account() is mocker.sentinel.logout_response
 
         journal = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .filter_by(id=jid)
+            verified_request.db.scalars(
+                select(JournalEntry)
+                .options(joinedload(JournalEntry.submitted_by))
+                .where(JournalEntry.id == jid)
+            )
+            .unique()
             .one()
         )
 
         assert journal.submitted_by == deleted_user
-        assert db_request.db.query(User).all() == [deleted_user]
-        assert send_email.calls == [pretend.call(db_request, user)]
-        assert logout.calls == [pretend.call(db_request)]
-
-    def test_delete_account_no_confirm(self, monkeypatch):
-        request = pretend.stub(
-            params={"confirm_password": ""},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
-        )
-
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
-        )
-
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_account() == view.default_response
-        assert request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
+        assert verified_request.db.scalars(select(User)).unique().all() == [
+            deleted_user
         ]
+        send_email.assert_called_once_with(verified_request, user)
+        logout.assert_called_once_with(verified_request)
 
-    def test_delete_account_wrong_confirm(self, monkeypatch):
-        request = pretend.stub(
-            params={"confirm_password": "invalid"},
-            user=pretend.stub(username="username"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
+    def test_delete_account_no_confirm(self, verified_request, default_response):
+        verified_request.params = {"confirm_password": ""}
+
+        view = views.ManageVerifiedAccountViews(verified_request)
+
+        assert view.delete_account() == default_response
+        verified_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
 
-        confirm_password_obj = pretend.stub(validate=lambda: False)
-        confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj
-        )
-        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+    @pytest.mark.usefixtures("user_password")
+    def test_delete_account_wrong_confirm(self, verified_request, default_response):
+        verified_request.params = {"confirm_password": "invalid"}
 
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
-        )
+        view = views.ManageVerifiedAccountViews(verified_request)
 
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_account() == view.default_response
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Could not delete account - Invalid credentials. Please try again.",
-                queue="error",
-            )
-        ]
-
-    def test_delete_account_has_active_projects(self, monkeypatch):
-        request = pretend.stub(
-            params={"confirm_password": "password"},
-            user=pretend.stub(username="username"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
+        assert view.delete_account() == default_response
+        verified_request.session.flash.assert_called_once_with(
+            "Could not delete account - Invalid credentials. Please try again.",
+            queue="error",
         )
 
-        confirm_password_obj = pretend.stub(validate=lambda: True)
-        confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj
-        )
-        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
-
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
-        )
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "active_projects", [pretend.stub()]
-        )
-
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_account() == view.default_response
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Cannot delete account with active project ownerships", queue="error"
-            )
-        ]
-
-    def test_delete_account_has_sole_organizations(self, mocker):
-        request = mocker.Mock(
-            params={"confirm_password": "password"},
-            user=mocker.Mock(username="username"),
-            session=mocker.Mock(),
-            find_service=lambda *a, **kw: mocker.Mock(),
-        )
-
-        confirm_password_obj = mocker.Mock(validate=lambda: True)
-        mocker.patch.object(
-            views, "ConfirmPasswordForm", return_value=confirm_password_obj
-        )
-
-        mocker.patch.object(
-            views.ManageVerifiedAccountViews, "default_response", mocker.Mock()
-        )
-        # No sole project ownerships, but a sole organization ownership.
-        mocker.patch.object(views.ManageVerifiedAccountViews, "active_projects", [])
-        mocker.patch.object(
-            views.ManageVerifiedAccountViews, "sole_organizations", [mocker.Mock()]
-        )
-
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_account() == view.default_response
-        request.session.flash.assert_called_once_with(
-            "Cannot delete account with sole organization ownerships", queue="error"
-        )
-
-    def test_delete_account_blocks_non_good_standing_sole_organizations(
-        self, db_request, mocker
+    def test_delete_account_has_active_projects(
+        self, verified_request, user_password, default_response
     ):
-        user = UserFactory.create()
+        verified_request.params = {"confirm_password": user_password}
+        RoleFactory.create(user=verified_request.user, role_name="Owner")
 
-        # A Company org with no subscription is not in good standing, but its
-        # owner can still reach the settings page to delete it or hand it off,
-        # so it blocks account deletion like any other sole-owned organization.
-        organization = OrganizationFactory.create(
-            orgtype=OrganizationType.Company, is_active=True
+        view = views.ManageVerifiedAccountViews(verified_request)
+
+        assert view.delete_account() == default_response
+        verified_request.session.flash.assert_called_once_with(
+            "Cannot delete account with active project ownerships", queue="error"
         )
+
+    @pytest.mark.parametrize(
+        "orgtype", [OrganizationType.Community, OrganizationType.Company]
+    )
+    def test_delete_account_has_sole_organizations(
+        self, verified_request, user_password, default_response, orgtype
+    ):
+        """
+        A sole organization ownership blocks deletion even without a sole
+        project ownership. A Company org with no subscription is not in good
+        standing, but its owner can still reach the settings page to delete it
+        or hand it off, so it blocks too.
+        """
+        verified_request.params = {"confirm_password": user_password}
         OrganizationRoleFactory.create(
-            organization=organization,
-            user=user,
+            organization=OrganizationFactory.create(orgtype=orgtype),
+            user=verified_request.user,
             role_name=OrganizationRoleType.Owner,
         )
 
-        db_request.user = user
-        db_request.params = {"confirm_password": user.password}
-        db_request.find_service = lambda *a, **kw: mocker.Mock()
-        db_request.session = mocker.Mock()
-
-        confirm_password_obj = mocker.Mock(validate=lambda: True)
-        mocker.patch.object(
-            views, "ConfirmPasswordForm", return_value=confirm_password_obj
-        )
-        default_response = mocker.Mock()
-        mocker.patch.object(
-            views.ManageVerifiedAccountViews, "default_response", default_response
-        )
-
-        view = views.ManageVerifiedAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(verified_request)
 
         assert view.delete_account() == default_response
-
-        db_request.session.flash.assert_called_once_with(
+        verified_request.session.flash.assert_called_once_with(
             "Cannot delete account with sole organization ownerships", queue="error"
-        )
-        assert organization.is_active is True
-        assert (
-            db_request.db.query(User).filter(User.username == user.username).first()
-            is not None
         )
 
 
