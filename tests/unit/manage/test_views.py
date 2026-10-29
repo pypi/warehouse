@@ -2,6 +2,7 @@
 
 import base64
 import datetime as dt
+import time
 import uuid
 
 import pretend
@@ -72,7 +73,9 @@ from warehouse.utils.project import (
 from ...common.db.accounts import (
     EmailFactory,
     OAuthAccountAssociationFactory,
+    RecoveryCodeFactory,
     UserFactory,
+    WebAuthnFactory,
 )
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
@@ -165,6 +168,20 @@ def real_session_request(verified_request, mocker):
     verified_request.session = Session()
     mocker.spy(verified_request.session, "flash")
     return verified_request
+
+
+@pytest.fixture
+def two_factor_request(pyramid_config, real_session_request):
+    """
+    ``real_session_request`` with a burned recovery code and a site name.
+    ``pyramid_config`` is requested first because it replaces the registry the
+    site name is written to.
+    """
+    real_session_request.registry.settings["site.name"] = "PyPI"
+    RecoveryCodeFactory.create(
+        user=real_session_request.user, burned=dt.datetime.now(dt.UTC)
+    )
+    return real_session_request
 
 
 class TestManageUnverifiedAccount:
@@ -1035,296 +1052,216 @@ class TestManageAccount:
 
 
 class Test2FA:
-    def test_manage_two_factor(self):
-        request = pretend.stub()
-        assert views.manage_two_factor(request) == {}
+    def test_manage_two_factor(self, mocker):
+        assert views.manage_two_factor(mocker.sentinel.request) == {}
 
 
 class TestProvisionTOTP:
-    def test_generate_totp_qr(self, monkeypatch):
-        user_service = pretend.stub(get_totp_secret=lambda id: None)
-        request = pretend.stub(
-            session=pretend.stub(get_totp_secret=otp.generate_totp_secret),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username="foobar",
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
-        )
+    def test_generate_totp_qr(self, two_factor_request):
+        session = two_factor_request.session
 
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.generate_totp_qr()
 
         assert isinstance(result, HTTPOk)
         assert result.content_type == "image/svg+xml"
+        assert b"<svg" in result.body
+        assert session.totp_secret_status() == "present"
+        session.flash.assert_not_called()
 
-    def test_generate_totp_qr_two_factor_not_allowed(self):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(has_primary_verified_email=False),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
+    def test_generate_totp_qr_two_factor_not_allowed(self, post_request):
+        post_request.user = UserFactory.create()
 
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(post_request)
         result = view.generate_totp_qr()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Verify your email to modify two factor authentication", queue="error"
-            )
-        ]
-
-    @pytest.mark.parametrize("current_totp_secret", [b"foobar", None])
-    def test_totp_provision(self, monkeypatch, current_totp_secret):
-        user_service = pretend.stub(get_totp_secret=lambda id: current_totp_secret)
-        request = pretend.stub(
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: b"secret",
-            ),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-                has_burned_recovery_codes=True,
-            ),
-            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+        assert result.headers["Location"] == "/manage.account/"
+        post_request.session.flash.assert_called_once_with(
+            "Verify your email to modify two factor authentication", queue="error"
         )
 
-        provision_totp_obj = pretend.stub(validate=lambda: True)
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+    def test_totp_provision(self, two_factor_request):
+        user = two_factor_request.user
+        secret = two_factor_request.session.get_totp_secret()
 
-        generate_totp_provisioning_uri = pretend.call_recorder(
-            lambda a, b, **k: "not_a_real_uri"
-        )
-        monkeypatch.setattr(
-            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
-        )
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.totp_provision()
 
-        assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
+        form = result["provision_totp_form"]
         assert result == {
-            "provision_totp_secret": base64.b32encode(b"secret").decode(),
-            "provision_totp_form": provision_totp_obj,
-            "provision_totp_uri": "not_a_real_uri",
+            "provision_totp_secret": base64.b32encode(secret).decode(),
+            "provision_totp_form": form,
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                secret, user.username, issuer_name="PyPI"
+            ),
         }
+        assert isinstance(form, views.ProvisionTOTPForm)
+        assert form.totp_secret == secret
 
     @pytest.mark.parametrize(
-        ("user", "expected_flash_calls"),
+        ("burned", "verified", "expected_route", "expected_flash"),
         [
+            (False, True, "manage.account.recovery-codes.burn", None),
             (
-                pretend.stub(
-                    has_burned_recovery_codes=False, has_primary_verified_email=True
-                ),
-                [],
-            ),
-            (
-                pretend.stub(
-                    has_burned_recovery_codes=True, has_primary_verified_email=False
-                ),
-                [
-                    pretend.call(
-                        "Verify your email to modify two factor authentication",
-                        queue="error",
-                    )
-                ],
+                True,
+                False,
+                "manage.account",
+                "Verify your email to modify two factor authentication",
             ),
         ],
     )
-    def test_totp_provision_two_factor_not_allowed(self, user, expected_flash_calls):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=user,
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
+    def test_totp_provision_two_factor_not_allowed(
+        self, post_request, burned, verified, expected_route, expected_flash
+    ):
+        user = UserFactory.create(with_verified_primary_email=verified)
+        if burned:
+            RecoveryCodeFactory.create(user=user, burned=dt.datetime.now(dt.UTC))
+        post_request.user = user
 
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(post_request)
         result = view.totp_provision()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == expected_flash_calls
+        assert result.headers["Location"] == f"/{expected_route}/"
+        if expected_flash is None:
+            post_request.session.flash.assert_not_called()
+        else:
+            post_request.session.flash.assert_called_once_with(
+                expected_flash, queue="error"
+            )
 
     @pytest.mark.parametrize("current_totp_secret", [b"foobar", None])
-    def test_validate_totp_provision(self, monkeypatch, current_totp_secret):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: current_totp_secret,
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
+    def test_validate_totp_provision(
+        self, two_factor_request, user_service, metrics, mocker, current_totp_secret
+    ):
+        user = two_factor_request.user
+        user.totp_secret = current_totp_secret
+        session = two_factor_request.session
+        secret = session.get_totp_secret()
+        two_factor_request.POST = MultiDict(
+            {"totp_value": otp._get_totp(secret).generate(time.time()).decode()}
         )
-        request = pretend.stub(
-            POST={"totp_value": "123456"},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                totp_secret_status=lambda: "present",
-                get_totp_secret=pretend.call_recorder(lambda: b"secret"),
-                clear_totp_secret=lambda: None,
-            ),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_burned_recovery_codes=True,
-                has_primary_verified_email=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
-            remote_addr="0.0.0.0",
+        get_totp_secret = mocker.spy(session, "get_totp_secret")
+        update_user = mocker.spy(user_service, "update_user")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_added_email", autospec=True
         )
 
-        provision_totp_obj = pretend.stub(validate=lambda: True)
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_two_factor_added_email", send_email)
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.validate_totp_provision()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
-        assert user_service.update_user.calls == [
-            pretend.call(request.user.id, totp_secret=b"secret")
-        ]
+        assert result.headers["Location"] == "/manage.account/"
+        update_user.assert_called_once_with(user.id, totp_secret=secret)
+        assert user.totp_secret == secret
         # A second read could regenerate an expired secret and save the wrong one
-        assert request.session.get_totp_secret.calls == [pretend.call()]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Authentication application successfully set up", queue="success"
-            )
-        ]
+        get_totp_secret.assert_called_once_with()
+        assert session.totp_secret_status() == "missing"
+        session.flash.assert_called_once_with(
+            "Authentication application successfully set up", queue="success"
+        )
         expected_record_event_calls = [
-            pretend.call(
+            mocker.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                request=request,
+                request=two_factor_request,
                 additional={"method": "totp"},
             )
         ]
         if current_totp_secret:
             expected_record_event_calls.insert(
                 0,
-                pretend.call(
+                mocker.call(
                     tag=EventTag.Account.TwoFactorMethodRemoved,
-                    request=request,
+                    request=two_factor_request,
                     additional={"method": "totp"},
                 ),
             )
-        assert request.user.record_event.calls == expected_record_event_calls
-        assert send_email.calls == [
-            pretend.call(request, request.user, method="totp"),
-        ]
-        assert request.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.manage.account.totp_provision",
-                tags=["result:success", "session_secret:present"],
-            )
-        ]
+        assert record_event.call_args_list == expected_record_event_calls
+        send_email.assert_called_once_with(two_factor_request, user, method="totp")
+        metrics.increment.assert_called_once_with(
+            "warehouse.manage.account.totp_provision",
+            tags=["result:success", "session_secret:present"],
+        )
 
     @pytest.mark.parametrize(
-        ("totp_failure", "expected_result"),
+        ("totp_failure", "expected_result", "expected_errors"),
         [
-            ("invalid", "invalid"),
-            ("out_of_sync", "out_of_sync"),
-            ("malformed", "malformed"),
+            ("invalid", "invalid", ["Invalid TOTP code. Try again?"]),
+            (
+                "out_of_sync",
+                "out_of_sync",
+                ["Invalid TOTP code. Your device time may be out of sync."],
+            ),
+            (
+                "malformed",
+                "malformed",
+                ["TOTP code must be 6 digits.", "Invalid TOTP code. Try again?"],
+            ),
             # Validation stopped before the code was checked, e.g. empty input.
-            (None, "malformed"),
+            (None, "malformed", ["This field is required."]),
         ],
     )
     @pytest.mark.parametrize("session_secret", ["present", "missing", "expired"])
     def test_validate_totp_provision_invalid_form(
         self,
-        monkeypatch,
+        two_factor_request,
+        user_service,
+        metrics,
+        mocker,
         totp_failure,
         expected_result,
+        expected_errors,
         session_secret,
     ):
-        user_service = pretend.stub(get_totp_secret=lambda id: None)
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                totp_secret_status=lambda: session_secret,
-                get_totp_secret=lambda: b"secret",
-            ),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_burned_recovery_codes=True,
-                has_primary_verified_email=True,
-            ),
-            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
-            _=lambda msg: msg,
+        """
+        ``generate_totp_secret`` is pinned so a missing or expired session
+        secret regenerates to a known one the submitted codes are built from.
+        """
+        user = two_factor_request.user
+        totp_secret = user.totp_secret
+        secret = otp.generate_totp_secret()
+        mocker.patch.object(
+            otp, "generate_totp_secret", autospec=True, return_value=secret
         )
+        session = two_factor_request.session
+        if session_secret != "missing":
+            session.get_totp_secret()
+        if session_secret == "expired":
+            session[Session._totp_secret_timestamp_key] -= Session._totp_secret_max_age
+        totp = otp._get_totp(secret)
+        two_factor_request.POST = MultiDict(
+            {
+                "totp_value": {
+                    "invalid": totp.generate(time.time() + 20 * otp.TOTP_INTERVAL),
+                    "out_of_sync": totp.generate(time.time() + 5 * otp.TOTP_INTERVAL),
+                    "malformed": b"12345",
+                    None: b"",
+                }[totp_failure].decode()
+            }
+        )
+        update_user = mocker.spy(user_service, "update_user")
 
-        provision_totp_obj = pretend.stub(
-            validate=lambda: False,
-            totp_value=pretend.stub(data="123456", errors=["Invalid TOTP code."]),
-            totp_failure=totp_failure,
-        )
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
-
-        generate_totp_provisioning_uri = pretend.call_recorder(
-            lambda a, b, **k: "not_a_real_uri"
-        )
-        monkeypatch.setattr(
-            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
-        )
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.validate_totp_provision()
 
-        assert request.session.flash.calls == []
-        assert request.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.manage.account.totp_provision",
-                tags=[
-                    f"result:{expected_result}",
-                    f"session_secret:{session_secret}",
-                ],
-            )
-        ]
-        assert provision_totp_obj.totp_value.errors == (
-            ["Invalid TOTP code."]
+        two_factor_request.session.flash.assert_not_called()
+        update_user.assert_not_called()
+        assert user.totp_secret == totp_secret
+        metrics.increment.assert_called_once_with(
+            "warehouse.manage.account.totp_provision",
+            tags=[
+                f"result:{expected_result}",
+                f"session_secret:{session_secret}",
+            ],
+        )
+        form = result["provision_totp_form"]
+        assert isinstance(form, views.ProvisionTOTPForm)
+        assert form.totp_secret == secret
+        assert form.totp_failure == totp_failure
+        assert [str(error) for error in form.totp_value.errors] == (
+            expected_errors
             if session_secret == "present"
             else [
                 (
@@ -1334,232 +1271,138 @@ class TestProvisionTOTP:
             ]
         )
         assert result == {
-            "provision_totp_secret": base64.b32encode(b"secret").decode(),
-            "provision_totp_form": provision_totp_obj,
-            "provision_totp_uri": "not_a_real_uri",
+            "provision_totp_secret": base64.b32encode(secret).decode(),
+            "provision_totp_form": form,
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                secret, user.username, issuer_name="PyPI"
+            ),
         }
 
-    def test_validate_totp_provision_two_factor_not_allowed(self):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                has_burned_recovery_codes=True, has_primary_verified_email=False
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
+    def test_validate_totp_provision_two_factor_not_allowed(self, post_request):
+        user = UserFactory.create()
+        RecoveryCodeFactory.create(user=user, burned=dt.datetime.now(dt.UTC))
+        post_request.user = user
 
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(post_request)
         result = view.validate_totp_provision()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Verify your email to modify two factor authentication", queue="error"
-            )
-        ]
+        assert result.headers["Location"] == "/manage.account/"
+        post_request.session.flash.assert_called_once_with(
+            "Verify your email to modify two factor authentication", queue="error"
+        )
 
     def test_validate_totp_provision_without_burned_recovery_codes(
-        self, db_request, mocker
+        self, verified_request
     ):
         """Enrolling TOTP requires recovery codes to be confirmed first."""
-        user = UserFactory.create(with_verified_primary_email=True)
+        user = verified_request.user
         totp_secret = user.totp_secret
-        db_request.user = user
-        db_request.route_path = mocker.Mock(return_value="/burn/")
-        db_request.POST = MultiDict({"totp_value": "123456"})
+        verified_request.POST = MultiDict({"totp_value": "123456"})
 
-        result = views.ProvisionTOTPViews(db_request).validate_totp_provision()
+        result = views.ProvisionTOTPViews(verified_request).validate_totp_provision()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/burn/"
-        db_request.route_path.assert_called_once_with(
-            "manage.account.recovery-codes.burn"
-        )
+        assert result.headers["Location"] == "/manage.account.recovery-codes.burn/"
         assert user.totp_secret == totp_secret
 
-    def test_delete_totp(self, monkeypatch, db_request):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: b"secret",
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            POST={"confirm_password": pretend.stub()},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                totp_secret=b"secret",
-                has_primary_verified_email=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-                has_single_2fa=False,
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
-            remote_addr="0.0.0.0",
+    def test_delete_totp(self, two_factor_request, user_password, user_service, mocker):
+        user = two_factor_request.user
+        WebAuthnFactory.create(user=user)
+        two_factor_request.POST = MultiDict({"confirm_password": user_password})
+        update_user = mocker.spy(user_service, "update_user")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_removed_email", autospec=True
         )
 
-        delete_totp_obj = pretend.stub(validate=lambda: True)
-        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
-        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_two_factor_removed_email", send_email)
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.delete_totp()
 
-        assert user_service.update_user.calls == [
-            pretend.call(request.user.id, totp_secret=None)
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Authentication application removed from PyPI. "
-                "Remember to remove PyPI from your application.",
-                queue="success",
-            )
-        ]
+        update_user.assert_called_once_with(user.id, totp_secret=None)
+        assert user.totp_secret is None
+        two_factor_request.session.flash.assert_called_once_with(
+            "Authentication application removed from PyPI. "
+            "Remember to remove PyPI from your application.",
+            queue="success",
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.TwoFactorMethodRemoved,
-                request=request,
-                additional={"method": "totp"},
-            )
-        ]
-        assert send_email.calls == [
-            pretend.call(request, request.user, method="totp"),
-        ]
-
-    def test_delete_totp_bad_password(self, monkeypatch, db_request):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: b"secret",
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        assert result.headers["Location"] == "/manage.account/"
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.TwoFactorMethodRemoved,
+            request=two_factor_request,
+            additional={"method": "totp"},
         )
-        request = pretend.stub(
-            POST={"confirm_password": pretend.stub()},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-                has_single_2fa=False,
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
+        send_email.assert_called_once_with(two_factor_request, user, method="totp")
+
+    @pytest.mark.usefixtures("user_password")
+    def test_delete_totp_bad_password(self, two_factor_request, user_service, mocker):
+        user = two_factor_request.user
+        totp_secret = user.totp_secret
+        WebAuthnFactory.create(user=user)
+        two_factor_request.POST = MultiDict({"confirm_password": "wrong password"})
+        update_user = mocker.spy(user_service, "update_user")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_removed_email", autospec=True
         )
 
-        delete_totp_obj = pretend.stub(validate=lambda: False)
-        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
-        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.delete_totp()
 
-        assert user_service.update_user.calls == []
-        assert request.session.flash.calls == [
-            pretend.call("Invalid credentials. Try again", queue="error")
-        ]
+        update_user.assert_not_called()
+        assert user.totp_secret == totp_secret
+        send_email.assert_not_called()
+        two_factor_request.session.flash.assert_called_once_with(
+            "Invalid credentials. Try again", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
+        assert result.headers["Location"] == "/manage.account/"
 
-    def test_delete_totp_not_provisioned(self, monkeypatch, db_request):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: None,
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            POST={"confirm_password": pretend.stub()},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
+    def test_delete_totp_not_provisioned(
+        self, two_factor_request, user_service, mocker
+    ):
+        two_factor_request.user.totp_secret = None
+        two_factor_request.POST = MultiDict({"confirm_password": "password"})
+        update_user = mocker.spy(user_service, "update_user")
 
-        delete_totp_obj = pretend.stub(validate=lambda: True)
-        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
-        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-
-        view = views.ProvisionTOTPViews(request)
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.delete_totp()
 
-        assert user_service.update_user.calls == []
-        assert request.session.flash.calls == [
-            pretend.call(
-                "There is no authentication application to delete", queue="error"
-            )
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
-
-    def test_delete_totp_two_factor_not_allowed(self):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(has_primary_verified_email=False),
-            route_path=lambda *a, **kw: "/foo/bar/",
+        update_user.assert_not_called()
+        two_factor_request.session.flash.assert_called_once_with(
+            "There is no authentication application to delete", queue="error"
         )
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage.account/"
 
-        view = views.ProvisionTOTPViews(request)
+    def test_delete_totp_two_factor_not_allowed(self, post_request):
+        post_request.user = UserFactory.create()
+
+        view = views.ProvisionTOTPViews(post_request)
         result = view.delete_totp()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Verify your email to modify two factor authentication", queue="error"
-            )
-        ]
-
-    def test_delete_totp_last_2fa(self, monkeypatch, db_request):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: b"secret",
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            POST={"confirm_password": pretend.stub()},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-                has_single_2fa=True,
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
+        assert result.headers["Location"] == "/manage.account/"
+        post_request.session.flash.assert_called_once_with(
+            "Verify your email to modify two factor authentication", queue="error"
         )
 
-        view = views.ProvisionTOTPViews(request)
+    def test_delete_totp_last_2fa(self, two_factor_request, user_service, mocker):
+        user = two_factor_request.user
+        totp_secret = user.totp_secret
+        two_factor_request.POST = MultiDict({"confirm_password": "password"})
+        update_user = mocker.spy(user_service, "update_user")
+
+        view = views.ProvisionTOTPViews(two_factor_request)
         result = view.delete_totp()
 
-        assert user_service.update_user.calls == []
-        assert request.session.flash.calls == [
-            pretend.call("Cannot remove last 2FA method", queue="error")
-        ]
+        update_user.assert_not_called()
+        assert user.totp_secret == totp_secret
+        two_factor_request.session.flash.assert_called_once_with(
+            "Cannot remove last 2FA method", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
+        assert result.headers["Location"] == "/manage.account/"
 
 
 class TestProvisionWebAuthn:
