@@ -15,7 +15,7 @@ import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
-from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
+from sqlalchemy.exc import DBAPIError, OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from warehouse.metrics import IMetricsService
@@ -48,7 +48,10 @@ DEFAULT_ISOLATION = "READ COMMITTED"
 # fail. We consider this an acceptable trade off, because deterministic IntegrityError
 # should be caught with proper validation prior to submitting records to the database
 # anyways.
-pyramid_retry.mark_error_retryable(IntegrityError)
+#
+# The marker goes on psycopg's IntegrityError rather than SQLAlchemy's, because
+# unwrap_dbapi_exceptions below re-raises the driver exception.
+pyramid_retry.mark_error_retryable(psycopg.IntegrityError)
 
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
