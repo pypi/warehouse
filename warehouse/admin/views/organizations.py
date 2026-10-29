@@ -926,13 +926,22 @@ def organization_application_approve(request: Request) -> HTTPSeeOther:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
     _require_undecided(request, organization_application)
-    if (
+
+    # Only admins who may change organization names can hand a deleted
+    # organization's name to this one; any other holder blocks approval.
+    claim_orphaned_name = request.params.get(
+        "claim_orphaned_name"
+    ) == "true" and request.has_permission(Permissions.AdminOrganizationsNameWrite)
+    catalog_entry = (
         request.db.query(OrganizationNameCatalog)
         .filter(
             OrganizationNameCatalog.normalized_name
             == organization_application.normalized_name
         )
         .first()
+    )
+    if catalog_entry is not None and not (
+        catalog_entry.organization_id is None and claim_orphaned_name
     ):
         # Approving would fail in add_catalog_entry after creating the org.
         request.session.flash(
@@ -947,7 +956,7 @@ def organization_application_approve(request: Request) -> HTTPSeeOther:
         )
 
     organization = organization_service.approve_organization_application(
-        organization_application.id, request
+        organization_application.id, request, claim_orphaned_name=claim_orphaned_name
     )
 
     request.session.flash(
