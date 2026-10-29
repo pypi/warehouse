@@ -133,6 +133,25 @@
   </div>
   {% endif %}
 
+  {% if orphaned_name and not is_decided %}
+  <div class="alert alert-warning" role="alert">
+    <h2 class="alert-heading">
+      <i class="fa-solid fa-lock mr-2" aria-hidden="true"></i>
+      Name held by a deleted organization
+    </h2>
+    <p class="lead">
+      <strong>{{ organization_application.normalized_name }}</strong> belonged to an organization that was deleted.
+      Approving fails until the name is released.
+    </p>
+    {% if request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
+    <form method="POST" action="{{ request.route_path('admin.organization_application.releasename', organization_application_id=organization_application.id) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <button type="submit" class="btn btn-warning" onclick="return confirm('Release this name so the application can be approved?')">Release name</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <div class="row text-break org-review-layout">
     <div class="col-xl-3 col-md-4">
       <div class="org-review-rail">
