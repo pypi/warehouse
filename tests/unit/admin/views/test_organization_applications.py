@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from sqlalchemy import update
 from webob.multidict import MultiDict
 
@@ -37,6 +37,8 @@ def _organization_application_routes(
         return f"/admin/organizations/{organization_id}/"
     if route_name == "admin.dashboard":
         return "/admin/"
+    if route_name == "admin.organization_name.list":
+        return "/admin/organization_names/"
     pytest.fail(f"No dummy route found for {route_name}")
 
 
@@ -1170,3 +1172,85 @@ class TestOrganizationApplicationActions:
         assert organization_application.observations == []
         for email in emails:
             email.assert_not_called()
+
+
+class TestOrganizationNames:
+    def test_list(self, db_request):
+        beta = OrganizationNameCatalogFactory.create(
+            normalized_name="beta", organization_id=None
+        )
+        alpha = OrganizationNameCatalogFactory.create(
+            normalized_name="alpha", organization_id=None
+        )
+        OrganizationFactory.create(name="gamma")
+        open_application = OrganizationApplicationFactory.create(name="Alpha")
+        OrganizationApplicationFactory.create(
+            name="alpha", status=OrganizationApplicationStatus.Declined
+        )
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [alpha, beta]
+        assert result["open_applications"] == {"alpha": [open_application]}
+        assert result["query"] == ""
+
+    def test_list_query(self, db_request):
+        match = OrganizationNameCatalogFactory.create(
+            normalized_name="acme-labs", organization_id=None
+        )
+        OrganizationNameCatalogFactory.create(
+            normalized_name="other", organization_id=None
+        )
+        db_request.params["q"] = "ACME_Labs"
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [match]
+
+    def test_list_invalid_page(self, db_request):
+        db_request.params["page"] = "not an integer"
+
+        with pytest.raises(HTTPBadRequest):
+            views.organization_name_list(db_request)
+
+    def test_release(self, db_request):
+        OrganizationNameCatalogFactory.create(
+            normalized_name="alpha", organization_id=None
+        )
+        other = OrganizationNameCatalogFactory.create(
+            normalized_name="beta", organization_id=None
+        )
+        open_application = OrganizationApplicationFactory.create(name="alpha")
+        declined = OrganizationApplicationFactory.create(
+            name="alpha", status=OrganizationApplicationStatus.Declined
+        )
+        db_request.POST["normalized_name"] = "alpha"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_name_release(db_request)
+
+        assert db_request.db.query(OrganizationNameCatalog).all() == [other]
+        assert [o.payload for o in open_application.observations] == [
+            {"message": "Released the name 'alpha' from a deleted organization."}
+        ]
+        assert declined.observations == []
+        assert db_request.session.pop_flash("success") == ['Released the name "alpha"']
+        assert result.status_code == 303
+        assert result.location == "/admin/organization_names/"
+
+    def test_release_keeps_live_organization(self, db_request):
+        organization = OrganizationFactory.create(name="alpha")
+        db_request.POST["normalized_name"] = "alpha"
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_name_release(db_request)
+
+        assert [
+            entry.organization_id
+            for entry in db_request.db.query(OrganizationNameCatalog).all()
+        ] == [organization.id]
+        assert db_request.session.pop_flash("error") == [
+            'The name "alpha" is not held by a deleted organization'
+        ]
+        assert result.location == "/admin/organization_names/"
