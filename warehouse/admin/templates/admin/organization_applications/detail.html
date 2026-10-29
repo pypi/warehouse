@@ -206,7 +206,7 @@
                 class="btn btn-primary btn-block"
                 data-toggle="modal"
                 data-hotkey-binding=65
-                data-target="#approveModal" {{ 'disabled' if not can_write or is_decided }}
+                data-target="#approveModal" {{ 'disabled' if not can_write or is_decided or orphaned_name }}
               >
                 <i class="icon fa fa-check"></i> Approve <span class="org-review-key">a</span>
               </button>
