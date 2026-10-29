@@ -47,19 +47,25 @@ class TestLink:
         assert _Link(value).registered_domain == expected
 
     @pytest.mark.parametrize(
-        ("value", "unverifiable", "github"),
+        ("value", "unverifiable", "github", "gitlab"),
         [
-            ("https://acme.com", False, False),
-            ("https://github.com/acme", True, True),
-            ("https://GITHUB.COM/acme", True, True),
-            ("https://acme.github.io", True, True),
-            ("https://gitlab.com/acme", True, False),
-            ("https://acme.uk.com", False, False),
+            ("https://acme.com", False, False, False),
+            ("https://github.com/acme", True, True, False),
+            ("https://GITHUB.COM/acme", True, True, False),
+            ("https://acme.github.io", True, True, False),
+            ("https://gitlab.com/acme", True, False, True),
+            ("https://acme.gitlab.io", True, False, True),
+            ("https://codeberg.org/acme", True, False, False),
+            ("https://acme.uk.com", False, False, False),
         ],
     )
-    def test_host_classification(self, value, unverifiable, github):
+    def test_host_classification(self, value, unverifiable, github, gitlab):
         link = _Link(value)
-        assert (link.unverifiable, link.github) == (unverifiable, github)
+        assert (link.unverifiable, link.github, link.gitlab) == (
+            unverifiable,
+            github,
+            gitlab,
+        )
 
     @pytest.mark.parametrize(
         ("value", "expected"),
@@ -191,27 +197,28 @@ class TestURLShape:
 
         checks = review_checks(application, user)
         assert find(checks, "url_shape_github") is None
+        assert find(checks, "url_shape_gitlab") is None
         assert find(checks, "url_shape_codehost") is None
 
-    def test_github_url(self, db_request):
+    @pytest.mark.parametrize(
+        ("link_url", "key", "host"),
+        [
+            ("https://github.com/acme", "url_shape_github", "github.com"),
+            ("https://gitlab.com/acme", "url_shape_gitlab", "gitlab.com"),
+            ("https://codeberg.org/acme", "url_shape_codehost", "codeberg.org"),
+        ],
+    )
+    def test_shared_host_routes_to_its_reply(self, db_request, link_url, key, host):
         user = UserFactory.create()
         application = OrganizationApplicationFactory.create(
-            link_url="https://github.com/acme", submitted_by=user
+            link_url=link_url, submitted_by=user
         )
 
-        check = find(review_checks(application, user), "url_shape_github")
-        assert check.status == CheckStatus.Warn
-        assert "github.com" in check.detail
-
-    def test_other_code_host(self, db_request):
-        user = UserFactory.create()
-        application = OrganizationApplicationFactory.create(
-            link_url="https://gitlab.com/acme", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "url_shape_codehost")
-        assert check.status == CheckStatus.Warn
-        assert "gitlab.com" in check.detail
+        checks = review_checks(application, user)
+        shape_checks = [check for check in checks if check.key.startswith("url_shape")]
+        assert [check.key for check in shape_checks] == [key]
+        assert shape_checks[0].status == CheckStatus.Warn
+        assert host in shape_checks[0].detail
 
 
 class TestNameDomainMatch:
@@ -337,37 +344,54 @@ class TestEmailVerified:
         assert "No primary email" in check.detail
 
 
-class TestGitHubAssociation:
-    def test_omitted_for_non_github_urls_when_unlinked(self, db_request):
+@pytest.mark.parametrize(
+    ("service", "name", "link_url"),
+    [
+        ("github", "GitHub", "https://github.com/acme"),
+        ("gitlab", "GitLab", "https://gitlab.com/acme"),
+    ],
+)
+class TestAccountAssociation:
+    def test_omitted_for_own_domain_when_unlinked(
+        self, db_request, service, name, link_url
+    ):
         user = UserFactory.create()
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
-        assert find(review_checks(application, user), "github_association") is None
+        assert find(review_checks(application, user), f"{service}_association") is None
 
-    def test_reported_for_non_github_urls_when_linked(self, db_request):
+    def test_reported_for_own_domain_when_linked(
+        self, db_request, service, name, link_url
+    ):
         # A linked account corroborates identity whatever the application URL is.
         user = UserFactory.create()
         OAuthAccountAssociationFactory.create(
-            user=user, service="github", external_username="jdoe"
+            user=user, service=service, external_username="jdoe"
         )
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
-        check = find(review_checks(application, user), "github_association")
+        check = find(review_checks(application, user), f"{service}_association")
         assert check.status == CheckStatus.Ok
-        assert "jdoe" in check.detail
+        assert check.label == f"{name} account association"
+        assert check.detail == "Linked to jdoe."
 
-    def test_warns_when_unlinked(self, db_request):
+    def test_warns_when_unlinked_on_its_host(self, db_request, service, name, link_url):
         user = UserFactory.create()
         application = OrganizationApplicationFactory.create(
-            link_url="https://github.com/acme", submitted_by=user
+            link_url=link_url, submitted_by=user
         )
 
-        check = find(review_checks(application, user), "github_association")
+        checks = review_checks(application, user)
+        check = find(checks, f"{service}_association")
         assert check.status == CheckStatus.Warn
+        assert check.detail == f"No {name} account linked."
+        # Only the URL's own service asks for a link.
+        other = "gitlab" if service == "github" else "github"
+        assert find(checks, f"{other}_association") is None
 
 
 class TestProjects:

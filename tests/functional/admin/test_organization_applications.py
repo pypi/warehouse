@@ -4,7 +4,11 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.accounts import (
+    EmailFactory,
+    OAuthAccountAssociationFactory,
+    UserFactory,
+)
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
@@ -76,6 +80,25 @@ def test_unreachable_applicant_blocks_information_requests(webtest, login_admin)
     request_info = detail.html.select_one('[data-target="#requestMoreInfoModal"]')
     assert request_info.has_attr("disabled")
     assert detail.html.select(".org-review-check-ask") == []
+
+
+def test_gitlab_application_suggests_gitlab_reply(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(
+        link_url="https://gitlab.com/acme"
+    )
+    EmailFactory.create(user=application.submitted_by)
+    OAuthAccountAssociationFactory.create(
+        user=application.submitted_by, service="gitlab", external_username="jdoe"
+    )
+
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+
+    asks = [ask["data-template"] for ask in detail.html.select(".org-review-check-ask")]
+    assert "GitLabAssociationTemplate" in asks
+    reply = detail.html.select_one("#GitLabAssociationTemplate")
+    assert "GitLab group" in reply.text
+    assert detail.html.select_one('a[href="https://gitlab.com/jdoe"]') is not None
 
 
 def test_reviewer_edits_application(webtest, login_admin):
