@@ -193,6 +193,7 @@ class TestDatabaseOrganizationService:
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message="",
+            primary_email_unverified=False,
         )
         send_declined.assert_called_once_with(
             db_request,
@@ -284,6 +285,7 @@ class TestDatabaseOrganizationService:
             organization_name=organization_application.name,
             organization_application_id=organization_application.id,
             message="some message",
+            primary_email_unverified=True,
         )
 
     def test_request_more_information_organization_application_no_message(
