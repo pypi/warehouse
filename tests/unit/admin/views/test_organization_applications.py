@@ -577,6 +577,7 @@ class TestOrganizationApplicationActions:
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message="Welcome!",
+            primary_email_unverified=False,
         )
         assert db_request.session.pop_flash("success") == [
             f'Request for "{organization.name}" organization approved'
@@ -830,6 +831,7 @@ class TestOrganizationApplicationActions:
             organization_name=organization_application.name,
             organization_application_id=organization_application.id,
             message="Welcome!",
+            primary_email_unverified=False,
         )
         assert db_request.session.pop_flash("success") == [
             (
