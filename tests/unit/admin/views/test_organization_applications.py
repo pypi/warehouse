@@ -586,6 +586,34 @@ class TestOrganizationApplicationActions:
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
+    def test_approve_reserved_name(self, db_request, mocker):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        OrganizationNameCatalogFactory.create(
+            normalized_name="example", organization_id=None
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_approve(db_request)
+
+        assert organization_application.status == (
+            OrganizationApplicationStatus.Submitted
+        )
+        assert organization_application.organization is None
+        send_approved.assert_not_called()
+        assert db_request.session.pop_flash("error") == [
+            'The name "example" is already reserved'
+        ]
+        assert result.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
+        )
+
     def test_approve_turbo_mode(self, db_request, mocker):
         mocker.patch.object(services, "send_new_organization_approved_email")
         admin = UserFactory.create()
