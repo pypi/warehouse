@@ -1215,6 +1215,7 @@ def organization_application_release_name(request: Request) -> HTTPSeeOther:
     )
     if organization_application is None:
         raise HTTPNotFound
+    request.db.refresh(organization_application, with_for_update=True)
     _require_undecided(request, organization_application)
 
     if _release_orphaned_name(request, organization_application.normalized_name):
