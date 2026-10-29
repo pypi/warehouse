@@ -138,7 +138,10 @@
     <i class="fa-solid fa-lock text-warning mr-3" aria-hidden="true"></i>
     <div class="flex-grow-1">
       <strong>Name held by a deleted organization.</strong>
-      <code>{{ organization_application.normalized_name }}</code> is still reserved, so approving fails until it is released.
+      <code>{{ organization_application.normalized_name }}</code> is still reserved, so this application can't be approved until it is released.
+      {% if not request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
+      Ask an admin to release it.
+      {% endif %}
     </div>
     {% if request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
     <form class="ml-3 mb-0" method="POST" action="{{ request.route_path('admin.organization_application.releasename', organization_application_id=organization_application.id) }}">
