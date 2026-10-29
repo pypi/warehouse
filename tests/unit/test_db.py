@@ -4,6 +4,7 @@ import types
 
 import alembic.config
 import psycopg
+import pyramid_retry
 import pytest
 import sqlalchemy
 import venusian
@@ -23,8 +24,10 @@ from warehouse.db import (
     includeme,
     unwrap_dbapi_exceptions,
 )
+from warehouse.packaging.models import Role
 
 from ..common.db.admin import AdminFlagFactory
+from ..common.db.packaging import RoleFactory
 
 
 def test_model_base_repr(mocker):
@@ -230,3 +233,14 @@ def test_unwrap_dbapi_exceptions_no_op():
         original_exception=None,
     )
     unwrap_dbapi_exceptions(context)
+
+
+def test_integrity_errors_are_retryable(db_session):
+    # A failed flush raises the unwrapped psycopg error; pyramid_retry must match it.
+    role = RoleFactory.create()
+    db_session.add(Role(user=role.user, project=role.project, role_name="Maintainer"))
+
+    with pytest.raises(psycopg.errors.UniqueViolation) as e:
+        db_session.flush()
+
+    assert pyramid_retry.IRetryableError.providedBy(e.value)
