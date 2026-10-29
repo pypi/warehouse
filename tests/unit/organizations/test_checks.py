@@ -7,6 +7,7 @@ from warehouse.organizations.checks import (
     _email_domain,
     _Link,
     can_email,
+    reachable_email,
     review_checks,
 )
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -306,35 +307,67 @@ class TestEmailVerified:
             == CheckStatus.Ok
         )
 
-    def test_fails_with_unverified_primary_and_verified_secondary(self, db_request):
-        # Mail goes only to the primary, so a verified secondary doesn't help.
+    @pytest.mark.parametrize(
+        ("primary_kwargs", "detail"),
+        [
+            (
+                {"email": "jdoe@acme.com", "verified": False},
+                "jdoe@acme.com is unverified. Emails go to jdoe@gmail.com instead.",
+            ),
+            (
+                None,
+                (
+                    "No primary email address on this account. "
+                    "Emails go to jdoe@gmail.com instead."
+                ),
+            ),
+        ],
+    )
+    def test_warns_and_falls_back_to_verified_secondary(
+        self, db_request, primary_kwargs, detail
+    ):
         user = UserFactory.create()
-        EmailFactory.create(user=user, email="jdoe@acme.com", verified=False)
-        EmailFactory.create(
+        if primary_kwargs is not None:
+            EmailFactory.create(user=user, **primary_kwargs)
+        secondary = EmailFactory.create(
             user=user, email="jdoe@gmail.com", verified=True, primary=False
         )
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
-        assert not can_email(user)
+        assert reachable_email(user) == secondary
+        assert can_email(user)
         check = find(review_checks(application, user), "email_verified")
-        assert check.status == CheckStatus.Fail
-        assert "jdoe@acme.com is unverified" in check.detail
+        assert check.status == CheckStatus.Warn
+        assert check.detail == detail
 
-    def test_fails_without_primary_email(self, db_request):
+    @pytest.mark.parametrize(
+        ("emails", "detail"),
+        [
+            (
+                [{"email": "jdoe@acme.com", "verified": False}],
+                "jdoe@acme.com is unverified. No email will reach the applicant.",
+            ),
+            (
+                [{"email": "jdoe@acme.com", "verified": False, "primary": False}],
+                "No primary email address on this account.",
+            ),
+        ],
+    )
+    def test_fails_without_any_verified_email(self, db_request, emails, detail):
         user = UserFactory.create()
-        EmailFactory.create(
-            user=user, email="jdoe@acme.com", verified=True, primary=False
-        )
+        for kwargs in emails:
+            EmailFactory.create(user=user, **kwargs)
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
         )
 
+        assert reachable_email(user) is None
         assert not can_email(user)
         check = find(review_checks(application, user), "email_verified")
         assert check.status == CheckStatus.Fail
-        assert "No primary email" in check.detail
+        assert check.detail == detail
 
 
 class TestGitHubAssociation:
