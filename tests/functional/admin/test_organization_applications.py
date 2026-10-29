@@ -8,6 +8,7 @@ from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
 from tests.common.db.packaging import ProjectFactory
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -285,3 +286,38 @@ def test_superuser_navigation_on_resource_pages(webtest, login_admin, page):
         f"/admin/users/{admin.username}/",
     } <= sidebar
     assert response.html.select_one('.breadcrumb a[href="/admin/"]')
+
+
+@pytest.mark.parametrize("role", ["is_superuser", "is_org_application_reviewer"])
+def test_release_deleted_organization_name(webtest, login_admin, mocker, role):
+    login_admin(**{role: True})
+    application = OrganizationApplicationFactory.create()
+    EmailFactory.create(user=application.submitted_by)
+    mocker.patch(
+        "warehouse.organizations.services.send_new_organization_approved_email"
+    )
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+    detail_url = f"{APPLICATIONS}{application.id}/"
+    detail = webtest.get(detail_url, status=HTTPStatus.OK)
+    assert "Name held by a deleted organization" in detail.text
+    release = [
+        form for form in detail.forms.values() if form.action.endswith("/releasename/")
+    ]
+
+    if role == "is_org_application_reviewer":
+        assert release == []
+        webtest.post(
+            detail_url + "releasename/",
+            {"csrf_token": detail.forms["editModalForm"]["csrf_token"].value},
+            status=HTTPStatus.FORBIDDEN,
+        )
+        return
+
+    release[0].submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
+    approve = next(
+        form for form in detail.forms.values() if form.action.endswith("/approve/")
+    )
+    approve.submit(status=HTTPStatus.SEE_OTHER)
+    assert application.status == OrganizationApplicationStatus.Approved
