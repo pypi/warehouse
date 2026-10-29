@@ -214,11 +214,23 @@ class TestURLShape:
             link_url=link_url, submitted_by=user
         )
 
-        checks = review_checks(application, user)
+        checks = review_checks(application, user, gitlab_associations=True)
         shape_checks = [check for check in checks if check.key.startswith("url_shape")]
         assert [check.key for check in shape_checks] == [key]
         assert shape_checks[0].status == CheckStatus.Warn
         assert host in shape_checks[0].detail
+
+    def test_gitlab_url_without_gitlab_associations(self, db_request):
+        # Applicants can't link GitLab here, so don't ask them to.
+        user = UserFactory.create()
+        application = OrganizationApplicationFactory.create(
+            link_url="https://gitlab.com/acme", submitted_by=user
+        )
+
+        checks = review_checks(application, user, gitlab_associations=False)
+        shape_checks = [check for check in checks if check.key.startswith("url_shape")]
+        assert [check.key for check in shape_checks] == ["url_shape_codehost"]
+        assert find(checks, "gitlab_association") is None
 
 
 class TestNameDomainMatch:
@@ -385,7 +397,7 @@ class TestAccountAssociation:
             link_url=link_url, submitted_by=user
         )
 
-        checks = review_checks(application, user)
+        checks = review_checks(application, user, gitlab_associations=True)
         check = find(checks, f"{service}_association")
         assert check.status == CheckStatus.Warn
         assert check.detail == f"No {name} account linked."
