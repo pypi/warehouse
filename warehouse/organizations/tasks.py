@@ -12,7 +12,7 @@ import stripe
 import structlog
 
 from pyramid_retry import RetryableException
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, exists, or_, select
 from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse import tasks
@@ -48,6 +48,7 @@ from warehouse.organizations.models import (
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationNameCatalog,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationStripeSubscription,
@@ -142,6 +143,12 @@ def undefer_organization_applications(request: Request) -> None:
         .filter(
             OrganizationApplication.status == OrganizationApplicationStatus.Deferred,
             OrganizationApplication.updated < (dt.datetime.now(dt.UTC) - UNDEFER_AFTER),
+            # A name another organization now holds can't be approved; leave it.
+            ~exists().where(
+                OrganizationNameCatalog.normalized_name
+                == OrganizationApplication.normalized_name,
+                OrganizationNameCatalog.organization_id.is_not(None),
+            ),
         )
         # Lock so a concurrent approve, decline or withdraw isn't overwritten.
         .with_for_update(skip_locked=True)
