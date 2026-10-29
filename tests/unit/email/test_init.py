@@ -1156,6 +1156,7 @@ class TestSendNewOrganizationApprovedEmail:
             "organization_name": organization_name,
             "organization_type": organization_type,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1195,6 +1196,7 @@ class TestSendNewOrganizationApprovedEmail:
             },
         )
 
+    @pytest.mark.parametrize("primary_email_unverified", [True, False])
     @pytest.mark.parametrize(
         ("organization_type", "expects_action_required"),
         [
@@ -1208,6 +1210,7 @@ class TestSendNewOrganizationApprovedEmail:
         pyramid_config,
         organization_type,
         expects_action_required,
+        primary_email_unverified,
         send_email,
     ):
         """
@@ -1255,6 +1258,7 @@ class TestSendNewOrganizationApprovedEmail:
             organization_name=organization_name,
             organization_type=organization_type,
             message="example message",
+            primary_email_unverified=primary_email_unverified,
         )
 
         (_, msg, _), _ = send_email.delay.call_args
@@ -1274,6 +1278,9 @@ class TestSendNewOrganizationApprovedEmail:
         )
         assert management_url in body_text
         assert f'href="{management_url}"' in body_html
+        notice = "set a verified email address as your primary"
+        assert (notice in body_text) is primary_email_unverified
+        assert (notice in body_html) is primary_email_unverified
 
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
@@ -1308,6 +1315,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
             "organization_name": organization_name,
             "organization_application_id": organization_application_id,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1343,6 +1351,46 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
                 },
             },
         )
+
+    @pytest.mark.parametrize("primary_email_unverified", [True, False])
+    def test_renders_set_primary_notice(
+        self, db_request, pyramid_config, primary_email_unverified, send_email
+    ):
+        initiator_user = EmailFactory.create(
+            email="email@example.com",
+            verified=True,
+            user__username="username",
+            user__name="",
+        ).user
+
+        pyramid_config.include("pyramid_jinja2")
+        pyramid_config.add_settings({"jinja2.newstyle": True})
+        pyramid_config.add_settings({"jinja2.i18n.domain": "messages"})
+        pyramid_config.add_jinja2_renderer(".html")
+        pyramid_config.add_jinja2_renderer(".txt")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".html")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".txt")
+        pyramid_config.add_route(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+        )
+
+        db_request.user = initiator_user
+        db_request.registry.settings["warehouse.domain"] = "pypi.org"
+
+        email.send_new_organization_moreinformationneeded_email(
+            db_request,
+            initiator_user,
+            organization_name="example",
+            organization_application_id="deadbeef-dead-beef-dead-beefdeadbeef",
+            message="example message",
+            primary_email_unverified=primary_email_unverified,
+        )
+
+        (_, msg, _), _ = send_email.delay.call_args
+        notice = "set a verified email address as your primary"
+        assert (notice in msg["body_text"]) is primary_email_unverified
+        assert (notice in msg["body_html"]) is primary_email_unverified
 
 
 class TestSendNewOrganizationDeclinedEmail:
