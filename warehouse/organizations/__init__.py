@@ -24,8 +24,9 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0), delete_declined_organization_applications
     )
+    # Off the hour and off every */5 slot, so it doesn't overlap other tasks.
     config.add_periodic_task(
-        crontab(minute=0, hour=0), undefer_organization_applications
+        crontab(minute=37, hour=3), undefer_organization_applications
     )
     # Scheduled an hour before update_organziation_subscription_usage_record
     # (hour=0) so usage is usually reported against Stripe-synced status. Best
