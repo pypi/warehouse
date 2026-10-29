@@ -92,11 +92,6 @@ def includeme(config):
     config.add_route(
         "admin.organization_name.list", "/admin/organization_names/", domain=warehouse
     )
-    config.add_route(
-        "admin.organization_name.release",
-        "/admin/organization_names/release/",
-        domain=warehouse,
-    )
 
     config.add_route(
         "admin.organization_application.list",
@@ -134,11 +129,6 @@ def includeme(config):
     config.add_route(
         "admin.organization_application.addnote",
         "/admin/organization_applications/{organization_application_id}/addnote/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.organization_application.releasename",
-        "/admin/organization_applications/{organization_application_id}/releasename/",
         domain=warehouse,
     )
     config.add_route(

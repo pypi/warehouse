@@ -41,7 +41,6 @@ from warehouse.email import send_new_organization_moreinformationneeded_email
 from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
-from warehouse.observations.models import ObservationKind
 from warehouse.organizations.checks import (
     OPEN_APPLICATION_STATUSES,
     CheckStatus,
@@ -1207,74 +1206,6 @@ def _orphaned_name_entries(
     )
 
 
-@view_config(
-    route_name="admin.organization_application.releasename",
-    require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsNameWrite,
-    has_translations=True,
-    uses_session=True,
-    require_csrf=True,
-)
-def organization_application_release_name(request: Request) -> HTTPSeeOther:
-    organization_service = request.find_service(IOrganizationService, context=None)
-
-    organization_application_id = request.matchdict["organization_application_id"]
-    organization_application = organization_service.get_organization_application(
-        organization_application_id
-    )
-    if organization_application is None:
-        raise HTTPNotFound
-    request.db.refresh(organization_application, with_for_update=True)
-    _require_undecided(request, organization_application)
-
-    if _release_orphaned_name(request, organization_application.normalized_name):
-        request.session.flash(
-            f'Released the name "{organization_application.name}"', queue="success"
-        )
-    else:
-        request.session.flash(
-            f'The name "{organization_application.name}" is not held by a deleted '
-            "organization",
-            queue="error",
-        )
-
-    return HTTPSeeOther(
-        request.route_path(
-            "admin.organization_application.detail",
-            organization_application_id=organization_application.id,
-        )
-    )
-
-
-def _release_orphaned_name(request: Request, normalized_name: str) -> bool:
-    """Delete catalog rows left by a deleted organization and note it on any
-    open application for the name. A live organization keeps its name."""
-    released = (
-        request.db.query(OrganizationNameCatalog)
-        .filter(
-            OrganizationNameCatalog.normalized_name == normalized_name,
-            OrganizationNameCatalog.organization_id.is_(None),
-        )
-        .delete()
-    )
-    if not released:
-        return False
-    for organization_application in _open_applications(request, [normalized_name]):
-        organization_application.record_observation(
-            request=request,
-            actor=request.user,
-            summary="Admin note added",
-            kind=ObservationKind.AdminNote,
-            payload={
-                "message": (
-                    f"Released the name {normalized_name!r} from a deleted "
-                    "organization."
-                )
-            },
-        )
-    return True
-
-
 def _open_applications(
     request: Request, normalized_names: Sequence[str]
 ) -> list[OrganizationApplication]:
@@ -1331,25 +1262,6 @@ def organization_name_list(request: Request) -> dict[str, Any]:
         )
 
     return {"names": names, "open_applications": open_applications, "query": q}
-
-
-@view_config(
-    route_name="admin.organization_name.release",
-    require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsNameWrite,
-    uses_session=True,
-    require_csrf=True,
-)
-def organization_name_release(request: Request) -> HTTPSeeOther:
-    normalized_name = request.POST.get("normalized_name", "")
-    if _release_orphaned_name(request, normalized_name):
-        request.session.flash(f'Released the name "{normalized_name}"', queue="success")
-    else:
-        request.session.flash(
-            f'The name "{normalized_name}" is not held by a deleted organization',
-            queue="error",
-        )
-    return HTTPSeeOther(request.route_path("admin.organization_name.list"))
 
 
 @view_config(
