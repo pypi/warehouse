@@ -55,6 +55,7 @@ from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationManualActivation,
+    OrganizationNameCatalog,
     OrganizationOIDCIssuer,
     OrganizationRole,
     OrganizationRoleType,
@@ -897,6 +898,10 @@ def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSe
         "checks": checks,
         "applicant_reachable": can_email(user),
         "link_domain": application_domain(organization_application),
+        "orphaned_name": _orphaned_name_entries(
+            request, organization_application
+        ).first()
+        is not None,
         "queue": queue,
     }
 
@@ -921,8 +926,36 @@ def organization_application_approve(request: Request) -> HTTPSeeOther:
     request.db.refresh(organization_application, with_for_update=True)
     _require_undecided(request, organization_application)
 
+    # Only admins who may change organization names can hand a deleted
+    # organization's name to this one; any other holder blocks approval.
+    claim_orphaned_name = request.params.get(
+        "claim_orphaned_name"
+    ) == "true" and request.has_permission(Permissions.AdminOrganizationsNameWrite)
+    catalog_entry = (
+        request.db.query(OrganizationNameCatalog)
+        .filter(
+            OrganizationNameCatalog.normalized_name
+            == organization_application.normalized_name
+        )
+        .first()
+    )
+    if catalog_entry is not None and not (
+        catalog_entry.organization_id is None and claim_orphaned_name
+    ):
+        # Approving would fail in add_catalog_entry after creating the org.
+        request.session.flash(
+            f'The name "{organization_application.name}" is already reserved',
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
+
     organization = organization_service.approve_organization_application(
-        organization_application.id, request
+        organization_application.id, request, claim_orphaned_name=claim_orphaned_name
     )
 
     request.session.flash(
@@ -1160,6 +1193,75 @@ def organization_application_add_note(request):
             organization_application_id=organization_application.id,
         )
     )
+
+
+def _orphaned_name_entries(
+    request: Request, organization_application: OrganizationApplication
+):
+    """Catalog rows left by a deleted organization that still reserve this name."""
+    return request.db.query(OrganizationNameCatalog).filter(
+        OrganizationNameCatalog.normalized_name
+        == organization_application.normalized_name,
+        OrganizationNameCatalog.organization_id.is_(None),
+    )
+
+
+def _open_applications(
+    request: Request, normalized_names: Sequence[str]
+) -> list[OrganizationApplication]:
+    return (
+        request.db.query(OrganizationApplication)
+        .filter(
+            OrganizationApplication.normalized_name.in_(normalized_names),
+            OrganizationApplication.status.in_(OPEN_APPLICATION_STATUSES),
+        )
+        .all()
+    )
+
+
+@view_config(
+    route_name="admin.organization_name.list",
+    renderer="warehouse.admin:templates/admin/organization_names/list.html",
+    permission=Permissions.AdminOrganizationsRead,
+    uses_session=True,
+)
+def organization_name_list(request: Request) -> dict[str, Any]:
+    q = request.params.get("q", "")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    names_query = (
+        request.db.query(OrganizationNameCatalog)
+        .filter(OrganizationNameCatalog.organization_id.is_(None))
+        .order_by(OrganizationNameCatalog.normalized_name)
+    )
+    if q:
+        names_query = names_query.filter(
+            OrganizationNameCatalog.normalized_name.contains(
+                canonicalize_name(q), autoescape=True
+            )
+        )
+
+    names = SQLAlchemyORMPage(
+        names_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+    open_applications: dict[str, list[OrganizationApplication]] = (
+        collections.defaultdict(list)
+    )
+    for organization_application in _open_applications(
+        request, [entry.normalized_name for entry in names]
+    ):
+        open_applications[organization_application.normalized_name].append(
+            organization_application
+        )
+
+    return {"names": names, "open_applications": open_applications, "query": q}
 
 
 @view_config(

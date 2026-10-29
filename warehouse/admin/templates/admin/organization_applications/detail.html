@@ -113,6 +113,7 @@
   {% set status_style, status_label = status_display[status.value] %}
   {% set is_decided = status.value in ['approved', 'declined', 'withdrawn'] %}
   {% set can_write = request.has_permission(Permissions.AdminOrganizationApplicationsWrite) %}
+  {% set can_claim_name = request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
 
   {% if not applicant_reachable %}
   {% set primary_email = user.primary_email %}
@@ -130,6 +131,20 @@
       PyPI will not send them approval, decline, or information request emails.
       Request Info is disabled.
     </p>
+  </div>
+  {% endif %}
+
+  {% if orphaned_name and not is_decided %}
+  <div class="callout callout-warning d-flex align-items-center" role="alert">
+    <i class="fa-solid fa-lock text-warning mr-3" aria-hidden="true"></i>
+    <div class="flex-grow-1">
+      <strong>Name held by a deleted organization.</strong>
+      {% if can_claim_name %}
+      To approve, tick "Give this organization the deleted organization's name" in the Approve dialog.
+      {% else %}
+      Only an admin who can change organization names can approve this application.
+      {% endif %}
+    </div>
   </div>
   {% endif %}
 
@@ -185,7 +200,7 @@
                 class="btn btn-primary btn-block"
                 data-toggle="modal"
                 data-hotkey-binding=65
-                data-target="#approveModal" {{ 'disabled' if not can_write or is_decided }}
+                data-target="#approveModal" {{ 'disabled' if not can_write or is_decided or (orphaned_name and not can_claim_name) }}
               >
                 <i class="icon fa fa-check"></i> Approve <span class="org-review-key">a</span>
               </button>
@@ -525,6 +540,14 @@
                 This message will be included in the notification email.
               </span>
             </div>
+            {% if orphaned_name and can_claim_name %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="approveModalClaimName" name="claim_orphaned_name" value="true">
+              <label class="form-check-label" for="approveModalClaimName">
+                Give this organization the deleted organization's name
+              </label>
+            </div>
+            {% endif %}
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close <span class="org-review-key org-review-key-inline">esc</span></button>
