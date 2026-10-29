@@ -8,6 +8,10 @@
 
 {{ message|default('') }}
 
+{% if primary_email_unverified %}
+{% trans domain=domain %}We sent this email to a secondary address because your account has no verified primary email address. Before you can use the links in this email, log in to {{ domain }} and set a verified email address as your primary.{% endtrans %}
+
+{% endif %}
 {% trans domain=domain %}Submit your response on {{ domain }}{% endtrans %}: {{ request.route_url('manage.organizations.application', organization_application_id=organization_application_id) }}
 
 {% endblock %}

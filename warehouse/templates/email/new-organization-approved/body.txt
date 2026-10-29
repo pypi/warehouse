@@ -8,6 +8,10 @@
 
 {% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
 
+{% if primary_email_unverified %}
+{% trans domain=domain %}We sent this email to a secondary address because your account has no verified primary email address. Before you can use the links in this email, log in to {{ domain }} and set a verified email address as your primary.{% endtrans %}
+
+{% endif %}
 {% trans %}Manage organization{% endtrans %}
 
 {{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}
