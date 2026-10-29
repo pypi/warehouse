@@ -926,6 +926,25 @@ def organization_application_approve(request: Request) -> HTTPSeeOther:
         raise HTTPNotFound
     request.db.refresh(organization_application, with_for_update=True)
     _require_undecided(request, organization_application)
+    if (
+        request.db.query(OrganizationNameCatalog)
+        .filter(
+            OrganizationNameCatalog.normalized_name
+            == organization_application.normalized_name
+        )
+        .first()
+    ):
+        # Approving would fail in add_catalog_entry after creating the org.
+        request.session.flash(
+            f'The name "{organization_application.name}" is already reserved',
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
