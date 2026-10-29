@@ -89,6 +89,14 @@ def includeme(config):
         "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization_name.list", "/admin/organization_names/", domain=warehouse
+    )
+    config.add_route(
+        "admin.organization_name.release",
+        "/admin/organization_names/release/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
