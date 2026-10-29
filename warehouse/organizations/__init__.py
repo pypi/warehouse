@@ -8,6 +8,7 @@ from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     reconcile_stripe_status,
     schedule_unpaid_organization_deactivations,
+    undefer_organization_applications,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -22,6 +23,9 @@ def includeme(config):
     )
     config.add_periodic_task(
         crontab(minute=0, hour=0), delete_declined_organization_applications
+    )
+    config.add_periodic_task(
+        crontab(minute=0, hour=0), undefer_organization_applications
     )
     # Scheduled an hour before update_organziation_subscription_usage_record
     # (hour=0) so usage is usually reported against Stripe-synced status. Best
