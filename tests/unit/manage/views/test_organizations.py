@@ -4,7 +4,6 @@ import datetime as dt
 import re
 import uuid
 
-import pretend
 import pytest
 
 from freezegun import freeze_time
@@ -44,7 +43,6 @@ from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
-from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
 from warehouse.organizations.models import (
@@ -2380,7 +2378,7 @@ class TestReinviteOrganizationMember:
 
 class TestChangeOrganizationRole:
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
-    def test_change_role(self, db_request, orgtype, monkeypatch):
+    def test_change_role(self, db_request, orgtype, mocker):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2395,101 +2393,85 @@ class TestChangeOrganizationRole:
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
         db_request.user = user_2
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_organization_member_role_changed_email = pretend.call_recorder(
-            lambda *a, **kw: None
+        send_organization_member_role_changed_email = mocker.patch.object(
+            org_views, "send_organization_member_role_changed_email", autospec=True
         )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_role_changed_email",
-            send_organization_member_role_changed_email,
-        )
-        send_role_changed_as_organization_member_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_role_changed_as_organization_member_email",
-            send_role_changed_as_organization_member_email,
+        send_role_changed_as_organization_member_email = mocker.patch.object(
+            org_views, "send_role_changed_as_organization_member_email", autospec=True
         )
 
         result = org_views.change_organization_role(organization, db_request)
 
         assert role.role_name == new_role_name
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.organization.roles", organization_name=organization.name
-            )
-        ]
-        assert send_organization_member_role_changed_email.calls == [
-            pretend.call(
-                db_request,
-                set(),
-                user=user,
-                submitter=user_2,
-                organization_name="foobar",
-                role=new_role_name,
-            )
-        ]
-        assert send_role_changed_as_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=user_2,
-                organization_name="foobar",
-                role=new_role_name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Changed role", queue="success")
-        ]
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.roles", organization_name=organization.normalized_name
+        )
+        send_organization_member_role_changed_email.assert_called_once_with(
+            db_request,
+            set(),
+            user=user,
+            submitter=user_2,
+            organization_name="foobar",
+            role=new_role_name,
+        )
+        send_role_changed_as_organization_member_email.assert_called_once_with(
+            db_request,
+            user,
+            submitter=user_2,
+            organization_name="foobar",
+            role=new_role_name,
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Changed role", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_organization_role_invalid_role_name(self, db_request):
+    def test_change_organization_role_invalid_role_name(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
 
         db_request.method = "POST"
         db_request.POST = MultiDict(
             {"role_id": str(uuid.uuid4()), "role_name": "Invalid Role Name"}
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
 
         result = org_views.change_organization_role(organization, db_request)
 
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.organization.roles", organization_name=organization.name
-            )
-        ]
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.roles", organization_name=organization.normalized_name
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_missing_organization_role(self, db_request):
+    def test_change_missing_organization_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": missing_role_id, "role_name": "Owner"})
-        db_request.user = pretend.stub()
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        db_request.user = UserFactory.create()
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = org_views.change_organization_role(organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find member", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_own_owner_organization_role(self, db_request):
+    def test_change_own_owner_organization_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2499,22 +2481,22 @@ class TestChangeOrganizationRole:
         db_request.method = "POST"
         db_request.user = user
         db_request.POST = MultiDict({"role_id": role.id, "role_name": "Manager"})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = org_views.change_organization_role(organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove yourself as Owner", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
 
 class TestDeleteOrganizationRoles:
-    def test_delete_role(self, db_request, monkeypatch):
+    def test_delete_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2527,90 +2509,64 @@ class TestDeleteOrganizationRoles:
         db_request.method = "POST"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.user = user_2
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_organization_member_removed_email = pretend.call_recorder(
-            lambda *a, **kw: None
+        send_organization_member_removed_email = mocker.patch.object(
+            org_views, "send_organization_member_removed_email", autospec=True
         )
-        monkeypatch.setattr(
-            org_views,
-            "send_organization_member_removed_email",
-            send_organization_member_removed_email,
-        )
-        send_removed_as_organization_member_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            org_views,
-            "send_removed_as_organization_member_email",
-            send_removed_as_organization_member_email,
+        send_removed_as_organization_member_email = mocker.patch.object(
+            org_views, "send_removed_as_organization_member_email", autospec=True
         )
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.organization.roles", organization_name=organization.name
-            )
-        ]
+        db_request.route_path.assert_called_once_with(
+            "manage.organization.roles", organization_name=organization.normalized_name
+        )
         assert db_request.db.query(OrganizationRole).all() == []
-        assert send_organization_member_removed_email.calls == [
-            pretend.call(
-                db_request,
-                set(),
-                user=user,
-                submitter=user_2,
-                organization_name="foobar",
-            )
-        ]
-        assert send_removed_as_organization_member_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=user_2,
-                organization_name="foobar",
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Removed from organization", queue="success")
-        ]
+        send_organization_member_removed_email.assert_called_once_with(
+            db_request,
+            set(),
+            user=user,
+            submitter=user_2,
+            organization_name="foobar",
+        )
+        send_removed_as_organization_member_email.assert_called_once_with(
+            db_request,
+            user,
+            submitter=user_2,
+            organization_name="foobar",
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Removed from organization", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_missing_role(self, db_request, monkeypatch):
+    def test_delete_missing_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
 
-        user_organizations = pretend.call_recorder(
-            lambda *a, **kw: {
-                "organizations_managed": [],
-                "organizations_owned": [organization],
-                "organizations_billing": [],
-                "organizations_with_sole_owner": [],
-            }
-        )
-        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
-
         db_request.method = "POST"
-        db_request.user = pretend.stub()
+        db_request.user = UserFactory.create()
         db_request.POST = MultiDict({"role_id": missing_role_id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find member", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_other_role_as_nonowner(self, db_request):
+    def test_delete_other_role_as_nonowner(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2623,26 +2579,26 @@ class TestDeleteOrganizationRoles:
         db_request.method = "POST"
         db_request.user = user_2
         db_request.POST = MultiDict({"role_id": role.id})
-        db_request.has_permission = pretend.call_recorder(lambda *a, **kw: False)
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=False
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.has_permission.calls == [
-            pretend.call(Permissions.OrganizationsManage)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Cannot remove other people from the organization", queue="error"
-            )
-        ]
+        db_request.has_permission.assert_called_once_with(
+            Permissions.OrganizationsManage
+        )
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove other people from the organization", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_own_owner_role(self, db_request):
+    def test_delete_own_owner_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2654,20 +2610,20 @@ class TestDeleteOrganizationRoles:
         db_request.method = "POST"
         db_request.user = user
         db_request.POST = MultiDict({"role_id": role.id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot remove yourself as Sole Owner", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_non_owner_role(self, db_request):
+    def test_delete_non_owner_role(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2684,16 +2640,16 @@ class TestDeleteOrganizationRoles:
         db_request.method = "POST"
         db_request.user = some_other_user
         db_request.POST = MultiDict({"role_id": role.id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         result = org_views.delete_organization_role(some_other_organization, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find member", queue="error")
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -2718,28 +2674,15 @@ class TestManageOrganizationHistory:
             "organization": organization,
         }
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
-        params = MultiDict({"page": "abc"})
-        db_request.params = params
-
-        events_query = pretend.stub()
-        db_request.events_query = pretend.stub(
-            events_query=lambda *a, **kw: events_query
-        )
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+    def test_raises_400_with_pagenum_type_str(self, db_request, mocker):
+        db_request.params = MultiDict({"page": "abc"})
+        page_cls = mocker.patch.object(org_views, "SQLAlchemyORMPage", autospec=True)
 
         organization = OrganizationFactory.create()
         with pytest.raises(HTTPBadRequest):
             org_views.manage_organization_history(organization, db_request)
 
-        assert page_cls.calls == []
+        page_cls.assert_not_called()
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
