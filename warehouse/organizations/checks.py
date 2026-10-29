@@ -197,7 +197,7 @@ def _domain_match_check(link: _Link, user: User) -> Check:
     )
 
 
-def _url_shape_check(link: _Link) -> Check | None:
+def _url_shape_check(link: _Link, *, gitlab_associations: bool) -> Check | None:
     # One key per saved reply: the template routes each to its own.
     if not link.unverifiable:
         return None
@@ -211,7 +211,7 @@ def _url_shape_check(link: _Link) -> Check | None:
             f"URL is on {link.host}, not the organization's own domain. Ask for "
             "public GitHub membership and an account association.",
         )
-    if link.gitlab:
+    if link.gitlab and gitlab_associations:
         return Check(
             "url_shape_gitlab",
             label,
@@ -341,21 +341,28 @@ def review_checks(
     related_applications: Sequence[OrganizationApplication] = (),
     *,
     project_count: int | None = None,
+    gitlab_associations: bool = False,
 ) -> list[Check]:
     """
     Build the reviewer-facing checks, most actionable first.
+
+    `gitlab_associations` says whether applicants can link a GitLab account here.
+    Without it, GitLab URLs are treated like any other shared host.
     """
     link = _Link(application.link_url)
     candidates = [
         _domain_match_check(link, user),
-        _url_shape_check(link),
+        _url_shape_check(link, gitlab_associations=gitlab_associations),
         _name_domain_check(application, link),
         _email_verified_check(user),
         _account_association_check(
             user, service="github", name="GitHub", on_service=link.github
         ),
         _account_association_check(
-            user, service="gitlab", name="GitLab", on_service=link.gitlab
+            user,
+            service="gitlab",
+            name="GitLab",
+            on_service=link.gitlab and gitlab_associations,
         ),
         # The list view passes a count instead of loading every project
         _projects_check(len(user.projects) if project_count is None else project_count),
