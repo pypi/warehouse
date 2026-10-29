@@ -97,7 +97,8 @@ def test_gitlab_application_suggests_gitlab_reply(webtest, login_admin):
     asks = [ask["data-template"] for ask in detail.html.select(".org-review-check-ask")]
     assert "GitLabAssociationTemplate" in asks
     reply = detail.html.select_one("#GitLabAssociationTemplate")
-    assert "GitLab group" in reply.text
+    assert "GitLab group or project" in reply.text
+    assert "https://gitlab.com/acme" in reply.text
     assert detail.html.select_one('a[href="https://gitlab.com/jdoe"]') is not None
 
 
