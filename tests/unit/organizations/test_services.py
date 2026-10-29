@@ -241,6 +241,41 @@ class TestDatabaseOrganizationService:
             "redact_ip": True,
         }
 
+    @pytest.mark.parametrize(
+        ("competing_status", "expected_status"),
+        [
+            (
+                OrganizationApplicationStatus.Deferred,
+                OrganizationApplicationStatus.Declined,
+            ),
+            (
+                OrganizationApplicationStatus.MoreInformationNeeded,
+                OrganizationApplicationStatus.MoreInformationNeeded,
+            ),
+        ],
+    )
+    def test_approve_organization_application_competing_status(
+        self,
+        db_request,
+        organization_service,
+        mocker,
+        competing_status,
+        expected_status,
+    ):
+        mocker.patch.object(services, "send_new_organization_approved_email")
+        mocker.patch.object(services, "send_new_organization_declined_email")
+        db_request.user = UserFactory(username="admin", is_superuser=True)
+        organization_application = OrganizationApplicationFactory.create()
+        competing_organization_application = OrganizationApplicationFactory.create(
+            name=organization_application.name, status=competing_status
+        )
+
+        organization_service.approve_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert competing_organization_application.status == expected_status
+
     def test_defer_organization_application(self, db_request, organization_service):
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
