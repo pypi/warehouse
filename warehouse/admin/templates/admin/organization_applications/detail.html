@@ -134,19 +134,18 @@
   {% endif %}
 
   {% if orphaned_name and not is_decided %}
-  <div class="alert alert-warning" role="alert">
-    <h2 class="alert-heading">
-      <i class="fa-solid fa-lock mr-2" aria-hidden="true"></i>
-      Name held by a deleted organization
-    </h2>
-    <p class="lead">
-      <strong>{{ organization_application.normalized_name }}</strong> belonged to an organization that was deleted.
-      Approving fails until the name is released.
-    </p>
+  <div class="callout callout-warning d-flex align-items-center" role="alert">
+    <i class="fa-solid fa-lock text-warning mr-3" aria-hidden="true"></i>
+    <div class="flex-grow-1">
+      <strong>Name held by a deleted organization.</strong>
+      <code>{{ organization_application.normalized_name }}</code> is still reserved, so approving fails until it is released.
+    </div>
     {% if request.has_permission(Permissions.AdminOrganizationsNameWrite) %}
-    <form method="POST" action="{{ request.route_path('admin.organization_application.releasename', organization_application_id=organization_application.id) }}">
+    <form class="ml-3 mb-0" method="POST" action="{{ request.route_path('admin.organization_application.releasename', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <button type="submit" class="btn btn-warning" onclick="return confirm('Release this name so the application can be approved?')">Release name</button>
+      <button type="submit" class="btn btn-sm btn-warning text-nowrap" onclick="return confirm('Release this name so the application can be approved?')">
+        <i class="fa-solid fa-unlock mr-1" aria-hidden="true"></i> Release name
+      </button>
     </form>
     {% endif %}
   </div>
