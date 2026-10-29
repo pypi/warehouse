@@ -50,6 +50,7 @@ from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationManualActivationFactory,
+    OrganizationNameCatalogFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
@@ -226,6 +227,31 @@ class TestUndeferOrganizationApplications:
         assert recent.observations == []
         assert stale_declined.status == OrganizationApplicationStatus.Declined
         assert stale_declined.observations == []
+
+    def test_leaves_names_held_by_an_organization_deferred(self, db_request):
+        UserFactory.create(username="admin")
+        stale = dt.datetime.now(dt.UTC) - dt.timedelta(days=31)
+        organization = OrganizationFactory.create()
+        taken = OrganizationApplicationFactory.create(
+            name=organization.name,
+            status=OrganizationApplicationStatus.Deferred,
+            updated=stale,
+        )
+        # An orphaned name can still be claimed on approval, so it returns to review.
+        orphaned_name = OrganizationNameCatalogFactory.create(
+            normalized_name="orphaned-name", organization_id=None
+        )
+        orphaned = OrganizationApplicationFactory.create(
+            name=orphaned_name.normalized_name,
+            status=OrganizationApplicationStatus.Deferred,
+            updated=stale,
+        )
+
+        undefer_organization_applications(db_request)
+
+        assert taken.status == OrganizationApplicationStatus.Deferred
+        assert taken.observations == []
+        assert orphaned.status == OrganizationApplicationStatus.Submitted
 
     def test_nothing_to_undefer(self, db_request):
         # No stale deferrals: the admin user isn't needed, so its absence is fine.
