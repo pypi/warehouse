@@ -143,6 +143,8 @@ def undefer_organization_applications(request: Request) -> None:
             OrganizationApplication.status == OrganizationApplicationStatus.Deferred,
             OrganizationApplication.updated < (dt.datetime.now(dt.UTC) - UNDEFER_AFTER),
         )
+        # Lock so a concurrent approve, decline or withdraw isn't overwritten.
+        .with_for_update(skip_locked=True)
         .all()
     )
     if not organization_applications:
