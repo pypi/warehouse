@@ -55,16 +55,6 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   });
 });
 
-// Ask before submitting, e.g. releasing a locked organization name.
-// Inline onclick handlers are blocked by the CSP.
-document.querySelectorAll("[data-confirm]").forEach(function (element) {
-  element.addEventListener("click", function(event) {
-    if (!window.confirm(element.dataset.confirm)) {
-      event.preventDefault();
-    }
-  });
-});
-
 document.querySelectorAll("a[data-input][data-append]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into an input edit, so instead of the
