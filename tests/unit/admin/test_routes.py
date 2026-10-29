@@ -129,6 +129,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization_application.releasename",
+            "/admin/organization_applications/{organization_application_id}/releasename/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization_application.requestmoreinfo.preview",
             (
                 "/admin/organization_applications/{organization_application_id}"
