@@ -1198,20 +1198,7 @@ def organization_application_release_name(request: Request) -> HTTPSeeOther:
         raise HTTPNotFound
     _require_undecided(request, organization_application)
 
-    # Only rows whose organization was deleted; a live organization keeps its name.
-    if _orphaned_name_entries(request, organization_application).delete():
-        organization_application.record_observation(
-            request=request,
-            actor=request.user,
-            summary="Admin note added",
-            kind=ObservationKind.AdminNote,
-            payload={
-                "message": (
-                    f"Released the name {organization_application.normalized_name!r} "
-                    "from a deleted organization."
-                )
-            },
-        )
+    if _release_orphaned_name(request, organization_application.normalized_name):
         request.session.flash(
             f'Released the name "{organization_application.name}"', queue="success"
         )
@@ -1228,6 +1215,112 @@ def organization_application_release_name(request: Request) -> HTTPSeeOther:
             organization_application_id=organization_application.id,
         )
     )
+
+
+def _release_orphaned_name(request: Request, normalized_name: str) -> bool:
+    """Delete catalog rows left by a deleted organization and note it on any
+    open application for the name. A live organization keeps its name."""
+    released = (
+        request.db.query(OrganizationNameCatalog)
+        .filter(
+            OrganizationNameCatalog.normalized_name == normalized_name,
+            OrganizationNameCatalog.organization_id.is_(None),
+        )
+        .delete()
+    )
+    if not released:
+        return False
+    for organization_application in _open_applications(request, [normalized_name]):
+        organization_application.record_observation(
+            request=request,
+            actor=request.user,
+            summary="Admin note added",
+            kind=ObservationKind.AdminNote,
+            payload={
+                "message": (
+                    f"Released the name {normalized_name!r} from a deleted "
+                    "organization."
+                )
+            },
+        )
+    return True
+
+
+def _open_applications(
+    request: Request, normalized_names: Sequence[str]
+) -> list[OrganizationApplication]:
+    return (
+        request.db.query(OrganizationApplication)
+        .filter(
+            OrganizationApplication.normalized_name.in_(normalized_names),
+            OrganizationApplication.status.in_(OPEN_APPLICATION_STATUSES),
+        )
+        .all()
+    )
+
+
+@view_config(
+    route_name="admin.organization_name.list",
+    renderer="warehouse.admin:templates/admin/organization_names/list.html",
+    permission=Permissions.AdminOrganizationsRead,
+    uses_session=True,
+)
+def organization_name_list(request: Request) -> dict[str, Any]:
+    q = request.params.get("q", "")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    names_query = (
+        request.db.query(OrganizationNameCatalog)
+        .filter(OrganizationNameCatalog.organization_id.is_(None))
+        .order_by(OrganizationNameCatalog.normalized_name)
+    )
+    if q:
+        names_query = names_query.filter(
+            OrganizationNameCatalog.normalized_name.contains(
+                canonicalize_name(q), autoescape=True
+            )
+        )
+
+    names = SQLAlchemyORMPage(
+        names_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+    open_applications: dict[str, list[OrganizationApplication]] = (
+        collections.defaultdict(list)
+    )
+    for organization_application in _open_applications(
+        request, [entry.normalized_name for entry in names]
+    ):
+        open_applications[organization_application.normalized_name].append(
+            organization_application
+        )
+
+    return {"names": names, "open_applications": open_applications, "query": q}
+
+
+@view_config(
+    route_name="admin.organization_name.release",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsNameWrite,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_name_release(request: Request) -> HTTPSeeOther:
+    normalized_name = request.POST.get("normalized_name", "")
+    if _release_orphaned_name(request, normalized_name):
+        request.session.flash(f'Released the name "{normalized_name}"', queue="success")
+    else:
+        request.session.flash(
+            f'The name "{normalized_name}" is not held by a deleted organization',
+            queue="error",
+        )
+    return HTTPSeeOther(request.route_path("admin.organization_name.list"))
 
 
 @view_config(
