@@ -1043,7 +1043,7 @@ def organization_application_request_more_information(request: Request) -> HTTPS
     if not can_email(organization_application.submitted_by):
         request.session.flash(
             f'Cannot request more info for "{organization_application.name}": '
-            "the applicant has no verified primary email",
+            "the applicant has no verified email",
             queue="error",
         )
         return HTTPSeeOther(
