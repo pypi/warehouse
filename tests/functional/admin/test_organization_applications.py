@@ -289,7 +289,7 @@ def test_superuser_navigation_on_resource_pages(webtest, login_admin, page):
 
 
 @pytest.mark.parametrize("role", ["is_superuser", "is_org_application_reviewer"])
-def test_release_deleted_organization_name(webtest, login_admin, mocker, role):
+def test_approve_with_deleted_organization_name(webtest, login_admin, mocker, role):
     login_admin(**{role: True})
     application = OrganizationApplicationFactory.create()
     EmailFactory.create(user=application.submitted_by)
@@ -299,31 +299,31 @@ def test_release_deleted_organization_name(webtest, login_admin, mocker, role):
     OrganizationNameCatalogFactory.create(
         normalized_name=application.normalized_name, organization_id=None
     )
-    detail_url = f"{APPLICATIONS}{application.id}/"
-    detail = webtest.get(detail_url, status=HTTPStatus.OK)
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
     assert "Name held by a deleted organization" in detail.text
-    release = [
-        form for form in detail.forms.values() if form.action.endswith("/releasename/")
-    ]
-
-    if role == "is_org_application_reviewer":
-        assert release == []
-        webtest.post(
-            detail_url + "releasename/",
-            {"csrf_token": detail.forms["editModalForm"]["csrf_token"].value},
-            status=HTTPStatus.FORBIDDEN,
-        )
-        return
-
-    release[0].submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
     approve = next(
         form for form in detail.forms.values() if form.action.endswith("/approve/")
     )
+
+    if role == "is_org_application_reviewer":
+        assert "claim_orphaned_name" not in approve.fields
+        webtest.post(
+            approve.action,
+            {
+                "csrf_token": approve["csrf_token"].value,
+                "claim_orphaned_name": "true",
+            },
+            status=HTTPStatus.SEE_OTHER,
+        )
+        assert application.status == OrganizationApplicationStatus.Submitted
+        return
+
+    approve["claim_orphaned_name"].checked = True
     approve.submit(status=HTTPStatus.SEE_OTHER)
     assert application.status == OrganizationApplicationStatus.Approved
 
 
-def test_release_locked_name_from_list(webtest, login_admin):
+def test_locked_names_page(webtest, login_admin):
     login_admin(is_superuser=True)
     application = OrganizationApplicationFactory.create()
     OrganizationNameCatalogFactory.create(
@@ -331,12 +331,5 @@ def test_release_locked_name_from_list(webtest, login_admin):
     )
 
     page = webtest.get("/admin/organization_names/", status=HTTPStatus.OK)
-    assert application.name in page.text
-    release = next(
-        form for form in page.forms.values() if form.action.endswith("/release/")
-    )
-    page = release.submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
 
-    assert not [
-        form for form in page.forms.values() if "normalized_name" in form.fields
-    ]
+    assert page.html.select_one(f'a[href$="/{application.id}/"]')

@@ -96,11 +96,6 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
-            "admin.organization_name.release",
-            "/admin/organization_names/release/",
-            domain=warehouse,
-        ),
-        mocker.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,
@@ -136,11 +131,6 @@ def test_includeme(mocker):
         mocker.call(
             "admin.organization_application.addnote",
             "/admin/organization_applications/{organization_application_id}/addnote/",
-            domain=warehouse,
-        ),
-        mocker.call(
-            "admin.organization_application.releasename",
-            "/admin/organization_applications/{organization_application_id}/releasename/",
             domain=warehouse,
         ),
         mocker.call(

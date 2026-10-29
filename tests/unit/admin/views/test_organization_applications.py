@@ -37,8 +37,6 @@ def _organization_application_routes(
         return f"/admin/organizations/{organization_id}/"
     if route_name == "admin.dashboard":
         return "/admin/"
-    if route_name == "admin.organization_name.list":
-        return "/admin/organization_names/"
     pytest.fail(f"No dummy route found for {route_name}")
 
 
@@ -586,16 +584,54 @@ class TestOrganizationApplicationActions:
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
-    def test_approve_reserved_name(self, db_request, mocker):
-        send_approved = mocker.patch.object(
-            services, "send_new_organization_approved_email"
-        )
+    def test_approve_claims_orphaned_name(self, db_request, mocker):
+        mocker.patch.object(services, "send_new_organization_approved_email")
         organization_application = OrganizationApplicationFactory.create(name="example")
-        OrganizationNameCatalogFactory.create(
+        entry = OrganizationNameCatalogFactory.create(
             normalized_name="example", organization_id=None
         )
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
+        )
+        db_request.params["claim_orphaned_name"] = "true"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        views.organization_application_approve(db_request)
+
+        organization = organization_application.organization
+        assert organization_application.status == OrganizationApplicationStatus.Approved
+        assert db_request.db.query(OrganizationNameCatalog).all() == [entry]
+        assert entry.organization_id == organization.id
+
+    @pytest.mark.parametrize(
+        ("live_organization", "claim", "can_claim"),
+        [
+            (False, False, True),
+            (False, True, False),
+            (True, True, True),
+        ],
+    )
+    def test_approve_reserved_name(
+        self, db_request, mocker, live_organization, claim, can_claim
+    ):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        if live_organization:
+            OrganizationFactory.create(name="example")
+        else:
+            OrganizationNameCatalogFactory.create(
+                normalized_name="example", organization_id=None
+            )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        if claim:
+            db_request.params["claim_orphaned_name"] = "true"
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=can_claim
         )
         db_request.user = UserFactory.create()
         db_request.route_path = _organization_application_routes
@@ -1091,62 +1127,6 @@ class TestOrganizationApplicationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_add_note(db_request)
 
-    def test_release_name(self, db_request):
-        organization_application = OrganizationApplicationFactory.create(name="example")
-        OrganizationNameCatalogFactory.create(
-            normalized_name="example", organization_id=None
-        )
-        other = OrganizationNameCatalogFactory.create(
-            normalized_name="other", organization_id=None
-        )
-        db_request.matchdict["organization_application_id"] = (
-            organization_application.id
-        )
-        db_request.user = UserFactory.create()
-        db_request.route_path = _organization_application_routes
-
-        result = views.organization_application_release_name(db_request)
-
-        assert db_request.db.query(OrganizationNameCatalog).all() == [other]
-        assert [o.payload for o in organization_application.observations] == [
-            {"message": "Released the name 'example' from a deleted organization."}
-        ]
-        assert db_request.session.pop_flash("success") == [
-            'Released the name "example"'
-        ]
-        assert result.status_code == 303
-        assert (
-            result.location
-            == f"/admin/organization_applications/{organization_application.id}/"
-        )
-
-    def test_release_name_keeps_live_organization(self, db_request):
-        organization_application = OrganizationApplicationFactory.create(name="example")
-        organization = OrganizationFactory.create(name="example")
-        db_request.matchdict["organization_application_id"] = (
-            organization_application.id
-        )
-        db_request.user = UserFactory.create()
-        db_request.route_path = _organization_application_routes
-
-        result = views.organization_application_release_name(db_request)
-
-        assert [
-            entry.organization_id
-            for entry in db_request.db.query(OrganizationNameCatalog).all()
-        ] == [organization.id]
-        assert organization_application.observations == []
-        assert db_request.session.pop_flash("error") == [
-            'The name "example" is not held by a deleted organization'
-        ]
-        assert result.status_code == 303
-
-    def test_release_name_not_found(self, db_request):
-        db_request.matchdict["organization_application_id"] = uuid.uuid4()
-
-        with pytest.raises(HTTPNotFound):
-            views.organization_application_release_name(db_request)
-
     def test_request_more_information_preview_not_found(self, db_request):
         db_request.matchdict["organization_application_id"] = uuid.uuid4()
 
@@ -1240,45 +1220,3 @@ class TestOrganizationNames:
 
         with pytest.raises(HTTPBadRequest):
             views.organization_name_list(db_request)
-
-    def test_release(self, db_request):
-        OrganizationNameCatalogFactory.create(
-            normalized_name="alpha", organization_id=None
-        )
-        other = OrganizationNameCatalogFactory.create(
-            normalized_name="beta", organization_id=None
-        )
-        open_application = OrganizationApplicationFactory.create(name="alpha")
-        declined = OrganizationApplicationFactory.create(
-            name="alpha", status=OrganizationApplicationStatus.Declined
-        )
-        db_request.POST["normalized_name"] = "alpha"
-        db_request.user = UserFactory.create()
-        db_request.route_path = _organization_application_routes
-
-        result = views.organization_name_release(db_request)
-
-        assert db_request.db.query(OrganizationNameCatalog).all() == [other]
-        assert [o.payload for o in open_application.observations] == [
-            {"message": "Released the name 'alpha' from a deleted organization."}
-        ]
-        assert declined.observations == []
-        assert db_request.session.pop_flash("success") == ['Released the name "alpha"']
-        assert result.status_code == 303
-        assert result.location == "/admin/organization_names/"
-
-    def test_release_keeps_live_organization(self, db_request):
-        organization = OrganizationFactory.create(name="alpha")
-        db_request.POST["normalized_name"] = "alpha"
-        db_request.route_path = _organization_application_routes
-
-        result = views.organization_name_release(db_request)
-
-        assert [
-            entry.organization_id
-            for entry in db_request.db.query(OrganizationNameCatalog).all()
-        ] == [organization.id]
-        assert db_request.session.pop_flash("error") == [
-            'The name "alpha" is not held by a deleted organization'
-        ]
-        assert result.location == "/admin/organization_names/"
