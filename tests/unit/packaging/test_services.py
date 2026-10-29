@@ -11,7 +11,7 @@ import google.cloud.storage
 import pytest
 
 from limits.storage import MemoryStorage
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
 from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
@@ -856,6 +856,36 @@ class TestProjectService:
         assert resp.detail == (
             "New project registration temporarily disabled. See "
             "/the/docs/url/ for more information."
+        )
+
+    def test_create_project_rejects_invalid_name(self, db_request, mocker):
+        service = ProjectService(session=db_request.db)
+
+        with pytest.raises(HTTPBadRequest) as exc:
+            service.create_project(
+                "-invalid-name-", mocker.sentinel.creator, db_request, ratelimited=False
+            )
+
+        assert exc.value.detail == "The name '-invalid-name-' is invalid."
+
+    def test_create_project_rejects_existing_name(self, db_request, mocker):
+        project = ProjectFactory.create()
+        # user_docs_url is added by a request extension, so DummyRequest lacks it
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
+        service = ProjectService(session=db_request.db)
+
+        with pytest.raises(HTTPConflict) as exc:
+            service.create_project(
+                project.name, mocker.sentinel.creator, db_request, ratelimited=False
+            )
+
+        assert exc.value.detail == (
+            f"The name {project.name!r} conflicts with an existing project. "
+            "See /the/docs/url/ for more information."
+        )
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
         )
 
     @pytest.mark.parametrize(
