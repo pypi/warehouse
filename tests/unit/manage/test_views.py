@@ -20,15 +20,20 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
+from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
+from webauthn.registration.verify_registration_response import VerifiedRegistration
 from webob.multidict import MultiDict
 
+from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
-from warehouse.accounts.models import Email
+from warehouse.accounts.models import Email, WebAuthn
 from warehouse.accounts.services import (
+    RECOVERY_CODE_BYTES,
+    RECOVERY_CODE_COUNT,
     NullPasswordBreachedService,
     TokenService,
 )
@@ -1406,177 +1411,137 @@ class TestProvisionTOTP:
 
 
 class TestProvisionWebAuthn:
-    def test_get_webauthn_view(self):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(has_burned_recovery_codes=True),
-        )
-
-        view = views.ProvisionWebAuthnViews(request)
+    def test_get_webauthn_view(self, two_factor_request):
+        view = views.ProvisionWebAuthnViews(two_factor_request)
         result = view.webauthn_provision()
 
         assert result == {}
 
-    def test_get_webauthn_view_redirect(self):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(has_burned_recovery_codes=False),
-            route_path=lambda x: "/foo/bar",
-        )
-
-        view = views.ProvisionWebAuthnViews(request)
+    def test_get_webauthn_view_redirect(self, verified_request):
+        view = views.ProvisionWebAuthnViews(verified_request)
         result = view.webauthn_provision()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
+        assert result.headers["Location"] == "/manage.account.recovery-codes.burn/"
 
-    def test_get_webauthn_options(self):
-        user_service = pretend.stub(
-            get_webauthn_credential_options=pretend.call_recorder(
-                lambda *a, **kw: {"not_real": "credential_options"}
-            )
-        )
-        request = pretend.stub(
-            user=pretend.stub(id=1234),
-            session=pretend.stub(
-                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge")
-            ),
-            find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(settings={"site.name": "fake_site_name"}),
-            domain="fake_domain",
-        )
+    def test_get_webauthn_options(self, two_factor_request, user_service, mocker):
+        get_options = mocker.spy(user_service, "get_webauthn_credential_options")
+        challenge = two_factor_request.session.get_webauthn_challenge()
 
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(two_factor_request)
         result = view.webauthn_provision_options()
 
-        assert result == {"not_real": "credential_options"}
-        assert user_service.get_webauthn_credential_options.calls == [
-            pretend.call(
-                1234,
-                challenge="fake_challenge",
-                rp_name=request.registry.settings["site.name"],
-                rp_id=request.domain,
-            )
-        ]
-
-    def test_validate_webauthn_provision(self, monkeypatch):
-        user_service = pretend.stub(
-            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+        assert result == get_options.spy_return
+        get_options.assert_called_once_with(
+            two_factor_request.user.id,
+            challenge=challenge,
+            rp_name="PyPI",
+            rp_id=two_factor_request.domain,
         )
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(
-                id=1234,
-                webauthn=None,
-                has_burned_recovery_codes=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            session=pretend.stub(
-                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            find_service=lambda *a, **kw: user_service,
-            domain="fake_domain",
-            host_url="fake_host_url",
-            remote_addr="0.0.0.0",
-        )
+        assert result["rp"] == {"id": two_factor_request.domain, "name": "PyPI"}
+        assert result["challenge"] == bytes_to_base64url(challenge)
 
-        provision_webauthn_obj = pretend.stub(
-            validate=lambda: True,
-            validated_credential=pretend.stub(
+    def test_validate_webauthn_provision(
+        self, two_factor_request, user_service, mocker
+    ):
+        """
+        Registration verification needs a real browser credential, so the
+        ``warehouse.utils.webauthn`` boundary is patched; the service's
+        credential-in-use check and ``add_webauthn`` still run for real.
+        """
+        user = two_factor_request.user
+        session = two_factor_request.session
+        two_factor_request.POST = MultiDict({"label": "fake_label", "credential": "{}"})
+        verify = mocker.patch(
+            "warehouse.utils.webauthn.verify_registration_response",
+            autospec=True,
+            return_value=VerifiedRegistration(
                 credential_id=b"fake_credential_id",
                 credential_public_key=b"fake_public_key",
                 sign_count=1,
+                aaguid="wutang",
+                fmt=AttestationFormat.NONE,
+                credential_type=PublicKeyCredentialType.PUBLIC_KEY,
+                user_verified=False,
+                attestation_object=b"foobar",
+                credential_device_type="single_device",
+                credential_backed_up=False,
             ),
-            label=pretend.stub(data="fake_label"),
         )
-        provision_webauthn_cls = pretend.call_recorder(
-            lambda *a, **kw: provision_webauthn_obj
+        get_challenge = mocker.spy(session, "get_webauthn_challenge")
+        clear_challenge = mocker.spy(session, "clear_webauthn_challenge")
+        add_webauthn = mocker.spy(user_service, "add_webauthn")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_added_email", autospec=True
         )
-        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_two_factor_added_email", send_email)
-
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(two_factor_request)
         result = view.validate_webauthn_provision()
 
-        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
-        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
-        assert user_service.add_webauthn.calls == [
-            pretend.call(
-                1234,
-                label="fake_label",
-                credential_id=bytes_to_base64url(b"fake_credential_id"),
-                public_key=bytes_to_base64url(b"fake_public_key"),
-                sign_count=1,
-            )
-        ]
-        assert request.session.flash.calls == [
-            pretend.call("Security device successfully set up", queue="success")
-        ]
+        get_challenge.assert_called_once_with()
+        clear_challenge.assert_called_once_with()
+        verify.assert_called_once_with(
+            b"{}",
+            challenge=get_challenge.spy_return,
+            rp_id=two_factor_request.domain,
+            origin=two_factor_request.host_url,
+        )
+        add_webauthn.assert_called_once_with(
+            user.id,
+            label="fake_label",
+            credential_id=bytes_to_base64url(b"fake_credential_id"),
+            public_key=bytes_to_base64url(b"fake_public_key"),
+            sign_count=1,
+        )
+        [webauthn] = user.webauthn
+        assert webauthn.label == "fake_label"
+        assert webauthn.credential_id == bytes_to_base64url(b"fake_credential_id")
+        assert webauthn.public_key == bytes_to_base64url(b"fake_public_key")
+        assert webauthn.sign_count == 1
+        session.flash.assert_called_once_with(
+            "Security device successfully set up", queue="success"
+        )
         assert result == {"success": "Security device successfully set up"}
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.TwoFactorMethodAdded,
-                request=request,
-                additional={
-                    "method": "webauthn",
-                    "label": provision_webauthn_obj.label.data,
-                },
-            )
-        ]
-        assert send_email.calls == [
-            pretend.call(request, request.user, method="webauthn"),
-        ]
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.TwoFactorMethodAdded,
+            request=two_factor_request,
+            additional={"method": "webauthn", "label": "fake_label"},
+        )
+        send_email.assert_called_once_with(two_factor_request, user, method="webauthn")
 
-    def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
-        user_service = pretend.stub(
-            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+    def test_validate_webauthn_provision_invalid_form(
+        self, two_factor_request, user_service, mocker
+    ):
+        session = two_factor_request.session
+        two_factor_request.POST = MultiDict(
+            {"label": "fake_label", "credential": "not json"}
         )
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(id=1234, webauthn=None, has_burned_recovery_codes=True),
-            session=pretend.stub(
-                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            find_service=lambda *a, **kw: user_service,
-            domain="fake_domain",
-            host_url="fake_host_url",
-        )
+        get_challenge = mocker.spy(session, "get_webauthn_challenge")
+        clear_challenge = mocker.spy(session, "clear_webauthn_challenge")
+        add_webauthn = mocker.spy(user_service, "add_webauthn")
 
-        provision_webauthn_obj = pretend.stub(
-            validate=lambda: False,
-            errors=pretend.stub(
-                values=pretend.call_recorder(lambda: [["Not a real error"]])
-            ),
-        )
-        provision_webauthn_cls = pretend.call_recorder(
-            lambda *a, **kw: provision_webauthn_obj
-        )
-        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
-
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(two_factor_request)
         result = view.validate_webauthn_provision()
 
-        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
-        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
-        assert user_service.add_webauthn.calls == []
-        assert result == {"fail": {"errors": ["Not a real error"]}}
+        get_challenge.assert_called_once_with()
+        clear_challenge.assert_called_once_with()
+        add_webauthn.assert_not_called()
+        assert two_factor_request.user.webauthn == []
+        session.flash.assert_not_called()
+        assert result == {
+            "fail": {"errors": ["Invalid WebAuthn credential: Bad payload"]}
+        }
 
     def test_validate_webauthn_provision_without_burned_recovery_codes(
-        self, db_request
+        self, verified_request, mocker
     ):
         """Enrolling a security device requires recovery codes to be confirmed first."""
-        user = UserFactory.create()
-        db_request.user = user
+        user = verified_request.user
+        record_event = mocker.spy(user, "record_event")
 
-        result = views.ProvisionWebAuthnViews(db_request).validate_webauthn_provision()
+        view = views.ProvisionWebAuthnViews(verified_request)
+        result = view.validate_webauthn_provision()
 
         assert result == {
             "fail": {
@@ -1586,129 +1551,93 @@ class TestProvisionWebAuthn:
             }
         }
         assert user.webauthn == []
+        verified_request.session.flash.assert_not_called()
+        record_event.assert_not_called()
 
-    def test_delete_webauthn(self, monkeypatch):
-        user_service = pretend.stub()
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(
-                id=1234,
-                username=pretend.stub(),
-                webauthn=pretend.stub(
-                    __get__=pretend.call_recorder(lambda *a: [pretend.stub]),
-                    __len__=pretend.call_recorder(lambda *a: 1),
-                    remove=pretend.call_recorder(lambda *a: pretend.stub()),
-                ),
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-                has_single_2fa=False,
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: user_service,
-            remote_addr="0.0.0.0",
+    def test_delete_webauthn(self, verified_request, mocker):
+        """``UserFactory`` sets a TOTP secret, so one key is not the last 2FA."""
+        user = verified_request.user
+        webauthn = WebAuthnFactory.create(user=user, label="fake label")
+        verified_request.POST = MultiDict({"label": "fake label"})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_removed_email", autospec=True
         )
 
-        delete_webauthn_obj = pretend.stub(
-            validate=lambda: True,
-            webauthn=pretend.stub(),
-            label=pretend.stub(data="fake label"),
-        )
-        delete_webauthn_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_webauthn_obj
-        )
-        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_two_factor_removed_email", send_email)
-
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(verified_request)
         result = view.delete_webauthn()
 
-        assert request.session.flash.calls == [
-            pretend.call("Security device removed", queue="success")
-        ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.TwoFactorMethodRemoved,
-                request=request,
-                additional={
-                    "method": "webauthn",
-                    "label": delete_webauthn_obj.label.data,
-                },
-            )
-        ]
-        assert send_email.calls == [
-            pretend.call(request, request.user, method="webauthn"),
-        ]
-
-    def test_delete_webauthn_not_provisioned(self):
-        request = pretend.stub(
-            user=pretend.stub(id=1234, webauthn=[]),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: pretend.stub(),
+        verified_request.session.flash.assert_called_once_with(
+            "Security device removed", queue="success"
         )
+        verified_request.route_path.assert_called_once_with("manage.account")
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage.account/"
+        assert user.webauthn == []
+        verified_request.db.flush()
+        assert verified_request.db.get(WebAuthn, webauthn.id) is None
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.TwoFactorMethodRemoved,
+            request=verified_request,
+            additional={"method": "webauthn", "label": "fake label"},
+        )
+        send_email.assert_called_once_with(verified_request, user, method="webauthn")
 
-        view = views.ProvisionWebAuthnViews(request)
+    def test_delete_webauthn_not_provisioned(self, verified_request):
+        view = views.ProvisionWebAuthnViews(verified_request)
         result = view.delete_webauthn()
 
-        assert request.session.flash.calls == [
-            pretend.call("There is no security device to delete", queue="error")
-        ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        verified_request.session.flash.assert_called_once_with(
+            "There is no security device to delete", queue="error"
+        )
+        verified_request.route_path.assert_called_once_with("manage.account")
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
+        assert result.headers["Location"] == "/manage.account/"
 
-    def test_delete_webauthn_invalid_form(self, monkeypatch):
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(
-                id=1234,
-                username=pretend.stub(),
-                webauthn=[pretend.stub()],
-                has_single_2fa=False,
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: pretend.stub(),
+    def test_delete_webauthn_invalid_form(self, verified_request, mocker):
+        user = verified_request.user
+        webauthn = WebAuthnFactory.create(user=user, label="fake label")
+        verified_request.POST = MultiDict({"label": "other label"})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_removed_email", autospec=True
         )
 
-        delete_webauthn_obj = pretend.stub(validate=lambda: False)
-        delete_webauthn_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_webauthn_obj
-        )
-        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
-
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(verified_request)
         result = view.delete_webauthn()
 
-        assert request.session.flash.calls == [
-            pretend.call("Invalid credentials", queue="error")
-        ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        verified_request.session.flash.assert_called_once_with(
+            "Invalid credentials", queue="error"
+        )
+        verified_request.route_path.assert_called_once_with("manage.account")
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
+        assert result.headers["Location"] == "/manage.account/"
+        assert user.webauthn == [webauthn]
+        record_event.assert_not_called()
+        send_email.assert_not_called()
 
-    def test_delete_webauthn_last_2fa(self):
-        request = pretend.stub(
-            user=pretend.stub(id=1234, webauthn=[pretend.stub()], has_single_2fa=True),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: pretend.stub(),
+    def test_delete_webauthn_last_2fa(self, verified_request, mocker):
+        user = verified_request.user
+        user.totp_secret = None
+        webauthn = WebAuthnFactory.create(user=user)
+        verified_request.POST = MultiDict({"label": webauthn.label})
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_two_factor_removed_email", autospec=True
         )
 
-        view = views.ProvisionWebAuthnViews(request)
+        view = views.ProvisionWebAuthnViews(verified_request)
         result = view.delete_webauthn()
 
-        assert request.session.flash.calls == [
-            pretend.call("Cannot remove last 2FA method", queue="error")
-        ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        verified_request.session.flash.assert_called_once_with(
+            "Cannot remove last 2FA method", queue="error"
+        )
+        verified_request.route_path.assert_called_once_with("manage.account")
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
+        assert result.headers["Location"] == "/manage.account/"
+        assert user.webauthn == [webauthn]
+        record_event.assert_not_called()
+        send_email.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -1727,63 +1656,41 @@ def test_two_factor_provisioning_views_require_reauth(app_config, view_class):
 
 
 class TestProvisionRecoveryCodes:
-    def test_recovery_codes_generate(self, monkeypatch):
-        user_service = pretend.stub(
-            has_recovery_codes=lambda user_id: False,
-            has_two_factor=lambda user_id: True,
-            generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
-        )
-        request = pretend.stub(
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=1,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
+    def test_recovery_codes_generate(self, verified_request, user_service, mocker):
+        user = verified_request.user
+        generate = mocker.spy(user_service, "generate_recovery_codes")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_recovery_codes_generated_email", autospec=True
         )
 
-        send_recovery_codes_generated_email = pretend.call_recorder(
-            lambda request, user: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_recovery_codes_generated_email",
-            send_recovery_codes_generated_email,
-        )
-
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(verified_request)
         result = view.recovery_codes_generate()
 
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.RecoveryCodesGenerated,
-                request=request,
-            )
-        ]
-
-        assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
-        assert send_recovery_codes_generated_email.calls == [
-            pretend.call(request, request.user)
-        ]
-
-    def test_recovery_codes_generate_already_exist(self, pyramid_request):
-        user_service = pretend.stub(
-            has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
+        generate.assert_called_once_with(user.id)
+        assert result == {"recovery_codes": generate.spy_return}
+        assert len(result["recovery_codes"]) == RECOVERY_CODE_COUNT
+        assert all(
+            len(code) == 2 * RECOVERY_CODE_BYTES for code in result["recovery_codes"]
         )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+        assert user.recovery_codes.count() == RECOVERY_CODE_COUNT
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.RecoveryCodesGenerated,
+            request=verified_request,
         )
-        pyramid_request.find_service = lambda interface, **kw: {
-            IUserService: user_service
-        }[interface]
-        pyramid_request.user = pretend.stub(id=pretend.stub())
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the/route"
+        send_email.assert_called_once_with(verified_request, user)
+
+    def test_recovery_codes_generate_already_exist(
+        self, verified_request, user_service, mocker
+    ):
+        user = verified_request.user
+        RecoveryCodeFactory.create(user=user)
+        generate = mocker.spy(user_service, "generate_recovery_codes")
+        send_email = mocker.patch.object(
+            views, "send_recovery_codes_generated_email", autospec=True
         )
 
-        view = views.ProvisionRecoveryCodesViews(pyramid_request)
+        view = views.ProvisionRecoveryCodesViews(verified_request)
         result = view.recovery_codes_generate()
 
         assert result == {
@@ -1793,139 +1700,88 @@ class TestProvisionRecoveryCodes:
                 "Generating new recovery codes will invalidate your existing codes."
             ),
         }
+        generate.assert_not_called()
+        send_email.assert_not_called()
+        assert user.recovery_codes.count() == 1
 
-    def test_recovery_codes_regenerate(self, monkeypatch):
-        confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: pretend.stub(validate=lambda: True)
-        )
-        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
-
-        user_service = pretend.stub(
-            has_recovery_codes=lambda user_id: True,
-            has_two_factor=lambda user_id: True,
-            generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
-        )
-        request = pretend.stub(
-            POST={"confirm_password": "correct password"},
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=1,
-                username="username",
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
-        )
-        send_recovery_codes_generated_email = pretend.call_recorder(
-            lambda request, user: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_recovery_codes_generated_email",
-            send_recovery_codes_generated_email,
+    def test_recovery_codes_regenerate(self, verified_request, user_service, mocker):
+        user = verified_request.user
+        old_code = RecoveryCodeFactory.create(user=user)
+        generate = mocker.spy(user_service, "generate_recovery_codes")
+        record_event = mocker.spy(user, "record_event")
+        send_email = mocker.patch.object(
+            views, "send_recovery_codes_generated_email", autospec=True
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(verified_request)
         result = view.recovery_codes_regenerate()
 
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.RecoveryCodesRegenerated,
-                request=request,
-            )
-        ]
-
-        assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
-        assert send_recovery_codes_generated_email.calls == [
-            pretend.call(request, request.user)
-        ]
-
-    def test_recovery_codes_burn_get(self):
-        form = pretend.stub()
-        recovery_code_form_cls = pretend.call_recorder(lambda *a, **kw: form)
-        user = pretend.stub(
-            id=pretend.stub(),
-            has_recovery_codes=True,
-            has_burned_recovery_codes=False,
+        generate.assert_called_once_with(user.id)
+        assert result == {"recovery_codes": generate.spy_return}
+        assert len(result["recovery_codes"]) == RECOVERY_CODE_COUNT
+        codes = user.recovery_codes.all()
+        assert len(codes) == RECOVERY_CODE_COUNT
+        assert old_code.code not in {code.code for code in codes}
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.RecoveryCodesRegenerated,
+            request=verified_request,
         )
-        request = pretend.stub(
-            method="GET",
-            POST={},
-            user=user,
-            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
-        )
+        send_email.assert_called_once_with(verified_request, user)
 
-        view = views.ProvisionRecoveryCodesViews(request)
-        result = view.recovery_codes_burn(_form_class=recovery_code_form_cls)
+    def test_recovery_codes_burn_get(self, verified_request):
+        RecoveryCodeFactory.create(user=verified_request.user)
+        verified_request.method = "GET"
 
-        assert result == {"form": form}
+        view = views.ProvisionRecoveryCodesViews(verified_request)
+        result = view.recovery_codes_burn()
 
-    def test_recovery_codes_burn_post(self):
-        form = pretend.stub(validate=pretend.call_recorder(lambda: True))
-        recovery_code_form_cls = pretend.call_recorder(lambda *a, **kw: form)
-        user = pretend.stub(
-            id=pretend.stub(),
-            has_recovery_codes=True,
-            has_burned_recovery_codes=False,
-        )
-        request = pretend.stub(
-            method="POST",
-            POST={},
-            _=lambda a: a,
-            user=user,
-            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        assert list(result) == ["form"]
+        assert isinstance(result["form"], RecoveryCodeAuthenticationForm)
+        verified_request.session.flash.assert_not_called()
+
+    def test_recovery_codes_burn_post(self, verified_request, user_service, mocker):
+        user = verified_request.user
+        codes = user_service.generate_recovery_codes(user.id)
+        verified_request.POST = MultiDict({"recovery_code_value": codes[0]})
+        send_email = mocker.patch(
+            "warehouse.accounts.forms.send_recovery_code_used_email", autospec=True
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
-        result = view.recovery_codes_burn(_form_class=recovery_code_form_cls)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/foo/bar"
-
-        assert request.route_path.calls == [pretend.call("manage.account.two-factor")]
-        assert form.validate.calls == [pretend.call()]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Recovery code accepted. The supplied code cannot be used again.",
-                queue="success",
-            )
-        ]
-
-    @pytest.mark.parametrize(
-        ("user", "expected"),
-        [
-            (
-                pretend.stub(
-                    id=pretend.stub(),
-                    has_recovery_codes=False,
-                ),
-                "manage.account",
-            ),
-            (
-                pretend.stub(
-                    id=pretend.stub(),
-                    has_recovery_codes=True,
-                    has_burned_recovery_codes=True,
-                ),
-                "manage.account.two-factor",
-            ),
-        ],
-    )
-    def test_recovery_codes_burn_redirect(self, user, expected):
-        request = pretend.stub(
-            user=user,
-            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-        )
-
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(verified_request)
         result = view.recovery_codes_burn()
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/foo/bar"
+        assert result.location == "/manage.account.two-factor/"
+        verified_request.route_path.assert_called_once_with("manage.account.two-factor")
+        verified_request.session.flash.assert_called_once_with(
+            "Recovery code accepted. The supplied code cannot be used again.",
+            queue="success",
+        )
+        assert [code.burned is not None for code in user.recovery_codes].count(
+            True
+        ) == 1
+        send_email.assert_called_once_with(verified_request, user)
+
+    @pytest.mark.parametrize(
+        ("has_burned", "expected"),
+        [(False, "manage.account"), (True, "manage.account.two-factor")],
+    )
+    def test_recovery_codes_burn_redirect(self, verified_request, has_burned, expected):
+        """
+        A user with no recovery codes has nothing to burn; one who already
+        burned a code has confirmed them.
+        """
+        user = verified_request.user
+        if has_burned:
+            RecoveryCodeFactory.create(user=user)
+            RecoveryCodeFactory.create(user=user, burned=dt.datetime.now(dt.UTC))
+
+        view = views.ProvisionRecoveryCodesViews(verified_request)
+        result = view.recovery_codes_burn()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == f"/{expected}/"
+        verified_request.route_path.assert_called_once_with(expected)
 
 
 class TestProvisionMacaroonViews:
