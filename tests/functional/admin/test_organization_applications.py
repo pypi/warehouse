@@ -99,6 +99,17 @@ def test_applicant_reachable_at_verified_secondary(webtest, login_admin):
     page_text = " ".join(detail.html.get_text().split())
     assert "Emails go to jdoe@gmail.com instead." in page_text
 
+    # The preview carries the same set-primary notice the applicant receives.
+    preview = webtest.post(
+        f"{APPLICATIONS}{application.id}/requestmoreinfo/preview/",
+        {
+            "csrf_token": detail.forms["editModalForm"]["csrf_token"].value,
+            "message": "Please clarify.",
+        },
+        status=HTTPStatus.OK,
+    ).json
+    assert "set a verified email address as your primary" in preview["body"]
+
 
 def test_reviewer_edits_application(webtest, login_admin):
     login_admin(is_org_application_reviewer=True)
