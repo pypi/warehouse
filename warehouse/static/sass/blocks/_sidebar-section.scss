@@ -293,31 +293,28 @@
     }
   }
 
-  // Ads
-  .ethical-sidebar {
+  // PSF sponsor logo placement, revealed by sponsor_controller.js
+  &__sponsor {
     border: 2px solid colors.$border-color;
     border-radius: 5px;
-    padding: 1rem 1rem 0.25rem 1em;
+    padding: 1rem;
+    text-align: center;
   }
 
-  .ethical-content {
-    text-align: center;
+  &__sponsor-logo {
+    @include link-utilities.link-without-underline;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     img {
       width: 60%;
-      display: inline-block;
     }
   }
 
-  .ethical-image-link {
-    @include link-utilities.link-without-underline;
+  &__sponsor-text {
+    margin: 1rem 0 0;
   }
-
-  .ethical-text {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
 
   // Remove bottom styling from final sidebar section
   &:last-of-type:not(&--manage-project) {

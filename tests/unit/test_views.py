@@ -45,7 +45,6 @@ from warehouse.views import (
     search,
     service_unavailable,
     session_notifications,
-    sidebar_sponsor_logo,
     stats,
 )
 
@@ -488,10 +487,6 @@ def test_csi_flash_messages():
 
 def test_csi_session_notifications():
     assert session_notifications(pretend.stub()) == {}
-
-
-def test_csi_sidebar_sponsor_logo():
-    assert sidebar_sponsor_logo(pretend.stub()) == {}
 
 
 class TestSearch:
