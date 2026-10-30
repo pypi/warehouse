@@ -74,6 +74,7 @@ from warehouse.utils.project import (
     DELETE_FILE_ACKNOWLEDGMENTS,
     DELETE_PROJECT_ACKNOWLEDGMENTS,
     DELETE_RELEASE_ACKNOWLEDGMENTS,
+    remove_documentation,
 )
 
 from ...common.db.accounts import (
@@ -3034,83 +3035,72 @@ class TestManageProjectSettings:
 
 
 class TestManageProjectDocumentation:
-    def test_manage_project_documentation(self):
-        request = pretend.stub()
-        project = pretend.stub()
+    def test_manage_project_documentation(self, mocker):
+        project = mocker.sentinel.project
 
-        assert views.manage_project_documentation(project, request) == {
+        assert views.manage_project_documentation(project, mocker.sentinel.request) == {
             "project": project
         }
 
-    def test_destroy_project_docs_no_confirm(self):
-        project = pretend.stub(normalized_name="foo")
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        with pytest.raises(HTTPSeeOther) as exc:
-            views.destroy_project_docs(project, request)
-        assert exc.value.status_code == 303
-        assert exc.value.headers["Location"] == "/foo/bar/"
-
-        assert request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-
-    def test_destroy_project_docs_wrong_confirm(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            POST={"confirm_project_name": "FOO"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        with pytest.raises(HTTPSeeOther) as exc:
-            views.destroy_project_docs(project, request)
-        assert exc.value.status_code == 303
-        assert exc.value.headers["Location"] == "/foo/bar/"
-
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Could not delete project - 'FOO' is not the same as 'foo'",
-                queue="error",
-            )
-        ]
-
-    def test_destroy_project_docs(self, db_request):
+    def test_destroy_project_docs_no_confirm(self, project_request):
         project = ProjectFactory.create(name="foo")
-        remove_documentation_recorder = pretend.stub(
-            delay=pretend.call_recorder(lambda *a, **kw: None)
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.destroy_project_docs(project, project_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        project_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
-        task = pretend.call_recorder(lambda *a, **kw: remove_documentation_recorder)
-
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.documentation", project_name="foo"
         )
-        db_request.POST["confirm_project_name"] = project.name
-        db_request.user = UserFactory.create()
-        db_request.task = task
 
-        result = views.destroy_project_docs(project, db_request)
+    def test_destroy_project_docs_wrong_confirm(self, project_request):
+        project = ProjectFactory.create(name="foo")
+        project_request.POST["confirm_project_name"] = "FOO"
 
-        assert remove_documentation_recorder.delay.calls == [
-            pretend.call(project.name),
-            pretend.call(project.normalized_name),
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.destroy_project_docs(project, project_request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        project_request.session.flash.assert_called_once_with(
+            "Could not delete project - 'FOO' is not the same as 'foo'",
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.documentation", project_name="foo"
+        )
+
+    def test_destroy_project_docs(self, project_request, mocker):
+        project = ProjectFactory.create(name="foo")
+        project_request.POST["confirm_project_name"] = project.name
+
+        result = views.destroy_project_docs(project, project_request)
+
+        assert project_request.task.call_args_list == [
+            mocker.call(remove_documentation),
+            mocker.call(remove_documentation),
+        ]
+        assert project_request._task_stub.delay.call_args_list == [
+            mocker.call(project.name),
+            mocker.call(project.normalized_name),
         ]
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Deleted docs for project 'foo'", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.documentation", project_name="foo")
-        ]
+        project_request.session.flash.assert_called_once_with(
+            "Deleted docs for project 'foo'", queue="success"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.documentation", project_name="foo"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
         assert not (
-            db_request.db.query(Project).filter(Project.name == "foo").first().has_docs
+            project_request.db.scalars(select(Project).filter(Project.name == "foo"))
+            .first()
+            .has_docs
         )
 
 
@@ -3123,7 +3113,6 @@ class TestManageProjectReleases:
             filename=f"foobar-{release.version}.tar.gz",
             packagetype="sdist",
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
 
         assert views.manage_project_releases(project, db_request) == {
             "project": project,
