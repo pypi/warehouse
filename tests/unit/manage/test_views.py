@@ -5,7 +5,6 @@ import datetime as dt
 import time
 import uuid
 
-import pretend
 import pytest
 
 from freezegun import freeze_time
@@ -4736,28 +4735,16 @@ class TestManageProjectHistory:
         for event in events_page:
             assert isinstance(event, Project.Event)
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+    def test_raises_400_with_pagenum_type_str(self, mocker, db_request):
         params = MultiDict({"page": "abc"})
         db_request.params = params
-
-        events_query = pretend.stub()
-        db_request.events_query = pretend.stub(
-            events_query=lambda *a, **kw: events_query
-        )
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+        page_cls = mocker.patch.object(views, "SQLAlchemyORMPage", autospec=True)
 
         project = ProjectFactory.create()
         with pytest.raises(HTTPBadRequest):
             views.manage_project_history(project, db_request)
 
-        assert page_cls.calls == []
+        page_cls.assert_not_called()
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
@@ -4866,96 +4853,70 @@ class TestManageProjectHistory:
 
 
 class TestArchiveProject:
-    def test_archive(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        user = UserFactory.create(username="testuser")
+    @pytest.mark.parametrize(
+        ("lifecycle_status", "view", "new_status", "tag", "message"),
+        [
+            (
+                None,
+                views.archive_project_view,
+                LifecycleStatus.ArchivedNoindex,
+                EventTag.Project.ProjectArchiveEnter,
+                "Project archived",
+            ),
+            (
+                LifecycleStatus.Archived,
+                views.unarchive_project_view,
+                None,
+                EventTag.Project.ProjectArchiveExit,
+                "Project unarchived",
+            ),
+        ],
+        ids=["archive", "unarchive"],
+    )
+    def test_archive_and_unarchive(
+        self, project_request, lifecycle_status, view, new_status, tag, message
+    ):
+        project = ProjectFactory.create(name="foo", lifecycle_status=lifecycle_status)
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        result = views.archive_project_view(project, db_request)
+        result = view(project, project_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name=project.name)
+        assert project.lifecycle_status == new_status
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (tag, {"submitted_by": project_request.user.username})
         ]
+        project_request.session.flash.assert_called_once_with(message, queue="success")
+        project_request.route_path.assert_called_once_with(
+            "manage.project.settings", project_name="foo"
+        )
 
-    def test_unarchive_project(self, db_request):
+    @pytest.mark.parametrize(
+        ("view", "message"),
+        [
+            (
+                views.archive_project_view,
+                "Cannot archive project with status quarantine-enter",
+            ),
+            (views.unarchive_project_view, "Can only unarchive an archived project"),
+        ],
+        ids=["archive", "unarchive"],
+    )
+    def test_disallowed(self, project_request, view, message):
         project = ProjectFactory.create(
-            name="foo", lifecycle_status=LifecycleStatus.Archived
-        )
-        user = UserFactory.create(username="testuser")
-
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+            name="foo", lifecycle_status=LifecycleStatus.QuarantineEnter
         )
 
-        result = views.unarchive_project_view(project, db_request)
+        result = view(project, project_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name=project.name)
-        ]
-        assert project.lifecycle_status is None
-
-    def test_disallowed_archive(self, db_request):
-        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
-        user = UserFactory.create(username="testuser")
-
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.session.flash.assert_called_once_with(message, queue="error")
+        project_request.route_path.assert_called_once_with(
+            "manage.project.settings", project_name="foo"
         )
-
-        result = views.archive_project_view(project, db_request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Cannot archive project with status {project.lifecycle_status}",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert project.lifecycle_status == "quarantine-enter"
-
-    def test_disallowed_unarchive(self, db_request):
-        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
-        user = UserFactory.create(username="testuser")
-
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        result = views.unarchive_project_view(project, db_request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Can only unarchive an archived project", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert project.lifecycle_status == "quarantine-enter"
+        assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert project.events.all() == []
 
 
 class TestUnusableIdNotFound:
