@@ -646,6 +646,47 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
     assert db_request.db.query(Project).all() == []
 
 
+def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_standing(
+    db_request,
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create(is_active=False)
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": "valid token, but organization is not active",
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == []
+
+
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     mocker, db_request, pyramid_services
 ):
