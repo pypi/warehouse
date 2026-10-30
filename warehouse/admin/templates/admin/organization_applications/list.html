@@ -43,15 +43,25 @@
 </div>
 
 <div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover" id="organization-applications">
+  <div class="card-body">
+    <table class="table table-hover"
+           data-tabulator
+           data-tabulator-column-menu
+           tabulator-layout="fitDataFill"
+           tabulator-responsiveLayout="collapse"
+           tabulator-responsiveLayoutCollapseStartOpen="false"
+           tabulator-pagination="true"
+           tabulator-paginationSize="25"
+           tabulator-placeholder="No matching applications">
       <thead>
       <tr>
         <th>Account Name</th>
         <th>Organization</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Submitted</th>
+        <th>Checks</th>
+        <th>Waiting</th>
+        <th tabulator-responsive="3">Description</th>
+        <th tabulator-responsive="2">Type</th>
+        <th tabulator-responsive="2">Submitted</th>
         <th>Status</th>
       </tr>
       </thead>
@@ -68,9 +78,32 @@
         <td>
           <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization_application.display_name }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
         </td>
+        {#- Only open applications have a summary; decided ones leave both cells blank. -#}
+        {% set summary = check_summaries.get(organization_application.id) %}
+        <td>
+          {% if summary %}
+          {% set failing = summary["fail"] %}
+          {% set warnings = summary["warn"] %}
+          <span title="{{ (failing + warnings)|join('; ') }}">
+            {% if failing %}
+            <i class="fa-solid fa-circle-xmark text-danger" aria-hidden="true"></i> {{ failing|length }} failing{% if warnings %} &middot; {{ warnings|length }} {{ 'warning' if warnings|length == 1 else 'warnings' }}{% endif %}
+            {% elif warnings %}
+            <i class="fa-solid fa-triangle-exclamation text-warning" aria-hidden="true"></i> {{ warnings|length }} {{ 'warning' if warnings|length == 1 else 'warnings' }}
+            {% else %}
+            <i class="fa-solid fa-circle-check text-success" aria-hidden="true"></i> All clear
+            {% endif %}
+          </span>
+          {% endif %}
+        </td>
+        <td>
+          {% if summary %}
+          {% set days = (now() - organization_application.submitted).days %}
+          {{ days }} {{ 'day' if days == 1 else 'days' }}
+          {% endif %}
+        </td>
         <td>{{ organization_application.description }}</td>
         <td>{{ organization_application.orgtype.value }}</td>
-        <td>{{ organization_application.submitted }}</td>
+        <td>{{ organization_application.submitted.strftime("%Y-%m-%d %H:%M") }}</td>
         {% if organization_application.status == 'approved' %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
         {% elif organization_application.status == 'declined' %}

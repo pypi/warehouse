@@ -4,10 +4,11 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.common.db.accounts import UserFactory
+from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
 from tests.common.db.packaging import ProjectFactory
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -31,6 +32,7 @@ APPLICATIONS = "/admin/organization_applications/"
 def test_review_actions(webtest, login_admin, mocker, role, action, status):
     reviewer = login_admin(**{role: True})
     application = OrganizationApplicationFactory.create()
+    EmailFactory.create(user=application.submitted_by)
     for email in ("approved", "declined", "moreinformationneeded"):
         mocker.patch(
             f"warehouse.organizations.services.send_new_organization_{email}_email"
@@ -41,8 +43,7 @@ def test_review_actions(webtest, login_admin, mocker, role, action, status):
     form = next(
         form for form in detail.forms.values() if form.action.endswith(f"/{action}/")
     )
-    if "message" in form.fields:
-        form["message"] = "Reviewed application"
+    form["message"] = "Reviewed application"
     response = form.submit(status=HTTPStatus.SEE_OTHER)
     response.follow(status=HTTPStatus.OK)
 
@@ -60,6 +61,23 @@ def test_review_actions(webtest, login_admin, mocker, role, action, status):
         )
 
 
+def test_unreachable_applicant_blocks_information_requests(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(link_url="https://acme.com")
+    EmailFactory.create(
+        user=application.submitted_by, email="jdoe@acme.com", verified=False
+    )
+
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+
+    banner = detail.html.select_one(".alert-danger")
+    assert "You can't reach this applicant" in banner.text
+    assert "jdoe@acme.com" in banner.text
+    request_info = detail.html.select_one('[data-target="#requestMoreInfoModal"]')
+    assert request_info.has_attr("disabled")
+    assert detail.html.select(".org-review-check-ask") == []
+
+
 def test_reviewer_edits_application(webtest, login_admin):
     login_admin(is_org_application_reviewer=True)
     application = OrganizationApplicationFactory.create(link_url="https://example.com")
@@ -69,6 +87,31 @@ def test_reviewer_edits_application(webtest, login_admin):
     form["display_name"] = "Reviewed organization"
     form.submit(status=HTTPStatus.SEE_OTHER).follow(status=HTTPStatus.OK)
     assert application.display_name == "Reviewed organization"
+
+
+def test_reviewer_previews_information_request(webtest, login_admin, mocker):
+    login_admin(is_org_application_reviewer=True)
+    send = mocker.patch("warehouse.email._send_email_to_user")
+    application = OrganizationApplicationFactory.create(name="example")
+    detail_url = f"{APPLICATIONS}{application.id}/"
+    detail = webtest.get(detail_url, status=HTTPStatus.OK)
+
+    preview = webtest.post(
+        f"{detail_url}requestmoreinfo/preview/",
+        {
+            "csrf_token": detail.forms["editModalForm"]["csrf_token"].value,
+            "message": "First ask.\r\n\r\nSecond ask.",
+        },
+        status=HTTPStatus.OK,
+    ).json
+
+    assert "'example'" in preview["subject"]
+    assert "First ask.\r\n\r\nSecond ask." in preview["body"]
+    assert f"/manage/organizations/application/{application.id}/" in preview["body"]
+    # A preview never sends, and never changes the application.
+    send.assert_not_called()
+    assert application.status == OrganizationApplicationStatus.Submitted
+    assert application.observations == []
 
 
 def test_reviewer_navigation_and_unrelated_access(webtest, login_admin):
@@ -145,6 +188,7 @@ def test_other_roles_cannot_review(webtest, login_admin, role):
         "decline/",
         "defer/",
         "requestmoreinfo/",
+        "requestmoreinfo/preview/",
         "addnote/",
     ):
         webtest.post(
@@ -154,6 +198,18 @@ def test_other_roles_cannot_review(webtest, login_admin, role):
         )
     assert application.status == OrganizationApplicationStatus.Submitted
     assert application.observations == []
+
+
+def test_withdrawn_application_is_read_only(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(
+        status=OrganizationApplicationStatus.Withdrawn
+    )
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+    for target in ("approve", "requestMoreInfo", "decline", "defer", "edit"):
+        assert detail.html.select_one(f'[data-target="#{target}Modal"]').has_attr(
+            "disabled"
+        )
 
 
 @pytest.mark.parametrize("has_next", [False, True])
@@ -230,3 +286,50 @@ def test_superuser_navigation_on_resource_pages(webtest, login_admin, page):
         f"/admin/users/{admin.username}/",
     } <= sidebar
     assert response.html.select_one('.breadcrumb a[href="/admin/"]')
+
+
+@pytest.mark.parametrize("role", ["is_superuser", "is_org_application_reviewer"])
+def test_approve_with_deleted_organization_name(webtest, login_admin, mocker, role):
+    login_admin(**{role: True})
+    application = OrganizationApplicationFactory.create()
+    EmailFactory.create(user=application.submitted_by)
+    mocker.patch(
+        "warehouse.organizations.services.send_new_organization_approved_email"
+    )
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+    assert "Name held by a deleted organization" in detail.text
+    approve = next(
+        form for form in detail.forms.values() if form.action.endswith("/approve/")
+    )
+
+    if role == "is_org_application_reviewer":
+        assert "claim_orphaned_name" not in approve.fields
+        webtest.post(
+            approve.action,
+            {
+                "csrf_token": approve["csrf_token"].value,
+                "claim_orphaned_name": "true",
+            },
+            status=HTTPStatus.SEE_OTHER,
+        )
+        assert application.status == OrganizationApplicationStatus.Submitted
+        return
+
+    approve["claim_orphaned_name"].checked = True
+    approve.submit(status=HTTPStatus.SEE_OTHER)
+    assert application.status == OrganizationApplicationStatus.Approved
+
+
+def test_locked_names_page(webtest, login_admin):
+    login_admin(is_superuser=True)
+    application = OrganizationApplicationFactory.create()
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+
+    page = webtest.get("/admin/organization_names/", status=HTTPStatus.OK)
+
+    assert page.html.select_one(f'a[href$="/{application.id}/"]')

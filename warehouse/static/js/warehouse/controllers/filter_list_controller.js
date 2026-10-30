@@ -540,19 +540,18 @@ export default class extends Controller {
    * @private
    */
   _setSummary(total, shown) {
-    if (this.hasSummaryTarget) {
-      let messages = [];
-      if (shown === 0) {
-        messages.push(gettext("No built distributions (wheels) match the current filters."));
-      }
-      messages.push(ngettext(
-        "Showing %1 of %2 built distribution (wheel) file.",
-        "Showing %1 of %2 built distribution (wheel) files.",
+    if (!this.hasSummaryTarget) {
+      return;
+    }
+
+    this.summaryTarget.textContent = shown === 0
+      ? gettext("No files match the current filters.")
+      : ngettext(
+        "Showing %1 of %2 file.",
+        "Showing %1 of %2 files.",
         total,
         shown.toString(),
-        total.toString()));
-      this.summaryTarget.textContent = messages.join(" ");
-    }
+        total.toString());
   }
 
   /**

@@ -198,19 +198,6 @@ if (sponsorsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
-// Organization Applications
-let OrganizationApplicationsTable = $("#organization-applications");
-if (OrganizationApplicationsTable.length) {
-  let table = OrganizationApplicationsTable.DataTable({
-    displayLength: 25,
-    lengthChange: true,
-    order: [[4, "asc"], [0, "asc"]],  // created, alpha name
-    responsive: true,
-  });
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
-
 let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
 if (organizationApplicationTurboModeSwitch !== null) {
   let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
@@ -224,6 +211,14 @@ if (organizationApplicationTurboModeSwitch !== null) {
   document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
     input.value = organizationApplicationTurboModeEnabled;
   });
+  // A prerendered queue page ran this before the reviewer last toggled Turbo.
+  document.addEventListener("prerenderingchange", () => {
+    const enabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+    organizationApplicationTurboModeSwitch.checked = enabled;
+    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+      input.value = enabled;
+    });
+  });
   if (organizationApplicationTurboModeEnabled) {
     [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
       setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
@@ -231,74 +226,179 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
-const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
+// Request-more-information composer. Each saved reply is one paragraph, and its
+// button toggles that paragraph in or out, so replies combine under one greeting.
+// A button reads as pressed while its paragraph is in the message, so hand edits
+// that remove one release its button too.
+const replyField = document.getElementById("requestMoreInfoModalMessage");
+if (replyField !== null) {
+  const replyForm = replyField.form;
+  const replyModal = replyForm.closest(".modal");
+  const replyButtons = [...replyForm.querySelectorAll(".saved-reply-button")];
+  const greeting = replyField.dataset.greeting;
+  const previewSection = document.querySelector(".org-review-preview");
+  const previewSubject = document.getElementById("requestMoreInfoPreviewSubject");
+  const previewBody = document.getElementById("requestMoreInfoPreviewBody");
 
-if (savedReplyButtons.length > 0) {
-  const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+  // `textContent`, so a URL's `&amp;` is not pasted into the reply. A blank line in
+  // a template separates paragraphs; any other whitespace is source indentation.
+  const replyText = (id) => document.getElementById(id).textContent
+    .trim()
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .join("\n\n");
+  const tidy = (text) => text.replace(/\n{3,}/g, "\n\n").trim();
 
-  if (requestMoreInfoModalMessage) {
-    savedReplyButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const templateId = button.dataset.template;
-
-        if (templateId) {
-          const templateElement = document.getElementById(templateId);
-
-          if (templateElement) {
-            const templateContent = templateElement.innerHTML;
-            const cleanedContent = templateContent
-              .trim()
-              .replace(/\n/g, " ")
-              .replace(/\s{2,}/g, " ");
-            requestMoreInfoModalMessage.value = cleanedContent;
-          }
-        }
+  let previewTimer;
+  let previewSequence = 0;
+  const refreshPreview = async () => {
+    const sequence = ++previewSequence;
+    try {
+      const response = await fetch(replyForm.dataset.previewUrl, {
+        method: "POST",
+        headers: {Accept: "application/json"},
+        body: new URLSearchParams({
+          csrf_token: replyForm.elements.csrf_token.value,
+          message: replyField.value,
+        }),
       });
+      if (!response.ok) {
+        throw new Error(`preview failed: ${response.status}`);
+      }
+      const preview = await response.json();
+      if (sequence === previewSequence) {
+        previewSection.classList.remove("is-unavailable");
+        previewSubject.textContent = preview.subject;
+        previewBody.textContent = preview.body.trim();
+      }
+    } catch {
+      if (sequence === previewSequence) {
+        previewSection.classList.add("is-unavailable");
+        previewSubject.textContent = "Preview unavailable; the message will still send.";
+      }
+    }
+  };
+
+  const replyChanged = () => {
+    for (const button of replyButtons) {
+      const included = replyField.value.includes(replyText(button.dataset.template));
+      button.setAttribute("aria-pressed", String(included));
+      button.classList.toggle("btn-primary", included);
+      button.classList.toggle("btn-outline-primary", !included);
+    }
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(refreshPreview, 250);
+  };
+  const addReply = (id) => {
+    const reply = replyText(id);
+    const current = tidy(replyField.value);
+    if (!current.includes(reply)) {
+      replyField.value = current ? `${current}\n\n${reply}` : `${greeting}\n\n${reply}`;
+    }
+    replyChanged();
+  };
+  const removeReply = (id) => {
+    const remaining = tidy(replyField.value.replace(replyText(id), ""));
+    replyField.value = remaining === greeting ? "" : remaining;
+    replyChanged();
+  };
+
+  replyButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const included = button.getAttribute("aria-pressed") === "true";
+      (included ? removeReply : addReply)(button.dataset.template);
     });
-  }
+  });
+  // "Ask about this" on a review check adds its reply to whatever is drafted.
+  document.querySelectorAll(".org-review-check-ask").forEach((button) => {
+    button.addEventListener("click", () => addReply(button.dataset.template));
+  });
+  replyField.addEventListener("input", replyChanged);
+  $(replyModal).on("show.bs.modal", refreshPreview);
+
+  // Alt+1..9 toggles the matching reply. `code`, not `key`: Option+digit types a
+  // symbol on macOS.
+  document.addEventListener("keydown", (event) => {
+    if (!event.altKey || event.metaKey || event.ctrlKey || !replyModal.classList.contains("show")) {
+      return;
+    }
+    const digit = /^Digit([1-9])$/.exec(event.code);
+    const button = digit && replyButtons[Number(digit[1]) - 1];
+    if (button) {
+      event.preventDefault();
+      button.click();
+    }
+  });
 }
+
+// Focus stays outside the form while a modal is open - on the rail button that opened
+// it, or on the modal shell - so a listener bound to the form never sees the keystroke.
+// `requestSubmit` over `submit` so required fields still validate.
+document.addEventListener("keydown", function(event) {
+  if (!(event.metaKey || event.ctrlKey) || event.key !== "Enter") {
+    return;
+  }
+  const focused = event.target instanceof Element ? event.target : null;
+  const form = (focused && focused.closest("form[data-hotkey-submit]")) ||
+    document.querySelector(".modal.show form[data-hotkey-submit]");
+  if (form) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
 
 let editModalForm = document.getElementById("editModalForm");
 if (editModalForm !== null) {
   if (editModalForm.classList.contains("edit-form-errors")) {
     document.getElementById("editModalButton").click();
   }
+
+  // Sets the edit form's own type field: the server rejects a field sent twice.
+  // Resetting first drops anything typed into the edit dialog and not saved.
+  const orgTypeSwap = document.querySelector("[data-orgtype-swap]");
+  if (orgTypeSwap !== null) {
+    orgTypeSwap.addEventListener("click", function() {
+      editModalForm.reset();
+      editModalForm.elements.orgtype.value = orgTypeSwap.dataset.orgtypeSwap;
+      editModalForm.submit();
+    });
+  }
 }
 
+// Single-key shortcuts for the review rail. They stand down while any dialog is
+// open, however it was opened, and while a field has focus, so a stray key never
+// stacks a second decision dialog over the first.
 $(document).ready(function() {
-  const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
-  var keyBindings = new Map();
-  function bindHotKeys() {
-    document.onkeyup = hotKeys;
-  }
-  function unbindHotKeys() {
-    document.onkeyup = function(){};
-  }
-  function hotKeys(e) {
-    if (keyBindings.has(String(e.which))) {
-      unbindHotKeys();
-      const targetModal = $(keyBindings.get(String(e.which)));
-      targetModal.one("shown.bs.modal", function () {
-        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
-        if (firstFocusableElement.length) {
-          firstFocusableElement.focus();
-        }
-      });
-      targetModal.modal("show");
-      targetModal.on("hidden.bs.modal", bindHotKeys);
-    }
-  }
-  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
-    if (! modalHotKeyBinding.disabled) {
-      keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
+  const keyBindings = new Map();
+  document.querySelectorAll("[data-hotkey-binding]").forEach(function(element) {
+    if (!element.disabled) {
+      keyBindings.set(element.dataset.hotkeyBinding, element);
     }
   });
-  const focusable = document.querySelectorAll("input, textarea");
-  focusable.forEach(function(element) {
-    element.addEventListener("focusin", unbindHotKeys);
-    element.addEventListener("focusout", bindHotKeys);
+  if (keyBindings.size === 0) {
+    return;
+  }
+  $(".modal").on("shown.bs.modal", function() {
+    $(this).find("input:visible, textarea:visible").first().trigger("focus");
   });
-  bindHotKeys();
+  document.addEventListener("keyup", function(event) {
+    if (event.metaKey || event.ctrlKey || event.altKey || document.querySelector(".modal.show")) {
+      return;
+    }
+    if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]")) {
+      return;
+    }
+    const element = keyBindings.get(String(event.which));
+    if (element === undefined) {
+      return;
+    }
+    if (element.dataset.toggle === "modal") {
+      $(element.dataset.target).modal("show");
+    } else {
+      // Not a dialog opener (the queue links, the type swap): act on it directly.
+      element.click();
+    }
+  });
 });
 
 // User Files Modal

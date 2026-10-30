@@ -233,6 +233,7 @@
                       data-clipboard-target="tooltip"
                       data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Copy SHA-256 checksum{% endtrans %}</span>
               </button>
             </code>
             <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}"

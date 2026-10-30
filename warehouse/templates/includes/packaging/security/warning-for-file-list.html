@@ -21,7 +21,7 @@
       {% endif %}
       <p>{% trans href="#security" %}We recommend further investigation before installing this file. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
     {% else %}
       <h3 class="callout-block__heading">
         <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -38,7 +38,7 @@
       {% endif %}
       <p>{% trans href="#security" %}We recommend further investigation before installing these files. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
     {% endif %}
   </div>
 {% elif 'changed-provenance' in provenance_states %}
@@ -74,7 +74,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend inspecting the repository and configuration before proceeding. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif 'inconsistent-provenance' in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin">
@@ -102,7 +102,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend inspecting each repository and configuration before proceeding. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif 'partial-provenance' in provenance_states %}
   {% set counts = release.provenance_status.counts %}
@@ -132,7 +132,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend further investigation before installing these files. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif late_count %}
   <div class="callout-block callout-block--warning">

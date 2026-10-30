@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --no-index --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.20.0 \
-    --hash=sha256:77eb101048d95f982c0353e9233404889dcd7a6fc244c107836c0e2fc9cf7d9d \
-    --hash=sha256:db505480647bc60386c5369402f4a57a506b7539c9e9ef5e270d45cbbe4939bf
+alembic==1.20.1 \
+    --hash=sha256:83490def1f723413db5096591f7609ac52544805be93849170088ed04f5a2e0b \
+    --hash=sha256:9970712cfb81ea26c8658d378aaa5b8f6ff9146e5bb111d70497c164016cf598
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
@@ -67,9 +67,9 @@ automat==25.4.16 \
     --hash=sha256:0017591a5477066e90d26b0e696ddc143baafd87b588cfac8100bc6be9634de0 \
     --hash=sha256:04e9bce696a8d5671ee698005af6e5a9fa15354140a87f4870744604dcdd3ba1
     # via -r requirements/main.in
-b2sdk==2.13.1 \
-    --hash=sha256:45f91907bb677f916c920e9ccc3d120fdbd2b11d0059ff2cd06360973c281e6f \
-    --hash=sha256:ce6533be17f75785ce9511f063b9dd1142adbe71fa124417005b65bad69e8abe
+b2sdk==2.13.2 \
+    --hash=sha256:f2d7663392d869c17d44b7304bae6e06ecefda18742b197a693a93298943310d \
+    --hash=sha256:ff71d70f24694158c0d6eb1b904bf2cff74e61d46e4b34e3d32186189045866a
     # via -r requirements/main.in
 babel==2.18.0 \
     --hash=sha256:b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d \
@@ -216,6 +216,7 @@ certifi==2026.10.23 \
     --hash=sha256:e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1
     # via
     #   -r requirements/main.in
+    #   b2sdk
     #   opensearch-py
     #   requests
     #   sentry-sdk
@@ -2341,9 +2342,9 @@ securesystemslib==1.4.0 \
     --hash=sha256:a0743a3d978cf26e98a70a57e3fbd5a18e0a74c20cabe615f6a55b02ef0272b3 \
     --hash=sha256:faea87be0f9c4b4277a5fa1b54bf9bfd807be9a94ab11be6c557dc8b75c43285
     # via tuf
-sentry-sdk==2.72.0 \
-    --hash=sha256:0d2ffbc28ee2e63cbaf3d015e93b448cffcc3ef3be03a44704ad36ade72faa95 \
-    --hash=sha256:3e13ace4ffd0b3cc78288236edfc4e4bd90eb12a396cc5845fa10a58ff289f50
+sentry-sdk==2.73.0 \
+    --hash=sha256:0bcfa6928ea5adbb89591858b514d27adac27c7a3cccc31b20ed10e0b09eda9e \
+    --hash=sha256:4a2ab97b16e4693c325ab361c7bbbb346dbc7d0bc0150922d795a25bac8d5280
     # via -r requirements/main.in
 sigstore==4.5.0 \
     --hash=sha256:020d3e07f622b2916bf453e66ff6ff0711e1fdc5ab69e8bd8902f71d9fcb316f \

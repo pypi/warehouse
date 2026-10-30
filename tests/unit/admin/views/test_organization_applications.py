@@ -1,22 +1,29 @@
 # SPDX-License-Identifier: Apache-2.0
+import datetime as dt
 import uuid
+
+from types import SimpleNamespace
 
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from sqlalchemy import update
 from webob.multidict import MultiDict
 
-from tests.common.db.accounts import UserFactory
+from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
+from tests.common.db.packaging import RoleFactory
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
+from warehouse.organizations.checks import CheckStatus
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationNameCatalog,
     OrganizationType,
 )
 
@@ -41,6 +48,7 @@ class TestOrganizationApplicationList:
         )
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications,
             "query": "",
@@ -134,6 +142,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:approved"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[:2],
             "query": "is:approved",
@@ -153,6 +162,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:declined"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[2:3],
             "query": "is:declined",
@@ -172,6 +182,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:submitted"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications[3:],
             "query": "is:submitted",
@@ -188,6 +199,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:company"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [company_org],
             "query": "type:company",
@@ -197,6 +209,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:community"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [community_org],
             "query": "type:community",
@@ -211,6 +224,7 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "type:invalid"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": [company_org],
             "query": "type:invalid",
@@ -225,14 +239,46 @@ class TestOrganizationApplicationList:
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_applications_list(db_request)
 
+        result.pop("check_summaries")
         assert result == {
             "organization_applications": organization_applications,
             "query": "is:not-actually-a-valid-query",
             "terms": ["is:not-actually-a-valid-query"],
         }
 
+    def test_check_summaries(self, db_request):
+        application = OrganizationApplicationFactory.create()
+        rival = OrganizationApplicationFactory.create(
+            name=application.name, status=OrganizationApplicationStatus.Deferred
+        )
+        decided = OrganizationApplicationFactory.create(
+            name=application.name, status=OrganizationApplicationStatus.Approved
+        )
+        RoleFactory.create(user=application.submitted_by)
+
+        summaries = views.organization_applications_list(db_request)["check_summaries"]
+
+        assert decided.id not in summaries
+        assert summaries[application.id][CheckStatus.Fail] == [
+            "Applicant's primary email is verified"
+        ]
+        warnings = {
+            open_application: summaries[open_application.id][CheckStatus.Warn]
+            for open_application in (application, rival)
+        }
+        assert "No competing applications" in warnings[application]
+        assert "No competing applications" in warnings[rival]
+        assert "Applicant has projects" not in warnings[application]
+        assert "Applicant has projects" in warnings[rival]
+
 
 class TestOrganizationApplicationDetail:
+    @pytest.fixture(autouse=True)
+    def _csp(self, pyramid_services):
+        pyramid_services.register_service(
+            SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
+        )
+
     def test_detail(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
         db_request.matchdict["organization_application_id"] = (
@@ -243,6 +289,29 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
+        assert result["applicant_reachable"] is False
+        assert result["orphaned_name"] is False
+
+    def test_detail_orphaned_name(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        OrganizationNameCatalogFactory.create(
+            normalized_name=organization_application.normalized_name,
+            organization_id=None,
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        result = views.organization_application_detail(db_request)
+        assert result["orphaned_name"] is True
+
+    def test_detail_reachable_applicant(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        EmailFactory.create(user=organization_application.submitted_by)
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        result = views.organization_application_detail(db_request)
+        assert result["applicant_reachable"] is True
 
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
@@ -289,6 +358,96 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.errors != []
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
+
+    def test_detail_edit_keeps_own_name(self, db_request):
+        # The applicant's other open application, and the application itself,
+        # only conflict on a rename.
+        applicant = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            submitted_by=applicant,
+            orgtype=OrganizationType.Company,
+            status=OrganizationApplicationStatus.MoreInformationNeeded,
+        )
+        OrganizationApplicationFactory.create(
+            submitted_by=applicant, name=organization_application.name
+        )
+        db_request.user = applicant
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "name": organization_application.name,
+                "description": organization_application.description,
+                "display_name": organization_application.display_name,
+                "link_url": organization_application.link_url,
+                "orgtype": "Community",
+            }
+        )
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        result = views.organization_application_detail(db_request)
+
+        assert result.status_code == 303
+        assert organization_application.orgtype == OrganizationType.Community
+
+    def test_detail_edit_checks_applicants_applications(self, db_request):
+        applicant = UserFactory.create()
+        reviewer = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            submitted_by=applicant
+        )
+        OrganizationApplicationFactory.create(submitted_by=applicant, name="taken")
+        OrganizationApplicationFactory.create(submitted_by=reviewer, name="free")
+        db_request.user = reviewer
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        fields = {
+            "description": organization_application.description,
+            "display_name": organization_application.display_name,
+            "link_url": organization_application.link_url,
+            "orgtype": organization_application.orgtype.value,
+        }
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        db_request.POST = MultiDict({"name": "taken", **fields})
+        result = views.organization_application_detail(db_request)
+        assert result["form"].name.errors == [
+            "The applicant already has an open application for that name."
+        ]
+
+        db_request.POST = MultiDict({"name": "free", **fields})
+        result = views.organization_application_detail(db_request)
+        assert result.status_code == 303
+        assert organization_application.name == "free"
+
+    def test_detail_edit_name_taken_by_organization(self, db_request):
+        # Another application for the name was approved while this one waited
+        organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Deferred
+        )
+        OrganizationFactory.create(name=organization_application.name)
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "name": organization_application.name,
+                "description": "Typo fixed",
+                "display_name": organization_application.display_name,
+                "link_url": organization_application.link_url,
+                "orgtype": organization_application.orgtype.value,
+            }
+        )
+
+        result = views.organization_application_detail(db_request)
+
+        assert result["form"].name.errors == ["An organization already has that name."]
+        assert organization_application.description != "Typo fixed"
 
     def test_detail_is_approved_true(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
@@ -357,6 +516,36 @@ class TestOrganizationApplicationDetail:
         with pytest.raises(HTTPNotFound):
             views.organization_application_detail(db_request)
 
+    def test_detail_queue(self, db_request):
+        def submitted_at(day, **kw):
+            return OrganizationApplicationFactory.create(
+                submitted=dt.datetime(2024, 1, day), **kw
+            )
+
+        oldest, middle, newest = submitted_at(1), submitted_at(2), submitted_at(4)
+        deferred = submitted_at(3, status=OrganizationApplicationStatus.Deferred)
+
+        def queue_for(application):
+            db_request.matchdict["organization_application_id"] = application.id
+            return views.organization_application_detail(db_request)["queue"]
+
+        assert queue_for(middle) == {
+            "total": 3,
+            "position": 2,
+            "previous": oldest,
+            "next": newest,
+        }
+        # The next application wraps around to the oldest; the previous does not.
+        assert queue_for(newest)["next"] == oldest
+        assert queue_for(oldest)["previous"] is None
+        # An application outside the queue still knows its neighbours, by date.
+        assert queue_for(deferred) == {
+            "total": 3,
+            "position": None,
+            "previous": middle,
+            "next": newest,
+        }
+
 
 class TestOrganizationApplicationActions:
     def test_approve(self, db_request, mocker):
@@ -394,6 +583,72 @@ class TestOrganizationApplicationActions:
         ]
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
+
+    def test_approve_claims_orphaned_name(self, db_request, mocker):
+        mocker.patch.object(services, "send_new_organization_approved_email")
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        entry = OrganizationNameCatalogFactory.create(
+            normalized_name="example", organization_id=None
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["claim_orphaned_name"] = "true"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        views.organization_application_approve(db_request)
+
+        organization = organization_application.organization
+        assert organization_application.status == OrganizationApplicationStatus.Approved
+        assert db_request.db.query(OrganizationNameCatalog).all() == [entry]
+        assert entry.organization_id == organization.id
+
+    @pytest.mark.parametrize(
+        ("live_organization", "claim", "can_claim"),
+        [
+            (False, False, True),
+            (False, True, False),
+            (True, True, True),
+        ],
+    )
+    def test_approve_reserved_name(
+        self, db_request, mocker, live_organization, claim, can_claim
+    ):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        if live_organization:
+            OrganizationFactory.create(name="example")
+        else:
+            OrganizationNameCatalogFactory.create(
+                normalized_name="example", organization_id=None
+            )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        if claim:
+            db_request.params["claim_orphaned_name"] = "true"
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=can_claim
+        )
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_approve(db_request)
+
+        assert organization_application.status == (
+            OrganizationApplicationStatus.Submitted
+        )
+        assert organization_application.organization is None
+        send_approved.assert_not_called()
+        assert db_request.session.pop_flash("error") == [
+            'The name "example" is already reserved'
+        ]
+        assert result.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     def test_approve_turbo_mode(self, db_request, mocker):
         mocker.patch.object(services, "send_new_organization_approved_email")
@@ -453,6 +708,28 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
+    def test_defer_with_note(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.user = admin
+        db_request.route_path = _organization_application_routes
+        db_request.params["message"] = "Jurisdiction review pending."
+
+        result = views.organization_application_defer(db_request)
+
+        assert organization_application.status == OrganizationApplicationStatus.Deferred
+        assert [note.payload["message"] for note in organization_application.notes] == [
+            "Jurisdiction review pending."
+        ]
+        assert result.status_code == 303
+
     def test_defer_turbo_mode(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -501,6 +778,21 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{next_application.id}/"
         )
 
+    def test_defer_turbo_mode_moves_to_following_application(self, db_request):
+        _oldest, current, newer = (
+            OrganizationApplicationFactory.create(submitted=dt.datetime(2024, 1, day))
+            for day in (1, 2, 3)
+        )
+        db_request.matchdict["organization_application_id"] = current.id
+        db_request.params["organization_applications_turbo_mode"] = "true"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_defer(db_request)
+
+        # Not back to the oldest: the reviewer carries on down the queue.
+        assert result.location == f"/admin/organization_applications/{newer.id}/"
+
     def test_defer_not_found(self, db_request):
         db_request.matchdict["organization_application_id"] = uuid.uuid4()
 
@@ -513,6 +805,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -556,6 +849,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -596,6 +890,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -611,6 +906,49 @@ class TestOrganizationApplicationActions:
         assert len(organization_application.observations) == 0
         send_email.assert_not_called()
         assert db_request.session.pop_flash("error") == ["No message provided"]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
+    @pytest.mark.parametrize(
+        "email_kwargs", [None, {"verified": False}, {"primary": False}]
+    )
+    def test_request_more_information_unreachable_applicant(
+        self, db_request, mocker, email_kwargs
+    ):
+        send_email = mocker.patch.object(
+            services, "send_new_organization_moreinformationneeded_email"
+        )
+        user = UserFactory.create()
+        if email_kwargs is not None:
+            EmailFactory.create(user=user, **email_kwargs)
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["message"] = "Welcome!"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_request_more_information(db_request)
+
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert len(organization_application.observations) == 0
+        send_email.assert_not_called()
+        assert db_request.session.pop_flash("error") == [
+            (
+                'Cannot request more info for "example": '
+                "the applicant has no verified primary email"
+            )
+        ]
+        assert db_request.session.pop_flash("success") == []
         assert result.status_code == 303
         assert (
             result.location
@@ -717,19 +1055,18 @@ class TestOrganizationApplicationActions:
         db_request.params["message"] = "Sorry!"
         db_request.route_path = _organization_application_routes
 
-        result = view(db_request)
+        with pytest.raises(HTTPSeeOther) as redirect:
+            view(db_request)
 
         assert (
             organization_application.status == OrganizationApplicationStatus.Withdrawn
         )
         assert organization_application.organization is None
         assert db_request.session.pop_flash("error") == [
-            'Request for "example" organization was withdrawn'
+            '"example" is already withdrawn'
         ]
-        assert result.status_code == 303
-        assert (
-            result.location
-            == f"/admin/organization_applications/{organization_application.id}/"
+        assert redirect.value.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
         )
 
     def test_addnote(self, db_request):
@@ -789,3 +1126,97 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_add_note(db_request)
+
+    def test_request_more_information_preview_not_found(self, db_request):
+        db_request.matchdict["organization_application_id"] = uuid.uuid4()
+
+        with pytest.raises(HTTPNotFound):
+            views.organization_application_request_more_information_preview(db_request)
+
+    @pytest.mark.parametrize(
+        "status",
+        [
+            OrganizationApplicationStatus.Approved,
+            OrganizationApplicationStatus.Declined,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "view",
+        [
+            views.organization_application_approve,
+            views.organization_application_defer,
+            views.organization_application_request_more_information,
+            views.organization_application_decline,
+        ],
+    )
+    def test_decided_application_keeps_its_decision(
+        self, db_request, mocker, status, view
+    ):
+        emails = [
+            mocker.patch.object(services, f"send_new_organization_{name}_email")
+            for name in ("approved", "declined", "moreinformationneeded")
+        ]
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", status=status
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["message"] = "Stale page"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        with pytest.raises(HTTPSeeOther) as redirect:
+            view(db_request)
+
+        assert redirect.value.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
+        )
+        assert db_request.session.pop_flash("error") == [
+            f'"example" is already {status.value}'
+        ]
+        assert organization_application.status == status
+        assert organization_application.organization is None
+        assert organization_application.observations == []
+        for email in emails:
+            email.assert_not_called()
+
+
+class TestOrganizationNames:
+    def test_list(self, db_request):
+        beta = OrganizationNameCatalogFactory.create(
+            normalized_name="beta", organization_id=None
+        )
+        alpha = OrganizationNameCatalogFactory.create(
+            normalized_name="alpha", organization_id=None
+        )
+        OrganizationFactory.create(name="gamma")
+        open_application = OrganizationApplicationFactory.create(name="Alpha")
+        OrganizationApplicationFactory.create(
+            name="alpha", status=OrganizationApplicationStatus.Declined
+        )
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [alpha, beta]
+        assert result["open_applications"] == {"alpha": [open_application]}
+        assert result["query"] == ""
+
+    def test_list_query(self, db_request):
+        match = OrganizationNameCatalogFactory.create(
+            normalized_name="acme-labs", organization_id=None
+        )
+        OrganizationNameCatalogFactory.create(
+            normalized_name="other", organization_id=None
+        )
+        db_request.params["q"] = "ACME_Labs"
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [match]
+
+    def test_list_invalid_page(self, db_request):
+        db_request.params["page"] = "not an integer"
+
+        with pytest.raises(HTTPBadRequest):
+            views.organization_name_list(db_request)

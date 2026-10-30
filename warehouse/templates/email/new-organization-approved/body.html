@@ -1,5 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
+{% from "email/_base/paragraphs.html" import paragraphs %}
 {% set domain = request.registry.settings.get('warehouse.domain') %}
 {% block content %}
   <p>
@@ -23,6 +24,6 @@
       {% trans %}Interested in a PyPI service agreement?{% endtrans %} {% trans %}Enhanced options like annual bulk seat purchases, higher project size limits, and prioritized support are available.{% endtrans %} <a href="https://www.surveymonkey.com/r/H53HHSS">{% trans %}Fill out our service agreement interest survey{% endtrans %}</a> {% trans %}and we'll follow up.{% endtrans %}
     </p>
   {% endif %}
-  <p>{{ message }}</p>
+  {{ paragraphs(message) }}
   <p>{% trans %}– The PyPI Team{% endtrans %}</p>
 {% endblock %}
