@@ -19,6 +19,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations import tasks as organization_tasks
 from warehouse.organizations.models import (
     OrganizationApplication,
@@ -35,6 +36,7 @@ from warehouse.organizations.tasks import (
     reconcile_stripe_status,
     schedule_unpaid_organization_deactivations,
     send_organization_deactivation_notices,
+    undefer_organization_applications,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -48,6 +50,7 @@ from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationManualActivationFactory,
+    OrganizationNameCatalogFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
@@ -194,6 +197,72 @@ class TestDeleteOrganizationApplications:
         )
 
         assert db_request.db.query(OrganizationApplication).count() == 1
+
+
+class TestUndeferOrganizationApplications:
+    def test_returns_stale_deferrals_to_review(self, db_request):
+        UserFactory.create(username="admin")
+        now = dt.datetime.now(dt.UTC)
+        stale = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Deferred,
+            updated=now - dt.timedelta(days=31),
+        )
+        recent = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Deferred,
+            updated=now - dt.timedelta(days=29),
+        )
+        stale_declined = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Declined,
+            updated=now - dt.timedelta(days=31),
+        )
+
+        undefer_organization_applications(db_request)
+
+        assert stale.status == OrganizationApplicationStatus.Submitted
+        [note] = stale.observations
+        assert note.kind == ObservationKind.AdminNote.value[0]
+        assert note.observer.parent.username == "admin"
+        assert note.payload == {"message": "Returned to review after 30 days deferred."}
+        assert recent.status == OrganizationApplicationStatus.Deferred
+        assert recent.observations == []
+        assert stale_declined.status == OrganizationApplicationStatus.Declined
+        assert stale_declined.observations == []
+
+    def test_leaves_names_held_by_an_organization_deferred(self, db_request):
+        UserFactory.create(username="admin")
+        stale = dt.datetime.now(dt.UTC) - dt.timedelta(days=31)
+        organization = OrganizationFactory.create()
+        taken = OrganizationApplicationFactory.create(
+            name=organization.name,
+            status=OrganizationApplicationStatus.Deferred,
+            updated=stale,
+        )
+        # An orphaned name can still be claimed on approval, so it returns to review.
+        orphaned_name = OrganizationNameCatalogFactory.create(
+            normalized_name="orphaned-name", organization_id=None
+        )
+        orphaned = OrganizationApplicationFactory.create(
+            name=orphaned_name.normalized_name,
+            status=OrganizationApplicationStatus.Deferred,
+            updated=stale,
+        )
+
+        undefer_organization_applications(db_request)
+
+        assert taken.status == OrganizationApplicationStatus.Deferred
+        assert taken.observations == []
+        assert orphaned.status == OrganizationApplicationStatus.Submitted
+
+    def test_nothing_to_undefer(self, db_request):
+        # No stale deferrals: the admin user isn't needed, so its absence is fine.
+        recent = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Deferred,
+            updated=dt.datetime.now(dt.UTC),
+        )
+
+        undefer_organization_applications(db_request)
+
+        assert recent.status == OrganizationApplicationStatus.Deferred
 
 
 class TestUpdateOrganizationSubscriptionUsage:

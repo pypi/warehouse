@@ -41,6 +41,11 @@ from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptio
 
 NAME_FIELD = "name"
 
+# Competing applications declined when another application for the name is approved.
+DECLINED_ON_APPROVAL_STATUSES = frozenset(
+    {OrganizationApplicationStatus.Submitted, OrganizationApplicationStatus.Deferred}
+)
+
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -242,9 +247,18 @@ class DatabaseOrganizationService:
         )
 
         for competing_application in self.get_organization_applications_by_name(
-            organization_application.name, undecided=True
+            organization_application.name
         ):
-            self.decline_organization_application(competing_application.id, request)
+            if competing_application.status not in DECLINED_ON_APPROVAL_STATUSES:
+                continue
+            if competing_application.submitted_by_id == (
+                organization_application.submitted_by_id
+            ):
+                # The applicant already got the approval email; don't also send
+                # them a decline for their own duplicate application.
+                competing_application.status = OrganizationApplicationStatus.Declined
+            else:
+                self.decline_organization_application(competing_application.id, request)
 
         return organization
 

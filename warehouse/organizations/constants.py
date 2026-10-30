@@ -6,6 +6,8 @@ import datetime as dt
 
 CLEANUP_AFTER = dt.timedelta(days=30)
 """How long to keep declined organization applications before deletion."""
+UNDEFER_AFTER = dt.timedelta(days=30)
+"""How long a deferred organization application waits before returning to review."""
 
 ## -- Things rleating to only company orgs
 SUBSCRIPTION_NOTICE_AFTER = dt.timedelta(days=7)
