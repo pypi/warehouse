@@ -520,6 +520,12 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call("admin.quarantine.list", "/admin/quarantine/", domain=warehouse),
+        mocker.call("admin.gating.list", "/admin/gating/", domain=warehouse),
+        mocker.call(
+            "admin.gating.bypass",
+            "/admin/gating/{release_id}/{kind}/bypass/",
+            domain=warehouse,
+        ),
         mocker.call(
             "admin.malware_reports.list",
             "/admin/malware_reports/",

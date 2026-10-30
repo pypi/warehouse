@@ -470,6 +470,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
             mocker.call(".manage"),
             mocker.call(".organizations"),
             mocker.call(".subscriptions"),
+            mocker.call(".gating"),
             mocker.call(".packaging"),
             mocker.call(".redirects"),
             mocker.call("pyramid_redirect"),

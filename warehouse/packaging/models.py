@@ -76,6 +76,7 @@ from warehouse.constants import (
 )
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
+from warehouse.gating.models import ReleaseGate
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -644,7 +645,12 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.lifecycle_status,
                 Release.lifecycle_status_changed,
             )
-            .filter(Release.project == self)
+            .filter(
+                Release.project == self,
+                # A gated release is withheld from the web UI. See
+                # `warehouse.gating`.
+                Release.gated.is_(False),
+            )
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
@@ -707,6 +713,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.lifecycle_status.is_distinct_from(
                     LifecycleStatus.QuarantineEnter
                 ),
+                # A gated release is withheld from the web UI. See
+                # `warehouse.gating`.
+                Release.gated.is_(False),
             )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
@@ -978,6 +987,13 @@ class Release(HasObservations, db.Model):
             Index("release_version_idx", cls.version),
             Index("release_canonical_version_idx", cls.canonical_version),
             Index("releases_lifecycle_status_idx", cls.lifecycle_status),
+            # Partial: the read paths filter on `gated IS false`, and withheld
+            # releases are a small minority.
+            Index(
+                "releases_gated_idx",
+                cls.gated,
+                postgresql_where=cls.gated.is_(True),
+            ),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -1035,6 +1051,18 @@ class Release(HasObservations, db.Model):
     )
     lifecycle_status_note: Mapped[str | None] = mapped_column(
         comment="Note about the lifecycle status"
+    )
+
+    gated: Mapped[bool_false] = mapped_column(
+        comment=(
+            "Denormalized from `release_gates`: true while any gate blocks. "
+            "Only ever written through `IGateService`."
+        )
+    )
+    gates: Mapped[list[ReleaseGate]] = orm.relationship(
+        back_populates="release",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     description_id: Mapped[UUID] = mapped_column(
