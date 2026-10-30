@@ -27,6 +27,7 @@ import "./project_charts";
 import "./journals";
 import "./observations";
 import "./tabulator";
+import "./project_activity";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
