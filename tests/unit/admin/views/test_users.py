@@ -19,7 +19,7 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.accounts.services import NullEmailBreachedService
-from warehouse.admin.views import users as views
+from warehouse.admin.views import helpers, users as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
@@ -29,6 +29,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.utils.gravatar import gravatar
 
 from ....common.db.accounts import (
     EmailFactory,
@@ -52,57 +53,147 @@ from ....common.db.packaging import (
 from ....common.db.subscriptions import StripeSubscriptionFactory
 
 
-class TestUserList:
-    def test_no_query(self, db_request):
+def _tabulator_params(*, page=None, filters=None):
+    """Build the query-string dict Tabulator sends in remote mode."""
+    params = {}
+    if page is not None:
+        params["page"] = str(page)
+    for i, (field, value) in enumerate((filters or {}).items()):
+        params[f"filter[{i}][field]"] = field
+        params[f"filter[{i}][type]"] = "like"
+        params[f"filter[{i}][value]"] = value
+    return params
+
+
+def _usernames(result):
+    return [row["username"] for row in result["data"]]
+
+
+class TestRenderUsersPayload:
+    @pytest.fixture(autouse=True)
+    def camo_url(self, route_request):
+        # gravatar() proxies avatars through camo, a request method the
+        # fixture does not carry.
+        route_request.camo_url = lambda url: url
+
+    def test_empty_database(self, route_request):
+        assert views._render_tabulator_payload(route_request) == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
+        }
+
+    def test_row_shape(self, route_request):
+        user = UserFactory.create(
+            username="dstufft",
+            is_superuser=True,
+            is_observer=True,
+            with_verified_primary_email=True,
+        )
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == [
+            {
+                "username": "dstufft",
+                "name": user.name,
+                "email": user.email,
+                "avatar_url": gravatar(route_request, user.email, size=20),
+                "roles": "Admin, Observer",
+                "is_active": True,
+                "has_two_factor": True,
+                "is_frozen": False,
+                "date_joined": user.date_joined.isoformat(),
+                "detail_link": "/admin/users/dstufft/",
+            }
+        ]
+
+    def test_default_order_and_paging(self, route_request):
         users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
-        result = views.user_list(db_request)
 
-        assert result == {"users": users[:25], "query": None}
+        first = views._render_tabulator_payload(route_request)
+        route_request.GET.update(_tabulator_params(page=2))
+        second = views._render_tabulator_payload(route_request)
 
-    def test_with_page(self, db_request):
-        users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
-        db_request.GET["page"] = "2"
-        result = views.user_list(db_request)
+        assert first["last_page"] == 2
+        assert _usernames(first) == [u.username for u in users[:25]]
+        assert _usernames(second) == [u.username for u in users[25:]]
+        assert second["total"] == 30
 
-        assert result == {"users": users[25:], "query": None}
+    def test_username_filter_matches_anywhere_ignoring_case(self, route_request):
+        UserFactory.create(username="CamelCaseUser")
+        UserFactory.create(username="someone-else")
+        route_request.GET.update(_tabulator_params(filters={"username": "camelcase"}))
 
-    def test_with_invalid_page(self, pyramid_request):
-        pyramid_request.params = {"page": "not an integer"}
+        result = views._render_tabulator_payload(route_request)
+
+        assert _usernames(result) == ["CamelCaseUser"]
+
+    def test_exact_username_ranks_first(self, route_request):
+        for username in ("0jacob", "ajacob", "jacob", "jacobcoffee"):
+            UserFactory.create(username=username)
+        route_request.GET.update(_tabulator_params(filters={"username": "jacob"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _usernames(result) == ["jacob", "0jacob", "ajacob", "jacobcoffee"]
+
+    def test_username_filter_treats_wildcards_literally(self, route_request):
+        UserFactory.create(username="percent")
+        route_request.GET.update(_tabulator_params(filters={"username": "per%"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == []
+
+    def test_email_filter_matches_any_address(self, route_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        EmailFactory.create(user=user, primary=False, email="second@python.org")
+        UserFactory.create(with_verified_primary_email=True)
+        route_request.GET.update(_tabulator_params(filters={"email": "@PYTHON.org"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _usernames(result) == [user.username]
+
+    def test_boolean_filter(self, route_request):
+        frozen = UserFactory.create(is_frozen=True)
+        UserFactory.create()
+        route_request.GET.update(_tabulator_params(filters={"is_frozen": "true"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _usernames(result) == [frozen.username]
+
+    def test_role_filter(self, route_request):
+        moderator = UserFactory.create(is_moderator=True)
+        UserFactory.create()
+        route_request.GET.update(_tabulator_params(filters={"role": "any"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _usernames(result) == [moderator.username]
+
+    @pytest.mark.parametrize("filters", [{"is_active": "maybe"}, {"role": "admin"}])
+    def test_unknown_select_value_is_rejected(self, route_request, filters):
+        route_request.GET.update(_tabulator_params(filters=filters))
 
         with pytest.raises(HTTPBadRequest):
-            views.user_list(pyramid_request)
+            views._render_tabulator_payload(route_request)
 
-    def test_basic_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        db_request.GET["q"] = users[0].username
-        result = views.user_list(db_request)
-
-        assert result == {"users": [users[0]], "query": users[0].username}
-
-    def test_wildcard_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        db_request.GET["q"] = users[0].username[:-1] + "%"
-        result = views.user_list(db_request)
-
-        assert result == {"users": [users[0]], "query": users[0].username[:-1] + "%"}
-
-    def test_query_is_case_insensitive(self, db_request):
-        user = UserFactory.create(username="CamelCaseUser")
-        db_request.GET["q"] = "%camelcase%"
-        result = views.user_list(db_request)
-
-        assert result == {"users": [user], "query": "%camelcase%"}
-
-    def test_username_query_uses_trigram_index(self, db_request, mocker):
+    def test_username_filter_uses_trigram_index(self, db_request):
         """
         The trigram index only supports `text` operators, so a bare citext
         ILIKE cannot use it.
         """
-        page = mocker.spy(views, "SQLAlchemyORMPage")
-        db_request.GET["q"] = "%dstufft%"
-        views.user_list(db_request)
-
-        statement = page.call_args.args[0].statement.compile(
+        params = helpers.parse_tabulator_params(
+            _tabulator_params(filters={"username": "dstufft"}),
+            sortable_fields=views._SORTABLE_FIELDS,
+            default_sort_field="username",
+            filter_fields=views._FILTER_BUILDERS,
+        )
+        statement = views._build_users_query(params).compile(
             dialect=db_request.db.bind.dialect,
             compile_kwargs={"literal_binds": True},
         )
@@ -112,42 +203,18 @@ class TestUserList:
 
         assert any("idx_users_username_trgm" in line for line in plan)
 
-    def test_email_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        emails = [EmailFactory.create(user=u, primary=True) for u in users]
-        db_request.GET["q"] = "email:" + emails[0].email
-        result = views.user_list(db_request)
 
-        assert result == {"users": [users[0]], "query": "email:" + emails[0].email}
+class TestUserListViews:
+    def test_html_view_returns_empty_context(self, db_request):
+        assert views.user_list(db_request) == {}
 
-    def test_id_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        db_request.GET["q"] = "id:" + str(users[0].id)
-        result = views.user_list(db_request)
-
-        assert result == {"users": [users[0]], "query": "id:" + str(users[0].id)}
-
-    def test_or_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        emails = [EmailFactory.create(user=u, primary=True) for u in users]
-        db_request.GET["q"] = " ".join(
-            [
-                users[0].username,
-                users[1].username[:-1] + "%",
-                "email:" + emails[2].email,
-                "email:" + emails[3].email[:-5] + "%",
-            ]
-        )
-        result = views.user_list(db_request)
-
-        assert result == {"users": users[:4], "query": db_request.GET["q"]}
-
-    def test_ignores_invalid_query(self, db_request):
-        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
-        db_request.GET["q"] = "foobar:what"
-        result = views.user_list(db_request)
-
-        assert result == {"users": users, "query": "foobar:what"}
+    def test_json_view_returns_payload(self, route_request):
+        assert views.user_list_json(route_request) == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
+        }
 
 
 class TestEmailForm:
