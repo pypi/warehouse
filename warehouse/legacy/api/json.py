@@ -57,6 +57,8 @@ def _json_data(request, project, release, *, all_releases):
         .filter(
             Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
+        # Exclude releases withheld by a gate. See `warehouse.gating`.
+        .filter(Release.gated.is_(False))
     )
 
     # If we're not looking for all_releases, then we'll filter this further
@@ -232,6 +234,8 @@ def latest_release_factory(request):
                     LifecycleStatus.QuarantineEnter
                 )
             )
+            # A gated release must not become the project's "latest".
+            .filter(Release.gated.is_(False))
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -321,6 +325,8 @@ def release_factory(request):
         .filter(
             Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
+        # A gated release is not published, so requesting its version is a 404.
+        .filter(Release.gated.is_(False))
     )
 
     try:

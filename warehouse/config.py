@@ -952,6 +952,10 @@ def configure(settings=None):
     # Register our subscription support.
     config.include(".subscriptions")
 
+    # Must precede any package that registers a gate policy, since
+    # `register_gate_policy` is this package's directive.
+    config.include(".gating")
+
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
 

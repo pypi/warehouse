@@ -123,6 +123,7 @@ nav:
   - Subsystems:
       - Account Associations: development/account-associations.md
       - Billing: development/billing.md
+      - Release Gating: development/release-gating.md
   - Security:
       - Overview: security/index.md
       - Security Policy Flow: security/security-policy-flow.md
