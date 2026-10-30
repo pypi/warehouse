@@ -92,6 +92,7 @@
   {% set reply_templates = {
     "domain_match": "AddOrgEmailTemplate",
     "url_shape_github": "GitHubAssociationTemplate",
+    "url_shape_gitlab": "GitLabAssociationTemplate",
     "url_shape_codehost": "UnverifiableURLTemplate",
     "has_projects": "ReasonForApplicationTemplate",
   } %}
@@ -372,6 +373,10 @@
               <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
                 <i class="fa-brands fa-github"></i> {{ association.external_username }}
               </a>
+              {% elif association.service == 'gitlab' %}
+              <a href="https://gitlab.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                <i class="fa-brands fa-gitlab"></i> {{ association.external_username }}
+              </a>
               {% endif %}
             {% endfor %}
             {% for email in user.emails|sort(attribute='primary', reverse=True) %}
@@ -609,6 +614,7 @@
     ("ShouldBeCompanyTemplate", "Should Be Company"),
     ("ReasonForApplicationTemplate", "Reason For Application"),
     ("GitHubAssociationTemplate", "GitHub Association"),
+    ("GitLabAssociationTemplate", "GitLab Association"),
   ] %}
   {#- Replies that answer a failing or warning check come first. -#}
   {% set replies = namespace(suggested=[]) %}
@@ -650,6 +656,13 @@
       <div class="hidden" id="GitHubAssociationTemplate">
           Please ensure that your membership to the GitHub organization you've linked is public,
           and complete an Account Association to link your PyPI and GitHub accounts at
+          https://pypi.org/manage/account/#account-associations
+
+          Let us know when that is complete and we can proceed with your request.
+      </div>
+      <div class="hidden" id="GitLabAssociationTemplate">
+          Please ensure that the GitLab group or project at the URL you provided ({{ organization_application.link_url }}) is public and lists you as a member,
+          and complete an Account Association to link your PyPI and GitLab accounts at
           https://pypi.org/manage/account/#account-associations
 
           Let us know when that is complete and we can proceed with your request.
