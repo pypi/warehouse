@@ -424,6 +424,10 @@ class DatabaseOrganizationService:
         ):
             self.db.delete(team_role)
 
+        for pending_publisher in role.user.pending_oidc_publishers:
+            if pending_publisher.organization_id == role.organization_id:
+                self.db.delete(pending_publisher)
+
         self.db.delete(role)
 
     def get_organization_invite(self, organization_invite_id):

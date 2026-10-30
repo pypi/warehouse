@@ -2377,16 +2377,28 @@ class TestReinviteOrganizationMember:
 
 
 class TestChangeOrganizationRole:
+    @pytest.mark.parametrize(
+        ("initial_role", "new_role_name"),
+        [
+            (OrganizationRoleType.Owner, "Manager"),
+            (OrganizationRoleType.Member, "Owner"),
+        ],
+    )
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
-    def test_change_role(self, db_request, orgtype, mocker):
+    def test_change_role(
+        self, db_request, orgtype, initial_role, new_role_name, mocker
+    ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
             organization=organization,
             user=user,
-            role_name=OrganizationRoleType.Owner,
+            role_name=initial_role,
         )
-        new_role_name = "Manager"
+        PendingGitHubPublisherFactory.create(
+            organization_id=organization.id,
+            added_by=user,
+        )
 
         user_2 = UserFactory.create()
 
@@ -2408,6 +2420,9 @@ class TestChangeOrganizationRole:
         result = org_views.change_organization_role(organization, db_request)
 
         assert role.role_name == new_role_name
+        assert len(db_request.db.scalars(select(PendingGitHubPublisher)).all()) == (
+            1 if new_role_name == "Owner" else 0
+        )
         db_request.route_path.assert_called_once_with(
             "manage.organization.roles", organization_name=organization.normalized_name
         )
