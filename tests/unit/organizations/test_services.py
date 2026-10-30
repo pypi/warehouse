@@ -10,6 +10,7 @@ from warehouse.accounts.models import User
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -33,6 +34,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.models import StripeSubscription
 
+from ...common.db.oidc import PendingGitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationDeactivationNoticeFactory,
@@ -506,6 +508,31 @@ class TestDatabaseOrganizationService:
             )
             == []
         )
+
+    def test_delete_organization_role_deletes_pending_oidc_publishers(
+        self, organization_service
+    ):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        PendingGitHubPublisherFactory.create(
+            organization_id=organization.id,
+            added_by=user,
+        )
+        personal_publisher = PendingGitHubPublisherFactory.create(
+            organization_id=None,
+            added_by=user,
+        )
+
+        organization_service.delete_organization_role(organization_role.id)
+
+        assert organization_service.db.query(PendingGitHubPublisher).all() == [
+            personal_publisher
+        ]
 
     def test_get_organization_invite(self, organization_service):
         organization_invite = OrganizationInvitationFactory.create()

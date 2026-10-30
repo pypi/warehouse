@@ -227,6 +227,25 @@ def mint_token(
                     request=request,
                 )
 
+            if (
+                pending_publisher.pypi_organization is not None
+                and pending_publisher.added_by
+                not in pending_publisher.pypi_organization.owners
+            ):
+                request.db.delete(pending_publisher)
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-pending-publisher",
+                            "description": (
+                                "valid token, but organization pending publisher "
+                                "is no longer valid"
+                            ),
+                        }
+                    ],
+                    request=request,
+                )
+
             # Try creating the new project
             project_service = request.find_service(IProjectService)
             try:
