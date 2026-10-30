@@ -4350,321 +4350,310 @@ class TestRevokeRoleInvitation:
 
 
 class TestChangeProjectRole:
-    def test_change_role(self, db_request, monkeypatch):
+    def test_change_role(self, project_request, mocker):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
         new_role_name = "Maintainer"
-
-        user_2 = UserFactory.create()
-
-        db_request.method = "POST"
-        db_request.user = user_2
-        db_request.POST = MultiDict(
+        project_request.POST = MultiDict(
             {"role_id": str(role.id), "role_name": new_role_name}
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        send_collaborator_role_changed_email = mocker.patch.object(
+            views, "send_collaborator_role_changed_email", autospec=True
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        send_collaborator_role_changed_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_collaborator_role_changed_email",
-            send_collaborator_role_changed_email,
-        )
-        send_role_changed_as_collaborator_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_role_changed_as_collaborator_email",
-            send_role_changed_as_collaborator_email,
+        send_role_changed_as_collaborator_email = mocker.patch.object(
+            views, "send_role_changed_as_collaborator_email", autospec=True
         )
 
-        result = views.change_project_role(project, db_request)
+        result = views.change_project_role(project, project_request)
 
         assert role.role_name == new_role_name
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-        ]
-        assert send_collaborator_role_changed_email.calls == [
-            pretend.call(
-                db_request,
-                set(),
-                user=user,
-                submitter=user_2,
-                project_name="foobar",
-                role=new_role_name,
-            )
-        ]
-        assert send_role_changed_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=user_2,
-                project_name="foobar",
-                role=new_role_name,
-            )
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Changed role", queue="success")
-        ]
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=project.name
+        )
+        send_collaborator_role_changed_email.assert_called_once_with(
+            project_request,
+            set(),
+            user=user,
+            submitter=project_request.user,
+            project_name="foobar",
+            role=new_role_name,
+        )
+        send_role_changed_as_collaborator_email.assert_called_once_with(
+            project_request,
+            user,
+            submitter=project_request.user,
+            project_name="foobar",
+            role=new_role_name,
+        )
+        project_request.session.flash.assert_called_once_with(
+            "Changed role", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
 
         assert entry.name == project.name
         assert entry.action == "change Owner testuser to Maintainer"
-        assert entry.submitted_by == db_request.user
+        assert entry.submitted_by == project_request.user
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.RoleChange,
+                {
+                    "submitted_by": project_request.user.username,
+                    "role_name": new_role_name,
+                    "target_user": user.username,
+                },
+            )
+        ]
+        assert [(e.tag, e.additional) for e in user.events] == [
+            (
+                EventTag.Account.RoleChange,
+                {
+                    "submitted_by": project_request.user.username,
+                    "project_name": project.name,
+                    "role_name": new_role_name,
+                },
+            )
+        ]
 
-    def test_change_role_invalid_role_name(self, pyramid_request):
-        project = pretend.stub(name="foobar")
-
-        pyramid_request.method = "POST"
-        pyramid_request.POST = MultiDict(
+    def test_change_role_invalid_role_name(self, project_request):
+        project = ProjectFactory.create(name="foobar")
+        project_request.POST = MultiDict(
             {"role_id": str(uuid.uuid4()), "role_name": "Invalid Role Name"}
         )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
+
+        result = views.change_project_role(project, project_request)
+
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=project.name
         )
-
-        result = views.change_project_role(project, pyramid_request)
-
-        assert pyramid_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-        ]
+        project_request.session.flash.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_missing_role(self, db_request):
+    def test_change_missing_role(self, project_request):
         project = ProjectFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
-
-        db_request.method = "POST"
-        db_request.user = pretend.stub()
-        db_request.POST = MultiDict({"role_id": missing_role_id, "role_name": "Owner"})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.POST = MultiDict(
+            {"role_id": missing_role_id, "role_name": "Owner"}
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_project_role(project, db_request)
+        result = views.change_project_role(project, project_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find role", queue="error")
-        ]
+        project_request.session.flash.assert_called_once_with(
+            "Could not find role", queue="error"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=project.name
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_own_owner_role(self, db_request):
+    def test_change_own_owner_role(self, project_request):
         project = ProjectFactory.create(name="foobar")
-        user = UserFactory.create(username="testuser")
-        role = RoleFactory.create(user=user, project=project, role_name="Owner")
-
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.POST = MultiDict(
+        role = RoleFactory.create(
+            user=project_request.user, project=project, role_name="Owner"
+        )
+        project_request.POST = MultiDict(
             {"role_id": str(role.id), "role_name": "Maintainer"}
         )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.change_project_role(project, project_request)
+
+        assert role.role_name == "Owner"
+        assert project.events.all() == []
+        project_request.session.flash.assert_called_once_with(
+            "Cannot remove yourself as Owner", queue="error"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        result = views.change_project_role(project, db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
-        ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
 
 class TestDeleteProjectRole:
-    def test_delete_role(self, db_request, monkeypatch):
+    def test_delete_role(self, project_request, mocker):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
-        user_2 = UserFactory.create()
-
-        db_request.method = "POST"
-        db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": str(role.id)})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.POST = MultiDict({"role_id": str(role.id)})
+        send_collaborator_removed_email = mocker.patch.object(
+            views, "send_collaborator_removed_email", autospec=True
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_removed_email", send_collaborator_removed_email
-        )
-        send_removed_as_collaborator_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_removed_as_collaborator_email",
-            send_removed_as_collaborator_email,
+        send_removed_as_collaborator_email = mocker.patch.object(
+            views, "send_removed_as_collaborator_email", autospec=True
         )
 
-        result = views.delete_project_role(project, db_request)
+        result = views.delete_project_role(project, project_request)
 
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-        ]
-        assert db_request.db.query(Role).all() == []
-        assert send_collaborator_removed_email.calls == [
-            pretend.call(
-                db_request, set(), user=user, submitter=user_2, project_name="foobar"
-            )
-        ]
-        assert send_removed_as_collaborator_email.calls == [
-            pretend.call(db_request, user, submitter=user_2, project_name="foobar")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Removed collaborator", queue="success")
-        ]
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=project.name
+        )
+        assert project_request.db.scalars(select(Role)).unique().all() == []
+        send_collaborator_removed_email.assert_called_once_with(
+            project_request,
+            set(),
+            user=user,
+            submitter=project_request.user,
+            project_name="foobar",
+        )
+        send_removed_as_collaborator_email.assert_called_once_with(
+            project_request, user, submitter=project_request.user, project_name="foobar"
+        )
+        project_request.session.flash.assert_called_once_with(
+            "Removed collaborator", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
-        assert entry.submitted_by == db_request.user
+        assert entry.submitted_by == project_request.user
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.RoleRemove,
+                {
+                    "submitted_by": project_request.user.username,
+                    "role_name": "Owner",
+                    "target_user": user.username,
+                },
+            )
+        ]
 
-    def test_delete_missing_role(self, db_request):
+    def test_delete_missing_role(self, project_request):
         project = ProjectFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
+        project_request.POST = MultiDict({"role_id": missing_role_id})
 
-        db_request.method = "POST"
-        db_request.user = pretend.stub()
-        db_request.POST = MultiDict({"role_id": missing_role_id})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        result = views.delete_project_role(project, project_request)
+
+        project_request.session.flash.assert_called_once_with(
+            "Could not find role", queue="error"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        result = views.delete_project_role(project, db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find role", queue="error")
-        ]
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=project.name
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_own_owner_role(self, db_request):
+    def test_delete_own_owner_role(self, project_request, mocker):
         project = ProjectFactory.create(name="foobar")
-        user = UserFactory.create(username="testuser")
-        role = RoleFactory.create(user=user, project=project, role_name="Owner")
-
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.POST = MultiDict({"role_id": str(role.id)})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        role = RoleFactory.create(
+            user=project_request.user, project=project, role_name="Owner"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        project_request.POST = MultiDict({"role_id": str(role.id)})
+        send_collaborator_removed_email = mocker.patch.object(
+            views, "send_collaborator_removed_email", autospec=True
+        )
+        send_removed_as_collaborator_email = mocker.patch.object(
+            views, "send_removed_as_collaborator_email", autospec=True
+        )
 
-        result = views.delete_project_role(project, db_request)
+        result = views.delete_project_role(project, project_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
-        ]
+        assert project_request.db.scalars(select(Role)).unique().one() == role
+        send_collaborator_removed_email.assert_not_called()
+        send_removed_as_collaborator_email.assert_not_called()
+        project_request.session.flash.assert_called_once_with(
+            "Cannot remove yourself as Sole Owner", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_not_sole_owner_role(self, db_request, monkeypatch):
+    def test_delete_not_sole_owner_role(self, project_request, mocker):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create()
         RoleFactory.create(user=user, project=project, role_name="Owner")
-        user_2 = UserFactory.create(username="testuser")
-        role_2 = RoleFactory.create(user=user_2, project=project, role_name="Owner")
-
-        db_request.method = "POST"
-        db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": str(role_2.id)})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        submitter = project_request.user
+        role_2 = RoleFactory.create(user=submitter, project=project, role_name="Owner")
+        project_request.POST = MultiDict({"role_id": str(role_2.id)})
+        send_collaborator_removed_email = mocker.patch.object(
+            views, "send_collaborator_removed_email", autospec=True
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_removed_email", send_collaborator_removed_email
-        )
-        send_removed_as_collaborator_email = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_removed_as_collaborator_email",
-            send_removed_as_collaborator_email,
+        send_removed_as_collaborator_email = mocker.patch.object(
+            views, "send_removed_as_collaborator_email", autospec=True
         )
 
-        result = views.delete_project_role(project, db_request)
+        result = views.delete_project_role(project, project_request)
 
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
-        assert db_request.db.query(Role).filter(Role.user_id == user_2.id).all() == []
-        assert send_collaborator_removed_email.calls == [
-            pretend.call(
-                db_request, {user}, user=user_2, submitter=user_2, project_name="foobar"
+        project_request.route_path.assert_called_once_with("manage.projects")
+        assert (
+            project_request.db.scalars(
+                select(Role).filter(Role.user_id == submitter.id)
             )
-        ]
-        assert send_removed_as_collaborator_email.calls == [
-            pretend.call(db_request, user_2, submitter=user_2, project_name="foobar")
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Removed collaborator", queue="success")
-        ]
+            .unique()
+            .all()
+            == []
+        )
+        send_collaborator_removed_email.assert_called_once_with(
+            project_request,
+            {user},
+            user=submitter,
+            submitter=submitter,
+            project_name="foobar",
+        )
+        send_removed_as_collaborator_email.assert_called_once_with(
+            project_request, submitter, submitter=submitter, project_name="foobar"
+        )
+        project_request.session.flash.assert_called_once_with(
+            "Removed collaborator", queue="success"
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
 
         assert entry.name == project.name
-        assert entry.action == "remove Owner testuser"
-        assert entry.submitted_by == db_request.user
+        assert entry.action == f"remove Owner {submitter.username}"
+        assert entry.submitted_by == submitter
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.RoleRemove,
+                {
+                    "submitted_by": submitter.username,
+                    "role_name": "Owner",
+                    "target_user": submitter.username,
+                },
+            )
+        ]
 
-    def test_delete_non_owner_role(self, db_request):
+    def test_delete_non_owner_role(self, project_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
-
-        some_other_user = UserFactory.create(username="someotheruser")
         some_other_project = ProjectFactory.create(name="someotherproject")
+        project_request.POST = MultiDict({"role_id": str(role.id)})
 
-        db_request.method = "POST"
-        db_request.user = some_other_user
-        db_request.POST = MultiDict({"role_id": str(role.id)})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        result = views.delete_project_role(some_other_project, project_request)
+
+        assert project_request.db.scalars(select(Role)).unique().one() == role
+        assert some_other_project.events.all() == []
+        project_request.session.flash.assert_called_once_with(
+            "Could not find role", queue="error"
         )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        result = views.delete_project_role(some_other_project, db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find role", queue="error")
-        ]
+        project_request.route_path.assert_called_once_with(
+            "manage.project.roles", project_name=some_other_project.name
+        )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
