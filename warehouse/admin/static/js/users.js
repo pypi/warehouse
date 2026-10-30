@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+import { columnVisibilityMenu } from "./tabulator";
 import { dateCell, linkCell, remoteTable } from "./utils/remote_table";
 
 const element = document.getElementById("users-table");
@@ -33,11 +34,14 @@ if (element) {
 
   const columns = [
     {
-      title: "Image",
+      // No title: it would only be truncated, and it keeps the column out of
+      // the visibility menu, which has no business hiding the handle column.
+      title: "",
       field: "avatar_url",
       formatter: avatarCell,
       headerFilter: false,
-      width: 60,
+      headerMenu: false,
+      width: 50,
     },
     {
       title: "Username",
@@ -106,6 +110,7 @@ if (element) {
     initialHeaderFilter: initialHeaderFilter,
     columnDefaults: {
       headerSort: false,
+      headerMenu: columnVisibilityMenu,
     },
     columns: columns,
   });
