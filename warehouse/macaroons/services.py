@@ -15,8 +15,10 @@ import pymacaroons
 from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy import select, update
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.attributes import set_committed_value
 from zope.interface import implementer
 
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -396,6 +398,17 @@ class DatabaseMacaroonService:
         if verified:
             _record_attenuations(request, attenuations)
 
+            # Record a user token's first use even if this request rolls back,
+            # as an upload of a file that already exists does, so a token that
+            # was used never looks unused.
+            if (
+                dm.user_id is not None
+                and dm.last_used is None
+                and not request.flags.enabled(AdminFlagValue.READ_ONLY)
+            ):
+                self._record_first_use(dm)
+                return True
+
             # Update last_used without dirtying the ORM object. A dirty
             # macaroon causes autoflush during Project.__acl__() evaluation,
             # which can deadlock with the journal advisory lock under
@@ -420,6 +433,31 @@ class DatabaseMacaroonService:
             return True
 
         raise InvalidMacaroonError(verified.msg)
+
+    def _record_first_use(self, dm: Macaroon) -> None:
+        """
+        Set last_used on a never-used macaroon in a transaction of its own.
+
+        SKIP LOCKED leaves the row alone rather than wait while another
+        transaction holds it. Another request using the same token has already
+        committed its own first use by then.
+        """
+        now = dt.datetime.now()
+        with self.db.get_bind().engine.begin() as connection:
+            connection.execute(
+                update(Macaroon)
+                .where(
+                    Macaroon.id.in_(
+                        select(Macaroon.id)
+                        .where(Macaroon.id == dm.id, Macaroon.last_used.is_(None))
+                        .with_for_update(skip_locked=True)
+                    )
+                )
+                .values(last_used=now)
+            )
+        # Later checks in this request then skip both writes for this token,
+        # without dirtying it (see below).
+        set_committed_value(dm, "last_used", now)
 
     def verify_signature_only(self, raw_macaroon: str) -> Macaroon:
         """
