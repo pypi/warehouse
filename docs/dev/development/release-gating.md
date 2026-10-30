@@ -152,7 +152,7 @@ distinction between a policy clearing a release and a person overriding it.
 |---|---|
 | `warehouse.gating.gates` | Gauge of gate rows by kind and status |
 | `warehouse.gating.timed_out` | A gate was resolved by the timeout sweep |
-| `warehouse.upload.gated` | An upload was withheld |
+| `warehouse.upload.gated` | An upload was withheld (one increment per blocking gate kind) |
 
 A rising `warehouse.gating.timed_out` with `status:expired` means releases are
 being published without the decision their gate was waiting for.

@@ -1903,15 +1903,16 @@ def file_upload(request):
     gate_service = request.find_service(IGateService, context=None)
     gates = gate_service.open_gates(release, request)
 
-    if gates:
+    for gate in gates:
         request.metrics.increment(
             "warehouse.upload.gated",
-            tags=[f"kind:{gate.kind}" for gate in gates],
+            tags=[f"kind:{gate.kind}"],
         )
 
     # Dispatch our task to sync this to cache as soon as possible. Gating
-    # withholds the release from the Simple index and the JSON API only; the
-    # file is still synced to the cache bucket so it stays fetchable by its URL.
+    # withholds the release from the Simple index, the JSON API, and the web UI
+    # only; the file is still synced to the cache bucket so it stays fetchable by
+    # its URL.
     request.task(sync_file_to_cache).delay(file_.id)
 
     # Return any warnings that we've accumulated as the response body.
