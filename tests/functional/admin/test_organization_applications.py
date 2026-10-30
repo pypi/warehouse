@@ -4,10 +4,15 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.accounts import (
+    EmailFactory,
+    OAuthAccountAssociationFactory,
+    UserFactory,
+)
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
 from tests.common.db.packaging import ProjectFactory
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -75,6 +80,26 @@ def test_unreachable_applicant_blocks_information_requests(webtest, login_admin)
     request_info = detail.html.select_one('[data-target="#requestMoreInfoModal"]')
     assert request_info.has_attr("disabled")
     assert detail.html.select(".org-review-check-ask") == []
+
+
+def test_gitlab_application_suggests_gitlab_reply(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(
+        link_url="https://gitlab.com/acme"
+    )
+    EmailFactory.create(user=application.submitted_by)
+    OAuthAccountAssociationFactory.create(
+        user=application.submitted_by, service="gitlab", external_username="jdoe"
+    )
+
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+
+    asks = [ask["data-template"] for ask in detail.html.select(".org-review-check-ask")]
+    assert "GitLabAssociationTemplate" in asks
+    reply = detail.html.select_one("#GitLabAssociationTemplate")
+    assert "GitLab group or project" in reply.text
+    assert "https://gitlab.com/acme" in reply.text
+    assert detail.html.select_one('a[href="https://gitlab.com/jdoe"]') is not None
 
 
 def test_reviewer_edits_application(webtest, login_admin):
@@ -285,3 +310,50 @@ def test_superuser_navigation_on_resource_pages(webtest, login_admin, page):
         f"/admin/users/{admin.username}/",
     } <= sidebar
     assert response.html.select_one('.breadcrumb a[href="/admin/"]')
+
+
+@pytest.mark.parametrize("role", ["is_superuser", "is_org_application_reviewer"])
+def test_approve_with_deleted_organization_name(webtest, login_admin, mocker, role):
+    login_admin(**{role: True})
+    application = OrganizationApplicationFactory.create()
+    EmailFactory.create(user=application.submitted_by)
+    mocker.patch(
+        "warehouse.organizations.services.send_new_organization_approved_email"
+    )
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+    assert "Name held by a deleted organization" in detail.text
+    approve = next(
+        form for form in detail.forms.values() if form.action.endswith("/approve/")
+    )
+
+    if role == "is_org_application_reviewer":
+        assert "claim_orphaned_name" not in approve.fields
+        webtest.post(
+            approve.action,
+            {
+                "csrf_token": approve["csrf_token"].value,
+                "claim_orphaned_name": "true",
+            },
+            status=HTTPStatus.SEE_OTHER,
+        )
+        assert application.status == OrganizationApplicationStatus.Submitted
+        return
+
+    approve["claim_orphaned_name"].checked = True
+    approve.submit(status=HTTPStatus.SEE_OTHER)
+    assert application.status == OrganizationApplicationStatus.Approved
+
+
+def test_locked_names_page(webtest, login_admin):
+    login_admin(is_superuser=True)
+    application = OrganizationApplicationFactory.create()
+    OrganizationNameCatalogFactory.create(
+        normalized_name=application.normalized_name, organization_id=None
+    )
+
+    page = webtest.get("/admin/organization_names/", status=HTTPStatus.OK)
+
+    assert page.html.select_one(f'a[href$="/{application.id}/"]')

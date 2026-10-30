@@ -4,7 +4,7 @@ from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.orm import Load, contains_eager, joinedload
+from sqlalchemy.orm import Load, contains_eager, selectinload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
@@ -254,7 +254,7 @@ def latest_release_factory(request):
         .options(
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
-            joinedload(Release._requires_dist),
+            selectinload(Release._requires_dist),
             contains_eager(Release.project).selectinload(Project.roles),
             contains_eager(Release.project).joinedload(Project.organization),
         )
@@ -312,7 +312,7 @@ def release_factory(request):
         .options(
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
-            joinedload(Release._requires_dist),
+            selectinload(Release._requires_dist),
             contains_eager(Release.project).selectinload(Project.roles),
             contains_eager(Release.project).joinedload(Project.organization),
         )

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/grid";
+@use "../tools/link-utilities";
 
 /*
 A custom styled code block.
@@ -33,19 +34,32 @@ Modifiers:
 
 .code-block--with-copy {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   gap: grid.$quarter-spacing-unit;
-  padding: grid.$quarter-spacing-unit;
+  padding: 0 0 0 grid.$quarter-spacing-unit;
 
   span {
     flex: 1;
     min-width: 0;
+    padding: grid.$quarter-spacing-unit 0;
     word-break: break-all;
   }
 
+  // Spans the full height of the box
   .button {
-    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    margin: 0; // Overrides the mobile table button margin
+    padding: 0 grid.$quarter-spacing-unit;
     border: 0;
+    border-radius: 0;
     flex-shrink: 0;
+
+    &:focus-visible {
+      @include link-utilities.focus-ring;
+
+      // Keep the ring inside the code block's border
+      outline-offset: -2px;
+    }
   }
 }

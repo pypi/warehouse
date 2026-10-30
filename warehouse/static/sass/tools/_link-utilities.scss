@@ -10,6 +10,12 @@
   }
 }
 
+// Keyboard focus indicator, for use inside a :focus-visible selector
+@mixin focus-ring($color: colors.$primary-color) {
+  outline: 1px solid $color;
+  outline-offset: 2px;
+}
+
 @mixin colored-link($color) {
   color: $color;
 
