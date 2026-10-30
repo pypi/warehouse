@@ -214,6 +214,7 @@ class ManageOIDCPublisherViews:
                 workflow_filepath=publisher.workflow_filepath,
                 environment=form.constrained_environment_name.data,
                 issuer_url=publisher.issuer_url,
+                namespace_id=publisher.namespace_id,
             )
         else:
             self.request.session.flash(
