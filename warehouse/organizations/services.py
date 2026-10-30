@@ -249,7 +249,15 @@ class DatabaseOrganizationService:
         for competing_application in self.get_organization_applications_by_name(
             organization_application.name
         ):
-            if competing_application.status in DECLINED_ON_APPROVAL_STATUSES:
+            if competing_application.status not in DECLINED_ON_APPROVAL_STATUSES:
+                continue
+            if competing_application.submitted_by_id == (
+                organization_application.submitted_by_id
+            ):
+                # The applicant already got the approval email; don't also send
+                # them a decline for their own duplicate application.
+                competing_application.status = OrganizationApplicationStatus.Declined
+            else:
                 self.decline_organization_application(competing_application.id, request)
 
         return organization
