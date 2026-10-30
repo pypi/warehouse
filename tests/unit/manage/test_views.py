@@ -41,8 +41,9 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
-from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.macaroons.models import Macaroon
 from warehouse.manage import views
+from warehouse.manage.forms import CreateMacaroonForm, DeleteMacaroonForm
 from warehouse.manage.views import (
     organizations as org_views,
     view_helpers,
@@ -1785,46 +1786,49 @@ class TestProvisionRecoveryCodes:
 
 
 class TestProvisionMacaroonViews:
-    def test_default_response(self, monkeypatch):
-        create_macaroon_obj = pretend.stub()
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        delete_macaroon_obj = pretend.stub()
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
+    @pytest.fixture
+    def user_macaroon(self, verified_request):
+        """A user-scoped API token owned by the ``verified_request`` user."""
+        user = verified_request.user
+        return MacaroonFactory.create(
+            user_id=user.id,
+            description="fake macaroon",
+            permissions_caveat={"permissions": "user"},
+            caveats=[caveats.RequestUser(user_id=str(user.id))],
         )
 
-        request = pretend.stub(
-            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: pretend.stub(),
-                IUserService: pretend.stub(),
-            }[interface],
-        )
+    def test_default_response(self, verified_request, macaroon_service, user_service):
+        user = verified_request.user
+        project = ProjectFactory.create(name="foo")
+        RoleFactory.create(user=user, project=project, role_name="Owner")
 
-        view = views.ProvisionMacaroonViews(request)
+        view = views.ProvisionMacaroonViews(verified_request)
+        result = view.default_response
 
-        assert view.default_response == {
-            "project_names": project_names,
-            "create_macaroon_form": create_macaroon_obj,
-            "delete_macaroon_form": delete_macaroon_obj,
+        assert set(result) == {
+            "project_names",
+            "create_macaroon_form",
+            "delete_macaroon_form",
         }
+        assert result["project_names"] == ["foo"]
+        create_form = result["create_macaroon_form"]
+        assert isinstance(create_form, CreateMacaroonForm)
+        assert create_form.user_id == user.id
+        assert create_form.macaroon_service is macaroon_service
+        assert create_form.project_names == ["foo"]
+        assert create_form.token_scope.data is None
+        delete_form = result["delete_macaroon_form"]
+        assert isinstance(delete_form, DeleteMacaroonForm)
+        assert delete_form.request is verified_request
+        assert delete_form.username.data == user.username
+        assert delete_form.user_service is user_service
+        assert delete_form.macaroon_service is macaroon_service
 
     def test_project_names(self, db_request):
         user = UserFactory.create()
         another_user = UserFactory.create()
 
         db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub()
 
         # A project with a sole owner that is the user
         with_sole_owner = ProjectFactory.create(name="foo")
@@ -1854,587 +1858,338 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(db_request)
         assert set(view.project_names) == {"foo", "bar", "baz"}
 
-    def test_manage_macaroons(self, monkeypatch):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            params=pretend.stub(get=lambda s: pretend.stub()),
-        )
+    def test_manage_macaroons(self, verified_request):
+        project = ProjectFactory.create(name="foo")
+        RoleFactory.create(user=verified_request.user, project=project)
+        verified_request.method = "GET"
+        verified_request.params = {"selected_project": "foo"}
 
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-        view = views.ProvisionMacaroonViews(request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.manage_macaroons()
 
-        assert result == default_response
+        assert result["project_names"] == ["foo"]
+        assert isinstance(result["create_macaroon_form"], CreateMacaroonForm)
+        assert result["create_macaroon_form"].token_scope.data == "scope:project:foo"
+        assert isinstance(result["delete_macaroon_form"], DeleteMacaroonForm)
 
-    def test_create_macaroon_not_allowed(self, pyramid_request):
-        pyramid_request.route_path = pretend.call_recorder(lambda x: "/foo/bar")
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.user = pretend.stub(has_primary_verified_email=False)
-        pyramid_request.find_service = lambda interface, **kw: pretend.stub()
+    def test_create_macaroon_not_allowed(self, post_request, macaroon_service, mocker):
+        post_request.user = UserFactory.create()
+        create_macaroon = mocker.spy(macaroon_service, "create_macaroon")
 
-        view = views.ProvisionMacaroonViews(pyramid_request)
+        view = views.ProvisionMacaroonViews(post_request)
         result = view.create_macaroon()
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Verify your email to create an API token.", queue="error")
-        ]
+        post_request.route_path.assert_called_once_with("manage.account")
+        post_request.session.flash.assert_called_once_with(
+            "Verify your email to create an API token.", queue="error"
+        )
         assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/foo/bar"
+        assert result.location == "/manage.account/"
+        create_macaroon.assert_not_called()
 
-    def test_create_macaroon_invalid_form(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            create_macaroon=pretend.call_recorder(lambda *a, **kw: pretend.stub())
-        )
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-        )
+    def test_create_macaroon_invalid_form(
+        self, verified_request, macaroon_service, mocker
+    ):
+        create_macaroon = mocker.spy(macaroon_service, "create_macaroon")
+        record_event = mocker.spy(verified_request.user, "record_event")
 
-        create_macaroon_obj = pretend.stub(validate=lambda: False)
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-
-        view = views.ProvisionMacaroonViews(request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.create_macaroon()
 
-        assert result == {
-            **default_response,
-            "create_macaroon_form": create_macaroon_obj,
+        assert set(result) == {
+            "project_names",
+            "create_macaroon_form",
+            "delete_macaroon_form",
         }
-        assert macaroon_service.create_macaroon.calls == []
+        form = result["create_macaroon_form"]
+        assert isinstance(form, CreateMacaroonForm)
+        assert form.errors == {
+            "description": ["Specify a token name"],
+            "token_scope": ["Specify the token scope"],
+        }
+        create_macaroon.assert_not_called()
+        record_event.assert_not_called()
+        assert verified_request.db.scalars(select(Macaroon)).all() == []
 
     @pytest.mark.parametrize("has_2fa", [True, False])
-    def test_create_macaroon(self, monkeypatch, has_2fa):
-        macaroon = pretend.stub()
-        macaroon_service = pretend.stub(
-            create_macaroon=pretend.call_recorder(
-                lambda *a, **kw: ("not a real raw macaroon", macaroon)
-            )
+    def test_create_macaroon(self, verified_request, macaroon_service, mocker, has_2fa):
+        user = verified_request.user
+        if not has_2fa:
+            user.totp_secret = None
+        verified_request.POST = MultiDict(
+            {"description": "my token", "token_scope": "scope:user"}
         )
-        user_service = pretend.stub()
-        request = pretend.stub(
-            POST={},
-            domain=pretend.stub(),
-            user=pretend.stub(
-                id="a user id",
-                has_primary_verified_email=True,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-                has_two_factor=has_2fa,
-            ),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: user_service,
-            }[interface],
-            remote_addr="0.0.0.0",
-        )
+        create_macaroon = mocker.spy(macaroon_service, "create_macaroon")
+        record_event = mocker.spy(user, "record_event")
 
-        create_macaroon_obj = pretend.stub(
-            validate=lambda: True,
-            description=pretend.stub(data=pretend.stub()),
-            validated_scope="user",
-        )
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-
-        view = views.ProvisionMacaroonViews(request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.create_macaroon()
 
-        assert macaroon_service.create_macaroon.calls == [
-            pretend.call(
-                location=request.domain,
-                user_id=request.user.id,
-                description=create_macaroon_obj.description.data,
-                scopes=[
-                    caveats.RequestUser(user_id="a user id"),
-                ],
-                additional={"made_with_2fa": has_2fa},
-            )
-        ]
-        assert result == {
-            **default_response,
-            "serialized_macaroon": "not a real raw macaroon",
-            "macaroon": macaroon,
-            "create_macaroon_form": create_macaroon_obj,
+        create_macaroon.assert_called_once_with(
+            location=verified_request.domain,
+            user_id=user.id,
+            description="my token",
+            scopes=[caveats.RequestUser(user_id=str(user.id))],
+            additional={"made_with_2fa": has_2fa},
+        )
+        serialized_macaroon, macaroon = create_macaroon.spy_return
+        assert set(result) == {
+            "project_names",
+            "create_macaroon_form",
+            "delete_macaroon_form",
+            "serialized_macaroon",
+            "macaroon",
         }
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.APITokenAdded,
-                request=request,
-                additional={
-                    "description": create_macaroon_obj.description.data,
-                    "caveats": [
-                        {
-                            "permissions": create_macaroon_obj.validated_scope,
-                            "version": 1,
-                        }
-                    ],
-                },
-            )
-        ]
-
-    def test_create_macaroon_records_events_for_each_project(self, monkeypatch):
-        macaroon = pretend.stub()
-        macaroon_service = pretend.stub(
-            create_macaroon=pretend.call_recorder(
-                lambda *a, **kw: ("not a real raw macaroon", macaroon)
-            )
-        )
-        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub()
-        request = pretend.stub(
-            POST={},
-            domain=pretend.stub(),
-            user=pretend.stub(
-                id=pretend.stub(),
-                has_primary_verified_email=True,
-                username=pretend.stub(),
-                has_two_factor=False,
-                projects=[
-                    pretend.stub(
-                        id=uuid.uuid4(),
-                        normalized_name="foo",
-                        record_event=record_project_event,
-                    ),
-                    pretend.stub(
-                        id=uuid.uuid4(),
-                        normalized_name="bar",
-                        record_event=record_project_event,
-                    ),
-                ],
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: user_service,
-            }[interface],
-            remote_addr="0.0.0.0",
+        assert result["serialized_macaroon"] == serialized_macaroon
+        assert result["macaroon"] is macaroon
+        assert isinstance(result["create_macaroon_form"], CreateMacaroonForm)
+        assert macaroon_service.find_macaroon(str(macaroon.id)) is macaroon
+        assert macaroon.user_id == user.id
+        assert macaroon.description == "my token"
+        assert macaroon.permissions_caveat == {"permissions": "user"}
+        assert macaroon.caveats == [caveats.RequestUser(user_id=str(user.id))]
+        assert macaroon.additional == {"made_with_2fa": has_2fa}
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.APITokenAdded,
+            request=verified_request,
+            additional={
+                "description": "my token",
+                "caveats": [{"permissions": "user", "version": 1}],
+            },
         )
 
-        create_macaroon_obj = pretend.stub(
-            validate=lambda: True,
-            description=pretend.stub(data=pretend.stub()),
-            validated_scope={"projects": ["foo", "bar"]},
+    def test_create_macaroon_records_events_for_each_project(
+        self, verified_request, macaroon_service, mocker
+    ):
+        """
+        ``CreateMacaroonForm`` only validates a single-project scope, so the
+        token covers ``foo`` and the user's other project ``bar`` must get no
+        event and no place in the caveats.
+        """
+        user = verified_request.user
+        user.totp_secret = None
+        foo = ProjectFactory.create(name="foo")
+        bar = ProjectFactory.create(name="bar")
+        RoleFactory.create(user=user, project=foo, role_name="Owner")
+        RoleFactory.create(user=user, project=bar, role_name="Owner")
+        verified_request.POST = MultiDict(
+            {"description": "my token", "token_scope": "scope:project:foo"}
         )
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
+        create_macaroon = mocker.spy(macaroon_service, "create_macaroon")
+        record_event = mocker.spy(user, "record_event")
+        foo_record_event = mocker.spy(foo, "record_event")
+        bar_record_event = mocker.spy(bar, "record_event")
 
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-
-        view = views.ProvisionMacaroonViews(request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.create_macaroon()
 
-        assert macaroon_service.create_macaroon.calls == [
-            pretend.call(
-                location=request.domain,
-                user_id=request.user.id,
-                description=create_macaroon_obj.description.data,
-                scopes=[
-                    caveats.ProjectName(normalized_names=["foo", "bar"]),
-                    caveats.ProjectID(
-                        project_ids=[str(p.id) for p in request.user.projects]
-                    ),
+        create_macaroon.assert_called_once_with(
+            location=verified_request.domain,
+            user_id=user.id,
+            description="my token",
+            scopes=[
+                caveats.ProjectName(normalized_names=["foo"]),
+                caveats.ProjectID(project_ids=[str(foo.id)]),
+            ],
+            additional={"made_with_2fa": False},
+        )
+        serialized_macaroon, macaroon = create_macaroon.spy_return
+        assert result["serialized_macaroon"] == serialized_macaroon
+        assert result["macaroon"] is macaroon
+        assert isinstance(result["create_macaroon_form"], CreateMacaroonForm)
+        assert macaroon.permissions_caveat == {"permissions": {"projects": ["foo"]}}
+        assert macaroon.caveats == [
+            caveats.ProjectName(normalized_names=["foo"]),
+            caveats.ProjectID(project_ids=[str(foo.id)]),
+        ]
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.APITokenAdded,
+            request=verified_request,
+            additional={
+                "description": "my token",
+                "caveats": [
+                    {"permissions": {"projects": ["foo"]}, "version": 1},
+                    {"project_ids": [str(foo.id)]},
                 ],
-                additional={"made_with_2fa": False},
-            )
-        ]
-        assert result == {
-            **default_response,
-            "serialized_macaroon": "not a real raw macaroon",
-            "macaroon": macaroon,
-            "create_macaroon_form": create_macaroon_obj,
-        }
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.APITokenAdded,
-                request=request,
-                additional={
-                    "description": create_macaroon_obj.description.data,
-                    "caveats": [
-                        {
-                            "permissions": create_macaroon_obj.validated_scope,
-                            "version": 1,
-                        },
-                        {"project_ids": [str(p.id) for p in request.user.projects]},
-                    ],
-                },
-            )
-        ]
-        assert record_project_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.APITokenAdded,
-                request=request,
-                additional={
-                    "description": create_macaroon_obj.description.data,
-                    "user": request.user.username,
-                },
-            ),
-            pretend.call(
-                tag=EventTag.Project.APITokenAdded,
-                request=request,
-                additional={
-                    "description": create_macaroon_obj.description.data,
-                    "user": request.user.username,
-                },
-            ),
-        ]
-
-    def test_delete_macaroon_invalid_form(self, monkeypatch, pyramid_request):
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
+            },
         )
-        pyramid_request.POST = {
-            "confirm_password": "password",
-            "macaroon_id": "macaroon_id",
-        }
-        pyramid_request.route_path = pretend.call_recorder(lambda x: pretend.stub())
-        pyramid_request.find_service = lambda interface, **kw: {
-            IMacaroonService: macaroon_service,
-            IUserService: pretend.stub(),
-        }[interface]
-        pyramid_request.referer = "/fake/safe/route"
-        pyramid_request.host = None
-        pyramid_request.user = pretend.stub(username=pretend.stub())
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        foo_record_event.assert_called_once_with(
+            tag=EventTag.Project.APITokenAdded,
+            request=verified_request,
+            additional={"description": "my token", "user": user.username},
         )
+        bar_record_event.assert_not_called()
 
-        delete_macaroon_obj = pretend.stub(validate=lambda: False)
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
+    @pytest.mark.parametrize(
+        ("referer", "expected_location"),
+        [
+            ("/fake/safe/route", "/fake/safe/route"),
+            ("http://google.com/", "/manage.account/"),
+        ],
+    )
+    def test_delete_macaroon_invalid_form(
+        self,
+        verified_request,
+        user_password,
+        user_macaroon,
+        macaroon_service,
+        mocker,
+        referer,
+        expected_location,
+    ):
+        """An unsafe referer falls back to the account page."""
+        verified_request.POST = MultiDict(
+            {"confirm_password": "wrong password", "macaroon_id": str(user_macaroon.id)}
         )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+        verified_request.referer = referer
+        delete_macaroon = mocker.spy(macaroon_service, "delete_macaroon")
 
-        view = views.ProvisionMacaroonViews(pyramid_request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.delete_macaroon()
 
-        assert pyramid_request.route_path.calls == []
+        if expected_location == referer:
+            verified_request.route_path.assert_not_called()
+        else:
+            verified_request.route_path.assert_called_once_with("manage.account")
         assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == []
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Invalid credentials. Try again", queue="error")
-        ]
-
-    def test_delete_macaroon_dangerous_redirect(self, monkeypatch, pyramid_request):
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
-        )
-        pyramid_request.POST = {
-            "confirm_password": "password",
-            "macaroon_id": "macaroon_id",
-        }
-        pyramid_request.route_path = pretend.call_recorder(lambda x: "/safe/route")
-        pyramid_request.find_service = lambda interface, **kw: {
-            IMacaroonService: macaroon_service,
-            IUserService: pretend.stub(),
-        }[interface]
-        pyramid_request.referer = "http://google.com/"
-        pyramid_request.host = None
-        pyramid_request.user = pretend.stub(username=pretend.stub())
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        assert result.location == expected_location
+        delete_macaroon.assert_not_called()
+        assert macaroon_service.find_macaroon(str(user_macaroon.id)) is user_macaroon
+        verified_request.session.flash.assert_called_once_with(
+            "Invalid credentials. Try again", queue="error"
         )
 
-        delete_macaroon_obj = pretend.stub(validate=lambda: False)
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
+    def test_delete_macaroon_when_non_existent(
+        self, verified_request, macaroon_service, mocker
+    ):
+        """
+        ``DeleteMacaroonForm`` rejects an unknown ``macaroon_id`` itself, so the
+        view's own missing-token guard is only reachable if the token vanishes
+        between validation and lookup. Patch ``validate`` to get there.
+        """
+        mocker.patch.object(
+            views.DeleteMacaroonForm, "validate", autospec=True, return_value=True
         )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+        macaroon_id = str(uuid.uuid4())
+        verified_request.POST = MultiDict(
+            {"confirm_password": "password", "macaroon_id": macaroon_id}
+        )
+        find_macaroon = mocker.spy(macaroon_service, "find_macaroon")
+        delete_macaroon = mocker.spy(macaroon_service, "delete_macaroon")
+        record_event = mocker.spy(verified_request.user, "record_event")
 
-        view = views.ProvisionMacaroonViews(pyramid_request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.delete_macaroon()
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        verified_request.route_path.assert_called_once_with("manage.account")
         assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/safe/route"
-        assert macaroon_service.delete_macaroon.calls == []
-
-    def test_delete_macaroon(self, monkeypatch, pyramid_request):
-        user_id = pretend.stub()
-        macaroon = pretend.stub(
-            description="fake macaroon",
-            user_id=user_id,
-            permissions_caveat={"permissions": "user"},
+        assert result.location == "/manage.account/"
+        find_macaroon.assert_called_once_with(macaroon_id)
+        delete_macaroon.assert_not_called()
+        record_event.assert_not_called()
+        verified_request.session.flash.assert_called_once_with(
+            "API Token does not exist.", queue="warning"
         )
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(lambda id: macaroon),
-        )
-        user_service = pretend.stub()
-        pyramid_request.POST = {
-            "confirm_password": "password",
-            "macaroon_id": "macaroon_id",
-        }
-        pyramid_request.route_path = pretend.call_recorder(lambda x: pretend.stub())
-        pyramid_request.find_service = lambda interface, **kw: {
-            IMacaroonService: macaroon_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.referer = "/fake/safe/route"
-        pyramid_request.host = None
-        pyramid_request.user = pretend.stub(
-            id=user_id,
-            username=pretend.stub(),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(pyramid_request)
-        result = view.delete_macaroon()
-
-        assert pyramid_request.route_path.calls == []
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert macaroon_service.find_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
-        ]
-        assert pyramid_request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.APITokenRemoved,
-                request=pyramid_request,
-                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
-            )
-        ]
-
-    def test_delete_macaroon_when_non_existent(self, monkeypatch, pyramid_request):
-        user_service = pretend.stub()
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(lambda id: None),
-        )
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        pyramid_request.POST = {
-            "confirm_password": "password",
-            "macaroon_id": "macaroon_id",
-        }
-        pyramid_request.find_service = lambda interface, **kw: {
-            IMacaroonService: macaroon_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.route_path = pretend.call_recorder(lambda x: "/manage/account/")
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
-            username=pretend.stub(),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        view = views.ProvisionMacaroonViews(pyramid_request)
-        result = view.delete_macaroon()
-
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert isinstance(result, HTTPSeeOther)
-        assert macaroon_service.find_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("API Token does not exist.", queue="warning")
-        ]
 
     def test_delete_macaroon_not_owned(
-        self, monkeypatch, pyramid_request, macaroon_service
+        self, verified_request, user_password, macaroon_service, mocker
     ):
-        owner = UserFactory.create()
+        owner = verified_request.user
         other_user = UserFactory.create()
         macaroon = MacaroonFactory.create(
             user_id=other_user.id,
             description="not my token",
             permissions_caveat={"permissions": "user"},
+            caveats=[caveats.RequestUser(user_id=str(other_user.id))],
         )
-        pyramid_request.POST = {
-            "confirm_password": "password",
-            "macaroon_id": str(macaroon.id),
-        }
-        pyramid_request.route_path = pretend.call_recorder(lambda x: "/manage/account/")
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        verified_request.POST = MultiDict(
+            {"confirm_password": user_password, "macaroon_id": str(macaroon.id)}
         )
-        pyramid_request.referer = "/fake/safe/route"
-        pyramid_request.host = None
-        pyramid_request.user = pretend.stub(
-            id=owner.id,
-            username=owner.username,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True,
-            macaroon_id=pretend.stub(data=str(macaroon.id)),
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+        verified_request.referer = "/fake/safe/route"
+        delete_macaroon = mocker.spy(macaroon_service, "delete_macaroon")
+        record_event = mocker.spy(owner, "record_event")
 
-        view = views.ProvisionMacaroonViews(pyramid_request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.delete_macaroon()
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-        assert result.location == "/manage/account/"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("API Token does not exist.", queue="warning")
-        ]
+        verified_request.route_path.assert_called_once_with("manage.account")
+        assert result.location == "/manage.account/"
+        verified_request.session.flash.assert_called_once_with(
+            "API Token does not exist.", queue="warning"
+        )
         # Macaroon must still exist (not deleted)
+        delete_macaroon.assert_not_called()
         assert macaroon_service.find_macaroon(str(macaroon.id)) == macaroon
         # Must NOT have recorded any events
-        assert pyramid_request.user.record_event.calls == []
+        record_event.assert_not_called()
 
-    def test_delete_macaroon_records_events_for_each_project(
-        self, monkeypatch, pyramid_request
+    @pytest.mark.parametrize("project_scoped", [False, True])
+    def test_delete_macaroon(
+        self,
+        verified_request,
+        user_password,
+        user_macaroon,
+        macaroon_service,
+        mocker,
+        project_scoped,
     ):
-        user_id = pretend.stub()
-        macaroon = pretend.stub(
-            description="fake macaroon",
-            user_id=user_id,
-            permissions_caveat={"permissions": {"projects": ["foo", "bar"]}},
+        """
+        A project-scoped token names ``foo``, ``bar`` and ``baz``; the user has
+        roles on ``foo`` and ``bar`` only, so ``baz`` must get no event. A
+        user-scoped token records no project events.
+        """
+        user = verified_request.user
+        foo = ProjectFactory.create(name="foo")
+        bar = ProjectFactory.create(name="bar")
+        baz = ProjectFactory.create(name="baz")
+        RoleFactory.create(user=user, project=foo, role_name="Owner")
+        RoleFactory.create(user=user, project=bar, role_name="Owner")
+        if project_scoped:
+            user_macaroon.permissions_caveat = {
+                "permissions": {"projects": ["foo", "bar", "baz"]}
+            }
+            user_macaroon.caveats = [
+                caveats.ProjectName(normalized_names=["foo", "bar", "baz"]),
+                caveats.ProjectID(project_ids=[str(foo.id), str(bar.id), str(baz.id)]),
+            ]
+        macaroon_id = str(user_macaroon.id)
+        verified_request.POST = MultiDict(
+            {"confirm_password": user_password, "macaroon_id": macaroon_id}
         )
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(lambda id: macaroon),
-        )
-        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub()
-        pyramid_request.POST = {
-            "confirm_password": pretend.stub(),
-            "macaroon_id": pretend.stub(),
-        }
-        pyramid_request.route_path = pretend.call_recorder(lambda x: pretend.stub())
-        pyramid_request.find_service = lambda interface, **kw: {
-            IMacaroonService: macaroon_service,
-            IUserService: user_service,
-        }[interface]
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.referer = "/fake/safe/route"
-        pyramid_request.host = None
-        pyramid_request.user = pretend.stub(
-            id=user_id,
-            username=pretend.stub(),
-            projects=[
-                pretend.stub(normalized_name="foo", record_event=record_project_event),
-                pretend.stub(normalized_name="bar", record_event=record_project_event),
-            ],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
+        verified_request.referer = "/fake/safe/route"
+        delete_macaroon = mocker.spy(macaroon_service, "delete_macaroon")
+        record_event = mocker.spy(user, "record_event")
+        foo_record_event = mocker.spy(foo, "record_event")
+        bar_record_event = mocker.spy(bar, "record_event")
+        baz_record_event = mocker.spy(baz, "record_event")
 
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(pyramid_request)
+        view = views.ProvisionMacaroonViews(verified_request)
         result = view.delete_macaroon()
 
-        assert pyramid_request.route_path.calls == []
+        verified_request.route_path.assert_not_called()
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert macaroon_service.find_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
-        ]
-        assert pyramid_request.user.record_event.calls == [
-            pretend.call(
-                request=pyramid_request,
-                tag=EventTag.Account.APITokenRemoved,
-                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
-            )
-        ]
-        assert record_project_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.APITokenRemoved,
-                request=pyramid_request,
-                additional={
-                    "description": "fake macaroon",
-                    "user": pyramid_request.user.username,
-                },
-            ),
-            pretend.call(
-                tag=EventTag.Project.APITokenRemoved,
-                request=pyramid_request,
-                additional={
-                    "description": "fake macaroon",
-                    "user": pyramid_request.user.username,
-                },
-            ),
-        ]
+        delete_macaroon.assert_called_once_with(macaroon_id)
+        assert macaroon_service.find_macaroon(macaroon_id) is None
+        verified_request.session.flash.assert_called_once_with(
+            "Deleted API token 'fake macaroon'.", queue="success"
+        )
+        record_event.assert_called_once_with(
+            tag=EventTag.Account.APITokenRemoved,
+            request=verified_request,
+            additional={"macaroon_id": macaroon_id},
+        )
+        for project_record_event in (foo_record_event, bar_record_event):
+            if project_scoped:
+                project_record_event.assert_called_once_with(
+                    tag=EventTag.Project.APITokenRemoved,
+                    request=verified_request,
+                    additional={"description": "fake macaroon", "user": user.username},
+                )
+            else:
+                project_record_event.assert_not_called()
+        baz_record_event.assert_not_called()
 
 
 class TestManageProjects:
