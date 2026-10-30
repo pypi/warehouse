@@ -17,7 +17,6 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from sqlalchemy import func, select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
@@ -3123,19 +3122,25 @@ class TestManageProjectReleases:
 
 
 class TestManageProjectRelease:
-    def test_manage_project_release(self):
-        files = pretend.stub()
-        project = pretend.stub()
-        release = pretend.stub(
-            project=project, files=pretend.stub(all=lambda: files), yanked=False
-        )
-        request = pretend.stub()
-        view = views.ManageProjectRelease(release, request)
+    @pytest.fixture
+    def release(self, project_request):
+        """
+        Release ``1.2.3`` of project ``foobar``, owned by the
+        ``project_request`` user.
+        """
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(project=project, user=project_request.user)
+        return ReleaseFactory.create(project=project, version="1.2.3")
+
+    def test_manage_project_release(self, db_request, mocker):
+        release = ReleaseFactory.create()
+        release_file = FileFactory.create(release=release)
+        view = views.ManageProjectRelease(release, mocker.sentinel.request)
 
         assert view.manage_project_release() == {
-            "project": project,
+            "project": release.project,
             "release": release,
-            "files": files,
+            "files": [release_file],
         }
 
     @pytest.mark.parametrize(
@@ -3147,121 +3152,73 @@ class TestManageProjectRelease:
             "delete_project_release_file",
         ],
     )
-    def test_release_mutations_blocked_when_quarantined(self, pyramid_request, method):
-        release = pretend.stub(
-            version="1.2.3",
-            lifecycle_status=LifecycleStatus.QuarantineEnter,
-            yanked=False,
-            project=pretend.stub(name="foobar"),
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+    def test_release_mutations_blocked_when_quarantined(
+        self, project_request, release, method
+    ):
+        release.lifecycle_status = LifecycleStatus.QuarantineEnter
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = getattr(view, method)()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "This release is in quarantine and cannot be modified.",
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
+        project_request.session.flash.assert_called_once_with(
+            "This release is in quarantine and cannot be modified.",
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
         # Yank state is untouched
         assert release.yanked is False
 
+    @pytest.mark.usefixtures("disallow_deletion")
     def test_delete_project_release_disallow_deletion(
-        self, monkeypatch, pyramid_request
+        self, project_request, release, mocker
     ):
-        release = pretend.stub(
-            version="1.2.3",
-            canonical_version="1.2.3",
-            lifecycle_status=None,
-            project=pretend.stub(
-                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
-            ),
-        )
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: True)
-        )
-        pyramid_request.method = "POST"
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        enabled = mocker.spy(project_request.flags, "enabled")
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_DELETION)
-        ]
+        enabled.assert_called_once_with(AdminFlagValue.DISALLOW_DELETION)
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Project deletion temporarily disabled. "
-                    "See https://docs.pypi.org/about/security-and-internals/"
-                    "#temporarily-disabled-features for details."
-                ),
-                queue="error",
-            )
-        ]
-
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_yank_project_release(self, monkeypatch, db_request):
-        user = UserFactory.create()
-        project = ProjectFactory.create(name="foobar")
-        RoleFactory.create(user=user, project=project)
-        release = ReleaseFactory.create(project=project)
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        db_request.POST = {
-            "confirm_yank_version": release.version,
-            "yanked_reason": "Yanky Doodle went to town",
-        }
-        db_request.method = "POST"
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = user
-
-        send_yanked_project_release_email = pretend.call_recorder(
-            lambda req, contrib, **k: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_yanked_project_release_email",
-            send_yanked_project_release_email,
+        project_request.session.flash.assert_called_once_with(
+            (
+                "Project deletion temporarily disabled. "
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
+            ),
+            queue="error",
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+        assert project_request.db.scalars(
+            select(Release).filter_by(id=release.id)
+        ).one()
+
+    def test_yank_project_release(self, project_request, release, mocker):
+        project = release.project
+        send_yanked_project_release_email = mocker.patch.object(
+            views, "send_yanked_project_release_email", autospec=True
+        )
+        project_request.POST.update(
+            {
+                "confirm_yank_version": release.version,
+                "yanked_reason": "Yanky Doodle went to town",
+            }
+        )
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.yank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3271,64 +3228,46 @@ class TestManageProjectRelease:
         assert release.yanked_reason == "Yanky Doodle went to town"
         assert isinstance(release.yanked_date, dt.datetime)
 
-        assert send_yanked_project_release_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                release=release,
-                submitter_name=db_request.user.username,
-                submitter_role="Owner",
-                recipient_role="Owner",
-            )
-        ]
+        send_yanked_project_release_email.assert_called_once_with(
+            project_request,
+            project_request.user,
+            release=release,
+            submitter_name=project_request.user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "yank release"
         assert entry.version == release.version
-        assert entry.submitted_by == db_request.user
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Yanked release {release.version!r}", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.releases", project_name=release.project.name)
-        ]
-        assert release.project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.ReleaseYank,
-                request=db_request,
-                additional={
-                    "submitted_by": db_request.user.username,
+        assert entry.submitted_by == project_request.user
+        project_request.session.flash.assert_called_once_with(
+            f"Yanked release {release.version!r}", queue="success"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.releases", project_name=release.project.name
+        )
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.ReleaseYank,
+                {
+                    "submitted_by": project_request.user.username,
                     "canonical_version": release.canonical_version,
                     "yanked_reason": "Yanky Doodle went to town",
                 },
             )
         ]
 
-    def test_yank_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            yanked=False,
-            yanked_reason="",
-            lifecycle_status=None,
-        )
-        pyramid_request.POST = {"confirm_yank_version": ""}
-        pyramid_request.method = "POST"
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+    def test_yank_project_release_no_confirm(self, project_request, release):
+        project_request.POST["confirm_yank_version"] = ""
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = view.yank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3337,38 +3276,19 @@ class TestManageProjectRelease:
         assert not release.yanked
         assert not release.yanked_reason
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_yank_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            yanked=False,
-            yanked_reason="",
-            lifecycle_status=None,
+        project_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
-        pyramid_request.POST = {"confirm_yank_version": "invalid"}
-        pyramid_request.method = "POST"
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+    def test_yank_project_release_bad_confirm(self, project_request, release):
+        project_request.POST["confirm_yank_version"] = "invalid"
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.yank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3377,47 +3297,28 @@ class TestManageProjectRelease:
         assert not release.yanked
         assert not release.yanked_reason
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Could not yank release - "
-                f"'invalid' is not the same as {release.version!r}",
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_unyank_project_release(self, monkeypatch, db_request):
-        user = UserFactory.create()
-        project = ProjectFactory.create(name="foobar")
-        RoleFactory.create(user=user, project=project)
-        release = ReleaseFactory.create(project=project, yanked=True)
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        db_request.POST = {"confirm_unyank_version": release.version}
-        db_request.method = "POST"
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.session.flash.assert_called_once_with(
+            "Could not yank release - "
+            f"'invalid' is not the same as {release.version!r}",
+            queue="error",
         )
-        db_request.user = user
-
-        send_unyanked_project_release_email = pretend.call_recorder(
-            lambda req, contrib, **k: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_unyanked_project_release_email",
-            send_unyanked_project_release_email,
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+    def test_unyank_project_release(self, project_request, release, mocker):
+        release.yanked = True
+        release.yanked_reason = "Old reason"
+        release.yanked_date = dt.datetime.now(dt.UTC)
+        project = release.project
+        send_unyanked_project_release_email = mocker.patch.object(
+            views, "send_unyanked_project_release_email", autospec=True
+        )
+        project_request.POST["confirm_unyank_version"] = release.version
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.unyank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3427,68 +3328,53 @@ class TestManageProjectRelease:
         assert not release.yanked_reason
         assert release.yanked_date is None
 
-        assert send_unyanked_project_release_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                release=release,
-                submitter_name=db_request.user.username,
-                submitter_role="Owner",
-                recipient_role="Owner",
-            )
-        ]
+        send_unyanked_project_release_email.assert_called_once_with(
+            project_request,
+            project_request.user,
+            release=release,
+            submitter_name=project_request.user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
 
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "unyank release"
         assert entry.version == release.version
-        assert entry.submitted_by == db_request.user
+        assert entry.submitted_by == project_request.user
 
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Un-yanked release {release.version!r}", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.releases", project_name=release.project.name)
-        ]
-        assert release.project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.ReleaseUnyank,
-                request=db_request,
-                additional={
-                    "submitted_by": db_request.user.username,
+        project_request.session.flash.assert_called_once_with(
+            f"Un-yanked release {release.version!r}", queue="success"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.releases", project_name=release.project.name
+        )
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.ReleaseUnyank,
+                {
+                    "submitted_by": project_request.user.username,
                     "canonical_version": release.canonical_version,
                 },
             )
         ]
 
-    def test_unyank_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            yanked=True,
-            yanked_reason="",
-            lifecycle_status=None,
-        )
-        pyramid_request.POST = {
-            "confirm_unyank_version": "",
-            "yanked_reason": "Yanky Doodle went to town",
-        }
-        pyramid_request.method = "POST"
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+    def test_unyank_project_release_no_confirm(self, project_request, release):
+        release.yanked = True
+        project_request.POST.update(
+            {
+                "confirm_unyank_version": "",
+                "yanked_reason": "Yanky Doodle went to town",
+            }
         )
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = view.unyank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3497,41 +3383,26 @@ class TestManageProjectRelease:
         assert release.yanked
         assert not release.yanked_reason
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_unyank_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            yanked=True,
-            yanked_reason="Old reason",
-            lifecycle_status=None,
+        project_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
-        pyramid_request.POST = {
-            "confirm_unyank_version": "invalid",
-            "yanked_reason": "New reason",
-        }
-        pyramid_request.method = "POST"
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+    def test_unyank_project_release_bad_confirm(self, project_request, release):
+        release.yanked = True
+        release.yanked_reason = "Old reason"
+        project_request.POST.update(
+            {
+                "confirm_unyank_version": "invalid",
+                "yanked_reason": "New reason",
+            }
+        )
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.unyank_project_release()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3540,481 +3411,366 @@ class TestManageProjectRelease:
         assert release.yanked
         assert release.yanked_reason == "Old reason"
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Could not un-yank release - "
-                f"'invalid' is not the same as {release.version!r}",
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_delete_project_release(self, monkeypatch, db_request):
-        user = UserFactory.create()
-        project = ProjectFactory.create(name="foobar")
-        RoleFactory.create(user=user, project=project)
-        release = ReleaseFactory.create(project=project, yanked=True)
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-
-        db_request.POST = {
-            "confirm_delete_version": release.version,
-            **dict.fromkeys(DELETE_RELEASE_ACKNOWLEDGMENTS, "on"),
-        }
-        db_request.method = "POST"
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.session.flash.assert_called_once_with(
+            "Could not un-yank release - "
+            f"'invalid' is not the same as {release.version!r}",
+            queue="error",
         )
-        db_request.user = user
-
-        send_removed_project_release_email = pretend.call_recorder(
-            lambda req, contrib, **k: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_removed_project_release_email",
-            send_removed_project_release_email,
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+    def test_delete_project_release(self, project_request, release, mocker):
+        project = release.project
+        send_removed_project_release_email = mocker.patch.object(
+            views, "send_removed_project_release_email", autospec=True
+        )
+        project_request.POST.update(
+            {
+                "confirm_delete_version": release.version,
+                **dict.fromkeys(DELETE_RELEASE_ACKNOWLEDGMENTS, "on"),
+            }
+        )
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert send_removed_project_release_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                release=release,
-                submitter_name=db_request.user.username,
-                submitter_role="Owner",
-                recipient_role="Owner",
-            )
-        ]
+        send_removed_project_release_email.assert_called_once_with(
+            project_request,
+            project_request.user,
+            release=release,
+            submitter_name=project_request.user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
 
-        assert db_request.db.query(Release).all() == []
+        assert project_request.db.scalars(select(Release)).all() == []
         entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+            project_request.db.scalars(
+                select(JournalEntry).options(joinedload(JournalEntry.submitted_by))
+            )
+            .unique()
             .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "remove release"
         assert entry.version == release.version
-        assert entry.submitted_by == db_request.user
+        assert entry.submitted_by == project_request.user
 
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Deleted release {release.version!r}", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.releases", project_name=release.project.name)
-        ]
-        assert release.project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.ReleaseRemove,
-                request=db_request,
-                additional={
-                    "submitted_by": db_request.user.username,
+        project_request.session.flash.assert_called_once_with(
+            f"Deleted release {release.version!r}", queue="success"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.releases", project_name=release.project.name
+        )
+        assert [(e.tag, e.additional) for e in project.events] == [
+            (
+                EventTag.Project.ReleaseRemove,
+                {
+                    "submitted_by": project_request.user.username,
                     "canonical_version": release.canonical_version,
                 },
             )
         ]
 
-    def test_delete_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            lifecycle_status=None,
-        )
-        pyramid_request.POST = {"confirm_delete_version": ""}
-        pyramid_request.method = "POST"
-        pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+    def test_delete_project_release_no_confirm(self, project_request, release, mocker):
+        project_request.POST["confirm_delete_version"] = ""
+        enabled = mocker.spy(project_request.flags, "enabled")
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert pyramid_request.db.delete.calls == []
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_DELETION)
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_delete_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            lifecycle_status=None,
+        assert project_request.db.scalars(
+            select(Release).filter_by(id=release.id)
+        ).one()
+        project_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
-        pyramid_request.POST = {"confirm_delete_version": "invalid"}
-        pyramid_request.method = "POST"
-        pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        enabled.assert_called_once_with(AdminFlagValue.DISALLOW_DELETION)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+    def test_delete_project_release_bad_confirm(self, project_request, release):
+        project_request.POST["confirm_delete_version"] = "invalid"
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert pyramid_request.db.delete.calls == []
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                "Could not delete release - "
-                f"'invalid' is not the same as {release.version!r}",
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
+        assert project_request.db.scalars(
+            select(Release).filter_by(id=release.id)
+        ).one()
+        project_request.session.flash.assert_called_once_with(
+            "Could not delete release - "
+            f"'invalid' is not the same as {release.version!r}",
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
 
-    def test_delete_project_release_no_acknowledgments(self, db_request, mocker):
+    def test_delete_project_release_no_acknowledgments(self, project_request, release):
         """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
-        release = ReleaseFactory.create()
-        db_request.method = "POST"
-        db_request.POST = {"confirm_delete_version": release.version}
-        db_request.route_path = mocker.Mock(return_value="/the-redirect")
-        flash = mocker.spy(db_request.session, "flash")
+        project_request.POST["confirm_delete_version"] = release.version
 
-        view = views.ManageProjectRelease(release, db_request)
+        view = views.ManageProjectRelease(release, project_request)
 
         with pytest.raises(HTTPSeeOther) as exc:
             view.delete_project_release()
         assert exc.value.headers["Location"] == "/the-redirect"
 
-        flash.assert_called_once_with(
+        project_request.session.flash.assert_called_once_with(
             "Could not delete release - "
             "acknowledge all of the consequences to continue",
             queue="error",
         )
-        db_request.route_path.assert_called_once_with(
+        project_request.route_path.assert_called_once_with(
             "manage.project.release",
             project_name=release.project.name,
             version=release.version,
         )
         assert (
-            db_request.db.query(Release).filter(Release.id == release.id).count() == 1
+            project_request.db.scalar(
+                select(func.count())
+                .select_from(Release)
+                .filter(Release.id == release.id)
+            )
+            == 1
         )
 
-    def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar"),
-            lifecycle_status=None,
-        )
-        pyramid_request.method = "POST"
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: True)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+    @pytest.mark.usefixtures("disallow_deletion")
+    def test_delete_project_release_file_disallow_deletion(
+        self, project_request, release, mocker
+    ):
+        release_file = FileFactory.create(release=release)
+        enabled = mocker.spy(project_request.flags, "enabled")
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_DELETION)
-        ]
+        enabled.assert_called_once_with(AdminFlagValue.DISALLOW_DELETION)
 
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Project deletion temporarily disabled. "
-                    "See https://docs.pypi.org/about/security-and-internals/"
-                    "#temporarily-disabled-features for details."
-                ),
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
+        project_request.session.flash.assert_called_once_with(
+            (
+                "Project deletion temporarily disabled. "
+                "See https://docs.pypi.org/about/security-and-internals/"
+                "#temporarily-disabled-features for details."
+            ),
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+        assert project_request.db.scalars(
+            select(File).filter_by(id=release_file.id)
+        ).one()
 
-    def test_delete_project_release_file(self, monkeypatch, db_request):
-        user = UserFactory.create()
-
-        project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+    def test_delete_project_release_file(self, project_request, release, mocker):
+        project = release.project
         release_file = FileFactory.create(
             release=release, filename=f"foobar-{release.version}.tar.gz"
         )
-        RoleFactory.create(project=project, user=user)
-
-        db_request.POST = {
-            "confirm_project_name": release.project.name,
-            "file_id": str(release_file.id),
-            **dict.fromkeys(DELETE_FILE_ACKNOWLEDGMENTS, "on"),
-        }
-        db_request.method = ("POST",)
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.POST.update(
+            {
+                "confirm_project_name": release.project.name,
+                "file_id": str(release_file.id),
+                **dict.fromkeys(DELETE_FILE_ACKNOWLEDGMENTS, "on"),
+            }
         )
-        db_request.user = user
-
-        get_user_role_in_project = pretend.call_recorder(
-            lambda project, user, req: "Owner"
-        )
-        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-
-        send_removed_project_release_file_email = pretend.call_recorder(
-            lambda req, user, **k: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_removed_project_release_file_email",
-            send_removed_project_release_file_email,
+        get_user_role_in_project = mocker.spy(views, "get_user_role_in_project")
+        send_removed_project_release_file_email = mocker.patch.object(
+            views, "send_removed_project_release_file_email", autospec=True
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+        view = views.ManageProjectRelease(release, project_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert db_request.session.flash.calls == [
-            pretend.call(f"Deleted file {release_file.filename!r}", queue="success")
-        ]
+        project_request.session.flash.assert_called_once_with(
+            f"Deleted file {release_file.filename!r}", queue="success"
+        )
 
-        assert db_request.db.query(File).filter_by(id=release_file.id).first() is None
         assert (
-            db_request.db.query(JournalEntry)
-            .filter_by(
-                name=project.name,
-                version=release.version,
-                action=f"remove file {release_file.filename}",
-                submitted_by=user,
+            project_request.db.scalars(
+                select(File).filter_by(id=release_file.id)
+            ).first()
+            is None
+        )
+        assert (
+            project_request.db.scalars(
+                select(JournalEntry).filter_by(
+                    name=project.name,
+                    version=release.version,
+                    action=f"remove file {release_file.filename}",
+                    submitted_by=project_request.user,
+                )
             )
+            .unique()
             .one()
         )
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
+
+        assert get_user_role_in_project.call_args_list == [
+            mocker.call(project, project_request.user, project_request),
+            mocker.call(project, project_request.user, project_request),
         ]
 
-        assert get_user_role_in_project.calls == [
-            pretend.call(project, db_request.user, db_request),
-            pretend.call(project, db_request.user, db_request),
-        ]
-
-        assert send_removed_project_release_file_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                file=release_file.filename,
-                release=release,
-                submitter_name=db_request.user.username,
-                submitter_role="Owner",
-                recipient_role="Owner",
-            )
-        ]
-
-    def test_delete_project_release_file_no_confirm(self, pyramid_request):
-        release = pretend.stub(
-            version="1.2.3",
-            project=pretend.stub(name="foobar", normalized_name="foobar"),
-            lifecycle_status=None,
-        )
-        pyramid_request.POST = {"confirm_project_name": ""}
-        pyramid_request.method = "POST"
-        pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
-        pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda *a: False)
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        send_removed_project_release_file_email.assert_called_once_with(
+            project_request,
+            project_request.user,
+            file=release_file.filename,
+            release=release,
+            submitter_name=project_request.user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
         )
 
-        view = views.ManageProjectRelease(release, pyramid_request)
+    def test_delete_project_release_file_no_confirm(
+        self, project_request, release, mocker
+    ):
+        release_file = FileFactory.create(release=release)
+        project_request.POST["confirm_project_name"] = ""
+        enabled = mocker.spy(project_request.flags, "enabled")
+
+        view = views.ManageProjectRelease(release, project_request)
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert pyramid_request.db.delete.calls == []
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_DELETION)
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
-
-    def test_delete_project_release_file_not_found(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
-
-        def no_result_found():
-            raise NoResultFound
-
-        db_request.POST = {"confirm_project_name": "whatever"}
-        db_request.method = "POST"
-        db_request.db = pretend.stub(
-            delete=pretend.call_recorder(lambda a: None),
-            query=lambda a: pretend.stub(
-                filter=lambda *a: pretend.stub(one=no_result_found)
-            ),
+        assert project_request.db.scalars(
+            select(File).filter_by(id=release_file.id)
+        ).one()
+        enabled.assert_called_once_with(AdminFlagValue.DISALLOW_DELETION)
+        project_request.session.flash.assert_called_once_with(
+            "Confirm the request", queue="error"
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+    def test_delete_project_release_file_not_found(
+        self, project_request, release, mocker
+    ):
+        """A file id from another release of the same project is not found."""
+        other_file = FileFactory.create(
+            release=ReleaseFactory.create(project=release.project)
+        )
+        project_request.POST.update(
+            {"confirm_project_name": "whatever", "file_id": str(other_file.id)}
+        )
+        enabled = mocker.spy(project_request.flags, "enabled")
+
+        view = views.ManageProjectRelease(release, project_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert db_request.db.delete.calls == []
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_DELETION)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Could not find file", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
+        assert project_request.db.scalars(
+            select(File).filter_by(id=other_file.id)
+        ).one()
+        enabled.assert_called_once_with(AdminFlagValue.DISALLOW_DELETION)
+        project_request.session.flash.assert_called_once_with(
+            "Could not find file", queue="error"
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
 
-    def test_delete_project_release_file_bad_confirm(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project, version="1.2.3")
+    def test_delete_project_release_file_bad_confirm(self, project_request, release):
         release_file = FileFactory.create(
             release=release, filename="foobar-1.2.3.tar.gz"
         )
-
-        db_request.POST = {
-            "confirm_project_name": "invalid",
-            "file_id": str(release_file.id),
-        }
-        db_request.method = "POST"
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+        project_request.POST.update(
+            {
+                "confirm_project_name": "invalid",
+                "file_id": str(release_file.id),
+            }
         )
 
-        view = views.ManageProjectRelease(release, db_request)
+        view = views.ManageProjectRelease(release, project_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.db.query(File).filter_by(id=release_file.id).one()
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Could not delete file - "
-                f"'invalid' is not the same as {release.project.name!r}",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "manage.project.release",
-                project_name=release.project.name,
-                version=release.version,
-            )
-        ]
+        assert project_request.db.scalars(
+            select(File).filter_by(id=release_file.id)
+        ).one()
+        project_request.session.flash.assert_called_once_with(
+            "Could not delete file - "
+            f"'invalid' is not the same as {release.project.name!r}",
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.release",
+            project_name=release.project.name,
+            version=release.version,
+        )
 
-    def test_delete_project_release_file_no_acknowledgments(self, db_request, mocker):
+    def test_delete_project_release_file_no_acknowledgments(
+        self, project_request, release
+    ):
         """Acknowledgment checkboxes are enforced server-side, not just in the UI."""
-        release = ReleaseFactory.create()
         release_file = FileFactory.create(release=release)
-        db_request.method = "POST"
-        db_request.POST = {
-            "confirm_project_name": release.project.name,
-            "file_id": str(release_file.id),
-        }
-        db_request.route_path = mocker.Mock(return_value="/the-redirect")
-        flash = mocker.spy(db_request.session, "flash")
+        project_request.POST.update(
+            {
+                "confirm_project_name": release.project.name,
+                "file_id": str(release_file.id),
+            }
+        )
 
-        view = views.ManageProjectRelease(release, db_request)
+        view = views.ManageProjectRelease(release, project_request)
 
         with pytest.raises(HTTPSeeOther) as exc:
             view.delete_project_release_file()
         assert exc.value.headers["Location"] == "/the-redirect"
 
-        flash.assert_called_once_with(
+        project_request.session.flash.assert_called_once_with(
             "Could not delete file - acknowledge all of the consequences to continue",
             queue="error",
         )
-        db_request.route_path.assert_called_once_with(
+        project_request.route_path.assert_called_once_with(
             "manage.project.release",
             project_name=release.project.name,
             version=release.version,
         )
-        assert db_request.db.query(File).filter_by(id=release_file.id).one()
+        assert project_request.db.scalars(
+            select(File).filter_by(id=release_file.id)
+        ).one()
 
 
 class TestManageProjectRoles:
