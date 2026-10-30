@@ -46,6 +46,7 @@ from warehouse.organizations.checks import (
     CheckStatus,
     application_domain,
     can_email,
+    reachable_email,
     review_checks,
 )
 from warehouse.organizations.interfaces import IOrganizationService
@@ -1054,7 +1055,7 @@ def organization_application_request_more_information(request: Request) -> HTTPS
     if not can_email(organization_application.submitted_by):
         request.session.flash(
             f'Cannot request more info for "{organization_application.name}": '
-            "the applicant has no verified primary email",
+            "the applicant has no verified email",
             queue="error",
         )
         return HTTPSeeOther(
@@ -1116,9 +1117,10 @@ def organization_application_request_more_information_preview(
     if organization_application is None:
         raise HTTPNotFound
 
+    applicant = organization_application.submitted_by
     context = inspect.unwrap(send_new_organization_moreinformationneeded_email)(
         request,
-        organization_application.submitted_by,
+        (applicant, reachable_email(applicant)),
         organization_name=organization_application.name,
         organization_application_id=organization_application.id,
         message=request.params.get("message", ""),

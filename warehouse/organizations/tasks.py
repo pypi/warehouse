@@ -24,6 +24,7 @@ from warehouse.email import (
     send_organization_subscription_required_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.organizations.checks import reachable_email
 from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     DEACTIVATION_NOTICE_DAYS,
@@ -262,15 +263,11 @@ def reconcile_stripe_status(request):
 
 def _reachable_owners(organization: Organization) -> list[tuple[User, Email]]:
     """Each owner with a verified address: their primary, else any other verified."""
-    reachable = []
-    for owner in organization.owners:
-        verified = sorted(
-            (email for email in owner.emails if email.verified),
-            key=lambda email: (not email.primary, email.id),
-        )
-        if verified:
-            reachable.append((owner, verified[0]))
-    return reachable
+    return [
+        (owner, email)
+        for owner in organization.owners
+        if (email := reachable_email(owner))
+    ]
 
 
 def _queue_reminder(

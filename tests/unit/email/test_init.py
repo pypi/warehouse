@@ -1146,7 +1146,7 @@ class TestSendNewOrganizationApprovedEmail:
 
         result = email.send_new_organization_approved_email(
             db_request,
-            initiator_user,
+            (initiator_user, None),
             organization_name=organization_name,
             organization_type=organization_type,
             message=message,
@@ -1156,6 +1156,7 @@ class TestSendNewOrganizationApprovedEmail:
             "organization_name": organization_name,
             "organization_type": organization_type,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1195,6 +1196,7 @@ class TestSendNewOrganizationApprovedEmail:
             },
         )
 
+    @pytest.mark.parametrize("primary", [True, False])
     @pytest.mark.parametrize(
         ("organization_type", "expects_action_required"),
         [
@@ -1208,18 +1210,21 @@ class TestSendNewOrganizationApprovedEmail:
         pyramid_config,
         organization_type,
         expects_action_required,
+        primary,
         send_email,
     ):
         """
         The rendered email should only nag Company organizations to buy a
         seat -- Community organizations shouldn't see that content at all.
         """
-        initiator_user = EmailFactory.create(
+        recipient = EmailFactory.create(
             email="email@example.com",
             verified=True,
+            primary=primary,
             user__username="username",
             user__name="",
-        ).user
+        )
+        initiator_user = recipient.user
         organization_name = "example"
 
         pyramid_config.include("pyramid_jinja2")
@@ -1251,7 +1256,7 @@ class TestSendNewOrganizationApprovedEmail:
 
         email.send_new_organization_approved_email(
             db_request,
-            initiator_user,
+            (initiator_user, recipient),
             organization_name=organization_name,
             organization_type=organization_type,
             message="example message",
@@ -1274,6 +1279,9 @@ class TestSendNewOrganizationApprovedEmail:
         )
         assert management_url in body_text
         assert f'href="{management_url}"' in body_html
+        notice = "set a verified email address as your primary"
+        assert (notice in body_text) is not primary
+        assert (notice in body_html) is not primary
 
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
@@ -1298,7 +1306,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
 
         result = email.send_new_organization_moreinformationneeded_email(
             db_request,
-            initiator_user,
+            (initiator_user, None),
             organization_name=organization_name,
             organization_application_id=organization_application_id,
             message=message,
@@ -1308,6 +1316,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
             "organization_name": organization_name,
             "organization_application_id": organization_application_id,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1343,6 +1352,47 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
                 },
             },
         )
+
+    @pytest.mark.parametrize("primary", [True, False])
+    def test_renders_set_primary_notice(
+        self, db_request, pyramid_config, primary, send_email
+    ):
+        recipient = EmailFactory.create(
+            email="email@example.com",
+            verified=True,
+            primary=primary,
+            user__username="username",
+            user__name="",
+        )
+        initiator_user = recipient.user
+
+        pyramid_config.include("pyramid_jinja2")
+        pyramid_config.add_settings({"jinja2.newstyle": True})
+        pyramid_config.add_settings({"jinja2.i18n.domain": "messages"})
+        pyramid_config.add_jinja2_renderer(".html")
+        pyramid_config.add_jinja2_renderer(".txt")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".html")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".txt")
+        pyramid_config.add_route(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+        )
+
+        db_request.user = initiator_user
+        db_request.registry.settings["warehouse.domain"] = "pypi.org"
+
+        email.send_new_organization_moreinformationneeded_email(
+            db_request,
+            (initiator_user, recipient),
+            organization_name="example",
+            organization_application_id="deadbeef-dead-beef-dead-beefdeadbeef",
+            message="example message",
+        )
+
+        (_, msg, _), _ = send_email.delay.call_args
+        notice = "set a verified email address as your primary"
+        assert (notice in msg["body_text"]) is not primary
+        assert (notice in msg["body_html"]) is not primary
 
 
 class TestSendNewOrganizationDeclinedEmail:

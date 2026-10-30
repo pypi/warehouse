@@ -19,6 +19,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.checks import reachable_email
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -233,9 +234,10 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
+        applicant = organization_application.submitted_by
         send_new_organization_approved_email(
             request,
-            organization_application.submitted_by,
+            (applicant, reachable_email(applicant)),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message=message,
@@ -283,9 +285,10 @@ class DatabaseOrganizationService:
                 kind=ObservationKind.InformationRequest,
                 payload={"message": message},
             )
+            applicant = organization_application.submitted_by
             send_new_organization_moreinformationneeded_email(
                 request,
-                organization_application.submitted_by,
+                (applicant, reachable_email(applicant)),
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
                 message=message,
@@ -324,7 +327,10 @@ class DatabaseOrganizationService:
         message = request.params.get("message", "")
         send_new_organization_declined_email(
             request,
-            organization_application.submitted_by,
+            (
+                organization_application.submitted_by,
+                reachable_email(organization_application.submitted_by),
+            ),
             organization_name=organization_application.name,
             message=message,
         )

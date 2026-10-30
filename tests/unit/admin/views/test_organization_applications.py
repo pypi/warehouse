@@ -573,7 +573,7 @@ class TestOrganizationApplicationActions:
         assert organization_application.status == OrganizationApplicationStatus.Approved
         send_approved.assert_called_once_with(
             db_request,
-            user,
+            (user, None),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message="Welcome!",
@@ -805,7 +805,7 @@ class TestOrganizationApplicationActions:
         )
         admin = UserFactory.create()
         user = UserFactory.create()
-        EmailFactory.create(user=user)
+        email = EmailFactory.create(user=user)
         organization_application = OrganizationApplicationFactory.create(
             name="example", submitted_by=user
         )
@@ -826,7 +826,7 @@ class TestOrganizationApplicationActions:
         assert len(organization_application.observations) == 1
         send_email.assert_called_once_with(
             db_request,
-            user,
+            (user, email),
             organization_name=organization_application.name,
             organization_application_id=organization_application.id,
             message="Welcome!",
@@ -913,7 +913,8 @@ class TestOrganizationApplicationActions:
         )
 
     @pytest.mark.parametrize(
-        "email_kwargs", [None, {"verified": False}, {"primary": False}]
+        "email_kwargs",
+        [None, {"verified": False}, {"verified": False, "primary": False}],
     )
     def test_request_more_information_unreachable_applicant(
         self, db_request, mocker, email_kwargs
@@ -945,7 +946,7 @@ class TestOrganizationApplicationActions:
         assert db_request.session.pop_flash("error") == [
             (
                 'Cannot request more info for "example": '
-                "the applicant has no verified primary email"
+                "the applicant has no verified email"
             )
         ]
         assert db_request.session.pop_flash("success") == []
@@ -978,7 +979,7 @@ class TestOrganizationApplicationActions:
         assert organization_application.status == OrganizationApplicationStatus.Declined
         send_email.assert_called_once_with(
             db_request,
-            user,
+            (user, None),
             organization_name=organization_application.name,
             message="Sorry!",
         )
