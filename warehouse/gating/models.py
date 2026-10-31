@@ -13,7 +13,7 @@ one defines no gates.
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import enum
 import typing
 
@@ -91,7 +91,7 @@ class ReleaseGate(db.Model):
     created: Mapped[datetime_now] = mapped_column(
         comment="When the hold was opened. The policy timeout is measured from here."
     )
-    resolved: Mapped[datetime.datetime | None] = mapped_column(
+    resolved: Mapped[dt.datetime | None] = mapped_column(
         comment="When the hold stopped being pending. Null while pending."
     )
 

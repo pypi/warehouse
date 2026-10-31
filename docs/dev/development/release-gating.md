@@ -86,7 +86,7 @@ the mechanism does not change and neither does the schema.
 @implementer(IGatePolicy)
 class MyPolicy:
     kind = "my-gate"
-    timeout = datetime.timedelta(hours=2)
+    timeout = dt.timedelta(hours=2)  # import datetime as dt
     timeout_status = GateStatus.Expired
 
     def applies(self, release, request):

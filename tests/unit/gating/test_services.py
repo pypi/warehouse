@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytest
 
@@ -22,7 +22,7 @@ from ...common.db.packaging import ReleaseFactory
 class _StubPolicy:
     """A minimal `IGatePolicy`; warehouse ships none, so tests supply their own."""
 
-    timeout = datetime.timedelta(hours=1)
+    timeout = dt.timedelta(hours=1)
     timeout_status = GateStatus.Expired
 
     def __init__(self, kind="stub", applies=True):

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pretend
 
@@ -38,7 +38,7 @@ class TestResolveTimedOutGates:
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=6), GateStatus.Expired)
+            _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Expired)
         )
 
         resolve_timed_out_gates(db_request)
@@ -51,9 +51,9 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, datetime.timedelta(hours=12))
+        _backdate(db_request.db, gate, dt.timedelta(hours=12))
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=6), GateStatus.Expired)
+            _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Expired)
         )
 
         resolve_timed_out_gates(db_request)
@@ -71,9 +71,9 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="wait-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, datetime.timedelta(minutes=10))
+        _backdate(db_request.db, gate, dt.timedelta(minutes=10))
         gate_service.register_policy(
-            _StubPolicy("wait-gate", datetime.timedelta(minutes=5), GateStatus.Passed)
+            _StubPolicy("wait-gate", dt.timedelta(minutes=5), GateStatus.Passed)
         )
 
         resolve_timed_out_gates(db_request)
@@ -88,9 +88,9 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, datetime.timedelta(hours=12))
+        _backdate(db_request.db, gate, dt.timedelta(hours=12))
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=6), GateStatus.Failed)
+            _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Failed)
         )
 
         resolve_timed_out_gates(db_request)
@@ -117,7 +117,7 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, datetime.timedelta(days=30))
+        _backdate(db_request.db, gate, dt.timedelta(days=30))
         gate_service.register_policy(_StubPolicy("slow-gate", None, GateStatus.Expired))
 
         resolve_timed_out_gates(db_request)
@@ -130,9 +130,9 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Passed
         )
-        _backdate(db_request.db, gate, datetime.timedelta(days=1))
+        _backdate(db_request.db, gate, dt.timedelta(days=1))
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=1), GateStatus.Expired)
+            _StubPolicy("slow-gate", dt.timedelta(hours=1), GateStatus.Expired)
         )
 
         resolve_timed_out_gates(db_request)
@@ -144,9 +144,9 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, datetime.timedelta(hours=12))
+        _backdate(db_request.db, gate, dttimedelta(hours=12))
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=6), GateStatus.Expired)
+            _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Expired)
         )
 
         resolve_timed_out_gates(db_request)
@@ -207,10 +207,10 @@ class TestSweepBatching:
             for release in releases
         ]
         for gate in gates:
-            _backdate(db_request.db, gate, datetime.timedelta(hours=9))
+            _backdate(db_request.db, gate, dt.timedelta(hours=9))
 
         gate_service.register_policy(
-            _StubPolicy("slow-gate", datetime.timedelta(hours=6), GateStatus.Expired)
+            _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Expired)
         )
 
         resolve_timed_out_gates(db_request)
