@@ -144,7 +144,7 @@ class TestResolveTimedOutGates:
         gate = ReleaseGateFactory.create(
             release=release, kind="slow-gate", status=GateStatus.Pending
         )
-        _backdate(db_request.db, gate, dttimedelta(hours=12))
+        _backdate(db_request.db, gate, dt.timedelta(hours=12))
         gate_service.register_policy(
             _StubPolicy("slow-gate", dt.timedelta(hours=6), GateStatus.Expired)
         )
