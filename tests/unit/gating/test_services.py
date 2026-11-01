@@ -84,9 +84,7 @@ class TestOpenGates:
 
     def test_skips_policy_that_does_not_apply(self, db_request):
         release = ReleaseFactory.create()
-        service = GateService(
-            db_request.db, policies=[_StubPolicy(applies=False)]
-        )
+        service = GateService(db_request.db, policies=[_StubPolicy(applies=False)])
 
         assert service.open_gates(release, db_request) == []
         assert release.gated is False
