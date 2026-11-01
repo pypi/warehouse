@@ -4,6 +4,7 @@ import datetime as dt
 
 import pytest
 
+from zope.interface import implementer
 from zope.interface.verify import verifyClass, verifyObject
 
 from warehouse.gating.interfaces import IGatePolicy, IGateService
@@ -19,6 +20,7 @@ from ...common.db.gating import ReleaseGateFactory
 from ...common.db.packaging import ReleaseFactory
 
 
+@implementer(IGatePolicy)
 class _StubPolicy:
     """A minimal `IGatePolicy`; warehouse ships none, so tests supply their own."""
 
