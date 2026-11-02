@@ -76,9 +76,14 @@
               <strong>{% trans %}Full provenance{% endtrans %}</strong>
             </p>
             <p>
-              {% trans count=provenance_status.counts.total_files %}All {{ count }} file in this release has provenance metadata.
+              {% set total_files = provenance_status.counts.total_files %}
+            {% if total_files == 2 %}
+              {% trans %}Both files in this release have provenance metadata.{% endtrans %}
+            {% else %}
+              {% trans count=total_files %}All {{ count }} file in this release has provenance metadata.
             {% pluralize %}
               All {{ count }} files in this release have provenance metadata.{% endtrans %}
+            {% endif %}
             </p>
             <p>
               <a href="#security"
