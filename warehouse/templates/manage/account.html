@@ -210,13 +210,16 @@
             <h3 class="modal__title">
               {% trans token_description=macaroon.description %}Unique identifier for API token "{{ token_description }}"{% endtrans %}
             </h3>
-            <p>
-              <code>{{ macaroon.id }}</code>
-            </p>
-            <button type="button"
-                    class="button copy-tooltip copy-tooltip-e"
-                    data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}"
-                    data-clipboard-text="{{ macaroon.id }}">{% trans %}Copy{% endtrans %}</button>
+            <div data-controller="clipboard">
+              <p>
+                <code data-clipboard-target="source">{{ macaroon.id }}</code>
+              </p>
+              <button type="button"
+                      class="button copy-tooltip copy-tooltip-e"
+                      data-action="clipboard#copy"
+                      data-clipboard-target="tooltip"
+                      data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">{% trans %}Copy{% endtrans %}</button>
+            </div>
           </div>
           <div class="modal__footer">
             <a href="#modal-close" class="button button--primary modal__action">{% trans %}Close{% endtrans %}</a>

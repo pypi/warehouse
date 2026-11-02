@@ -48,7 +48,7 @@
                   data-action="clipboard#copy"
                   data-clipboard-target="tooltip"
                   data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-            {% trans %}Copy{% endtrans %}
+            {% trans %}Copy{% endtrans %}<span class="sr-only"> {{ classifier }}</span>
           </button>
         </li>
       {% endfor %}
