@@ -190,6 +190,22 @@ def two_factor_request(pyramid_config, real_session_request):
     return real_session_request
 
 
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("42", 42),
+        (str(2**31 - 1), 2**31 - 1),
+        (str(-(2**31)), -(2**31)),
+        (str(2**31), None),
+        (str(-(2**31) - 1), None),
+        ("nope", None),
+        (object(), None),
+    ],
+)
+def test_parse_email_id(value, expected):
+    assert views._parse_email_id(value) == expected
+
+
 class TestManageUnverifiedAccount:
     @pytest.fixture
     def unverified_request(self, post_request):
@@ -635,33 +651,18 @@ class TestManageAccount:
             select(Email).where(Email.user_id == user.id)
         ).all() == [primary_email]
 
-    def test_delete_email_not_found(self, monkeypatch):
-        email = pretend.stub()
+    @pytest.mark.parametrize("email_id", ["9999", "999999999999", "nope"])
+    def test_delete_email_not_found(self, verified_request, default_response, email_id):
+        primary = verified_request.user.primary_email
+        verified_request.POST = MultiDict({"delete_email_id": email_id})
 
-        def raise_no_result():
-            raise NoResultFound
+        view = views.ManageVerifiedAccountViews(verified_request)
 
-        request = pretend.stub(
-            POST={"delete_email_id": "999999999999"},
-            user=pretend.stub(id=pretend.stub(), emails=[email], name=pretend.stub()),
-            db=pretend.stub(
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=raise_no_result)
-                )
-            ),
-            find_service=lambda *a, **kw: pretend.stub(),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        assert view.delete_email() == default_response
+        verified_request.session.flash.assert_called_once_with(
+            "Email address not found", queue="error"
         )
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.delete_email() == view.default_response
-        assert request.session.flash.calls == [
-            pretend.call("Email address not found", queue="error")
-        ]
-        assert request.user.emails == [email]
+        assert verified_request.user.emails == [primary]
 
     def test_delete_email_is_primary(self, verified_request, default_response):
         user = verified_request.user
@@ -732,12 +733,14 @@ class TestManageAccount:
             additional={"old_primary": None, "new_primary": new_primary.email},
         )
 
-    def test_change_primary_email_not_found(self, post_request, default_response):
+    @pytest.mark.parametrize("email_id", ["9999", "999999999999", "nope"])
+    def test_change_primary_email_not_found(
+        self, post_request, default_response, email_id
+    ):
         user = UserFactory.create()
         old_primary = EmailFactory.create(primary=True, user=user)
-        missing_email_id = 9999
         post_request.user = user
-        post_request.POST = MultiDict({"primary_email_id": str(missing_email_id)})
+        post_request.POST = MultiDict({"primary_email_id": email_id})
 
         view = views.ManageVerifiedAccountViews(post_request)
 
@@ -841,7 +844,7 @@ class TestManageAccount:
         send_email.assert_not_called()
         record_event.assert_not_called()
 
-    @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
+    @pytest.mark.parametrize("reverify_email_id", ["9999", "999999999999", "wutang"])
     @pytest.mark.parametrize(
         ("has_primary_verified_email", "expected"),
         [
