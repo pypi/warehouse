@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from sqlalchemy import update
 from webob.multidict import MultiDict
 
@@ -14,6 +14,7 @@ from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationNameCatalogFactory,
 )
 from tests.common.db.packaging import RoleFactory
 from warehouse.admin.views import organizations as views
@@ -22,6 +23,7 @@ from warehouse.organizations.checks import CheckStatus
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationNameCatalog,
     OrganizationType,
 )
 
@@ -288,6 +290,19 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
         assert result["applicant_reachable"] is False
+        assert result["orphaned_name"] is False
+
+    def test_detail_orphaned_name(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        OrganizationNameCatalogFactory.create(
+            normalized_name=organization_application.normalized_name,
+            organization_id=None,
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        result = views.organization_application_detail(db_request)
+        assert result["orphaned_name"] is True
 
     def test_detail_reachable_applicant(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
@@ -568,6 +583,72 @@ class TestOrganizationApplicationActions:
         ]
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
+
+    def test_approve_claims_orphaned_name(self, db_request, mocker):
+        mocker.patch.object(services, "send_new_organization_approved_email")
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        entry = OrganizationNameCatalogFactory.create(
+            normalized_name="example", organization_id=None
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["claim_orphaned_name"] = "true"
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        views.organization_application_approve(db_request)
+
+        organization = organization_application.organization
+        assert organization_application.status == OrganizationApplicationStatus.Approved
+        assert db_request.db.query(OrganizationNameCatalog).all() == [entry]
+        assert entry.organization_id == organization.id
+
+    @pytest.mark.parametrize(
+        ("live_organization", "claim", "can_claim"),
+        [
+            (False, False, True),
+            (False, True, False),
+            (True, True, True),
+        ],
+    )
+    def test_approve_reserved_name(
+        self, db_request, mocker, live_organization, claim, can_claim
+    ):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        organization_application = OrganizationApplicationFactory.create(name="example")
+        if live_organization:
+            OrganizationFactory.create(name="example")
+        else:
+            OrganizationNameCatalogFactory.create(
+                normalized_name="example", organization_id=None
+            )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        if claim:
+            db_request.params["claim_orphaned_name"] = "true"
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=can_claim
+        )
+        db_request.user = UserFactory.create()
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_approve(db_request)
+
+        assert organization_application.status == (
+            OrganizationApplicationStatus.Submitted
+        )
+        assert organization_application.organization is None
+        send_approved.assert_not_called()
+        assert db_request.session.pop_flash("error") == [
+            'The name "example" is already reserved'
+        ]
+        assert result.location == (
+            f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     def test_approve_turbo_mode(self, db_request, mocker):
         mocker.patch.object(services, "send_new_organization_approved_email")
@@ -1099,3 +1180,43 @@ class TestOrganizationApplicationActions:
         assert organization_application.observations == []
         for email in emails:
             email.assert_not_called()
+
+
+class TestOrganizationNames:
+    def test_list(self, db_request):
+        beta = OrganizationNameCatalogFactory.create(
+            normalized_name="beta", organization_id=None
+        )
+        alpha = OrganizationNameCatalogFactory.create(
+            normalized_name="alpha", organization_id=None
+        )
+        OrganizationFactory.create(name="gamma")
+        open_application = OrganizationApplicationFactory.create(name="Alpha")
+        OrganizationApplicationFactory.create(
+            name="alpha", status=OrganizationApplicationStatus.Declined
+        )
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [alpha, beta]
+        assert result["open_applications"] == {"alpha": [open_application]}
+        assert result["query"] == ""
+
+    def test_list_query(self, db_request):
+        match = OrganizationNameCatalogFactory.create(
+            normalized_name="acme-labs", organization_id=None
+        )
+        OrganizationNameCatalogFactory.create(
+            normalized_name="other", organization_id=None
+        )
+        db_request.params["q"] = "ACME_Labs"
+
+        result = views.organization_name_list(db_request)
+
+        assert list(result["names"]) == [match]
+
+    def test_list_invalid_page(self, db_request):
+        db_request.params["page"] = "not an integer"
+
+        with pytest.raises(HTTPBadRequest):
+            views.organization_name_list(db_request)

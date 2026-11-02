@@ -2,7 +2,7 @@
 #       lives in this repo (./pyramid_components) rather than on an index, so it
 #       cannot be pinned here: pip-compile has no hashes for a local path. The
 #       Dockerfile installs it editable.
-alembic>=1.20.0
+alembic>=1.20.1
 alembic-postgresql-enum
 Automat
 argon2-cffi

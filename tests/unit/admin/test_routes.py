@@ -91,6 +91,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization_name.list",
+            "/admin/organization_names/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,

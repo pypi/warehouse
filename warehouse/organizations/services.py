@@ -159,7 +159,9 @@ class DatabaseOrganizationService:
 
         return organization_application
 
-    def approve_organization_application(self, organization_application_id, request):
+    def approve_organization_application(
+        self, organization_application_id, request, claim_orphaned_name=False
+    ):
         """
         Performs operations necessary to approve an OrganizationApplication
         """
@@ -189,7 +191,7 @@ class DatabaseOrganizationService:
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
 
-        self.add_catalog_entry(organization.id)
+        self.add_catalog_entry(organization.id, claim_orphaned_name=claim_orphaned_name)
         organization.record_event(
             tag=EventTag.Organization.CatalogEntryAdd,
             request=request,
@@ -329,7 +331,7 @@ class DatabaseOrganizationService:
 
         return organization_application
 
-    def add_catalog_entry(self, organization_id):
+    def add_catalog_entry(self, organization_id, claim_orphaned_name=False):
         """
         Adds the organization name to the organization name catalog
         """
@@ -349,7 +351,10 @@ class DatabaseOrganizationService:
                 )
                 .one()
             )
-            if catalog_entry.organization_id != organization.id:
+            if catalog_entry.organization_id is None and claim_orphaned_name:
+                # Name held by a deleted organization: hand it to this one.
+                catalog_entry.organization_id = organization.id
+            elif catalog_entry.organization_id != organization.id:
                 raise ValueError(
                     f'Organization name "{organization.normalized_name}" has been used'
                 )

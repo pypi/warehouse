@@ -136,6 +136,11 @@
                   <i class="fa fa-building nav-icon"></i> <p>All organizations</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.organization_name.list') }}" class="nav-link">
+                  <i class="fa fa-lock nav-icon"></i> <p>Locked names</p>
+                </a>
+              </li>
               {% endif %}
             </ul>
           </li>
