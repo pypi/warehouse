@@ -19,6 +19,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.checks import reachable_email
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -40,6 +41,11 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
+
+# Competing applications declined when another application for the name is approved.
+DECLINED_ON_APPROVAL_STATUSES = frozenset(
+    {OrganizationApplicationStatus.Submitted, OrganizationApplicationStatus.Deferred}
+)
 
 
 if typing.TYPE_CHECKING:
@@ -233,18 +239,30 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
+        applicant = organization_application.submitted_by
         send_new_organization_approved_email(
             request,
-            organization_application.submitted_by,
+            (applicant, reachable_email(applicant)),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message=message,
         )
 
         for competing_application in self.get_organization_applications_by_name(
-            organization_application.name, undecided=True
+            organization_application.name
         ):
-            self.decline_organization_application(competing_application.id, request)
+            if competing_application.status not in DECLINED_ON_APPROVAL_STATUSES:
+                continue
+            if competing_application.submitted_by_id == (
+                organization_application.submitted_by_id
+            ):
+                # The applicant already got the approval email; don't also send
+                # them a decline for their own duplicate application.
+                competing_application.status = OrganizationApplicationStatus.Declined
+            else:
+                # The reviewer's message was written for the approved applicant;
+                # competitors get the bare decline.
+                self.decline_organization_application(competing_application.id, request)
 
         return organization
 
@@ -283,9 +301,10 @@ class DatabaseOrganizationService:
                 kind=ObservationKind.InformationRequest,
                 payload={"message": message},
             )
+            applicant = organization_application.submitted_by
             send_new_organization_moreinformationneeded_email(
                 request,
-                organization_application.submitted_by,
+                (applicant, reachable_email(applicant)),
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
                 message=message,
@@ -312,7 +331,9 @@ class DatabaseOrganizationService:
             return organization_application
         raise ValueError
 
-    def decline_organization_application(self, organization_application_id, request):
+    def decline_organization_application(
+        self, organization_application_id, request, message=""
+    ):
         """
         Performs operations necessary to decline an OrganizationApplication
         """
@@ -321,10 +342,12 @@ class DatabaseOrganizationService:
         )
         organization_application.status = OrganizationApplicationStatus.Declined
 
-        message = request.params.get("message", "")
         send_new_organization_declined_email(
             request,
-            organization_application.submitted_by,
+            (
+                organization_application.submitted_by,
+                reachable_email(organization_application.submitted_by),
+            ),
             organization_name=organization_application.name,
             message=message,
         )
