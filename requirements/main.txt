@@ -633,9 +633,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.284 \
-    --hash=sha256:20ef4b3ad786f6aa084785e1bf93d7b73d2359158ef9e4b0a1dbe4e30fe6faec \
-    --hash=sha256:324d42c4992bd0a1b067b0912737f7bb11fdb44e65e3e05ce6a8cdd32c9ead63
+disposable-email-domains==0.0.286 \
+    --hash=sha256:39bee6621647f95021513f922fa65947adea089e888adb39efc9bc9ff64b41fb \
+    --hash=sha256:938d5412897bc913e7e976e19635dffa4e1636ba5ff755755ecc24925780c9f1
     # via -r requirements/main.in
 dnspython==2.9.1 \
     --hash=sha256:7c81caf8de1ed57b8cfc7e0ad4f528a0b8ceace473c7eb946df195dc9def751f \
@@ -2666,10 +2666,12 @@ wrapt==2.2.2 \
     --hash=sha256:fa81c5b5fe8cd6c41e3a798533b81288279e5fdbde2128f21071922764281c99 \
     --hash=sha256:fb18fc51e813df0d9c98049e3bf2298a5495a648602040e21fa3c7329371159e
     # via deprecated
-wtforms[email]==3.2.2 \
-    --hash=sha256:72b90d5d921bd3119252069cf0301e9c13915f9e52792652bc91c5dda4b79e56 \
-    --hash=sha256:7b00c73f8670f35d4edb0293dcd81b980528bee72fd662b182aaba27ae570b93
-    # via -r requirements/main.in
+wtforms[email]==3.3.1 \
+    --hash=sha256:2f4728ef3f67173c22590e60e845937598af7455474330fdb84354a609d67ec1 \
+    --hash=sha256:9d10ccb5740290c9ae6673522d87bcae3b669cf0cb4e4584aee229b4694af10c
+    # via
+    #   -r requirements/main.in
+    #   wtforms
 yara-x==1.22.0 \
     --hash=sha256:066e86533b7143ee96bb80e36b683eb25dad8bc4c064603802d3a8cbbd97f03e \
     --hash=sha256:1472591e7ec4a07be0e63383235fc2e8908b6d7d510b98d210068ffde30bbe10 \
