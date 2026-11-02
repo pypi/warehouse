@@ -79,7 +79,7 @@ if (element) {
       title: "2FA",
       field: "has_two_factor",
       formatter: checkCell("text-green"),
-      width: 70,
+      width: 90,
     },
     {
       title: "Frozen",
