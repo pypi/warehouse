@@ -120,6 +120,7 @@ class TestDatabaseOrganizationService:
 
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
+        db_request.params["message"] = "Approved, you were first"
 
         organization_application = OrganizationApplicationFactory.create()
         competing_organization_application = OrganizationApplicationFactory.create(
@@ -192,8 +193,9 @@ class TestDatabaseOrganizationService:
             (organization_application.submitted_by, None),
             organization_name=organization.name,
             organization_type=organization.orgtype,
-            message="",
+            message="Approved, you were first",
         )
+        # The approval message must not leak into competitors' decline emails.
         send_declined.assert_called_once_with(
             db_request,
             (competing_organization_application.submitted_by, None),
