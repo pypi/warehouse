@@ -82,6 +82,39 @@ def test_unreachable_applicant_blocks_information_requests(webtest, login_admin)
     assert detail.html.select(".org-review-check-ask") == []
 
 
+def test_applicant_reachable_at_verified_secondary(webtest, login_admin):
+    login_admin(is_org_application_reviewer=True)
+    application = OrganizationApplicationFactory.create(link_url="https://acme.com")
+    EmailFactory.create(
+        user=application.submitted_by, email="jdoe@acme.com", verified=False
+    )
+    EmailFactory.create(
+        user=application.submitted_by,
+        email="jdoe@gmail.com",
+        verified=True,
+        primary=False,
+    )
+
+    detail = webtest.get(f"{APPLICATIONS}{application.id}/", status=HTTPStatus.OK)
+
+    assert detail.html.select_one(".alert-danger") is None
+    request_info = detail.html.select_one('[data-target="#requestMoreInfoModal"]')
+    assert not request_info.has_attr("disabled")
+    page_text = " ".join(detail.html.get_text().split())
+    assert "Emails go to jdoe@gmail.com instead." in page_text
+
+    # The preview carries the same set-primary notice the applicant receives.
+    preview = webtest.post(
+        f"{APPLICATIONS}{application.id}/requestmoreinfo/preview/",
+        {
+            "csrf_token": detail.forms["editModalForm"]["csrf_token"].value,
+            "message": "Please clarify.",
+        },
+        status=HTTPStatus.OK,
+    ).json
+    assert "set a verified email address as your primary" in preview["body"]
+
+
 def test_gitlab_application_suggests_gitlab_reply(webtest, login_admin):
     login_admin(is_org_application_reviewer=True)
     application = OrganizationApplicationFactory.create(
