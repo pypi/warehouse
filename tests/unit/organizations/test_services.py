@@ -33,6 +33,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.models import StripeSubscription
 
+from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationDeactivationNoticeFactory,
@@ -188,14 +189,14 @@ class TestDatabaseOrganizationService:
 
         send_approved.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (organization_application.submitted_by, None),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message="",
         )
         send_declined.assert_called_once_with(
             db_request,
-            competing_organization_application.submitted_by,
+            (competing_organization_application.submitted_by, None),
             organization_name=competing_organization_application.name,
             message="",
         )
@@ -264,6 +265,10 @@ class TestDatabaseOrganizationService:
         db_request.params["message"] = "some message"
 
         organization_application = OrganizationApplicationFactory.create()
+        # An unverified primary falls back to the applicant's verified address.
+        applicant = organization_application.submitted_by
+        EmailFactory.create(user=applicant, verified=False)
+        fallback = EmailFactory.create(user=applicant, verified=True, primary=False)
         organization_service.request_more_information(
             organization_application.id, db_request
         )
@@ -275,7 +280,7 @@ class TestDatabaseOrganizationService:
         )
         send_email.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (applicant, fallback),
             organization_name=organization_application.name,
             organization_application_id=organization_application.id,
             message="some message",
@@ -353,7 +358,7 @@ class TestDatabaseOrganizationService:
         assert organization_application.status == OrganizationApplicationStatus.Declined
         send_email.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (organization_application.submitted_by, None),
             organization_name=organization_application.name,
             message="",
         )

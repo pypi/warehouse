@@ -20,7 +20,7 @@ from tldextract import TLDExtract
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
-from warehouse.accounts.models import OAuthAccountAssociation, User
+from warehouse.accounts.models import Email, OAuthAccountAssociation, User
 from warehouse.organizations.constants import (
     MIN_SUBSTRING_LENGTH,
     NAME_SIMILARITY_THRESHOLD,
@@ -252,10 +252,18 @@ def _name_domain_check(
     )
 
 
+def reachable_email(user: User) -> Email | None:
+    """Where mail to this user should go: their primary, else any other verified."""
+    verified = sorted(
+        (email for email in user.emails if email.verified),
+        key=lambda email: (not email.primary, email.id),
+    )
+    return verified[0] if verified else None
+
+
 def can_email(user: User) -> bool:
-    """Whether `_send_email_to_user` will deliver to this user's primary address."""
-    primary = user.primary_email
-    return primary is not None and primary.verified
+    """Whether organization application emails can reach this user."""
+    return reachable_email(user) is not None
 
 
 def _email_verified_check(user: User) -> Check:
@@ -264,14 +272,23 @@ def _email_verified_check(user: User) -> Check:
     )
 
     primary = user.primary_email
+    if primary is not None and primary.verified:
+        return check(CheckStatus.Ok, f"{primary.email} is verified.")
+    if fallback := reachable_email(user):
+        unverified = (
+            f"{primary.email} is unverified"
+            if primary is not None
+            else "No primary email address on this account"
+        )
+        return check(
+            CheckStatus.Warn, f"{unverified}. Emails go to {fallback.email} instead."
+        )
     if primary is None:
         return check(CheckStatus.Fail, "No primary email address on this account.")
-    if not primary.verified:
-        return check(
-            CheckStatus.Fail,
-            f"{primary.email} is unverified. No email will reach the applicant.",
-        )
-    return check(CheckStatus.Ok, f"{primary.email} is verified.")
+    return check(
+        CheckStatus.Fail,
+        f"{primary.email} is unverified. No email will reach the applicant.",
+    )
 
 
 def _account_association_check(

@@ -125,9 +125,9 @@
     </h2>
     <p class="lead mb-0">
       {% if primary_email %}
-      Their primary email, <strong>{{ primary_email.email }}</strong>, is unverified.
+      Their primary email, <strong>{{ primary_email.email }}</strong>, is unverified, and they have no other verified email.
       {% else %}
-      Their account has no primary email address.
+      Their account has no verified email address.
       {% endif %}
       PyPI will not send them approval, decline, or information request emails.
       Request Info is disabled.
