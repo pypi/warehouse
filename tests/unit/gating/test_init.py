@@ -15,9 +15,6 @@ class _StubPolicy:
     timeout = None
     timeout_status = None
 
-    def applies(self, release, request):
-        return True
-
 
 def _config(settings=None):
     return pretend.stub(

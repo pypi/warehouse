@@ -39,6 +39,7 @@ from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.forklift import legacy, metadata
 from warehouse.gating.interfaces import IGateService
+from warehouse.gating.services import GateService
 from warehouse.macaroons import IMacaroonService, caveats
 from warehouse.metrics import IMetricsService
 from warehouse.metrics.services import NullMetrics
@@ -5995,6 +5996,63 @@ class TestFileUpload:
             ("example", "1.0", "new release", user),
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
+
+    def test_upload_opens_a_gate_and_records_metric(
+        self, pyramid_config, db_request, project_service, storage_service
+    ):
+        class _HoldEverything:
+            kind = "test-gate"
+            timeout = None
+            timeout_status = None
+
+            def applies(self, release, request):
+                return True
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": _content_field(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        gate_service = GateService(db_request.db, policies=[_HoldEverything()])
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
+            IFileStorage: storage_service,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+        assert release.gated is True
+        assert (
+            mock.call("warehouse.upload.gated", tags=["kind:test-gate"])
+            in db_request.metrics.increment.call_args_list
+        )
 
     def test_upload_succeeds_with_gpg_signature_field(
         self, pyramid_config, db_request, project_service, storage_service, gate_service
