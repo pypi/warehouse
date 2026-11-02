@@ -595,6 +595,11 @@ def cancel_organization_subscription(request):
     )
 
 
+def _gitlab_associations(request: Request) -> bool:
+    # GitLab account linking is optional; see warehouse.accounts.includeme.
+    return bool(request.registry.settings.get("gitlab.oauth.backend"))
+
+
 def _check_summaries(
     request: Request, applications: Sequence[OrganizationApplication]
 ) -> dict[UUID, dict[CheckStatus, list[str]]]:
@@ -645,6 +650,7 @@ def _check_summaries(
                 if rival.id != application.id
             ],
             project_count=project_counts.get(application.submitted_by_id, 0),
+            gitlab_associations=_gitlab_associations(request),
         )
         summaries[application.id] = {
             status: [check.label for check in checks if check.status == status]
@@ -866,7 +872,12 @@ def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSe
 
     user = user_service.get_user(organization_application.submitted_by_id)
 
-    checks = review_checks(organization_application, user, conflicting_applications)
+    checks = review_checks(
+        organization_application,
+        user,
+        conflicting_applications,
+        gitlab_associations=_gitlab_associations(request),
+    )
 
     submitted = request.db.query(OrganizationApplication).filter(
         OrganizationApplication.status == OrganizationApplicationStatus.Submitted
