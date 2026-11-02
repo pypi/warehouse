@@ -12,11 +12,16 @@ import stripe
 import structlog
 
 from pyramid_retry import RetryableException
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, exists, or_, select
 from sqlalchemy.orm import joinedload, selectinload
 
 from warehouse import tasks
-from warehouse.accounts.interfaces import ITokenService, TokenException, TokenExpired
+from warehouse.accounts.interfaces import (
+    ITokenService,
+    IUserService,
+    TokenException,
+    TokenExpired,
+)
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
@@ -24,6 +29,7 @@ from warehouse.email import (
     send_organization_subscription_required_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.checks import reachable_email
 from warehouse.organizations.constants import (
     CLEANUP_AFTER,
@@ -32,6 +38,7 @@ from warehouse.organizations.constants import (
     DEACTIVATIONS_PER_DAY,
     RECONCILE_MAX_DOWNGRADES,
     SUBSCRIPTION_NOTICE_AFTER,
+    UNDEFER_AFTER,
 )
 from warehouse.organizations.models import (
     Organization,
@@ -42,6 +49,7 @@ from warehouse.organizations.models import (
     OrganizationDeactivationSchedule,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationNameCatalog,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationStripeSubscription,
@@ -126,6 +134,41 @@ def delete_declined_organization_applications(request):
 
     for organization_application in organization_applications:
         request.db.delete(organization_application)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def undefer_organization_applications(request: Request) -> None:
+    """Return applications deferred for `UNDEFER_AFTER` to the review queue."""
+    organization_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(
+            OrganizationApplication.status == OrganizationApplicationStatus.Deferred,
+            OrganizationApplication.updated < (dt.datetime.now(dt.UTC) - UNDEFER_AFTER),
+            # A name another organization now holds can't be approved; leave it.
+            ~exists().where(
+                OrganizationNameCatalog.normalized_name
+                == OrganizationApplication.normalized_name,
+                OrganizationNameCatalog.organization_id.is_not(None),
+            ),
+        )
+        # Lock so a concurrent approve, decline or withdraw isn't overwritten.
+        .with_for_update(skip_locked=True)
+        .all()
+    )
+    if not organization_applications:
+        return
+
+    admin = request.find_service(IUserService).get_admin_user()
+    message = f"Returned to review after {UNDEFER_AFTER.days} days deferred."
+    for organization_application in organization_applications:
+        organization_application.status = OrganizationApplicationStatus.Submitted
+        organization_application.record_observation(
+            request=request,
+            actor=admin,
+            summary="Admin note added",
+            kind=ObservationKind.AdminNote,
+            payload={"message": message},
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

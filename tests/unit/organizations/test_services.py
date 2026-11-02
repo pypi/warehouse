@@ -120,6 +120,7 @@ class TestDatabaseOrganizationService:
 
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
+        db_request.params["message"] = "Approved, you were first"
 
         organization_application = OrganizationApplicationFactory.create()
         competing_organization_application = OrganizationApplicationFactory.create(
@@ -192,8 +193,9 @@ class TestDatabaseOrganizationService:
             (organization_application.submitted_by, None),
             organization_name=organization.name,
             organization_type=organization.orgtype,
-            message="",
+            message="Approved, you were first",
         )
+        # The approval message must not leak into competitors' decline emails.
         send_declined.assert_called_once_with(
             db_request,
             (competing_organization_application.submitted_by, None),
@@ -241,6 +243,73 @@ class TestDatabaseOrganizationService:
             "role_name": "Owner",
             "redact_ip": True,
         }
+
+    @pytest.mark.parametrize(
+        ("competing_status", "expected_status"),
+        [
+            (
+                OrganizationApplicationStatus.Deferred,
+                OrganizationApplicationStatus.Declined,
+            ),
+            (
+                OrganizationApplicationStatus.MoreInformationNeeded,
+                OrganizationApplicationStatus.MoreInformationNeeded,
+            ),
+        ],
+    )
+    def test_approve_organization_application_competing_status(
+        self,
+        db_request,
+        organization_service,
+        mocker,
+        competing_status,
+        expected_status,
+    ):
+        mocker.patch.object(services, "send_new_organization_approved_email")
+        mocker.patch.object(services, "send_new_organization_declined_email")
+        db_request.user = UserFactory(username="admin", is_superuser=True)
+        organization_application = OrganizationApplicationFactory.create()
+        competing_organization_application = OrganizationApplicationFactory.create(
+            name=organization_application.name, status=competing_status
+        )
+
+        organization_service.approve_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert competing_organization_application.status == expected_status
+
+    @pytest.mark.parametrize(
+        "competing_status",
+        [
+            OrganizationApplicationStatus.Submitted,
+            OrganizationApplicationStatus.Deferred,
+        ],
+    )
+    def test_approve_organization_application_same_submitter_not_emailed(
+        self, db_request, organization_service, mocker, competing_status
+    ):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        send_declined = mocker.patch.object(
+            services, "send_new_organization_declined_email"
+        )
+        db_request.user = UserFactory(username="admin", is_superuser=True)
+        organization_application = OrganizationApplicationFactory.create()
+        own_application = OrganizationApplicationFactory.create(
+            name=organization_application.name,
+            submitted_by=organization_application.submitted_by,
+            status=competing_status,
+        )
+
+        organization_service.approve_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert own_application.status == OrganizationApplicationStatus.Declined
+        send_approved.assert_called_once()
+        send_declined.assert_not_called()
 
     def test_defer_organization_application(self, db_request, organization_service):
         admin = UserFactory(username="admin", is_superuser=True)

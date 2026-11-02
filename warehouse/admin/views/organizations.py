@@ -1152,7 +1152,9 @@ def organization_application_decline(request: Request) -> HTTPSeeOther:
     _require_undecided(request, organization_application)
 
     organization_service.decline_organization_application(
-        organization_application.id, request
+        organization_application.id,
+        request,
+        message=request.params.get("message", ""),
     )
 
     request.session.flash(
