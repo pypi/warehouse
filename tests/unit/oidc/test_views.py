@@ -18,7 +18,7 @@ from tests.common.db.oidc import (
     GooglePublisherFactory,
     PendingGitHubPublisherFactory,
 )
-from tests.common.db.organizations import OrganizationFactory
+from tests.common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 from tests.common.db.packaging import (
     ProhibitedProjectFactory,
     ProjectFactory,
@@ -31,13 +31,13 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import GitHubPublisher
+from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.views import (
     is_from_reusable_workflow,
     should_send_environment_warning_email,
 )
-from warehouse.organizations.models import OrganizationProject
+from warehouse.organizations.models import OrganizationProject, OrganizationRoleType
 from warehouse.packaging import services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
@@ -452,6 +452,11 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     """Test creating a project from an organization-owned pending publisher"""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
 
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
@@ -556,6 +561,11 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
     publisher was never reified."""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
 
     PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
@@ -585,6 +595,114 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
         "errors": [{"code": "rate-limited", "description": expected_description}],
     }
     assert db_request.tm.isDoomed()
+
+
+@pytest.mark.parametrize(
+    "role_name",
+    [None, OrganizationRoleType.Member],
+    ids=["removed-member", "demoted-member"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
+    db_request, role_name
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    if role_name is not None:
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=role_name,
+        )
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+    expected_event_additional = {
+        "project": pending_publisher.project_name,
+        "publisher": pending_publisher.publisher_name,
+        "id": str(pending_publisher.id),
+        "specifier": str(pending_publisher),
+        "url": pending_publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "redact_ip": True,
+    }
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": (
+                    "valid token, but organization pending publisher is no longer valid"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == []
+    assert db_request.db.query(Project).all() == []
+    org_event = organization.events.one()
+    assert org_event.tag == EventTag.Organization.PendingOIDCPublisherRemoved
+    assert org_event.additional == {
+        "organization_name": organization.name,
+        **expected_event_additional,
+    }
+    user_event = user.events.one()
+    assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
+    assert user_event.additional == expected_event_additional
+
+
+def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_standing(
+    db_request,
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create(is_active=False)
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": "valid token, but organization is not active",
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == []
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(

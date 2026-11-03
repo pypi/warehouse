@@ -4128,7 +4128,7 @@ class TestManageProjectRelease:
 
         db_request.POST = {
             "confirm_project_name": release.project.name,
-            "file_id": release_file.id,
+            "file_id": str(release_file.id),
             **dict.fromkeys(DELETE_FILE_ACKNOWLEDGMENTS, "on"),
         }
         db_request.method = ("POST",)
@@ -5193,7 +5193,9 @@ class TestChangeProjectRole:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
+        db_request.POST = MultiDict(
+            {"role_id": str(role.id), "role_name": new_role_name}
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5303,7 +5305,9 @@ class TestChangeProjectRole:
 
         db_request.method = "POST"
         db_request.user = user
-        db_request.POST = MultiDict({"role_id": role.id, "role_name": "Maintainer"})
+        db_request.POST = MultiDict(
+            {"role_id": str(role.id), "role_name": "Maintainer"}
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5327,7 +5331,7 @@ class TestDeleteProjectRole:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5403,7 +5407,7 @@ class TestDeleteProjectRole:
 
         db_request.method = "POST"
         db_request.user = user
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5426,7 +5430,7 @@ class TestDeleteProjectRole:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": role_2.id})
+        db_request.POST = MultiDict({"role_id": str(role_2.id)})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5483,7 +5487,7 @@ class TestDeleteProjectRole:
 
         db_request.method = "POST"
         db_request.user = some_other_user
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -5796,3 +5800,69 @@ class TestArchiveProject:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert project.lifecycle_status == "quarantine-enter"
+
+
+class TestUnusableIdNotFound:
+    """A posted id that can't be a UUID finds no row instead of a 500."""
+
+    @pytest.fixture
+    def id_request(self, db_request, mocker):
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        mocker.spy(db_request.session, "flash")
+        return db_request
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_delete_project_release_file(self, id_request, value):
+        release = ReleaseFactory.create()
+        id_request.POST = MultiDict(
+            {"confirm_project_name": release.project.name, "file_id": value}
+        )
+
+        result = views.ManageProjectRelease(
+            release, id_request
+        ).delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        id_request.session.flash.assert_called_once_with(
+            "Could not find file", queue="error"
+        )
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_change_project_role(self, id_request, value):
+        project = ProjectFactory.create()
+        id_request.POST = MultiDict({"role_id": value, "role_name": "Owner"})
+
+        result = views.change_project_role(project, id_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        id_request.session.flash.assert_called_once_with(
+            "Could not find role", queue="error"
+        )
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_delete_project_role(self, id_request, value):
+        project = ProjectFactory.create()
+        id_request.POST = MultiDict({"role_id": value})
+
+        result = views.delete_project_role(project, id_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        id_request.session.flash.assert_called_once_with(
+            "Could not find role", queue="error"
+        )
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_revoke_project_role_invitation(self, id_request, value):
+        project = ProjectFactory.create()
+        id_request.POST = MultiDict({"user_id": value})
+
+        result = views.revoke_project_role_invitation(project, id_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        id_request.session.flash.assert_called_once_with(
+            "Could not find role invitation.", queue="error"
+        )

@@ -1457,7 +1457,7 @@ def update_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1487,7 +1487,9 @@ def update_organization_role(request):
     old_role_name = role.role_name.value
 
     # Update the role
-    role.role_name = OrganizationRoleType(new_role_name)
+    organization_service.update_organization_role(
+        role.id, OrganizationRoleType(new_role_name), request
+    )
 
     # Record the event
     organization.record_event(
@@ -1531,7 +1533,7 @@ def delete_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1566,7 +1568,7 @@ def delete_organization_role(request):
         queue="success",
     )
 
-    request.db.delete(role)
+    organization_service.delete_organization_role(role.id, request)
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
