@@ -64,7 +64,7 @@ def test_list_classifiers(db_request):
 
 
 def test_search(pyramid_request, mocker):
-    term = mocker.sentinel.term
+    term = "requests"
     pyramid_request.params = {"term": term}
     route_path = mocker.patch.object(
         pyramid_request, "route_path", autospec=True, return_value="/the/path"

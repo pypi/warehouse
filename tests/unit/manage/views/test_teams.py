@@ -582,7 +582,7 @@ class TestManageTeamHistory:
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
@@ -611,7 +611,7 @@ class TestManageTeamHistory:
 
     def test_last_page(self, db_request, user_service):
         page_number = 2
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
@@ -640,7 +640,7 @@ class TestManageTeamHistory:
 
     def test_raises_404_with_out_of_range_page(self, db_request):
         page_number = 3
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
