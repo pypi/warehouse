@@ -501,6 +501,7 @@ def app_config_dbsession_from_env(database):
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
         "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
+        "token.remember_device.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
     }
