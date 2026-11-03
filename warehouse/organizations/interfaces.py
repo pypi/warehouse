@@ -60,7 +60,9 @@ class IOrganizationService(Interface):
         Performs operations necessary to approve an organization
         """
 
-    def decline_organization_application(organization_application_id, request):
+    def decline_organization_application(
+        organization_application_id, request, message=""
+    ):
         """
         Performs operations necessary to reject approval of an organization
         """
