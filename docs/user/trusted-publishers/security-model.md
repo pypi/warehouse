@@ -23,12 +23,12 @@ tool in the toolbelt for securing packages.
 
 ## General considerations
 
-* Trusted Publishing uses short-lived API tokens that expire 
+* Trusted Publishing uses short-lived API tokens that expire
   no more than 15 minutes after the OIDC flow that authorizes them.
   Just like normal API authentication, Trusted Publishing
   does not assert the safety of the code or the trustworthiness
   of its authors.
- 
+
 * Trusted Publishing does not address whether the package has been modified
   before or after it was built. [Attestations] can address those risks.
 
@@ -78,9 +78,8 @@ own security model and considerations.
       of a repository **cannot** access the OIDC tokens in the "upstream"
       repository's workflows.
 
-      * The exception to this is `pull_request_target` events, which are
-        **[fundamentally dangerous] by design** and should not be used without
-        careful consideration.
+        * PyPI blocks the main exceptions to this. See [Troubleshooting - Forbidden triggers on GitHub]
+          for more information.
 
     <h3>Considerations</h3>
 
@@ -299,7 +298,7 @@ own security model and considerations.
 
 [Attestations]: ../attestations/index.md
 
-[fundamentally dangerous]: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+[Troubleshooting - Forbidden triggers on GitHub]: ./troubleshooting.md#forbidden-triggers-on-github
 
 [Use a dedicated environment]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
 
