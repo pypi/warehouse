@@ -2,8 +2,10 @@
 
 """Utils for rendering and updating package descriptions (READMEs)."""
 
+import functools
+
 from email.message import EmailMessage
-from importlib.metadata import distribution
+from importlib.metadata import PackageNotFoundError, distribution
 
 import readme_renderer.markdown
 import readme_renderer.rst
@@ -16,6 +18,13 @@ _RENDERERS = {
     "text/x-rst": readme_renderer.rst,
     "text/markdown": readme_renderer.markdown,
 }
+
+# Packages that readme-renderer relies on to actually produce its output.
+# A version bump in any of these can change the rendered HTML for a given
+# description, even if readme-renderer's own version hasn't changed, so they
+# need to be considered when deciding whether a description is stale.
+# See https://github.com/pypi/warehouse/issues/19232
+_RENDERER_DEPENDENCIES = ["docutils", "Pygments", "nh3", "cmarkgfm", "comrak"]
 
 
 def render(value, content_type=None, use_fallback=True):
@@ -50,5 +59,15 @@ def render(value, content_type=None, use_fallback=True):
     return rendered
 
 
+@functools.cache
 def renderer_version():
-    return distribution("readme-renderer").version
+    versions = [f"readme-renderer=={distribution('readme-renderer').version}"]
+    for package in _RENDERER_DEPENDENCIES:
+        try:
+            versions.append(f"{package}=={distribution(package).version}")
+        except PackageNotFoundError:
+            # Not all of readme-renderer's rendering dependencies are
+            # installed in every environment (e.g. its markdown backend has
+            # changed over time), so skip whichever aren't present.
+            continue
+    return ",".join(versions)
