@@ -23,6 +23,13 @@
 
   // Rendered inside .footer, which sets white text; keep the body text color.
   color: colors.$text-color;
+
+  // .footer a would otherwise turn these links white on this block's light
+  // background; keep the standard link colors they had outside the footer.
+  a {
+    @include link-utilities.primary-underlined-link;
+  }
+
   font-size: fonts.$small-font-size;
   text-align: center;
   padding: grid.$half-spacing-unit grid.$spacing-unit;
