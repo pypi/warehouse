@@ -9,6 +9,8 @@ def _fake_route_path(name, **kw):
         return f"/admin/users/{kw['username']}/"
     if name == "admin.project.detail":
         return f"/admin/projects/{kw['project_name']}/"
+    if name == "admin.organization.detail":
+        return f"/admin/organizations/{kw['organization_id']}/"
     if name == "admin.organization_application.detail":
         return f"/admin/organization_applications/{kw['organization_application_id']}/"
     raise AssertionError(f"unexpected route: {name}")  # pragma: no cover
