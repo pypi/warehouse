@@ -504,27 +504,27 @@
             data-viewport-toggle-target="switchToDesktop"
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
-</footer>
-{% include "warehouse:templates/includes/sponsors-footer.html" %}
-<div class="legal-footer">
-  <ul>
-    <li>{{ trademarks() }}</li>
-    <li>
-      © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
+  {% include "warehouse:templates/includes/sponsors-footer.html" %}
+  <div class="legal-footer">
+    <ul>
+      <li>{{ trademarks() }}</li>
+      <li>
+        © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
     title="{% trans %}External link{% endtrans %}"
     target="_blank"
     rel="noopener">Python Software Foundation</a>
-    </li>
-    <li>
-      <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
-    </li>
-    {% if source_commit and source_commit != "null" %}
-      <li>
-        {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
       </li>
-    {% endif %}
-  </ul>
-</div>
+      <li>
+        <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+      </li>
+      {% if source_commit and source_commit != "null" %}
+        <li>
+          {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</footer>
 {% endblock body %}
 </body>
 </html>

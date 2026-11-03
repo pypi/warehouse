@@ -27,6 +27,10 @@
   align-items: flex-start;
   gap: grid.$spacing-unit;
   text-align: center;
+
+  // Rendered inside the <footer> landmark; keep the page background so the
+  // row looks the same as when it sat outside the footer.
+  background-color: colors.$background-color;
   padding: grid.$spacing-unit;
 
   @media only screen and (max-width: breakpoints.$small-tablet) {
@@ -77,6 +81,6 @@
     display: block;
     margin-top: 2px;
     font-size: fonts.$small-font-size;
-    color: color.adjust(colors.$text-color, $alpha: -0.4);
+    color: color.adjust(colors.$text-color, $alpha: -0.25);
   }
 }

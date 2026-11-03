@@ -33,19 +33,23 @@ $footer-narrow-width: 1100px;
     <div class="footer__switch-viewport">    // mobile-only, hidden on desktop
       <button>Switch to desktop version</button>
     </div>
+    <div class="sponsors">...</div>          // see blocks/_sponsors.scss
+    <div class="legal-footer">...</div>      // see blocks/_legal-footer.scss
   </footer>
-  <div class="legal-footer">...</div>          // see blocks/_legal-footer.scss
 */
 
 .footer {
   background-color: color.adjust(colors.$primary-color, $lightness: 1%);
   color: colors.$white;
-  padding: 40px 0;
+
+  // No bottom padding: the sponsors row and legal footer render inside the
+  // footer (for landmark navigation) and provide the closing spacing.
+  padding: 40px 0 0;
   width: 100%;
   font-size: 0.9rem;
 
   @media only screen and (max-width: breakpoints.$mobile) {
-    padding: grid.$spacing-unit 0 20px;
+    padding: grid.$spacing-unit 0 0;
   }
 
   a {
@@ -112,7 +116,7 @@ $footer-narrow-width: 1100px;
 
   &__tagline {
     margin-top: grid.$half-spacing-unit;
-    color: color.adjust(colors.$white, $alpha: -0.2);
+    color: color.adjust(colors.$white, $alpha: -0.1);
 
     @media only screen and (max-width: breakpoints.$tablet) {
       max-width: 100%;
@@ -145,6 +149,21 @@ $footer-narrow-width: 1100px;
 
     .button {
       border-color: color.adjust(colors.$white, $alpha: -0.15);
+
+      // The generic .button hover/focus colors are dark blue, which is
+      // nearly unreadable on the footer background. Keep the label white
+      // and use a thicker, high-contrast outline for keyboard focus.
+      &:hover,
+      &:focus,
+      &:active {
+        border-color: colors.$white;
+        color: colors.$white;
+      }
+
+      &:focus-visible {
+        outline: 2px solid colors.$white;
+        outline-offset: 2px;
+      }
     }
   }
 
