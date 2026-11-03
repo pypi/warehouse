@@ -107,9 +107,11 @@ if (element) {
     placeholder: "No matching organizations",
     initialSort: [{ column: "name", dir: "asc" }],
     initialHeaderFilter: initialHeaderFilter,
+    columnHeaderVertAlign: "bottom",
     columnDefaults: {
       headerSort: false,
       headerMenu: columnVisibilityMenu,
+      headerWordWrap: true,
     },
     columns: columns,
   });
