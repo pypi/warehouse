@@ -78,9 +78,15 @@ own security model and considerations.
       of a repository **cannot** access the OIDC tokens in the "upstream"
       repository's workflows.
 
-      * The exception to this is `pull_request_target` events, which are
-        **[fundamentally dangerous] by design** and should not be used without
-        careful consideration.
+      * The exceptions to this are `pull_request_target` and `issue_comment`
+        events: workflows triggered by either of them run in the context of
+        the repository itself, so GitHub will issue them an OIDC token.
+        Both triggers are **[fundamentally dangerous] by design**, and PyPI
+        rejects them for Trusted Publishing: when a token from either trigger
+        is presented for exchange, the exchange fails with
+        `Publishing via an insecure trigger (<trigger>) is not supported.`
+        See [Forbidden triggers on GitHub](troubleshooting.md#forbidden-triggers-on-github)
+        for the current list of forbidden triggers.
 
     <h3>Considerations</h3>
 
