@@ -10,6 +10,7 @@ Originally scoped to `manage/views`, some helpers here (e.g.
 from __future__ import annotations
 
 import typing
+import uuid
 
 from sqlalchemy import func
 
@@ -33,6 +34,18 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+
+def parse_uuid(value: str) -> uuid.UUID | None:
+    """
+    Return a posted id as a UUID, or None when it can't be one.
+
+    A non-UUID string fails in Postgres instead of finding no row.
+    """
+    try:
+        return uuid.UUID(value)
+    except ValueError, TypeError, AttributeError:
+        return None
 
 
 def project_owners(request, project):

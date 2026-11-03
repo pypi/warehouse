@@ -22,7 +22,7 @@ from warehouse.events.tags import EventTag
 from warehouse.manage.views import oidc_publishers as oidc_views
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, GitLabPublisher, OIDCPublisher
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter, RateLimiter
 
@@ -546,6 +546,20 @@ class TestManageOIDCPublisherViews:
             f"constrained to environment 'fakeenv'",
             queue="success",
         )
+
+    def test_manage_project_oidc_publishers_constrain_environment_keeps_namespace_id(
+        self, constrain_request
+    ):
+        publisher = GitLabPublisherFactory.create(environment="", namespace_id="1234")
+        project = ProjectFactory.create(oidc_publishers=[publisher])
+        request = constrain_request(publisher.id)
+
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
+
+        assert isinstance(view.constrain_environment(), HTTPSeeOther)
+        constrained_publisher = request.db.scalars(select(GitLabPublisher)).one()
+        assert constrained_publisher.environment == "fakeenv"
+        assert constrained_publisher.namespace_id == "1234"
 
     def test_manage_project_oidc_publishers_constrain_environment_shared_publisher(
         self, constrain_request, metrics
