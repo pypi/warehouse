@@ -46,6 +46,7 @@ from warehouse.organizations.checks import (
     CheckStatus,
     application_domain,
     can_email,
+    reachable_email,
     review_checks,
 )
 from warehouse.organizations.interfaces import IOrganizationService
@@ -1054,7 +1055,7 @@ def organization_application_request_more_information(request: Request) -> HTTPS
     if not can_email(organization_application.submitted_by):
         request.session.flash(
             f'Cannot request more info for "{organization_application.name}": '
-            "the applicant has no verified primary email",
+            "the applicant has no verified email",
             queue="error",
         )
         return HTTPSeeOther(
@@ -1116,9 +1117,10 @@ def organization_application_request_more_information_preview(
     if organization_application is None:
         raise HTTPNotFound
 
+    applicant = organization_application.submitted_by
     context = inspect.unwrap(send_new_organization_moreinformationneeded_email)(
         request,
-        organization_application.submitted_by,
+        (applicant, reachable_email(applicant)),
         organization_name=organization_application.name,
         organization_application_id=organization_application.id,
         message=request.params.get("message", ""),
@@ -1150,7 +1152,9 @@ def organization_application_decline(request: Request) -> HTTPSeeOther:
     _require_undecided(request, organization_application)
 
     organization_service.decline_organization_application(
-        organization_application.id, request
+        organization_application.id,
+        request,
+        message=request.params.get("message", ""),
     )
 
     request.session.flash(
@@ -1384,7 +1388,7 @@ def update_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1414,7 +1418,9 @@ def update_organization_role(request):
     old_role_name = role.role_name.value
 
     # Update the role
-    role.role_name = OrganizationRoleType(new_role_name)
+    organization_service.update_organization_role(
+        role.id, OrganizationRoleType(new_role_name), request
+    )
 
     # Record the event
     organization.record_event(
@@ -1458,7 +1464,7 @@ def delete_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1493,7 +1499,7 @@ def delete_organization_role(request):
         queue="success",
     )
 
-    request.db.delete(role)
+    organization_service.delete_organization_role(role.id, request)
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)

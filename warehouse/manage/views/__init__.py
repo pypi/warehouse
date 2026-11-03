@@ -84,6 +84,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    parse_uuid,
     project_owners,
     user_organizations,
     user_projects,
@@ -1853,7 +1854,7 @@ class ManageProjectRelease:
                 self.request.db.query(File)
                 .filter(
                     File.release == self.release,
-                    File.id == self.request.POST.get("file_id"),
+                    File.id == parse_uuid(self.request.POST.get("file_id")),
                 )
                 .one()
             )
@@ -2327,7 +2328,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
-    user = user_service.get_user(request.POST["user_id"])
+    user = user_service.get_user(parse_uuid(request.POST["user_id"]))
 
     try:
         user_invite = (
@@ -2411,7 +2412,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
 
     if form.validate():
-        role_id = request.POST["role_id"]
+        role_id = parse_uuid(request.POST["role_id"])
         try:
             role = (
                 request.db.query(Role)
@@ -2497,7 +2498,7 @@ def delete_project_role(project, request):
             request.db.query(Role)
             .join(User)
             .filter(Role.project == project)
-            .filter(Role.id == request.POST["role_id"])
+            .filter(Role.id == parse_uuid(request.POST["role_id"]))
             .one()
         )
         projects_sole_owned = {
