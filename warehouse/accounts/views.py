@@ -1084,7 +1084,7 @@ def confirm_login(request):
         .one_or_none()
     )
 
-    if unique_login is None:
+    if unique_login is None or unique_login.status == UniqueLoginStatus.CONFIRMED:
         return _error(request._("Invalid login attempt."))
 
     if unique_login.ip_address != request.ip_address:
