@@ -255,6 +255,66 @@ class TestCloseUploadTempfiles:
 
         close.assert_not_called()
 
+    @staticmethod
+    def _consumed_upload(pyramid_request, attempt):
+        """Put a fully-read upload on the request at the given retry attempt."""
+        content = _content_field(file=io.BytesIO(b"dist"))
+        content.file.read()
+        pyramid_request.POST = {"content": content}
+        pyramid_request.body_file_raw = io.BytesIO()
+        pyramid_request.environ.update({"retry.attempt": attempt, "retry.attempts": 3})
+        return content.file, pyramid_request.body_file_raw
+
+    def test_rewinds_instead_of_closing_when_attempt_will_be_retried(
+        self, pyramid_request
+    ):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not upload.closed
+        assert upload.tell() == 0
+        assert not body_file.closed
+
+    def test_rewinds_when_squashed_retryable_error_will_be_retried(
+        self, pyramid_request
+    ):
+        # An exception view rendered the error, so it's on request.exception.
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+        pyramid_request.exception = psycopg.IntegrityError()
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not upload.closed
+        assert upload.tell() == 0
+        assert not body_file.closed
+
+    def test_retry_without_content_field(self, pyramid_request):
+        pyramid_request.POST = {}
+        pyramid_request.body_file_raw = io.BytesIO()
+        pyramid_request.environ.update({"retry.attempt": 0, "retry.attempts": 3})
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not pyramid_request.body_file_raw.closed
+
+    def test_closes_on_last_attempt_even_if_error_is_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=2)
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
 
 class TestFileValidation:
     def test_open_dist_file_rejects_unsupported_extension(self):
