@@ -61,6 +61,7 @@ from warehouse.manage.forms import (
 from warehouse.manage.views.view_helpers import (
     add_organization_project_and_notify,
     organization_owners,
+    parse_uuid,
     project_owners,
     user_organizations,
     user_projects,
@@ -1217,15 +1218,17 @@ def resend_organization_invitation(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
-    user = user_service.get_user(request.POST["user_id"])
+    user = user_service.get_user(parse_uuid(request.POST["user_id"]))
 
     _next = request.route_path(
         "manage.organization.roles",
         organization_name=organization.normalized_name,
     )
 
-    organization_invite = organization_service.get_organization_invite_by_user(
-        organization.id, user.id
+    organization_invite = (
+        organization_service.get_organization_invite_by_user(organization.id, user.id)
+        if user
+        else None
     )
     if organization_invite is None:
         request.session.flash(
@@ -1264,10 +1267,12 @@ def revoke_organization_invitation(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
-    user = user_service.get_user(request.POST["user_id"])
+    user = user_service.get_user(parse_uuid(request.POST["user_id"]))
 
-    organization_invite = organization_service.get_organization_invite_by_user(
-        organization.id, user.id
+    organization_invite = (
+        organization_service.get_organization_invite_by_user(organization.id, user.id)
+        if user
+        else None
     )
     if organization_invite is None:
         request.session.flash(
@@ -1359,8 +1364,8 @@ def change_organization_role(
 
     if form.validate():
         organization_service = request.find_service(IOrganizationService, context=None)
-        role_id = request.POST["role_id"]
-        role = organization_service.get_organization_role(role_id)
+        role_id = parse_uuid(request.POST["role_id"])
+        role = role_id and organization_service.get_organization_role(role_id)
         if not role or role.organization_id != organization.id:
             request.session.flash("Could not find member", queue="error")
         elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
@@ -1430,8 +1435,8 @@ def change_organization_role(
 )
 def delete_organization_role(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    role_id = request.POST["role_id"]
-    role = organization_service.get_organization_role(role_id)
+    role_id = parse_uuid(request.POST["role_id"])
+    role = role_id and organization_service.get_organization_role(role_id)
     organizations_sole_owned = {
         organization.id
         for organization in user_organizations(request)["organizations_with_sole_owner"]
