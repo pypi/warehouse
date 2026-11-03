@@ -19,6 +19,7 @@ from warehouse.admin.views import sponsors as views
 from warehouse.sponsors.models import Sponsor
 
 from ....common.db.sponsors import SponsorFactory
+from ....common.forms import as_posted
 
 COLOR_LOGO_FILE = FieldStorage()
 COLOR_LOGO_FILE.filename = "colorlogo.png"
@@ -168,7 +169,7 @@ class TestEditSponsor:
         data["color_logo"] = COLOR_LOGO_FILE
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
         mocker.patch.object(
             db_request,
             "current_route_path",
@@ -208,7 +209,7 @@ class TestEditSponsor:
         data["name"] = ""  # name is required
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
 
         result = views.edit_sponsor(db_request)
 
