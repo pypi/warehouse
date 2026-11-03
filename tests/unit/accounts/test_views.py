@@ -4591,6 +4591,49 @@ class TestManageAccountPublishingViews:
         )
         assert publishing_request.db.query(publisher_class).all() == []
 
+    def test_delete_pending_oidc_publisher_for_organization_succeeds(
+        self,
+        publishing_request,
+        metrics,
+        mocker,
+    ):
+        user = publishing_request.user
+        organization = OrganizationFactory.create()
+        pending_publisher = PendingGitHubPublisherFactory.create(
+            project_name="some-project-name",
+            added_by=user,
+            organization_id=organization.id,
+        )
+
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
+        mocker.patch.object(
+            organization, "record_event", autospec=True, return_value=None
+        )
+        publishing_request.POST = MultiDict({"publisher_id": str(pending_publisher.id)})
+
+        view = views.ManageAccountPublishingViews(publishing_request)
+
+        assert view.delete_pending_oidc_publisher().__class__ == HTTPSeeOther
+        expected_additional = {
+            "project": "some-project-name",
+            "publisher": "GitHub",
+            "id": str(pending_publisher.id),
+            "specifier": str(pending_publisher),
+            "url": pending_publisher.publisher_url(),
+            "submitted_by": user.username,
+        }
+        user.record_event.assert_called_once_with(
+            tag=EventTag.Account.PendingOIDCPublisherRemoved,
+            request=publishing_request,
+            additional=expected_additional,
+        )
+        organization.record_event.assert_called_once_with(
+            tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+            request=publishing_request,
+            additional=expected_additional,
+        )
+        assert publishing_request.db.query(PendingGitHubPublisher).all() == []
+
 
 class TestConfirmLogin:
     @pytest.fixture
@@ -4692,6 +4735,23 @@ class TestConfirmLogin:
     def test_unique_login_not_found(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
         confirm_request.params["token"] = confirm_token(user, uuid.uuid4())
+
+        result = views.confirm_login(confirm_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/accounts.login"
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid login attempt.", queue="error"
+        )
+
+    def test_unique_login_already_confirmed(self, confirm_request, confirm_token):
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
+        unique_login = UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=confirm_request.ip_address,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
 
         result = views.confirm_login(confirm_request)
 

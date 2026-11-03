@@ -200,6 +200,12 @@ stored ID and fails if they don't match. Through this process, only the original
 GitHub user remains authorized to publish to their PyPI projects, even if they
 change their username or delete their account.
 
+GitLab's API can't look up the ID of a personal namespace, so GitLab-based
+publishers can't store it at configuration time. Instead, PyPI records the
+`namespace_id` claim from the first token it verifies for a GitLab publisher,
+and checks later tokens against it. A publisher that hasn't been used yet is
+only bound to the namespace name.
+
 ### How do I become a Trusted Publishing provider?
 If you are an operator of a hosted compute service or are a CI provider, you
 may want PyPI to support your platform or service as a Trusted Publisher.

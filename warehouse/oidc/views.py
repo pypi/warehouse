@@ -227,6 +227,60 @@ def mint_token(
                     request=request,
                 )
 
+            if (
+                pending_publisher.pypi_organization is not None
+                and pending_publisher.added_by
+                not in pending_publisher.pypi_organization.owners
+            ):
+                additional = {
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url(),
+                    "submitted_by": "OpenID created token",
+                    "redact_ip": True,
+                }
+                pending_publisher.pypi_organization.record_event(
+                    tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                pending_publisher.added_by.record_event(
+                    tag=EventTag.Account.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                request.db.delete(pending_publisher)
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-pending-publisher",
+                            "description": (
+                                "valid token, but organization pending publisher "
+                                "is no longer valid"
+                            ),
+                        }
+                    ],
+                    request=request,
+                )
+
+            if (
+                pending_publisher.pypi_organization is not None
+                and not pending_publisher.pypi_organization.is_in_good_standing()
+            ):
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-pending-publisher",
+                            "description": (
+                                "valid token, but organization is not active"
+                            ),
+                        }
+                    ],
+                    request=request,
+                )
+
             # Try creating the new project
             project_service = request.find_service(IProjectService)
             try:
