@@ -4744,6 +4744,23 @@ class TestConfirmLogin:
             "Invalid login attempt.", queue="error"
         )
 
+    def test_unique_login_already_confirmed(self, confirm_request, confirm_token):
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
+        unique_login = UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=confirm_request.ip_address,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+        confirm_request.params["token"] = confirm_token(user, unique_login.id)
+
+        result = views.confirm_login(confirm_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/accounts.login"
+        confirm_request.session.flash.assert_called_once_with(
+            "Invalid login attempt.", queue="error"
+        )
+
     def test_ip_address_mismatch(self, confirm_request, confirm_token):
         user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
         ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
