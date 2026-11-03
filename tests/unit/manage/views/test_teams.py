@@ -21,6 +21,7 @@ from tests.common.db.organizations import (
     TeamRoleFactory,
 )
 from tests.common.db.packaging import ProjectFactory
+from tests.common.forms import UNUSABLE_IDS
 from warehouse.manage.views import teams as team_views
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -992,7 +993,7 @@ class TestUnusableIdNotFound:
         mocker.spy(db_request.session, "flash")
         return db_request
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_team_role(self, id_request, value):
         team = TeamFactory.create()
         id_request.POST = MultiDict({"role_id": value})
@@ -1004,7 +1005,7 @@ class TestUnusableIdNotFound:
             "Could not find member", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_change_team_project_role(self, id_request, value):
         project = ProjectFactory.create()
         id_request.POST = MultiDict(
@@ -1018,7 +1019,7 @@ class TestUnusableIdNotFound:
             "Could not find permissions", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_team_project_role(self, id_request, value):
         project = ProjectFactory.create()
         id_request.POST = MultiDict({"role_id": value})

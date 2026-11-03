@@ -22,6 +22,7 @@ from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 from webob.multidict import MultiDict
 
+from tests.common.forms import UNUSABLE_IDS
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import IPasswordBreachedService, ITokenService
 from warehouse.accounts.models import Email, WebAuthn
@@ -4922,7 +4923,7 @@ class TestArchiveProject:
 class TestUnusableIdNotFound:
     """A posted id that can't be a UUID finds no row instead of a 500."""
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_project_release_file(self, project_request, value):
         release = ReleaseFactory.create()
         project_request.POST = MultiDict(
@@ -4938,7 +4939,7 @@ class TestUnusableIdNotFound:
             "Could not find file", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_change_project_role(self, project_request, value):
         project = ProjectFactory.create()
         project_request.POST = MultiDict({"role_id": value, "role_name": "Owner"})
@@ -4950,7 +4951,7 @@ class TestUnusableIdNotFound:
             "Could not find role", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_project_role(self, project_request, value):
         project = ProjectFactory.create()
         project_request.POST = MultiDict({"role_id": value})
@@ -4962,7 +4963,7 @@ class TestUnusableIdNotFound:
             "Could not find role", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_revoke_project_role_invitation(self, project_request, value):
         project = ProjectFactory.create()
         project_request.POST = MultiDict({"user_id": value})

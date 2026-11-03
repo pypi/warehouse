@@ -39,6 +39,7 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionFactory,
     StripeSubscriptionPriceFactory,
 )
+from tests.common.forms import UNUSABLE_IDS
 from warehouse.accounts import ITokenService
 from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -3397,7 +3398,8 @@ class TestUnusableIdNotFound:
     """A posted id that can't find a row is not found instead of a 500."""
 
     @pytest.mark.parametrize(
-        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+        "value",
+        [*UNUSABLE_IDS, "00000000-0000-0000-0000-000000000000"],
     )
     def test_resend_organization_invitation(
         self, invite_request, invite_organization, value
@@ -3414,7 +3416,8 @@ class TestUnusableIdNotFound:
         )
 
     @pytest.mark.parametrize(
-        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+        "value",
+        [*UNUSABLE_IDS, "00000000-0000-0000-0000-000000000000"],
     )
     def test_revoke_organization_invitation(
         self, invite_request, invite_organization, value
@@ -3430,7 +3433,7 @@ class TestUnusableIdNotFound:
             "Could not find organization invitation.", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_change_organization_role(self, invite_request, invite_organization, value):
         invite_request.POST = MultiDict({"role_id": value, "role_name": "Owner"})
 
@@ -3441,7 +3444,7 @@ class TestUnusableIdNotFound:
             "Could not find member", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_organization_role(self, invite_request, invite_organization, value):
         invite_request.POST = MultiDict({"role_id": value})
 
