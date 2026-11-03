@@ -2237,18 +2237,25 @@ class ManageAccountPublishingViews:
             tags=[f"publisher:{pending_publisher.publisher_name}"],
         )
 
+        additional = {
+            "project": pending_publisher.project_name,
+            "publisher": pending_publisher.publisher_name,
+            "id": str(pending_publisher.id),
+            "specifier": str(pending_publisher),
+            "url": pending_publisher.publisher_url(),
+            "submitted_by": self.request.user.username,
+        }
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
             request=self.request,
-            additional={
-                "project": pending_publisher.project_name,
-                "publisher": pending_publisher.publisher_name,
-                "id": str(pending_publisher.id),
-                "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-            },
+            additional=additional.copy(),
         )
+        if pending_publisher.pypi_organization is not None:
+            pending_publisher.pypi_organization.record_event(
+                tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                request=self.request,
+                additional=additional.copy(),
+            )
 
         self.request.db.delete(pending_publisher)
 

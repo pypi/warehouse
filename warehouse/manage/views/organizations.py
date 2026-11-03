@@ -1366,17 +1366,9 @@ def change_organization_role(
         elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
             request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
-            role.role_name = form.role_name.data
-            if role.role_name != OrganizationRoleType.Owner:
-                for pending_publisher in (
-                    request.db.query(PendingOIDCPublisher)
-                    .filter_by(
-                        organization_id=organization.id,
-                        added_by_id=role.user_id,
-                    )
-                    .all()
-                ):
-                    request.db.delete(pending_publisher)
+            organization_service.update_organization_role(
+                role.id, form.role_name.data, request
+            )
 
             owner_users = set(organization_owners(request, organization))
             # Don't send owner notification email to new user
@@ -1464,7 +1456,7 @@ def delete_organization_role(organization, request):
     ):
         request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
     else:
-        organization_service.delete_organization_role(role.id)
+        organization_service.delete_organization_role(role.id, request)
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleRemove,
             request=request,

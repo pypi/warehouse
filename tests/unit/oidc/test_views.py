@@ -614,7 +614,7 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
             role_name=role_name,
         )
 
-    PendingGitHubPublisherFactory.create(
+    pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
         added_by=user,
         repository_name="bar",
@@ -624,6 +624,15 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
         environment="fake",
         organization_id=organization.id,
     )
+    expected_event_additional = {
+        "project": pending_publisher.project_name,
+        "publisher": pending_publisher.publisher_name,
+        "id": str(pending_publisher.id),
+        "specifier": str(pending_publisher),
+        "url": pending_publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "redact_ip": True,
+    }
 
     db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
@@ -644,6 +653,15 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
     }
     assert db_request.db.query(PendingGitHubPublisher).all() == []
     assert db_request.db.query(Project).all() == []
+    org_event = organization.events.one()
+    assert org_event.tag == EventTag.Organization.PendingOIDCPublisherRemoved
+    assert org_event.additional == {
+        "organization_name": organization.name,
+        **expected_event_additional,
+    }
+    user_event = user.events.one()
+    assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
+    assert user_event.additional == expected_event_additional
 
 
 def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_standing(

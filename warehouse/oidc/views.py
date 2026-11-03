@@ -232,6 +232,25 @@ def mint_token(
                 and pending_publisher.added_by
                 not in pending_publisher.pypi_organization.owners
             ):
+                additional = {
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url(),
+                    "submitted_by": "OpenID created token",
+                    "redact_ip": True,
+                }
+                pending_publisher.pypi_organization.record_event(
+                    tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                pending_publisher.added_by.record_event(
+                    tag=EventTag.Account.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
                 request.db.delete(pending_publisher)
                 return _invalid(
                     errors=[

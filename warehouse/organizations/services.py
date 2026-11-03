@@ -436,7 +436,42 @@ class DatabaseOrganizationService:
 
         return role
 
-    def delete_organization_role(self, organization_role_id):
+    def _delete_pending_oidc_publishers(self, role, request):
+        for pending_publisher in list(role.user.pending_oidc_publishers):
+            if pending_publisher.organization_id == role.organization_id:
+                additional = {
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url(),
+                    "submitted_by": request.user.username,
+                }
+                role.organization.record_event(
+                    tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                role.user.record_event(
+                    tag=EventTag.Account.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                self.db.delete(pending_publisher)
+
+    def update_organization_role(self, organization_role_id, role_name, request):
+        """
+        Update an organization role for a specified organization role id
+        """
+        role = self.get_organization_role(organization_role_id)
+        role.role_name = OrganizationRoleType(role_name)
+
+        if role.role_name != OrganizationRoleType.Owner:
+            self._delete_pending_oidc_publishers(role, request)
+
+        return role
+
+    def delete_organization_role(self, organization_role_id, request):
         """
         Delete an organization role for a specified organization role id
         """
@@ -447,9 +482,7 @@ class DatabaseOrganizationService:
         ):
             self.db.delete(team_role)
 
-        for pending_publisher in role.user.pending_oidc_publishers:
-            if pending_publisher.organization_id == role.organization_id:
-                self.db.delete(pending_publisher)
+        self._delete_pending_oidc_publishers(role, request)
 
         self.db.delete(role)
 
