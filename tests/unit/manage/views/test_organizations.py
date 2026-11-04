@@ -5,6 +5,7 @@ import re
 import uuid
 
 import pytest
+import wtforms
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -1768,10 +1769,10 @@ class TestManageOrganizationRoles:
             "is_sole_owner": False,
             "awaiting_initial_billing": False,
             "role_choices": [
-                ("", "Select role"),
-                ("Member", "Member"),
-                ("Manager", "Manager"),
-                ("Owner", "Owner"),
+                wtforms.SelectChoice("", "Select role"),
+                wtforms.SelectChoice("Member", "Member"),
+                wtforms.SelectChoice("Manager", "Manager"),
+                wtforms.SelectChoice("Owner", "Owner"),
             ],
         }
 
@@ -1973,7 +1974,7 @@ class TestManageOrganizationRoles:
             wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
-        assert [choice[0] for choice in result["role_choices"]] == [
+        assert [choice.value for choice in result["role_choices"]] == [
             "",
             "Member",
             "Manager",

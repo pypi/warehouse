@@ -608,8 +608,7 @@ class CreateOrganizationRoleForm(
             self.role_name.choices = [
                 choice
                 for choice in self.role_name.choices
-                if choice[0] == OrganizationRoleType.BillingManager.value
-                or choice[0] == ""
+                if choice.value in (OrganizationRoleType.BillingManager.value, "")
             ]
         elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
