@@ -28,12 +28,13 @@ class PendingPublisherMixin:
     _route_url: typing.Callable[..., str]
 
     project_name = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE, message=_("Invalid project name")
             ),
-        ]
+        ],
     )
 
     def validate_project_name(self, field: wtforms.Field) -> None:

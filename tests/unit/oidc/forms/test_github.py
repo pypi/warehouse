@@ -313,11 +313,11 @@ class TestGitHubPublisherForm:
         assert form.normalized_owner == "some-username"
         assert form.owner_id == "1234"
 
-    def test_validate_workflow_filename_strips_whitespace(self, mocker):
+    def test_validate_strips_whitespace(self, mocker):
         data = MultiDict(
             {
-                "owner": "some-owner",
-                "repository": "some-repo",
+                "owner": " some-owner ",
+                "repository": " some-repo ",
                 "workflow_filename": "  some-workflow.yml  ",
             }
         )
@@ -331,6 +331,30 @@ class TestGitHubPublisherForm:
         assert form.owner.data == "some-owner"
         assert form.repository.data == "some-repo"
         assert form.workflow_filename.data == "some-workflow.yml"
+
+    def test_validate_strips_project_name_whitespace(self, mocker):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+                "project_name": "  some-project  ",
+            }
+        )
+        check_project_name = mocker.stub()
+        form = github.PendingGitHubPublisherForm(
+            MultiDict(data),
+            api_token=mocker.sentinel.api_token,
+            route_url=mocker.sentinel.route_url,
+            check_project_name=check_project_name,
+            user=mocker.sentinel.user,
+        )
+        owner_info = {"login": "fake-username", "id": "1234"}
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
+
+        assert form.validate(), str(form.errors)
+        assert form.project_name.data == "some-project"
+        check_project_name.assert_called_once_with("some-project")
 
     @pytest.mark.parametrize(
         "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]

@@ -18,20 +18,22 @@ class GitHubPublisherBase(wtforms.Form):
     __params__ = ["owner", "repository", "workflow_filename", "environment"]
 
     owner = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(
                 message=_("Specify GitHub repository owner (username or organization)"),
             ),
-        ]
+        ],
     )
 
     repository = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message=_("Specify repository name")),
             wtforms.validators.Regexp(
                 _VALID_GITHUB_REPO, message=_("Invalid repository name")
             ),
-        ]
+        ],
     )
 
     workflow_filename = wtforms.StringField(
