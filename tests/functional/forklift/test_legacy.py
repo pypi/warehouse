@@ -20,7 +20,10 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
 )
-from tests.common.db.organizations import OrganizationOIDCIssuerFactory
+from tests.common.db.organizations import (
+    OrganizationOIDCIssuerFactory,
+    OrganizationProjectFactory,
+)
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
 from warehouse.organizations.models import OIDCIssuerType
@@ -688,10 +691,14 @@ def test_trusted_publisher_upload_ok_custom_issuer(
     RoleFactory.create(user=user, project=project, role_name="Owner")
 
     # Register the custom issuer URL with an organization
-    OrganizationOIDCIssuerFactory.create(
+    org_issuer = OrganizationOIDCIssuerFactory.create(
         issuer_type=issuer_type,
         issuer_url=issuer_url,
         created_by=user,
+    )
+    OrganizationProjectFactory.create(
+        organization=org_issuer.organization,
+        project=project,
     )
 
     publisher_factory.create(
