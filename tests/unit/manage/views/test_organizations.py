@@ -1969,8 +1969,8 @@ class TestManageOrganizationRoles:
         result = org_views.manage_organization_roles(organization, db_request)
 
         assert result["form"].role_name.choices == [
-            ("", "Select role"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
         assert [choice[0] for choice in result["role_choices"]] == [
@@ -3185,8 +3185,8 @@ class TestManageOrganizationPublishingViews:
         )
 
         assert view.pending_gitlab_publisher_form.issuer_url.choices == [
-            ("https://gitlab.com", "https://gitlab.com"),
-            ("https://gitlab.example.com", "https://gitlab.example.com"),
+            wtforms.SelectChoice("https://gitlab.com", "https://gitlab.com"),
+            wtforms.SelectChoice("https://gitlab.example.com", "https://gitlab.example.com"),
         ]
 
     def test_manage_organization_publishing_get_oidc_disabled(

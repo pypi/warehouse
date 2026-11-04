@@ -29,7 +29,7 @@ from warehouse.utils.project import PROJECT_NAME_RE
 class RoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[wtforms.SelectChoice("", "Select role"), wtforms.SelectChoice("Maintainer", "Maintainer"), wtforms.SelectChoice("Owner", "Owner")],
         validators=[wtforms.validators.InputRequired(message="Select role")],
     )
 
@@ -37,7 +37,7 @@ class RoleNameMixin:
 class TeamProjectRoleNameMixin:
     team_project_role_name = wtforms.SelectField(
         "Select permissions",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[wtforms.SelectChoice("", "Select role"), wtforms.SelectChoice("Maintainer", "Maintainer"), wtforms.SelectChoice("Owner", "Owner")],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
         validators=[wtforms.validators.InputRequired(message="Select role")],
     )
@@ -70,7 +70,7 @@ class CreateInternalRoleForm(
 ):
     is_team = wtforms.RadioField(
         "Team or member?",
-        choices=[("true", "Team"), ("false", "Member")],
+        choices=[wtforms.SelectChoice("true", "Team"), wtforms.SelectChoice("false", "Member")],
         coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
@@ -78,22 +78,22 @@ class CreateInternalRoleForm(
 
     team_name = wtforms.SelectField(
         "Select team",
-        choices=[("", "Select team")],
+        choices=[wtforms.SelectChoice("", "Select team")],
         default="",  # Set default to avoid error when there are no team choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     username = wtforms.SelectField(
         "Select user",
-        choices=[("", "Select user")],
+        choices=[wtforms.SelectChoice("", "Select user")],
         default="",  # Set default to avoid error when there are no user choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     def __init__(self, *args, team_choices, user_choices, user_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.team_name.choices += [(name, name) for name in sorted(team_choices)]
-        self.username.choices += [(name, name) for name in sorted(user_choices)]
+        self.team_name.choices += [wtforms.SelectChoice(name, name) for name in sorted(team_choices)]
+        self.username.choices += [wtforms.SelectChoice(name, name) for name in sorted(user_choices)]
         self.user_service = user_service
 
         # Do not check for required fields in browser.
@@ -132,7 +132,7 @@ class SaveAccountForm(wtforms.Form):
             )
         ]
     )
-    public_email = wtforms.SelectField(choices=[("", "Not displayed")])
+    public_email = wtforms.SelectField(choices=[wtforms.SelectChoice("", "Not displayed")])
 
     def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,7 +140,7 @@ class SaveAccountForm(wtforms.Form):
         self.user_id = user_id
         user = user_service.get_user(user_id)
         self.public_email.choices.extend(
-            [(e.email, e.email) for e in user.emails if e.verified]
+            [wtforms.SelectChoice(e.email, e.email) for e in user.emails if e.verified]
         )
 
     def validate_public_email(self, field):
@@ -439,11 +439,11 @@ class OrganizationRoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
         choices=[
-            ("", "Select role"),
-            ("Member", "Member"),
-            ("Manager", "Manager"),
-            ("Owner", "Owner"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Member", "Member"),
+            wtforms.SelectChoice("Manager", "Manager"),
+            wtforms.SelectChoice("Owner", "Owner"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ],
         coerce=lambda string: OrganizationRoleType(string) if string else None,
         validators=[wtforms.validators.InputRequired(message="Select role")],
@@ -518,7 +518,7 @@ class AddOrganizationProjectForm(wtforms.Form):
 
     add_existing_project = wtforms.RadioField(
         "Add existing or new project?",
-        choices=[("true", "Existing project"), ("false", "New project")],
+        choices=[wtforms.SelectChoice("true", "Existing project"), wtforms.SelectChoice("false", "New project")],
         coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
@@ -526,7 +526,7 @@ class AddOrganizationProjectForm(wtforms.Form):
 
     existing_project_name = wtforms.SelectField(
         "Select project",
-        choices=[("", "Select project")],
+        choices=[wtforms.SelectChoice("", "Select project")],
         default="",  # Set default to avoid error when there are no project choices.
     )
 
@@ -535,7 +535,7 @@ class AddOrganizationProjectForm(wtforms.Form):
     def __init__(self, *args, project_choices, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
         self.existing_project_name.choices += [
-            (name, name) for name in sorted(project_choices)
+            wtforms.SelectChoice(name, name) for name in sorted(project_choices)
         ]
         self.project_factory = project_factory
 
@@ -568,7 +568,7 @@ class TransferOrganizationProjectForm(wtforms.Form):
 
     organization = wtforms.SelectField(
         "Select organization",
-        choices=[("", "Select organization")],
+        choices=[wtforms.SelectChoice("", "Select organization")],
         validators=[
             wtforms.validators.InputRequired(message="Select organization"),
         ],
@@ -577,10 +577,7 @@ class TransferOrganizationProjectForm(wtforms.Form):
     def __init__(self, *args, organization_choices, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization.choices += [
-            (
-                str(org.id),
-                org.get_billing_status_display(),
-            )
+            wtforms.SelectChoice(str(org.id), org.get_billing_status_display())
             for org in sorted(organization_choices, key=lambda x: x.name)
         ]
         self.disabled_organizations = [
@@ -696,7 +693,7 @@ class SaveOrganizationForm(wtforms.Form):
         ]
     )
     orgtype = wtforms.SelectField(
-        choices=[("Company", "Company"), ("Community", "Community")],
+        choices=[wtforms.SelectChoice("Company", "Company"), wtforms.SelectChoice("Community", "Community")],
         default=None,
         coerce=OrganizationType,
         validators=[
@@ -709,7 +706,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
     __params__ = ["name", *SaveOrganizationForm.__params__]
 
     membership_size = wtforms.SelectField(
-        choices=[(size.value, size.value) for size in OrganizationMembershipSize],
+        choices=[wtforms.SelectChoice(size.value, size.value) for size in OrganizationMembershipSize],
         default=None,
         coerce=OrganizationMembershipSize,
         validators=[
@@ -775,14 +772,14 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
 class CreateTeamRoleForm(wtforms.Form):
     username = wtforms.SelectField(
         "Select user",
-        choices=[("", "Select user")],
+        choices=[wtforms.SelectChoice("", "Select user")],
         default="",  # Set default to avoid error when there are no user choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     def __init__(self, *args, user_choices, **kwargs):
         super().__init__(*args, **kwargs)
-        self.username.choices += [(name, name) for name in sorted(user_choices)]
+        self.username.choices += [wtforms.SelectChoice(name, name) for name in sorted(user_choices)]
 
 
 class SaveTeamForm(wtforms.Form):
