@@ -2471,6 +2471,26 @@ class TestManageProjectSettings:
             "manage.project.settings", project_name="foo"
         )
 
+    def test_remove_organization_project_organization_not_in_good_standing(
+        self, project_request, org_project
+    ):
+        org_project.organization.is_active = False
+
+        result = org_views.remove_organization_project(org_project, project_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        project_request.session.flash.assert_called_once_with(
+            (
+                "Could not remove project from organization - "
+                "you do not have the required permissions"
+            ),
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.settings", project_name="foo"
+        )
+
     def test_remove_organization_project_no_individual_owner(self, project_request):
         project = ProjectFactory.create(name="foo")
         OrganizationProjectFactory.create(
@@ -2624,6 +2644,23 @@ class TestManageProjectSettings:
         )
 
         result = org_views.transfer_organization_project(project, project_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        project_request.session.flash.assert_called_once_with(
+            "Could not transfer project - you do not have the required permissions",
+            queue="error",
+        )
+        project_request.route_path.assert_called_once_with(
+            "manage.project.settings", project_name="foo"
+        )
+
+    def test_transfer_organization_project_organization_not_in_good_standing(
+        self, project_request, org_project
+    ):
+        org_project.organization.is_active = False
+
+        result = org_views.transfer_organization_project(org_project, project_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -3830,6 +3867,27 @@ class TestManageProjectRoles:
             "project": project,
             "roles": {role},
             "invitations": {role_invitation},
+            "form": form,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
+        }
+
+    def test_get_manage_project_roles_organization_not_in_good_standing(
+        self, db_request, user_service, organization, organization_project
+    ):
+        organization.is_active = False
+        db_request.POST = MultiDict()
+
+        result = views.manage_project_roles(organization_project, db_request)
+
+        form = result["form"]
+        assert isinstance(form, views.CreateRoleForm)
+        assert form.user_service is user_service
+        assert result == {
+            "project": organization_project,
+            "roles": set(),
+            "invitations": set(),
             "form": form,
             "enable_internal_collaborator": False,
             "team_project_roles": set(),

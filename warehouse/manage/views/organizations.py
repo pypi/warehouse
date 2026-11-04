@@ -1567,7 +1567,13 @@ def manage_organization_history(organization, request):
 def remove_organization_project(project, request):
     if (
         # Check that user has permission to remove projects from organization.
-        (project.organization and request.user not in project.organization.owners)
+        (
+            project.organization
+            and (
+                request.user not in project.organization.owners
+                or not project.organization.is_in_good_standing()
+            )
+        )
         # Check that project has an individual owner.
         or not project_owners(request, project)
     ):
@@ -1655,7 +1661,10 @@ def remove_organization_project(project, request):
 )
 def transfer_organization_project(project, request):
     # Check that user has permission to remove projects from organization.
-    if project.organization and request.user not in project.organization.owners:
+    if project.organization and (
+        request.user not in project.organization.owners
+        or not project.organization.is_in_good_standing()
+    ):
         request.session.flash(
             "Could not transfer project - you do not have the required permissions",
             queue="error",

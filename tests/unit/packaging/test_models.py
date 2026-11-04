@@ -503,6 +503,74 @@ class TestProject:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        "org_kwargs",
+        [
+            {"is_active": False},
+            {"is_active": True, "orgtype": OrganizationType.Company},
+        ],
+    )
+    def test_acl_for_organization_not_in_good_standing(self, db_session, org_kwargs):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+
+        organization = DBOrganizationFactory.create(**org_kwargs)
+        DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create(organization=organization)
+        DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            (
+                Allow,
+                f"user:{owner1.user.id}",
+                [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ],
+            ),
+        ]
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)

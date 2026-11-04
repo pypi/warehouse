@@ -1960,7 +1960,9 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     form = _form_class(request.POST, user_service=user_service)
 
     # Team project roles and add internal collaborator form for organization projects.
-    enable_internal_collaborator = bool(project.organization)
+    enable_internal_collaborator = bool(
+        project.organization and project.organization.is_in_good_standing()
+    )
     if enable_internal_collaborator:
         team_project_roles = set(
             request.db.query(TeamProjectRole)

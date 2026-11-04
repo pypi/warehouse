@@ -533,23 +533,26 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             for role in user_query.all()
         }
 
-        # Add all of the team members for this project.
-        team_query = (
-            session.query(TeamProjectRole)
-            .filter(TeamProjectRole.project == self)
-            .options(
-                orm.lazyload(TeamProjectRole.project),
-                orm.lazyload(TeamProjectRole.team),
+        if self.organization and self.organization.is_in_good_standing():
+            # Add all of the team members for this project.
+            team_query = (
+                session.query(TeamProjectRole)
+                .filter(TeamProjectRole.project == self)
+                .options(
+                    orm.lazyload(TeamProjectRole.project),
+                    orm.lazyload(TeamProjectRole.team),
+                )
             )
-        )
-        for role in team_query.all():
-            permissions |= {
-                (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
-                for user in role.team.members
-            }
+            for role in team_query.all():
+                permissions |= {
+                    (
+                        user.id,
+                        "Administer" if role.role_name.value == "Owner" else "Upload",
+                    )
+                    for user in role.team.members
+                }
 
-        # Add all organization owners for this project.
-        if self.organization:
+            # Add all organization owners for this project.
             org_query = (
                 session.query(OrganizationRole)
                 .filter(
