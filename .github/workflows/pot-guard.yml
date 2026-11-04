@@ -1,43 +1,20 @@
-name: Translation file guard
+name: messages.pot guard
 
 on:
   pull_request:
     paths:
       - warehouse/locale/messages.pot
-      - '**/*.po'
 
-permissions:
-  pull-requests: read
+permissions: {}
 
 jobs:
   guard:
-    name: Check translation files
+    if: github.event.pull_request.user.login != 'pypi-warehouse-translations[bot]'
+    name: messages.pot is generated
     runs-on: ubuntu-slim
     steps:
-      - name: Check pull request author
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
+      - name: Reject hand edits
         run: |
-          changed_catalogs=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" \
-            --jq '.[] | (.filename, (select(.status == "renamed") | .previous_filename)) |
-              if . == "warehouse/locale/messages.pot" then "messages.pot"
-              elif endswith(".po") then ".po"
-              else empty end')
-
-          status=0
-          if [[ "$PR_AUTHOR" != 'pypi-warehouse-translations[bot]' ]] && grep -Fxq 'messages.pot' <<< "$changed_catalogs"; then
-            # shellcheck disable=SC2016
-            echo '::error file=warehouse/locale/messages.pot::messages.pot is regenerated on main by CI. Revert it with: git checkout $(git merge-base HEAD upstream/main) -- warehouse/locale/messages.pot'
-            status=1
-          fi
-          if [[ "$PR_AUTHOR" != weblate &&
-                "$PR_AUTHOR_ASSOCIATION" != MEMBER &&
-                "$PR_AUTHOR_ASSOCIATION" != OWNER ]] &&
-             grep -Fxq '.po' <<< "$changed_catalogs"; then
-            echo '::error::Submit .po changes through Weblate at https://hosted.weblate.org/projects/pypa/warehouse/'
-            status=1
-          fi
-          exit "$status"
+          # shellcheck disable=SC2016
+          echo '::error file=warehouse/locale/messages.pot::messages.pot is regenerated on main by CI. Revert it with: git checkout $(git merge-base HEAD upstream/main) -- warehouse/locale/messages.pot'
+          exit 1
