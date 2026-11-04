@@ -295,6 +295,26 @@ def test_format_email(meta_email, expected_name, expected_email):
 
 
 @pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (None, False),
+        ("", False),
+        ("Sebastián Ramírez", False),
+        ("Foo Bar <foo@bar.com>", False),
+        (
+            "=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?= <tiangolo@gmail.com>",
+            True,
+        ),
+        ("=?UTF-8?B?U2ViYXN0acOhbiBSYW3DrXJleg==?= <foo@bar.com>", True),
+        ("=?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=", True),
+        ("encoded =?utf-8?q?name?= inside", True),
+    ],
+)
+def test_mime_encoded(value, expected):
+    assert filters.mime_encoded(value) is expected
+
+
+@pytest.mark.parametrize(
     ("inp", "expected"),
     [
         ("foo", "foo"),  # no change

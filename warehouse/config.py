@@ -804,6 +804,10 @@ def configure(settings=None):
     )
     filters.setdefault("parse_isoformat", "warehouse.filters:parse_isoformat")
 
+    # We also want to register some tests for Jinja2 as well.
+    jtests = config.get_settings().setdefault("jinja2.tests", {})
+    jtests.setdefault("mime_encoded", "warehouse.filters:mime_encoded")
+
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
     jglobals.setdefault("is_valid_uri", "warehouse.utils.http:is_valid_uri")

@@ -1,7 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{% set author_verified_shown = release.author_email and release.author_email_verified and (release.author or release.author_email|format_email|first) is not mime_encoded %}
+{% set maintainer_verified_shown = release.maintainer_email and release.maintainer_email_verified and release.maintainer_email != release.author_email and (release.maintainer or release.maintainer_email|format_email|first) is not mime_encoded %}
+{% set author_unverified_shown = (release.author_email and not release.author_email_verified and (release.author or release.author_email|format_email|first) is not mime_encoded) or (release.author and not release.author_email and release.author is not mime_encoded) %}
+{% set maintainer_unverified_shown = (release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email and (release.maintainer or release.maintainer_email|format_email|first) is not mime_encoded) or (release.maintainer and not release.maintainer_email and release.maintainer is not mime_encoded) %}
+{% if author_verified_shown or maintainer_verified_shown or author_unverified_shown or maintainer_unverified_shown %}
 <div class="sidebar-section">
   <h2 class="sidebar-section__title">{% trans %}Credits{% endtrans %}</h2>
-  {% if release.author_email_verified or release.maintainer_email_verified %}
+  {% if author_verified_shown or maintainer_verified_shown %}
     <div class="sidebar-section__content sidebar-section__content--verified">
       <details class="sidebar-section__data-source">
         <summary class="sidebar-section__data-source-label"
@@ -9,7 +14,7 @@
         <div class="sidebar-section__data-source-description">{% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI. Confirms that the provided email matches a verified, public email address on a PyPI user account associated with the project.{% endtrans %}</div>
       </details>
       <div class="sidebar-section__data-block">
-        {% if release.author_email and release.author_email_verified %}
+        {% if author_verified_shown %}
           <p>
             <strong>
               {% if release.maintainer_email == release.author_email %}
@@ -21,7 +26,7 @@
             <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
           </p>
         {% endif %}
-        {% if release.maintainer_email and release.maintainer_email_verified and release.maintainer_email != release.author_email %}
+        {% if maintainer_verified_shown %}
           <p>
             <strong>{% trans %}Maintainer:{% endtrans %}</strong>
             <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
@@ -31,9 +36,9 @@
     </div>
   {% endif %}
   {% if not release.author_email_verified or not release.maintainer_email_verified %}
-    {% if release.author_email and not release.author_email_verified or release.author and not release.author_email or release.maintainer_email and not release.maintainer_email_verified or release.maintainer and not release.maintainer_email %}
+    {% if author_unverified_shown or maintainer_unverified_shown %}
       <div class="sidebar-section__data-block">
-        {% if release.author_email and not release.author_email_verified %}
+        {% if release.author_email and not release.author_email_verified and (release.author or release.author_email|format_email|first) is not mime_encoded %}
           <p>
             <strong>
               {% if release.maintainer_email == release.author_email %}
@@ -44,7 +49,7 @@
             </strong>
             <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
           </p>
-        {% elif release.author and not release.author_email %}
+        {% elif release.author and not release.author_email and release.author is not mime_encoded %}
           <p>
             <strong>
               {% if release.maintainer == release.author %}
@@ -55,12 +60,12 @@
             </strong> {{ release.author }}
           </p>
         {% endif %}
-        {% if release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email %}
+        {% if release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email and (release.maintainer or release.maintainer_email|format_email|first) is not mime_encoded %}
           <p>
             <strong>{% trans %}Maintainer:{% endtrans %}</strong>
             <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
           </p>
-        {% elif release.maintainer and not release.maintainer_email and release.maintainer != release.author %}
+        {% elif release.maintainer and not release.maintainer_email and release.maintainer != release.author and release.maintainer is not mime_encoded %}
           <p>
             <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
           </p>
@@ -69,3 +74,4 @@
     {% endif %}
   {% endif %}
 </div>
+{% endif %}

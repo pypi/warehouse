@@ -186,6 +186,19 @@ def format_email(metadata_email: str) -> tuple[str, str]:
     return emails[0][0], emails[0][1]
 
 
+_MIME_ENCODED_WORD_RE = re.compile(r"=\?[^?\s]+\?[bBqQ]\?[^?\s]*\?=")
+
+
+def mime_encoded(value: str | None) -> bool:
+    """
+    Check whether a metadata string contains RFC 2047 encoded-words
+    (e.g. =?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?=), which some build
+    backends emit and PyPI does not decode when rendering metadata.
+    Use as a Jinja test: {{ value is not mime_encoded }}.
+    """
+    return bool(value and _MIME_ENCODED_WORD_RE.search(value))
+
+
 def remove_invalid_xml_unicode(value: str | None) -> str | None:
     """
     Remove invalid unicode characters from a string.
