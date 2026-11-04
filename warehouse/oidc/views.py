@@ -29,7 +29,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
-from warehouse.oidc.models.gitlab import GitLabPublisher
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import (
     OIDC_ISSUER_ADMIN_FLAGS,
@@ -227,10 +227,16 @@ def mint_token(
                     request=request,
                 )
 
-            if (
-                pending_publisher.pypi_organization is not None
-                and pending_publisher.added_by
+            if pending_publisher.pypi_organization is not None and (
+                pending_publisher.added_by
                 not in pending_publisher.pypi_organization.owners
+                or (
+                    isinstance(pending_publisher, PendingGitLabPublisher)
+                    and pending_publisher.issuer_url
+                    not in pending_publisher.get_available_issuer_urls(
+                        pending_publisher.pypi_organization
+                    )
+                )
             ):
                 additional = {
                     "project": pending_publisher.project_name,
