@@ -6,7 +6,11 @@ import psycopg
 import pytest
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
-from tests.common.db.organizations import OrganizationOIDCIssuerFactory
+from tests.common.db.organizations import (
+    OrganizationOIDCIssuerFactory,
+    OrganizationProjectFactory,
+)
+from tests.common.db.packaging import ProjectFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 from warehouse.oidc.services import OIDCPublisherService
@@ -248,6 +252,7 @@ class TestGitLabPublisher:
             "sha",
             # optional verifiable claims
             "environment",
+            "namespace_id",
             # preverified claims
             "iss",
             "iat",
@@ -257,7 +262,6 @@ class TestGitLabPublisher:
             "jti",
             # unchecked claims
             "project_id",
-            "namespace_id",
             "namespace_path",
             "user_id",
             "user_login",
@@ -327,6 +331,22 @@ class TestGitLabPublisher:
             ("Workflow", "subfolder/fakeworkflow.yml"),
             ("Issuer URL", "https://gitlab.com"),
             ("Environment", "fakeenv"),
+        ]
+
+    def test_gitlab_publisher_admin_details_with_namespace_id(self):
+        publisher = GitLabPublisherFactory.build(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="",
+            namespace_id="1234",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
+            ("Namespace ID", "1234"),
         ]
 
     def test_gitlab_publisher_admin_details_without_environment(self):
@@ -922,6 +942,26 @@ class TestGitLabPublisher:
 
         assert publisher.exists(db_request.db) == exists_in_db
 
+    def test_exists_scoped_by_issuer_url(self, db_request):
+        existing = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+            issuer_url="https://gitlab.com",
+        )
+        db_request.db.add(existing)
+        db_request.db.flush()
+
+        other_issuer = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+            issuer_url="https://gitlab.example.com",
+        )
+        assert other_issuer.exists(db_request.db) is False
+
     def test_get_available_issuer_urls_default(self):
         """By default, there's a single known GitLab issuer URL."""
         issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls()
@@ -1024,3 +1064,131 @@ class TestPendingGitLabPublisher:
 
         assert publisher.issuer_url == custom_issuer_url
         assert isinstance(publisher, gitlab.GitLabPublisher)
+
+
+@pytest.mark.parametrize(
+    ("truth", "claim", "valid"),
+    [
+        # valid: nothing recorded yet
+        (None, None, True),
+        (None, "1234", True),
+        ("", "1234", True),
+        # valid: matches the recorded ID
+        ("1234", "1234", True),
+        # invalid: missing, or a different namespace
+        ("1234", None, False),
+        ("1234", "", False),
+        ("1234", "5678", False),
+    ],
+)
+def test_check_namespace_id(mocker, truth, claim, valid):
+    check = gitlab.GitLabPublisher.__optional_verifiable_claims__["namespace_id"]
+    if valid:
+        assert check(truth, claim, mocker.sentinel.all_signed_claims)
+    else:
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            check(truth, claim, mocker.sentinel.all_signed_claims)
+        assert str(e.value).startswith("The namespace_id claim does not match")
+
+
+def test_pending_gitlab_publisher_does_not_check_namespace_id():
+    assert (
+        "namespace_id"
+        not in gitlab.PendingGitLabPublisher.__optional_verifiable_claims__
+    )
+    assert "namespace_id" in gitlab.PendingGitLabPublisher.__unchecked_claims__
+
+
+class TestGitLabPublisherNamespaceID:
+    @pytest.fixture
+    def publisher(self, db_request):
+        return GitLabPublisherFactory.create(environment="")
+
+    @pytest.fixture
+    def service(self, mocker):
+        service = mocker.create_autospec(OIDCPublisherService, instance=True)
+        service.jwt_identifier_exists.return_value = False
+        return service
+
+    @staticmethod
+    def _claims(publisher, namespace_id):
+        return {
+            "sub": f"project_path:{publisher.project_path}:ref_type:branch:ref:main",
+            "project_path": publisher.project_path,
+            "ci_config_ref_uri": publisher.ci_config_ref_uri + "@refs/heads/main",
+            "ref_path": "refs/heads/main",
+            "sha": "somesha",
+            "jti": "fake-jti",
+            "namespace_id": namespace_id,
+        }
+
+    def test_records_namespace_id_on_first_use(self, publisher, service):
+        assert publisher.namespace_id is None
+
+        assert publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert publisher.namespace_id == "1234"
+
+    def test_accepts_recorded_namespace_id(self, publisher, service):
+        publisher.namespace_id = "1234"
+
+        assert publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert publisher.namespace_id == "1234"
+
+    def test_rejects_other_namespace_id(self, publisher, service):
+        publisher.namespace_id = "1234"
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(self._claims(publisher, "5678"), service)
+        assert str(e.value).startswith("The namespace_id claim does not match")
+        assert publisher.namespace_id == "1234"
+
+    def test_empty_namespace_id_records_nothing(self, publisher, service):
+        assert publisher.verify_claims(self._claims(publisher, ""), service)
+        assert publisher.namespace_id is None
+
+    def test_failed_verification_records_nothing(self, publisher, service):
+        claims = self._claims(publisher, "1234")
+        claims["project_path"] = "other/project"
+
+        with pytest.raises(errors.InvalidPublisherError):
+            publisher.verify_claims(claims, service)
+        assert publisher.namespace_id is None
+
+    def test_verify_claims_custom_issuer_enabled_for_organization(
+        self, db_request, service
+    ):
+        org_issuer = OrganizationOIDCIssuerFactory.create(
+            issuer_type="gitlab",
+            issuer_url="https://gitlab.example.com",
+        )
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=org_issuer.organization,
+            project=project,
+        )
+        publisher = GitLabPublisherFactory.create(
+            environment="",
+            issuer_url="https://gitlab.example.com",
+            projects=[project],
+        )
+
+        assert publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert publisher.namespace_id == "1234"
+
+    def test_verify_claims_custom_issuer_not_enabled_for_organization(
+        self, db_request, service
+    ):
+        project = ProjectFactory.create()
+        publisher = GitLabPublisherFactory.create(
+            environment="",
+            issuer_url="https://gitlab.example.com",
+            projects=[project],
+        )
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert (
+            str(e.value)
+            == "Issuer URL 'https://gitlab.example.com' is not enabled for this organization"  # noqa: E501
+        )
+        assert publisher.namespace_id is None

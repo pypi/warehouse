@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
+from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
 from tests.common.db.organizations import (
     OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
@@ -30,6 +31,7 @@ from tests.common.db.subscriptions import (
 from warehouse.admin.views import organizations as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationDeactivationReason,
@@ -2418,3 +2420,63 @@ class TestDeleteOIDCIssuer:
 
         with pytest.raises(HTTPNotFound):
             views.delete_oidc_issuer(db_request)
+
+    def test_delete_oidc_issuer_removes_associated_publishers(self, db_request, mocker):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        issuer = OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        pending_custom = PendingGitLabPublisherFactory.create(
+            organization_id=organization.id,
+            issuer_url="https://gitlab.company.com",
+        )
+        pending_default = PendingGitLabPublisherFactory.create(
+            organization_id=organization.id,
+            issuer_url="https://gitlab.com",
+        )
+
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project1)
+        OrganizationProjectFactory.create(organization=organization, project=project2)
+
+        pub_custom = GitLabPublisherFactory.create(
+            issuer_url="https://gitlab.company.com",
+            projects=[project1, project2],
+        )
+        pub_default = GitLabPublisherFactory.create(
+            issuer_url="https://gitlab.com",
+            projects=[project1],
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": str(issuer.id),
+        }
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
+
+        result = views.delete_oidc_issuer(db_request)
+        db_request.db.flush()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.db.query(PendingGitLabPublisher).all() == [pending_default]
+        assert pending_custom in db_request.db.deleted or (
+            db_request.db.get(PendingGitLabPublisher, pending_custom.id) is None
+        )
+        assert db_request.db.query(GitLabPublisher).all() == [pub_default]
+        assert db_request.db.get(GitLabPublisher, pub_custom.id) is None
+        assert project1.oidc_publishers == [pub_default]
+        assert project2.oidc_publishers == []
