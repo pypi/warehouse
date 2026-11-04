@@ -7,18 +7,18 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
-# Optimization: if the user explicitly passes tests via `T`,
-# disable xdist (since the overhead of spawning workers is typically
-# higher than running a small handful of specific tests).
-# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# Optimization: if the user explicitly passes tests via `T`, disable coverage
+# unless COVERAGE is set, and disable xdist (since the overhead of spawning
+# workers is typically higher than running a small handful of specific tests).
+# Only disable xdist when the user doesn't set any explicit `TESTARGS` to avoid
 # confusion.
-COVERAGE := yes
 ifneq ($(T),)
-		COVERAGE = no
+		COVERAGE ?= no
 		ifeq ($(TESTARGS),)
 				TESTARGS = -n 0
 		endif
 endif
+COVERAGE ?= yes
 
 # Set COVERAGE_HTML=yes to write an HTML report to htmlcov/ with per-test
 # contexts. Recording contexts forces the slower ctrace core instead of

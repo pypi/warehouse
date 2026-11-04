@@ -741,7 +741,7 @@ T=tests/unit/i18n/test_filters.py make tests
     can pass explicit `COVERAGE`:
 
     ```shell
-    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+    T=tests/unit/i18n/test_filters.py COVERAGE=yes make tests
     ```
 
 To write an HTML coverage report to `htmlcov/` that shows which tests ran
