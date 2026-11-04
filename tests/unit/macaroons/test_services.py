@@ -7,8 +7,10 @@ import struct
 
 from uuid import UUID, uuid4
 
+import psycopg
 import pymacaroons
 import pytest
+import sqlalchemy.exc
 
 from pymacaroons.exceptions import MacaroonDeserializationException
 from pymacaroons.serializers.binary_serializer import BinarySerializer
@@ -359,6 +361,38 @@ class TestDatabaseMacaroonService:
         record_first_use.assert_called_once_with(dm)
         # Set on the loaded macaroon too, so later checks in this request skip
         # both writes.
+        assert dm.last_used is not None
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            # Pool checkout timeout, raised by SQLAlchemy itself.
+            sqlalchemy.exc.TimeoutError("QueuePool limit reached"),
+            # Driver errors, which warehouse.db.unwrap_dbapi_exceptions re-raises
+            # unwrapped.
+            psycopg.OperationalError("connection reset"),
+        ],
+    )
+    def test_verify_first_use_failure_falls_back(
+        self, mocker, db_request, macaroon_service, user_macaroon, error
+    ):
+        raw_macaroon, dm = user_macaroon
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        mocker.patch.object(
+            macaroon_service,
+            "_record_first_use",
+            autospec=True,
+            side_effect=error,
+        )
+
+        assert macaroon_service.verify(
+            raw_macaroon, db_request, mocker.sentinel.context, mocker.sentinel.perm
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.first_use_failed"
+        )
+        db_request.db.refresh(dm)
         assert dm.last_used is not None
 
     @pytest.mark.parametrize("read_only", [True, False])

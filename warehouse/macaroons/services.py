@@ -10,10 +10,12 @@ import uuid
 
 from collections.abc import Iterator
 
+import psycopg
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy import select, update
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.attributes import set_committed_value
 from zope.interface import implementer
@@ -400,14 +402,21 @@ class DatabaseMacaroonService:
 
             # Record a user token's first use even if this request rolls back,
             # as an upload of a file that already exists does, so a token that
-            # was used never looks unused.
+            # was used never looks unused. If that write fails, fall back to the
+            # in-request update below rather than fail an otherwise valid request.
             if (
                 dm.user_id is not None
                 and dm.last_used is None
                 and not request.flags.enabled(AdminFlagValue.READ_ONLY)
             ):
-                self._record_first_use(dm)
-                return True
+                try:
+                    self._record_first_use(dm)
+                except SQLAlchemyError, psycopg.Error:
+                    request.metrics.increment(
+                        "warehouse.macaroon.verify.first_use_failed"
+                    )
+                else:
+                    return True
 
             # Update last_used without dirtying the ORM object. A dirty
             # macaroon causes autoflush during Project.__acl__() evaluation,
