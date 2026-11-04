@@ -20,13 +20,10 @@ ifneq ($(T),)
 		endif
 endif
 
-# PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
-# the execution. While this introduces significant speed-up during test
-# execution, coverage does not yet support dynamic contexts when enabled.
-# This variable can be set to other tracers (ctrace, pytrace, sysmon).
-# https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
-# TODO: Flip to `sysmon` when we're on Python 3.14
-COVERAGE_CORE ?= ctrace
+# Set COVERAGE_HTML=yes to write an HTML report to htmlcov/ with per-test
+# contexts. Recording contexts forces the slower ctrace core instead of
+# sys.monitoring.
+COVERAGE_HTML ?= no
 
 .DEFAULT_GOAL := help
 
@@ -92,7 +89,7 @@ totp: .state/docker-build-base ## Generate a dev TOTP code
 ##@ Testing & Quality
 
 tests: .state/docker-build-base ## Run Python tests; use T=path/to/test.py
-	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_HTML=$(COVERAGE_HTML) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_lint: .state/docker-build-static ## Run static asset linters
 	docker compose run --rm static bin/static_lint
