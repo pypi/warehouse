@@ -422,7 +422,8 @@ def search(
     raise XMLRPCWrappedError(
         RuntimeError(
             "PyPI no longer supports 'pip search' (or XML-RPC search). "
-            f"Please use https://{domain}/search (via a browser) instead. "
+            f"Please use https://{domain}/search (via a browser) or"
+            f"'pip index versions' instead."
             f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
     )
