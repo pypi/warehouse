@@ -1,0 +1,22 @@
+name: .po file guard
+
+on:
+  pull_request:
+    paths:
+      - '**/*.po'
+
+permissions: {}
+
+jobs:
+  guard:
+    if: >-
+      github.event.pull_request.user.login != 'weblate' &&
+      github.event.pull_request.author_association != 'MEMBER' &&
+      github.event.pull_request.author_association != 'OWNER'
+    name: .po changes go through Weblate
+    runs-on: ubuntu-slim
+    steps:
+      - name: Reject direct translation edits
+        run: |
+          echo '::error::Submit .po changes through Weblate at https://hosted.weblate.org/projects/pypa/warehouse/'
+          exit 1

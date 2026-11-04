@@ -2,10 +2,13 @@
 set -e
 
 export COVERAGE_PROCESS_START="$(pwd)/pyproject.toml"
-# PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
-# the execution. Tell coverage to use this
+# Coverage uses sys.monitoring (PEP 669) by default on Python 3.14+, but
+# dynamic contexts need ctrace. Only record per-test contexts when we're
+# writing an HTML report that shows them.
 # https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
-export COVERAGE_CORE="${COVERAGE_CORE:-sysmon}"
+if [ "${COVERAGE_HTML:-no}" != "no" ]; then
+  export COVERAGE_DYNAMIC_CONTEXT=test_function
+fi
 COMMAND_ARGS=( "$@" )
 
 # Test the postgres connection
@@ -39,7 +42,9 @@ mkdir -p warehouse/static/dist/
 if [ "${COVERAGE:-yes}" != "no" ]; then
   python -m coverage run -m pytest --strict-markers "${COMMAND_ARGS[@]}"
   python -m coverage combine
-  python -m coverage html --show-contexts
+  if [ "${COVERAGE_HTML:-no}" != "no" ]; then
+    python -m coverage html --show-contexts
+  fi
   python -m coverage report -m --fail-under 100 --skip-covered
 else
   python -m pytest --strict-markers "${COMMAND_ARGS[@]}"

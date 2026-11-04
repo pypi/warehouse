@@ -17,8 +17,13 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
     PendingGitHubPublisherFactory,
+    PendingGitLabPublisherFactory,
 )
-from tests.common.db.organizations import OrganizationFactory, OrganizationRoleFactory
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationOIDCIssuerFactory,
+    OrganizationRoleFactory,
+)
 from tests.common.db.packaging import (
     ProhibitedProjectFactory,
     ProjectFactory,
@@ -31,13 +36,21 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.models import (
+    GitHubPublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+)
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.views import (
     is_from_reusable_workflow,
     should_send_environment_warning_email,
 )
-from warehouse.organizations.models import OrganizationProject, OrganizationRoleType
+from warehouse.organizations.models import (
+    OIDCIssuerType,
+    OrganizationProject,
+    OrganizationRoleType,
+)
 from warehouse.packaging import services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
@@ -662,6 +675,98 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
     user_event = user.events.one()
     assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
     assert user_event.additional == expected_event_additional
+
+
+def test_mint_token_pending_gitlab_publisher_for_organization_custom_issuer_invalid(
+    mocker, db_request
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+    pending_publisher = PendingGitLabPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        issuer_url="https://gitlab.example.com",
+        organization_id=organization.id,
+    )
+    claims = {"iss": "https://gitlab.example.com"}
+    oidc_service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    oidc_service.verify_jwt_signature.return_value = claims
+    oidc_service.find_publisher.return_value = pending_publisher
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": (
+                    "valid token, but organization pending publisher is no longer valid"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitLabPublisher).all() == []
+    assert db_request.db.query(Project).all() == []
+
+
+def test_mint_token_pending_gitlab_publisher_for_organization_custom_issuer_ok(
+    mocker, db_request, pyramid_services
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+    OrganizationOIDCIssuerFactory.create(
+        organization=organization,
+        issuer_type=OIDCIssuerType.GitLab,
+        issuer_url="https://gitlab.example.com",
+        created_by=user,
+    )
+    pending_publisher = PendingGitLabPublisherFactory.create(
+        project_name="org-gitlab-project",
+        added_by=user,
+        issuer_url="https://gitlab.example.com",
+        organization_id=organization.id,
+    )
+    reified_publisher = GitLabPublisherFactory.create(
+        issuer_url="https://gitlab.example.com"
+    )
+    claims = {"iss": "https://gitlab.example.com", "ref_path": "main", "sha": "abc"}
+    oidc_service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    oidc_service.verify_jwt_signature.return_value = claims
+    oidc_service.find_publisher.side_effect = [pending_publisher, reified_publisher]
+    oidc_service.reify_pending_publisher.return_value = reified_publisher
+    db_request.remote_addr = "0.0.0.0"
+    db_request.domain = "fakedomain"
+
+    ratelimiter = DummyRateLimiter()
+    pyramid_services.register_service(
+        ratelimiter, IRateLimiter, None, name="user_oidc.publisher.register"
+    )
+    pyramid_services.register_service(
+        ratelimiter, IRateLimiter, None, name="ip_oidc.publisher.register"
+    )
+    mocker.patch.object(
+        views, "send_pending_trusted_publisher_reified_email", autospec=True
+    )
+
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
+    assert resp["success"] is True
 
 
 def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_standing(
