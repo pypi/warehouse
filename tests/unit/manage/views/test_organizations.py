@@ -3187,7 +3187,9 @@ class TestManageOrganizationPublishingViews:
 
         assert view.pending_gitlab_publisher_form.issuer_url.choices == [
             wtforms.SelectChoice("https://gitlab.com", "https://gitlab.com"),
-            wtforms.SelectChoice("https://gitlab.example.com", "https://gitlab.example.com"),
+            wtforms.SelectChoice(
+                "https://gitlab.example.com", "https://gitlab.example.com"
+            ),
         ]
 
     def test_manage_organization_publishing_get_oidc_disabled(

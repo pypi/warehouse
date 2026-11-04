@@ -147,7 +147,10 @@ class SetProjectCreateRateLimitForm(wtforms.Form):
         ],
     )
     project_create_ratelimit_period = wtforms.SelectField(
-        choices=[wtforms.SelectChoice(period.value, period.value) for period in RateLimitPeriod],
+        choices=[
+            wtforms.SelectChoice(period.value, period.value)
+            for period in RateLimitPeriod
+        ],
         coerce=RateLimitPeriod,
         default=RateLimitPeriod.Hour,
     )

@@ -92,10 +92,14 @@ class GitLabPublisherBase(wtforms.Form):
 
         # Set choices for issuer_url field
         if issuer_url_choices:
-            self.issuer_url.choices = [wtforms.SelectChoice(url, url) for url in issuer_url_choices]
+            self.issuer_url.choices = [
+                wtforms.SelectChoice(url, url) for url in issuer_url_choices
+            ]
         else:
             # Default to gitlab.com if no choices provided
-            self.issuer_url.choices = [wtforms.SelectChoice(GITLAB_OIDC_ISSUER_URL, GITLAB_OIDC_ISSUER_URL)]
+            self.issuer_url.choices = [
+                wtforms.SelectChoice(GITLAB_OIDC_ISSUER_URL, GITLAB_OIDC_ISSUER_URL)
+            ]
 
         # Set default value if not already set
         if not self.issuer_url.data:
