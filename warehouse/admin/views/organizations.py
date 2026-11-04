@@ -41,6 +41,7 @@ from warehouse.email import send_new_organization_moreinformationneeded_email
 from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.organizations.checks import (
     OPEN_APPLICATION_STATUSES,
     CheckStatus,
@@ -2079,6 +2080,23 @@ def delete_oidc_issuer(request):
         f"OIDC issuer '{issuer.issuer_url}' removed from '{organization.name}'",
         queue="success",
     )
+
+    for pending_publisher in list(organization.pending_oidc_publishers):
+        if (
+            isinstance(pending_publisher, PendingGitLabPublisher)
+            and pending_publisher.issuer_url == issuer.issuer_url
+        ):
+            request.db.delete(pending_publisher)
+
+    for project in organization.projects:
+        for publisher in list(project.oidc_publishers):
+            if (
+                isinstance(publisher, GitLabPublisher)
+                and publisher.issuer_url == issuer.issuer_url
+            ):
+                project.oidc_publishers.remove(publisher)
+                if len(publisher.projects) == 0:
+                    request.db.delete(publisher)
 
     request.db.delete(issuer)
 
