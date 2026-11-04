@@ -118,8 +118,6 @@ ddtrace==4.16.1 \
     # via -r requirements/deploy.in
 ddtrace-internal==0.1.0 \
     --hash=sha256:7390721276ab5f174cb103088be7d0de22d452f2817c949e8bde1182ff5b961e \
-    --hash=sha256:7390721276ab5f174cb103088be7d0de22d452f2817c949e8bde1182ff5b961e \
-    --hash=sha256:8eeac4a812e003cebafc8be35ef05103ae2b132893dfbcee00a67f4af81404a2 \
     --hash=sha256:8eeac4a812e003cebafc8be35ef05103ae2b132893dfbcee00a67f4af81404a2
     # via ddtrace
 envier==0.6.1 \
