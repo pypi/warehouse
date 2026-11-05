@@ -2002,6 +2002,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     if request.method != "POST":
         return default_response
 
+    if project.organization and not project.organization.is_in_good_standing():
+        request.session.flash(
+            request._("Cannot add collaborator. Organization is not in good standing."),
+            queue="error",
+        )
+        return HTTPSeeOther(request.path)
+
     # Determine which form was submitted with POST.
     if enable_internal_collaborator and "is_team" in request.POST:
         form = internal_role_form

@@ -3857,6 +3857,24 @@ class TestManageProjectRoles:
             "internal_role_form": None,
         }
 
+    def test_post_manage_project_roles_organization_not_in_good_standing(
+        self, db_request, organization, organization_project, mocker
+    ):
+        organization.is_active = False
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": "someuser", "role_name": "Owner"})
+        db_request.path = "/manage/project/foobar/collaboration/"
+        flash = mocker.spy(db_request.session, "flash")
+
+        result = views.manage_project_roles(organization_project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/project/foobar/collaboration/"
+        flash.assert_called_once_with(
+            "Cannot add collaborator. Organization is not in good standing.",
+            queue="error",
+        )
+
     def test_post_new_internal_team_role(
         self,
         db_request,

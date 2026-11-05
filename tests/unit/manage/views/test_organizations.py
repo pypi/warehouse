@@ -1921,12 +1921,11 @@ class TestManageOrganizationRoles:
         self, db_request, invite_emails, mocker
     ):
         """
-        A Company organization that once had billing and lost it is neither
-        in good standing nor awaiting initial billing.
+        A deactivated Company organization is neither in good standing nor
+        permitted to invite a Billing Manager.
         """
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        OrganizationEventFactory.create(
-            source=organization, tag=EventTag.Organization.SubscriptionCreate
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=False
         )
         new_user = UserFactory.create(username="new-user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
@@ -1938,7 +1937,9 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = MultiDict({"username": "new-user", "role_name": "Member"})
+        db_request.POST = MultiDict(
+            {"username": "new-user", "role_name": "Billing Manager"}
+        )
         db_request.user = owner_user
         mocker.spy(db_request.session, "flash")
 
@@ -2390,6 +2391,9 @@ class TestChangeOrganizationRole:
         self, db_request, orgtype, initial_role, new_role_name, mocker
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+        if orgtype == OrganizationType.Company:
+            OrganizationStripeCustomerFactory.create(organization=organization)
+            OrganizationStripeSubscriptionFactory.create(organization=organization)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
             organization=organization,
@@ -2511,6 +2515,48 @@ class TestChangeOrganizationRole:
         )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_organization_role_not_in_good_standing(self, db_request, mocker):
+        organization = OrganizationFactory.create(
+            name="foobar", orgtype=OrganizationType.Company
+        )
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            user=user,
+            organization=organization,
+            role_name=OrganizationRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        mocker.patch.object(
+            org_views, "send_organization_member_role_changed_email", autospec=True
+        )
+        mocker.patch.object(
+            org_views, "send_role_changed_as_organization_member_email", autospec=True
+        )
+
+        # Non-Billing Manager roles are rejected when not in good standing
+        db_request.POST = MultiDict({"role_id": str(role.id), "role_name": "Manager"})
+        result = org_views.change_organization_role(organization, db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert role.role_name == OrganizationRoleType.Member
+        db_request.session.flash.assert_not_called()
+
+        # Billing Manager role is allowed when not in good standing
+        db_request.POST = MultiDict(
+            {"role_id": str(role.id), "role_name": "Billing Manager"}
+        )
+        result = org_views.change_organization_role(organization, db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert role.role_name == OrganizationRoleType.BillingManager
+        db_request.session.flash.assert_called_once_with(
+            "Changed role", queue="success"
+        )
 
 
 class TestDeleteOrganizationRoles:
