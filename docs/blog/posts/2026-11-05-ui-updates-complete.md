@@ -13,7 +13,7 @@ links:
   - posts/2026-07-22-releases-now-reject-new-files-after-14-days.md
 ---
 
-In July, we [announced a series of planned updates](2026-07-22-ui-updates.md) to the PyPI user interface, aimed at improving how we surface security signals and display package details.
+In July, we [announced a series of planned updates](2026-07-22-ui-updates.md) to the PyPI user interface. Shaped by [user research with members of the Python community](https://github.com/pypi/warehouse/issues/20111), the updates aim to improve how we surface security signals and display package details.
 
 We're pleased to share that this work is now complete and live on [PyPI](https://pypi.org/).
 
@@ -31,20 +31,20 @@ Here's a look at what's changed, what it means for you, and what actions you can
 
 ## The New Security Tab
 
-The new **security tab** communicates release provenance and attestation status, giving you a dedicated place to verify where the release files came from.
+The new **security tab** communicates release provenance states and displayes per-file attestations, giving you a dedicated place to verify where the release files came from.
 
 <figure markdown="1">
   ![Project detail page tabs: Description, Release files, Security (selected), and Release history](../assets/2026-11-05-ui-updates-complete/security-tab.png)
   <figcaption markdown="span">The new security tab on a PyPI project detail page</figcaption>
 </figure>
 
-### Baseline Provenance States
+### Provenance States
 
-Every release on PyPI starts in one of two baseline states:
+PyPI calculates each release's provenance state by checking whether each release file has an attestation. Typically, a release will be in one of two states:
 
-#### 1. [Full Provenance](https://docs.pypi.org/using-pypi/package-security/provenance/)
+#### Full Provenance
 
-This means that 100% of the files in the release have attestations, carrying either or both of the supported types:
+This means that 100% of the release files have attestations, carrying either or both of the supported attestation types:
 
 **[PyPI Publish](https://docs.pypi.org/attestations/publish/v1/) attestations** confirm the file was published by a [PyPI Trusted Publisher](https://docs.pypi.org/trusted-publishers/):
 
@@ -62,13 +62,13 @@ This means that 100% of the files in the release have attestations, carrying eit
 
 You can review attestation metadata directly in the UI, or click on the transparency log link for more information.
 
-#### 2. [Without Provenance](https://docs.pypi.org/using-pypi/package-security/source-code-security/)
+#### No Provenance
 
-"Without provenance" simply means that no files in the release have an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a file is malicious; it instead means that the file origin cannot be cryptographically verified**.
+"No provenance" simply means that no file in the release has an attestation. This is typical for older releases, or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the file _origin_ cannot be cryptographically verified**.
 
-When no provenance exists, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, use [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) with a [publisher that generates attestations](https://docs.pypi.org/attestations/producing-attestations/) for your next release.
+When there is no provenance, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, consider using [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) with a [publisher that generates attestations](https://docs.pypi.org/attestations/producing-attestations/) for your next release.
 
-### Warning States and Anomalies
+### Provenance Warnings
 
 Provenance warnings are designed to help you identify when a file may not have come from the project's maintainers, for example, if an attacker has taken over an account or a publishing workflow.
 
@@ -94,17 +94,11 @@ If you see this warning, check the project release notes or official channels to
 
 #### [Loss of Provenance](https://docs.pypi.org/using-pypi/package-security/provenance/#loss-of-provenance)
 
-This means that a project that previously published with attestations has reverted to uploading release files without them.
+This means that a project that previously published with attestations has changed to uploading release files without them.
 
 Check whether the maintainers intentionally changed their publishing process, for example by switching back to API tokens, or by changing their publishing configuration so that it no longer generates attestations. If this is unexpected, treat the release with skepticism until verified.
 
-#### Late Files
-
-This warning is shown when one or more files were uploaded more than 14 days after the initial release timestamp. It only appears on releases prior to a policy change, as PyPI [rejects new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md) since July 2026.
-
-We recommend inspecting individual file timestamps before installing.
-
-To learn more about provenance and attestations, including warning states, see our [user documentation](https://docs.pypi.org/using-pypi/package-security/provenance/).
+To learn more about provenance and attestations, including provenance warnings, see our [user documentation](https://docs.pypi.org/using-pypi/package-security/provenance/).
 
 <figure markdown="1">
   ![An example project detail page with an Incomplete provenance banner at the top, and the security tab open showing an Incomplete provenance warning: 2 of 5 files were uploaded without provenance metadata](../assets/2026-11-05-ui-updates-complete/provenance-warning.png)
@@ -115,8 +109,8 @@ To learn more about provenance and attestations, including warning states, see o
 
 To support these changes, the project detail page has also been updated:
 
-* Provenance warnings now appear at the top of the page, alongside status banners for yanked releases, archived projects, and pre-releases. If a project or release is quarantined, only the quarantine banner is shown, as it takes precedence over all other warnings and banners.
-* When a release has full provenance or provenance warnings, its status is displayed in the sidebar, linking through to the security tab for more information.
+* Provenance warnings now appear at the top of the page, alongside status banners for yanked releases, archived projects, and pre-releases. If a project or release is [quarantined](https://docs.pypi.org/using-pypi/pypi-basics/#quarantined-project-or-release), only the quarantine banner is shown, as it takes precedence over all other warnings and banners.
+* When a release has full provenance or provenance warnings, its provenance state is displayed in the sidebar, linking through to the security tab for more information.
 * Metadata is now ordered by utility and labeled as "PyPI data" or "Data verified by PyPI", replacing the old design where data was grouped and ordered by verification status.
 
 <figure markdown="1">
@@ -126,13 +120,15 @@ To support these changes, the project detail page has also been updated:
 
 ## Release Files and Release History
 
-The redesigned **release files tab** helps you find the right file by searching and filtering long lists. You can also view the provenance status of each file within the table, and quickly identify late files, which are marked with an orange badge.
+The redesigned **release files tab** helps you find the right file by searching and filtering long lists. You can also view the provenance state of each file within the table, and quickly identify late files, which are marked with an orange warning.
 
-Likewise, the **release history tab** now provides more details about each release, exposing file count, provenance status, and release status (i.e., quarantined, yanked, archived, or pre-release).
+Late file warnings are shown when one or more files were uploaded more than 14 days after the initial release timestamp. These warnings only appear on releases prior to July 2026, when a policy was introduced to [reject new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md).
+
+The **release history tab** now also provides more details about each release, exposing file count, provenance state, and release status (i.e., quarantined, yanked, archived, or pre-release).
 
 <figure markdown="1">
-  ![Release history timeline listing five releases, each with its date, release file count, and Full provenance status; one is labeled Pre-release, and another is labeled Yanked with the reason given by its maintainers](../assets/2026-11-05-ui-updates-complete/release-history.png)
-  <figcaption markdown="span">The redesigned release history tab, with release status, file count, and provenance status</figcaption>
+  ![Release history timeline listing five releases, each with its date, release file count, and Full provenance state; one is labeled Pre-release, and another is labeled Yanked with the reason given by its maintainers](../assets/2026-11-05-ui-updates-complete/release-history.png)
+  <figcaption markdown="span">The redesigned release history tab, with release status, file count, and provenance state</figcaption>
 </figure>
 
 ## Getting Help
