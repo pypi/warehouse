@@ -31,7 +31,7 @@ Here's a look at what's changed, what it means for you, and what actions you can
 
 ## The New Security Tab
 
-The new **security tab** communicates release provenance states and displayes per-file attestations, giving you a dedicated place to verify where the release files came from.
+The new **security tab** communicates release provenance states and displays per-file attestations, giving you a dedicated place to verify where the release files came from.
 
 <figure markdown="1">
   ![Project detail page tabs: Description, Release files, Security (selected), and Release history](../assets/2026-11-05-ui-updates-complete/security-tab.png)
@@ -64,7 +64,7 @@ You can review attestation metadata directly in the UI, or click on the transpar
 
 #### No Provenance
 
-"No provenance" simply means that no file in the release has an attestation. This is typical for older releases, or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the file _origin_ cannot be cryptographically verified**.
+"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the file _origin_ cannot be cryptographically verified**.
 
 When there is no provenance, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, consider using [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) with a [publisher that generates attestations](https://docs.pypi.org/attestations/producing-attestations/) for your next release.
 
@@ -84,7 +84,7 @@ Exercise caution if you see this warning. Check release notes for build issues o
 
 This warning indicates that files within the same release originate from different build systems or source repositories.
 
-Treat this as a high-priority warning. Check the attestation metadata to confirm whether all files came from sources controlled by the maintainers.
+Check the attestation metadata to confirm whether all files came from sources controlled by the maintainers.
 
 #### [Change of Provenance](https://docs.pypi.org/using-pypi/package-security/provenance/#change-of-provenance)
 
@@ -120,7 +120,7 @@ To support these changes, the project detail page has also been updated:
 
 ## Release Files and Release History
 
-The redesigned **release files tab** helps you find the right file by searching and filtering long lists. You can also view the provenance state of each file within the table, and quickly identify late files, which are marked with an orange warning.
+The redesigned **release files tab** helps you find the right file by searching and filtering long lists. You can also view the provenance state of each file within the table, and quickly identify late files, which are marked with an orange warning icon.
 
 Late file warnings are shown when one or more files were uploaded more than 14 days after the initial release timestamp. These warnings only appear on releases prior to July 2026, when a policy was introduced to [reject new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md).
 
@@ -147,4 +147,4 @@ The new security tab gives PyPI a dedicated home for future attestation types an
 
 This initiative was funded by the [Open Source Security Foundation](https://openssf.org/) and implemented by [Kabu Creative](https://kabucreative.com/). We would like to thank [Dustin Ingram](https://github.com/di), [Zach Steindler](https://github.com/steiza), and the members of the [OpenSSF Securing Software Repositories Working Group](https://repos.openssf.org/) for championing this effort. Special thanks to [Mike Fiedler](https://github.com/miketheman), [Jacob Coffee](https://github.com/JacobCoffee), and members of the PyPI team for their thoughtful design feedback and code reviews, [@cofiem](https://github.com/cofiem) for their contributions to the new release files tab, and our [user interview participants](https://github.com/pypi/warehouse/issues/20111) and community testers for helping shape the final design.
 
-Finally, we would like to thank the OpenSSF for their funding and continued partnership in securing the Python packaging ecosystem.
+Finally, we would like to thank the OpenSSF for its funding and continued partnership in securing the Python packaging ecosystem.
