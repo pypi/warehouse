@@ -66,7 +66,7 @@ You can review attestation metadata directly in the UI, or click on the transpar
 
 "Without provenance" simply means that no files in the release have an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a file is malicious; it instead means that the file origin cannot be cryptographically verified**.
 
-When no provenance exists, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, set up [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) to generate attestations for your next release.
+When no provenance exists, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, use [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) with a [publisher that generates attestations](https://docs.pypi.org/attestations/producing-attestations/) for your next release.
 
 ### Warning States and Anomalies
 
@@ -96,7 +96,7 @@ If you see this warning, check the project release notes or official channels to
 
 This means that a project that previously published with attestations has reverted to uploading release files without them.
 
-Check whether the maintainers intentionally switched tooling back to API tokens. If this is unexpected, treat the release with skepticism until verified.
+Check whether the maintainers intentionally changed their publishing process, for example by switching back to API tokens, or by changing their publishing configuration so that it no longer generates attestations. If this is unexpected, treat the release with skepticism until verified.
 
 #### Late Files
 
