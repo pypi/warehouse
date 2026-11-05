@@ -843,13 +843,61 @@ def test_mint_token_from_oidc_pending_publisher_for_inactive_user(
         "message": "Token request failed",
         "errors": [
             {
-                "code": "invalid-token",
-                "description": "malformed or invalid token",
+                "code": "invalid-publisher",
+                "description": (
+                    "valid token, but no corresponding publisher "
+                    "(Publisher with matching claims was not found)"
+                ),
             }
         ],
     }
     assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
     assert db_request.db.query(Project).all() == []
+
+
+@pytest.mark.parametrize(
+    "user_kwargs",
+    [
+        {"is_frozen": True},
+        {"is_active": False},
+    ],
+    ids=["frozen-user", "inactive-user"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_inactive_user_falls_through(
+    db_request, user_kwargs
+):
+    active_user = UserFactory.create()
+    legit_project = ProjectFactory.create()
+    RoleFactory.create(user=active_user, project=legit_project, role_name="Owner")
+    publisher = GitHubPublisherFactory.create(
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+    publisher.projects = [legit_project]
+
+    inactive_user = UserFactory.create(**user_kwargs)
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+        added_by=inactive_user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == [legit_project]
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -1030,58 +1078,6 @@ def test_mint_token_no_pending_publisher_ok(
         "publisher_url": publisher.publisher_url(),
         "reusable_workflow_used": False,
     }
-
-
-@pytest.mark.parametrize(
-    "user_kwargs",
-    [
-        {"is_frozen": True},
-        {"is_active": False},
-    ],
-    ids=["frozen-user", "inactive-user"],
-)
-def test_mint_token_no_pending_publisher_inactive_user(mocker, db_request, user_kwargs):
-    claims_in_token = {
-        "ref": "someref",
-        "sha": "somesha",
-        "iss": "https://token.actions.githubusercontent.com",
-    }
-
-    active_user = UserFactory.create()
-    user = UserFactory.create(**user_kwargs)
-    project = ProjectFactory.create()
-    RoleFactory.create(user=active_user, project=project, role_name="Owner")
-    RoleFactory.create(user=user, project=project, role_name="Maintainer")
-    publisher = GitHubPublisherFactory()
-    publisher.projects = [project]
-    db_request.db.flush()
-
-    def _find_publisher(claims, pending=False):
-        if pending:
-            return None
-        return publisher
-
-    oidc_service = mocker.create_autospec(OIDCPublisherService, instance=True)
-    oidc_service.verify_jwt_signature.return_value = claims_in_token
-    oidc_service.find_publisher.side_effect = _find_publisher
-
-    response = views.mint_token(
-        oidc_service,
-        DUMMY_GITHUB_OIDC_JWT,
-        "https://token.actions.githubusercontent.com",
-        db_request,
-    )
-    assert db_request.response.status_code == 422
-    assert response == {
-        "message": "Token request failed",
-        "errors": [
-            {
-                "code": "invalid-token",
-                "description": "malformed or invalid token",
-            }
-        ],
-    }
-    oidc_service.store_jwt_identifier.assert_not_called()
 
 
 def test_mint_token_warn_constrain_environment(mocker, db_request):

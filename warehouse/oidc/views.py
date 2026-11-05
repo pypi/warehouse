@@ -210,7 +210,11 @@ def mint_token(
         pending_publisher = oidc_service.find_publisher(claims, pending=True)
         factory = ProjectFactory(request)
 
-        if isinstance(pending_publisher, PendingOIDCPublisher):
+        if (
+            isinstance(pending_publisher, PendingOIDCPublisher)
+            and not pending_publisher.added_by.is_frozen
+            and pending_publisher.added_by.is_active
+        ):
             # If the project already exists, this pending publisher is no longer
             # valid and needs to be removed.
             # NOTE: This is mostly a sanity check, since we dispose of invalidated
@@ -282,20 +286,6 @@ def mint_token(
                             "description": (
                                 "valid token, but organization is not active"
                             ),
-                        }
-                    ],
-                    request=request,
-                )
-
-            if (
-                pending_publisher.added_by.is_frozen
-                or not pending_publisher.added_by.is_active
-            ):
-                return _invalid(
-                    errors=[
-                        {
-                            "code": "invalid-token",
-                            "description": "malformed or invalid token",
                         }
                     ],
                     request=request,
