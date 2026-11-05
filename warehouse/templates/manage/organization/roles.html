@@ -254,8 +254,8 @@
                           name="role_name"
                           data-action="change-role#change"
                           autocomplete="off">
-                    {% for role_name, role_name_label in role_choices if role_name %}
-                      {% set role_name_label = gettext(role_name_label) %}
+                    {% for choice in role_choices if choice.value %}
+                      {% set role_name, role_name_label = choice.value, gettext(choice.label) %}
                       <option value="{{ role_name }}"
                               {{ 'selected' if role_name == role.role_name.value else '' }}>
                         {{ role_name_label }}

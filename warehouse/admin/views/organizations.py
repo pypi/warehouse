@@ -50,6 +50,7 @@ from warehouse.email import send_new_organization_moreinformationneeded_email
 from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.organizations.checks import (
     OPEN_APPLICATION_STATUSES,
     CheckStatus,
@@ -113,7 +114,10 @@ def _organization_activity(request, organization):
 
 class OrganizationRoleForm(wtforms.Form):
     role_name = wtforms.SelectField(
-        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        choices=[
+            wtforms.SelectChoice(role.value, role.value)
+            for role in OrganizationRoleType
+        ],
         coerce=OrganizationRoleType,
         validators=[
             wtforms.validators.InputRequired(message="Select a role"),
@@ -128,7 +132,10 @@ class AddOrganizationRoleForm(wtforms.Form):
         ]
     )
     role_name = wtforms.SelectField(
-        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        choices=[
+            wtforms.SelectChoice(role.value, role.value)
+            for role in OrganizationRoleType
+        ],
         coerce=OrganizationRoleType,
         validators=[
             wtforms.validators.InputRequired(message="Select a role"),
@@ -176,7 +183,10 @@ class OrganizationForm(wtforms.Form):
     )
 
     orgtype = wtforms.SelectField(
-        choices=[(orgtype.value, orgtype.value) for orgtype in OrganizationType],
+        choices=[
+            wtforms.SelectChoice(orgtype.value, orgtype.value)
+            for orgtype in OrganizationType
+        ],
         coerce=OrganizationType,
         validators=[
             wtforms.validators.InputRequired(message="Select organization type"),
@@ -1995,7 +2005,9 @@ def set_project_create_ratelimit(request):
 
 class OrganizationOIDCIssuerForm(wtforms.Form):
     issuer_type = wtforms.SelectField(
-        choices=[(issuer.value, issuer.name) for issuer in OIDCIssuerType],
+        choices=[
+            wtforms.SelectChoice(issuer.value, issuer.name) for issuer in OIDCIssuerType
+        ],
         coerce=OIDCIssuerType,
         validators=[
             wtforms.validators.InputRequired(message="Select an issuer type"),
@@ -2148,6 +2160,23 @@ def delete_oidc_issuer(request):
         f"OIDC issuer '{issuer.issuer_url}' removed from '{organization.name}'",
         queue="success",
     )
+
+    for pending_publisher in list(organization.pending_oidc_publishers):
+        if (
+            isinstance(pending_publisher, PendingGitLabPublisher)
+            and pending_publisher.issuer_url == issuer.issuer_url
+        ):
+            request.db.delete(pending_publisher)
+
+    for project in organization.projects:
+        for publisher in list(project.oidc_publishers):
+            if (
+                isinstance(publisher, GitLabPublisher)
+                and publisher.issuer_url == issuer.issuer_url
+            ):
+                project.oidc_publishers.remove(publisher)
+                if len(publisher.projects) == 0:
+                    request.db.delete(publisher)
 
     request.db.delete(issuer)
 
