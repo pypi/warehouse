@@ -93,14 +93,16 @@ def _organization_activity_predicates():
     return has_projects, has_recent_release
 
 
-def _activity_tier(organization, has_projects, has_recent_release):
+def _activity_tier(
+    organization: Organization, has_projects: bool, has_recent_release: bool
+) -> str:
     """activity tier: Inactive / Active / Dormant / Unused."""
     if not organization.is_active:
         return "Inactive"
     return "Active" if has_recent_release else "Dormant" if has_projects else "Unused"
 
 
-def _organization_activity(request, organization):
+def _organization_activity(request: Request, organization: Organization) -> str:
     if not organization.is_active:
         return "Inactive"
     has_projects, has_recent_release = _organization_activity_predicates()
