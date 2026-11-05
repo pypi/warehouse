@@ -5,6 +5,7 @@ import re
 import uuid
 
 import pytest
+import wtforms
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -1768,10 +1769,10 @@ class TestManageOrganizationRoles:
             "is_sole_owner": False,
             "awaiting_initial_billing": False,
             "role_choices": [
-                ("", "Select role"),
-                ("Member", "Member"),
-                ("Manager", "Manager"),
-                ("Owner", "Owner"),
+                wtforms.SelectChoice("", "Select role"),
+                wtforms.SelectChoice("Member", "Member"),
+                wtforms.SelectChoice("Manager", "Manager"),
+                wtforms.SelectChoice("Owner", "Owner"),
             ],
         }
 
@@ -1969,11 +1970,11 @@ class TestManageOrganizationRoles:
         result = org_views.manage_organization_roles(organization, db_request)
 
         assert result["form"].role_name.choices == [
-            ("", "Select role"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
-        assert [choice[0] for choice in result["role_choices"]] == [
+        assert [choice.value for choice in result["role_choices"]] == [
             "",
             "Member",
             "Manager",
@@ -3185,8 +3186,10 @@ class TestManageOrganizationPublishingViews:
         )
 
         assert view.pending_gitlab_publisher_form.issuer_url.choices == [
-            ("https://gitlab.com", "https://gitlab.com"),
-            ("https://gitlab.example.com", "https://gitlab.example.com"),
+            wtforms.SelectChoice("https://gitlab.com", "https://gitlab.com"),
+            wtforms.SelectChoice(
+                "https://gitlab.example.com", "https://gitlab.example.com"
+            ),
         ]
 
     def test_manage_organization_publishing_get_oidc_disabled(
