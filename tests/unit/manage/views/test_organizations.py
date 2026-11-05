@@ -5,6 +5,7 @@ import re
 import uuid
 
 import pytest
+import wtforms
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -1768,10 +1769,10 @@ class TestManageOrganizationRoles:
             "is_sole_owner": False,
             "awaiting_initial_billing": False,
             "role_choices": [
-                ("", "Select role"),
-                ("Member", "Member"),
-                ("Manager", "Manager"),
-                ("Owner", "Owner"),
+                wtforms.SelectChoice("", "Select role"),
+                wtforms.SelectChoice("Member", "Member"),
+                wtforms.SelectChoice("Manager", "Manager"),
+                wtforms.SelectChoice("Owner", "Owner"),
             ],
         }
 
@@ -1969,11 +1970,11 @@ class TestManageOrganizationRoles:
         result = org_views.manage_organization_roles(organization, db_request)
 
         assert result["form"].role_name.choices == [
-            ("", "Select role"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
-        assert [choice[0] for choice in result["role_choices"]] == [
+        assert [choice.value for choice in result["role_choices"]] == [
             "",
             "Member",
             "Manager",
@@ -2064,7 +2065,7 @@ class TestResendOrganizationInvitations:
         role_verification_email = mocker.patch.object(
             org_views, "send_organization_role_verification_email", autospec=True
         )
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.resend_organization_invitation(organization, invite_request)
 
@@ -2112,7 +2113,7 @@ class TestResendOrganizationInvitations:
             invite_status=OrganizationInvitationStatus.Expired,
             token="not-a-signed-token",
         )
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.resend_organization_invitation(
             invite_organization, invite_request
@@ -2137,7 +2138,7 @@ class TestResendOrganizationInvitations:
         self, invite_request, invite_organization
     ):
         user = UserFactory.create(username="testuser")
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.resend_organization_invitation(
             invite_organization, invite_request
@@ -2212,7 +2213,7 @@ class TestRevokeOrganizationInvitation:
                 }
             ),
         )
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
         invite_canceled_email, canceled_as_invited_email = revoke_emails
 
         result = org_views.revoke_organization_invitation(organization, invite_request)
@@ -2238,7 +2239,7 @@ class TestRevokeOrganizationInvitation:
 
     def test_invitation_does_not_exist(self, invite_request, invite_organization):
         user = UserFactory.create(username="testuser")
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.revoke_organization_invitation(
             invite_organization, invite_request
@@ -2265,7 +2266,7 @@ class TestRevokeOrganizationInvitation:
                 token_service, {"action": "email-organization-role-verify"}
             ),
         )
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.revoke_organization_invitation(
             invite_organization, invite_request
@@ -2297,7 +2298,7 @@ class TestRevokeOrganizationInvitation:
         OrganizationInvitationFactory.create(
             organization=invite_organization, user=user, token=token
         )
-        invite_request.POST = MultiDict({"user_id": user.id})
+        invite_request.POST = MultiDict({"user_id": str(user.id)})
 
         result = org_views.revoke_organization_invitation(
             invite_organization, invite_request
@@ -2377,21 +2378,35 @@ class TestReinviteOrganizationMember:
 
 
 class TestChangeOrganizationRole:
+    @pytest.mark.parametrize(
+        ("initial_role", "new_role_name"),
+        [
+            (OrganizationRoleType.Owner, "Manager"),
+            (OrganizationRoleType.Member, "Owner"),
+        ],
+    )
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
-    def test_change_role(self, db_request, orgtype, mocker):
+    def test_change_role(
+        self, db_request, orgtype, initial_role, new_role_name, mocker
+    ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
             organization=organization,
             user=user,
-            role_name=OrganizationRoleType.Owner,
+            role_name=initial_role,
         )
-        new_role_name = "Manager"
+        PendingGitHubPublisherFactory.create(
+            organization_id=organization.id,
+            added_by=user,
+        )
 
         user_2 = UserFactory.create()
 
         db_request.method = "POST"
-        db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
+        db_request.POST = MultiDict(
+            {"role_id": str(role.id), "role_name": new_role_name}
+        )
         db_request.user = user_2
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
@@ -2408,6 +2423,9 @@ class TestChangeOrganizationRole:
         result = org_views.change_organization_role(organization, db_request)
 
         assert role.role_name == new_role_name
+        assert len(db_request.db.scalars(select(PendingGitHubPublisher)).all()) == (
+            1 if new_role_name == "Owner" else 0
+        )
         db_request.route_path.assert_called_once_with(
             "manage.organization.roles", organization_name=organization.normalized_name
         )
@@ -2480,7 +2498,7 @@ class TestChangeOrganizationRole:
 
         db_request.method = "POST"
         db_request.user = user
-        db_request.POST = MultiDict({"role_id": role.id, "role_name": "Manager"})
+        db_request.POST = MultiDict({"role_id": str(role.id), "role_name": "Manager"})
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
@@ -2507,7 +2525,7 @@ class TestDeleteOrganizationRoles:
         user_2 = UserFactory.create()
 
         db_request.method = "POST"
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         db_request.user = user_2
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
@@ -2578,7 +2596,7 @@ class TestDeleteOrganizationRoles:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         mocker.patch.object(
             db_request, "has_permission", autospec=True, return_value=False
         )
@@ -2609,7 +2627,7 @@ class TestDeleteOrganizationRoles:
 
         db_request.method = "POST"
         db_request.user = user
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
@@ -2639,7 +2657,7 @@ class TestDeleteOrganizationRoles:
 
         db_request.method = "POST"
         db_request.user = some_other_user
-        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.POST = MultiDict({"role_id": str(role.id)})
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
@@ -3168,8 +3186,10 @@ class TestManageOrganizationPublishingViews:
         )
 
         assert view.pending_gitlab_publisher_form.issuer_url.choices == [
-            ("https://gitlab.com", "https://gitlab.com"),
-            ("https://gitlab.example.com", "https://gitlab.example.com"),
+            wtforms.SelectChoice("https://gitlab.com", "https://gitlab.com"),
+            wtforms.SelectChoice(
+                "https://gitlab.example.com", "https://gitlab.example.com"
+            ),
         ]
 
     def test_manage_organization_publishing_get_oidc_disabled(
@@ -3370,4 +3390,64 @@ class TestManageOrganizationPublishingViews:
         )
         assert (
             pending_publisher_1.repository_name != pending_publisher_2.repository_name
+        )
+
+
+class TestUnusableIdNotFound:
+    """A posted id that can't find a row is not found instead of a 500."""
+
+    @pytest.mark.parametrize(
+        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+    )
+    def test_resend_organization_invitation(
+        self, invite_request, invite_organization, value
+    ):
+        invite_request.POST = MultiDict({"user_id": value})
+
+        result = org_views.resend_organization_invitation(
+            invite_organization, invite_request
+        )
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find organization invitation.", queue="error"
+        )
+
+    @pytest.mark.parametrize(
+        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+    )
+    def test_revoke_organization_invitation(
+        self, invite_request, invite_organization, value
+    ):
+        invite_request.POST = MultiDict({"user_id": value})
+
+        result = org_views.revoke_organization_invitation(
+            invite_organization, invite_request
+        )
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find organization invitation.", queue="error"
+        )
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_change_organization_role(self, invite_request, invite_organization, value):
+        invite_request.POST = MultiDict({"role_id": value, "role_name": "Owner"})
+
+        result = org_views.change_organization_role(invite_organization, invite_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
+        )
+
+    @pytest.mark.parametrize("value", ["nope", "", object()])
+    def test_delete_organization_role(self, invite_request, invite_organization, value):
+        invite_request.POST = MultiDict({"role_id": value})
+
+        result = org_views.delete_organization_role(invite_organization, invite_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        invite_request.session.flash.assert_called_once_with(
+            "Could not find member", queue="error"
         )

@@ -20,7 +20,7 @@ from tldextract import TLDExtract
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
-from warehouse.accounts.models import OAuthAccountAssociation, User
+from warehouse.accounts.models import Email, OAuthAccountAssociation, User
 from warehouse.organizations.constants import (
     MIN_SUBSTRING_LENGTH,
     NAME_SIMILARITY_THRESHOLD,
@@ -62,6 +62,7 @@ UNVERIFIABLE_URL_HOSTS = {
 }
 
 GITHUB_HOSTS = {"github.com", "github.io"}
+GITLAB_HOSTS = {"gitlab.com", "gitlab.io"}
 
 OPEN_APPLICATION_STATUSES = {
     OrganizationApplicationStatus.Submitted,
@@ -123,6 +124,7 @@ class _Link:
         }
         self.unverifiable = bool(parts & UNVERIFIABLE_URL_HOSTS)
         self.github = bool(parts & GITHUB_HOSTS)
+        self.gitlab = bool(parts & GITLAB_HOSTS)
 
 
 # urllib3 reads these as authority terminators, so `acme.com\evil.org` would
@@ -195,8 +197,8 @@ def _domain_match_check(link: _Link, user: User) -> Check:
     )
 
 
-def _url_shape_check(link: _Link) -> Check | None:
-    # Two keys: the template routes each to a different saved reply.
+def _url_shape_check(link: _Link, *, gitlab_associations: bool) -> Check | None:
+    # One key per saved reply: the template routes each to its own.
     if not link.unverifiable:
         return None
 
@@ -208,6 +210,14 @@ def _url_shape_check(link: _Link) -> Check | None:
             CheckStatus.Warn,
             f"URL is on {link.host}, not the organization's own domain. Ask for "
             "public GitHub membership and an account association.",
+        )
+    if link.gitlab and gitlab_associations:
+        return Check(
+            "url_shape_gitlab",
+            label,
+            CheckStatus.Warn,
+            f"URL is on {link.host}, not the organization's own domain. Ask for "
+            "GitLab group membership and an account association.",
         )
     return Check(
         "url_shape_codehost",
@@ -242,10 +252,18 @@ def _name_domain_check(
     )
 
 
+def reachable_email(user: User) -> Email | None:
+    """Where mail to this user should go: their primary, else any other verified."""
+    verified = sorted(
+        (email for email in user.emails if email.verified),
+        key=lambda email: (not email.primary, email.id),
+    )
+    return verified[0] if verified else None
+
+
 def can_email(user: User) -> bool:
-    """Whether `_send_email_to_user` will deliver to this user's primary address."""
-    primary = user.primary_email
-    return primary is not None and primary.verified
+    """Whether organization application emails can reach this user."""
+    return reachable_email(user) is not None
 
 
 def _email_verified_check(user: User) -> Check:
@@ -254,33 +272,46 @@ def _email_verified_check(user: User) -> Check:
     )
 
     primary = user.primary_email
+    if primary is not None and primary.verified:
+        return check(CheckStatus.Ok, f"{primary.email} is verified.")
+    if fallback := reachable_email(user):
+        unverified = (
+            f"{primary.email} is unverified"
+            if primary is not None
+            else "No primary email address on this account"
+        )
+        return check(
+            CheckStatus.Warn, f"{unverified}. Emails go to {fallback.email} instead."
+        )
     if primary is None:
         return check(CheckStatus.Fail, "No primary email address on this account.")
-    if not primary.verified:
-        return check(
-            CheckStatus.Fail,
-            f"{primary.email} is unverified. No email will reach the applicant.",
-        )
-    return check(CheckStatus.Ok, f"{primary.email} is verified.")
+    return check(
+        CheckStatus.Fail,
+        f"{primary.email} is unverified. No email will reach the applicant.",
+    )
 
 
-def _github_association_check(link: _Link, user: User) -> Check | None:
-    check = functools.partial(Check, "github_association", "GitHub account association")
+def _account_association_check(
+    user: User, *, service: str, name: str, on_service: bool
+) -> Check | None:
+    check = functools.partial(
+        Check, f"{service}_association", f"{name} account association"
+    )
 
     association = next(
         (
             a
             for a in user.account_associations
-            if isinstance(a, OAuthAccountAssociation) and a.service == "github"
+            if isinstance(a, OAuthAccountAssociation) and a.service == service
         ),
         None,
     )
     if association is not None:
         return check(CheckStatus.Ok, f"Linked to {association.external_username}.")
 
-    if not link.github:
+    if not on_service:
         return None
-    return check(CheckStatus.Warn, "No GitHub account linked.")
+    return check(CheckStatus.Warn, f"No {name} account linked.")
 
 
 def _projects_check(count: int) -> Check:
@@ -327,17 +358,29 @@ def review_checks(
     related_applications: Sequence[OrganizationApplication] = (),
     *,
     project_count: int | None = None,
+    gitlab_associations: bool = False,
 ) -> list[Check]:
     """
     Build the reviewer-facing checks, most actionable first.
+
+    `gitlab_associations` says whether applicants can link a GitLab account here.
+    Without it, GitLab URLs are treated like any other shared host.
     """
     link = _Link(application.link_url)
     candidates = [
         _domain_match_check(link, user),
-        _url_shape_check(link),
+        _url_shape_check(link, gitlab_associations=gitlab_associations),
         _name_domain_check(application, link),
         _email_verified_check(user),
-        _github_association_check(link, user),
+        _account_association_check(
+            user, service="github", name="GitHub", on_service=link.github
+        ),
+        _account_association_check(
+            user,
+            service="gitlab",
+            name="GitLab",
+            on_service=link.gitlab and gitlab_associations,
+        ),
         # The list view passes a count instead of loading every project
         _projects_check(len(user.projects) if project_count is None else project_count),
         _name_conflict_check(application, related_applications),

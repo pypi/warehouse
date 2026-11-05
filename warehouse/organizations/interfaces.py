@@ -60,7 +60,9 @@ class IOrganizationService(Interface):
         Performs operations necessary to approve an organization
         """
 
-    def decline_organization_application(organization_application_id, request):
+    def decline_organization_application(
+        organization_application_id, request, message=""
+    ):
         """
         Performs operations necessary to reject approval of an organization
         """
@@ -106,7 +108,12 @@ class IOrganizationService(Interface):
         Adds an organization role for the specified org and user
         """
 
-    def delete_organization_role(organization_role_id):
+    def update_organization_role(organization_role_id, role_name, request):
+        """
+        Update an organization role for a specified organization role id
+        """
+
+    def delete_organization_role(organization_role_id, request):
         """
         Delete an organization role for a specified organization role id
         """

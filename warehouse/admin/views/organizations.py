@@ -16,9 +16,10 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.request import Request
 from pyramid.view import view_config
-from sqlalchemy import desc, func, or_, tuple_
+from sqlalchemy import Select, desc, func, or_, select, tuple_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.sql import ColumnElement
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IUserService
@@ -28,7 +29,15 @@ from warehouse.admin.forms import (
     SetOrganizationUploadLimitForm,
     SetProjectCreateRateLimitForm,
 )
+from warehouse.admin.views.helpers import (
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    TabulatorParams,
+    execute_bounded,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
+from warehouse.cache.http import add_vary
 from warehouse.constants import (
     ONE_GIB,
     ONE_MIB,
@@ -41,11 +50,13 @@ from warehouse.email import send_new_organization_moreinformationneeded_email
 from warehouse.email.services import EmailMessage
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.organizations.checks import (
     OPEN_APPLICATION_STATUSES,
     CheckStatus,
     application_domain,
     can_email,
+    reachable_email,
     review_checks,
 )
 from warehouse.organizations.interfaces import IOrganizationService
@@ -82,8 +93,16 @@ def _organization_activity_predicates():
     return has_projects, has_recent_release
 
 
-def _organization_activity(request, organization):
+def _activity_tier(
+    organization: Organization, has_projects: bool, has_recent_release: bool
+) -> str:
     """activity tier: Inactive / Active / Dormant / Unused."""
+    if not organization.is_active:
+        return "Inactive"
+    return "Active" if has_recent_release else "Dormant" if has_projects else "Unused"
+
+
+def _organization_activity(request: Request, organization: Organization) -> str:
     if not organization.is_active:
         return "Inactive"
     has_projects, has_recent_release = _organization_activity_predicates()
@@ -92,12 +111,15 @@ def _organization_activity(request, organization):
         .filter(Organization.id == organization.id)
         .one()
     )
-    return "Active" if recent else "Dormant" if projects else "Unused"
+    return _activity_tier(organization, projects, recent)
 
 
 class OrganizationRoleForm(wtforms.Form):
     role_name = wtforms.SelectField(
-        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        choices=[
+            wtforms.SelectChoice(role.value, role.value)
+            for role in OrganizationRoleType
+        ],
         coerce=OrganizationRoleType,
         validators=[
             wtforms.validators.InputRequired(message="Select a role"),
@@ -112,7 +134,10 @@ class AddOrganizationRoleForm(wtforms.Form):
         ]
     )
     role_name = wtforms.SelectField(
-        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        choices=[
+            wtforms.SelectChoice(role.value, role.value)
+            for role in OrganizationRoleType
+        ],
         coerce=OrganizationRoleType,
         validators=[
             wtforms.validators.InputRequired(message="Select a role"),
@@ -160,7 +185,10 @@ class OrganizationForm(wtforms.Form):
     )
 
     orgtype = wtforms.SelectField(
-        choices=[(orgtype.value, orgtype.value) for orgtype in OrganizationType],
+        choices=[
+            wtforms.SelectChoice(orgtype.value, orgtype.value)
+            for orgtype in OrganizationType
+        ],
         coerce=OrganizationType,
         validators=[
             wtforms.validators.InputRequired(message="Select organization type"),
@@ -260,127 +288,181 @@ def _require_undecided(
         )
 
 
+# The organizations list is a Tabulator table fed by a JSON endpoint speaking
+# Tabulator's remote pagination/sort/filter protocol, mirroring
+# warehouse.admin.views.journals.
+
+# normalized_name is the one indexed column worth ordering by.
+_SORTABLE_FIELDS = frozenset({"name"})
+
+_ORGTYPES = {
+    "company": OrganizationType.Company,
+    "community": OrganizationType.Community,
+}
+
+
+def _name_filter(value: str) -> ColumnElement[bool]:
+    # The normalized form lets `foo_bar` find `foo-bar` and `foo.bar`.
+    return or_(
+        Organization.name.icontains(value, autoescape=True),
+        Organization.normalized_name.icontains(
+            canonicalize_name(value), autoescape=True
+        ),
+    )
+
+
+def _orgtype_filter(value: str) -> ColumnElement[bool]:
+    if value not in _ORGTYPES:
+        raise HTTPBadRequest("'orgtype' filter must be 'company' or 'community'.")
+    return Organization.orgtype == _ORGTYPES[value]
+
+
+def _activity_filter(value: str) -> ColumnElement[bool]:
+    has_projects, has_recent_release = _organization_activity_predicates()
+    active = Organization.is_active.is_(True)
+    tiers = {
+        "inactive": Organization.is_active.is_(False),
+        "active": active & has_recent_release,
+        "dormant": active & has_projects & ~has_recent_release,
+        "unused": active & ~has_projects,
+    }
+    if value not in tiers:
+        raise HTTPBadRequest(
+            "'activity' filter must be one of active, dormant, unused, inactive."
+        )
+    return tiers[value]
+
+
+def _subscription_filter(value: str) -> ColumnElement[bool]:
+    if value != "yes":
+        raise HTTPBadRequest("'subscription' filter must be 'yes'.")
+    return (Organization.orgtype == OrganizationType.Company) & (
+        Organization.subscriptions.any(
+            StripeSubscription.status.in_(ACTIVE_SUBSCRIPTION_STATUSES)
+        )
+    )
+
+
+_FILTER_BUILDERS = {
+    "name": _name_filter,
+    "display_name": lambda v: Organization.display_name.icontains(v, autoescape=True),
+    "link_url": lambda v: Organization.link_url.icontains(v, autoescape=True),
+    "description": lambda v: Organization.description.icontains(v, autoescape=True),
+    "orgtype": _orgtype_filter,
+    "activity": _activity_filter,
+    "subscription": _subscription_filter,
+}
+
+
+def _build_organizations_query(params: TabulatorParams) -> Select[*tuple[Any, ...]]:
+    """Build the page SELECT, fetching one extra row to detect a next page.
+
+    The activity predicates ride along as columns, and the relationships
+    behind `active_subscription` and `good_standing` are loaded for the
+    page at once, so no row costs a query of its own.
+    """
+    conditions = [
+        _FILTER_BUILDERS[field](value) for field, value in params.filters.items()
+    ]
+
+    name = Organization.normalized_name
+    order_by: list[ColumnElement[Any]] = [
+        name.desc() if params.sort_dir == "desc" else name.asc()
+    ]
+    if "name" in params.filters:
+        # Alphabetical order puts names that merely contain the search ahead
+        # of the name that equals it, so an exact match is pulled to the top.
+        exact = name == canonicalize_name(params.filters["name"])
+        order_by.insert(0, exact.desc())
+
+    has_projects, has_recent_release = _organization_activity_predicates()
+    return (
+        select(
+            Organization,
+            has_projects.label("has_projects"),
+            has_recent_release.label("has_recent_release"),
+        )
+        .options(
+            selectinload(Organization.subscriptions),
+            selectinload(Organization.manual_activation),
+        )
+        .where(*conditions)
+        .order_by(*order_by)
+        .limit(params.size + 1)
+        .offset(params.offset)
+    )
+
+
+def _render_tabulator_payload(request: Request) -> dict[str, Any]:
+    """Execute the page query and shape Tabulator's expected response."""
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="name",
+        default_sort_dir="asc",
+        filter_fields=_FILTER_BUILDERS,
+    )
+    rows = execute_bounded(
+        request,
+        _build_organizations_query(params),
+        timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS,
+    )
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=[Organization.__tablename__]
+    )
+
+    data = []
+    for row in page_rows:
+        organization = row.Organization
+        data.append(
+            {
+                "name": organization.name,
+                "display_name": organization.display_name,
+                "link_url": organization.link_url,
+                "description": organization.description,
+                "orgtype": organization.orgtype.value,
+                "activity": _activity_tier(
+                    organization, row.has_projects, row.has_recent_release
+                ),
+                "active_subscription": organization.active_subscription is not None,
+                "good_standing": organization.good_standing,
+                "detail_link": request.route_path(
+                    "admin.organization.detail", organization_id=organization.id
+                ),
+            }
+        )
+
+    return {**pagination, "data": data}
+
+
 @view_config(
     route_name="admin.organization.list",
     renderer="warehouse.admin:templates/admin/organizations/list.html",
+    accept="text/html",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminOrganizationsRead,
+    request_method="GET",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
 )
-def organization_list(request):
-    q = request.params.get("q", "")
-    terms = shlex.split(q)
+def organization_list(request: Request) -> dict[str, Any]:
+    return {}
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
 
-    organizations_query = (
-        request.db.query(Organization)
-        .options(joinedload(Organization.subscriptions))
-        .order_by(Organization.normalized_name)
-    )
-
-    if q:
-        filters: list = []
-        for term in terms:
-            # Examples:
-            # - search individual words or "whole phrase" in any field
-            # - name:psf
-            # - org:python
-            # - organization:python
-            # - url:.org
-            # - desc:word
-            # - description:word
-            # - description:"whole phrase"
-            # - type:company
-            # - type:community
-            # - activity:active
-            # - activity:dormant
-            # - activity:unused
-            # - activity:inactive
-            # - has:subscription
-            try:
-                field, value = term.lower().split(":", 1)
-            except ValueError:
-                field, value = "", term
-            if field == "name":
-                # Add filter for `name` or `normalized_name` fields.
-                filters.append(
-                    [
-                        Organization.name.ilike(f"%{value}%"),
-                        Organization.normalized_name.ilike(f"%{value}%"),
-                    ]
-                )
-            elif field in {"org", "organization"}:
-                # Add filter for `display_name` field.
-                filters.append(Organization.display_name.ilike(f"%{value}%"))
-            elif field in {"url", "link_url"}:
-                # Add filter for `link_url` field.
-                filters.append(Organization.link_url.ilike(f"%{value}%"))
-            elif field in {"desc", "description"}:
-                # Add filter for `description` field.
-                filters.append(Organization.description.ilike(f"%{value}%"))
-            elif field == "type":
-                if "company".startswith(value):
-                    filters.append(Organization.orgtype == OrganizationType.Company)
-                elif "community".startswith(value):
-                    filters.append(Organization.orgtype == OrganizationType.Community)
-            elif field == "activity":
-                has_projects, has_recent_release = _organization_activity_predicates()
-                active = Organization.is_active.is_(True)
-                if "inactive".startswith(value):
-                    filters.append(Organization.is_active.is_(False))
-                elif "active".startswith(value):
-                    filters.extend([active, has_recent_release])
-                elif "dormant".startswith(value):
-                    filters.extend([active, has_projects, ~has_recent_release])
-                elif "unused".startswith(value):
-                    filters.extend([active, ~has_projects])
-            elif field == "has":
-                if "subscription".startswith(value):
-                    filters.extend(
-                        [
-                            Organization.orgtype == OrganizationType.Company,
-                            Organization.subscriptions.any(
-                                StripeSubscription.status.in_(
-                                    ACTIVE_SUBSCRIPTION_STATUSES
-                                )
-                            ),
-                        ]
-                    )
-            else:
-                # Add filter for any field.
-                filters.append(
-                    [
-                        Organization.name.ilike(f"%{term}%"),
-                        Organization.normalized_name.ilike(f"%{term}%"),
-                        Organization.display_name.ilike(f"%{term}%"),
-                        Organization.link_url.ilike(f"%{term}%"),
-                        Organization.description.ilike(f"%{term}%"),
-                    ]
-                )
-        # Use AND to add each filter. Use OR to combine subfilters.
-        for filter_or_subfilters in filters:
-            if isinstance(filter_or_subfilters, list):
-                # Add list of subfilters combined with OR.
-                organizations_query = organizations_query.filter(
-                    or_(False, *(filter_or_subfilters or [True]))
-                )
-            else:
-                # Add single filter.
-                organizations_query = organizations_query.filter(filter_or_subfilters)
-
-    organizations = SQLAlchemyORMPage(
-        organizations_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-    for organization in organizations:
-        organization.activity = _organization_activity(request, organization)
-
-    return {"organizations": organizations, "query": q, "terms": terms}
+@view_config(
+    route_name="admin.organization.list",
+    renderer="json",
+    accept="application/json",
+    decorator=[add_vary("Accept")],
+    permission=Permissions.AdminOrganizationsRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def organization_list_json(request: Request) -> dict[str, Any]:
+    return _render_tabulator_payload(request)
 
 
 @view_config(
@@ -595,6 +677,11 @@ def cancel_organization_subscription(request):
     )
 
 
+def _gitlab_associations(request: Request) -> bool:
+    # GitLab account linking is optional; see warehouse.accounts.includeme.
+    return bool(request.registry.settings.get("gitlab.oauth.backend"))
+
+
 def _check_summaries(
     request: Request, applications: Sequence[OrganizationApplication]
 ) -> dict[UUID, dict[CheckStatus, list[str]]]:
@@ -645,6 +732,7 @@ def _check_summaries(
                 if rival.id != application.id
             ],
             project_count=project_counts.get(application.submitted_by_id, 0),
+            gitlab_associations=_gitlab_associations(request),
         )
         summaries[application.id] = {
             status: [check.label for check in checks if check.status == status]
@@ -866,7 +954,12 @@ def organization_application_detail(request: Request) -> dict[str, Any] | HTTPSe
 
     user = user_service.get_user(organization_application.submitted_by_id)
 
-    checks = review_checks(organization_application, user, conflicting_applications)
+    checks = review_checks(
+        organization_application,
+        user,
+        conflicting_applications,
+        gitlab_associations=_gitlab_associations(request),
+    )
 
     submitted = request.db.query(OrganizationApplication).filter(
         OrganizationApplication.status == OrganizationApplicationStatus.Submitted
@@ -1043,7 +1136,7 @@ def organization_application_request_more_information(request: Request) -> HTTPS
     if not can_email(organization_application.submitted_by):
         request.session.flash(
             f'Cannot request more info for "{organization_application.name}": '
-            "the applicant has no verified primary email",
+            "the applicant has no verified email",
             queue="error",
         )
         return HTTPSeeOther(
@@ -1105,9 +1198,10 @@ def organization_application_request_more_information_preview(
     if organization_application is None:
         raise HTTPNotFound
 
+    applicant = organization_application.submitted_by
     context = inspect.unwrap(send_new_organization_moreinformationneeded_email)(
         request,
-        organization_application.submitted_by,
+        (applicant, reachable_email(applicant)),
         organization_name=organization_application.name,
         organization_application_id=organization_application.id,
         message=request.params.get("message", ""),
@@ -1139,7 +1233,9 @@ def organization_application_decline(request: Request) -> HTTPSeeOther:
     _require_undecided(request, organization_application)
 
     organization_service.decline_organization_application(
-        organization_application.id, request
+        organization_application.id,
+        request,
+        message=request.params.get("message", ""),
     )
 
     request.session.flash(
@@ -1373,7 +1469,7 @@ def update_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1403,7 +1499,9 @@ def update_organization_role(request):
     old_role_name = role.role_name.value
 
     # Update the role
-    role.role_name = OrganizationRoleType(new_role_name)
+    organization_service.update_organization_role(
+        role.id, OrganizationRoleType(new_role_name), request
+    )
 
     # Record the event
     organization.record_event(
@@ -1447,7 +1545,7 @@ def delete_organization_role(request):
         raise HTTPNotFound
 
     role_id = request.matchdict.get("role_id")
-    role = request.db.get(OrganizationRole, role_id)
+    role = organization_service.get_organization_role(role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         return HTTPSeeOther(
@@ -1482,7 +1580,7 @@ def delete_organization_role(request):
         queue="success",
     )
 
-    request.db.delete(role)
+    organization_service.delete_organization_role(role.id, request)
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
@@ -1909,7 +2007,9 @@ def set_project_create_ratelimit(request):
 
 class OrganizationOIDCIssuerForm(wtforms.Form):
     issuer_type = wtforms.SelectField(
-        choices=[(issuer.value, issuer.name) for issuer in OIDCIssuerType],
+        choices=[
+            wtforms.SelectChoice(issuer.value, issuer.name) for issuer in OIDCIssuerType
+        ],
         coerce=OIDCIssuerType,
         validators=[
             wtforms.validators.InputRequired(message="Select an issuer type"),
@@ -2062,6 +2162,23 @@ def delete_oidc_issuer(request):
         f"OIDC issuer '{issuer.issuer_url}' removed from '{organization.name}'",
         queue="success",
     )
+
+    for pending_publisher in list(organization.pending_oidc_publishers):
+        if (
+            isinstance(pending_publisher, PendingGitLabPublisher)
+            and pending_publisher.issuer_url == issuer.issuer_url
+        ):
+            request.db.delete(pending_publisher)
+
+    for project in organization.projects:
+        for publisher in list(project.oidc_publishers):
+            if (
+                isinstance(publisher, GitLabPublisher)
+                and publisher.issuer_url == issuer.issuer_url
+            ):
+                project.oidc_publishers.remove(publisher)
+                if len(publisher.projects) == 0:
+                    request.db.delete(publisher)
 
     request.db.delete(issuer)
 

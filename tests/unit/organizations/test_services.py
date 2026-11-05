@@ -10,6 +10,7 @@ from warehouse.accounts.models import User
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -33,6 +34,8 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.models import StripeSubscription
 
+from ...common.db.accounts import EmailFactory
+from ...common.db.oidc import PendingGitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationDeactivationNoticeFactory,
@@ -119,6 +122,7 @@ class TestDatabaseOrganizationService:
 
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
+        db_request.params["message"] = "Approved, you were first"
 
         organization_application = OrganizationApplicationFactory.create()
         competing_organization_application = OrganizationApplicationFactory.create(
@@ -188,14 +192,15 @@ class TestDatabaseOrganizationService:
 
         send_approved.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (organization_application.submitted_by, None),
             organization_name=organization.name,
             organization_type=organization.orgtype,
-            message="",
+            message="Approved, you were first",
         )
+        # The approval message must not leak into competitors' decline emails.
         send_declined.assert_called_once_with(
             db_request,
-            competing_organization_application.submitted_by,
+            (competing_organization_application.submitted_by, None),
             organization_name=competing_organization_application.name,
             message="",
         )
@@ -241,6 +246,73 @@ class TestDatabaseOrganizationService:
             "redact_ip": True,
         }
 
+    @pytest.mark.parametrize(
+        ("competing_status", "expected_status"),
+        [
+            (
+                OrganizationApplicationStatus.Deferred,
+                OrganizationApplicationStatus.Declined,
+            ),
+            (
+                OrganizationApplicationStatus.MoreInformationNeeded,
+                OrganizationApplicationStatus.MoreInformationNeeded,
+            ),
+        ],
+    )
+    def test_approve_organization_application_competing_status(
+        self,
+        db_request,
+        organization_service,
+        mocker,
+        competing_status,
+        expected_status,
+    ):
+        mocker.patch.object(services, "send_new_organization_approved_email")
+        mocker.patch.object(services, "send_new_organization_declined_email")
+        db_request.user = UserFactory(username="admin", is_superuser=True)
+        organization_application = OrganizationApplicationFactory.create()
+        competing_organization_application = OrganizationApplicationFactory.create(
+            name=organization_application.name, status=competing_status
+        )
+
+        organization_service.approve_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert competing_organization_application.status == expected_status
+
+    @pytest.mark.parametrize(
+        "competing_status",
+        [
+            OrganizationApplicationStatus.Submitted,
+            OrganizationApplicationStatus.Deferred,
+        ],
+    )
+    def test_approve_organization_application_same_submitter_not_emailed(
+        self, db_request, organization_service, mocker, competing_status
+    ):
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
+        )
+        send_declined = mocker.patch.object(
+            services, "send_new_organization_declined_email"
+        )
+        db_request.user = UserFactory(username="admin", is_superuser=True)
+        organization_application = OrganizationApplicationFactory.create()
+        own_application = OrganizationApplicationFactory.create(
+            name=organization_application.name,
+            submitted_by=organization_application.submitted_by,
+            status=competing_status,
+        )
+
+        organization_service.approve_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert own_application.status == OrganizationApplicationStatus.Declined
+        send_approved.assert_called_once()
+        send_declined.assert_not_called()
+
     def test_defer_organization_application(self, db_request, organization_service):
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
@@ -264,6 +336,10 @@ class TestDatabaseOrganizationService:
         db_request.params["message"] = "some message"
 
         organization_application = OrganizationApplicationFactory.create()
+        # An unverified primary falls back to the applicant's verified address.
+        applicant = organization_application.submitted_by
+        EmailFactory.create(user=applicant, verified=False)
+        fallback = EmailFactory.create(user=applicant, verified=True, primary=False)
         organization_service.request_more_information(
             organization_application.id, db_request
         )
@@ -275,7 +351,7 @@ class TestDatabaseOrganizationService:
         )
         send_email.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (applicant, fallback),
             organization_name=organization_application.name,
             organization_application_id=organization_application.id,
             message="some message",
@@ -353,7 +429,7 @@ class TestDatabaseOrganizationService:
         assert organization_application.status == OrganizationApplicationStatus.Declined
         send_email.assert_called_once_with(
             db_request,
-            organization_application.submitted_by,
+            (organization_application.submitted_by, None),
             organization_name=organization_application.name,
             message="",
         )
@@ -465,10 +541,77 @@ class TestDatabaseOrganizationService:
         assert added_role.user_id == user.id
         assert added_role.organization_id == organization.id
 
-    def test_delete_organization_role(self, organization_service, user_service):
+    @pytest.mark.parametrize(
+        ("initial_role", "new_role"),
+        [
+            (OrganizationRoleType.Owner, OrganizationRoleType.Manager),
+            (OrganizationRoleType.Member, OrganizationRoleType.Owner),
+        ],
+    )
+    def test_update_organization_role(
+        self, db_request, organization_service, initial_role, new_role
+    ):
+        db_request.user = UserFactory.create()
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=initial_role,
+        )
+        org_publisher = PendingGitHubPublisherFactory.create(
+            organization_id=organization.id,
+            added_by=user,
+        )
+        personal_publisher = PendingGitHubPublisherFactory.create(
+            organization_id=None,
+            added_by=user,
+        )
+
+        updated_role = organization_service.update_organization_role(
+            organization_role.id, new_role, db_request
+        )
+
+        assert updated_role.role_name == new_role
+        if new_role == OrganizationRoleType.Owner:
+            assert set(organization_service.db.query(PendingGitHubPublisher).all()) == {
+                org_publisher,
+                personal_publisher,
+            }
+            assert organization.events.all() == []
+            assert user.events.all() == []
+        else:
+            assert organization_service.db.query(PendingGitHubPublisher).all() == [
+                personal_publisher
+            ]
+            org_event = organization.events.one()
+            assert org_event.tag == EventTag.Organization.PendingOIDCPublisherRemoved
+            assert org_event.additional == {
+                "organization_name": organization.name,
+                "project": org_publisher.project_name,
+                "publisher": org_publisher.publisher_name,
+                "id": str(org_publisher.id),
+                "specifier": str(org_publisher),
+                "url": org_publisher.publisher_url(),
+                "submitted_by": db_request.user.username,
+            }
+            user_event = user.events.one()
+            assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
+            assert user_event.additional == {
+                "project": org_publisher.project_name,
+                "publisher": org_publisher.publisher_name,
+                "id": str(org_publisher.id),
+                "specifier": str(org_publisher),
+                "url": org_publisher.publisher_url(),
+                "submitted_by": db_request.user.username,
+            }
+
+    def test_delete_organization_role(
+        self, db_request, organization_service, user_service
+    ):
         organization_role = OrganizationRoleFactory.create()
 
-        organization_service.delete_organization_role(organization_role.id)
+        organization_service.delete_organization_role(organization_role.id, db_request)
 
         assert (
             organization_service.get_organization_role_by_user(
@@ -479,7 +622,7 @@ class TestDatabaseOrganizationService:
         )
 
     def test_delete_organization_role_deletes_team_roles(
-        self, organization_service, user_service
+        self, db_request, organization_service, user_service
     ):
         user = UserFactory.create()
         organization = OrganizationFactory.create()
@@ -489,7 +632,7 @@ class TestDatabaseOrganizationService:
         team = TeamFactory.create(organization=organization)
         TeamRoleFactory.create(team=team, user=user)
 
-        organization_service.delete_organization_role(organization_role.id)
+        organization_service.delete_organization_role(organization_role.id, db_request)
 
         assert (
             organization_service.get_organization_role_by_user(
@@ -506,6 +649,53 @@ class TestDatabaseOrganizationService:
             )
             == []
         )
+
+    def test_delete_organization_role_deletes_pending_oidc_publishers(
+        self, db_request, organization_service
+    ):
+        db_request.user = UserFactory.create()
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        org_publisher = PendingGitHubPublisherFactory.create(
+            organization_id=organization.id,
+            added_by=user,
+        )
+        personal_publisher = PendingGitHubPublisherFactory.create(
+            organization_id=None,
+            added_by=user,
+        )
+
+        organization_service.delete_organization_role(organization_role.id, db_request)
+
+        assert organization_service.db.query(PendingGitHubPublisher).all() == [
+            personal_publisher
+        ]
+        org_event = organization.events.one()
+        assert org_event.tag == EventTag.Organization.PendingOIDCPublisherRemoved
+        assert org_event.additional == {
+            "organization_name": organization.name,
+            "project": org_publisher.project_name,
+            "publisher": org_publisher.publisher_name,
+            "id": str(org_publisher.id),
+            "specifier": str(org_publisher),
+            "url": org_publisher.publisher_url(),
+            "submitted_by": db_request.user.username,
+        }
+        user_event = user.events.one()
+        assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
+        assert user_event.additional == {
+            "project": org_publisher.project_name,
+            "publisher": org_publisher.publisher_name,
+            "id": str(org_publisher.id),
+            "specifier": str(org_publisher),
+            "url": org_publisher.publisher_url(),
+            "submitted_by": db_request.user.username,
+        }
 
     def test_get_organization_invite(self, organization_service):
         organization_invite = OrganizationInvitationFactory.create()

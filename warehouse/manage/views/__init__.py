@@ -84,6 +84,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    parse_uuid,
     project_owners,
     user_organizations,
     user_projects,
@@ -124,6 +125,22 @@ from warehouse.utils.project import (
 )
 
 
+def _parse_email_id(value: str) -> int | None:
+    """
+    Return a posted email id as an int, or None when it can't be one.
+
+    ``Email.id`` is a Postgres ``integer``, so an out-of-range value fails in
+    the database instead of finding no row.
+    """
+    try:
+        email_id = int(value)
+    except ValueError, TypeError:
+        return None
+    if not -(2**31) <= email_id < 2**31:
+        return None
+    return email_id
+
+
 class ManageAccountMixin:
     def __init__(self, request):
         self.request = request
@@ -138,12 +155,12 @@ class ManageAccountMixin:
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == int(self.request.POST["reverify_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["reverify_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
             )
-        except NoResultFound, ValueError:
+        except NoResultFound:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -199,7 +216,7 @@ class ManageAccountMixin:
                 self.request.db.query(Email)
                 .filter(
                     Email.user_id == self.request.user.id,
-                    Email.id == int(self.request.POST["primary_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["primary_email_id"]),
                     Email.verified.is_(True),
                 )
                 .one()
@@ -476,7 +493,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == int(self.request.POST["delete_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["delete_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
@@ -1837,7 +1854,7 @@ class ManageProjectRelease:
                 self.request.db.query(File)
                 .filter(
                     File.release == self.release,
-                    File.id == self.request.POST.get("file_id"),
+                    File.id == parse_uuid(self.request.POST.get("file_id")),
                 )
                 .one()
             )
@@ -2311,7 +2328,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
-    user = user_service.get_user(request.POST["user_id"])
+    user = user_service.get_user(parse_uuid(request.POST["user_id"]))
 
     try:
         user_invite = (
@@ -2395,7 +2412,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
 
     if form.validate():
-        role_id = request.POST["role_id"]
+        role_id = parse_uuid(request.POST["role_id"])
         try:
             role = (
                 request.db.query(Role)
@@ -2481,7 +2498,7 @@ def delete_project_role(project, request):
             request.db.query(Role)
             .join(User)
             .filter(Role.project == project)
-            .filter(Role.id == request.POST["role_id"])
+            .filter(Role.id == parse_uuid(request.POST["role_id"]))
             .one()
         )
         projects_sole_owned = {

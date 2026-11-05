@@ -24,6 +24,8 @@ from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
 
 if typing.TYPE_CHECKING:
+    from uuid import UUID
+
     from pyramid.request import Request
 
     from warehouse.accounts.models import User
@@ -362,16 +364,18 @@ def send_new_organization_requested_email(request, user, *, organization_name):
 @_email("new-organization-approved")
 def send_new_organization_approved_email(
     request: Request,
-    user: User,
+    user_and_email: tuple[User, Email | None],
     *,
     organization_name: str,
     organization_type: str,
     message: str = "",
 ):
+    _, email = user_and_email
     return {
         "message": message,
         "organization_name": organization_name,
         "organization_type": organization_type,
+        "primary_email_unverified": email is not None and not email.primary,
     }
 
 
@@ -387,12 +391,19 @@ def send_new_organization_declined_email(
 
 @_email("new-organization-moreinformationneeded")
 def send_new_organization_moreinformationneeded_email(
-    request, user, *, organization_name, organization_application_id, message=""
+    request: Request,
+    user_and_email: tuple[User, Email | None],
+    *,
+    organization_name: str,
+    organization_application_id: UUID,
+    message: str = "",
 ):
+    _, email = user_and_email
     return {
         "message": message,
         "organization_name": organization_name,
         "organization_application_id": organization_application_id,
+        "primary_email_unverified": email is not None and not email.primary,
     }
 
 
