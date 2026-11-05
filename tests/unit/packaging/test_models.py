@@ -503,6 +503,61 @@ class TestProject:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        ("role_name", "user_kwargs"),
+        [
+            ("Owner", {"is_frozen": True}),
+            ("Owner", {"is_active": False}),
+            ("Maintainer", {"is_frozen": True}),
+            ("Maintainer", {"is_active": False}),
+        ],
+    )
+    def test_acl_for_project_with_frozen_or_inactive_user(
+        self, db_session, role_name, user_kwargs
+    ):
+        """
+        If any user on a Project is frozen or inactive, the Project ACL should
+        disallow uploads from trusted publishers without affecting other
+        projects sharing the same publisher.
+        """
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        inactive_role = DBRoleFactory.create(
+            project=project,
+            role_name=role_name,
+            user__is_frozen=user_kwargs.get("is_frozen", False),
+            user__is_active=user_kwargs.get("is_active", True),
+        )
+
+        other_project = DBProjectFactory.create()
+        DBRoleFactory.create(project=other_project)
+
+        publisher = GitHubPublisherFactory.create(projects=[project, other_project])
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+        assert (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]) not in acls
+        assert (
+            Allow,
+            f"user:{owner1.user.id}",
+            [
+                Permissions.ProjectsRead,
+                Permissions.ProjectsUpload,
+                Permissions.ProjectsWrite,
+            ],
+        ) in acls
+        assert any(
+            principal == f"user:{inactive_role.user.id}" for _, principal, _ in acls
+        )
+
+        other_acls = [
+            item for location in lineage(other_project) for item in location.__acl__()
+        ]
+        assert (
+            Allow,
+            f"oidc:{publisher.id}",
+            [Permissions.ProjectsUpload],
+        ) in other_acls
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)

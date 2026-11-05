@@ -390,31 +390,6 @@ def mint_token(
             request=request,
         )
 
-    # Loading `publisher.projects` back-populates `Project.oidc_publishers`,
-    # which marks each project as dirty. At flush time, the cache-purge
-    # bookkeeping in `warehouse.cache.origin` then accesses `project.users`
-    # per dirty project (via the `iterate_on="users"` purge-key factory),
-    # producing an N+1. Pre-load every project's users in a single batched
-    # query so both the active-user check below and those later accesses hit
-    # the relationship cache.
-    request.db.execute(
-        select(Project)
-        .where(Project.id.in_([p.id for p in publisher.projects]))
-        .options(selectinload(Project.users))
-    ).all()
-
-    for project in publisher.projects:
-        if any(user.is_frozen or not user.is_active for user in project.users):
-            return _invalid(
-                errors=[
-                    {
-                        "code": "invalid-token",
-                        "description": "malformed or invalid token",
-                    }
-                ],
-                request=request,
-            )
-
     # Atomically claim the JTI before minting a macaroon. The SET NX ensures
     # that only one request can proceed for a given JTI.
     # Of note, exp is coming from a verified JWT here, so we don't validate it.
@@ -456,6 +431,18 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
+
+    # Loading `publisher.projects` back-populates `Project.oidc_publishers`,
+    # which marks each project as dirty. At flush time, the cache-purge
+    # bookkeeping in `warehouse.cache.origin` then accesses `project.users`
+    # per dirty project (via the `iterate_on="users"` purge-key factory),
+    # producing an N+1. Pre-load every project's users in a single batched
+    # query so those later accesses hit the relationship cache.
+    request.db.execute(
+        select(Project)
+        .where(Project.id.in_([p.id for p in publisher.projects]))
+        .options(selectinload(Project.users))
+    ).all()
 
     for project in publisher.projects:
         project.record_event(
