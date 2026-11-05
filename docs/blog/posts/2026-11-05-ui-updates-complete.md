@@ -115,7 +115,7 @@ To learn more about provenance and attestations, including warning states, see o
 
 To support these changes, the project detail page has also been updated:
 
-* Provenance warnings now appear prominently at the top of the page alongside bold status banners for yanked releases, archived projects, pre-releases, and quarantined releases or projects.
+* Provenance warnings now appear at the top of the page, alongside status banners for yanked releases, archived projects, and pre-releases. If a project or release is quarantined, only the quarantine banner is shown, as it takes precedence over all other warnings and banners.
 * When a release has full provenance or provenance warnings, its status is displayed in the sidebar, linking through to the security tab for more information.
 * Metadata is now ordered by utility and labeled as "PyPI data" or "Data verified by PyPI", replacing the old design where data was grouped and ordered by verification status.
 
