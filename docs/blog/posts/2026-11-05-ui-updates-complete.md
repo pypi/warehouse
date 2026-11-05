@@ -1,5 +1,5 @@
 ---
-title: "Clearer Security Signals: PyPI's Redesigned Project Detail Pages Are Now Live"
+title: "PyPI's redesigned project pages with clearer security signals are now live"
 description: PyPI now makes it simple to check where release files come from, with a dedicated security tab, a rebuilt release files tab, and refreshed documentation.
 authors:
   - nlh
