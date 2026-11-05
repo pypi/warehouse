@@ -633,9 +633,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.286 \
-    --hash=sha256:39bee6621647f95021513f922fa65947adea089e888adb39efc9bc9ff64b41fb \
-    --hash=sha256:938d5412897bc913e7e976e19635dffa4e1636ba5ff755755ecc24925780c9f1
+disposable-email-domains==0.0.287 \
+    --hash=sha256:19b8e8628d37f56195432feafc5b20bf958c9e7f43afc737e7637a32c5f95a4c \
+    --hash=sha256:c4841c03bfe9ed47e7ca3a4388e22d7fa93456f316d3721252435edcb939d842
     # via -r requirements/main.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -1640,9 +1640,9 @@ plaster-pastedeploy==1.0.1 \
     --hash=sha256:ad3550cc744648969ed3b810f33c9344f515ee8d8a8cec18e8f2c4a643c2181f \
     --hash=sha256:be262e6d2e41a7264875daa2fe2850cbb0615728bcdc92828fdc72736e381412
     # via pyramid
-platformdirs==4.13.7 \
-    --hash=sha256:47664602fbecad0a6efa561fb690d20dbc26875fe8aedf65ba362935df619bbb \
-    --hash=sha256:f7f351c027d6632c30471124e1fdb6ac0fef9ccc5cbac1b34cb333431b1fc3e1
+platformdirs==4.14.0 \
+    --hash=sha256:1dadfc59a8a5d7565b3d9270ae8fa71c065595352c4277b41c11ee6c222c4b91 \
+    --hash=sha256:83f009c1e8c5fc36869b5171755b291887bd2cade7965233cdfabd23d754720b
     # via
     #   -r requirements/main.in
     #   sigstore
@@ -2043,9 +2043,9 @@ python-slugify==9.1.3 \
     --hash=sha256:90e997f2e0987239ce95e12f700086eb18e1d1d3ee22624fbbdbd095afca42b6 \
     --hash=sha256:9aced0670e54c5603e2335c0fa9a4011ad4bc41ecb3c46e8097294c46fd60ed4
     # via -r requirements/main.in
-pytz==2026.5 \
-    --hash=sha256:e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03 \
-    --hash=sha256:fa23724b9c486543b9ff54a327ee7569ac83ade54bb9afd0fc18676620401c86
+pytz==2026.6 \
+    --hash=sha256:3b0fc2727707663d6e517936f444fd8a8b240f1fc32f4bf7ee03274245945284 \
+    --hash=sha256:7fed3fee8fd6bd4a2b7b75a8d56021d0624127bf69bd5691f115db929ac570b3
     # via -r requirements/main.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
