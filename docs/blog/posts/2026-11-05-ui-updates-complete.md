@@ -13,7 +13,7 @@ links:
   - posts/2026-07-22-releases-now-reject-new-files-after-14-days.md
 ---
 
-In July, we [announced a series of planned updates](/posts/2026-07-22-ui-updates/) to the PyPI user interface, aimed at improving how we surface security signals and display package details.
+In July, we [announced a series of planned updates](2026-07-22-ui-updates.md) to the PyPI user interface, aimed at improving how we surface security signals and display package details.
 
 We're pleased to share that this work is now complete and live on [PyPI](https://pypi.org/).
 
@@ -23,7 +23,7 @@ We're pleased to share that this work is now complete and live on [PyPI](https:/
 
 With the rapid growth of the Python ecosystem, PyPI has become an increasingly attractive target for malicious actors. In response, the PyPI team has [delivered many security features](https://docs.pypi.org/about/security-and-internals/#pypi-security-features) while taking a more active role in helping PyPI users assess and understand package security.
 
-[Digital attestations](/posts/2024-11-14-pypi-now-supports-digital-attestations/), introduced in 2024, are an example of this effort, providing a verifiable record of a release file's _provenance_ (where it came from). However, provenance and attestations are still unfamiliar concepts for many PyPI users, and PyPI's interface did little to communicate their meaning, importance, or limitations.
+[Digital attestations](2024-11-14-pypi-now-supports-digital-attestations.md), introduced in 2024, are an example of this effort, providing a verifiable record of a release file's _provenance_ (where it came from). However, provenance and attestations are still unfamiliar concepts for many PyPI users, and PyPI's interface did little to communicate their meaning, importance, or limitations.
 
 To address this, PyPI partnered with [Kabu Creative](https://kabucreative.com/) to bring clearer security signals to the PyPI UI, implementing the recommendations developed in the [OpenSSF Attestations Style Guide](https://repos.openssf.org/attestations-style-guide).
 
@@ -98,9 +98,9 @@ This means that a project that previously published with attestations has revert
 
 Check whether the maintainers intentionally switched tooling back to API tokens. If this is unexpected, treat the release with skepticism until verified.
 
-#### [Late Files](https://docs.pypi.org/using-pypi/package-security/provenance/#late-added-files)
+#### Late Files
 
-This warning is shown when one or more files were uploaded more than 14 days after the initial release timestamp. It only appears on legacy releases, as PyPI now [rejects new files after 14 days](/posts/2026-07-22-releases-now-reject-new-files-after-14-days/).
+This warning is shown when one or more files were uploaded more than 14 days after the initial release timestamp. It only appears on legacy releases, as PyPI now [rejects new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md).
 
 We recommend inspecting individual file timestamps before installing.
 
