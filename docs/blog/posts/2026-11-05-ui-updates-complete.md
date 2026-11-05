@@ -100,7 +100,7 @@ Check whether the maintainers intentionally switched tooling back to API tokens.
 
 #### Late Files
 
-This warning is shown when one or more files were uploaded more than 14 days after the initial release timestamp. It only appears on legacy releases, as PyPI now [rejects new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md).
+This warning is shown when one or more files were uploaded more than 14 days after the initial release timestamp. It only appears on releases prior to a policy change, as PyPI [rejects new files after 14 days](2026-07-22-releases-now-reject-new-files-after-14-days.md) since July 2026.
 
 We recommend inspecting individual file timestamps before installing.
 
