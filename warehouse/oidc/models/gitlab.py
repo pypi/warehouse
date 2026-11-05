@@ -350,6 +350,7 @@ class GitLabPublisherMixin:
                     self.__class__.project == self.project,
                     self.__class__.workflow_filepath == self.workflow_filepath,
                     self.__class__.environment == self.environment,
+                    self.__class__.issuer_url == self.issuer_url,
                 )
             )
         ).scalar()
@@ -424,6 +425,13 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
     ) -> bool:
         super().verify_claims(signed_claims, publisher_service)
+        if any(
+            self.issuer_url not in self.get_available_issuer_urls(project.organization)
+            for project in self.projects
+        ):
+            raise InvalidPublisherError(
+                f"Issuer URL {self.issuer_url!r} is not enabled for this organization"
+            )
         if not self.namespace_id:
             self.namespace_id = signed_claims.get("namespace_id") or None
         return True
