@@ -513,9 +513,10 @@ class TestProject:
     def test_acl_for_organization_not_in_good_standing(self, db_session, org_kwargs):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
+        DBRoleFactory.create(project=project, role_name="Maintainer")
 
         organization = DBOrganizationFactory.create(**org_kwargs)
-        DBOrganizationRoleFactory.create(organization=organization)
+        org_owner = DBOrganizationRoleFactory.create(organization=organization)
         DBOrganizationProjectFactory.create(organization=organization, project=project)
 
         team = DBTeamFactory.create(organization=organization)
@@ -525,6 +526,10 @@ class TestProject:
         )
 
         acls = [item for location in lineage(project) for item in location.__acl__()]
+        _perms_read_and_write = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsWrite,
+        ]
 
         assert acls == [
             (
@@ -560,14 +565,12 @@ class TestProject:
             ),
             (Allow, "group:observers", Permissions.APIObservationsAdd),
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
-            (
-                Allow,
-                f"user:{owner1.user.id}",
+            *sorted(
                 [
-                    Permissions.ProjectsRead,
-                    Permissions.ProjectsUpload,
-                    Permissions.ProjectsWrite,
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{org_owner.user.id}", _perms_read_and_write),
                 ],
+                key=lambda x: str(x[1]),
             ),
         ]
 

@@ -552,7 +552,8 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     for user in role.team.members
                 }
 
-            # Add all organization owners for this project.
+        # Add all organization owners for this project.
+        if self.organization:
             org_query = (
                 session.query(OrganizationRole)
                 .filter(
@@ -585,8 +586,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             if self.lifecycle_status in [
                 LifecycleStatus.Archived,
                 LifecycleStatus.ArchivedNoindex,
-            ]:
-                # Disallow upload permissions for archived projects
+            ] or (self.organization and not self.organization.is_in_good_standing()):
+                # Disallow upload permissions for archived projects or
+                # projects in organizations not in good standing
                 current_permissions.remove(Permissions.ProjectsUpload)
 
             if current_permissions:
