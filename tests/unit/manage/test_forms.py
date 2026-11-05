@@ -997,8 +997,8 @@ class TestAddOrganizationProjectForm:
         )
 
         assert form.existing_project_name.choices == [
-            ("", "Select project"),
-            ("foo", "foo"),
+            wtforms.SelectChoice("", "Select project"),
+            wtforms.SelectChoice("foo", "foo"),
         ]
         assert not form.validate() if errors else form.validate(), str(form.errors)
         assert form.errors == errors
