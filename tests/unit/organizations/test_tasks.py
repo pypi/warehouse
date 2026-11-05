@@ -392,17 +392,15 @@ class TestUpdateOrganizationSubscriptionUsage:
                 {"subscription_item_id": "si_1234", "organization_member_count": "1"},
             ],
         )
-        increment = mocker.spy(metrics, "increment")
-
         update_organziation_subscription_usage_record(db_request)
 
         # Both subscriptions are attempted even though the first one raised.
         assert create_usage_record.call_count == 2
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.error",
             tags=[f"error_type:{error.__class__.__name__}"],
         )
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.updated"
         )
 
