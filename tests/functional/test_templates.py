@@ -3,12 +3,22 @@
 import re
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from jinja2 import Environment, FileSystemLoader
 
 import warehouse
+import warehouse.admin.components  # registers the components
+
+from warehouse.attestations.models import (
+    ProvenanceComparison,
+    ProvenanceCounts,
+    ProvenanceStatus,
+    PublisherSource,
+    PublisherWorkflow,
+)
 
 FILTERS = {
     "format_date": "warehouse.i18n.filters:format_date",
@@ -29,7 +39,6 @@ FILTERS = {
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
     "is_recent": "warehouse.filters:is_recent",
-    "natsort": "natsort:natsorted",
 }
 
 # A compiled regex that matches a subject block, possibly with newlines inside
@@ -38,7 +47,7 @@ SUBJECT_BLOCK_EXPRESSION = re.compile(
 )
 
 
-def _make_env(dir_name: Path) -> Environment:
+def _make_env(dir_name: Path, extensions: tuple[str, ...] = ()) -> Environment:
     env = Environment(
         autoescape=True,
         loader=FileSystemLoader(dir_name),
@@ -46,6 +55,7 @@ def _make_env(dir_name: Path) -> Environment:
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
             "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+            *extensions,
         ],
         cache_size=0,
     )
@@ -109,9 +119,62 @@ def test_render_admin_templates(template):
     The admin templates live outside `warehouse/templates`, so neither
     `test_render_templates` nor `bin/lint`'s djlint invocation reaches them.
     """
-    env = _make_env(Path(warehouse.__path__[0]) / "admin" / "templates")
+    env = _make_env(
+        Path(warehouse.__path__[0]) / "admin" / "templates",
+        extensions=("pyramid_components.jinja2.ComponentExtension",),
+    )
 
     assert env.get_template(str(template))
+
+
+@pytest.mark.parametrize(
+    "email_name", ["organization-deactivated", "organization-subscription-required"]
+)
+def test_organization_email_subject_is_bounded(email_name: str) -> None:
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
+    organizations = [{"name": f"organization-{i:04}-{'x' * 32}"} for i in range(100)]
+    request = SimpleNamespace(registry=SimpleNamespace(settings={"site.name": "PyPI"}))
+
+    subject = env.get_template(f"email/{email_name}/subject.txt").render(
+        organizations=organizations, request=request
+    )
+
+    assert len(subject) <= 100
+    assert "100" in subject
+
+
+@pytest.mark.parametrize(
+    "email_name",
+    [
+        "new-organization-approved",
+        "new-organization-declined",
+        "new-organization-moreinformationneeded",
+    ],
+)
+def test_organization_review_email_keeps_message_paragraphs(email_name: str) -> None:
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
+    env.install_null_translations(newstyle=True)
+    request = SimpleNamespace(
+        registry=SimpleNamespace(
+            settings={"site.name": "PyPI", "warehouse.domain": "pypi.org"}
+        ),
+        route_url=lambda *args, **kwargs: "https://pypi.org/manage/",
+    )
+
+    html = env.get_template(f"email/{email_name}/body.html").render(
+        request=request,
+        organization_name="example",
+        organization_application_id="00000000-0000-0000-0000-000000000000",
+        organization_type="Community",
+        # Browsers submit textareas with CRLF line endings.
+        message=(
+            "Hello <b>you</b>!\r\n\r\nFirst ask,\r\nsame paragraph.\r\n\r\n\r\nLast."
+        ),
+    )
+
+    assert "<p>Hello &lt;b&gt;you&lt;/b&gt;!</p>" in html
+    assert "<p>First ask,\nsame paragraph.</p>" in html
+    assert "<p>Last.</p>" in html
 
 
 @pytest.mark.parametrize(
@@ -155,3 +218,85 @@ def test_all_templates_exist(app_config):
         env = app_config.get_jinja2_environment(name=renderer)
         assert env is not None, f"{renderer} is not a jinja2 template type"
         env.get_template(template)  # this will raise TemplateNotFound
+
+
+def test_provenance_warning_templates_render_urls():
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
+    env.install_null_translations()
+    request = SimpleNamespace(
+        route_path=lambda _route, name, version: f"/project/{name}/{version}/",
+        user_docs_url=lambda path, anchor: f"https://docs.pypi.org{path}#{anchor}",
+    )
+    old_source = PublisherSource("GitHub", "foo/old", url="https://github.com/foo/old")
+    new_source = PublisherSource("GitLab", "foo/new", url="https://gitlab.com/foo/new")
+    google_source = PublisherSource(
+        "Google", "ci@example.iam.gserviceaccount.com", is_account=True
+    )
+    old_workflow = PublisherWorkflow(
+        "GitHub",
+        "foo/old",
+        "release.yml",
+        url="https://github.com/foo/old/blob/aaa/.github/workflows/release.yml",
+    )
+    new_workflow = PublisherWorkflow(
+        "GitLab",
+        "foo/new",
+        ".gitlab-ci.yml",
+        url="https://gitlab.com/foo/new/blob/bbb//.gitlab-ci.yml",
+    )
+
+    counts = ProvenanceCounts(
+        total_files=3,
+        files_with_provenance=3,
+        files_with_sources=3,
+        files_with_workflows=2,
+        source_counts={new_source: 1, google_source: 2},
+        workflow_counts={old_workflow: 1, new_workflow: 1},
+    )
+    comparison = ProvenanceComparison(
+        version="1.0.0",
+        counts=ProvenanceCounts(
+            total_files=1,
+            files_with_provenance=1,
+            files_with_sources=1,
+            files_with_workflows=1,
+            source_counts={old_source: 1},
+            workflow_counts={old_workflow: 1},
+        ),
+    )
+    release = SimpleNamespace(
+        version="2.0.0",
+        project=SimpleNamespace(name="sampleproject"),
+        provenance_status=ProvenanceStatus(counts=counts, comparison=comparison),
+    )
+
+    changed_html = env.get_template(
+        "includes/packaging/security/changed-provenance.html"
+    ).render(release=release, request=request)
+    assert 'href="https://github.com/foo/old"' in changed_html
+    assert ">github.com/foo/old</a>" in changed_html
+    assert 'href="https://gitlab.com/foo/new"' in changed_html
+    assert ">gitlab.com/foo/new</a>" in changed_html
+    assert "ci@example.iam.gserviceaccount.com" in changed_html
+    assert 'href="https://gitlab.com/foo/new/blob/bbb//.gitlab-ci.yml"' in changed_html
+    assert ">gitlab.com/foo/new/blob/bbb//.gitlab-ci.yml</a>" in changed_html
+
+    inconsistent_html = env.get_template(
+        "includes/packaging/security/inconsistent-provenance.html"
+    ).render(release=release, request=request)
+    assert "Repository/Account" in inconsistent_html
+    assert 'href="https://gitlab.com/foo/new"' in inconsistent_html
+    assert ">gitlab.com/foo/new</a>" in inconsistent_html
+    assert "ci@example.iam.gserviceaccount.com" in inconsistent_html
+    assert (
+        'href="https://github.com/foo/old/blob/aaa/.github/workflows/release.yml"'
+        in inconsistent_html
+    )
+    assert (
+        ">github.com/foo/old/blob/aaa/.github/workflows/release.yml</a>"
+        in inconsistent_html
+    )
+    assert (
+        'href="https://gitlab.com/foo/new/blob/bbb//.gitlab-ci.yml"'
+        in inconsistent_html
+    )

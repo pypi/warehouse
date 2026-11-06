@@ -3,9 +3,9 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans username=username, email_address='admin@pypi.org' %}
-A recovery code for your PyPI account '{{ username }}' has been used.
+{% trans username=username %}A recovery code for your PyPI account '{{ username }}' has been used.{% endtrans +%}
 
-If you did not make this change, you can email {{ email_address }} to communicate
-with the PyPI administrators.{% endtrans %}
+{% include "email/includes/account-help.txt" +%}
+
+{% trans email_address='admin@pypi.org' %}If you did not make this change, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}

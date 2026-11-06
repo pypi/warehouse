@@ -11,7 +11,7 @@ within a project in an organization account.
 
     All actions assume an authorized user has logged into their account.
 
-#### Create a project
+## Create a project
 
 *Actor: Any member of the organization*
 
@@ -28,7 +28,7 @@ The upload tool must support this; see the `organization` field of the
 
 ---
 
-#### Transfer a project
+## Transfer a project
 
 *Actor: Owner*
 
@@ -46,7 +46,7 @@ owner has pre-existing projects associated with their individual user account.
 
 ---
 
-#### Add internal collaborator
+## Add internal collaborator
 
 *Actor: Owner*
 
@@ -64,7 +64,7 @@ invitation to join the project as a collaborator.
 
 ---
 
-#### Add external collaborator
+## Add external collaborator
 
 *Actor: Owner*
 
@@ -77,9 +77,13 @@ invitation to join the project as a collaborator.
 * Assign a role for the collaborator
 * Click on **Add**
 
+If the inviting user deletes their account before the invitation is accepted,
+the recipient cannot accept or decline it. A remaining project Owner must
+revoke the old invitation and send a new one.
+
 ---
 
-#### Remove a collaborator
+## Remove a collaborator
 
 *Actor: Owner*
 
@@ -94,7 +98,7 @@ invitation to join the project as a collaborator.
 
 ---
 
-#### Revoke a collaborator invitation
+## Revoke a collaborator invitation
 
 *Actor: Owner*
 
@@ -107,7 +111,7 @@ invitation to join the project as a collaborator.
 
 ---
 
-#### Remove project from organization
+## Remove project from organization
 
 *Actor: Owner*
 
@@ -124,7 +128,7 @@ Individual owners and  maintainers will retain their permissions.
 
 ---
 
-#### Transfer a project to another organization
+## Transfer a project to another organization
 
 *Actor: Owner*
 
@@ -143,7 +147,7 @@ Individual project owners and maintainers will retain their permissions.
 
 ---
 
-#### Delete a project
+## Delete a project
 
 *Actor: Owner*
 

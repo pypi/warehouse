@@ -71,6 +71,33 @@ def test_report_observation_to_helpscout(
     assert bool(hs_svc_spy.calls) == reports
 
 
+def test_report_observation_to_quarantined_project_tags_conversation(
+    db_request, helpdesk_service, mocker
+):
+    db_request.route_url = lambda *a, **kw: "/admin/malware_reports/"
+    user = UserFactory.create()
+    project = ProjectFactory.create(lifecycle_status=LifecycleStatus.QuarantineEnter)
+    observation = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.IsMalware,
+        summary="Project Observation",
+        payload={},
+        actor=user,
+    )
+    db_request.db.flush()
+    create_conversation = mocker.patch.object(
+        helpdesk_service,
+        "create_conversation",
+        autospec=True,
+        return_value="https://example.com/c/1",
+    )
+
+    report_observation_to_helpscout(None, db_request, observation.id)
+
+    request_json = create_conversation.call_args.kwargs["request_json"]
+    assert request_json["tags"] == ["observation", "quarantined_via_auto"]
+
+
 class TestAutoQuarantineProject:
     def test_non_malware_observation_does_not_quarantine(self, db_request):
         dummy_task = pretend.stub(name="dummy_task")

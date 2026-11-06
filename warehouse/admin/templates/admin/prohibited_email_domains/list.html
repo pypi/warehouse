@@ -68,7 +68,7 @@
               <td>{{ prohibited_email_domain.created | format_datetime }}</td>
               <td>{{ prohibited_email_domain.comment }}</td>
               <td>
-                <a href="{{ request.route_path('admin.user.list', _query={'q': 'email:%@' + prohibited_email_domain.domain}) }}"
+                <a href="{{ request.route_path('admin.user.list', _query={'email': '@' + prohibited_email_domain.domain}) }}"
                    class="btn btn-primary btn-sm"
                    title="Search for users with this domain">
                   <i class="fa-solid fa-users"></i>

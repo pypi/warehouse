@@ -134,6 +134,10 @@
             {# Calculate effective limit #}
             {% set effective_upload_limit = MAX_FILESIZE %}
             {% set limit_source = "system default" %}
+            {% if project.organization and ORGANIZATION_MAX_FILESIZE > effective_upload_limit %}
+              {% set effective_upload_limit = ORGANIZATION_MAX_FILESIZE %}
+              {% set limit_source = "organization default" %}
+            {% endif %}
             {% if project.upload_limit and project.upload_limit > effective_upload_limit %}
               {% set effective_upload_limit = project.upload_limit %}
               {% set limit_source = "project" %}
@@ -166,6 +170,14 @@
                 <td><small class="text-muted">Configure below</small></td>
               </tr>
               {% if project.organization %}
+              <tr>
+                <td>Organization default:</td>
+                <td>
+                  {{ ORGANIZATION_MAX_FILESIZE|filesizeformat(binary=True) }}
+                  {% if limit_source == "organization default" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Not configurable</small></td>
+              </tr>
               <tr>
                 <td>Organization limit:</td>
                 <td>
@@ -209,6 +221,10 @@
             {# Calculate effective limit #}
             {% set effective_total_size_limit = MAX_PROJECT_SIZE %}
             {% set size_limit_source = "system default" %}
+            {% if project.organization and ORGANIZATION_MAX_PROJECT_SIZE > effective_total_size_limit %}
+              {% set effective_total_size_limit = ORGANIZATION_MAX_PROJECT_SIZE %}
+              {% set size_limit_source = "organization default" %}
+            {% endif %}
             {% if project.total_size_limit and project.total_size_limit > effective_total_size_limit %}
               {% set effective_total_size_limit = project.total_size_limit %}
               {% set size_limit_source = "project" %}
@@ -241,6 +257,14 @@
                 <td><small class="text-muted">Configure below</small></td>
               </tr>
               {% if project.organization %}
+              <tr>
+                <td>Organization default:</td>
+                <td>
+                  {{ ORGANIZATION_MAX_PROJECT_SIZE|filesizeformat(binary=True) }}
+                  {% if size_limit_source == "organization default" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Not configurable</small></td>
+              </tr>
               <tr>
                 <td>Organization limit:</td>
                 <td>

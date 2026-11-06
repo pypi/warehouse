@@ -2,20 +2,26 @@
 
 import base64
 import binascii
+import datetime as dt
 import struct
 
 from uuid import UUID, uuid4
 
+import psycopg
 import pymacaroons
 import pytest
+import sqlalchemy.exc
 
 from pymacaroons.exceptions import MacaroonDeserializationException
 from pymacaroons.serializers.binary_serializer import BinarySerializer
+from sqlalchemy.orm import Session
 
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import caveats, services
 from warehouse.macaroons.models import Macaroon
 
+from ...common.db import Session as FactorySession
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
 
@@ -340,6 +346,125 @@ class TestDatabaseMacaroonService:
             [caveats.RequestUser(user_id=str(user.id))],
             user_id=user.id,
         )
+
+    def test_verify_records_first_use(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        raw_macaroon, dm = user_macaroon
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        record_first_use = mocker.spy(macaroon_service, "_record_first_use")
+
+        macaroon_service.verify(
+            raw_macaroon, db_request, mocker.sentinel.context, mocker.sentinel.perm
+        )
+
+        record_first_use.assert_called_once_with(dm)
+        # Set on the loaded macaroon too, so later checks in this request skip
+        # both writes.
+        assert dm.last_used is not None
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            # Pool checkout timeout, raised by SQLAlchemy itself.
+            sqlalchemy.exc.TimeoutError("QueuePool limit reached"),
+            # Driver errors, which warehouse.db.unwrap_dbapi_exceptions re-raises
+            # unwrapped.
+            psycopg.OperationalError("connection reset"),
+        ],
+    )
+    def test_verify_first_use_failure_falls_back(
+        self, mocker, db_request, macaroon_service, user_macaroon, error
+    ):
+        raw_macaroon, dm = user_macaroon
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        mocker.patch.object(
+            macaroon_service,
+            "_record_first_use",
+            autospec=True,
+            side_effect=error,
+        )
+
+        assert macaroon_service.verify(
+            raw_macaroon, db_request, mocker.sentinel.context, mocker.sentinel.perm
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.first_use_failed"
+        )
+        db_request.db.refresh(dm)
+        assert dm.last_used is not None
+
+    @pytest.mark.parametrize("read_only", [True, False])
+    def test_verify_skips_first_use(
+        self, mocker, db_request, macaroon_service, user_macaroon, read_only
+    ):
+        raw_macaroon, dm = user_macaroon
+        if read_only:
+            db_request.db.get(AdminFlag, AdminFlagValue.READ_ONLY.value).enabled = True
+        else:
+            dm.last_used = dt.datetime.now()
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        record_first_use = mocker.spy(macaroon_service, "_record_first_use")
+
+        macaroon_service.verify(
+            raw_macaroon, db_request, mocker.sentinel.context, mocker.sentinel.perm
+        )
+
+        record_first_use.assert_not_called()
+
+    def test_verify_skips_first_use_for_oidc(
+        self, mocker, db_request, macaroon_service
+    ):
+        publisher = GitHubPublisherFactory.create()
+        raw_macaroon, _ = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+            oidc_publisher_id=publisher.id,
+        )
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        record_first_use = mocker.spy(macaroon_service, "_record_first_use")
+
+        macaroon_service.verify(
+            raw_macaroon, db_request, mocker.sentinel.context, mocker.sentinel.perm
+        )
+
+        record_first_use.assert_not_called()
+
+    def test_verify_first_use_survives_rollback(self, mocker, app_config):
+        """
+        The first use is committed on its own connection, so it is kept when
+        the request's transaction rolls back.
+
+        Test data normally never leaves the test's own transaction, where that
+        connection can't see it, so this test commits its own rows.
+        """
+        engine = app_config.registry["sqlalchemy.engine"]
+        setup = FactorySession(bind=engine)
+        user = UserFactory.create()
+        raw_macaroon, dm = services.DatabaseMacaroonService(setup).create_macaroon(
+            "fake location", "fake description", [], user_id=user.id
+        )
+        setup.commit()
+
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+        request = mocker.Mock()
+        request.flags.enabled.return_value = False
+        try:
+            with Session(bind=engine) as session:
+                assert services.DatabaseMacaroonService(session).verify(
+                    raw_macaroon, request, mocker.sentinel.context, "upload"
+                )
+                session.rollback()
+
+            with Session(bind=engine) as check:
+                assert check.get(Macaroon, dm.id).last_used is not None
+        finally:
+            setup.delete(dm)
+            setup.delete(user)
+            setup.commit()
+            FactorySession.remove()
 
     def test_verify_records_unattenuated_macaroon(
         self, mocker, db_request, macaroon_service, user_macaroon

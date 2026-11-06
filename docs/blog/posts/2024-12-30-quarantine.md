@@ -225,7 +225,7 @@ and share more about it in the future.
 
 <!-- footnotes -->
 
-[^1]: See <https://pypi.org/help/#packages> for more
+[^1]: See <https://docs.pypi.org/using-pypi/pypi-basics/#projects-releases-and-files-packages-on-pypi> for more
 [^2]: See <https://github.com/pypi/warehouse/blob/main/warehouse/packaging/models.py> for more
 [^3]: Referred to internally as `Observations(kind="is_malware")`
 [^4]:

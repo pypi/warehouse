@@ -1,0 +1,26 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.txt" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
+{% block content %}
+Hello {{ username }},
+
+We have deactivated each Company organization below because it did not have an active subscription with at least 1 seat purchased. A deactivated organization cannot upload releases to its projects or invite members, and its public profile page is removed. Its projects remain available to install.
+
+To reactivate an organization, purchase a seat from its billing page by its date:
+
+{% for organization in organizations %}
+- {{ organization.name }}, by {{ organization.reactivate_by|format_date(format="long") }}
+  {{ request.route_url('manage.organization.activate_subscription', organization_name=organization.name, _host=domain) }}
+{% endfor %}
+
+After that date, or if you need help, reach out to us at support+orgs@pypi.org. The name of an organization that stays deactivated may later be made available for others to claim through a new organization application.
+
+If you no longer want an organization, you can still delete it from its settings page. Deleting requires that it owns no projects. Deletion is permanent: to create an organization again, you will need to submit a new organization application, and the name becomes available for someone else to register.
+
+– The PyPI Team
+{% endblock %}
+
+{% block reason %}
+You are receiving this because you are an owner of {{ organizations|map(attribute="name")|join(", ") }} on PyPI.
+{% endblock %}

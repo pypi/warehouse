@@ -75,7 +75,7 @@ to learn more about the audit and its findings.
 I hope you enjoy the series!
 
 In preparation for the audit, I created [system architecture diagrams
-for the PyPI infrastructure](https://warehouse.pypa.io/architecture.html),
+for the PyPI infrastructure](https://dev.pypi.org/architecture/),
 which were used as part of the audit to help inform auditors on where to focus.
 During the audit, I met with the auditors weekly to learn about any findings,
 and work to prioritize and resolve them.

@@ -224,11 +224,15 @@
       position: relative;
       left: 7px;
 
+      // Keeps the icon inside the focus outline without changing the layout
+      margin-left: -11px;
+      padding-left: 11px;
+
       .fa-filter {
         position: absolute;
         top: 50%;
         margin-top: -1px;
-        left: -11px;
+        left: 0;
         transform: translateY(-50%);
         font-size: fonts.$small-font-size;
         color: colors.$light-grey;
@@ -236,6 +240,11 @@
 
       &:has(select option[selected]:not([value=""])) .fa-filter {
         color: colors.$mid-grey;
+      }
+
+      // Outline the wrapper, as the select's mask-image would fade its own outline
+      &:has(select:focus-visible) {
+        @include link-utilities.focus-ring;
       }
     }
 

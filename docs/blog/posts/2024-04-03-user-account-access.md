@@ -134,7 +134,7 @@ and associated projects, including, but not only:
 
 For any users who have been affected by this incident,
 and cannot obtain access to their accounts with email re-verification,
-Please read the [FAQ on account recovery](https://pypi.org/help/#account-recovery).
+Please read the [documentation on account recovery](https://docs.pypi.org/your-account/account-recovery/#lost-account-access).
 
 We will continue to monitor the situation and take further action as needed.
 

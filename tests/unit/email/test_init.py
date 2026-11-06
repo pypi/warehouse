@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import celery
 import celery.exceptions
@@ -168,7 +168,7 @@ class TestSendEmailToUser:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(seconds=69),
+            return_value=dt.datetime.now() - dt.timedelta(seconds=69),
         )
 
         address = "foo@example.com"
@@ -177,7 +177,7 @@ class TestSendEmailToUser:
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         skip_reason = email._send_email_to_user(
-            db_request, user, msg, repeat_window=datetime.timedelta(seconds=420)
+            db_request, user, msg, repeat_window=dt.timedelta(seconds=420)
         )
 
         assert skip_reason == "repeat-window"
@@ -192,7 +192,7 @@ class TestSendEmailToUser:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(seconds=69),
+            return_value=dt.datetime.now() - dt.timedelta(seconds=69),
         )
 
         user = UserFactory.create(with_verified_primary_email=True)
@@ -200,7 +200,7 @@ class TestSendEmailToUser:
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         email._send_email_to_user(
-            db_request, user, msg, repeat_window=datetime.timedelta(seconds=42)
+            db_request, user, msg, repeat_window=dt.timedelta(seconds=42)
         )
 
         last_sent.assert_called_once_with(to=user.email, subject="My Subject")
@@ -391,8 +391,8 @@ class TestSendPasswordResetEmail:
             verified=True,
             user__username="username_value",
             user__name="name_value",
-            user__last_login=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
-            user__password_date=datetime.datetime(2026, 1, 2, tzinfo=datetime.UTC),
+            user__last_login=dt.datetime(2026, 1, 1, tzinfo=dt.UTC),
+            user__password_date=dt.datetime(2026, 1, 2, tzinfo=dt.UTC),
         ).user
         if email_addr is None:
             user_email = None
@@ -1146,7 +1146,7 @@ class TestSendNewOrganizationApprovedEmail:
 
         result = email.send_new_organization_approved_email(
             db_request,
-            initiator_user,
+            (initiator_user, None),
             organization_name=organization_name,
             organization_type=organization_type,
             message=message,
@@ -1156,6 +1156,7 @@ class TestSendNewOrganizationApprovedEmail:
             "organization_name": organization_name,
             "organization_type": organization_type,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1195,6 +1196,7 @@ class TestSendNewOrganizationApprovedEmail:
             },
         )
 
+    @pytest.mark.parametrize("primary", [True, False])
     @pytest.mark.parametrize(
         ("organization_type", "expects_action_required"),
         [
@@ -1208,18 +1210,21 @@ class TestSendNewOrganizationApprovedEmail:
         pyramid_config,
         organization_type,
         expects_action_required,
+        primary,
         send_email,
     ):
         """
         The rendered email should only nag Company organizations to buy a
         seat -- Community organizations shouldn't see that content at all.
         """
-        initiator_user = EmailFactory.create(
+        recipient = EmailFactory.create(
             email="email@example.com",
             verified=True,
+            primary=primary,
             user__username="username",
             user__name="",
-        ).user
+        )
+        initiator_user = recipient.user
         organization_name = "example"
 
         pyramid_config.include("pyramid_jinja2")
@@ -1251,7 +1256,7 @@ class TestSendNewOrganizationApprovedEmail:
 
         email.send_new_organization_approved_email(
             db_request,
-            initiator_user,
+            (initiator_user, recipient),
             organization_name=organization_name,
             organization_type=organization_type,
             message="example message",
@@ -1274,6 +1279,9 @@ class TestSendNewOrganizationApprovedEmail:
         )
         assert management_url in body_text
         assert f'href="{management_url}"' in body_html
+        notice = "set a verified email address as your primary"
+        assert (notice in body_text) is not primary
+        assert (notice in body_html) is not primary
 
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
@@ -1298,7 +1306,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
 
         result = email.send_new_organization_moreinformationneeded_email(
             db_request,
-            initiator_user,
+            (initiator_user, None),
             organization_name=organization_name,
             organization_application_id=organization_application_id,
             message=message,
@@ -1308,6 +1316,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
             "organization_name": organization_name,
             "organization_application_id": organization_application_id,
             "message": message,
+            "primary_email_unverified": False,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
@@ -1343,6 +1352,47 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
                 },
             },
         )
+
+    @pytest.mark.parametrize("primary", [True, False])
+    def test_renders_set_primary_notice(
+        self, db_request, pyramid_config, primary, send_email
+    ):
+        recipient = EmailFactory.create(
+            email="email@example.com",
+            verified=True,
+            primary=primary,
+            user__username="username",
+            user__name="",
+        )
+        initiator_user = recipient.user
+
+        pyramid_config.include("pyramid_jinja2")
+        pyramid_config.add_settings({"jinja2.newstyle": True})
+        pyramid_config.add_settings({"jinja2.i18n.domain": "messages"})
+        pyramid_config.add_jinja2_renderer(".html")
+        pyramid_config.add_jinja2_renderer(".txt")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".html")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".txt")
+        pyramid_config.add_route(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+        )
+
+        db_request.user = initiator_user
+        db_request.registry.settings["warehouse.domain"] = "pypi.org"
+
+        email.send_new_organization_moreinformationneeded_email(
+            db_request,
+            (initiator_user, recipient),
+            organization_name="example",
+            organization_application_id="deadbeef-dead-beef-dead-beefdeadbeef",
+            message="example message",
+        )
+
+        (_, msg, _), _ = send_email.delay.call_args
+        notice = "set a verified email address as your primary"
+        assert (notice in msg["body_text"]) is not primary
+        assert (notice in msg["body_html"]) is not primary
 
 
 class TestSendNewOrganizationDeclinedEmail:
@@ -2287,30 +2337,48 @@ class TestOrganizationRenameEmails:
 
 
 class TestOrganizationSubscriptionRequiredEmail:
-    def test_send_organization_subscription_required_email(
+    @pytest.mark.parametrize(
+        ("send", "template", "organization"),
+        [
+            (
+                email.send_organization_subscription_required_email,
+                "organization-subscription-required",
+                {
+                    "name": "example",
+                    "deactivate_on": dt.date(2026, 11, 16),
+                    "days_remaining": 30,
+                },
+            ),
+            (
+                email.send_organization_deactivated_email,
+                "organization-deactivated",
+                {"name": "example", "reactivate_by": dt.date(2027, 1, 16)},
+            ),
+        ],
+    )
+    def test_send(
         self,
         db_request,
         pyramid_user,
         make_email_renderers,
         send_email,
+        send,
+        template,
+        organization,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user, verified=True)
-        organization_name = "example"
 
-        subject_renderer, body_renderer, html_renderer = make_email_renderers(
-            "organization-subscription-required"
-        )
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(template)
+        organizations = [organization]
 
-        result = email.send_organization_subscription_required_email(
-            db_request,
-            user,
-            organization_name=organization_name,
+        result = send(
+            db_request, (user, user.primary_email), organizations=organizations
         )
 
         assert result == {
             "username": user.username,
-            "organization_name": organization_name,
+            "organizations": organizations,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
@@ -3515,7 +3583,7 @@ class TestYankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="Yanky Doodle went to town",
         )
 
@@ -3624,7 +3692,7 @@ class TestYankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="Yanky Doodle went to town",
         )
 
@@ -3735,7 +3803,7 @@ class TestUnyankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -3843,7 +3911,7 @@ class TestUnyankedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -3953,7 +4021,7 @@ class TestRemovedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4062,7 +4130,7 @@ class TestRemovedReleaseEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4173,7 +4241,7 @@ class TestRemovedReleaseFileEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -4283,7 +4351,7 @@ class TestRemovedReleaseFileEmail:
         release = ReleaseFactory.build(
             version="0.0.0",
             project=ProjectFactory.build(name="test_project"),
-            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            created=dt.datetime(2017, 2, 5, 0, 0, 0, 0),
             yanked_reason="",
         )
 
@@ -5081,7 +5149,7 @@ class TestSendUnrecognizedLoginEmail:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+            return_value=dt.datetime.now() - dt.timedelta(minutes=1),
         )
 
         email.send_unrecognized_login_email(
@@ -5128,7 +5196,7 @@ class TestSendUnrecognizedLoginEmail:
             email_service,
             "last_sent",
             autospec=True,
-            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+            return_value=dt.datetime.now() - dt.timedelta(minutes=1),
         )
 
         db_request.user = user

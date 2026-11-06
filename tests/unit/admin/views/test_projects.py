@@ -185,6 +185,10 @@ class TestProjectDetail:
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
             "MAX_PROJECT_SIZE": warehouse.constants.MAX_PROJECT_SIZE,
+            "ORGANIZATION_MAX_FILESIZE": warehouse.constants.ORGANIZATION_MAX_FILESIZE,
+            "ORGANIZATION_MAX_PROJECT_SIZE": (
+                warehouse.constants.ORGANIZATION_MAX_PROJECT_SIZE
+            ),
             "ONE_GIB": views.ONE_GIB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
             "observation_kinds": ObservationKind,

@@ -25,7 +25,7 @@
     <div class="release__card">
       <div class="release__card-header"></div>
       <div class="release__card-body">
-        <p class="release__version"></p>
+        <h3 class="release__version"></h3>
         <p class="release__meta"></p>
       </div>
       <div class="release__card-footer"></div>
@@ -159,7 +159,15 @@
 
     a {
       @include link-utilities.colored-link(colors.$primary-color);
-      @include link-utilities.link-without-underline;
+
+      i {
+        margin-right: 4px;
+        text-decoration: none;
+      }
+
+      .warning {
+        text-decoration: underline;
+      }
     }
 
     @media screen and (max-width: breakpoints.$small-tablet) {
@@ -183,10 +191,6 @@
 
   &__date {
     white-space: nowrap;
-  }
-
-  &__provenance-icon {
-    color: colors.$primary-color;
   }
 
   &__card-footer {

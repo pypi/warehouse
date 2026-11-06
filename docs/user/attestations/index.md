@@ -1,6 +1,8 @@
 ---
-title: Introduction
+title: Introduction to Attestations
 ---
+
+# Introduction to Attestations
 
 These pages document PyPI's implementation of digital attestations ([PEP 740]),
 including in-toto attestation predicates specific to PyPI itself.
@@ -41,7 +43,7 @@ Publisher identities:
 * [GitHub Actions]
 * [GitLab CI/CD]
 * [Google Cloud]
-* [ActveState]
+* [ActiveState]
 
 [in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 

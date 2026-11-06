@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 
-make -C warehouse/locale/ translations
+make -C warehouse/locale/ compile-pot POT_OUTPUT=.state/messages.pot

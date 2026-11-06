@@ -2,7 +2,28 @@
 
 from http import HTTPStatus
 
+import pytest
+
 from warehouse.i18n import LOCALE_ATTR
+
+from ..common.db.banners import BannerFactory
+
+
+@pytest.mark.parametrize("is_preview", [False, True])
+def test_banner_dismissal_identity(webtest, is_preview):
+    banner = BannerFactory.create(dismissable=True)
+    response = webtest.get(
+        "/_includes/unauthed/notification-banners/",
+        params={"single_banner": str(banner.id)} if is_preview else {},
+        status=HTTPStatus.OK,
+    )
+
+    notification = response.html.find("div", {"data-controller": "notification"})
+    assert notification.find("span", {"class": "notification-bar__message"}).text == (
+        banner.text
+    )
+    # No ID makes previews ephemeral to the notification controller.
+    assert notification.get("id") == (None if is_preview else str(banner.id))
 
 
 class TestLocale:

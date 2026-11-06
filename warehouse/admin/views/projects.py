@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import shlex
 import uuid
 
@@ -8,6 +8,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_, select
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -21,6 +22,8 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     UPLOAD_LIMIT_CAP,
 )
 from warehouse.email import (
@@ -60,8 +63,8 @@ def project_list(request):
     if not q:
         days = parse_days_param(request)
 
-        now = datetime.datetime.now(datetime.UTC)
-        cutoff = now - datetime.timedelta(days=days)
+        now = dt.datetime.now(dt.UTC)
+        cutoff = now - dt.timedelta(days=days)
         created_date = func.date_trunc("day", Project.created)
 
         daily_counts = request.db.execute(
@@ -78,7 +81,7 @@ def project_list(request):
 
         creation_series = []
         for i in range(days):
-            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
+            day = (cutoff + dt.timedelta(days=i + 1)).date().isoformat()
             creation_series.append((day, counts_by_date.get(day, 0)))
 
         latest_release = (
@@ -189,7 +192,7 @@ def project_detail(project, request):
         request.db.query(Role)
         .join(User)
         .filter(Role.project == project)
-        .distinct(User.username)
+        .ext(distinct_on(User.username))
         .all()
     )
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
@@ -231,6 +234,8 @@ def project_detail(project, request):
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "ORGANIZATION_MAX_FILESIZE": ORGANIZATION_MAX_FILESIZE,
+        "ORGANIZATION_MAX_PROJECT_SIZE": ORGANIZATION_MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "observation_kinds": ObservationKind,
         "observations": observations,

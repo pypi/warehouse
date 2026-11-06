@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import json
 import types
 
@@ -245,7 +245,7 @@ class TestRedisLru:
         """
 
         def datetime_func():
-            return {"submitted": datetime.datetime(2020, 1, 1)}
+            return {"submitted": dt.datetime(2020, 1, 1)}
 
         redis_lru = RedisLru(mockredis)
 

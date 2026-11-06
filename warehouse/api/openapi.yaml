@@ -38,7 +38,7 @@ components:
       example: { "kind": "is_malware", "summary": "This project is distributing malware" }
   securitySchemes:
     bearerAuth:
-      description: "[PyPI API Token](https://pypi.org/help/#apitoken)"
+      description: "[PyPI API Token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token)"
       type: http
       scheme: bearer
       bearerFormat: API Token

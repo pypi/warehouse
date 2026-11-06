@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import datetime
+import contextlib
+import datetime as dt
 import io
 
 import pyqrcode
@@ -25,6 +26,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenException,
     TokenExpired,
 )
 from warehouse.accounts.models import Email, User
@@ -82,6 +84,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    parse_uuid,
     project_owners,
     user_organizations,
     user_projects,
@@ -122,6 +125,22 @@ from warehouse.utils.project import (
 )
 
 
+def _parse_email_id(value: str) -> int | None:
+    """
+    Return a posted email id as an int, or None when it can't be one.
+
+    ``Email.id`` is a Postgres ``integer``, so an out-of-range value fails in
+    the database instead of finding no row.
+    """
+    try:
+        email_id = int(value)
+    except ValueError, TypeError:
+        return None
+    if not -(2**31) <= email_id < 2**31:
+        return None
+    return email_id
+
+
 class ManageAccountMixin:
     def __init__(self, request):
         self.request = request
@@ -136,12 +155,12 @@ class ManageAccountMixin:
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == int(self.request.POST["reverify_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["reverify_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
             )
-        except NoResultFound, ValueError:
+        except NoResultFound:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -197,7 +216,7 @@ class ManageAccountMixin:
                 self.request.db.query(Email)
                 .filter(
                     Email.user_id == self.request.user.id,
-                    Email.id == int(self.request.POST["primary_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["primary_email_id"]),
                     Email.verified.is_(True),
                 )
                 .one()
@@ -251,7 +270,9 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        return {"help_url": self.request.help_url(_anchor="account-recovery")}
+        return {
+            "docs_url": self.request.user_docs_url("/your-account/account-recovery/")
+        }
 
     @view_config(
         request_method="POST",
@@ -304,7 +325,9 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 
         if not form.validate():
             return {
-                "help_url": self.request.help_url(_anchor="account-recovery"),
+                "docs_url": self.request.user_docs_url(
+                    "/your-account/account-recovery/"
+                ),
                 "change_unverified_primary_email_form": form,
             }
 
@@ -470,7 +493,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == int(self.request.POST["delete_email_id"]),
+                    Email.id == _parse_email_id(self.request.POST["delete_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
@@ -659,11 +682,6 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        # Clear the TOTP secret in the current session (if it exists) so this
-        # page will generate a new TOTP secret rather than using the existing
-        # secret to render the QR code.
-        self.request.session.clear_totp_secret()
-
         return self.default_response
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
@@ -679,16 +697,31 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        form = ProvisionTOTPForm(
-            self.request.POST,
-            totp_secret=self.request.session.get_totp_secret(),
+        # Record whether the secret rendered by the GET is still usable; if not,
+        # `get_totp_secret` generates a fresh one the code can't match.
+        provision_status = self.request.session.totp_secret_status()
+        totp_secret = self.request.session.get_totp_secret()
+        form = ProvisionTOTPForm(self.request.POST, totp_secret=totp_secret)
+        valid = form.validate()
+        result = "success" if valid else form.totp_failure or "malformed"
+        self.request.metrics.increment(
+            "warehouse.manage.account.totp_provision",
+            tags=[f"result:{result}", f"session_secret:{provision_status}"],
         )
 
-        if form.validate():
+        if not valid and provision_status != "present":
+            # The QR code the user scanned no longer matches; the re-rendered
+            # page shows a new one.
+            form.totp_value.errors = [
+                self.request._(
+                    "Your setup code is no longer valid. "
+                    "Scan the new QR code and enter the code it generates."
+                )
+            ]
+
+        if valid:
             old_totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-            self.user_service.update_user(
-                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
-            )
+            self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
             self.request.session.clear_totp_secret()
             if old_totp_secret:
                 self.request.user.record_event(
@@ -1336,8 +1369,13 @@ def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
         request.session.flash(
             request._(
-                "Project deletion temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "Project deletion temporarily disabled. See ${docs_url} for details.",
+                mapping={
+                    "docs_url": request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                },
             ),
             queue="error",
         )
@@ -1542,7 +1580,7 @@ class ManageProjectRelease:
 
         self.release.yanked = True
         self.release.yanked_reason = yanked_reason
-        self.release.yanked_date = datetime.datetime.now(datetime.UTC)
+        self.release.yanked_date = dt.datetime.now(dt.UTC)
 
         self.request.session.flash(
             self.request._(f"Yanked release {self.release.version!r}"), queue="success"
@@ -1668,7 +1706,13 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Project deletion temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1790,8 +1834,13 @@ class ManageProjectRelease:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             message = self.request._(
-                "Project deletion temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "Project deletion temporarily disabled. See ${docs_url} for details.",
+                mapping={
+                    "docs_url": self.request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                },
             )
             return _error(message)
 
@@ -1805,7 +1854,7 @@ class ManageProjectRelease:
                 self.request.db.query(File)
                 .filter(
                     File.release == self.release,
-                    File.id == self.request.POST.get("file_id"),
+                    File.id == parse_uuid(self.request.POST.get("file_id")),
                 )
                 .one()
             )
@@ -2172,10 +2221,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     )
     # Cover edge case where invite is invalid but task
     # has not updated invite status
-    try:
-        invite_token = token_service.loads(user_invite.token)
-    except TokenExpired, AttributeError:
-        invite_token = None
+    invite_token = None
+    if user_invite is not None:
+        with contextlib.suppress(TokenException):
+            invite_token = token_service.loads(user_invite.token)
 
     if user.primary_email is None or not user.primary_email.verified:
         request.session.flash(
@@ -2279,7 +2328,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
-    user = user_service.get_user(request.POST["user_id"])
+    user = user_service.get_user(parse_uuid(request.POST["user_id"]))
 
     try:
         user_invite = (
@@ -2298,22 +2347,33 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
 
     request.db.delete(user_invite)
 
+    # Only a readable token holds the invited role.
+    role_name = None
     try:
-        token_data = token_service.loads(user_invite.token)
+        role_name = token_service.loads(user_invite.token).get("desired_role")
     except TokenExpired:
-        request.session.flash(request._("Invitation already expired."), queue="success")
-        return HTTPSeeOther(
-            request.route_path("manage.project.roles", project_name=project.name)
+        message = request._(
+            "Expired invitation for '${username}' deleted.",
+            mapping={"username": user.username},
         )
-    role_name = token_data.get("desired_role")
+    except TokenException:
+        message = request._(
+            "Invalid invitation for '${username}' deleted.",
+            mapping={"username": user.username},
+        )
+    else:
+        message = request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        )
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"revoke_invite {role_name} {user.username}",
+                submitted_by=request.user,
+            )
+        )
 
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action=f"revoke_invite {role_name} {user.username}",
-            submitted_by=request.user,
-        )
-    )
     project.record_event(
         tag=EventTag.Project.RoleRevokeInvite,
         request=request,
@@ -2332,13 +2392,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             "role_name": role_name,
         },
     )
-    request.session.flash(
-        request._(
-            "Invitation revoked from '${username}'.",
-            mapping={"username": user.username},
-        ),
-        queue="success",
-    )
+    request.session.flash(message, queue="success")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -2358,7 +2412,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
 
     if form.validate():
-        role_id = request.POST["role_id"]
+        role_id = parse_uuid(request.POST["role_id"])
         try:
             role = (
                 request.db.query(Role)
@@ -2444,7 +2498,7 @@ def delete_project_role(project, request):
             request.db.query(Role)
             .join(User)
             .filter(Role.project == project)
-            .filter(Role.id == request.POST["role_id"])
+            .filter(Role.id == parse_uuid(request.POST["role_id"]))
             .one()
         )
         projects_sole_owned = {

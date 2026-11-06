@@ -184,6 +184,10 @@ def jinja():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            # Templates rendered through this fixture may grow a {% component %}
+            # tag; without the extension that fails as a TemplateSyntaxError
+            # pointing at the template rather than at this fixture.
+            "pyramid_components.jinja2.ComponentExtension",
         ],
         cache_size=0,
     )
@@ -261,6 +265,15 @@ def pyramid_services(
         ratelimit_service, IRateLimiter, name="project.create.organization"
     )
     services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.user"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.ip"
+    )
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.attempt.organization"
+    )
+    services.register_service(
         github_oauth_provider_service, IOAuthProviderService, name="github"
     )
 
@@ -301,6 +314,12 @@ def pyramid_request(pyramid_services, jinja):
         return ts.interpolate()
 
     dummy_request._ = localize
+
+    def user_docs_url(path, anchor=None):
+        url = f"https://docs.pypi.org{path}"
+        return f"{url}#{anchor}" if anchor else url
+
+    dummy_request.user_docs_url = user_docs_url
 
     yield dummy_request
 

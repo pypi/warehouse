@@ -60,6 +60,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.reactivate",
+        "/admin/organizations/{organization_id}/reactivate/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.set_upload_limit",
         "/admin/organizations/{organization_id}/set_upload_limit/",
         domain=warehouse,
@@ -83,6 +88,9 @@ def includeme(config):
         "admin.organization.delete_oidc_issuer",
         "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
         domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_name.list", "/admin/organization_names/", domain=warehouse
     )
 
     config.add_route(
@@ -121,6 +129,14 @@ def includeme(config):
     config.add_route(
         "admin.organization_application.addnote",
         "/admin/organization_applications/{organization_application_id}/addnote/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.requestmoreinfo.preview",
+        (
+            "/admin/organization_applications/{organization_application_id}"
+            "/requestmoreinfo/preview/"
+        ),
         domain=warehouse,
     )
 

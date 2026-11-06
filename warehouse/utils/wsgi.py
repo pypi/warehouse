@@ -172,7 +172,10 @@ def _ip_address(request: Request) -> IpAddress:
         .returning(IpAddress)
     )
 
-    return request.db.scalars(stmt).one()
+    # Uploads lock this row before the journals advisory lock. Autoflushing a
+    # pending JournalEntry here would take the advisory lock first, so skip it.
+    with request.db.no_autoflush:
+        return request.db.scalars(stmt).one()
 
 
 def includeme(config):

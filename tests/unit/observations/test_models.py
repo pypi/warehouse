@@ -46,6 +46,38 @@ def test_observer_observations_relationship(db_request):
     assert observation.kind_display == "Something Else"
 
 
+def test_project_observations_newest_first(db_request):
+    """`HasObservations.observations` returns rows newest-first."""
+    user = UserFactory.create()
+    db_request.user = user
+    project = ProjectFactory.create()
+
+    older = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.SomethingElse,
+        summary="Older Observation",
+        payload={},
+        actor=user,
+    )
+    older.created = datetime(2026, 1, 1)
+    newer = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.SomethingElse,
+        summary="Newer Observation",
+        payload={},
+        actor=user,
+    )
+    newer.created = datetime(2026, 1, 2)
+
+    db_request.db.flush()
+    db_request.db.expire_all()
+
+    assert [o.summary for o in project.observations] == [
+        "Newer Observation",
+        "Older Observation",
+    ]
+
+
 def test_observer_created_from_user_when_observation_made(db_request):
     user = UserFactory.create()
     db_request.user = user
@@ -89,3 +121,36 @@ def test_user_observations_relationship(db_request):
     db_request.db.flush()  # so Observer is created
 
     assert len(user.observer.observations) == 2
+
+
+def test_observer_observations_newest_first(db_request):
+    """`Observer.observations` returns rows newest-first."""
+    user = UserFactory.create()
+    db_request.user = user
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+
+    older = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.SomethingElse,
+        summary="Project Observation",
+        payload={},
+        actor=user,
+    )
+    older.created = datetime(2026, 1, 1)
+    newer = release.record_observation(
+        request=db_request,
+        kind=ObservationKind.SomethingElse,
+        summary="Release Observation",
+        payload={},
+        actor=user,
+    )
+    newer.created = datetime(2026, 1, 2)
+
+    db_request.db.flush()
+    db_request.db.expire_all()
+
+    assert [o.summary for o in user.observer.observations] == [
+        "Release Observation",
+        "Project Observation",
+    ]

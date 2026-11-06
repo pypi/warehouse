@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pretend
 import redis
@@ -92,8 +92,8 @@ class TestRateLimiter:
         while limiter.hit("foo"):
             pass
 
-        assert limiter.resets_in("foo") > datetime.timedelta(seconds=0)
-        assert limiter.resets_in("foo") < datetime.timedelta(seconds=60)
+        assert limiter.resets_in("foo") > dt.timedelta(seconds=0)
+        assert limiter.resets_in("foo") < dt.timedelta(seconds=60)
 
     def test_get_window_stats(self, metrics):
         limiter = RateLimiter(
@@ -130,12 +130,12 @@ class TestRateLimiter:
             metrics=metrics,
         )
 
-        current = datetime.datetime.now(tz=datetime.UTC)
+        current = dt.datetime.now(tz=dt.UTC)
         stats = iter(
             [
                 (0, 0),
-                ((current + datetime.timedelta(seconds=60)).timestamp(), 0),
-                ((current + datetime.timedelta(seconds=5)).timestamp(), 0),
+                ((current + dt.timedelta(seconds=60)).timestamp(), 0),
+                ((current + dt.timedelta(seconds=5)).timestamp(), 0),
             ]
         )
 
@@ -145,8 +145,8 @@ class TestRateLimiter:
 
         resets_in = limiter.resets_in("foo")
 
-        assert resets_in > datetime.timedelta(seconds=0)
-        assert resets_in <= datetime.timedelta(seconds=5)
+        assert resets_in > dt.timedelta(seconds=0)
+        assert resets_in <= dt.timedelta(seconds=5)
 
     def test_override_returns_sibling(self, metrics):
         backend = storage.MemoryStorage()

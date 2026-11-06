@@ -45,6 +45,7 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch, mocker):
         "admin/static", "warehouse.admin:static/dist", cache_max_age=315360000
     )
     assert config.include.call_args_list == [
+        mocker.call("pyramid_components"),
         mocker.call(".routes"),
         mocker.call(".flags"),
         mocker.call(".bans"),

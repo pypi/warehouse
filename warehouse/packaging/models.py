@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import enum
 import typing
 
@@ -71,6 +71,8 @@ from warehouse.constants import (
     MAX_FILESIZE,
     MAX_PROJECT_SIZE,
     MAXIMUM_AGE_FOR_NEW_UPLOADS,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
 )
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
@@ -128,14 +130,14 @@ def _provenance_query() -> Select:
     )
 
 
-def _counted_releases(rows) -> list[tuple[str, datetime.datetime, ProvenanceCounts]]:
+def _counted_releases(rows) -> list[tuple[str, dt.datetime, ProvenanceCounts]]:
     """
     Fold `_provenance_query` rows into one entry per release, newest first.
 
     The joins fan out, so files are collected into a set rather than counted
     row by row.
     """
-    grouped: dict[str, tuple[datetime.datetime, set[UUID], list[Provenance]]] = {}
+    grouped: dict[str, tuple[dt.datetime, set[UUID], list[Provenance]]] = {}
     for version, created, file_id, provenance in rows:
         if version not in grouped:  # not setdefault: it would build a bucket per row
             grouped[version] = (created, set(), [])
@@ -152,10 +154,10 @@ def _counted_releases(rows) -> list[tuple[str, datetime.datetime, ProvenanceCoun
 
 
 def _provenance_comparison(
-    counted: list[tuple[str, datetime.datetime, ProvenanceCounts]],
+    counted: list[tuple[str, dt.datetime, ProvenanceCounts]],
     start: int,
-    created: datetime.datetime,
-    cutoff: datetime.datetime,
+    created: dt.datetime,
+    cutoff: dt.datetime,
 ) -> ProvenanceComparison | None:
     """
     The release a status is measured against, from the releases before it.
@@ -188,9 +190,9 @@ class LateFile:
     """
 
     filename: str
-    upload_time: datetime.datetime
+    upload_time: dt.datetime
     # How long after the release was published the file arrived.
-    delay: datetime.timedelta
+    delay: dt.timedelta
 
 
 @dataclass(frozen=True)
@@ -204,12 +206,12 @@ class LateFileStatus:
     """
 
     total_files: int
-    first_upload: datetime.datetime
-    last_upload: datetime.datetime
+    first_upload: dt.datetime
+    last_upload: dt.datetime
     late_files: tuple[LateFile, ...] = ()
 
 
-def added_late(upload_time: datetime.datetime, created: datetime.datetime) -> bool:
+def added_late(upload_time: dt.datetime, created: dt.datetime) -> bool:
     """
     Whether a file arrived past the window its release accepts new files in.
 
@@ -221,7 +223,7 @@ def added_late(upload_time: datetime.datetime, created: datetime.datetime) -> bo
 
 
 def late_file_status_from_files(
-    created: datetime.datetime, files: typing.Iterable[File | Row]
+    created: dt.datetime, files: typing.Iterable[File | Row]
 ) -> LateFileStatus | None:
     """
     Fold a release's files into the record of when they arrived.
@@ -671,7 +673,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .execute(_provenance_query().where(Release.project_id == self.id))
             .all()
         )
-        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        window = dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
         # Most projects attest nothing, and there the comparison walk can only
         # ever come back empty. Checking once beats letting every release scan
         # its whole window to find that out, which for releases sharing a
@@ -757,7 +759,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         Uses the most generous (highest) limit from:
         - System default (MAX_FILESIZE)
         - Project-specific limit (if set)
-        - Organization limit (if project belongs to org and org has limit)
+        - Organization default and limit (if project belongs to an org)
 
         This allows organizations and projects to have higher limits than
         the system default, with users benefiting from the most generous
@@ -765,7 +767,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         """
         limits_to_check = [MAX_FILESIZE, self.upload_limit]
         if self.organization:
-            limits_to_check.append(self.organization.upload_limit)
+            limits_to_check += [
+                ORGANIZATION_MAX_FILESIZE,
+                self.organization.upload_limit,
+            ]
 
         valid_limits = [limit for limit in limits_to_check if limit is not None]
         return max(valid_limits)
@@ -778,7 +783,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         Uses the most generous (highest) limit from:
         - System default (MAX_PROJECT_SIZE)
         - Project-specific limit (if set)
-        - Organization limit (if project belongs to org and org has limit)
+        - Organization default and limit (if project belongs to an org)
 
         This allows organizations and projects to have higher limits than
         the system default, with users benefiting from the most generous
@@ -786,7 +791,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         """
         limits_to_check = [MAX_PROJECT_SIZE, self.total_size_limit]
         if self.organization:
-            limits_to_check.append(self.organization.total_size_limit)
+            limits_to_check += [
+                ORGANIZATION_MAX_PROJECT_SIZE,
+                self.organization.total_size_limit,
+            ]
 
         valid_limits = [limit for limit in limits_to_check if limit is not None]
         return max(valid_limits)
@@ -1046,7 +1054,7 @@ class Release(HasObservations, db.Model):
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
 
-    yanked_date: Mapped[datetime.datetime | None] = mapped_column(
+    yanked_date: Mapped[dt.datetime | None] = mapped_column(
         comment="When the release was yanked"
     )
 
@@ -1266,7 +1274,7 @@ class Release(HasObservations, db.Model):
         release a status is measured against.
         """
         session = orm_session_from_obj(self)
-        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        window = dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
         query = (
             session.query(Release)
             .join(Release.files)
@@ -1567,6 +1575,21 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
             session.expunge(je)
         session.info.setdefault("_deferred_journals", []).extend(journal_entries)
         return
+
+    # Lock the project rows the journals trigger will update before taking the
+    # advisory lock, matching the order uploads use (row first, advisory last).
+    # The advisory lock is held until commit, so this only covers this flush's
+    # projects, not rows a later flush in the same transaction touches.
+    session.execute(
+        select(Project.id)
+        .where(
+            Project.normalized_name.in_(
+                [func.normalize_pep426_name(je.name) for je in journal_entries]
+            )
+        )
+        .order_by(Project.normalized_name)
+        .with_for_update(key_share=True)
+    )
 
     session.execute(
         select(

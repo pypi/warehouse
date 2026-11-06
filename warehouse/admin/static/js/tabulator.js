@@ -95,6 +95,10 @@ const TABLE_OPTIONS = {
   layout: ["layout", String],
   height: ["height", String],
   responsivelayout: ["responsiveLayout", String],
+  responsivelayoutcollapsestartopen: [
+    "responsiveLayoutCollapseStartOpen",
+    (v) => v !== "false",
+  ],
   placeholder: ["placeholder", String],
   groupby: ["groupBy", String],
   pagination: ["pagination", (v) => v !== "false"],
@@ -162,7 +166,7 @@ function resyncResponsiveFold(table) {
 // Build the column list for a header menu, checked to match what the admin
 // asked for. Tabulator calls this with the table as `this` each time a menu
 // opens, so the checkboxes always reflect the columns as they stand.
-function columnVisibilityMenu() {
+export function columnVisibilityMenu() {
   const table = this;
 
   return table

@@ -3,11 +3,20 @@
 from webob.multidict import MultiDict
 
 from warehouse.admin.forms import (
+    SetOrganizationTotalSizeLimitForm,
+    SetOrganizationUploadLimitForm,
     SetProjectCreateRateLimitForm,
     SetTotalSizeLimitForm,
     SetUploadLimitForm,
 )
-from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP, RateLimitPeriod
+from warehouse.constants import (
+    ONE_GIB,
+    ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
+    PROJECT_CREATE_RATELIMIT_CAP,
+    RateLimitPeriod,
+)
 
 
 class TestSetUploadLimitForm:
@@ -120,6 +129,41 @@ class TestSetTotalSizeLimitForm:
             "Total organization size can not be less than" in error
             for error in form.total_size_limit.errors
         )
+
+
+class TestOrganizationLimitForms:
+    def test_upload_limit_minimum_is_organization_default(self):
+        floor = ORGANIZATION_MAX_FILESIZE // ONE_MIB
+        form = SetUploadLimitForm(MultiDict({"upload_limit": str(floor - 1)}))
+        assert form.validate()
+        form = SetOrganizationUploadLimitForm(
+            MultiDict({"upload_limit": str(floor - 1)})
+        )
+        assert not form.validate()
+        assert form.upload_limit.errors == [
+            f"Upload limit can not be less than {floor:0.1f}MiB"
+        ]
+        form = SetOrganizationUploadLimitForm(MultiDict({"upload_limit": str(floor)}))
+        assert form.validate()
+        assert form.upload_limit.data == ORGANIZATION_MAX_FILESIZE
+
+    def test_total_size_limit_minimum_is_organization_default(self):
+        floor = ORGANIZATION_MAX_PROJECT_SIZE // ONE_GIB
+        assert SetTotalSizeLimitForm(
+            MultiDict({"total_size_limit": str(floor - 1)})
+        ).validate()
+        form = SetOrganizationTotalSizeLimitForm(
+            MultiDict({"total_size_limit": str(floor - 1)})
+        )
+        assert not form.validate()
+        assert form.total_size_limit.errors == [
+            f"Total organization size can not be less than {floor:0.1f}GiB"
+        ]
+        form = SetOrganizationTotalSizeLimitForm(
+            MultiDict({"total_size_limit": str(floor)})
+        )
+        assert form.validate()
+        assert form.total_size_limit.data == ORGANIZATION_MAX_PROJECT_SIZE
 
 
 class TestSetProjectCreateRateLimitForm:

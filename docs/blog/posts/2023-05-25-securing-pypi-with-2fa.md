@@ -23,7 +23,7 @@ steps to safeguard these accounts by
 [blocking compromised passwords](https://caremad.io/posts/2018/08/pypi-compromised-passwords/), strong 2FA support using
 [TOTP](https://github.com/pypi/warehouse/pull/5567) and
 [WebAuthN](https://github.com/pypi/warehouse/pull/5795),
-[support for API tokens with offline attenuation](https://pypi.org/help/#apitoken),
+[support for API tokens with offline attenuation](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token),
 [enrolling the most downloaded projects into mandatory 2FA](https://pypi.org/security-key-giveaway/),
 and [enabling short lived tokens for upload](https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/).
 
@@ -39,10 +39,10 @@ certain users or projects for early enforcement.
 
 The most important things you can do to prepare are to enable 2FA for your
 account as soon as possible, either with a
-[security device](https://pypi.org/help/#utfkey) (preferred) or an
-[authentication app](https://pypi.org/help/#totp) and to switch to using either
+[security device](https://docs.pypi.org/your-account/two-factor-authentication/#security-device-webauthn) (preferred) or an
+[authentication app](https://docs.pypi.org/your-account/two-factor-authentication/#authentication-application-totp) and to switch to using either
 [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) (preferred) or
-[API tokens](https://pypi.org/help/#apitoken) to upload to PyPI.
+[API tokens](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token) to upload to PyPI.
 
 ## Why Use 2FA?
 

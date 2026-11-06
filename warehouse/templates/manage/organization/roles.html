@@ -211,6 +211,9 @@
               {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
               <span class="table__user-gravatar">
                 <img src="{{ gravatar(request, role.user.email, size=50) }}"
+                     srcset="{{ gravatar(request, role.user.email, size=100) }} 2x,
+                             {{ gravatar(request, role.user.email, size=150) }} 3x"
+                     loading="lazy"
                      height="50"
                      width="50"
                      alt="{{ alt }}">
@@ -251,8 +254,8 @@
                           name="role_name"
                           data-action="change-role#change"
                           autocomplete="off">
-                    {% for role_name, role_name_label in role_choices if role_name %}
-                      {% set role_name_label = gettext(role_name_label) %}
+                    {% for choice in role_choices if choice.value %}
+                      {% set role_name, role_name_label = choice.value, gettext(choice.label) %}
                       <option value="{{ role_name }}"
                               {{ 'selected' if role_name == role.role_name.value else '' }}>
                         {{ role_name_label }}
@@ -301,6 +304,9 @@
                 {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
                 <span class="table__user-gravatar">
                   <img src="{{ gravatar(request, invite.user.email, size=50) }}"
+                       srcset="{{ gravatar(request, invite.user.email, size=100) }} 2x,
+                               {{ gravatar(request, invite.user.email, size=150) }} 3x"
+                       loading="lazy"
                        height="50"
                        width="50"
                        alt="{{ alt }}">

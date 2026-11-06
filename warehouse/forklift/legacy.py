@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-import datetime
+import datetime as dt
 import hashlib
 import hmac
 import os.path
@@ -102,6 +102,12 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
+# The identity for a pax-style tar. This covers both UStar and pax archives.
+TAR_PAX_IDENTITY = b"ustar\x0000"
+
+# The identity for a GNU-style tar. This covers GNU archives.
+TAR_GNU_IDENTITY = b"ustar  \x00"
+
 
 def _valid_platform_tag(platform_tag):
     return is_valid_platform_tag(platform_tag)
@@ -167,6 +173,63 @@ def _open_dist_file(filename, stack: ExitStack):
     if filename.endswith(".tar.gz"):
         return stack.enter_context(tarfile.open(filename, mode="r:gz"))
     raise ValueError(f"Unsupported distribution file: {filename}")
+
+
+def _is_valid_sdist_tar(tar: tarfile.TarFile, metrics) -> tuple[bool, str | None]:
+    """
+    Check whether a given tar is valid as a source distribution.
+    """
+
+    for member in tar:
+        # Sparse members rely on GNU extensions, including when stored
+        # in a pax header, and are not valid in PEP 625 sdists.
+        if member.issparse():
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: Sparse members are not allowed. "
+                    "See https://docs.pypi.org/archives for more information"
+                ),
+            )
+
+        # PEP 625 requires sdists to be pax, not GNU or V7.
+        # We can't ban GNU tar sdists yet because they're too common.
+        # `tarfile` does not provide a magic API, so we need to do it
+        # manually.
+
+        # To get the header, we take the offset to the member's data and
+        # seek + read one block back from it.
+        where = member.offset_data
+        tar.fileobj.seek(where - tarfile.BLOCKSIZE)
+        raw_header = tar.fileobj.read(512)
+
+        # The "identity" of a tar file is the combined 8 bytes from
+        # its magic and version fields.
+        identity = raw_header[257:265]
+        if identity == TAR_GNU_IDENTITY:
+            # We can't ban these yet, but perhaps soon (tm).
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error", tags=["reason:gnu-header"]
+            )
+        elif identity != TAR_PAX_IDENTITY:
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:unknown-header"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: must be pax. "
+                    "See https://docs.pypi.org/archives"
+                    "#source-distributions-must-be-in-pax-format for more information"
+                ),
+            )
+
+    return True, None
 
 
 def _is_valid_dist_file(
@@ -315,20 +378,11 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
-                # Sparse members rely on GNU extensions, including when stored
-                # in a pax header, and are not valid in PEP 625 sdists.
-                if any(member.issparse() for member in tar.getmembers()):
-                    metrics.increment(
-                        "warehouse.upload.tarfile.policy_error",
-                        tags=["reason:sparse-member"],
-                    )
-                    return (
-                        False,
-                        (
-                            "tar archive not accepted: Sparse members are not allowed. "
-                            "See https://docs.pypi.org/archives for more information"
-                        ),
-                    )
+
+                sdist_is_valid_tar, reason = _is_valid_sdist_tar(tar, metrics)
+                if not sdist_is_valid_tar:
+                    return (sdist_is_valid_tar, reason)
+
                 if (alias := _non_canonical_member_path(tar.getnames())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
@@ -514,7 +568,10 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
+                project_help=request.user_docs_url(
+                    "/your-account/managing-your-account/",
+                    anchor="email-address-verification",
+                ),
             ),
         ) from None
 
@@ -529,7 +586,9 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="two-factor-authentication"),
+                project_help=request.user_docs_url(
+                    "/your-account/two-factor-authentication/"
+                ),
             ),
         ) from None
 
@@ -717,13 +776,17 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
-        _see_url = (
-            "https://packaging.python.org/en/latest/specifications/"
-            "version-specifiers/#local-version-identifiers"
-            if field_name == "version"
-            and any("use of local versions" in str(e) for e in errors["version"])
-            else "https://packaging.python.org/specifications/core-metadata"
-        )
+        _see_url = "https://packaging.python.org/specifications/core-metadata"
+        if field_name == "version":
+            if any("use of local versions" in str(e) for e in errors["version"]):
+                _see_url = (
+                    "https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers"
+                )
+            elif any("after normalization" in str(e) for e in errors["version"]):
+                _see_url = request.user_docs_url(
+                    "/project_metadata/", anchor="version-length-limit"
+                )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
@@ -837,7 +900,10 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 )
                 if reason is None
                 else allowed.msg
@@ -849,7 +915,7 @@ def file_upload(request):
                     "See {} for more information."
                 ).format(
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url("/trusted-publishers/troubleshooting/"),
                 )
                 if reason is None
                 else allowed.msg
@@ -959,7 +1025,10 @@ def file_upload(request):
                 HTTPBadRequest,
                 "{message} See {projecthelp} for more information.".format(
                     message=message,
-                    projecthelp=request.help_url(_anchor="description-content-type"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/project-descriptions/",
+                        anchor="specifying-the-long-description",
+                    ),
                 ),
             ) from None
 
@@ -1189,7 +1258,7 @@ def file_upload(request):
                         f"{file_size_limit // ONE_MIB} MB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-file-size-limit-increase",
                         )
                         + " for more information.",
@@ -1202,9 +1271,10 @@ def file_upload(request):
                         f"{project_size_limit // ONE_GIB} GB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-project-size-limit-increase",
-                        ),
+                        )
+                        + " for more information.",
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1253,7 +1323,13 @@ def file_upload(request):
                 "File already exists "
                 f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
                 " See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 
@@ -1268,7 +1344,13 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename was previously used by a file that has since been "
                 "deleted. Use a different version. See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 
@@ -1277,7 +1359,7 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        if added_late(datetime.datetime.now(), release.created):
+        if added_late(dt.datetime.now(), release.created):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:closed-release"]
             )

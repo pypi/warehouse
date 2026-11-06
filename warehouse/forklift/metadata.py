@@ -69,6 +69,11 @@ _LENGTH_LIMITS = {
     "summary": 512,
 }
 
+# Maximum length of a release's version, after PEP 440 normalization. PEP 440
+# itself has no limit; this is PyPI policy for new uploads.
+# See: https://discuss.python.org/t/amend-pep440-to-limit-version-identifiers/109629
+MAX_VERSION_LENGTH: typing.Final = 128
+
 
 class NoMetadataError(Exception):
     pass
@@ -179,6 +184,17 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
             InvalidMetadata(
                 "version",
                 f"The use of local versions in '{metadata.version}' is not allowed.",
+            )
+        )
+
+    # We limit the length of the normalized version. Backfills are exempt because
+    # releases published before this limit existed may legitimately exceed it.
+    if not backfill and (length := len(str(metadata.version))) > MAX_VERSION_LENGTH:
+        errors.append(
+            InvalidMetadata(
+                "version",
+                f"The version must be {MAX_VERSION_LENGTH} characters or less "
+                f"after normalization, but is {length} characters",
             )
         )
 

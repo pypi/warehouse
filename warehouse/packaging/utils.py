@@ -8,7 +8,6 @@ import packaging_legacy.version
 
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy import String, cast, func, select
-from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
@@ -49,28 +48,45 @@ def _simple_index(request, serial):
 
 
 def _simple_detail(project, request):
-    # Get all of the files for this project.
-    files = sorted(
-        request.db.query(File)
-        .options(joinedload(File.release))
-        .join(Release)
-        .filter(Release.project == project)
-        # Exclude releases that are in the `quarantine-enter` lifecycle status.
-        # Use `is_distinct_from` to keep NULL (unset) statuses.
-        .filter(
-            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+    query = (
+        select(
+            Release.version.label("release__version"),
+            Release.requires_python.label("release__requires_python"),
+            Release.yanked.label("release__yanked"),
+            Release.yanked_reason.label("release__yanked_reason"),
+            File.filename,
+            File.path,
+            File.sha256_digest,
+            File.size,
+            File.upload_time,
+            File.metadata_file_sha256_digest,
+            File.provenance.has().label("has_provenance"),
         )
-        # Exclude projects that are in the `quarantine-enter` lifecycle status.
-        .join(Project)
-        .filter(
-            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        .select_from(File)
+        .join(File.release)
+        .where(
+            Release.project == project,
+            # Exclude releases that are in the `quarantine-enter` lifecycle status.
+            # Use `is_distinct_from` to keep NULL (unset) statuses.
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
         )
-        .all(),
-        key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
     )
-    versions = sorted(
-        {f.release.version for f in files}, key=packaging_legacy.version.parse
-    )
+
+    # short-circuit here before querying the database for a result we will throw away
+    if project.lifecycle_status == LifecycleStatus.QuarantineEnter:
+        files = []
+        versions = []
+    else:
+        files = sorted(
+            request.db.execute(query),
+            key=lambda f: (
+                packaging_legacy.version.parse(f.release__version),
+                f.filename,
+            ),
+        )
+        versions = sorted(
+            {f.release__version for f in files}, key=packaging_legacy.version.parse
+        )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
@@ -88,13 +104,13 @@ def _simple_detail(project, request):
                 "hashes": {
                     "sha256": file.sha256_digest,
                 },
-                "requires-python": (file.release.requires_python or None),
+                "requires-python": (file.release__requires_python or None),
                 "size": file.size,
                 "upload-time": file.upload_time.isoformat() + "Z",
                 "yanked": (
-                    file.release.yanked_reason
-                    if file.release.yanked and file.release.yanked_reason
-                    else file.release.yanked
+                    file.release__yanked_reason
+                    if file.release__yanked and file.release__yanked_reason
+                    else file.release__yanked
                 ),
                 "data-dist-info-metadata": (
                     {"sha256": file.metadata_file_sha256_digest}
@@ -110,10 +126,10 @@ def _simple_detail(project, request):
                     request.route_url(
                         "integrity.provenance",
                         project_name=project.normalized_name,
-                        release=file.release.version,
+                        release=file.release__version,
                         filename=file.filename,
                     )
-                    if file.provenance
+                    if file.has_provenance
                     else None
                 ),
             }

@@ -12,6 +12,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, literal, or_
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -117,7 +118,7 @@ def confirm_prohibited_project_names(request):
             .join(User)
             .join(Project)
             .filter(Role.project == project)
-            .distinct(User.username)
+            .ext(distinct_on(User.username))
             .order_by(User.username)
             .all()
         )

@@ -124,7 +124,13 @@ class ManageOIDCPublisherViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -157,10 +163,14 @@ class ManageOIDCPublisherViews:
     )
     def constrain_environment(self):
         if self.request.flags.disallow_oidc():
+            docs_url = self.request.user_docs_url(
+                "/about/security-and-internals/",
+                anchor="temporarily-disabled-features",
+            )
             self.request.session.flash(
                 (
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    f"See {docs_url} for details."
                 ),
                 queue="error",
             )
@@ -204,6 +214,7 @@ class ManageOIDCPublisherViews:
                 workflow_filepath=publisher.workflow_filepath,
                 environment=form.constrained_environment_name.data,
                 issuer_url=publisher.issuer_url,
+                namespace_id=publisher.namespace_id,
             )
         else:
             self.request.session.flash(
@@ -287,7 +298,13 @@ class ManageOIDCPublisherViews:
             self.request.session.flash(
                 self.request._(
                     "GitHub-based trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -402,7 +419,13 @@ class ManageOIDCPublisherViews:
             self.request.session.flash(
                 self.request._(
                     "GitLab-based trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -518,7 +541,13 @@ class ManageOIDCPublisherViews:
             self.request.session.flash(
                 self.request._(
                     "Google-based trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -629,7 +658,13 @@ class ManageOIDCPublisherViews:
             self.request.session.flash(
                 self.request._(
                     "ActiveState-based trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -738,10 +773,14 @@ class ManageOIDCPublisherViews:
     )
     def delete_oidc_publisher(self):
         if self.request.flags.disallow_oidc():
+            docs_url = self.request.user_docs_url(
+                "/about/security-and-internals/",
+                anchor="temporarily-disabled-features",
+            )
             self.request.session.flash(
                 (
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    f"See {docs_url} for details."
                 ),
                 queue="error",
             )

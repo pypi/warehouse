@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import hashlib
 import random
 
@@ -147,7 +147,7 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
     upload_time = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+        "date_time_between_dates", datetime_start=dt.datetime(2008, 1, 1)
     )
     path = factory.LazyAttribute(
         lambda o: "/".join(
@@ -246,7 +246,7 @@ class JournalEntryFactory(WarehouseFactory):
     name = factory.Faker("word")
     version = factory.Sequence(lambda n: str(n) + ".0")
     submitted_date = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+        "date_time_between_dates", datetime_start=dt.datetime(2008, 1, 1)
     )
     submitted_by = factory.SubFactory(UserFactory)
 
@@ -256,7 +256,7 @@ class ProhibitedProjectFactory(WarehouseFactory):
         model = ProhibitedProjectName
 
     created = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+        "date_time_between_dates", datetime_start=dt.datetime(2008, 1, 1)
     )
     name = factory.Faker("pystr", max_chars=12)
     prohibited_by = factory.SubFactory(UserFactory)

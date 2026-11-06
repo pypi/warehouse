@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import types
 
 import pytest
@@ -264,7 +264,7 @@ class TestActiveOrganizationPredicate:
             # Create an active manual activation
             OrganizationManualActivationFactory(
                 organization=organization,
-                expires=datetime.date(2024, 12, 31),  # Future date
+                expires=dt.date(2024, 12, 31),  # Future date
             )
             predicate = ActiveOrganizationPredicate(True, None)
             assert predicate(organization, db_request)
@@ -284,7 +284,7 @@ class TestActiveOrganizationPredicate:
             # Create an expired manual activation
             OrganizationManualActivationFactory(
                 organization=organization,
-                expires=datetime.date(2023, 12, 31),  # Past date
+                expires=dt.date(2023, 12, 31),  # Past date
             )
             predicate = ActiveOrganizationPredicate(True, None)
             with pytest.raises(HTTPSeeOther):

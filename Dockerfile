@@ -2,7 +2,7 @@
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:26.10.0-trixie AS static-deps
+FROM node:26.13.0-trixie AS static-deps
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -42,7 +42,7 @@ RUN NODE_ENV=production npm run build
 
 # Create a base image that contains some helpers and settings for our python
 # stages to inherit from.
-FROM python:3.14.8-slim-trixie AS base
+FROM python:3.14.10-slim-trixie AS base
 
 # Copy our helpers over into the base image
 COPY bin/docker/* /usr/local/bin/
@@ -73,14 +73,12 @@ FROM base AS docs
 # because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
-#  - git: mkdocs plugin uses this for created/updated
-#  - libcairo2: mkdocs uses cairosvg
+#  - git: zensical rss plugin uses this for created/updated
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
         apt-install \
             build-essential \
-            git \
-            libcairo2
+            git
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
@@ -179,6 +177,16 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
 # Pre-compile our dependencies bytecode to save time collectively on container boot!
 RUN python -m compileall /opt/warehouse/lib/ -j 0
 
+# Install the in-repo pyramid_components package (a src/ layout sibling of warehouse).
+# Copied and installed on its own, ahead of the warehouse source copy below, so that
+# editing warehouse doesn't re-run a setuptools build on every image build.
+# Editable + --no-deps so its deps come from warehouse's pinned requirements and dev
+# bind-mounts still live-reload; --no-build-isolation uses the venv's setuptools.
+COPY pyramid_components/ /opt/warehouse/src/pyramid_components/
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
+        pip --disable-pip-version-check install \
+            --no-deps --no-build-isolation -e ./pyramid_components
+
 # Copy our compiled static files. These should overlay cleanly on top of the
 # virtual environment and even when that gets invalidated, copything these is
 # super fast.
@@ -202,6 +210,7 @@ COPY --exclude=requirements \
      --exclude=package.json \
      --exclude=webpack.config.js \
      --exclude=webpack.plugin.localize.js \
+     --exclude=pyramid_components \
         . /opt/warehouse/src/
 
 
@@ -209,7 +218,9 @@ COPY --exclude=requirements \
 # NOTE: We only do this when we're not building a dev build, because a dev build
 #       will likely have a checkout mounted over warehouse anyways, so these
 #       *.pyc files won't be used in that case.
-RUN if [ "$DEVEL" != "yes" ]; then python -m compileall warehouse/ -j 0; fi
+RUN if [ "$DEVEL" != "yes" ]; then \
+        python -m compileall warehouse/ pyramid_components/src/ -j 0; \
+    fi
 
 # Pre-cache TLD list
 # NOTE: We only do this when we're not building a dev build, because a dev build
