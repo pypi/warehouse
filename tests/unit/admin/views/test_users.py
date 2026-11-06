@@ -428,7 +428,8 @@ class TestUserEmailSubmit:
         # each entry back to the correct Email object.
         for i, email in enumerate(user.emails):
             db_request.POST[f"emails-{i}-email"] = email.email
-            db_request.POST[f"emails-{i}-primary"] = email is email2
+            if email is email2:
+                db_request.POST[f"emails-{i}-primary"] = "y"
 
         db_request.POST = MultiDict(db_request.POST)
         mocker.patch.object(
@@ -532,8 +533,8 @@ class TestUserAddEmail:
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["email"] = "foo@bar.com"
-        db_request.POST["primary"] = True
-        db_request.POST["verified"] = True
+        db_request.POST["primary"] = "y"
+        db_request.POST["verified"] = "y"
         db_request.POST = MultiDict(db_request.POST)
         mocker.patch.object(
             db_request,
@@ -563,7 +564,7 @@ class TestUserAddEmail:
         db_request.method = "POST"
         db_request.POST["email"] = "foo@bar.com"
         # No "primary" field
-        db_request.POST["verified"] = True
+        db_request.POST["verified"] = "y"
         db_request.POST = MultiDict(db_request.POST)
         mocker.patch.object(
             db_request,
@@ -590,8 +591,8 @@ class TestUserAddEmail:
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["email"] = ""
-        db_request.POST["primary"] = True
-        db_request.POST["verified"] = True
+        db_request.POST["primary"] = "y"
+        db_request.POST["verified"] = "y"
         db_request.POST = MultiDict(db_request.POST)
         mocker.patch.object(
             db_request,
