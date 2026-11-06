@@ -1276,17 +1276,20 @@ class TestRememberDevice:
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, return_value="/accounts/login"
         )
-        pyramid_request.user = UserFactory.build()
-        mocker.patch.object(pyramid_request.user, "record_event", autospec=True)
+        # request.user stays None, as it does right after login for a frozen user
+        user = UserFactory.create()
+        mocker.patch.object(user, "record_event", autospec=True)
         pyramid_request.registry.settings = {
             "remember_device.seconds": dt.timedelta(days=30).total_seconds()
         }
         response = pyramid_request.response
         mocker.spy(response, "set_cookie")
 
-        views._remember_device(pyramid_request, response, 1, "webauthn")
+        views._remember_device(pyramid_request, response, user.id, "webauthn")
 
-        remember_device_token_service.dumps.assert_called_once_with({"user_id": "1"})
+        remember_device_token_service.dumps.assert_called_once_with(
+            {"user_id": str(user.id)}
+        )
         response.set_cookie.assert_called_once_with(
             REMEMBER_DEVICE_COOKIE,
             remember_device_token_service.dumps.spy_return,
@@ -1297,7 +1300,7 @@ class TestRememberDevice:
             path="/accounts/login",
         )
         pyramid_request.route_path.assert_called_once_with("accounts.login")
-        pyramid_request.user.record_event.assert_called_once_with(
+        user.record_event.assert_called_once_with(
             tag=EventTag.Account.TwoFactorDeviceRemembered,
             request=pyramid_request,
             additional={"two_factor_method": "webauthn"},
