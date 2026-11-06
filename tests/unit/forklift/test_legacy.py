@@ -38,6 +38,8 @@ from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.models import HasEvents
 from warehouse.events.tags import EventTag
 from warehouse.forklift import legacy, metadata
+from warehouse.gating.interfaces import IGateService
+from warehouse.gating.services import GateService
 from warehouse.macaroons import IMacaroonService, caveats
 from warehouse.metrics import IMetricsService
 from warehouse.metrics.services import NullMetrics
@@ -1465,6 +1467,7 @@ class TestFileUpload:
         macaroon_in_user_context,
         storage_service,
         mocker,
+        gate_service,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -1522,6 +1525,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(_TAR_GZ_PKG_TESTDATA)
         db_request.find_service = mocker.Mock(
             side_effect=lambda svc, name=None, context=None: {
+                IGateService: gate_service,
                 IFileStorage: storage_service,
             }.get(svc)
         )
@@ -1539,6 +1543,7 @@ class TestFileUpload:
         assert db_request.find_service.call_args_list == [
             mock.call(IIntegrityService, context=None),
             mock.call(IFileStorage, name="archive"),
+            mock.call(IGateService, context=None),
         ]
         storage_service.store.assert_called_once_with(
             "/".join(
@@ -2031,7 +2036,7 @@ class TestFileUpload:
         assert resp.status == ("400 Invalid distribution file. File is not a zipfile")
 
     def test_upload_fails_end_of_file_error(
-        self, pyramid_config, db_request, project_service, storage_service
+        self, pyramid_config, db_request, project_service, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -2061,6 +2066,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -2224,11 +2230,7 @@ class TestFileUpload:
         )
 
     def test_upload_succeeds_custom_project_size_limit(
-        self,
-        pyramid_config,
-        db_request,
-        project_service,
-        storage_service,
+        self, pyramid_config, db_request, project_service, storage_service, gate_service
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2264,6 +2266,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -2316,7 +2319,13 @@ class TestFileUpload:
         ]
 
     def test_upload_fails_with_oserror_on_metadata_write(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, storage_service
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        storage_service,
+        gate_service,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
         monkeypatch.setattr(
@@ -2371,6 +2380,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -2651,6 +2661,7 @@ class TestFileUpload:
         filetype,
         project_name,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2662,6 +2673,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
         monkeypatch.setattr(
@@ -2718,7 +2730,14 @@ class TestFileUpload:
         ],
     )
     def test_upload_fails_with_wrong_filename_version(
-        self, monkeypatch, pyramid_config, db_request, filename, status, storage_service
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        filename,
+        status,
+        storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2729,6 +2748,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
         monkeypatch.setattr(
@@ -3227,6 +3247,7 @@ class TestFileUpload:
         macaroon_service,
         integrity_service,
         storage_service,
+        gate_service,
     ):
         project = ProjectFactory.create()
         owner = UserFactory.create()
@@ -3277,6 +3298,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
             IProjectService: project_service,
@@ -3362,6 +3384,7 @@ class TestFileUpload:
         plat,
         storage_service,
         mocker,
+        gate_service,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -3400,6 +3423,7 @@ class TestFileUpload:
 
         db_request.find_service = mocker.Mock(
             side_effect=lambda svc, name=None, context=None: {
+                IGateService: gate_service,
                 IFileStorage: storage_service,
             }.get(svc)
         )
@@ -3414,6 +3438,7 @@ class TestFileUpload:
         assert db_request.find_service.call_args_list == [
             mock.call(IIntegrityService, context=None),
             mock.call(IFileStorage, name="archive"),
+            mock.call(IGateService, context=None),
         ]
         assert storage_service.store.call_args_list == [
             mock.call(
@@ -3497,6 +3522,7 @@ class TestFileUpload:
         project_name,
         version,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3513,6 +3539,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -3556,6 +3583,7 @@ class TestFileUpload:
         project_name,
         filename_prefix,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3568,6 +3596,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -3618,6 +3647,7 @@ class TestFileUpload:
         filename_prefix,
         version,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3630,6 +3660,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -3665,7 +3696,14 @@ class TestFileUpload:
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
     def test_upload_succeeds_with_wheel_after_sdist(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, storage_service, mocker
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -3709,6 +3747,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
         db_request.find_service = mocker.Mock(
             side_effect=lambda svc, name=None, context=None: {
+                IGateService: gate_service,
                 IFileStorage: storage_service,
             }.get(svc)
         )
@@ -3723,6 +3762,7 @@ class TestFileUpload:
         assert db_request.find_service.call_args_list == [
             mock.call(IIntegrityService, context=None),
             mock.call(IFileStorage, name="archive"),
+            mock.call(IGateService, context=None),
         ]
         assert storage_service.store.call_args_list == [
             mock.call(
@@ -3956,7 +3996,13 @@ class TestFileUpload:
         )
 
     def test_upload_warns_with_mismatched_wheel_and_zip_contents(
-        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -4002,6 +4048,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4021,7 +4068,13 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_record_does_not_warn_with_zip_dir(
-        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         """
         ZIP archives can contain directory "members".
@@ -4080,6 +4133,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4093,7 +4147,13 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_record_does_not_warn_windows_path_separators(
-        self, monkeypatch, pyramid_config, db_request, storage_service, mocker
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         """
         RECORD files can use '/' or '\' for path separators.
@@ -4148,6 +4208,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4169,6 +4230,7 @@ class TestFileUpload:
         exempt_filename,
         storage_service,
         mocker,
+        gate_service,
     ):
         """
         Certain filenames are required not to be included in RECORD
@@ -4230,6 +4292,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4251,6 +4314,7 @@ class TestFileUpload:
         exempt_filename,
         storage_service,
         mocker,
+        gate_service,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -4297,6 +4361,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4511,7 +4576,7 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("filetype", ["bdist_wheel", "sdist"])
     def test_upload_succeeds_with_dependencies_in_artifact_metadata(
-        self, pyramid_config, db_request, storage_service, filetype
+        self, pyramid_config, db_request, storage_service, filetype, gate_service
     ):
         """A real dependency list in METADATA or PKG-INFO is accepted."""
         user = UserFactory.create()
@@ -4571,6 +4636,7 @@ class TestFileUpload:
         if filetype == "bdist_wheel":
             db_request.POST.extend([("pyversion", "py3")])
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4647,7 +4713,7 @@ class TestFileUpload:
         assert db_request.db.scalar(select(func.count()).select_from(File)) == 0
 
     def test_upload_updates_existing_project_name(
-        self, pyramid_config, db_request, storage_service
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4678,6 +4744,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4725,6 +4792,7 @@ class TestFileUpload:
         test_with_user,
         storage_service,
         mocker,
+        gate_service,
     ):
 
         project = ProjectFactory.create()
@@ -4777,6 +4845,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -4888,6 +4957,7 @@ class TestFileUpload:
         integrity_service,
         storage_service,
         mocker,
+        gate_service,
     ):
 
         project = ProjectFactory.create()
@@ -4939,6 +5009,7 @@ class TestFileUpload:
             }
         )
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IIntegrityService: integrity_service,
             IFileStorage: storage_service,
         }.get(svc)
@@ -5047,7 +5118,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_url_verified(
-        self, pyramid_config, db_request, url, expected, storage_service
+        self, pyramid_config, db_request, url, expected, storage_service, gate_service
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -5095,6 +5166,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5116,7 +5188,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_homepage_download_urls_verified(
-        self, pyramid_config, db_request, url, expected, storage_service
+        self, pyramid_config, db_request, url, expected, storage_service, gate_service
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -5165,6 +5237,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5189,6 +5262,7 @@ class TestFileUpload:
         home_page_verified,
         download_url_verified,
         storage_service,
+        gate_service,
     ):
         repo_name = "my_new_repo"
         verified_url = "https://github.com/foo/bar"
@@ -5259,6 +5333,7 @@ class TestFileUpload:
         db_request.POST.add("project_urls", f"unverified_url, {unverified_url}")
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5278,10 +5353,7 @@ class TestFileUpload:
         assert not release_db.urls_by_verify_status(verified=False)
 
     def test_retroactive_verification_requires_url_match(
-        self,
-        pyramid_config,
-        db_request,
-        storage_service,
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         """
         Retroactive verification of home_page and download_url must only
@@ -5353,6 +5425,7 @@ class TestFileUpload:
         db_request.POST.add("project_urls", f"Source, {publisher_url}")
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5370,7 +5443,7 @@ class TestFileUpload:
         assert release_db.download_url_verified is False
 
     def test_new_release_email_verified(
-        self, pyramid_config, db_request, storage_service
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         owner = UserFactory.create()
         maintainer = UserFactory.create()
@@ -5433,6 +5506,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5451,7 +5525,13 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_creates_release_metadata_2_3(
-        self, pyramid_config, db_request, version, expected_version, storage_service
+        self,
+        pyramid_config,
+        db_request,
+        version,
+        expected_version,
+        storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5499,6 +5579,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5570,7 +5651,7 @@ class TestFileUpload:
             db_request.db.commit()
 
     def test_equivalent_version_one_release(
-        self, pyramid_config, db_request, storage_service
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         """
         Test that if a release with a version like '1.0' exists, that a future
@@ -5606,6 +5687,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5620,7 +5702,7 @@ class TestFileUpload:
         assert releases == [release]
 
     def test_equivalent_canonical_versions(
-        self, pyramid_config, db_request, storage_service
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         """
         Test that if more than one release with equivalent canonical versions
@@ -5656,6 +5738,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -5665,7 +5748,7 @@ class TestFileUpload:
         assert len(release_b.files.all()) == 1
 
     def test_upload_fails_nonuser_identity_cannot_create_project(
-        self, pyramid_config, db_request, storage_service
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         publisher = GitHubPublisherFactory.create()
 
@@ -5689,6 +5772,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -5725,6 +5809,7 @@ class TestFileUpload:
         remote_addr,
         storage_service,
         mocker,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5757,6 +5842,7 @@ class TestFileUpload:
         limiter.override.return_value = limiter
         project_service.ratelimiters[failing_limiter] = limiter
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -5771,7 +5857,13 @@ class TestFileUpload:
         assert resp.status == ("429 Too many new projects created")
 
     def test_upload_new_project_failure_spends_attempt_not_creation_limit(
-        self, pyramid_config, db_request, project_service, storage_service, mocker
+        self,
+        pyramid_config,
+        db_request,
+        project_service,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         """
         This test checks that a failed upload rolls back its new project, so it
@@ -5811,6 +5903,7 @@ class TestFileUpload:
         project_service.ratelimiters["project.create.user"] = creation_limiter
         project_service.ratelimiters["project.create.attempt.user"] = attempt_limiter
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -5827,7 +5920,7 @@ class TestFileUpload:
         creation_limiter.hit.assert_not_called()
 
     def test_upload_succeeds_creates_project(
-        self, pyramid_config, db_request, project_service, storage_service
+        self, pyramid_config, db_request, project_service, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5852,6 +5945,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -5903,8 +5997,65 @@ class TestFileUpload:
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
 
-    def test_upload_succeeds_with_gpg_signature_field(
+    def test_upload_opens_a_gate_and_records_metric(
         self, pyramid_config, db_request, project_service, storage_service
+    ):
+        class _HoldEverything:
+            kind = "test-gate"
+            timeout = None
+            timeout_status = None
+
+            def applies(self, release, request):
+                return True
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": _content_field(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        gate_service = GateService(db_request.db, policies=[_HoldEverything()])
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
+            IFileStorage: storage_service,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+        assert release.gated is True
+        assert (
+            mock.call("warehouse.upload.gated", tags=["kind:test-gate"])
+            in db_request.metrics.increment.call_args_list
+        )
+
+    def test_upload_succeeds_with_gpg_signature_field(
+        self, pyramid_config, db_request, project_service, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5930,6 +6081,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -5940,11 +6092,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_purges_legacy(
-        self,
-        pyramid_config,
-        db_request,
-        project_service,
-        storage_service,
+        self, pyramid_config, db_request, project_service, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5969,6 +6117,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IProjectService: project_service,
         }.get(svc)
@@ -6009,6 +6158,7 @@ class TestFileUpload:
         expect_warning,
         storage_service,
         mocker,
+        gate_service,
     ):
         # Sanity check: If we're not authenticating with an API token,
         # that means we have at least one trusted publisher
@@ -6080,6 +6230,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
             IProjectService: project_service,
@@ -6150,6 +6301,8 @@ class TestFileUpload:
         project_name,
         status,
         storage_service,
+        mocker,
+        gate_service,
     ):
         project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
@@ -6178,6 +6331,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
             IMetricsService: metrics,
@@ -6220,6 +6374,8 @@ class TestFileUpload:
         version,
         expected,
         storage_service,
+        mocker,
+        gate_service,
     ):
         project = ProjectFactory.create(name="some_thing")
         owner = UserFactory.create()
@@ -6245,6 +6401,7 @@ class TestFileUpload:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
             IProjectService: project_service,
@@ -6284,6 +6441,7 @@ class TestFileUpload:
         filetype,
         mimetype,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6335,6 +6493,7 @@ class TestFileUpload:
             db_request.POST.extend([("pyversion", "py3")])
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6387,6 +6546,7 @@ class TestFileUpload:
         filetype,
         mimetype,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6431,6 +6591,7 @@ class TestFileUpload:
             db_request.POST.extend([("pyversion", "py3")])
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6478,6 +6639,7 @@ class TestFileUpload:
         filetype,
         mimetype,
         storage_service,
+        gate_service,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6534,6 +6696,7 @@ class TestFileUpload:
             db_request.POST.extend([("pyversion", "py3")])
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6549,10 +6712,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_when_license_and_license_expression_are_present(
-        self,
-        pyramid_config,
-        db_request,
-        storage_service,
+        self, pyramid_config, db_request, storage_service, gate_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6588,6 +6748,7 @@ class TestFileUpload:
         db_request.POST.extend([("pyversion", "py3")])
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6605,7 +6766,7 @@ class TestFileUpload:
         )
 
     def test_upload_for_organization_owned_project_succeeds(
-        self, pyramid_config, db_request, monkeypatch, storage_service
+        self, pyramid_config, db_request, monkeypatch, storage_service, gate_service
     ):
         organization = OrganizationFactory.create(orgtype="Community")
         user = UserFactory.create(with_verified_primary_email=True)
@@ -6623,6 +6784,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6702,7 +6864,7 @@ class TestFileUpload:
         )
 
     def test_upload_with_organization_file_size_limit_succeeds(
-        self, pyramid_config, db_request, monkeypatch, storage_service
+        self, pyramid_config, db_request, monkeypatch, storage_service, gate_service
     ):
         organization = OrganizationFactory.create(
             orgtype="Company",
@@ -6727,6 +6889,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6759,7 +6922,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_with_organization_total_size_limit_succeeds(
-        self, pyramid_config, db_request, monkeypatch, storage_service
+        self, pyramid_config, db_request, monkeypatch, storage_service, gate_service
     ):
         organization = OrganizationFactory.create(
             orgtype="Company",
@@ -6787,6 +6950,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6819,7 +6983,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_for_company_organization_owned_project_suceeds_with_subscription(
-        self, pyramid_config, db_request, monkeypatch, storage_service
+        self, pyramid_config, db_request, monkeypatch, storage_service, gate_service
     ):
         organization = OrganizationFactory.create(orgtype="Company")
         user = UserFactory.create(with_verified_primary_email=True)
@@ -6838,6 +7002,7 @@ class TestFileUpload:
         storage_service.store.side_effect = _store_asserting(filebody)
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6867,7 +7032,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_uses_model_property_for_file_size_limits(
-        self, pyramid_config, db_request, monkeypatch, storage_service
+        self, pyramid_config, db_request, monkeypatch, storage_service, gate_service
     ):
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
@@ -6896,6 +7061,7 @@ class TestFileUpload:
 
         # Mock storage service
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6929,7 +7095,13 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_uses_model_property_for_total_size_limits(
-        self, pyramid_config, db_request, monkeypatch, storage_service, mocker
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
@@ -6959,6 +7131,7 @@ class TestFileUpload:
 
         storage_service.store.side_effect = _store_asserting(filebody)
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -6992,7 +7165,13 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_limit_property_falls_back_to_system_default(
-        self, pyramid_config, db_request, monkeypatch, storage_service, mocker
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        storage_service,
+        mocker,
+        gate_service,
     ):
         """Integration test: verify properties fall back to system defaults correctly"""
         # Create project with NO custom limits and NO organization
@@ -7012,6 +7191,7 @@ class TestFileUpload:
 
         storage_service.store.side_effect = _store_asserting(filebody)
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
 
@@ -7269,6 +7449,7 @@ class TestFileUploadAdvisoryLockTiming:
         pyramid_config,
         db_request,
         storage_service,
+        gate_service,
     ):
         """Verify that JournalEntries are automatically separated from other
         objects into their own flush cycle, and only appear after storage upload.
@@ -7312,6 +7493,7 @@ class TestFileUploadAdvisoryLockTiming:
         )
 
         db_request.find_service = lambda svc, name=None, context=None: {
+            IGateService: gate_service,
             IFileStorage: storage_service,
         }.get(svc)
         db_request.registry.settings = {

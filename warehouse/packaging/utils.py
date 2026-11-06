@@ -69,6 +69,8 @@ def _simple_detail(project, request):
             # Exclude releases that are in the `quarantine-enter` lifecycle status.
             # Use `is_distinct_from` to keep NULL (unset) statuses.
             Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
+            # Exclude releases withheld by a gate. See `warehouse.gating`.
+            Release.gated.is_(False),
         )
     )
 

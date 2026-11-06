@@ -52,6 +52,8 @@ from warehouse.cache import services as cache_services
 from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
+from warehouse.gating import services as gating_services
+from warehouse.gating.interfaces import IGateService
 from warehouse.helpdesk import services as helpdesk_services
 from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
@@ -217,6 +219,7 @@ def pyramid_services(
     github_oidc_service,
     activestate_oidc_service,
     integrity_service,
+    gate_service,
     macaroon_service,
     helpdesk_service,
     notification_service,
@@ -246,6 +249,7 @@ def pyramid_services(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
     services.register_service(integrity_service, IIntegrityService, None)
+    services.register_service(gate_service, IGateService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
@@ -631,6 +635,26 @@ def notification_service():
 @pytest.fixture
 def query_results_cache_service(mockredis):
     return cache_services.RedisQueryResults(redis_client=mockredis)
+
+
+@pytest.fixture
+def gate_policies():
+    """
+    Policies the `gate_service` fixture is built with.
+
+    Empty by default, matching production: warehouse registers no gates.
+    Override to opt a test in:
+
+        @pytest.fixture
+        def gate_policies():
+            return [MyPolicy()]
+    """
+    return []
+
+
+@pytest.fixture
+def gate_service(db_session, gate_policies):
+    return gating_services.GateService(db_session, policies=gate_policies)
 
 
 @pytest.fixture
