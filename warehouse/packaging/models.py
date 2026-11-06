@@ -479,8 +479,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 "group:admins",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -501,8 +499,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
@@ -515,8 +511,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Allow,
                 "group:security",
                 (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,

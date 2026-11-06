@@ -46,9 +46,7 @@ class Permissions(StrEnum):
     AdminMacaroonsRead = "admin:macaroons:read"
     AdminMacaroonsWrite = "admin:macaroons:write"
 
-    AdminMalwareReportsRead = "admin:malware-reports:read"
     AdminMalwareReportsRemove = "admin:malware-reports:remove"
-    AdminMalwareReportsWrite = "admin:malware-reports:write"
 
     AdminObservationsRead = "admin:observations:read"
     AdminObservationsWrite = "admin:observations:write"
