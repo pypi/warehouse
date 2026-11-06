@@ -161,3 +161,35 @@ as described in [Migration Timeouts](#migration-timeouts).
 
 Another option is to share the SQL statement to create the index concurrently
 on the Pull Request, and have a maintainer run the statement manually.
+
+## Changing enum values
+
+Enum columns use PostgreSQL enum types, managed by
+[alembic-postgresql-enum](https://github.com/Pogchamp-company/alembic-postgresql-enum).
+
+Adding values to an enum autogenerates an `op.add_enum_value()` call per value:
+
+```python
+def upgrade():
+    op.add_enum_value(
+        enum_schema="public",
+        enum_name="lifecyclestatus",
+        new_value="deprecated",
+    )
+```
+
+This runs `ALTER TYPE ... ADD VALUE`, which changes only the type and does not
+rewrite the tables that use it. Keep the generated migration as is.
+
+PostgreSQL does not allow a new enum value to be used in the transaction that
+added it. Data changes or a `server_default` that need the new value go in a
+separate, later migration.
+
+Removing, renaming or reordering values autogenerates `op.sync_enum_values()`
+instead. It recreates the type and alters every column using it, which rewrites
+those tables and holds an exclusive lock while it does. Treat it like a
+[destructive migration](#destructive-migrations): stop using the value in one
+PR, then remove it in a second PR, and expect large tables to need a longer
+[timeout](#migration-timeouts) or a maintainer to run the change.
+The generated `downgrade()` for an added value also uses `sync_enum_values`,
+since PostgreSQL cannot drop an enum value.
