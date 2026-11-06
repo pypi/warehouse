@@ -43,7 +43,12 @@ Publisher identities:
 * [GitHub Actions]
 * [GitLab CI/CD]
 * [Google Cloud]
-* [ActiveState]
+
+!!! note
+
+    [ActiveState] is a supported Trusted Publisher, but does not currently
+    produce attestations. Files published from ActiveState will not display
+    attestations on PyPI.
 
 [in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 
