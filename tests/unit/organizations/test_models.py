@@ -782,7 +782,7 @@ class TestOrganizationBillingMethods:
 
         assert not organization.subscriptions
         assert not organization.is_awaiting_initial_billing
-        assert not organization.can_manage_members()
+        assert organization.can_manage_members()
 
     def test_is_awaiting_initial_billing_with_manual_activation_history(
         self, db_session
@@ -835,6 +835,7 @@ class TestOrganizationBillingMethods:
     def test_is_awaiting_initial_billing_deactivated_org(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company", is_active=False)
         assert not organization.is_awaiting_initial_billing
+        assert not organization.can_manage_members()
 
     def test_is_awaiting_initial_billing_with_expired_manual_activation(
         self, db_session

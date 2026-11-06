@@ -5,6 +5,7 @@ import uuid
 
 from types import SimpleNamespace
 
+import bcrypt
 import freezegun
 import passlib.exc
 import pytest
@@ -346,6 +347,24 @@ class TestDatabaseUserService:
         assert user_service.check_password(user.id, "password")
         assert user.password.startswith("$argon2id$v=19$m=1024,t=6,p=6$")
         assert user_service.check_password(user.id, "password")
+
+    @pytest.mark.parametrize("prefix", ["", "bcrypt$"], ids=["bcrypt", "django_bcrypt"])
+    def test_check_password_legacy_bcrypt_over_72_bytes(self, user_service, prefix):
+        """
+        bcrypt < 5 silently truncated secrets to 72 bytes, so a stored bcrypt
+        hash of a longer password is a hash of its first 72 bytes.
+        """
+        password = "p" * 72 + "assword"
+        stored = bcrypt.hashpw(password.encode()[:72], bcrypt.gensalt(4)).decode()
+        user = UserFactory.create(password=prefix + stored)
+
+        assert not user_service.check_password(user.id, "q" * 72 + "assword")
+        assert user.password == prefix + stored
+
+        assert user_service.check_password(user.id, password)
+        assert user.password.startswith("$argon2id$")
+        assert user_service.check_password(user.id, password)
+        assert not user_service.check_password(user.id, password[:72])
 
     def test_hash_is_upgraded(self, user_service, mocker):
         user = UserFactory.create()

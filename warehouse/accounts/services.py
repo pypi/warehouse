@@ -271,7 +271,16 @@ class DatabaseUserService:
             # Actually check our hash, optionally getting a new hash for it if
             # we should upgrade our saved hashed.
             try:
-                ok, new_hash = self.hasher.verify_and_update(password, user.password)
+                if self.hasher.identify(user.password) in ("bcrypt", "django_bcrypt"):
+                    # bcrypt 5 raises on secrets over 72 bytes, where earlier
+                    # versions truncated them, so truncate to match the stored
+                    # hash and rehash the full password.
+                    ok = self.hasher.verify(password.encode()[:72], user.password)
+                    new_hash = self.hasher.hash(password) if ok else None
+                else:
+                    ok, new_hash = self.hasher.verify_and_update(
+                        password, user.password
+                    )
             except passlib.exc.PasswordValueError:
                 ok = False
 

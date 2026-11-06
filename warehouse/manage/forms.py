@@ -642,9 +642,15 @@ class CreateOrganizationRoleForm(
 
 
 class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, wtforms.Form):
-    def __init__(self, *args, orgtype, **kwargs):
+    def __init__(self, *args, orgtype, allow_billing_manager_only=False, **kwargs):
         super().__init__(*args, **kwargs)
-        if orgtype != OrganizationType.Company:
+        if allow_billing_manager_only:
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if choice.value in (OrganizationRoleType.BillingManager.value, "")
+            ]
+        elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
             self.role_name.choices = [
                 choice
