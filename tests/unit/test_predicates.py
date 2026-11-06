@@ -226,24 +226,27 @@ class TestActiveOrganizationPredicate:
             )
         ]
 
-    @pytest.mark.parametrize("value", [True, "or_awaiting_billing"])
     def test_inactive_subscription(
         self,
         db_request,
         organization,
         inactive_subscription,
         mocker,
-        value,
     ):
         route_path = mocker.patch.object(
             db_request, "route_path", return_value="/manage/organizations/"
         )
 
-        predicate = ActiveOrganizationPredicate(value, None)
+        predicate = ActiveOrganizationPredicate(True, None)
         with pytest.raises(HTTPSeeOther):
             predicate(organization, db_request)
 
         route_path.assert_called_once_with("manage.organizations")
+
+        or_awaiting_billing_predicate = ActiveOrganizationPredicate(
+            "or_awaiting_billing", None
+        )
+        assert or_awaiting_billing_predicate(organization, db_request)
 
     def test_active_subscription(
         self,
