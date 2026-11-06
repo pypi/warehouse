@@ -10,8 +10,6 @@
   {% set platform_name = "GitLab CI/CD" %}
 {% elif bundle.publisher.kind == "Google" %}
   {% set platform_name = "Google Cloud" %}
-{% elif bundle.publisher.kind == "ActiveState" %}
-  {% set platform_name = "ActiveState" %}
 {% endif %}
 <div class="attestation {% if is_slsa %}attestation--slsa{% else %}attestation--pypi{% endif %}">
   <div class="attestation__header">
@@ -27,10 +25,6 @@
                aria-hidden="true">
         {% elif bundle.publisher.kind == "Google" %}
           <img src="{{ request.static_url('warehouse:static/dist/images/google-cloud.svg') }}"
-               alt=""
-               aria-hidden="true">
-        {% elif bundle.publisher.kind == "ActiveState" %}
-          <img src="{{ request.static_url('warehouse:static/dist/images/active-state.svg') }}"
                alt=""
                aria-hidden="true">
         {% endif %}
