@@ -46,6 +46,8 @@ class Permissions(StrEnum):
     AdminMacaroonsRead = "admin:macaroons:read"
     AdminMacaroonsWrite = "admin:macaroons:write"
 
+    AdminMalwareReportsRemove = "admin:malware-reports:remove"
+
     AdminObservationsRead = "admin:observations:read"
     AdminObservationsWrite = "admin:observations:write"
 
@@ -71,6 +73,7 @@ class Permissions(StrEnum):
     AdminProhibitedUsernameWrite = "admin:prohibited-username:write"
 
     AdminProjectsDelete = "admin:projects:delete"
+    AdminProjectsQuarantine = "admin:projects:quarantine"
     AdminProjectsRead = "admin:projects:read"
     AdminProjectsSetLimit = "admin:projects:set-limit"
     AdminProjectsWrite = "admin:projects:write"

@@ -13,6 +13,7 @@ _ADMIN_ROLES = frozenset(
     {
         "is_superuser",
         "is_support",
+        "is_security",
         "is_moderator",
         "is_psf_staff",
         "is_observer",
