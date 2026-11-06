@@ -41,6 +41,36 @@ POST request with the following fields:
 - `attestations` can be set to a JSON array of [attestation objects].
   PyPI will reject the upload if it can't verify each of the
   supplied attestations.
+- `organization` can be set to the name of the [organization account]
+  that the project belongs to.
+
+    - If the project doesn't exist yet, it is created in the organization.
+      Only an [Owner] of the organization can do this. The uploader isn't
+      given a role on the new project, and manages it through their
+      organization ownership. Projects created this way count toward the
+      organization's rate limit on new projects, rather than the uploader's.
+    - If the project already exists, it must already belong to the
+      organization, or the upload is rejected. This is only a check: an
+      existing project is never transferred into an organization. The same
+      value can therefore be sent with every upload, for example from CI.
+      The check also applies to [Trusted Publishing] uploads.
+
+    Names are compared case-insensitively, with `-`, `_`, and `.` treated
+    as equivalent, and a renamed organization's previous names are still
+    accepted.
+
+    An unknown organization, an organization that isn't in good standing,
+    and an existing project outside the organization are all rejected with
+    `400 Bad Request`. Naming an organization you aren't an Owner of when
+    creating a project is rejected with `403 Forbidden`.
+
+    An organization that isn't in good standing also blocks uploads to all
+    of the projects it already owns, whether or not this field is set.
+
+    Package indexes that don't support this field silently ignore it, so on
+    those indexes a new project is created in the uploader's user account
+    instead of in the organization.
+
 - You can set any other field from the [Core metadata specifications].
 
     All fields need to be renamed to lowercase and hyphens need to replaced
@@ -62,6 +92,12 @@ POST request with the following fields:
         error but will be **silently ignored**.
 
 [attestation objects]: ./integrity.md#concepts
+
+[organization account]: ../organization-accounts/index.md
+
+[Owner]: ../organization-accounts/roles-entities.md#organization-roles
+
+[Trusted Publishing]: ../trusted-publishers/index.md
 
 [Core metadata specifications]: https://packaging.python.org/specifications/core-metadata
 
