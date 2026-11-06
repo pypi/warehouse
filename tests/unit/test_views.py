@@ -501,7 +501,7 @@ class TestSearch:
     ):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
-            params["page"] = page
+            params["page"] = str(page)
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
@@ -551,7 +551,7 @@ class TestSearch:
     ):
         params = MultiDict([("q", "foo bar"), ("c", "foo :: bar"), ("c", "fiz :: buz")])
         if page is not None:
-            params["page"] = page
+            params["page"] = str(page)
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
@@ -618,7 +618,7 @@ class TestSearch:
     def test_returns_404_with_pagenum_too_high(
         self, monkeypatch, pyramid_services, db_request, metrics
     ):
-        params = MultiDict({"page": 15})
+        params = MultiDict({"page": "15"})
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
@@ -711,7 +711,7 @@ class TestSearch:
     def test_returns_503_when_opensearch_unavailable(
         self, monkeypatch, pyramid_services, db_request, metrics
     ):
-        params = MultiDict({"page": 15})
+        params = MultiDict({"page": "15"})
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
