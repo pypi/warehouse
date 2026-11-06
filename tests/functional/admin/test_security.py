@@ -13,6 +13,7 @@ from tests.common.db.organizations import (
 )
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 from tests.common.db.ses import EmailMessageFactory
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import LifecycleStatus
 from warehouse.utils.security_policy import principals_for
 
@@ -304,21 +305,48 @@ def test_email_log_access_is_read_only_for_security(webtest, login_admin, role):
         "remove_release/",
     ],
 )
-@pytest.mark.parametrize("missing", [False, True])
+@pytest.mark.parametrize("target", ["other_kind", "missing", "not_a_uuid", "release"])
 def test_security_cannot_use_non_malware_observation_ids(
-    webtest, login_admin, make_malware_report, action, missing
+    webtest, login_admin, make_malware_report, action, target
 ):
     login_admin(is_security=True)
     report = make_malware_report()
-    report.kind = "is_spam"
-    report_id = uuid.uuid4() if missing else report.id
+    release = ReleaseFactory.create(project=report.related, version="1.0")
+    match target:
+        case "other_kind":
+            report.kind = "is_spam"
+            report_id = report.id
+        case "missing":
+            report_id = uuid.uuid4()
+        case "not_a_uuid":
+            report_id = "not-a-uuid"
+        case "release":
+            # Same kind, but on a release: not a project malware report.
+            release_report = release.Observation(
+                kind=ObservationKind.IsMalware.value[0],
+                observer=report.observer,
+                payload={},
+                related=release,
+                related_name=repr(release),
+                summary="Malware report",
+            )
+            db = webtest.extra_environ["warehouse.db_session"]
+            db.add(release_report)
+            db.flush()
+            report_id = release_report.id
+            assert str(report_id) not in webtest.get("/admin/malware_reports/").text
     path = f"/admin/malware_reports/{report_id}/{action}"
     if action:
-        webtest.post(path, {"csrf_token": _csrf(webtest)}, status=404)
+        webtest.post(
+            path,
+            {"csrf_token": _csrf(webtest), "versions": release.version},
+            status=404,
+        )
     else:
         webtest.get(path, status=404)
     assert not report.actions
     assert report.related.lifecycle_status is None
+    assert release.lifecycle_status is None
 
 
 def test_security_release_quarantine_and_clear(
@@ -405,3 +433,50 @@ def test_contextual_navigation_uses_global_permissions(
         assert page.html.select_one(".brand-link")["href"] == (
             "/admin/" if full_navigation else "/admin/malware_reports/"
         )
+
+
+_REPORT_QUARANTINE = "/admin/malware_reports/{report}/quarantine/"
+_PROJECT_QUARANTINE = "/admin/projects/{project}/malware_reports/quarantine/"
+_USER_QUARANTINE = "/admin/users/{superuser}/quarantine_projects/"
+_REPORT_REMOVE = "/admin/malware_reports/{report}/remove_malware/"
+_PROJECT_REMOVE = "/admin/projects/{project}/malware_reports/remove_malware/"
+
+
+@pytest.mark.parametrize(
+    ("role", "path", "allowed"),
+    [
+        ("is_security", _REPORT_QUARANTINE, False),
+        ("is_security", _PROJECT_QUARANTINE, False),
+        ("is_security", _USER_QUARANTINE, False),
+        ("is_security", _REPORT_REMOVE, False),
+        ("is_security", _PROJECT_REMOVE, False),
+        ("is_support", _REPORT_QUARANTINE, False),
+        ("is_support", _PROJECT_QUARANTINE, False),
+        ("is_superuser", _REPORT_QUARANTINE, True),
+        ("is_superuser", _PROJECT_QUARANTINE, True),
+        ("is_superuser", _USER_QUARANTINE, True),
+    ],
+)
+def test_only_superusers_can_freeze_superusers(
+    webtest, login_admin, make_malware_report, role, path, allowed
+):
+    login_admin(**{role: True})
+    report = make_malware_report()
+    project = report.related
+    superuser = UserFactory.create(is_superuser=True)
+    RoleFactory.create(user=superuser, project=project, role_name="Owner")
+    webtest.post(
+        path.format(
+            report=report.id,
+            project=project.normalized_name,
+            superuser=superuser.username,
+        ),
+        {
+            "csrf_token": _csrf(webtest),
+            "confirm_project_name": project.name,
+            "username": superuser.username,
+        },
+        status=303,
+    )
+    assert superuser.is_frozen is allowed
+    assert (project.lifecycle_status == LifecycleStatus.QuarantineEnter) is allowed
