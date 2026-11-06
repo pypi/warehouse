@@ -9,6 +9,9 @@
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
 {% set perms_admin_users_export = request.has_permission(Permissions.AdminUsersExport) %}
+{% set perms_admin_organizations_read = has_root_permission(request, Permissions.AdminOrganizationsRead) %}
+{% set perms_admin_ip_addresses_read = has_root_permission(request, Permissions.AdminIpAddressesRead) %}
+{% set perms_admin_macaroons_read = has_root_permission(request, Permissions.AdminMacaroonsRead) %}
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
@@ -257,7 +260,7 @@
                       <ul>
                       {% for organization in sole_owned_organizations %}
                         <li>
-                          {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
+                          {% if perms_admin_organizations_read %}
                           <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
                             {{ organization.name }}
                           </a>
@@ -983,7 +986,7 @@
               <tr>
                 <td>Organization</td>
                 <td>
-                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
+                  {% if perms_admin_organizations_read %}
                   <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
                     {{ invitation.organization.name }}
                   </a>
@@ -1036,7 +1039,7 @@
               {% for token in user.macaroons %}
               <tr>
                 <td>
-                  {% if has_root_permission(request, Permissions.AdminMacaroonsRead) %}
+                  {% if perms_admin_macaroons_read %}
                   <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=token.id) }}">
                     <code>{{ token.id }}</code>
                   </a>
@@ -1119,7 +1122,7 @@
             {% for organization in user.organization_roles %}
               <tr>
                 <td>
-                  {% if has_root_permission(request, Permissions.AdminOrganizationsRead) %}
+                  {% if perms_admin_organizations_read %}
                     <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a>
                   {% else %}
                     {{ organization.organization.name }}
@@ -1134,7 +1137,7 @@
       </div> <!-- .card -->
       {% endif %}
 
-      {% if user.organization_applications and has_root_permission(request, Permissions.AdminOrganizationsRead) %}
+      {% if user.organization_applications and perms_admin_organizations_read %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Organization Applications</h3>
@@ -1222,7 +1225,7 @@
                 <tr>
                   <td>{{ login.created }}</td>
                   <td>
-                    {% if has_root_permission(request, Permissions.AdminIpAddressesRead) %}
+                    {% if perms_admin_ip_addresses_read %}
                       <a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address) }}">{{ login.ip_address }}</a>
                     {% else %}
                       {{ login.ip_address }}
