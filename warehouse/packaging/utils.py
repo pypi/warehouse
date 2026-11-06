@@ -6,6 +6,7 @@ import tempfile
 
 import packaging_legacy.version
 
+from pyramid.traversal import PATH_SAFE, quote_path_segment
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy import String, cast, func, select
 
@@ -77,15 +78,20 @@ def _simple_detail(project, request):
         files = []
         versions = []
     else:
+        rows = request.db.execute(query).all()
+        parsed_versions = {
+            ver: packaging_legacy.version.parse(ver)
+            for ver in {f.release__version for f in rows}
+        }
         files = sorted(
-            request.db.execute(query),
-            key=lambda f: (
-                packaging_legacy.version.parse(f.release__version),
-                f.filename,
-            ),
+            rows, key=lambda f: (parsed_versions[f.release__version], f.filename)
         )
-        versions = sorted(
-            {f.release__version for f in files}, key=packaging_legacy.version.parse
+        versions = sorted(parsed_versions, key=parsed_versions.__getitem__)
+
+        files_url = request.route_url("packaging.file", path="") if files else ""
+        provenance_url = (
+            f"{request.application_url}/integrity/{project.normalized_name}/"
+            "{release}/{filename}/provenance"
         )
 
     return {
@@ -100,7 +106,7 @@ def _simple_detail(project, request):
         "files": [
             {
                 "filename": file.filename,
-                "url": request.route_url("packaging.file", path=file.path),
+                "url": files_url + quote_path_segment(file.path, safe=PATH_SAFE),
                 "hashes": {
                     "sha256": file.sha256_digest,
                 },
@@ -123,11 +129,11 @@ def _simple_detail(project, request):
                     else False
                 ),
                 "provenance": (
-                    request.route_url(
-                        "integrity.provenance",
-                        project_name=project.normalized_name,
-                        release=file.release__version,
-                        filename=file.filename,
+                    provenance_url.format(
+                        release=quote_path_segment(
+                            file.release__version, safe=PATH_SAFE
+                        ),
+                        filename=quote_path_segment(file.filename, safe=PATH_SAFE),
                     )
                     if file.has_provenance
                     else None
