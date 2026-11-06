@@ -810,6 +810,96 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_sta
     assert db_request.db.query(Project).all() == []
 
 
+@pytest.mark.parametrize(
+    "user_kwargs",
+    [
+        {"is_frozen": True},
+        {"is_active": False},
+    ],
+    ids=["frozen-user", "inactive-user"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_inactive_user(
+    db_request, user_kwargs
+):
+    user = UserFactory.create(**user_kwargs)
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-publisher",
+                "description": (
+                    "valid token, but no corresponding publisher "
+                    "(Publisher with matching claims was not found)"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == []
+
+
+@pytest.mark.parametrize(
+    "user_kwargs",
+    [
+        {"is_frozen": True},
+        {"is_active": False},
+    ],
+    ids=["frozen-user", "inactive-user"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_inactive_user_falls_through(
+    db_request, user_kwargs
+):
+    active_user = UserFactory.create()
+    legit_project = ProjectFactory.create()
+    RoleFactory.create(user=active_user, project=legit_project, role_name="Owner")
+    publisher = GitHubPublisherFactory.create(
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+    publisher.projects = [legit_project]
+
+    inactive_user = UserFactory.create(**user_kwargs)
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+        added_by=inactive_user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == [legit_project]
+
+
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     mocker, db_request, pyramid_services
 ):

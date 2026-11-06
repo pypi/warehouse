@@ -2,8 +2,6 @@
 
 {% extends "admin/base.html" %}
 
-{% import "admin/utils/pagination.html" as pagination %}
-
 {% block title %}Organizations{% endblock %}
 
 {% block breadcrumb %}
@@ -13,102 +11,13 @@
 {% block content %}
 <div class="card">
   <div class="card-body">
-    <form>
-      <div class="input-group input-group-lg">
-        <input id="q" name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
-        <div class="input-group-btn input-group-append">
-          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-        </div>
-      </div>
-      <div id="qHelpBlock" class="help-block no-margin">
-        Examples: word "whole phrase"
-        <a href="#" data-input="q" data-append="name:">name:</a>psf
-        <a href="#" data-input="q" data-append="organization:">org:</a>python
-        <a href="#" data-input="q" data-append="url:">url:</a>.org
-        <a href="#" data-input="q" data-append="description:">desc:</a>"open source"
-        <br>
-        Filters:&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:active' in terms else '' }}" data-status="activity:active" title="Owns a project released in the last year">Active</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:dormant' in terms else '' }}" data-status="activity:dormant" title="Owns projects, none released in the last year">Dormant</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:unused' in terms else '' }}" data-status="activity:unused" title="Owns no projects">Unused</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:inactive' in terms else '' }}" data-status="activity:inactive" title="Deactivated">Inactive</button>
-        </div>&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Type">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-status="type:company">Company</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-status="type:community">Community</button>
-        </div>&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Subscription">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'has:subscription' in terms else '' }}" data-status="has:subscription" title="Has an active, valid paying subscription">Has Subscription</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th>Account Name</th>
-        <th>Organization</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Subscription</th>
-        <th>Good Standing</th>
-      </tr>
-      </thead>
-
-      <tbody>
-      {% for organization in organizations %}
-      <tr>
-        <td>
-          <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">{{ organization.name }}</a>
-        </td>
-        <td>
-          <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization.display_name }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-        </td>
-        <td>{{ organization.description }}</td>
-        <td>{{ organization.orgtype.value }}</td>
-        {% if organization.activity == "Active" %}
-        <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
-        {% elif organization.activity == "Dormant" %}
-        <td><i class="fa fa-fw fa-clock text-yellow"></i> Dormant</td>
-        {% elif organization.activity == "Unused" %}
-        <td><i class="fa fa-fw fa-minus text-muted"></i> Unused</td>
-        {% else %}
-        <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
-        {% endif %}
-        {% if organization.active_subscription %}
-        <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
-        {% else %}
-        <td><i class="fa fa-fw fa-times text-red"></i> No</td>
-        {% endif %}
-        {% if organization.good_standing %}
-        <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
-        {% else %}
-        <td><i class="fa fa-fw fa-times text-red"></i> No</td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card-footer">
-    <div class="row">
-      <div class="col-sm-5">
-        {{ pagination.summary(organizations) }}
-      </div>
-
-      <div class="col-sm-7">
-        <div class="float-right">
-          {{ pagination.paginate(organizations) }}
-        </div>
-      </div>
-    </div>
+    <p class="text-muted">
+      Text filters match anywhere in their column, ignoring case, and apply
+      as you type. Account name also matches the normalized name, so
+      <code>foo_bar</code> finds <code>foo-bar</code>.
+    </p>
+    <div id="organizations-table"
+         data-url="{{ request.route_path('admin.organization.list') }}"></div>
   </div>
 </div>
 {% endblock content %}
