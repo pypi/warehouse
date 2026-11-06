@@ -4364,7 +4364,7 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_invalid_form(
         self, publishing_request, metrics
     ):
-        publishing_request.POST = MultiDict({"publisher_id": None})
+        publishing_request.POST = MultiDict({"publisher_id": ""})
 
         view = views.ManageAccountPublishingViews(publishing_request)
 
