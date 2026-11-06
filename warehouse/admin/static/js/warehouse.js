@@ -26,6 +26,7 @@ import "./observer_charts";
 import "./project_charts";
 import "./journals";
 import "./observations";
+import "./organizations";
 import "./users";
 import "./tabulator";
 

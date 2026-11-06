@@ -210,7 +210,11 @@ def mint_token(
         pending_publisher = oidc_service.find_publisher(claims, pending=True)
         factory = ProjectFactory(request)
 
-        if isinstance(pending_publisher, PendingOIDCPublisher):
+        if (
+            isinstance(pending_publisher, PendingOIDCPublisher)
+            and not pending_publisher.added_by.is_frozen
+            and pending_publisher.added_by.is_active
+        ):
             # If the project already exists, this pending publisher is no longer
             # valid and needs to be removed.
             # NOTE: This is mostly a sanity check, since we dispose of invalidated
