@@ -127,11 +127,6 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "includes.sidebar-sponsor-logo",
-        "/_includes/unauthed/sidebar-sponsor-logo/",
-        domain=warehouse,
-    )
-    config.add_route(
         "includes.administer-project-include",
         "/_includes/authed/administer-project-include/{project_name}",
         domain=warehouse,

@@ -35,6 +35,7 @@ def _sponsors(request):
         "psf": [s for s in sponsors if s.psf_sponsor],
         "infrastructure": infrastructure,
         "one_time": [s for s in sponsors if s.one_time],
+        "sidebar": [s for s in sponsors if s.sidebar],
         "footer": footer,
     }
 
