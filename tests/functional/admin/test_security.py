@@ -320,8 +320,8 @@ def test_security_cannot_use_non_malware_observation_ids(
             report_id = uuid.uuid4()
         case "not_a_uuid":
             report_id = "not-a-uuid"
-        case "release":
-            # Same kind, but on a release: not a project malware report.
+        case _:
+            # "release": same kind, but on a release, so not a project report.
             release_report = release.Observation(
                 kind=ObservationKind.IsMalware.value[0],
                 observer=report.observer,
