@@ -126,19 +126,26 @@ def delete_expired_pending_publishers(request: Request) -> None:
             project_name=publisher.project_name,
             days=PENDING_PUBLISHER_EXPIRY_DAYS,
         )
+        additional = {
+            "project": publisher.project_name,
+            "publisher": publisher.publisher_name,
+            "id": str(publisher.id),
+            "specifier": str(publisher),
+            "url": publisher.publisher_url(),
+            "submitted_by": "system:ttl-expired",
+            "redact_ip": True,
+        }
         publisher.added_by.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
             request=request,
-            additional={
-                "project": publisher.project_name,
-                "publisher": publisher.publisher_name,
-                "id": str(publisher.id),
-                "specifier": str(publisher),
-                "url": publisher.publisher_url(),
-                "submitted_by": "system:ttl-expired",
-                "redact_ip": True,
-            },
+            additional=additional.copy(),
         )
+        if publisher.pypi_organization is not None:
+            publisher.pypi_organization.record_event(
+                tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                request=request,
+                additional=additional.copy(),
+            )
         request.db.delete(publisher)
 
     request.metrics.gauge(

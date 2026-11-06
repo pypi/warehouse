@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% block extrahead %}
-  {# JSON Feed #}
-  {% if "rss" in config.plugins %}
+  {# RSS and JSON Feeds #}
+  {% if config.extra.pypi_site == "blog" %}
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="RSS feed"
+          href="{{ 'feed_rss_created.xml' | url }}" />
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="RSS feed of updated content"
+          href="{{ 'feed_rss_updated.xml' | url }}" />
     <link rel="alternate"
           type="application/feed+json"
           title="JSON feed"
@@ -14,7 +22,7 @@
 {% endblock %}
 {% block header %}
   {# Switcher between PyPI's web properties. Each site sets
-     `extra.pypi_site` in its mkdocs config to mark itself as current. #}
+     `extra.pypi_site` in its site config to mark itself as current. #}
   {% set pypi_sites = [
     ("pypi", "https://pypi.org/", "PyPI.org"),
     ("blog", "https://blog.pypi.org/", "PyPI blog"),

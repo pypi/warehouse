@@ -4,10 +4,10 @@
 {% set repo_changed = provenance_status.removed_sources or provenance_status.added_sources %}
 {% set config_changed = provenance_status.removed_workflows or provenance_status.added_workflows %}
 <div class="callout-block callout-block--warning">
-  <h3 class="callout-block__heading">
+  <h4 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
     {% trans %}Change of provenance{% endtrans %}
-  </h3>
+  </h4>
   {% if repo_changed and config_changed %}
     <p>{% trans %}The repository and configuration that created this release differ from a previous release.{% endtrans %}</p>
   {% elif repo_changed %}

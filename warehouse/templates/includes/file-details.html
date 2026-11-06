@@ -1,13 +1,11 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 <div id="{{ file.filename }}"
      data-project-tabs-target="content"
-     role="tabpanel"
-     aria-labelledby="{{ file.filename }}-tab"
      tabindex="-1">
   <h2 class="page-title">
     <a href="#files"
        data-project-tabs-target="tab"
-       data-action="project-tabs#onTabClick">{% trans %}Release files{% endtrans %}</a>
+       data-action="project-tabs#tabClick">{% trans %}Release files{% endtrans %}</a>
     / {{ file.filename }}
   </h2>
   {% include "includes/packaging/security/warning-for-file-detail.html" %}
@@ -57,6 +55,7 @@
                     data-clipboard-target="tooltip"
                     data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
               <i class="fa-regular fa-copy" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Copy SHA-256 checksum{% endtrans %}</span>
             </button>
           </code>
         </td>
@@ -79,6 +78,7 @@
                     data-clipboard-target="tooltip"
                     data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
               <i class="fa-regular fa-copy" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Copy BLAKE2b-256 checksum{% endtrans %}</span>
             </button>
           </code>
         </td>

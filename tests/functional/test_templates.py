@@ -144,6 +144,40 @@ def test_organization_email_subject_is_bounded(email_name: str) -> None:
 
 
 @pytest.mark.parametrize(
+    "email_name",
+    [
+        "new-organization-approved",
+        "new-organization-declined",
+        "new-organization-moreinformationneeded",
+    ],
+)
+def test_organization_review_email_keeps_message_paragraphs(email_name: str) -> None:
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
+    env.install_null_translations(newstyle=True)
+    request = SimpleNamespace(
+        registry=SimpleNamespace(
+            settings={"site.name": "PyPI", "warehouse.domain": "pypi.org"}
+        ),
+        route_url=lambda *args, **kwargs: "https://pypi.org/manage/",
+    )
+
+    html = env.get_template(f"email/{email_name}/body.html").render(
+        request=request,
+        organization_name="example",
+        organization_application_id="00000000-0000-0000-0000-000000000000",
+        organization_type="Community",
+        # Browsers submit textareas with CRLF line endings.
+        message=(
+            "Hello <b>you</b>!\r\n\r\nFirst ask,\r\nsame paragraph.\r\n\r\n\r\nLast."
+        ),
+    )
+
+    assert "<p>Hello &lt;b&gt;you&lt;/b&gt;!</p>" in html
+    assert "<p>First ask,\nsame paragraph.</p>" in html
+    assert "<p>Last.</p>" in html
+
+
+@pytest.mark.parametrize(
     "template",
     list(Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")),
 )

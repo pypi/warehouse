@@ -19,6 +19,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.checks import reachable_email
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -40,6 +41,11 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
+
+# Competing applications declined when another application for the name is approved.
+DECLINED_ON_APPROVAL_STATUSES = frozenset(
+    {OrganizationApplicationStatus.Submitted, OrganizationApplicationStatus.Deferred}
+)
 
 
 if typing.TYPE_CHECKING:
@@ -159,7 +165,9 @@ class DatabaseOrganizationService:
 
         return organization_application
 
-    def approve_organization_application(self, organization_application_id, request):
+    def approve_organization_application(
+        self, organization_application_id, request, claim_orphaned_name=False
+    ):
         """
         Performs operations necessary to approve an OrganizationApplication
         """
@@ -189,7 +197,7 @@ class DatabaseOrganizationService:
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
 
-        self.add_catalog_entry(organization.id)
+        self.add_catalog_entry(organization.id, claim_orphaned_name=claim_orphaned_name)
         organization.record_event(
             tag=EventTag.Organization.CatalogEntryAdd,
             request=request,
@@ -231,18 +239,30 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
+        applicant = organization_application.submitted_by
         send_new_organization_approved_email(
             request,
-            organization_application.submitted_by,
+            (applicant, reachable_email(applicant)),
             organization_name=organization.name,
             organization_type=organization.orgtype,
             message=message,
         )
 
         for competing_application in self.get_organization_applications_by_name(
-            organization_application.name, undecided=True
+            organization_application.name
         ):
-            self.decline_organization_application(competing_application.id, request)
+            if competing_application.status not in DECLINED_ON_APPROVAL_STATUSES:
+                continue
+            if competing_application.submitted_by_id == (
+                organization_application.submitted_by_id
+            ):
+                # The applicant already got the approval email; don't also send
+                # them a decline for their own duplicate application.
+                competing_application.status = OrganizationApplicationStatus.Declined
+            else:
+                # The reviewer's message was written for the approved applicant;
+                # competitors get the bare decline.
+                self.decline_organization_application(competing_application.id, request)
 
         return organization
 
@@ -254,6 +274,10 @@ class DatabaseOrganizationService:
             organization_application_id
         )
         organization_application.status = OrganizationApplicationStatus.Deferred
+
+        # The note is optional; the recorder rejects an empty one.
+        if request.params.get("message", ""):
+            self.add_organization_application_note(organization_application_id, request)
 
         return organization_application
 
@@ -277,9 +301,10 @@ class DatabaseOrganizationService:
                 kind=ObservationKind.InformationRequest,
                 payload={"message": message},
             )
+            applicant = organization_application.submitted_by
             send_new_organization_moreinformationneeded_email(
                 request,
-                organization_application.submitted_by,
+                (applicant, reachable_email(applicant)),
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
                 message=message,
@@ -306,7 +331,9 @@ class DatabaseOrganizationService:
             return organization_application
         raise ValueError
 
-    def decline_organization_application(self, organization_application_id, request):
+    def decline_organization_application(
+        self, organization_application_id, request, message=""
+    ):
         """
         Performs operations necessary to decline an OrganizationApplication
         """
@@ -315,17 +342,19 @@ class DatabaseOrganizationService:
         )
         organization_application.status = OrganizationApplicationStatus.Declined
 
-        message = request.params.get("message", "")
         send_new_organization_declined_email(
             request,
-            organization_application.submitted_by,
+            (
+                organization_application.submitted_by,
+                reachable_email(organization_application.submitted_by),
+            ),
             organization_name=organization_application.name,
             message=message,
         )
 
         return organization_application
 
-    def add_catalog_entry(self, organization_id):
+    def add_catalog_entry(self, organization_id, claim_orphaned_name=False):
         """
         Adds the organization name to the organization name catalog
         """
@@ -345,7 +374,10 @@ class DatabaseOrganizationService:
                 )
                 .one()
             )
-            if catalog_entry.organization_id != organization.id:
+            if catalog_entry.organization_id is None and claim_orphaned_name:
+                # Name held by a deleted organization: hand it to this one.
+                catalog_entry.organization_id = organization.id
+            elif catalog_entry.organization_id != organization.id:
                 raise ValueError(
                     f'Organization name "{organization.normalized_name}" has been used'
                 )
@@ -404,7 +436,42 @@ class DatabaseOrganizationService:
 
         return role
 
-    def delete_organization_role(self, organization_role_id):
+    def _delete_pending_oidc_publishers(self, role, request):
+        for pending_publisher in list(role.user.pending_oidc_publishers):
+            if pending_publisher.organization_id == role.organization_id:
+                additional = {
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url(),
+                    "submitted_by": request.user.username,
+                }
+                role.organization.record_event(
+                    tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                role.user.record_event(
+                    tag=EventTag.Account.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                self.db.delete(pending_publisher)
+
+    def update_organization_role(self, organization_role_id, role_name, request):
+        """
+        Update an organization role for a specified organization role id
+        """
+        role = self.get_organization_role(organization_role_id)
+        role.role_name = OrganizationRoleType(role_name)
+
+        if role.role_name != OrganizationRoleType.Owner:
+            self._delete_pending_oidc_publishers(role, request)
+
+        return role
+
+    def delete_organization_role(self, organization_role_id, request):
         """
         Delete an organization role for a specified organization role id
         """
@@ -414,6 +481,8 @@ class DatabaseOrganizationService:
             role.organization.id, role.user_id
         ):
             self.db.delete(team_role)
+
+        self._delete_pending_oidc_publishers(role, request)
 
         self.db.delete(role)
 

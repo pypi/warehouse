@@ -6,6 +6,7 @@ exclude_docs:
 site_dir: blog-site
 theme:
   name: material
+  variant: classic
   logo: assets/logo.png
   favicon: assets/favicon.ico
   homepage: https://pypi.org
@@ -35,8 +36,8 @@ theme:
 markdown_extensions:
   - footnotes
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -56,7 +57,7 @@ plugins:
   - social:
       cards_layout_options:
         background_color: "#0073b7"
-  # See https://squidfunk.github.io/mkdocs-material/plugins/blog/
+  # See https://zensical.org/docs/setup/blog/
   - blog:
       blog_dir: .
       blog_toc: true
@@ -68,16 +69,14 @@ plugins:
       post_excerpt: required
       # Preserve backwards compatibility with older URLs.
       # If we ever want to change the format and thus break old URLs,
-      # consider https://github.com/mkdocs/mkdocs-redirects
+      # consider https://zensical.org/docs/setup/redirects/
       post_url_format: "posts/{file}"
-  - material-plausible
   - rss:
       abstract_chars_count: -1
       categories:
         - tags
       date_from_meta:
         as_creation: "date"
-        as_update: "False"
         datetime_format: "%Y-%m-%d %H:%M"
         default_timezone: "UTC"
         default_time: "06:09"
@@ -103,9 +102,9 @@ extra:
       link: https://twitter.com/pypi
     - icon: material/rss
       link: https://blog.pypi.org/feed_rss_created.xml
-  # See https://material-plausible-plugin.ale.sh
+  # See https://zensical.org/docs/setup/analytics/#custom-site-analytics
   analytics:
-    provider: plausible
+    provider: custom
     domain: blog.pypi.org
     src: https://analytics.python.org/js/script.outbound-links.js
 

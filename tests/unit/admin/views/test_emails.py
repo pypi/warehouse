@@ -4,8 +4,6 @@ import csv
 import io
 import uuid
 
-from types import SimpleNamespace
-
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
@@ -16,6 +14,7 @@ from warehouse.tasks import WarehouseTask
 
 from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.ses import EmailMessageFactory
+from ....common.forms import file_part
 
 
 class TestEmailList:
@@ -135,7 +134,7 @@ class TestEmailMass:
 
         task = mocker.create_autospec(WarehouseTask, instance=True)
         delay = task.delay
-        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        db_request.params = {"csvfile": file_part(input_file)}
         db_request.task = mocker.Mock(return_value=task)
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
@@ -209,7 +208,7 @@ class TestEmailMass:
 
         task = mocker.create_autospec(WarehouseTask, instance=True)
         delay = task.delay
-        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        db_request.params = {"csvfile": file_part(input_file)}
         db_request.task = mocker.Mock(return_value=task)
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
@@ -232,7 +231,7 @@ class TestEmailMass:
         wrapper.seek(0)
 
         task = mocker.create_autospec(WarehouseTask, instance=True)
-        pyramid_request.params = {"csvfile": SimpleNamespace(file=input_file)}
+        pyramid_request.params = {"csvfile": file_part(input_file)}
         pyramid_request.task = mocker.Mock(return_value=task)
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, return_value="/the-redirect"

@@ -3,7 +3,7 @@
 ## Developer documentation
 
 The developer documentation is hosted at [dev.pypi.org](https://dev.pypi.org). It's written in
-[Markdown](https://www.markdownguide.org/) and built using [MkDocs](https://www.mkdocs.org/).
+[Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 
@@ -31,7 +31,7 @@ Once running, you can visit a local build of the pages at [localhost:10002](http
 ## User documentation
 
 The user documentation is hosted at [docs.pypi.org](https://docs.pypi.org). It's written in
-[Markdown](https://www.markdownguide.org/) and built using [MkDocs](https://www.mkdocs.org/).
+[Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 
@@ -59,7 +59,7 @@ Once running, you can visit a local build of the user documentation at [localhos
 ## PyPI blog
 
 The PyPI blog is hosted at [blog.pypi.org](https://blog.pypi.org). Like the user documentation,
-it's written in [Markdown](https://www.markdownguide.org/) and built using [MkDocs](https://www.mkdocs.org/).
+it's written in [Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 

@@ -18,7 +18,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend further investigation before installing this file. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif 'changed-provenance' in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
@@ -37,7 +37,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend inspecting the repository and configuration before proceeding. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif 'inconsistent-provenance' in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
@@ -56,7 +56,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend inspecting each repository and configuration before proceeding. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif 'partial-provenance' in provenance_states %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
@@ -79,7 +79,7 @@
     {% endif %}
     <p>{% trans href="#security" %}We recommend further investigation before installing this file. <a href="{{ href }}"
     data-project-tabs-target="tab"
-    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+    data-action="project-tabs#tabClick">View details</a>.{% endtrans %}</p>
   </div>
 {% elif file.added_late %}
   <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">

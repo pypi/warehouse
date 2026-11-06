@@ -560,6 +560,92 @@ class TestProject:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        ("role_kind", "role_name", "user_kwargs"),
+        [
+            ("project", "Owner", {"is_frozen": True}),
+            ("project", "Owner", {"is_active": False}),
+            ("project", "Maintainer", {"is_frozen": True}),
+            ("project", "Maintainer", {"is_active": False}),
+            ("organization", None, {"is_frozen": True}),
+            ("organization", None, {"is_active": False}),
+            ("team", TeamProjectRoleType.Owner, {"is_frozen": True}),
+            ("team", TeamProjectRoleType.Owner, {"is_active": False}),
+            ("team", TeamProjectRoleType.Maintainer, {"is_frozen": True}),
+            ("team", TeamProjectRoleType.Maintainer, {"is_active": False}),
+        ],
+    )
+    def test_acl_for_project_with_frozen_or_inactive_user(
+        self, db_session, role_kind, role_name, user_kwargs
+    ):
+        """
+        If any user on a Project (via direct project role, organization owner
+        role, or team project role) is frozen or inactive, the Project ACL
+        should disallow uploads from trusted publishers without affecting other
+        projects sharing the same publisher.
+        """
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        inactive_user_kwargs = {
+            "user__is_frozen": user_kwargs.get("is_frozen", False),
+            "user__is_active": user_kwargs.get("is_active", True),
+        }
+
+        if role_kind == "project":
+            inactive_role = DBRoleFactory.create(
+                project=project,
+                role_name=role_name,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_role.user
+        elif role_kind == "organization":
+            organization = DBOrganizationFactory.create()
+            DBOrganizationProjectFactory.create(
+                organization=organization, project=project
+            )
+            inactive_org_role = DBOrganizationRoleFactory.create(
+                organization=organization,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_org_role.user
+        else:
+            team = DBTeamFactory.create()
+            DBTeamProjectRoleFactory.create(
+                team=team, project=project, role_name=role_name
+            )
+            inactive_team_role = DBTeamRoleFactory.create(
+                team=team,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_team_role.user
+
+        other_project = DBProjectFactory.create()
+        DBRoleFactory.create(project=other_project)
+
+        publisher = GitHubPublisherFactory.create(projects=[project, other_project])
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+        assert (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]) not in acls
+        assert (
+            Allow,
+            f"user:{owner1.user.id}",
+            [
+                Permissions.ProjectsRead,
+                Permissions.ProjectsUpload,
+                Permissions.ProjectsWrite,
+            ],
+        ) in acls
+        assert any(principal == f"user:{inactive_user.id}" for _, principal, _ in acls)
+
+        other_acls = [
+            item for location in lineage(other_project) for item in location.__acl__()
+        ]
+        assert (
+            Allow,
+            f"oidc:{publisher.id}",
+            [Permissions.ProjectsUpload],
+        ) in other_acls
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)

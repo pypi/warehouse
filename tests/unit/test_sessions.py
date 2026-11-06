@@ -281,33 +281,62 @@ class TestSession:
     def test_get_totp_secret(self):
         session = Session()
         session[session._totp_secret_key] = b"foobar"
+        session[session._totp_secret_timestamp_key] = int(time.time()) - 60
 
         assert session.get_totp_secret() == b"foobar"
+        # Using the secret extends its expiry
+        assert session[session._totp_secret_timestamp_key] >= int(time.time())
 
-    def test_get_totp_secret_empty(self, monkeypatch):
-        generate_totp_secret = pretend.call_recorder(lambda: b"foobar")
-        monkeypatch.setattr(otp, "generate_totp_secret", generate_totp_secret)
+    @pytest.mark.parametrize(
+        ("stored", "age"),
+        [
+            (None, None),
+            # Expired
+            (b"stale", Session._totp_secret_max_age),
+            # Stored before secrets had a timestamp
+            (b"stale", None),
+        ],
+    )
+    def test_get_totp_secret_generates(self, monkeypatch, stored, age):
+        monkeypatch.setattr(otp, "generate_totp_secret", lambda: b"foobar")
 
         session = Session()
+        session[session._totp_secret_key] = stored
+        if age is not None:
+            session[session._totp_secret_timestamp_key] = int(time.time()) - age
+
         assert session.get_totp_secret() == b"foobar"
-        assert session._totp_secret_key in session
+        assert session.totp_secret_status() == "present"
+
+    def test_get_totp_secret_stable(self):
+        session = Session()
+
+        assert session.get_totp_secret() == session.get_totp_secret()
 
     def test_clear_totp_secret(self):
         session = Session()
         session[session._totp_secret_key] = b"foobar"
+        session[session._totp_secret_timestamp_key] = int(time.time())
 
         session.clear_totp_secret()
         assert not session[session._totp_secret_key]
+        assert session._totp_secret_timestamp_key not in session
 
     @pytest.mark.parametrize(
-        ("stored", "expected"),
-        [(b"foobar", True), (None, False)],
+        ("stored", "age", "expected"),
+        [
+            (b"foobar", 0, "present"),
+            (b"foobar", Session._totp_secret_max_age - 60, "present"),
+            (b"foobar", Session._totp_secret_max_age, "expired"),
+            (None, 0, "missing"),
+        ],
     )
-    def test_has_totp_secret(self, stored, expected):
+    def test_totp_secret_status(self, stored, age, expected):
         session = Session()
         session[session._totp_secret_key] = stored
+        session[session._totp_secret_timestamp_key] = int(time.time()) - age
 
-        assert session.has_totp_secret() is expected
+        assert session.totp_secret_status() == expected
 
     def test_get_webauthn_challenge(self):
         session = Session()

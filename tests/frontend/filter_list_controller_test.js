@@ -312,7 +312,7 @@ describe("Filter list controller", () => {
 
     const elP = document.getElementById("shown-and-total");
     expect(document.getElementsByClassName("my-item").length).toEqual(3);
-    expect(elP.textContent).toEqual("Showing 3 of 3 built distribution (wheel) files.");
+    expect(elP.textContent).toEqual("Showing 3 of 3 files.");
 
     appStop(application);
   });
@@ -396,7 +396,7 @@ describe("Filter list controller", () => {
     ]);
 
     const elP1 = document.getElementById("shown-and-total");
-    expect(elP1.textContent).toEqual("No built distributions (wheels) match the current filters. Showing 0 of 3 built distribution (wheel) files.");
+    expect(elP1.textContent).toEqual("No files match the current filters.");
 
     const elUrl = document.getElementById("url-update");
     expect(elUrl.href).toEqual("http://localhost/?myattr=myattr2#testing");
@@ -413,7 +413,7 @@ describe("Filter list controller", () => {
 
     clearFilters();
 
-    expect(elP1.textContent).toEqual("Showing 3 of 3 built distribution (wheel) files.");
+    expect(elP1.textContent).toEqual("Showing 3 of 3 files.");
     expect(elUrl.href).toEqual("http://localhost/#testing");
     expect(document.location.href).toEqual("http://localhost/#testing");
 
@@ -425,7 +425,7 @@ describe("Filter list controller", () => {
     ]);
 
     const elP2 = document.getElementById("shown-and-total");
-    expect(elP2.textContent).toEqual("Showing 3 of 3 built distribution (wheel) files.");
+    expect(elP2.textContent).toEqual("Showing 3 of 3 files.");
 
     expect(elItem1.classList).not.toContainEqual("hidden");
     expect(elItem2.classList).not.toContainEqual("hidden");
@@ -604,6 +604,7 @@ describe("Filter list controller", () => {
       const div = document.createElement("div");
       div.innerHTML = `
         <div id="viewer-controller" data-controller="attestations-viewer filter-list">
+          <span id="viewer-summary" class="sr-only" role="status" data-filter-list-target="summary"></span>
           <input id="viewer-filter-color-red" type="radio" name="color" value="red" data-action="filter-list#filter"
               data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact">
           <input id="viewer-filter-color-blue" type="radio" name="color" value="blue" data-action="filter-list#filter"
@@ -649,6 +650,7 @@ describe("Filter list controller", () => {
       expect(document.getElementById("vitem-2")).toHaveClass("attestations-viewer__file-item--is-selected");
       expect(document.querySelector("[data-filename='a'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
       expect(document.querySelector("[data-filename='b'][data-attestations-viewer-target='content']")).not.toHaveClass("hidden");
+      expect(document.getElementById("viewer-summary").textContent).toEqual("Showing 1 of 2 files.");
 
       appStop(application);
     });
@@ -666,6 +668,15 @@ describe("Filter list controller", () => {
       expect(document.querySelector("[data-attestations-viewer-target='empty']")).not.toHaveClass("hidden");
       expect(document.querySelector("[data-filename='a'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
       expect(document.querySelector("[data-filename='b'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
+      expect(document.getElementById("viewer-summary").textContent).toEqual("No files match the current filters.");
+
+      appStop(application);
+    });
+
+    it("summarises the shown files when no filter is active", async () => {
+      const application = await appStartViewer();
+
+      expect(document.getElementById("viewer-summary").textContent).toEqual("Showing 2 of 2 files.");
 
       appStop(application);
     });

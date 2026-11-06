@@ -377,6 +377,21 @@ $ totp-cli delete localhost <username>
 Password: <the password you set for the totp storage>
 ```
 
+### Reviewing organization applications
+
+Open **Organizations → Applications** in `/admin/`. Superusers, support staff,
+organization application reviewers, and moderators can view applications;
+taking review actions requires a superuser, support, or organization application
+reviewer account.
+Review checks are advisory; recognized code and package hosting domains require
+another way to verify affiliation. The host list is not exhaustive.
+Domain comparisons distinguish separate registrations under
+private suffixes such as `uk.com`. **Ask about this** opens a saved reply for
+review before sending.
+The action buttons show their keyboard shortcuts. In a review modal,
+`Ctrl+Enter` (or `Command+Return`) submits the form, including required-field
+validation. A deferral message is an internal note, not an email to the applicant.
+
 ### Stopping Warehouse and other services
 
 In the terminal where `make serve` is running, you can use `Control-C`
@@ -726,8 +741,18 @@ T=tests/unit/i18n/test_filters.py make tests
     can pass explicit `COVERAGE`:
 
     ```shell
-    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+    T=tests/unit/i18n/test_filters.py COVERAGE=yes make tests
     ```
+
+To write an HTML coverage report to `htmlcov/` that shows which tests ran
+each line, pass `COVERAGE_HTML`:
+
+```shell
+COVERAGE_HTML=yes make tests
+```
+
+Recording per-test contexts needs coverage's slower `ctrace` core, so this
+run takes longer than the default, which measures with `sys.monitoring`.
 
 You can also add arguments to the test runner by using the `TESTARGS`
 variable:

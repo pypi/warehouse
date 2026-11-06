@@ -28,7 +28,9 @@
           <th scope="col">{% trans %}Size{% endtrans %}</th>
           <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
           <th scope="col">{% trans %}Provenance{% endtrans %}</th>
-          <th scope="col"></th>
+          <th scope="col">
+            <span class="sr-only">{% trans %}Actions{% endtrans %}</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -44,6 +46,7 @@
               {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  <span class="sr-only">{% trans %}File added late{% endtrans %}:</span>
                   {{ humanize(file.upload_time) }}
                 </span>
               {% else %}
@@ -56,7 +59,7 @@
                  id="{{ file.filename }}-tab"
                  class="button button--small button--outline file-info__details-button"
                  data-project-tabs-target="tab"
-                 data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
+                 data-action="project-tabs#tabClick">{% trans filename=file.filename %}Details <span class="sr-only">for {{ filename }}</span>{% endtrans %}</a>
             </td>
           </tr>
         {% endfor %}
@@ -174,6 +177,7 @@
           {% endif %}
         </th>
         <th scope="col">
+          <span class="sr-only">{% trans %}Actions{% endtrans %}</span>
           <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
              data-action="filter-list#filterClear"
              data-filter-list-target="clear"
@@ -196,6 +200,7 @@
               {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  <span class="sr-only">{% trans %}File added late{% endtrans %}:</span>
                   {{ humanize(file.upload_time) }}
                 </span>
               {% else %}
@@ -231,7 +236,7 @@
                id="{{ file.filename }}-tab"
                class="button button--small button--outline file-info__details-button"
                data-project-tabs-target="tab"
-               data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
+               data-action="project-tabs#tabClick">{% trans filename=file.filename %}Details <span class="sr-only">for {{ filename }}</span>{% endtrans %}</a>
           </td>
         </tr>
       {% endfor %}
@@ -239,7 +244,7 @@
   </table>
   {% if bdist_count > 3 %}
     <p class="hidden initial-toggle-visibility">
-      <span data-filter-list-target="summary"></span>
+      <span role="status" data-filter-list-target="summary"></span>
     </p>
   {% endif %}
   {% if files | length > 1 %}
