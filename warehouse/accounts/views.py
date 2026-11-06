@@ -570,7 +570,9 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
         samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
-    request.user.record_event(
+    # Not `request.user`: right after login it is `None` for a frozen account.
+    user_service = request.find_service(IUserService, context=None)
+    user_service.get_user(userid).record_event(
         tag=EventTag.Account.TwoFactorDeviceRemembered,
         request=request,
         additional={
