@@ -415,8 +415,6 @@ def test_destroy_docs(db_request, flash, mocker):
 
     db_request.user = user
     flash_spy = mocker.spy(db_request.session, "flash")
-    remove_documentation_recorder = mocker.Mock()
-    db_request.task = mocker.Mock(return_value=remove_documentation_recorder)
 
     destroy_docs(project, db_request, flash=flash)
 
@@ -427,7 +425,11 @@ def test_destroy_docs(db_request, flash, mocker):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.call_args_list == [
+    assert db_request.task.call_args_list == [
+        mocker.call(remove_documentation),
+        mocker.call(remove_documentation),
+    ]
+    assert db_request.task.return_value.delay.call_args_list == [
         mocker.call("Foo"),
         mocker.call("foo"),
     ]

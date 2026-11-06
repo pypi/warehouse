@@ -1509,10 +1509,7 @@ class TestFileUpload:
         db_request.registry.settings = {
             "warehouse.release_files_table": "example.pypi.distributions"
         }
-        delay = mocker.Mock()
-        db_request.task = mocker.Mock(
-            return_value=mocker.Mock(spec=["delay"], delay=delay)
-        )
+        delay = db_request.task.return_value.delay
 
         resp = legacy.file_upload(db_request)
 
