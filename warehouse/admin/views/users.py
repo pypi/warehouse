@@ -38,6 +38,7 @@ from warehouse.admin.forms import SetProjectCreateRateLimitForm
 from warehouse.admin.user_export import export_user
 from warehouse.admin.views.helpers import (
     TABULATOR_STATEMENT_TIMEOUT_MS,
+    can_freeze_users,
     execute_bounded,
     parse_tabulator_params,
     tabulator_page,
@@ -1084,12 +1085,27 @@ def user_quarantine_projects(user, request):
             request.route_path("admin.user.detail", username=user.username)
         )
 
-    quarantined_count = 0
-    for project in user.projects:
-        # Only quarantine projects that aren't already quarantined
-        if project.lifecycle_status != "quarantine-enter":
-            quarantine_project(project, request, flash=False)
-            quarantined_count += 1
+    # Only quarantine projects that aren't already quarantined
+    to_quarantine = [
+        project
+        for project in user.projects
+        if project.lifecycle_status != "quarantine-enter"
+    ]
+    if not can_freeze_users(
+        request, {u for project in to_quarantine for u in project.users}
+    ):
+        request.session.flash(
+            "A project to quarantine has a superuser collaborator. "
+            "Only an administrator can quarantine it.",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    for project in to_quarantine:
+        quarantine_project(project, request, flash=False)
+    quarantined_count = len(to_quarantine)
 
     if quarantined_count > 0:
         request.session.flash(

@@ -11,12 +11,17 @@ from psycopg.errors import QueryCanceled
 from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import func, select, text
 
+from warehouse.authnz import Permissions
+from warehouse.config import has_root_permission
+
 if TYPE_CHECKING:
     from collections.abc import Container, Iterable, Mapping, Sequence
     from typing import Any
 
     from pyramid.request import Request
     from sqlalchemy import Row, Select
+
+    from warehouse.accounts.models import User
 
 # Valid time periods for filtering
 ALLOWED_DAYS = (30, 60, 90)
@@ -39,6 +44,19 @@ def parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) 
         return days if days in allowed else DEFAULT_DAYS
     except ValueError, TypeError:
         return DEFAULT_DAYS
+
+
+def can_freeze_users(request: Request, users: Iterable[User]) -> bool:
+    """
+    Whether the requester may freeze every account in ``users``.
+
+    Undoing a freeze takes AdminUsersWrite, so without it a superuser must not
+    be frozen: a lower admin role could otherwise lock out the staff who would
+    undo it.
+    """
+    if has_root_permission(request, Permissions.AdminUsersWrite):
+        return True
+    return not any(user.is_superuser for user in users)
 
 
 def estimate_row_count(request: Request, table_names: Iterable[str]) -> int:
