@@ -134,8 +134,10 @@ class TestIntegrityService:
         max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
 
         db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
-        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation] * (max_attestations + 1)
+        db_request.POST["attestations"] = (
+            TypeAdapter(list[Attestation])
+            .dump_json([dummy_attestation] * (max_attestations + 1))
+            .decode()
         )
         with pytest.raises(
             AttestationUploadError,
@@ -166,8 +168,10 @@ class TestIntegrityService:
             attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation] * max_attestations
+        db_request.POST["attestations"] = (
+            TypeAdapter(list[Attestation])
+            .dump_json([dummy_attestation] * max_attestations)
+            .decode()
         )
 
         monkeypatch.setattr(Verifier, "production", pretend.stub)
@@ -225,8 +229,8 @@ class TestIntegrityService:
             attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation]
+        db_request.POST["attestations"] = (
+            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
         )
 
         def failing_verify(_self, _policy, _dist):
@@ -255,8 +259,8 @@ class TestIntegrityService:
             attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation]
+        db_request.POST["attestations"] = (
+            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
         )
 
         monkeypatch.setattr(Verifier, "production", pretend.stub)
@@ -290,8 +294,8 @@ class TestIntegrityService:
             attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation]
+        db_request.POST["attestations"] = (
+            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
         )
 
         monkeypatch.setattr(Verifier, "production", pretend.stub)
