@@ -3,7 +3,7 @@ title: "PyPI's redesigned project pages with clearer security signals are now li
 description: PyPI now makes it simple to check where release files come from, with a dedicated security tab, a rebuilt release files tab, and refreshed documentation.
 authors:
   - nlh
-date: 2026-11-05
+date: 2026-11-06
 tags:
   - user-interface
   - security
@@ -34,7 +34,7 @@ Here's a look at what's changed, what it means for you, and what actions you can
 The new **security tab** communicates release provenance states and displays per-file attestations, giving you a dedicated place to verify where the release files came from.
 
 <figure markdown="1">
-  ![Project detail page tabs: Description, Release files, Security (selected), and Release history](../assets/2026-11-05-ui-updates-complete/security-tab.png)
+  ![Project detail page tabs: Description, Release files, Security (selected), and Release history](../assets/2026-11-06-ui-updates-complete/security-tab.png)
   <figcaption markdown="span">The new security tab on a PyPI project detail page</figcaption>
 </figure>
 
@@ -49,14 +49,14 @@ This means that 100% of the release files have attestations, carrying either or 
 **[PyPI Publish](https://docs.pypi.org/attestations/publish/v1/) attestations** confirm the file was published by a [PyPI Trusted Publisher](https://docs.pypi.org/trusted-publishers/):
 
 <figure markdown="1">
-  ![A PyPI Publish attestation on PyPI](../assets/2026-11-05-ui-updates-complete/pypi-attestation.png)
+  ![A PyPI Publish attestation on PyPI](../assets/2026-11-06-ui-updates-complete/pypi-attestation.png)
   <figcaption markdown="span">A [PyPI Publish attestation](https://docs.pypi.org/attestations/publish/v1/) on PyPI</figcaption>
 </figure>
 
 **[SLSA Build Provenance](https://slsa.dev/spec/v1.2/build-provenance) attestations** link the file back to its exact source commit, build platform, and instructions:
 
 <figure markdown="1">
-  ![A SLSA Build Provenance attestation on PyPI](../assets/2026-11-05-ui-updates-complete/slsa-attestation.png)
+  ![A SLSA Build Provenance attestation on PyPI](../assets/2026-11-06-ui-updates-complete/slsa-attestation.png)
   <figcaption markdown="span">A [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
 </figure>
 
@@ -101,7 +101,7 @@ Check whether the maintainers intentionally changed their publishing process, fo
 To learn more about provenance and attestations, including provenance warnings, see our [user documentation](https://docs.pypi.org/using-pypi/package-security/provenance/).
 
 <figure markdown="1">
-  ![An example project detail page with an Incomplete provenance banner at the top, and the security tab open showing an Incomplete provenance warning: 2 of 5 files were uploaded without provenance metadata](../assets/2026-11-05-ui-updates-complete/provenance-warning.png)
+  ![An example project detail page with an Incomplete provenance banner at the top, and the security tab open showing an Incomplete provenance warning: 2 of 5 files were uploaded without provenance metadata](../assets/2026-11-06-ui-updates-complete/provenance-warning.png)
   <figcaption markdown="span">An example provenance warning on PyPI, showing a release with [incomplete provenance](https://docs.pypi.org/using-pypi/package-security/provenance/#incomplete-provenance)</figcaption>
 </figure>
 
@@ -114,7 +114,7 @@ To support these changes, the project detail page has also been updated:
 * Metadata is now ordered by utility and labeled as "PyPI data" or "Data verified by PyPI", replacing the old design where data was grouped and ordered by verification status.
 
 <figure markdown="1">
-  ![Project detail page sidebar with Project links, Key dates, Maintainers, Credits, GitHub Statistics, and a Provenance panel showing Full provenance, each labeled "PyPI data" or "Data verified by PyPI"](../assets/2026-11-05-ui-updates-complete/sidebar-metadata.png){ width="300" }
+  ![Project detail page sidebar with Project links, Key dates, Maintainers, Credits, GitHub Statistics, and a Provenance panel showing Full provenance, each labeled "PyPI data" or "Data verified by PyPI"](../assets/2026-11-06-ui-updates-complete/sidebar-metadata.png){ width="300" }
   <figcaption markdown="span">The redesigned metadata sidebar, with information ordered by utility</figcaption>
 </figure>
 
@@ -127,7 +127,7 @@ Late file warnings are shown when one or more files were uploaded more than 14 d
 The **release history tab** now also provides more details about each release, exposing file count, provenance state, and release status (i.e., quarantined, yanked, archived, or pre-release).
 
 <figure markdown="1">
-  ![Release history timeline listing five releases, each with its date, release file count, and Full provenance state; one is labeled Pre-release, and another is labeled Yanked with the reason given by its maintainers](../assets/2026-11-05-ui-updates-complete/release-history.png)
+  ![Release history timeline listing five releases, each with its date, release file count, and Full provenance state; one is labeled Pre-release, and another is labeled Yanked with the reason given by its maintainers](../assets/2026-11-06-ui-updates-complete/release-history.png)
   <figcaption markdown="span">The redesigned release history tab, with release status, file count, and provenance state</figcaption>
 </figure>
 
