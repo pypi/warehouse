@@ -53,7 +53,9 @@ def api_v0_view_config(**kwargs):
     )
 
     def _wrapper(wrapped):
-        return view_config(**kwargs)(wrapped)
+        # _depth=1 attaches the view to the decorated function's module,
+        # not this one, so views outside this module register too.
+        return view_config(_depth=1, **kwargs)(wrapped)
 
     return _wrapper
 
