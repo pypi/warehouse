@@ -254,8 +254,6 @@ class TestProject:
                 "group:admins",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -276,8 +274,6 @@ class TestProject:
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
@@ -290,8 +286,6 @@ class TestProject:
                 Allow,
                 "group:security",
                 (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -399,8 +393,6 @@ class TestProject:
                 "group:admins",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -421,8 +413,6 @@ class TestProject:
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
@@ -435,8 +425,6 @@ class TestProject:
                 Allow,
                 "group:security",
                 (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -502,8 +490,6 @@ class TestProject:
                 "group:admins",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -524,8 +510,6 @@ class TestProject:
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
@@ -538,8 +522,6 @@ class TestProject:
                 Allow,
                 "group:security",
                 (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -1422,8 +1404,6 @@ class TestRelease:
                 "group:admins",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
@@ -1444,8 +1424,6 @@ class TestRelease:
                 "group:moderators",
                 (
                     Permissions.AdminDashboardSidebarRead,
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
@@ -1458,8 +1436,6 @@ class TestRelease:
                 Allow,
                 "group:security",
                 (
-                    Permissions.AdminMalwareReportsRead,
-                    Permissions.AdminMalwareReportsWrite,
                     Permissions.AdminMalwareReportsRemove,
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
