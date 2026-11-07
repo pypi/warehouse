@@ -14,7 +14,7 @@ An [attestation](../../attestations/index.md) describes how, when, and where a p
 
 The presence of an attestation, and the information within it, can help protect you from [account takeover attacks](common-attacks.md#account-takeover-ato) and [supply chain attacks](common-attacks.md#supply-chain-attacks).
 
-Attestations can be [verified](../../attestations/consuming-attestations.md), helping you decide whether a package is safe to use.
+Attestations can be [verified](../../attestations/consuming-attestations.md), confirming that a file really came from the source it claims to come from.
 
 ## Attestations on PyPI
 
@@ -59,31 +59,49 @@ An attestation and associated transparency log, signed by the build platform (e.
 
 ## Verifying attestations
 
+Verifying an attestation confirms that the release file really came from the source it claims to come from.
+
 Verification isn't yet built into common package installers, but third-party tools exist today — for example, [pip-plugin-pep740](https://github.com/trailofbits/pip-plugin-pep740) verifies attestations before allowing an install to proceed. Native support has been proposed for both [pip](https://github.com/pypa/pip/issues/12766) and [uv](https://github.com/astral-sh/uv/issues/9122), but neither is actively in development yet.
 
-In the meantime, users can manually consume and verify attestations for a project by retrieving them from PyPI's [Integrity API](../../api/integrity.md). See our [documentation on consuming attestations](../../attestations/consuming-attestations.md) for additional information.
+In the meantime, users can manually verify attestations by retrieving them from PyPI's [Integrity API](../../api/integrity.md). See our [documentation on consuming attestations](../../attestations/consuming-attestations.md) for additional information.
+
+## No provenance
+
+"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the _file origin cannot be cryptographically verified_**.
+
+When there is no provenance, you should rely on [surrounding trust signals](source-code-security.md) to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, consider using [Trusted Publishing](../../trusted-publishers/index.md) with a [publisher that generates attestations](../../attestations/producing-attestations.md) for your next release.
 
 ## Provenance/attestation warnings
 
-PyPI displays warnings when the provenance metadata for a release is missing, incomplete, or conflicts with the history of the project. These warnings are designed to help you identify potential [supply chain attacks](common-attacks.md#supply-chain-attacks).
+When a release's provenance looks unusual or conflicts with the project's history, PyPI displays a warning. These warnings help you identify files that may not have come from the project's maintainers, for example if an attacker has taken over an account or a publishing workflow (see [supply chain attacks](common-attacks.md#supply-chain-attacks)).
+
+Many warnings have legitimate explanations, but each one is worth checking before you install.
 
 ### Incomplete provenance
 *   **What it means:** A portion of the files in this release were uploaded without an attestation.
-*   **Why it matters:** While this can happen due to build or publishing configuration errors (such as mixing manual uploads with automated CI workflows), it can also indicate that some of the files have been uploaded by a malicious actor.
+*   **Why it matters:** This can be a deliberate choice by the maintainers (such as mixing manual uploads with automated CI workflows), a build or publishing configuration error, or a sign that some of the files were uploaded by a malicious actor.
+*   **What to do:** Check the release notes for build issues, or ask in the project's issue tracker before installing.
 
 ### Inconsistent provenance
 *   **What it means:** The attestation metadata indicates that the release files were produced by different, unrelated build or publishing pipelines, or originated from different source repositories.
-*   **Why it matters:** A project's release should ideally originate from a single, consistent, and trusted build or publishing process. If files within the same release exhibit different provenances, it can suggest that some or all of the files come from a malicious source.
+*   **Why it matters:** A release's files usually share the same provenance. If files within the same release exhibit different provenances, it can suggest that some or all of the files come from a malicious source.
+*   **What to do:** Check the attestation metadata to confirm that all files came from sources controlled by the maintainers.
 
 ### Change of provenance
 *   **What it means:** The build or publishing pipeline or source identity that made the release files differ from a previous release.
-*   **Why it matters:** While this is often the result of a legitimate infrastructure migration (e.g., moving a project to a new GitHub organization or switching to a different CI platform), it can also be a signal of a supply chain attack or account takeover. If you notice this warning on a package you depend on, verify the change via the project's official communication channels or release notes to ensure it was an intentional transition by the maintainers.
+*   **Why it matters:** While this is often the result of a legitimate infrastructure migration (e.g., moving a project to a new GitHub organization or switching to a different CI platform), it can also be a signal of a supply chain attack or account takeover.
+*   **What to do:** Inspect the attestation metadata to see what changed, such as a new source repository or workflow. Check the project's release notes or official communication channels to confirm that the change was an intentional transition by the maintainers.
 
 ### Loss of provenance
 *   **What it means:** Either:
-    * The maintainers previously used secure, verifiable build or publishing methods (such as [Trusted Publishing](../../trusted-publishers/index.md)), but have reverted to a manual or unverified process, or
+    * The maintainers previously used secure, verifiable build or publishing methods (such as [Trusted Publishing](../../trusted-publishers/index.md)), but have changed to a manual or unverified process, or
     * The maintainers have changed their publishing configuration to no longer produce an attestation.
-*   **Why it matters:** While this may simply reflect a conscious choice by the maintainers to change their publishing workflow, it can also signal an account takeover where an attacker has bypassed secure publishing requirements. If a project was previously "provenanced," this sudden drop in transparency warrants caution; consider checking the project's security policy or recent announcements to confirm the change was intentional.
+*   **Why it matters:** While this may simply reflect a conscious choice by the maintainers to change their publishing workflow, it can also signal an account takeover where an attacker has bypassed secure publishing requirements.
+*   **What to do:** Check the project's security policy, release notes or recent announcements to confirm that the maintainers intentionally changed their publishing process.
+
+!!! note
+
+    "Change of provenance" and "Loss of provenance" warnings are only raised when the provenance of the release files differs from a release made in the preceding **14 days**.
 
 ## Attestation limitations
 
