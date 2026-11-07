@@ -779,7 +779,10 @@ def file_upload(request):
         project_service = request.find_service(IProjectService)
         try:
             project = project_service.create_project(
-                form.name.data, request.user, request
+                form.name.data,
+                request.user,
+                request,
+                reify_pending_publishers=True,
             )
         except HTTPException as exc:
             request.metrics.increment(
