@@ -27,6 +27,7 @@ import "./project_charts";
 import "./journals";
 import "./observations";
 import "./organizations";
+import "./projects";
 import "./users";
 import "./tabulator";
 

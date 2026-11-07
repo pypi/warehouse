@@ -433,6 +433,14 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             "project_name_ultranormalized",
             func.ultranormalize_name(name),
         ),
+        # Serves the admin's contains-match on the same expression; the btree
+        # above only serves equality.
+        Index(
+            "projects_name_ultranormalized_trgm",
+            func.ultranormalize_name(name).label("ultranormalized"),
+            postgresql_using="gin",
+            postgresql_ops={"ultranormalized": "gin_trgm_ops"},
+        ),
         Index("projects_lifecycle_status_idx", "lifecycle_status"),
     )
 
