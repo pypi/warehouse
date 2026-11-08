@@ -35,6 +35,36 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
+    ApiKeyUnauthorized:
+      description: |
+        A Maintainer API key that is malformed, unknown, revoked or expired
+        (`invalid_token`). `WWW-Authenticate` carries an RFC 6750 Bearer
+        challenge.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: 'Bearer error="invalid_token", error_description="Maintainer API key expired at 2026-01-01T00:00:00Z"'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ApiKeyForbidden:
+      description: |
+        Access was denied. With a Maintainer API key, `detail` says why: the
+        key lacks the scope (RFC 6750 `insufficient_scope`, with the scope in
+        `WWW-Authenticate`), the owner no longer holds the scope's permission,
+        the account is missing 2FA or a verified email, or the resource denies
+        access. The other denials carry a bare Bearer challenge.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: 'Bearer error="insufficient_scope", error_description="Maintainer API key lacks the required scope: test:token:exchange", scope="test:token:exchange"'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
   schemas:
     Problem:
       type: object
@@ -85,6 +115,11 @@ components:
         - summary
       example: { "kind": "is_malware", "summary": "This project is distributing malware" }
   securitySchemes:
+    maintainerApiKey:
+      description: "Maintainer API key (`pypi_mapi_v1_...`). Preview, PyPI admins only."
+      type: http
+      scheme: bearer
+      bearerFormat: Maintainer API key
     apiTokenBearer:
       description: "[API token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token) (`pypi-...`), the credential for publishing, sent as `Authorization: Bearer pypi-...`."
       type: http
@@ -115,6 +150,11 @@ paths:
       operationId: echoUsername
       tags:
         - danger-api
+      security:
+        - maintainerApiKey: [ ]
+        - apiTokenBearer: [ ]
+        - apiTokenToken: [ ]
+        - apiTokenBasic: [ ]
       responses:
         '200':
           description: Echo username of authenticated user
@@ -129,8 +169,10 @@ paths:
                 example: { "username": "someuser" }
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/ApiKeyUnauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/ApiKeyForbidden'
         default:
           $ref: '#/components/responses/Error'
   /danger-api/projects/{name}/observations:

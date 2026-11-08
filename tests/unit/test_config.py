@@ -650,6 +650,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
+                Permissions.APIKeyScopesTest,
             },
         ),
         (

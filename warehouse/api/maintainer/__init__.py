@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from warehouse.api.maintainer._context import ApiKeyContext
 from warehouse.api.maintainer._errors import (
     ApiKeyLimitError,
     ApiKeyNameInUseError,
@@ -18,7 +19,7 @@ from warehouse.api.maintainer._errors import (
 )
 from warehouse.api.maintainer._interfaces import IApiKeyService
 from warehouse.api.maintainer._models import ApiKey
-from warehouse.api.maintainer._scopes import ApiKeyScope
+from warehouse.api.maintainer._scopes import SCOPE_PERMISSIONS, ApiKeyScope
 from warehouse.api.maintainer._services import (
     API_KEY_PREFIX,
     API_KEY_RE,
@@ -36,7 +37,9 @@ __all__ = [
     "API_KEY_PREFIX",
     "API_KEY_RE",
     "MAX_ACTIVE_API_KEYS",
+    "SCOPE_PERMISSIONS",
     "ApiKey",
+    "ApiKeyContext",
     "ApiKeyLimitError",
     "ApiKeyNameInUseError",
     "ApiKeyScope",

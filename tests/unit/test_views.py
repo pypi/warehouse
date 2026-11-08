@@ -284,11 +284,21 @@ class TestForbiddenIncludeView:
 
 class TestForbiddenAPIView:
     def test_forbidden_api(self, mocker):
+        mocker.patch.object(views, "bearer_challenge", autospec=True, return_value=None)
+
         resp = forbidden_api(mocker.sentinel.exc, mocker.sentinel.request)
 
         assert resp.status_code == 403
         assert resp.content_type == "application/problem+json"
         assert resp.json_body["detail"] == "Access was denied to this resource."
+
+    def test_forbidden_api_bearer_challenge(self, mocker):
+        challenge = mocker.patch.object(views, "bearer_challenge", autospec=True)
+
+        resp = forbidden_api(mocker.sentinel.exc, mocker.sentinel.request)
+
+        challenge.assert_called_once_with(mocker.sentinel.exc, mocker.sentinel.request)
+        assert resp is challenge.return_value
 
 
 class TestApiValidationErrorView:

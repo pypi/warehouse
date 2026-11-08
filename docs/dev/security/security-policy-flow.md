@@ -16,6 +16,9 @@ or deny a request.
 - [`warehouse/accounts/security_policy.py`](https://github.com/pypi/warehouse/blob/main/warehouse/accounts/security_policy.py): `SessionSecurityPolicy`, `BasicAuthSecurityPolicy`, and the session authorization gates (verified email, two-factor)
 - [`warehouse/accounts/utils.py`](https://github.com/pypi/warehouse/blob/main/warehouse/accounts/utils.py): `UserContext`
 - [`warehouse/macaroons/security_policy.py`](https://github.com/pypi/warehouse/blob/main/warehouse/macaroons/security_policy.py): `MacaroonSecurityPolicy` (API tokens and Trusted Publishing)
+- [`warehouse/api/maintainer/security_policy.py`](https://github.com/pypi/warehouse/blob/main/warehouse/api/maintainer/security_policy.py): `ApiKeySecurityPolicy` (Maintainer API keys) and `bearer_challenge`, using `_authz.py` (`InsufficientScope`, `owner_holds_scope`) and `_bearer.py` (the RFC 6750 challenge)
+- [`warehouse/api/maintainer/_scopes.py`](https://github.com/pypi/warehouse/blob/main/warehouse/api/maintainer/_scopes.py): `ApiKeyScope`, `PERMISSION_SCOPES` and `SCOPE_PERMISSIONS`
+- [`warehouse/api/maintainer/_context.py`](https://github.com/pypi/warehouse/blob/main/warehouse/api/maintainer/_context.py): `ApiKeyContext`
 - [`warehouse/oidc/utils.py`](https://github.com/pypi/warehouse/blob/main/warehouse/oidc/utils.py): `PublisherTokenContext`
 - [`warehouse/predicates.py`](https://github.com/pypi/warehouse/blob/main/warehouse/predicates.py): `AuthMethodsPredicate` and the `auth_methods_for_route` helper
 - [`warehouse/routes.py`](https://github.com/pypi/warehouse/blob/main/warehouse/routes.py) and [`warehouse/forklift/__init__.py`](https://github.com/pypi/warehouse/blob/main/warehouse/forklift/__init__.py): route declarations tagged with `auth_methods`
@@ -101,7 +104,7 @@ a template) by calling `security_policy.identity(request)`.
 
 Pyramid 2.x uses a single `ISecurityPolicy` object that answers both
 authentication (`identity`, `authenticated_userid`) and authorization
-(`permits`). Warehouse registers a `MultiSecurityPolicy` that wraps three
+(`permits`). Warehouse registers a `MultiSecurityPolicy` that wraps four
 concrete policies, tried in order:
 
 ```python
@@ -111,6 +114,7 @@ config.set_security_policy(
             SessionSecurityPolicy(),
             BasicAuthSecurityPolicy(),
             MacaroonSecurityPolicy(),
+            ApiKeySecurityPolicy(),
         ],
     )
 )
@@ -132,7 +136,9 @@ flowchart TD
     P2 -->|non-None| STORE
     P2 -->|None| P3[<code>MacaroonSecurityPolicy.identity</code>]:::warehouse
     P3 -->|non-None| STORE
-    P3 -->|None| NONE[Cache <code>None, None</code>]:::pyramid
+    P3 -->|None| P4[<code>ApiKeySecurityPolicy.identity</code>]:::warehouse
+    P4 -->|non-None| STORE
+    P4 -->|None| NONE[Cache <code>None, None</code>]:::pyramid
     STORE --> RET
     NONE --> RET
     classDef pyramid fill:#fde4cf,stroke:#f98131,color:#7c2d12
@@ -143,7 +149,7 @@ The combinator semantics:
 
 - `identity` is the first non-`None` result from the policies, in order.
 - `authenticated_userid` returns the user id only when the identity is a
-  `UserContext` (a deliberate contract bend, noted in a `TODO` in the code,
+  `UserContext` or an `ApiKeyContext` (a deliberate contract bend, noted in a `TODO` in the code,
   because many views still use it as a "user or not" check).
 - `forget` and `remember` are concatenated across all policies.
 - `permits` is delegated to the single policy that produced the identity.
@@ -203,17 +209,19 @@ the only credential basic-auth lets through is a macaroon.
 Each policy consults the predicate during `identity()` and bows out when its
 method is not in the route's allowed set:
 
-| Route declares | Session engages? | BasicAuth engages? | Macaroon engages? |
-|----------------|------------------|--------------------|-------------------|
-| *(no `auth_methods`)* | yes | no (needs explicit opt-in) | yes |
-| `{"basic-auth", "macaroon"}` (forklift upload) | no | yes | yes |
-| `{"macaroon"}` (token-only API) | no | no | yes |
-| `{"api-key"}` (future Maintainer API) | no | no | no |
+| Route declares | Session engages? | BasicAuth engages? | Macaroon engages? | Maintainer API key engages? |
+|----------------|------------------|--------------------|-------------------|------------------|
+| *(no `auth_methods`)* | yes | no (needs explicit opt-in) | yes | no (needs explicit opt-in) |
+| `{"basic-auth", "macaroon"}` (forklift upload) | no | yes | yes | no |
+| `{"macaroon"}` (token-only API) | no | no | yes | no |
+| `{"macaroon", "api-key"}` (`/danger-api/echo`) | no | no | yes | yes |
+| `{"api-key"}` (Maintainer API) | no | no | no | yes |
 
 `auth_methods_for_route` returns `None` when a route carries no predicate, and
 each policy decides its own default for that case. `SessionSecurityPolicy` and
 `MacaroonSecurityPolicy` still engage on un-tagged routes; `BasicAuthSecurityPolicy`
-only engages when a route explicitly lists `basic-auth`.
+and `ApiKeySecurityPolicy` only engage when a route explicitly lists their
+method.
 
 ## 4. Authentication: resolving `request.identity`
 
@@ -318,6 +326,33 @@ signature, and maps to a live principal. It does not yet verify the macaroon's
 caveats. That happens in `permits()`, because caveat verification depends on
 the specific context and permission being requested.
 
+### 4d. `ApiKeySecurityPolicy`
+
+Maintainer API keys (`pypi_mapi_v1_...`) are bearer credentials, sent only as
+`Authorization: Bearer <key>`. On a route that also accepts macaroons, the
+macaroon policy runs first and rejects the key because it lacks the `pypi-`
+prefix, before any lookup.
+
+```mermaid
+flowchart TD
+    A[<code>identity</code>]:::warehouse --> AM{route lists<br/><code>api-key</code>?}:::warehouse
+    AM -->|no| N0[return <code>None</code>]:::warehouse
+    AM -->|yes| EX{Bearer credential with<br/>the key prefix?}:::warehouse
+    EX -->|no| N1[return <code>None</code>]:::warehouse
+    EX -->|yes| BAN{banned IP?}:::warehouse
+    BAN -->|yes| N2[return <code>None</code>]:::warehouse
+    BAN -->|no| VER[(<code>IApiKeyService.verify</code>)]:::service
+    VER -->|<code>InvalidApiKeyError</code>:<br/>malformed, unknown, revoked, expired| N3[keep the reason on the request<br/>return <code>None</code>]:::warehouse
+    VER -->|active key| DIS[(<code>IUserService.is_disabled</code>)]:::service
+    DIS -->|disabled| N4[return <code>None</code>]:::warehouse
+    DIS -->|no| AC[return <code>ApiKeyContext</code><br/>user, api_key]:::warehouse
+    classDef warehouse fill:#cde6f5,stroke:#006dad,color:#00405f
+    classDef service fill:#fef3c7,stroke:#b45309,color:#78350f
+```
+
+Unlike a macaroon, an expired key fails here, in authentication, so
+`request.user` is never set for it.
+
 ## 5. Authorization: how `permits` decides
 
 Once an identity exists and the requested permission is known, the producing
@@ -398,8 +433,9 @@ The macaroon path has its own front gate,
 PERMISSION_AUTH_METHODS = {
     Permissions.ProjectsUpload: frozenset({MACAROON, BASIC_AUTH}),
     # legacy API permissions, slated for removal
-    Permissions.APIEcho: frozenset({MACAROON}),
+    Permissions.APIEcho: frozenset({MACAROON, API_KEY}),
     Permissions.APIObservationsAdd: frozenset({MACAROON}),
+    # ...plus API_KEY-only Maintainer API permissions
 }
 ```
 
@@ -413,6 +449,49 @@ does the same `ACLHelper.permits` run that the session path uses.
 The macaroon `verify` is where Trusted Publishing caveats and project-scoped
 token caveats are enforced, distinct from the ACL question of "does this
 principal have this permission on this object".
+
+### 5c. Maintainer API key authorization
+
+`ApiKeySecurityPolicy.permits` checks, in order:
+
+1. `API_KEY` may grant the permission (`PERMISSION_AUTH_METHODS`), else
+   `invalid_permission`.
+1. `PERMISSION_SCOPES` maps the permission to a scope, else
+   `invalid_permission`, and the key carries that scope, else an
+   `InsufficientScope` denial.
+1. The owner still holds that scope's `SCOPE_PERMISSIONS` permission on the
+   root, else `scope_not_permitted`. Checking it on every request means a key
+   stops working when its owner loses the permission.
+1. A verified primary email and 2FA, as for sessions.
+1. The resource ACL. The key's last use is recorded once per request, only
+   when this allows.
+
+#### Error responses
+
+On routes that accept Maintainer API keys, `forbidden_api` asks `bearer_challenge` for an
+error response before falling back to its generic 403:
+
+| Situation | Response |
+|-----------|----------|
+| Key rejected by `identity()` | 401 `invalid_token`, the description says malformed, unknown or revoked, or expired |
+| Key lacks a scope | 403 `insufficient_scope` with `scope=` |
+| Other policy denial (owner lost the scope's permission, 2FA, email) | 403 with the reason and a bare `Bearer` challenge |
+| Resource ACL denial | 403 with a generic reason and a bare `Bearer` challenge |
+| Banned IP or disabled owner | the generic 403, so nothing about the account leaks |
+
+Routes that also accept API tokens, such as `/danger-api/echo`, answer
+requests without a key with the generic 403.
+
+These follow [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750) section 3,
+which the [OAuth 2.1](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
+draft repeats in section 5.3, except the generic 403 for a banned IP or
+disabled owner, which leaves out the `WWW-Authenticate` challenge section 3
+requires so it looks like any other refusal. Keys are read only from the
+`Authorization` header; OAuth 2.1 forbids the query parameter RFC 6750
+allowed. Bodies are
+[RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problem details
+(`application/problem+json`, `type` of `about:blank`), built by
+`warehouse.api.problems` like every other danger API error.
 
 ## 6. Two end-to-end examples
 
@@ -476,10 +555,12 @@ sequenceDiagram
 | `MultiSecurityPolicy` | Tries policies in order, caches `(identity, policy)`, delegates `permits` |
 | `UserContext` | A `User` plus an optional `Macaroon`; `macaroon=None` means session auth |
 | `PublisherTokenContext` | An OIDC publisher plus signed claims (Trusted Publishing) |
-| `AuthenticationMethod` | `SESSION`, `BASIC_AUTH`, `MACAROON`, `API_KEY` (placeholder) |
+| `ApiKeyContext` | A `User` plus the Maintainer `ApiKey` that authenticated the request |
+| `AuthenticationMethod` | `SESSION`, `BASIC_AUTH`, `MACAROON`, `API_KEY` |
 | `AuthMethodsPredicate` | Storage-only route tag listing which methods may authenticate the route |
 | `PERMISSION_AUTH_METHODS` | Which auth methods may grant which permissions (default: session-only) |
 | `WarehouseDenied` | A `Denied` subclass carrying a human message and a machine `reason` |
+| `InsufficientScope` | A `WarehouseDenied` for a Maintainer API key whose scope doesn't cover the request; carries the `scope` |
 | `RootFactory` | Default context resource; its `__acl__` holds site-wide admin grants |
 
 ## 8. Things worth remembering

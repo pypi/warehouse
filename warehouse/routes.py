@@ -646,7 +646,7 @@ def includeme(config):
     config.add_route(
         "api.echo",
         "/danger-api/echo",
-        auth_methods={"macaroon"},
+        auth_methods={"macaroon", "api-key"},
         domain=warehouse,
     )
     config.add_route(

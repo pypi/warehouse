@@ -122,6 +122,19 @@ class TestBasicAuthSecurityPolicy:
         assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
         assert_vary("Authorization")
 
+    @pytest.mark.parametrize("password", ["pypi_mapi_v1_abc", " pypi_mapi_v1_abc"])
+    def test_identity_maintainer_api_key(self, pyramid_request, password):
+        """A Maintainer API key can't upload, and the error says so."""
+        pyramid_request.matched_route = UPLOAD_ROUTE
+        pyramid_request.headers["Authorization"] = _basic_auth("__token__", password)
+
+        policy = security_policy.BasicAuthSecurityPolicy()
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            policy.identity(pyramid_request)
+        status = excinfo.value.status
+        assert "Maintainer API keys (pypi_mapi_v1_...) can't be used" in status
+
 
 class TestSessionSecurityPolicy:
     @pytest.fixture
