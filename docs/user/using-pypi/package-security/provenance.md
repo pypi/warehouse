@@ -67,7 +67,7 @@ In the meantime, users can manually verify attestations by retrieving them from 
 
 ## No provenance
 
-"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the _file origin cannot be cryptographically verified_**.
+"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not configured Trusted Publishing with attestations. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the _file origin cannot be cryptographically verified_**.
 
 When there is no provenance, you should rely on [surrounding trust signals](source-code-security.md) to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, consider using [Trusted Publishing](../../trusted-publishers/index.md) with a [publisher that generates attestations](../../attestations/producing-attestations.md) for your next release.
 
