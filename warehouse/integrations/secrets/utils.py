@@ -7,7 +7,15 @@ import time
 import requests
 
 from warehouse import integrations
-from warehouse.email import send_token_compromised_email_leak
+from warehouse.api.maintainer import (
+    API_KEY_PREFIX,
+    API_KEY_RE,
+    IApiKeyService,
+)
+from warehouse.email import (
+    send_api_key_compromised_email,
+    send_token_compromised_email_leak,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -97,8 +105,16 @@ class PlainTextTokenLeakMatcher(TokenLeakMatcher):
         return text
 
 
+class MaintainerApiKeyLeakMatcher(PlainTextTokenLeakMatcher):
+    # The type GitHub sends once PyPI registers this pattern with its secret
+    # scanning partner program.
+    name = "pypi_maintainer_api_key"
+    pattern = API_KEY_RE
+
+
 TOKEN_LEAK_MATCHERS = {
-    matcher.name: matcher for matcher in [PlainTextTokenLeakMatcher()]
+    matcher.name: matcher
+    for matcher in [PlainTextTokenLeakMatcher(), MaintainerApiKeyLeakMatcher()]
 }
 
 
@@ -268,6 +284,10 @@ def _analyze_disclosure(request, disclosure_record, origin):
         )
         return
 
+    if disclosure.token.startswith(API_KEY_PREFIX):
+        _revoke_leaked_api_key(request, disclosure, origin, metrics)
+        return
+
     macaroon_service = request.find_service(IMacaroonService, context=None)
     try:
         database_macaroon = macaroon_service.verify_signature_only(
@@ -302,6 +322,39 @@ def _analyze_disclosure(request, disclosure_record, origin):
             "origin": origin.name,
         },
     )
+    metrics.increment(f"warehouse.token_leak.{origin.metric_name}.processed")
+
+
+def _revoke_leaked_api_key(request, disclosure, origin, metrics):
+    api_key_service = request.find_service(IApiKeyService, context=None)
+    # An expired key still tells its owner their secrets leaked; an unknown or
+    # already revoked one needs nothing more.
+    api_key = api_key_service.find(disclosure.token)
+    if api_key is None or api_key.revoked is not None:
+        metrics.increment(f"warehouse.token_leak.{origin.metric_name}.error.invalid")
+        return
+
+    metrics.increment(f"warehouse.token_leak.{origin.metric_name}.valid")
+
+    # False if something else revoked it first, and already said so.
+    if api_key_service.revoke(api_key.id):
+        api_key.user.record_event(
+            tag=EventTag.Account.APIKeyRevoked,
+            request=request,
+            additional={
+                "name": api_key.name,
+                "api_key_id": str(api_key.id),
+                "public_url": disclosure.public_url,
+                "origin": origin.name,
+            },
+        )
+        send_api_key_compromised_email(
+            request,
+            api_key.user,
+            name=api_key.name,
+            public_url=disclosure.public_url,
+            origin=origin,
+        )
     metrics.increment(f"warehouse.token_leak.{origin.metric_name}.processed")
 
 

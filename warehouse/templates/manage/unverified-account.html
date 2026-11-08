@@ -474,7 +474,10 @@
         <br>
         <small>
           {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
-          {% if event.additional.revoked_by %}
+          {% if event.additional.public_url %}
+            <br>
+            {% trans origin=event.additional.origin %}Found publicly and reported by {{ origin }} at:{% endtrans %} {{ event.additional.public_url }}
+          {% elif event.additional.revoked_by %}
             <br>
             {% trans %}Revoked by a PyPI administrator{% endtrans %}
           {% endif %}
