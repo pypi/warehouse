@@ -6,7 +6,7 @@ footprint, assembled for the admin UI.
 
 Every serializer here uses an explicit field allowlist so secret material
 (password hashes, TOTP secrets, WebAuthn credentials, recovery codes,
-macaroon keys) is excluded by construction, and returns only JSON-native
+macaroon keys, API key hashes) is excluded by construction, and returns only JSON-native
 types so the assembled document dumps with no custom encoder.
 
 See: dev/admin-user-export.md for the document schema.
@@ -33,6 +33,7 @@ from sqlalchemy.orm import (
 )
 
 from warehouse.accounts.models import OAuthAccountAssociation, User, UserUniqueLogin
+from warehouse.api.maintainer import ApiKey
 from warehouse.email.ses.models import EmailMessage
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.macaroons.caveats import CaveatError, deserialize_obj
@@ -197,6 +198,9 @@ def _user_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
     macaroons = db.scalars(
         select(Macaroon).where(Macaroon.user_id == user.id).order_by(Macaroon.created)
     ).all()
+    api_keys = db.scalars(
+        select(ApiKey).where(ApiKey.user_id == user.id).order_by(ApiKey.created)
+    ).all()
     associations = db.scalars(
         select(OAuthAccountAssociation)
         .where(OAuthAccountAssociation._user_id == user.id)
@@ -264,6 +268,21 @@ def _user_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
                 "additional": m.additional,
             }
             for m in macaroons
+        ],
+        # Maintainer API keys; the key's hash stays out.
+        "api_keys": [
+            {
+                "id": str(k.id),
+                "name": k.name,
+                "last_four": k.last_four,
+                "scopes": k.scopes,
+                "created_by_id": str(k.created_by_id),
+                "created": _dt(k.created),
+                "expires": _dt(k.expires),
+                "revoked": _dt(k.revoked),
+                "last_used": _dt(k.last_used),
+            }
+            for k in api_keys
         ],
         # Select the concrete OAuth subclass directly: a bare base
         # AccountAssociation row is schema-legal (nothing constrains
