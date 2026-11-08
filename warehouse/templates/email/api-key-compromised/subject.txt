@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% if admin_initiated %}A {{ request.registry.settings["site.name"] }} administrator revoked one of your Maintainer API keys{% else %}Your Maintainer API key from {{ request.registry.settings["site.name"] }} was found on a public webpage{% endif %}{% endblock %}

@@ -276,6 +276,13 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Maintainer API key related Admin pages
+    config.add_route(
+        "admin.api_key.revoke",
+        "/admin/api-keys/{api_key_id}/revoke",
+        domain=warehouse,
+    )
+
     # IP Address related Admin pages
     config.add_route("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse)
     config.add_route(

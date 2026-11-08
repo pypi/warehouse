@@ -24,6 +24,8 @@ class Permissions(StrEnum):
     """
 
     # Admin Permissions
+    AdminApiKeysWrite = "admin:api-keys:write"
+
     AdminBannerRead = "admin:banner:read"
     AdminBannerWrite = "admin:banner:write"
 

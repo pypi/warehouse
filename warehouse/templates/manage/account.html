@@ -865,6 +865,10 @@
         <br>
         <small>
           {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
+          {% if event.additional.revoked_by %}
+            <br>
+            {% trans %}Revoked by a PyPI administrator{% endtrans %}
+          {% endif %}
         </small>
       {% elif event.tag == EventTag.Account.APITokenAdded %}
         <strong>{% trans %}API token added{% endtrans %}</strong>

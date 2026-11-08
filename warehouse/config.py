@@ -63,6 +63,7 @@ class RootFactory:
             Allow,
             "group:admins",
             (
+                Permissions.AdminApiKeysWrite,
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,

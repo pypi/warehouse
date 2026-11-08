@@ -604,6 +604,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         (
             "group:admins",
             {
+                Permissions.AdminApiKeysWrite,
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,
