@@ -62,7 +62,8 @@ def doap(request):
     return _exc_with_message(HTTPGone, "DOAP is no longer supported.")
 
 
-@forbidden_view_config(request_param=":action")
+# Not on API paths, whose forbidden view answers with problem details.
+@forbidden_view_config(request_param=":action", path_info=r"^(?!/(danger-)?api/)")
 def forbidden_legacy(exc, request):
     # We're not going to do anything amazing here, this just exists to override
     # the default forbidden handler we have which does redirects to the login

@@ -21,8 +21,12 @@ class TestAPIProjectObservations:
         with pytest.raises(HTTPBadRequest) as exc:
             api_projects_observations(project, pyramid_request)
 
+        assert exc.value.content_type == "application/problem+json"
         assert exc.value.json == {
-            "error": "missing required fields",
+            "type": "about:blank",
+            "title": "Bad Request",
+            "status": 400,
+            "detail": "Missing required fields: inspector_url",
             "missing": ["inspector_url"],
             "project": project.name,
         }

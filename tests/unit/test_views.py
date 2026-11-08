@@ -13,6 +13,7 @@ from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPClientError,
     HTTPForbidden,
+    HTTPMethodNotAllowed,
     HTTPNotFound,
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
@@ -22,11 +23,13 @@ from pyramid.httpexceptions import (
 )
 from pyramid.i18n import Localizer
 from pyramid.interfaces import ITranslationDirectories
-from pyramid.response import FileResponse
+from pyramid.response import FileResponse, Response
+from pyramid_openapi3.exceptions import RequestValidationError, ResponseValidationError
 from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
+from warehouse.api.problems import problem
 from warehouse.csp import CSPPolicy
 from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
@@ -36,6 +39,8 @@ from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
     SecurityKeyGiveaway,
+    api_error,
+    api_validation_error,
     current_user_indicator,
     flash_messages,
     forbidden,
@@ -282,8 +287,61 @@ class TestForbiddenAPIView:
         resp = forbidden_api(mocker.sentinel.exc, mocker.sentinel.request)
 
         assert resp.status_code == 403
-        assert resp.content_type == "application/json"
-        assert resp.json_body == {"message": "Access was denied to this resource."}
+        assert resp.content_type == "application/problem+json"
+        assert resp.json_body["detail"] == "Access was denied to this resource."
+
+
+class TestApiValidationErrorView:
+    @pytest.fixture
+    def request_(self, pyramid_request):
+        pyramid_request.registry.settings["pyramid_openapi3_extract_errors"] = (
+            lambda request, errors: [{"message": str(error)} for error in errors]
+        )
+        return pyramid_request
+
+    def test_request_error(self, request_):
+        exc = RequestValidationError(errors=[ValueError("summary is required")])
+
+        resp = api_validation_error(exc, request_)
+
+        assert resp.status_code == 400
+        assert resp.content_type == "application/problem+json"
+        assert resp.json_body["errors"] == [{"message": "summary is required"}]
+
+    def test_response_error(self, request_, caplog):
+        exc = ResponseValidationError(
+            response=Response(), errors=[ValueError("bad response")]
+        )
+
+        resp = api_validation_error(exc, request_)
+
+        assert resp.status_code == 500
+        assert "errors" not in resp.json_body
+        assert "bad response" in caplog.text
+
+
+class TestApiErrorView:
+    def test_keeps_problem_details(self, pyramid_request):
+        exc = problem(HTTPBadRequest, "Missing required fields: name")
+
+        assert api_error(exc, pyramid_request) is exc
+        assert exc.headers["Access-Control-Allow-Origin"] == "*"
+
+    def test_converts_http_error(self, pyramid_request):
+        exc = HTTPMethodNotAllowed("/some/path", headers={"Allow": "POST"})
+
+        resp = api_error(exc, pyramid_request)
+
+        assert resp.status_code == 405
+        assert resp.content_type == "application/problem+json"
+        assert resp.json_body["detail"] == HTTPMethodNotAllowed.explanation
+        assert resp.headers["Allow"] == "POST"
+
+    def test_database_unavailable(self, pyramid_request):
+        resp = api_error(DatabaseNotAvailableError(), pyramid_request)
+
+        assert resp.status_code == 503
+        assert resp.content_type == "application/problem+json"
 
 
 class TestServiceUnavailableView:

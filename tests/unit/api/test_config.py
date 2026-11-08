@@ -78,9 +78,12 @@ def test_includeme(monkeypatch, env_name, mocker):
     conf.pyramid_openapi3_spec.assert_called_once_with(
         "/mnt/dummy/openapi.yaml", route="/api/openapi.yaml"
     )
-    conf.pyramid_openapi3_add_deserializer.assert_called_once_with(
-        "application/vnd.pypi.api-v0-danger+json", config._strict_json_loads
-    )
+    assert conf.pyramid_openapi3_add_deserializer.call_args_list == [
+        mocker.call(
+            "application/vnd.pypi.api-v0-danger+json", config._strict_json_loads
+        ),
+        mocker.call("application/problem+json", config._strict_json_loads),
+    ]
     if env_name == "development":
         conf.pyramid_openapi3_add_explorer.assert_called_once_with(
             route="/api/explorer/"

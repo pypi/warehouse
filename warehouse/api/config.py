@@ -100,6 +100,10 @@ def includeme(config: Configurator) -> None:
     config.pyramid_openapi3_add_deserializer(
         "application/vnd.pypi.api-v0-danger+json", _strict_json_loads
     )
+    # Error responses are RFC 9457 problem details; see warehouse.api.problems.
+    config.pyramid_openapi3_add_deserializer(
+        "application/problem+json", _strict_json_loads
+    )
     if config.registry.settings["warehouse.env"] == Environment.development:
         # Set up the route for the OpenAPI Web UI
         config.pyramid_openapi3_add_explorer(route="/api/explorer/")
