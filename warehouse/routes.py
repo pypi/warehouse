@@ -650,6 +650,12 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "api.token.exchange",
+        "/danger-api/token",
+        auth_methods={"api-key"},
+        domain=warehouse,
+    )
+    config.add_route(
         "api.projects.observations",
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",

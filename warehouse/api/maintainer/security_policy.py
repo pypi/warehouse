@@ -221,4 +221,21 @@ def bearer_challenge(
     # Malformed, unknown, revoked or expired.
     if (reason := getattr(request, "api_key_rejection", None)) is not None:
         return invalid_token(reason)
+    # The rest only on routes nothing but API keys can open; a route that also
+    # takes API tokens keeps its existing responses for those clients.
+    if auth_methods_for_route(request.matched_route) != frozenset(
+        {AuthenticationMethod.API_KEY}
+    ):
+        return None
+    # No credentials, or another kind, such as an API token or a key under
+    # the wrong scheme: a bare challenge, since section 3 says a request using
+    # an unsupported method gets no error code. A key turned away for a banned
+    # IP or disabled owner falls through to the plain 403, so nothing about
+    # the key or account leaks.
+    if _extract_api_key(request) is None:
+        return problem(
+            HTTPUnauthorized,
+            "Send a Maintainer API key as: Authorization: Bearer pypi_mapi_v1_...",
+            headers={"WWW-Authenticate": challenge()},
+        )
     return None

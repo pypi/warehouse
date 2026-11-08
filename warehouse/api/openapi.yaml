@@ -38,7 +38,9 @@ components:
     ApiKeyUnauthorized:
       description: |
         A Maintainer API key that is malformed, unknown, revoked or expired
-        (`invalid_token`). `WWW-Authenticate` carries an RFC 6750 Bearer
+        (`invalid_token`). On routes only Maintainer API keys can open, also a
+        request with no credentials, or with another kind (a bare challenge,
+        no error code). `WWW-Authenticate` carries an RFC 6750 Bearer
         challenge.
       headers:
         WWW-Authenticate:
@@ -169,6 +171,51 @@ paths:
                 example: { "username": "someuser" }
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/ApiKeyUnauthorized'
+        '403':
+          $ref: '#/components/responses/ApiKeyForbidden'
+        default:
+          $ref: '#/components/responses/Error'
+  /danger-api/token:
+    post:
+      summary: Exchange a Maintainer API key for an access token
+      description: |
+        Trade a Maintainer API key for a short-lived access token.
+        Non-functional scaffolding: a separate set of services will issue
+        access tokens later. Until then the token is a structurally valid JWT
+        that is unsigned, carries a claim set that is not final, and is
+        accepted nowhere. Requires a key with the `test:token:exchange` scope.
+      operationId: exchangeToken
+      tags:
+        - danger-api
+      security:
+        - maintainerApiKey: [ ]
+      responses:
+        '200':
+          description: A short-lived access token
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: |
+                      A scaffold JWT: unsigned (`alg: none`), with a claim set
+                      that is not final. Nothing accepts it.
+                  token_type:
+                    type: string
+                    enum:
+                      - Bearer
+                  expires_in:
+                    type: integer
+                    description: Seconds until the token expires, never past the key's own expiry
+                    example: 900
+                required:
+                  - access_token
+                  - token_type
+                  - expires_in
         '401':
           $ref: '#/components/responses/ApiKeyUnauthorized'
         '403':

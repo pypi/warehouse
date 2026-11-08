@@ -380,6 +380,31 @@ class TestBearerChallenge:
             is None
         )
 
+    @pytest.mark.parametrize(
+        "authorization",
+        [
+            pytest.param(None, id="none"),
+            pytest.param("Bearer pypi-AgEIcHlwaS5vcmc", id="API token"),
+            pytest.param("Token pypi_mapi_v1_abc", id="wrong scheme"),
+        ],
+    )
+    def test_no_api_key_on_api_key_route(self, pyramid_request, mocker, authorization):
+        """A bare challenge, with no error code."""
+        request = self._request(pyramid_request, mocker, authorization=authorization)
+
+        resp = security_policy.bearer_challenge(HTTPForbidden(), request)
+
+        assert resp.status_code == 401
+        assert resp.headers["WWW-Authenticate"] == "Bearer"
+        assert resp.json_body["detail"].startswith("Send a Maintainer API key")
+
+    def test_shared_route_keeps_its_responses(self, pyramid_request, mocker):
+        """A route API tokens also open keeps its answers for those clients."""
+        request = self._request(pyramid_request, mocker)
+        request.matched_route = _route("macaroon", "api-key")
+
+        assert security_policy.bearer_challenge(HTTPForbidden(), request) is None
+
     def test_challenge_drops_unquotable_characters(self):
         assert _bearer.challenge(error_description='a "b" \\c\u00e9\n') == (
             'Bearer error_description="a b c"'

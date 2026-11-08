@@ -598,6 +598,12 @@ def test_routes(warehouse, mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "api.token.exchange",
+            "/danger-api/token",
+            auth_methods={"api-key"},
+            domain=warehouse,
+        ),
+        mocker.call(
             "api.projects.observations",
             "/danger-api/projects/{name}/observations",
             factory="warehouse.packaging.models:ProjectFactory",

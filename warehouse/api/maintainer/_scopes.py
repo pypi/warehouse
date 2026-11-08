@@ -31,6 +31,7 @@ class ApiKeyScope(enum.StrEnum):
 # Pyramid passes permissions; every key is a Permissions member.
 PERMISSION_SCOPES: Final[Mapping[str, ApiKeyScope]] = {
     Permissions.APIEcho: ApiKeyScope.TestEcho,
+    Permissions.APIKeyExchange: ApiKeyScope.TestTokenExchange,
 }
 
 # The permission, on the site root, that a user needs to hold each scope. It is

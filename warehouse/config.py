@@ -111,6 +111,7 @@ class RootFactory:
                 Permissions.AdminVulnerabilitiesWrite,
                 # Maintainer API keys stay admin-only while only test: scopes
                 # exist.
+                Permissions.APIKeyExchange,
                 Permissions.APIKeyScopesTest,
             ),
         ),

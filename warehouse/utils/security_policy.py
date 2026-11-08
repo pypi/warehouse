@@ -44,6 +44,7 @@ PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
         {AuthenticationMethod.MACAROON, AuthenticationMethod.API_KEY}
     ),
     Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.APIKeyExchange: frozenset({AuthenticationMethod.API_KEY}),
 }
 
 

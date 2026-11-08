@@ -477,6 +477,7 @@ error response before falling back to its generic 403:
 | Key lacks a scope | 403 `insufficient_scope` with `scope=` |
 | Other policy denial (owner lost the scope's permission, 2FA, email) | 403 with the reason and a bare `Bearer` challenge |
 | Resource ACL denial | 403 with a generic reason and a bare `Bearer` challenge |
+| No credentials, or another kind, on an API-key-only route | 401 with a bare `Bearer` challenge, saying how to send a key |
 | Banned IP or disabled owner | the generic 403, so nothing about the account leaks |
 
 Routes that also accept API tokens, such as `/danger-api/echo`, answer

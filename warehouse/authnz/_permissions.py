@@ -95,6 +95,7 @@ class Permissions(StrEnum):
 
     # API Permissions
     APIEcho = "api:echo"
+    APIKeyExchange = "api:key:exchange"
     APIKeyScopesTest = "api:key:scopes:test"
     APIObservationsAdd = "api:observations:add"
 
