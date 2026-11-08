@@ -256,6 +256,9 @@ def test_routes(warehouse, mocker):
         ),
         mocker.call("manage.account.token", "/manage/account/token/", domain=warehouse),
         mocker.call(
+            "manage.account.api-keys", "/manage/account/api-keys/", domain=warehouse
+        ),
+        mocker.call(
             "manage.account.associations.github.connect",
             "/manage/account/associations/github/connect",
             domain=warehouse,

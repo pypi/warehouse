@@ -101,6 +101,7 @@ class Permissions(StrEnum):
 
     # User Permissions
     Account2FA = "account:2fa"
+    AccountAPIKeys = "account:api-keys"
     AccountAPITokens = "account:api-tokens"
     AccountManage = "account:manage"
     AccountManagePublishing = "account:manage-publishing"

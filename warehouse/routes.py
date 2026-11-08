@@ -294,6 +294,9 @@ def includeme(config):
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route(
+        "manage.account.api-keys", "/manage/account/api-keys/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.associations.github.connect",
         "/manage/account/associations/github/connect",
         domain=warehouse,
