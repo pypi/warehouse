@@ -37,13 +37,23 @@ components:
         - summary
       example: { "kind": "is_malware", "summary": "This project is distributing malware" }
   securitySchemes:
-    bearerAuth:
-      description: "[PyPI API Token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token)"
+    apiTokenBearer:
+      description: "[API token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token) (`pypi-...`), the credential for publishing, sent as `Authorization: Bearer pypi-...`."
       type: http
       scheme: bearer
-      bearerFormat: API Token
+      bearerFormat: API token
+    apiTokenToken:
+      description: "API token (`pypi-...`) sent as `Authorization: token pypi-...`."
+      type: http
+      scheme: token
+    apiTokenBasic:
+      description: "API token (`pypi-...`) sent as HTTP basic auth, with `__token__` as the username."
+      type: http
+      scheme: basic
 security:
-  - bearerAuth: [ ]
+  - apiTokenBearer: [ ]
+  - apiTokenToken: [ ]
+  - apiTokenBasic: [ ]
 
 tags:
   - name: danger-api
