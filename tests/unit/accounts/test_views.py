@@ -1063,7 +1063,7 @@ class TestTwoFactor:
         assert isinstance(result, HTTPSeeOther)
         db_request.route_path.assert_called_once_with("accounts.confirm-login")
         user_service.device_is_known.assert_called_once_with(
-            str(two_factor_user.id), db_request, "totp"
+            str(two_factor_user.id), db_request, "totp", remember_device=False
         )
 
 
@@ -1276,17 +1276,20 @@ class TestRememberDevice:
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, return_value="/accounts/login"
         )
-        pyramid_request.user = UserFactory.build()
-        mocker.patch.object(pyramid_request.user, "record_event", autospec=True)
+        # request.user stays None, as it does right after login for a frozen user
+        user = UserFactory.create()
+        mocker.patch.object(user, "record_event", autospec=True)
         pyramid_request.registry.settings = {
             "remember_device.seconds": dt.timedelta(days=30).total_seconds()
         }
         response = pyramid_request.response
         mocker.spy(response, "set_cookie")
 
-        views._remember_device(pyramid_request, response, 1, "webauthn")
+        views._remember_device(pyramid_request, response, user.id, "webauthn")
 
-        remember_device_token_service.dumps.assert_called_once_with({"user_id": "1"})
+        remember_device_token_service.dumps.assert_called_once_with(
+            {"user_id": str(user.id)}
+        )
         response.set_cookie.assert_called_once_with(
             REMEMBER_DEVICE_COOKIE,
             remember_device_token_service.dumps.spy_return,
@@ -1297,7 +1300,7 @@ class TestRememberDevice:
             path="/accounts/login",
         )
         pyramid_request.route_path.assert_called_once_with("accounts.login")
-        pyramid_request.user.record_event.assert_called_once_with(
+        user.record_event.assert_called_once_with(
             tag=EventTag.Account.TwoFactorDeviceRemembered,
             request=pyramid_request,
             additional={"two_factor_method": "webauthn"},
@@ -4663,8 +4666,8 @@ class TestConfirmLogin:
 
         return _make
 
-    def test_already_logged_in(self, pyramid_request, mocker):
-        pyramid_request.user = UserFactory.build()
+    def test_already_logged_in(self, pyramid_request, pyramid_config, mocker):
+        pyramid_config.testing_securitypolicy(identity=UserFactory.build())
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
         )
@@ -4799,3 +4802,36 @@ class TestConfirmLogin:
             confirm_request, user.id, two_factor_method="email-confirmation"
         )
         _set_userid_insecure_cookie.assert_called_once_with(result, user.id)
+
+    @pytest.mark.parametrize("remember_device", [True, False])
+    def test_success_remember_device(
+        self, confirm_request, confirm_login_token_service, remember_device, mocker
+    ):
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
+        unique_login = UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=confirm_request.ip_address,
+        )
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {
+                "action": "login-confirmation",
+                "user.id": user.id,
+                "unique_login_id": unique_login.id,
+                "remember_device": remember_device,
+            }
+        )
+
+        mocker.patch.object(views, "_login_user", autospec=True)
+        mocker.patch.object(views, "_set_userid_insecure_cookie", autospec=True)
+        _remember_device = mocker.patch.object(views, "_remember_device", autospec=True)
+
+        result = views.confirm_login(confirm_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert unique_login.status == UniqueLoginStatus.CONFIRMED
+        if remember_device:
+            _remember_device.assert_called_once_with(
+                confirm_request, result, user.id, "email-confirmation"
+            )
+        else:
+            _remember_device.assert_not_called()

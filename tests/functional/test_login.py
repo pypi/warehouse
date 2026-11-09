@@ -5,6 +5,7 @@ import time
 from http import HTTPStatus
 
 from tests.common.db.accounts import UserFactory
+from warehouse.accounts import services
 from warehouse.accounts.models import UniqueLoginStatus, UserUniqueLogin
 from warehouse.utils.otp import _get_totp
 
@@ -84,3 +85,101 @@ def test_unrecognized_login_with_totp(webtest):
     # We should be able to successfully log in
     logged_in = two_factor_form.submit().follow(status=HTTPStatus.OK)
     assert logged_in.html.find("title", string="Warehouse · The Python Package Index")
+
+
+def test_unrecognized_login_remember_device_via_email_link(webtest, mocker):
+    """
+    Tests that "remember this device", ticked on a TOTP login from an
+    unrecognized IP address, takes effect once the emailed confirmation link
+    is followed, so the next login skips two-factor authentication.
+    """
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+    )
+    send_email = mocker.patch.object(
+        services,
+        "send_unrecognized_login_email",
+        wraps=services.send_unrecognized_login_email,
+    )
+
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+
+    two_factor_form = two_factor_page.forms["totp-auth-form"]
+    two_factor_form["totp_value"] = (
+        _get_totp(user.totp_secret).generate(time.time()).decode()
+    )
+    two_factor_form["remember_device"] = True
+    resp = two_factor_form.submit()
+
+    # Unrecognized device: sent to confirm, and nothing is remembered yet
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert resp.headers["Location"].endswith("/account/confirm-login/")
+    assert "remember_device" not in webtest.cookies
+
+    # Follow the link from the email
+    token = send_email.call_args.kwargs["token"]
+    resp = webtest.get("/account/confirm-login/", params={"token": token})
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert resp.headers["Location"].endswith("/manage/projects/")
+    assert "remember_device" in webtest.cookies
+
+    # Drop the session but keep the remembered-device cookie, then log in again
+    for cookie in list(webtest.cookiejar):
+        if cookie.name == "session_id":
+            webtest.cookiejar.clear(cookie.domain, cookie.path, cookie.name)
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    resp = login_form.submit()
+
+    # The remembered device skips two-factor authentication
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert resp.headers["Location"].endswith("/manage/projects/")
+
+
+def test_frozen_user_remember_device_via_email_link(webtest, mocker):
+    """
+    Tests that a frozen user who ticks "remember this device" and follows the
+    emailed confirmation link is redirected rather than hitting a server error,
+    and is still not logged in afterwards.
+    """
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+        is_frozen=True,
+    )
+    send_email = mocker.patch.object(
+        services,
+        "send_unrecognized_login_email",
+        wraps=services.send_unrecognized_login_email,
+    )
+
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+
+    two_factor_form = two_factor_page.forms["totp-auth-form"]
+    two_factor_form["totp_value"] = (
+        _get_totp(user.totp_secret).generate(time.time()).decode()
+    )
+    two_factor_form["remember_device"] = True
+    resp = two_factor_form.submit()
+    assert resp.headers["Location"].endswith("/account/confirm-login/")
+
+    # Follow the link from the email
+    token = send_email.call_args.kwargs["token"]
+    resp = webtest.get("/account/confirm-login/", params={"token": token})
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+
+    # The frozen account is not logged in
+    resp = webtest.get("/manage/projects/")
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert "/account/login/" in resp.headers["Location"]
