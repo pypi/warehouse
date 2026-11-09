@@ -6,13 +6,14 @@
 # Balázs Fülöp <fulopbalazs91@gmail.com>, 2020, 2022.
 # László Szatmáry <lszatmary78@gmail.com>, 2023.
 # mpadanyi09 <mpadanyi09@gmail.com>, 2024.
+# Balázs Fülöp <bfulop@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-08-01 03:39+0000\n"
-"Last-Translator: mpadanyi09 <mpadanyi09@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:43+0000\n"
+"Last-Translator: Balázs Fülöp <bfulop@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "hu/>\n"
 "Language: hu\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -259,8 +260,7 @@ msgstr ""
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
-"Érvénytelen token: a jelszó már megváltozott, mióta ezt a tokent kérték"
+msgstr "Érvénytelen token: a jelszó már megváltozott, mióta ezt a tokent kérték"
 
 #: warehouse/accounts/views.py:884
 msgid "You have reset your password"

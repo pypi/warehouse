@@ -5,13 +5,17 @@
 # Shahobiddin Anorboyev <anorprogrammer1127@gmail.com>, 2024.
 # Jasur <jasur.py@gmail.com>, 2025.
 # Muzaffar Murodovich <muzaffarmurodogli@gmail.com>, 2025.
+# behzod musurmonqulov <behzodmusurmonqulov@users.noreply.hosted.weblate.org>, 2026.
+# Jasur <jasur-py@users.noreply.hosted.weblate.org>, 2026.
+# Muzaffar Murodovich <muzaffar@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2025-10-04 13:21+0000\n"
-"Last-Translator: Muzaffar Murodovich <muzaffarmurodogli@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:45+0000\n"
+"Last-Translator: Muzaffar Murodovich "
+"<muzaffar@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Uzbek (Latin script) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/uz_Latn/>\n"
 "Language: uz_Latn\n"
@@ -19,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: warehouse/views.py:149
 msgid ""
@@ -268,8 +272,7 @@ msgstr ""
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
-"Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
+msgstr "Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
 #: warehouse/accounts/views.py:884
 msgid "You have reset your password"
@@ -709,9 +712,8 @@ msgid "Could not delete file - "
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2381
-#, fuzzy
 msgid "Could not delete file - "
-msgstr "Faylni oʻchirib boʻlmadi - "
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2488
 msgid "User '${username}' already has ${role_name} role for project"
@@ -1938,8 +1940,7 @@ msgstr ""
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
-msgstr[0] ""
-"%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyiha"
+msgstr[0] "%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyiha"
 msgstr[1] ""
 "%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyihalar"
 

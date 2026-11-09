@@ -22,22 +22,30 @@
 # zakarya mustafa <kalione010@gmail.com>, 2024.
 # Mohamed Brahimi <momohb2007@gmail.com>, 2025.
 # Deepnor <jahimx09@gmail.com>, 2025.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Mariam Maarouf <mariamrf@users.noreply.hosted.weblate.org>, 2026.
+# AbdulRahman Ahmed <aak_rmd@users.noreply.hosted.weblate.org>, 2026.
+# Der Marschall <marschall@users.noreply.hosted.weblate.org>, 2026.
+# Abdulrahman Alfawal <abdulrahman@users.noreply.hosted.weblate.org>, 2026.
+# zakarya mustafa <kalione0@users.noreply.hosted.weblate.org>, 2026.
+# Murtaja Ziad <murtajaziad@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-07-03 04:40+0000\n"
-"Last-Translator: Deepnor <jahimx09@gmail.com>\n"
-"Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
-">\n"
+"PO-Revision-Date: 2026-11-09 13:43+0000\n"
+"Last-Translator: Murtaja Ziad <murtajaziad@users.noreply.hosted.weblate.org>"
+"\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/"
+"ar/>\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -133,8 +141,7 @@ msgstr "البريد الالكتروني غير صالح. حاول مرة أخ�
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني "
-"مختلف."
+"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني مختلف."
 
 #: warehouse/accounts/forms.py:297
 msgid ""
@@ -714,8 +721,7 @@ msgstr ""
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
-"دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى "
-"لاحقاً."
+"دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى لاحقاً."
 
 #: warehouse/manage/views/__init__.py:2665
 #: warehouse/manage/views/organizations.py:946
@@ -748,42 +754,46 @@ msgid "The trusted publisher could not be constrained"
 msgstr "حساب الناشر الموثوق لا يمكن تسجيله"
 
 #: warehouse/manage/views/oidc_publishers.py:289
+#, fuzzy
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"النشر الموثوق المستند إلى GitHub موقوف مؤقتا. إطّلع على https://pypi.org/"
-"help#admin-intervention للتفاصيل."
+"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
+"intervention."
 
 #: warehouse/manage/views/oidc_publishers.py:404
+#, fuzzy
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"النشر الموثوق المستند إلى GitLab موقوف مؤقتا. إطّلع على https://pypi.org/"
-"help#admin-intervention للتفاصيل."
+"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
+"intervention."
 
 #: warehouse/manage/views/oidc_publishers.py:520
+#, fuzzy
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"النشر الموثوق المستند إلى Google موقوف مؤقتا. إطّلع على https://pypi.org/"
-"help#admin-intervention للتفاصيل."
+"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
+"intervention."
 
 #: warehouse/manage/views/oidc_publishers.py:631
+#, fuzzy
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"النشر الموثوق المستند إلى ActiveState موقوف مؤقتا. إطّلع على https://pypi.org/"
-"help#admin-intervention للتفاصيل."
+"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
+"intervention."
 
 #: warehouse/manage/views/organizations.py:957
 #, fuzzy, python-brace-format
 #| msgid "User '${username}' already has ${role_name} role for organization"
 msgid "User '${username}' already has ${role_name} role for organization"
-msgstr "المستخدم '{username}' بالفعل له صلاحيات ${rol_name} فى المنظمة"
+msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
 #: warehouse/manage/views/organizations.py:968
 #, python-brace-format
@@ -791,8 +801,8 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"المستخدم '${username}' لم يقم بتأكيد الايميل الأساسي بعد ولايمكنه الإضافة ك "
-"'${role_name} لهذه المنظمة"
+"المستخدم '${username}' لم يقم بتأكيد الايميل الأساسي بعد ولايمكنه الإضافة ك '$"
+"{role_name} لهذه المنظمة"
 
 #: warehouse/manage/views/organizations.py:1029
 #: warehouse/manage/views/organizations.py:1071
@@ -1201,8 +1211,8 @@ msgid ""
 msgstr ""
 "انظر في <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">المساهمة</a> أو <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" "
-"rel=\"noopener\">التبرع </a> لمساعدتنا على بناء منصة أكثر إتزاناً وأماناً."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">"
+"التبرع </a> لمساعدتنا على بناء منصة أكثر إتزاناً وأماناً."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -2180,8 +2190,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"هذه الرسالة تحتوي على رابط تغيير كلمة السر. هذا الرابط ستنتهي صلاحيته في "
-"%(n_hours)s ساعات."
+"هذه الرسالة تحتوي على رابط تغيير كلمة السر. هذا الرابط ستنتهي صلاحيته في %"
+"(n_hours)s ساعات."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2229,9 +2239,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">قم بتحديث المتصفح</a> لتتمكن من تسجيل الدخول بجهاز أمان (على "
-"سبيل المثال: مفتاح USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">قم بتحديث المتصفح</a> لتتمكن من تسجيل الدخول بجهاز أمان (على سبيل "
+"المثال: مفتاح USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2271,8 +2281,8 @@ msgid ""
 "Lost your application? Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr ""
 "<p>قم بتوليد كود باستخدام تطبيق التصديق المربوط بحساب PyPI الخاص بك. ادخل "
-"هذا الكود في الاستمارة لتأكيد هويتك.</p><p>هل فقدت تطبيقك؟ لا يعمل؟ <a "
-"href=\"%(href)s\">اعثر على مساعدة</a>.</p>"
+"هذا الكود في الاستمارة لتأكيد هويتك.</p><p>هل فقدت تطبيقك؟ لا يعمل؟ <a href=\"%"
+"(href)s\">اعثر على مساعدة</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2314,8 +2324,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
-"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
+"(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2346,8 +2356,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
-"%(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
+"(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2359,8 +2369,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
-"%(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
+"(site)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, python-format
@@ -2369,9 +2379,9 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
-"%(organization_name)s عن طريق <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
+"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
+"s</a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2389,8 +2399,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
-"%(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
+"(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2401,8 +2411,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
-"%(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
+"(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2415,9 +2425,9 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
-"%(organization_name)s عن طريق <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
+"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
+"s</a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2455,8 +2465,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
-"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
+"(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2499,8 +2509,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
-"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
+"(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:5
 #, python-format
@@ -2567,8 +2577,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:"
-"%(email_address)s\">%(email_address)s للتواصل مع مديري %(site)s."
+"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:%(email_address)s\">%"
+"(email_address)s للتواصل مع مديري %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -2760,8 +2770,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"أحد ما، ربما أنت، قام بتغيير كلمة المرور لحساب PyPI الخاص بك "
-"<strong>%(username)s</strong>."
+"أحد ما، ربما أنت، قام بتغيير كلمة المرور لحساب PyPI الخاص بك <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -2847,8 +2857,7 @@ msgid ""
 "have preemptively reset your password and you will no longer be able to log "
 "in or upload to PyPI with your existing password."
 msgstr ""
-"خلال محاولة مؤخرة لتسجيل الدخول أو الرفع لPyPI، لاحظنا أن كلمة السر الخاصة "
-"بك\n"
+"خلال محاولة مؤخرة لتسجيل الدخول أو الرفع لPyPI، لاحظنا أن كلمة السر الخاصة بك\n"
 "متواجدة في اختراقات بيانات علنية. لحمايتك وحماية المستخدمين الآخرين، قمنا "
 "بتغيير\n"
 "كلمة السر الخاصة بك ولن يمكنك تسجيل الدخول أو الرفع لPyPI بكلمة السر السابقة."
@@ -2877,11 +2886,10 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"لاستعادة الوصول الى حسابك، برجاء <a href=\"%(reset_pw_url)s\">تغيير كلمة "
-"السر الخاصة بك</a> على PyPI. نوصي أيضاً بزيارة <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> والتأكد من كلمات السر "
-"الأخرى الخاصة بك بالإضافة الى تعريف نفسك على الممارسات الجيدة الحاصة بكلمات "
-"السر."
+"لاستعادة الوصول الى حسابك، برجاء <a href=\"%(reset_pw_url)s\">تغيير كلمة السر "
+"الخاصة بك</a> على PyPI. نوصي أيضاً بزيارة <a href=\"%(have_i_been_pwned_url)"
+"s\">HaveIBeenPwned</a> والتأكد من كلمات السر الأخرى الخاصة بك بالإضافة الى "
+"تعريف نفسك على الممارسات الجيدة الحاصة بكلمات السر."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -2897,11 +2905,11 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"نستخدم خدمة أمان مجانية من <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>.  عند تسجيل، تصديق، أو "
-"تغيير كلمة السر الخاصة بك، نولد رمز هاش SHA1 منها ونستخدم أول 5 حروف من "
-"الرمز لمعرفة إذا كانت كلمة السر تم إختراقها أو لا. كلمة السر نفسها كنص لا "
-"يتم تسجيلها أبداً على PyPI أو إرسالها لHaveIBeenPwned."
+"نستخدم خدمة أمان مجانية من <a href=\"%(have_i_been_pwned_url)s\">"
+"HaveIBeenPwned</a>.  عند تسجيل، تصديق، أو تغيير كلمة السر الخاصة بك، نولد "
+"رمز هاش SHA1 منها ونستخدم أول 5 حروف من الرمز لمعرفة إذا كانت كلمة السر تم "
+"إختراقها أو لا. كلمة السر نفسها كنص لا يتم تسجيلها أبداً على PyPI أو إرسالها "
+"لHaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, python-format
@@ -2910,8 +2918,8 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
-"لمزيد من المعلومات، يرجى قراءة <a href=\"%(faq_url)s\">الأسئلة الأكثر شيوعاً</"
-"a>. للمساعدة، يمكنك مراسلة <a href=\"%(email_href)s\">%(email_address)s</a> "
+"لمزيد من المعلومات، يرجى قراءة <a href=\"%(faq_url)s\">الأسئلة الأكثر شيوعاً</a>"
+". للمساعدة، يمكنك مراسلة <a href=\"%(email_href)s\">%(email_address)s</a> "
 "للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
@@ -2920,8 +2928,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"أحد ما، ربما أنت، طلب تغيير كلمة السر الخاصة بحساب PyPI الخاص بك "
-"\"%(username)s\"."
+"أحد ما، ربما أنت، طلب تغيير كلمة السر الخاصة بحساب PyPI الخاص بك \"%"
+"(username)s\"."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -2993,9 +3001,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"البريد الاليكتروني الر ئيسي لحساب PyPI الخاص بك <strong>%(username)s</"
-"strong> تم تغييره من <code>%(old_email)s</code> الى <code>%(new_email)s</"
-"code>"
+"البريد الاليكتروني الر ئيسي لحساب PyPI الخاص بك <strong>%(username)s</strong> "
+"تم تغييره من <code>%(old_email)s</code> الى <code>%(new_email)s</code>"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -3049,8 +3056,8 @@ msgid ""
 "used."
 msgstr ""
 "\n"
-"رمز الاسترداد الخاص بحساب المستخدم<strong>%(username)s</strong>مستعمل "
-"سابقا .\n"
+"رمز الاسترداد الخاص بحساب المستخدم<strong>%(username)s</strong>مستعمل سابقا "
+".\n"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:5
 #, fuzzy, python-format
@@ -3084,8 +3091,8 @@ msgstr "تتلقى هذا البريد الإلكتروني لأتك أحد أص
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
-"%(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
+"(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3096,8 +3103,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
-"%(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
+"(site)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3122,8 +3129,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
-"%(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
+"(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3134,8 +3141,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
-"%(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
+"(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3160,8 +3167,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
-"%(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
+"(site)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, fuzzy, python-format
@@ -3248,9 +3255,9 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
-"%(organization_name)s عن طريق <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
+"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
+"s</a>."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3263,9 +3270,9 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
-"%(organization_name)s عن طريق <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
+"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
+"s</a>."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, python-format
@@ -3439,8 +3446,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
-"أحد ما، ربما أنت، قام بإضافة هذا البريد الاليكتروني "
-"(<code>%(email_address)s</code>) الى حساب PyPI الخاص به."
+"أحد ما، ربما أنت، قام بإضافة هذا البريد الاليكتروني (<code>%(email_address)s</"
+"code>) الى حساب PyPI الخاص به."
 
 #: warehouse/templates/email/verify-email/body.html:8
 #, fuzzy, python-format
@@ -7303,8 +7310,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:"
-"%(email_address)s\">%(email_address)s للتواصل مع مديري %(site)s."
+"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:%(email_address)s\">%"
+"(email_address)s للتواصل مع مديري %(site)s."
 
 #: warehouse/templates/manage/organization/settings.html:141
 #, fuzzy

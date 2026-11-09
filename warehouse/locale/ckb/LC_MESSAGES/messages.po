@@ -1,20 +1,23 @@
 # Abdlaziz Rzgar <rzgarabdlaziz@gmail.com>, 2022.
 # Khalifa Alneimy <alneimykhalifa55@gmail.com>, 2022.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Abdlaziz Rzgar <rzgarabdlaziz@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2022-07-16 23:40+0200\n"
-"PO-Revision-Date: 2022-09-06 05:51+0000\n"
-"Last-Translator: Khalifa Alneimy <alneimykhalifa55@gmail.com>\n"
-"Language-Team: Kurdish (Central) <https://hosted.weblate.org/projects/pypa/"
+"PO-Revision-Date: 2026-11-09 13:47+0000\n"
+"Last-Translator: Abdlaziz Rzgar "
+"<rzgarabdlaziz@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Kurdish (Sorani) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/ckb/>\n"
 "Language: ckb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: warehouse/views.py:149
 msgid ""
@@ -125,8 +128,8 @@ msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
-"ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
-"ئەلیکترۆنی تر بەکاربهێنە."
+"ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی ئەلیکترۆنی "
+"تر بەکاربهێنە."
 
 #: warehouse/accounts/forms.py:337 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -599,8 +602,8 @@ msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
-"org/help#admin-intervention بۆ وردەکاریەکان."
+"تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://"
+"pypi.org/help#admin-intervention بۆ وردەکاریەکان."
 
 #: warehouse/manage/views/__init__.py:1453
 #, fuzzy
@@ -1273,8 +1276,7 @@ msgstr "ئاگادارکردنەوە"
 
 #: warehouse/templates/base.html:219
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
-"تۆ وێبگەڕێکی پشتگیری نەکراو بەکاردەهێنیت، بەرز بکەرەوە بۆ وەشانی نوێتر."
+msgstr "تۆ وێبگەڕێکی پشتگیری نەکراو بەکاردەهێنیت، بەرز بکەرەوە بۆ وەشانی نوێتر."
 
 #: warehouse/templates/base.html:228
 msgid ""
@@ -1487,8 +1489,7 @@ msgstr "ئیندێکسی پاکێجی پایتۆن"
 #: warehouse/templates/index.html:17
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
-"بڵاوکردنەوەی پاکێجی پایتۆن تاقی بکەرەوە بە ئیندێکسی پاکێجی پایتۆن تاقی "
-"بکەرەوە"
+"بڵاوکردنەوەی پاکێجی پایتۆن تاقی بکەرەوە بە ئیندێکسی پاکێجی پایتۆن تاقی بکەرەوە"
 
 #: warehouse/templates/index.html:19
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
@@ -1723,9 +1724,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"بۆ زانیاری زیاتر لەسەر بارکردنی پڕۆژەکان بۆ PyPI، سەردانی <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">ڕێبەری بەکارهێنەری پاکەتکردنی پایتۆن</a> بکە ."
+"بۆ زانیاری زیاتر لەسەر بارکردنی پڕۆژەکان بۆ PyPI، سەردانی <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ڕێبەری "
+"بەکارهێنەری پاکەتکردنی پایتۆن</a> بکە ."
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -1832,8 +1833,8 @@ msgid ""
 "an organization %(role_name)s?"
 msgstr ""
 "\n"
-"      ئایا دەتەوێت ئەم بانگهێشتنامەیە قبوڵ بکەیت بۆ بەشداریکردن لە "
-"%(organization_name)s وەک ڕێکخراوێک %(role_name)s؟\n"
+"      ئایا دەتەوێت ئەم بانگهێشتنامەیە قبوڵ بکەیت بۆ بەشداریکردن لە %"
+"(organization_name)s وەک ڕێکخراوێک %(role_name)s؟\n"
 "      "
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -2132,8 +2133,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"ئیمەیڵەکە بەستەرێکی تێدایە بۆ ڕێستکردنی وشەی نهێنی خۆت. ئەم بەستەرە لە "
-"%(n_hours)s کاتژمێردا بەسەر دەچێت."
+"ئیمەیڵەکە بەستەرێکی تێدایە بۆ ڕێستکردنی وشەی نهێنی خۆت. ئەم بەستەرە لە %"
+"(n_hours)s کاتژمێردا بەسەر دەچێت."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2182,9 +2183,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">وێبگەڕەکەت بەرز بکەرەوە</a> بۆ چوونەژوورەوە ئامێرێکی ئاسایش "
-"(بۆ نموونە کلیلی USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">وێبگەڕەکەت بەرز بکەرەوە</a> بۆ چوونەژوورەوە ئامێرێکی ئاسایش (بۆ نموونە "
+"کلیلی USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2222,8 +2223,8 @@ msgid ""
 msgstr ""
 "<p>کۆدێک دروست بکە بە بەکارهێنانی بەرنامەی ڕەسەنایەتی کە بەستراوەتەوە بە "
 "ئەژمێری PyPI ـتەوە. ئەم کۆدە لە فۆڕمەکەدا بنووسە بۆ پشتڕاستکردنەوەی "
-"ناسنامەکەت.</p> <p>دانامەکەت لەدەست داوە؟ ئیش ناکا? <a "
-"href=\"%(href)s\">یارمەتی وەربگرە</a>.</p>"
+"ناسنامەکەت.</p> <p>دانامەکەت لەدەست داوە؟ ئیش ناکا? <a href=\"%(href)s\">"
+"یارمەتی وەربگرە</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2240,8 +2241,8 @@ msgid ""
 "If you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a> </p>"
 msgstr ""
-"<p><strong>تۆ کۆدی گەڕانەوەی ئەژمارەکەت دروست نەکردووە.</strong></p> "
-"<p>ئەگەر دەستڕاگەیشتن بە دوو شێوازی فاکتەری خۆت لەدەست بدەیت، لەوانەیە "
+"<p><strong>تۆ کۆدی گەڕانەوەی ئەژمارەکەت دروست نەکردووە.</strong></p> <p>"
+"ئەگەر دەستڕاگەیشتن بە دوو شێوازی فاکتەری خۆت لەدەست بدەیت، لەوانەیە "
 "دەستڕاگەیشتن بە ئەژمێرەکەت لەدەست بدەیت. <a href=\"%(href)s\">یارمەتی "
 "وەربگرە لە کۆدەکانی گەڕانەوە.</a></p>"
 
@@ -2273,9 +2274,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a "
-"href=\"%(href)s\">%(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی PyPI."
+"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a href=\"%(href)s\">%"
+"(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ بەڕێوەبەرانی PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2306,8 +2306,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی "
-"%(site)s لەلایەن %(initiator_username)sەکانەوە."
+"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی %"
+"(site)s لەلایەن %(initiator_username)sەکانەوە."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2346,8 +2346,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی "
-"%(site)s لەلایەن %(initiator_username)sەکانەوە."
+"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی %"
+"(site)s لەلایەن %(initiator_username)sەکانەوە."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2412,9 +2412,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a "
-"href=\"%(href)s\">%(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی PyPI."
+"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a href=\"%(href)s\">%"
+"(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ بەڕێوەبەرانی PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2438,8 +2437,8 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr ""
-"تۆ بانگهێشتنامەیەکت ڕەتکردەوە بۆ بەشداریکردن لە ڕێکخراوی "
-"\"%(organization_name)s\"."
+"تۆ بانگهێشتنامەیەکت ڕەتکردەوە بۆ بەشداریکردن لە ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/email/new-email-added/body.html:5
 #, python-format
@@ -2459,9 +2458,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a "
-"href=\"%(href)s\">%(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی PyPI."
+"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a href=\"%(href)s\">%"
+"(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ بەڕێوەبەرانی PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:5
 #, fuzzy, python-format
@@ -2550,9 +2548,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"ئەگەر ئەمە هەڵە بوو، دەتوانیت ئیمەیڵ بۆ <a href=\"mailto:"
-"%(email_address)s\">%(%(email_address)s)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی %(site)s."
+"ئەگەر ئەمە هەڵە بوو، دەتوانیت ئیمەیڵ بۆ <a href=\"mailto:%(email_address)s\">"
+"%(%(email_address)s)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ بەڕێوەبەرانی %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 msgid "You are receiving this because you were an owner of this organization."
@@ -2564,8 +2561,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/email/organization-member-added/body.html:17
 #: warehouse/templates/email/organization-member-invited/body.html:17
@@ -2646,8 +2643,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی "
-"\"%(organization_nmae)s\" لابرا"
+"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی \"%"
+"(organization_nmae)s\" لابرا"
 
 #: warehouse/templates/email/organization-member-removed/body.html:20
 #: warehouse/templates/email/team-collaborator-removed/body.html:20
@@ -2660,8 +2657,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a>ڕۆڵی لە "
-"ڕێکخراوی%(organization_name)sگۆڕدراوە بۆ %(role)s"
+"<a href=\"%(user_profile)s\">%(username)s</a>ڕۆڵی لە ڕێکخراوی%"
+"(organization_name)sگۆڕدراوە بۆ %(role)s"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:17
 msgid "New role"
@@ -2677,8 +2674,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی "
-"\"%(organization_name)s\"."
+"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/email/organization-project-added/body.html:13
 #: warehouse/templates/email/organization-project-removed/body.html:13
@@ -2702,8 +2699,8 @@ msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
-"ناوی ڕێکخراوی %(site)s لە \"%(previous_organization_name)s\" گۆڕدراوە بۆ "
-"\"%(organization_name)s."
+"ناوی ڕێکخراوی %(site)s لە \"%(previous_organization_name)s\" گۆڕدراوە بۆ \"%"
+"(organization_name)s."
 
 #: warehouse/templates/email/organization-updated/body.html:15
 #, fuzzy, python-format
@@ -2895,12 +2892,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"ئێمە خزمەتگوزارییەکی ئاسایشی بێبەرامبەر لە <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> بەکاردەهێنین. لە کاتی "
-"تۆمارکردن، ڕەسەنایەتی، یان نوێکردنەوەی وشەی نهێنی تۆ، ئێمە هاشێکی SHA1 لە "
-"وشەی نهێنی تۆ دروست دەکەین و 5 پیتی یەکەمی هاشەکە بەکاردەهێنین بۆ بڕیاردان "
-"لەسەر ئەوەی کە ئایا وشەی نهێنیەکە تێکچووە یان نا. وشەی نهێنی دەقی سادە "
-"هەرگیز لەلایەن PyPI هەڵناگیرێت یان نانێردرێت بۆ HaveIBeenPwned."
+"ئێمە خزمەتگوزارییەکی ئاسایشی بێبەرامبەر لە <a href=\"%(have_i_been_pwned_url)"
+"s\">HaveIBeenPwned</a> بەکاردەهێنین. لە کاتی تۆمارکردن، ڕەسەنایەتی، یان "
+"نوێکردنەوەی وشەی نهێنی تۆ، ئێمە هاشێکی SHA1 لە وشەی نهێنی تۆ دروست دەکەین و "
+"5 پیتی یەکەمی هاشەکە بەکاردەهێنین بۆ بڕیاردان لەسەر ئەوەی کە ئایا وشەی "
+"نهێنیەکە تێکچووە یان نا. وشەی نهێنی دەقی سادە هەرگیز لەلایەن PyPI هەڵناگیرێت "
+"یان نانێردرێت بۆ HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, python-format
@@ -2919,8 +2916,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"کەسێک، ڕەنگە تۆ، داواکاری ڕێستکردنی وشەی نهێنی بۆ ئەژمێری PyPI "
-"'%(username)s'ت کردووە."
+"کەسێک، ڕەنگە تۆ، داواکاری ڕێستکردنی وشەی نهێنی بۆ ئەژمێری PyPI '%(username)"
+"s'ت کردووە."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -2955,8 +2952,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI account "
 "associated with this email address."
 msgstr ""
-"کەسێک، ڕەنگە تۆ، داواکاری ڕێستکردنی وشەی نهێنی بۆ ئەژمێری PyPI '%"
-"(username)s'ت کردووە."
+"کەسێک، ڕەنگە تۆ، داواکاری ڕێستکردنی وشەی نهێنی بۆ ئەژمێری PyPI '%(username)"
+"s'ت کردووە."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:20
 msgid ""
@@ -2989,8 +2986,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"ئیمەیڵی سەرەکی بۆ ئەژمێری PyPI ی تۆ <strong>%(username)ss</strong> لە "
-"<code>%(old_email)ss</code> گۆڕاوە بۆ <code>%%(new_email)ss</code>"
+"ئیمەیڵی سەرەکی بۆ ئەژمێری PyPI ی تۆ <strong>%(username)ss</strong> لە <code>%"
+"(old_email)ss</code> گۆڕاوە بۆ <code>%%(new_email)ss</code>"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, fuzzy, python-format
@@ -3006,9 +3003,9 @@ msgid ""
 "recovery codes for this account."
 msgstr ""
 "\n"
-"ئێمە تێبینیمان کرد کە تۆ بەم دواییە چوویتە ناو ئەژمێری PyPI ـەکەتەوە "
-"<strong>%(username)s</strong>، کە ڕەسەنایەتی دوو فاکتەری چالاک کراوە، بەڵام "
-"دروستی نەکردووە\n"
+"ئێمە تێبینیمان کرد کە تۆ بەم دواییە چوویتە ناو ئەژمێری PyPI ـەکەتەوە <strong>"
+"%(username)s</strong>، کە ڕەسەنایەتی دوو فاکتەری چالاک کراوە، بەڵام دروستی "
+"نەکردووە\n"
 "کۆدی گەڕانەوە بۆ ئەم ئەکاونتە.\n"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
@@ -3090,8 +3087,8 @@ msgstr "تۆ ئەمە وەردەگریت چونکە ئەندامی ئەم ڕێک
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی "
-"%(site)s لەلایەن %(initiator_username)sەکانەوە."
+"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی %"
+"(site)s لەلایەن %(initiator_username)sەکانەوە."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3142,8 +3139,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی "
-"%(site)s لەلایەن %(initiator_username)sەکانەوە."
+"تۆ وەک <strong>%(role)s</strong> زیاد کراویت بۆ %(project_name)sی پڕۆژەی %"
+"(site)s لەلایەن %(initiator_username)sەکانەوە."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3225,8 +3222,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی "
-"\"%(organization_name)s\"."
+"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3249,8 +3246,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی "
-"\"%(organization_name)s\"."
+"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, fuzzy, python-format
@@ -3276,8 +3273,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی "
-"\"%(organization_nmae)s\" لابرا"
+"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی \"%"
+"(organization_nmae)s\" لابرا"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, fuzzy, python-format
@@ -3498,8 +3495,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
-"کەسێک، ڕەنگە تۆ، ئەم ناونیشانە ئیمەیڵەی زیاد کردووە "
-"(<code>%(email_address)s</code>) بۆ ئەژمێری PyPI ی خۆی."
+"کەسێک، ڕەنگە تۆ، ئەم ناونیشانە ئیمەیڵەی زیاد کردووە (<code>%(email_address)"
+"s</code>) بۆ ئەژمێری PyPI ی خۆی."
 
 #: warehouse/templates/email/verify-email/body.html:8
 #, python-format
@@ -5899,6 +5896,8 @@ msgstr "ناوی پڕۆژەکە دیاری بکە"
 #: warehouse/templates/manage/account/publishing.html:312
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
+"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
@@ -6580,8 +6579,8 @@ msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/manage/organization/application.html:6
 #, fuzzy, python-format
@@ -6714,8 +6713,8 @@ msgstr "بەڕێوەبردنی پرۆژە"
 msgid ""
 "%(previous_organization_name)s organization renamed to %(organization_name)s"
 msgstr ""
-"ناوی ڕێکخراوی %(site)s لە \"%(previous_organization_name)s\" گۆڕدراوە بۆ "
-"\"%(organization_name)s."
+"ناوی ڕێکخراوی %(site)s لە \"%(previous_organization_name)s\" گۆڕدراوە بۆ \"%"
+"(organization_name)s."
 
 #: warehouse/templates/manage/organization/history.html:26
 #, fuzzy, python-format
@@ -6736,8 +6735,8 @@ msgstr "بەڕێوەبردنی پرۆژە"
 #| "\"%(organization_name)s\" organization"
 msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/manage/organization/history.html:36
 #, fuzzy, python-format
@@ -6747,8 +6746,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی "
-"\"%(organization_nmae)s\" لابرا"
+"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی \"%"
+"(organization_nmae)s\" لابرا"
 
 #: warehouse/templates/manage/organization/history.html:42
 #, fuzzy, python-format
@@ -6758,8 +6757,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/manage/organization/history.html:47
 #, fuzzy, python-format
@@ -6769,8 +6768,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی "
-"\"%(organization_nmae)s\" لابرا"
+"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی \"%"
+"(organization_nmae)s\" لابرا"
 
 #: warehouse/templates/manage/organization/history.html:52
 #, fuzzy, python-format
@@ -6780,8 +6779,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/manage/organization/history.html:57
 #, fuzzy, python-format
@@ -6875,8 +6874,8 @@ msgstr ""
 #| "\"%(organization_name)s\" organization"
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە "
-"ڕێکخراوی%(organization_name)sکردووە"
+"<a href=\"%(user_profile)s\">%(username)s</a> پەیوەندی بە ڕێکخراوی%"
+"(organization_name)sکردووە"
 
 #: warehouse/templates/manage/organization/history.html:100
 #: warehouse/templates/manage/team/history.html:43
@@ -6886,8 +6885,8 @@ msgstr ""
 #| "\"%(organization_nmae)s\" organization"
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی "
-"\"%(organization_nmae)s\" لابرا"
+"<a href=\"%(user_profile)s\">%(username)s</a> لە ڕێکخراوی \"%"
+"(organization_nmae)s\" لابرا"
 
 #: warehouse/templates/manage/organization/history.html:106
 #, python-format
@@ -7075,8 +7074,8 @@ msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
 msgstr ""
-"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی "
-"\"%(organization_name)s\"."
+"پرۆژەی %(site)s \"%(project_name)s\" زیاد کراوە بۆ ڕێکخراوی \"%"
+"(organization_name)s\"."
 
 #: warehouse/templates/manage/organization/publishing.html:206
 #: warehouse/templates/manage/project/publishing.html:203
@@ -7416,9 +7415,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"ئەگەر ئەمە هەڵە بوو، دەتوانیت ئیمەیڵ بۆ <a href=\"mailto:"
-"%(email_address)s\">%(%(email_address)s)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی %(site)s."
+"ئەگەر ئەمە هەڵە بوو، دەتوانیت ئیمەیڵ بۆ <a href=\"mailto:%(email_address)s\">"
+"%(%(email_address)s)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ بەڕێوەبەرانی %(site)s."
 
 #: warehouse/templates/manage/organization/settings.html:141
 msgid "Update organization"

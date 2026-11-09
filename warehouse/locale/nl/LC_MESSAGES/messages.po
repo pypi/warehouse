@@ -11,13 +11,18 @@
 # Jos Verlinde <Jos.Verlinde@microsoft.com>, 2023, 2024.
 # Sam Plimmer <sam.g.plimmer@gmail.com>, 2024.
 # linux-rewritten-kernels <feddewestrahotmail@icloud.com>, 2026.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# PH-KDX <ph-kdx@users.noreply.hosted.weblate.org>, 2026.
+# "Robert S." <robert.s@users.noreply.hosted.weblate.org>, 2026.
+# Jos Verlinde <josverl@users.noreply.hosted.weblate.org>, 2026.
+# Ranforingus <ranforingus@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-06-19 16:00+0000\n"
-"Last-Translator: linux-rewritten-kernels <feddewestrahotmail@icloud.com>\n"
+"PO-Revision-Date: 2026-11-09 13:41+0000\n"
+"Last-Translator: Ranforingus <ranforingus@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/>"
 "\n"
 "Language: nl\n"
@@ -25,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -1717,8 +1722,7 @@ msgstr ""
 
 #: warehouse/templates/upload.html:12
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
-"Deze URL is een API-eindpunt voor het uploaden van bestanden naar PyPI."
+msgstr "Deze URL is een API-eindpunt voor het uploaden van bestanden naar PyPI."
 
 #: warehouse/templates/upload.html:14
 #, python-format
@@ -1728,8 +1732,8 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
 "Ga voor meer informatie over het uploaden van projecten naar PyPI naar de <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging-gebruikershandleiding </a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging-gebruikershandleiding </a>"
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -1749,9 +1753,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"Wilt u deze uitnodiging om mee te doen aan '<a "
-"href=\"%(project_link)s\">%(project_name)s</a>' als een project "
-"%(role_name)s accepteren?"
+"Wilt u deze uitnodiging om mee te doen aan '<a href=\"%(project_link)s\">%"
+"(project_name)s</a>' als een project %(role_name)s accepteren?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
@@ -1932,8 +1935,8 @@ msgid ""
 "code>)."
 msgstr ""
 "Herstelcodes zijn hexadecimale tekenreeksen van 16 tekens bestaande uit "
-"kleine letters <code>a-z </code>en cijfers <code>0-9</code> (bijv. "
-"<code>badc0ffee0ddf00d</code>)."
+"kleine letters <code>a-z </code>en cijfers <code>0-9</code> (bijv. <code>"
+"badc0ffee0ddf00d</code>)."
 
 #: warehouse/templates/accounts/recovery-code.html:50
 #: warehouse/templates/accounts/two-factor.html:102
@@ -2088,8 +2091,8 @@ msgid ""
 "password\">FAQ</a> for more information."
 msgstr ""
 "Dit wachtwoord is in een datalek verschenen of is gecompromitteerd en kan "
-"niet worden gebruikt. Raadpleeg de <a href=\"/help/#compromised-"
-"password\">vaak-gestelde vragen</a> voor meer informatie."
+"niet worden gebruikt. Raadpleeg de <a href=\"/help/#compromised-password\">"
+"vaak-gestelde vragen</a> voor meer informatie."
 
 #: warehouse/templates/accounts/register.html:214
 msgid "Create account"
@@ -2182,9 +2185,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Upgrade je browser</a> om in te loggen met een "
-"beveiligingsapparaat (bijv. USB-sleutel)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Upgrade je browser</a> om in te loggen met een beveiligingsapparaat "
+"(bijv. USB-sleutel)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2274,9 +2277,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Indien u deze wijziging niet hebt aangebracht, kunt u <a "
-"href=\"%(href)s\">%(email_address)s</a> een e-mail sturen om met de PyPI-"
-"beheerders te communiceren."
+"Indien u deze wijziging niet hebt aangebracht, kunt u <a href=\"%(href)s\">%"
+"(email_address)s</a> een e-mail sturen om met de PyPI-beheerders te "
+"communiceren."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2332,8 +2335,8 @@ msgid ""
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "U bent als <strong>\"%(role)s\"</strong> toegevoegd aan de %(site)s "
-"organisatie %(organization_name)s door <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"organisatie %(organization_name)s door <a href=\"%(submitter_profile)s\">%"
+"(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2376,8 +2379,8 @@ msgid ""
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "U bent als <strong>\"%(role)s\"</strong> toegevoegd aan de %(site)s "
-"organisatie %(organization_name)s door <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"organisatie %(organization_name)s door <a href=\"%(submitter_profile)s\">%"
+"(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2416,9 +2419,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Indien u deze wijziging niet hebt aangebracht, kunt u <a "
-"href=\"%(href)s\">%(email_address)s</a> een e-mail sturen om met de PyPI-"
-"beheerders te communiceren."
+"Indien u deze wijziging niet hebt aangebracht, kunt u <a href=\"%(href)s\">%"
+"(email_address)s</a> een e-mail sturen om met de PyPI-beheerders te "
+"communiceren."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, fuzzy, python-format
@@ -2475,9 +2478,9 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Indien u deze wijziging niet hebt aangebracht, kunt u <a "
-"href=\"%(href)s\">%(email_address)s</a> een e-mail sturen om met de PyPI-"
-"beheerders te communiceren."
+"Indien u deze wijziging niet hebt aangebracht, kunt u <a href=\"%(href)s\">%"
+"(email_address)s</a> een e-mail sturen om met de PyPI-beheerders te "
+"communiceren."
 
 #: warehouse/templates/email/new-organization-approved/body.html:5
 #, fuzzy, python-format
@@ -2537,8 +2540,8 @@ msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
-"Uw aanvraag voor een nieuwe PyPI-organisatie met de naam "
-"\"%(organization_name)s\" is ingediend."
+"Uw aanvraag voor een nieuwe PyPI-organisatie met de naam \"%"
+"(organization_name)s\" is ingediend."
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
 #: warehouse/templates/manage/organization/application.html:30
@@ -2580,9 +2583,9 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Indien u deze wijziging niet hebt aangebracht, kunt u <a "
-"href=\"%(href)s\">%(email_address)s</a> een e-mail sturen om met de PyPI-"
-"beheerders te communiceren."
+"Indien u deze wijziging niet hebt aangebracht, kunt u <a href=\"%(href)s\">%"
+"(email_address)s</a> een e-mail sturen om met de PyPI-beheerders te "
+"communiceren."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -2801,8 +2804,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Iemand, misschien u, heeft het wachtwoord voor uw PyPI-account "
-"<strong>%(username)s</strong> gewijzigd."
+"Iemand, misschien u, heeft het wachtwoord voor uw PyPI-account <strong>%"
+"(username)s</strong> gewijzigd."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -2888,11 +2891,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Om weer toegang te krijgen tot uw account, <a "
-"href=\"%(reset_pw_url)s\">stelt u uw wachtwoord opnieuw in</a> op PyPI. We "
-"raden u ook aan naar <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</"
-"a> te gaan en uw andere wachtwoorden te controleren en uzelf vertrouwd te "
-"maken met goede wachtwoordpraktijken."
+"Om weer toegang te krijgen tot uw account, <a href=\"%(reset_pw_url)s\">"
+"stelt u uw wachtwoord opnieuw in</a> op PyPI. We raden u ook aan naar <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> te gaan en uw andere "
+"wachtwoorden te controleren en uzelf vertrouwd te maken met goede "
+"wachtwoordpraktijken."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -2908,8 +2911,8 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"We gebruiken een gratis beveiligingsservice van <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Bij het registreren, "
+"We gebruiken een gratis beveiligingsservice van <a href=\"%"
+"(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Bij het registreren, "
 "verifiëren of bijwerken van uw wachtwoord, genereren we een SHA1-hash van uw "
 "wachtwoord en gebruiken we de eerste 5 tekens van de hash om te bepalen of "
 "het wachtwoord is gecompromitteerd. Het leesbare wachtwoord wordt nooit door "
@@ -2956,8 +2959,7 @@ msgstr[1] "Deze link verloopt over %(n_hours)s uur."
 #: warehouse/templates/email/password-reset/body.html:15
 #: warehouse/templates/email/verify-email/body.html:15
 msgid "If you did not make this request, you can safely ignore this email."
-msgstr ""
-"Als u dit verzoek niet heeft gedaan, kunt u deze e-mail gerust negeren."
+msgstr "Als u dit verzoek niet heeft gedaan, kunt u deze e-mail gerust negeren."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:17
 #, fuzzy
@@ -3019,9 +3021,9 @@ msgid ""
 "recovery codes for this account."
 msgstr ""
 "\n"
-"We hebben gemerkt dat u onlangs bent ingelogd op uw PyPI-account "
-"<strong>%(username)s</strong>, waarvoor tweefactorauthenticatie is "
-"ingeschakeld, maar dat u geen\n"
+"We hebben gemerkt dat u onlangs bent ingelogd op uw PyPI-account <strong>%"
+"(username)s</strong>, waarvoor tweefactorauthenticatie is ingeschakeld, maar "
+"dat u geen\n"
 "herstelcodes gegenereerd hebt voor dit account.\n"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
@@ -3293,8 +3295,8 @@ msgid ""
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "U bent als <strong>\"%(role)s\"</strong> toegevoegd aan de %(site)s "
-"organisatie %(organization_name)s door <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"organisatie %(organization_name)s door <a href=\"%(submitter_profile)s\">%"
+"(submitter)s</a>."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3308,8 +3310,8 @@ msgid ""
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "U bent als <strong>\"%(role)s\"</strong> toegevoegd aan de %(site)s "
-"organisatie %(organization_name)s door <a "
-"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"organisatie %(organization_name)s door <a href=\"%(submitter_profile)s\">%"
+"(submitter)s</a>."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, python-format
@@ -3551,8 +3553,7 @@ msgstr ""
 #, fuzzy
 #| msgid "If you did not make this request, you can safely ignore this email."
 msgid "Otherwise, you can safely ignore this email."
-msgstr ""
-"Als u dit verzoek niet heeft gedaan, kunt u deze e-mail gerust negeren."
+msgstr "Als u dit verzoek niet heeft gedaan, kunt u deze e-mail gerust negeren."
 
 #: warehouse/templates/email/verify-organization-role/body.html:11
 #, fuzzy, python-format
@@ -4784,9 +4785,8 @@ msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 "\n"
-"      Wilt u deze uitnodiging om mee te doen aan '<a "
-"href=\"%(project_link)s\">%(project_name)s</a>' als een project "
-"%(role_name)s accepteren?\n"
+"      Wilt u deze uitnodiging om mee te doen aan '<a href=\"%(project_link)"
+"s\">%(project_name)s</a>' als een project %(role_name)s accepteren?\n"
 "      "
 
 #: warehouse/templates/manage/account.html:906
@@ -5904,6 +5904,8 @@ msgstr "Geef projectnaam op"
 #: warehouse/templates/manage/account/publishing.html:312
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
+"Uw verzoek om een nieuwe organisatie met de naam \"%(organization_name)s\" "
+"te maken, is niet goedgekeurd."
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
@@ -6997,8 +6999,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Ga voor meer informatie over het uploaden van projecten naar PyPI naar de <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging-gebruikershandleiding </a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging-gebruikershandleiding </a>"
 
 #: warehouse/templates/manage/organization/projects.html:88
 #, fuzzy
@@ -7431,9 +7433,9 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Indien u deze wijziging niet hebt aangebracht, kunt u <a "
-"href=\"%(href)s\">%(email_address)s</a> een e-mail sturen om met de PyPI-"
-"beheerders te communiceren."
+"Indien u deze wijziging niet hebt aangebracht, kunt u <a href=\"%(href)s\">%"
+"(email_address)s</a> een e-mail sturen om met de PyPI-beheerders te "
+"communiceren."
 
 #: warehouse/templates/manage/organization/settings.html:141
 #, fuzzy
@@ -7804,9 +7806,8 @@ msgid ""
 "project %(role_name)s"
 msgstr ""
 "\n"
-"      Wilt u deze uitnodiging om mee te doen aan '<a "
-"href=\"%(project_link)s\">%(project_name)s</a>' als een project "
-"%(role_name)s accepteren?\n"
+"      Wilt u deze uitnodiging om mee te doen aan '<a href=\"%(project_link)"
+"s\">%(project_name)s</a>' als een project %(role_name)s accepteren?\n"
 "      "
 
 #: warehouse/templates/manage/project/history.html:160
@@ -10376,8 +10377,8 @@ msgid ""
 "rel=\"noopener\">file an issue</a> with details."
 msgstr ""
 "Ga voor meer informatie over het uploaden van projecten naar PyPI naar de <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging-gebruikershandleiding </a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging-gebruikershandleiding </a>"
 
 #: warehouse/templates/pages/help.html:1079
 msgid ""
@@ -10806,8 +10807,8 @@ msgid ""
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 "Ga voor meer informatie over het uploaden van projecten naar PyPI naar de <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging-gebruikershandleiding </a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging-gebruikershandleiding </a>"
 
 #: warehouse/templates/pages/help.html:1414
 #, python-format
