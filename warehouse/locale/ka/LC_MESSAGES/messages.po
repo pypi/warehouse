@@ -2,13 +2,14 @@
 # NODARman <tcheishvilinm@gmail.com>, 2022.
 # Temuri Doghonadze <temuri.doghonadze@gmail.com>, 2023, 2025.
 # luka metreveli <lukametr@gmail.com>, 2024.
+# luka metreveli <lukametr@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2021-08-15 14:00+0200\n"
-"PO-Revision-Date: 2025-02-10 06:26+0000\n"
-"Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:46+0000\n"
+"Last-Translator: luka metreveli <lukametr@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Georgian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ka/>\n"
 "Language: ka\n"
@@ -16,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: warehouse/views.py:149
 msgid ""
@@ -101,8 +102,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"დაფიქსირდა გადაჭარბებული შესვლის მცდელობა. თვენ შეგეზღუდათ წვდომა ${time} "
-"-მდე. სცადეთ მოგვიანებით."
+"დაფიქსირდა გადაჭარბებული შესვლის მცდელობა. თვენ შეგეზღუდათ წვდომა ${time} -"
+"მდე. სცადეთ მოგვიანებით."
 
 #: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."

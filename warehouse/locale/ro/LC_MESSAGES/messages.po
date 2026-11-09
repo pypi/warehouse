@@ -8,13 +8,15 @@
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2021, 2022.
 # alsev2022 <alsev2022@gmail.com>, 2025.
 # "roundabout-host.com" <vlad.muntoiu@gmail.com>, 2025.
+# Lucian-Mihai Cosovanu <lucian.mihai.cosovanu@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-08-19 20:29+0000\n"
-"Last-Translator: \"roundabout-host.com\" <vlad.muntoiu@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:43+0000\n"
+"Last-Translator: Lucian-Mihai Cosovanu "
+"<lucian.mihai.cosovanu@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ro/>\n"
 "Language: ro\n"
@@ -23,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -222,8 +224,7 @@ msgstr "Aserțiune WebAuthn cu succes"
 
 #: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:835
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
-"Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
+msgstr "Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
 
 #: warehouse/accounts/views.py:662
 msgid ""

@@ -26,13 +26,21 @@
 # Code-Wizaard <aidinrahbaran.music@gmail.com>, 2025.
 # nikou <rezankf@chmail.ir>, 2025.
 # Kamrani <kamrani.exe@gmail.com>, 2026.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Sebghatullah Yusuf <sebghatyusuf@users.noreply.hosted.weblate.org>, 2026.
+# "P. adalat" <prsazzzz88@users.noreply.hosted.weblate.org>, 2026.
+# javad noori <cpuamdintel@users.noreply.hosted.weblate.org>, 2026.
+# Code-Wizaard <code-wizaard@users.noreply.hosted.weblate.org>, 2026.
+# محمد پارسا مرتضوی <mohammadparsa9053@users.noreply.hosted.weblate.org>, 2026.
+# arshia farshad <nooneisme02@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-08-02 04:55+0000\n"
-"Last-Translator: Kamrani <kamrani.exe@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:44+0000\n"
+"Last-Translator: arshia farshad "
+"<nooneisme02@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -40,7 +48,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -129,8 +137,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. حساب ‬‬‫‪‫‏‎‍‌شما برای "
-"مقدار زمان {time}$ قفل شده است. لطفا بعدا تلاش کنید."
+"تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. حساب ‬‬‫‪‫‏‎‍‌شما برای مقدار "
+"زمان {time}$ قفل شده است. لطفا بعدا تلاش کنید."
 
 #: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."
@@ -156,8 +164,7 @@ msgstr ""
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr ""
-"این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
+msgstr "این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
 
 #: warehouse/accounts/forms.py:304
 msgid ""
@@ -427,8 +434,7 @@ msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
-"تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. لطفا بعدا تلاش "
-"کنید."
+"تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. لطفا بعدا تلاش کنید."
 
 #: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
 #: warehouse/manage/views/__init__.py:1374
@@ -579,8 +585,7 @@ msgstr ""
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
-msgstr ""
-"توضیحات خیلی طولانی است. یک توضیحات با 400 کاراکتر یا کمتر انتخاب کنید."
+msgstr "توضیحات خیلی طولانی است. یک توضیحات با 400 کاراکتر یا کمتر انتخاب کنید."
 
 #: warehouse/manage/forms.py:737
 msgid "You have already submitted the maximum number of "
@@ -847,12 +852,14 @@ msgstr ""
 
 #: warehouse/manage/views/organizations.py:1151
 #: warehouse/manage/views/organizations.py:1193
+#, fuzzy
 msgid "Could not find organization invitation."
-msgstr "دعوتنامه سازمان پیدا نشد."
+msgstr "دعوتنامه نقش پیدا نشد."
 
 #: warehouse/manage/views/organizations.py:1161
+#, fuzzy
 msgid "Organization invitation could not be re-sent."
-msgstr "دعوت نامه سازمان نمیتواند باز-ارسال شود."
+msgstr "دعوت نامه دیگر وجود ندارد."
 
 #: warehouse/manage/views/organizations.py:1209
 #, python-brace-format
@@ -1838,10 +1845,10 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\"%"
+"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -1868,9 +1875,8 @@ msgid ""
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a "
-"href=\"%(project_link)s\"> %(project_name)s </a>\" به عنوان یک پروژه "
-"%(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)"
+"s\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
@@ -1954,9 +1960,8 @@ msgid ""
 "an organization %(role_name)s?"
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a "
-"href=\"%(project_link)s\"> %(project_name)s </a>\" به عنوان یک پروژه "
-"%(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)"
+"s\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -2265,8 +2270,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در "
-"%(n_hours)s ساعت دیگر منقضی می شود."
+"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در %(n_hours)"
+"s ساعت دیگر منقضی می شود."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2296,8 +2301,7 @@ msgstr "تصدیق هویت با یک دستگاه امنیتی (مانند کل
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
-"دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
+msgstr "دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
 
 #: warehouse/templates/accounts/two-factor.html:24
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
@@ -2314,10 +2318,10 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> "
-"مرورگر خود را ارتقا دهید </a> تا با یک دستگاه امنیتی وارد سیستم شوید (به "
-"عنوان مثال کلید USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> مرورگر خود را "
+"ارتقا دهید </a> تا با یک دستگاه امنیتی وارد سیستم شوید (به عنوان مثال کلید "
+"USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2436,8 +2440,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2449,8 +2453,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
-"%(site)s اضافه شده اید."
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در %"
+"(site)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, fuzzy, python-format
@@ -2462,8 +2466,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2485,8 +2489,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2497,8 +2501,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
-"%(site)s اضافه شده اید."
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در %"
+"(site)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2510,8 +2514,8 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2913,8 +2917,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است "
-"<strong>%(username)s</strong>."
+"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -2983,8 +2987,7 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with "
 "the PyPI administrators."
 msgstr ""
-"برای اطلاعات بیشتر ، می توانید با ایمیل %(email_address)s ارتباط برقرار "
-"کنید\n"
+"برای اطلاعات بیشتر ، می توانید با ایمیل %(email_address)s ارتباط برقرار کنید\n"
 "  مدیران PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:6
@@ -3036,9 +3039,9 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "برای دسترسی مجدد به حساب خود ، <a href=\"%(reset_pw_url)s\"> گذرواژه خود را "
-"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a "
-"href=\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه "
-"های خود را بررسی کنید و خود را با شیوه های رمز عبور خوب آشنا کنید."
+"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a href=\"%"
+"(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه های خود "
+"را بررسی کنید و خود را با شیوه های رمز عبور خوب آشنا کنید."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3068,8 +3071,8 @@ msgid ""
 "with the PyPI administrators."
 msgstr ""
 "برای اطلاعات بیشتر ، به <a href=\"%(faq_url)s\"> س FAالات متداول </a> ما "
-"مراجعه کنید. برای کمک ، می توانید با <a href=\"%(email_href)s\"> "
-"%(email_address)s </a> از طریق ایمیل با مدیران PyPI ارتباط برقرار کنید."
+"مراجعه کنید. برای کمک ، می توانید با <a href=\"%(email_href)s\"> %"
+"(email_address)s </a> از طریق ایمیل با مدیران PyPI ارتباط برقرار کنید."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3077,8 +3080,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما "
-"\"%(username)s\" ایجاد کرده است."
+"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما \"%"
+"(username)s\" ایجاد کرده است."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3155,8 +3158,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"ایمیل اصلی برای حساب PyPI شما <strong> %(username)s </strong> از <code> "
-"%(old_email)s </code> تغییر یافته است.به <code> %(new_email)s </code>"
+"ایمیل اصلی برای حساب PyPI شما <strong> %(username)s </strong> از <code> %"
+"(old_email)s </code> تغییر یافته است.به <code> %(new_email)s </code>"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -3230,8 +3233,8 @@ msgstr ""
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3242,8 +3245,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
-"%(site)s اضافه شده اید."
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در %"
+"(site)s اضافه شده اید."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3272,8 +3275,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3284,8 +3287,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3316,8 +3319,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
-"%(site)s اضافه شده اید."
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در %"
+"(site)s اضافه شده اید."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
@@ -3408,8 +3411,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3421,8 +3424,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
-"%(site)s پروژه %(project_name)s اضافه شده اید."
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به %"
+"(site)s پروژه %(project_name)s اضافه شده اید."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, python-format
@@ -4298,8 +4301,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a "
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
-"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a "
-"href=\"%(href)s\">حساب کاربری عمومی</a> کاربران وارده شده."
+"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a href=\"%(href)"
+"s\">حساب کاربری عمومی</a> کاربران وارده شده."
 
 #: warehouse/templates/manage/account.html:328
 msgid "Update account"
@@ -4318,10 +4321,9 @@ msgid ""
 "your <span class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
 "می توانید چندین ایمیل را با حساب خود مرتبط کنید. شما می توانید از هر <span "
-"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
-"hidden=\"true\"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده "
-"کنید ، اما فقط <span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می "
-"کند."
+"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\">"
+"</i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
+"<span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می کند."
 
 #: warehouse/templates/manage/account.html:347
 #: warehouse/templates/manage/unverified-account.html:255
@@ -4573,8 +4575,7 @@ msgstr "هیچ"
 #: warehouse/templates/manage/manage_base.html:84
 #: warehouse/templates/manage/unverified-account.html:333
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
+msgstr "دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
 
 #: warehouse/templates/manage/account.html:697
 #: warehouse/templates/manage/manage_base.html:58
@@ -4757,8 +4758,7 @@ msgstr "تأیید دو عاملی اضافه شد"
 #: warehouse/templates/manage/unverified-account.html:448
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
+msgstr "(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
 
 #: warehouse/templates/manage/account.html:804
 #: warehouse/templates/manage/account.html:816
@@ -4894,9 +4894,8 @@ msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a "
-"href=\"%(project_link)s\"> %(project_name)s </a>\" به عنوان یک پروژه "
-"%(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)"
+"s\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/manage/account.html:906
@@ -5846,10 +5845,9 @@ msgid ""
 "address to activate your account."
 msgstr ""
 "می توانید چندین ایمیل را با حساب خود مرتبط کنید. شما می توانید از هر <span "
-"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
-"hidden=\"true\"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده "
-"کنید ، اما فقط <span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می "
-"کند."
+"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\">"
+"</i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
+"<span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می کند."
 
 #: warehouse/templates/manage/unverified-account.html:268
 #, fuzzy
@@ -7913,9 +7911,8 @@ msgid ""
 "project %(role_name)s"
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a "
-"href=\"%(project_link)s\"> %(project_name)s </a>\" به عنوان یک پروژه "
-"%(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)"
+"s\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/manage/project/history.html:160
@@ -10536,10 +10533,10 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">file an issue</a> with details."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\"%"
+"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/pages/help.html:1079
 msgid ""
@@ -10976,10 +10973,10 @@ msgid ""
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\"%"
+"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/pages/help.html:1414
 #, fuzzy, python-format

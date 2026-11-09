@@ -9,21 +9,26 @@
 # Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>, 2023, 2025.
 # Pongsathorn Sraouthai <pongsathorns@gmail.com>, 2024.
 # Sira Pornsiriprasert <code@psira.me>, 2024.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Yothin Muangsommuk <m@users.noreply.hosted.weblate.org>, 2026.
+# Pongsathorn Sraouthai <pongsathorns@users.noreply.hosted.weblate.org>, 2026.
+# Nattawatt Hongthong <realnattawatthongthong@users.noreply.hosted.weblate.org>, 2026.
+# altinat <alt@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-12-10 14:52+0000\n"
-"Last-Translator: Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
-">\n"
+"PO-Revision-Date: 2026-11-09 13:42+0000\n"
+"Last-Translator: altinat <alt@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/>"
+"\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -56,9 +61,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ชื่อผู้ใช้งานไม่ถูกต้อง โดยชื่อผู้ใช้งานต้องประกอบด้วยตัวอักษร, ตัวเลข, จุดทศนิยม, "
-"เครื่องหมายขีดกลางหรือขีดล่างและต้องเริ่มและจบด้วยตัวอักษรหรือตัวเลขเท่านั้น "
-"กรุณาเลือกชื่อผู้ใช้งานใหม่"
+"ชื่อผู้ใช้งานไม่ถูกต้อง โดยชื่อผู้ใช้งานต้องประกอบด้วยตัวอักษร, ตัวเลข, จุดทศนิยม, เครื่องหมายขีดกลา"
+"งหรือขีดล่างและต้องเริ่มและจบด้วยตัวอักษรหรือตัวเลขเท่านั้น กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
 #: warehouse/accounts/forms.py:62
 msgid "Null bytes are not allowed."
@@ -84,7 +88,8 @@ msgstr "กรุณาระบุชื่อผู้ใช้งานด้
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
+msgstr ""
+"ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
 #: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
 #: warehouse/accounts/forms.py:230
@@ -95,7 +100,8 @@ msgstr "รหัสผ่านยาวเกินไป"
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time} นาที"
+msgstr ""
+"มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time} นาที"
 
 #: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."
@@ -172,8 +178,8 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: $"
 "{ip})"
 msgstr ""
-"มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ต้องตรวจสอบ "
-"ตรวจสอบกล่องจดหมายของคุณและทําตามลิงก์ยืนยัน （(IP: ${ip})"
+"มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ต้องตรวจสอบ ตรวจสอบกล่องจดหมายของคุณและทําตามลิงก์ยืนยั"
+"น （(IP: ${ip})"
 
 #: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
@@ -364,7 +370,8 @@ msgstr "คุณไม่สามารถลงทะเบียนผู้
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr "มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
+msgstr ""
+"มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
 
 #: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
 #: warehouse/manage/views/__init__.py:1374
@@ -428,8 +435,8 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ชื่อบัญชีองค์กรไม่ถูกต้อง ชื่อบัญชีองค์กรต้องประกอบด้วยตัวอักษร ตัวเลข จุด ขีดกลาง และขีดล่าง "
-"และต้องขึ้นต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขด้วย เลือกชื่อบัญชีองค์กรอื่น"
+"ชื่อบัญชีองค์กรไม่ถูกต้อง ชื่อบัญชีองค์กรต้องประกอบด้วยตัวอักษร ตัวเลข จุด ขีดกลาง และขีดล่าง และต้อ"
+"งขึ้นต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขด้วย เลือกชื่อบัญชีองค์กรอื่น"
 
 #: warehouse/manage/forms.py:490
 msgid ""
@@ -458,7 +465,8 @@ msgstr "กำหนดชื่อโปรเจค"
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
-msgstr "เริ่มต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขที่มีเฉพาะอักษร ASCII และ '.', '_' และ '-'"
+msgstr ""
+"เริ่มต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขที่มีเฉพาะอักษร ASCII และ '.', '_' และ '-'"
 
 #: warehouse/manage/forms.py:556
 msgid ""
@@ -523,7 +531,8 @@ msgstr "รายละเอียดบัญชีถูกอัปเดต
 
 #: warehouse/manage/views/__init__.py:232
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr "เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
+msgstr ""
+"เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
 
 #: warehouse/manage/views/__init__.py:783
 msgid "Recovery codes already generated"
@@ -1031,8 +1040,8 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p> เราประสบปัญหาทางเทคนิคที่มีผลต่อความสามารถของเราในการให้บริการเว็บไซต์นี้ </p> <p> "
-"ทางทีมงานได้รับทราบถึงปัญหาและกำลังทำงานเพื่อแก้ไขโดยเร็วที่สุดเท่าที่เป็นไปได้ </p>"
+"<p> เราประสบปัญหาทางเทคนิคที่มีผลต่อความสามารถของเราในการให้บริการเว็บไซต์นี้ </p> <p> ทา"
+"งทีมงานได้รับทราบถึงปัญหาและกำลังทำงานเพื่อแก้ไขโดยเร็วที่สุดเท่าที่เป็นไปได้ </p>"
 
 #: warehouse/templates/500.html:20
 msgid "Check our status page"
@@ -1063,16 +1072,16 @@ msgid ""
 msgstr ""
 "พิจารณา <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
 "rel=\"noopener\"> ช่วยเหลือ </a> หรือ <a href = \"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13 target =\" _ blank \"rel =\" noopener \"> "
-"บริจาค </a> เพื่อช่วยเราสร้างแพลตฟอร์มที่มั่นคงและปลอดภัยยิ่งขึ้น"
+"contribute/transact?reset=1&id=13 target =\" _ blank \"rel =\" noopener \"> บ"
+"ริจาค </a> เพื่อช่วยเราสร้างแพลตฟอร์มที่มั่นคงและปลอดภัยยิ่งขึ้น"
 
 #: warehouse/templates/base.html:13
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"เลือกรหัสผ่านที่รัดกุมซึ่งประกอบด้วยตัวอักษร (ตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก) ตัวเลขและอักขระพิเศษ "
-"หลีกเลี่ยงคำทั่วไปหรือการทำซ้ำ"
+"เลือกรหัสผ่านที่รัดกุมซึ่งประกอบด้วยตัวอักษร (ตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก) ตัวเลขและอักขระพิเศษ หลีกเ"
+"ลี่ยงคำทั่วไปหรือการทำซ้ำ"
 
 #: warehouse/templates/base.html:16
 msgid "Password strength:"

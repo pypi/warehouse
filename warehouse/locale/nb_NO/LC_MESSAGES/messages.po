@@ -4,21 +4,24 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019, 2020, 2021, 2022.
 # Robert <rha006@gmail.com>, 2023, 2024.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Allan Nordhøy <kingu@users.noreply.hosted.weblate.org>, 2026.
+# Robert <ticknick@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-03-07 01:23+0000\n"
-"Last-Translator: Robert <rha006@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:37+0000\n"
+"Last-Translator: Robert <ticknick@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/pypa/"
-"warehouse/nb_NO/>\n"
+"warehouse/nb/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -73,8 +76,7 @@ msgstr "TOTP-kode må være ${totp_length} siffer langt."
 
 #: warehouse/accounts/forms.py:122
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
-"Gjenopprettnings koden må være ${recovery_code_length} bokstaver langt."
+msgstr "Gjenopprettnings koden må være ${recovery_code_length} bokstaver langt."
 
 #: warehouse/accounts/forms.py:137
 msgid "Choose a username with 50 characters or less."
@@ -236,8 +238,7 @@ msgstr "Ugyldig symbol: bruker ikke funnet"
 
 #: warehouse/accounts/views.py:834
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
-"Ugyldig token: brukeren har logget på siden dette tokenet ble forespurt"
+msgstr "Ugyldig token: brukeren har logget på siden dette tokenet ble forespurt"
 
 #: warehouse/accounts/views.py:852
 msgid ""
@@ -296,15 +297,15 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1069
 msgid "Expired token: request a new email verification link"
-msgstr "Utløpt token: be om en ny e-postbekreftelseslenke"
+msgstr ""
 
 #: warehouse/accounts/views.py:1071
 msgid "Invalid token: request a new email verification link"
-msgstr "Ugyldig token: be om en ny e-postbekreftelseslenke"
+msgstr ""
 
 #: warehouse/accounts/views.py:1077
 msgid "Invalid token: not an email verification token"
-msgstr "Ugyldig token: ikke et e-postbekreftelsestoken"
+msgstr ""
 
 #: warehouse/accounts/views.py:1086
 msgid "Email not found"
@@ -426,8 +427,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1606
 msgid "You can't register more than 3 pending trusted publishers at once."
-msgstr ""
-"Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
+msgstr "Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
 
 #: warehouse/accounts/views.py:1622 warehouse/manage/views/__init__.py:1247
 #: warehouse/manage/views/__init__.py:1360
@@ -761,33 +761,30 @@ msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2555
-#, fuzzy
 msgid "Could not un-yank release - "
-msgstr "Kunne ikke ta tilbake utgivelsen - "
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:1789
-#, fuzzy
 msgid "Could not delete release - "
-msgstr "Kunne ikke slette utgivelsen - "
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:1888
 msgid "Could not find file"
-msgstr "Fant ikke filen"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:1893
-#, fuzzy
 msgid "Could not delete file - "
-msgstr "Kunne ikke slette filen - "
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2043
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "Teamet '${team_name}' har allerede rollen ${role_name} for prosjektet"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2150
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr "Brukeren '${username}' har allerede rollen ${role_name} for prosjektet"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2217
 #, fuzzy, python-brace-format
@@ -1323,9 +1320,9 @@ msgid ""
 "and services associated with pypi.org. Any other use by any other party is "
 "prohibited."
 msgstr ""
-"<strong>Kvartalsvis</strong> takketvitring fra <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python-"
-"programvarestiftelsen</a>"
+"<strong>Kvartalsvis</strong> takketvitring fra <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python-programvarestiftelsen</"
+"a>"
 
 #: warehouse/templates/base.html:93
 #, fuzzy, python-format
@@ -1338,9 +1335,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"<strong>Kvartalsvis</strong> takketvitring fra <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python-"
-"programvarestiftelsen</a>"
+"<strong>Kvartalsvis</strong> takketvitring fra <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python-programvarestiftelsen</"
+"a>"
 
 #: warehouse/templates/base.html:120 warehouse/templates/index.html:93
 msgid ""
@@ -2263,9 +2260,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Oppgrader nettleseren din</a> for å logge inn med en "
-"sikkerhetsenhet (f.eks. USB-nøkkel)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Oppgrader nettleseren din</a> for å logge inn med en sikkerhetsenhet "
+"(f.eks. USB-nøkkel)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2323,8 +2320,8 @@ msgid ""
 "<strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har lagt til en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/account-association-added/body.html:8
 #: warehouse/templates/email/account-association-removed/body.html:8
@@ -2353,8 +2350,8 @@ msgid ""
 "<strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har fjernet en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, fuzzy, python-format
@@ -2372,8 +2369,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2398,8 +2395,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2417,8 +2414,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2442,8 +2439,8 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2477,9 +2474,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Hvis dette skjedde i villrede, kan du sende en e-post til <a "
-"href=\"%(href)s\">%(email_address)s</a> for å kommunisere med PyPI-"
-"administratorene."
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2518,9 +2514,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Hvis dette skjedde i villrede, kan du sende en e-post til <a "
-"href=\"%(href)s\">%(email_address)s</a> for å kommunisere med PyPI-"
-"administratorene."
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/email/new-organization-approved/body.html:5
 #, python-format
@@ -2587,9 +2582,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Hvis dette skjedde i villrede, kan du sende en e-post til <a "
-"href=\"%(href)s\">%(email_address)s</a> for å kommunisere med PyPI-"
-"administratorene."
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -2789,8 +2783,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Noen, kanskje deg, har endret passordet på din PyPI-konto "
-"<strong>%(username)s</strong>."
+"Noen, kanskje deg, har endret passordet på din PyPI-konto <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -2835,9 +2829,8 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with "
 "the PyPI administrators."
 msgstr ""
-"Hvis dette skjedde i villrede, kan du sende en e-post til <a "
-"href=\"%(href)s\">%(email_address)s</a> for å kommunisere med PyPI-"
-"administratorene."
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:6
 msgid ""
@@ -2893,8 +2886,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"Noen, kanskje deg, har utført en passordsforespørsel for din PyPI-konto "
-"\"%(username)s\"."
+"Noen, kanskje deg, har utført en passordsforespørsel for din PyPI-konto \"%"
+"(username)s\"."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3025,8 +3018,8 @@ msgstr "Du mottar dette fordi du eier prosjektet."
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3063,8 +3056,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3075,8 +3068,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3189,8 +3182,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3202,8 +3195,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet "
-"%(project_name)s av %(initiator_username)s."
+"Du har blitt lagt til som <strong>%(role)s</strong> i %(site)s prosjektet %"
+"(project_name)s av %(initiator_username)s."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, python-format
@@ -3350,8 +3343,8 @@ msgid ""
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har lagt til en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:5
 #, fuzzy, python-format
@@ -3363,8 +3356,8 @@ msgid ""
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har fjernet en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>%(username)"
+"s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:5
 #, python-format
@@ -6854,9 +6847,9 @@ msgid ""
 "how to create a new project, visit the <a href=\"%(href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python-"
-"programvarestiftelsen</a>"
+"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python-programvarestiftelsen</"
+"a>"
 
 #: warehouse/templates/manage/organization/projects.html:88
 #, fuzzy
@@ -6981,8 +6974,7 @@ msgstr "Fjern %(user)s fra dette prosjektet"
 #, fuzzy
 #| msgid "You can't register more than 3 pending trusted publishers at once."
 msgid "You must be an organization owner to manage trusted publishers."
-msgstr ""
-"Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
+msgstr "Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
 
 #: warehouse/templates/manage/organization/roles.html:5
 #, fuzzy, python-format
@@ -7282,9 +7274,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Hvis dette skjedde i villrede, kan du sende en e-post til <a "
-"href=\"%(href)s\">%(email_address)s</a> for å kommunisere med PyPI-"
-"administratorene."
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/manage/organization/settings.html:141
 #, fuzzy
@@ -9122,9 +9113,9 @@ msgid ""
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
-"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python-"
-"programvarestiftelsen</a>"
+"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python-programvarestiftelsen</"
+"a>"
 
 #: warehouse/templates/pages/help.html:17
 #, python-format
@@ -10022,9 +10013,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">download usage "
 "statistics</a> via our public dataset on Google BigQuery."
 msgstr ""
-"Du kan analysere PyPI-prosjektet/pakkedata og <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">nedlastinsstatistikk</"
-"a> via det offentlige datasettet på Google BigQuery."
+"Du kan analysere PyPI-prosjektet/pakkedata og <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">nedlastinsstatistikk</a> via "
+"det offentlige datasettet på Google BigQuery."
 
 #: warehouse/templates/pages/help.html:919
 #, python-format
@@ -10216,9 +10207,9 @@ msgid ""
 "href=\"%(href)s\">user documentation</a> for more information on requesting "
 "a project size limit increase."
 msgstr ""
-"Hvis det ikke er mulig, kan grensen din noen ganger økes. <a "
-"href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Rapporter et problem</a> of fortell oss om det:"
+"Hvis det ikke er mulig, kan grensen din noen ganger økes. <a href=\"%"
+"(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Rapporter et problem</a> of fortell oss om det:"
 
 #: warehouse/templates/pages/help.html:1059
 #, python-format
@@ -10242,9 +10233,9 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">file an issue</a> with details."
 msgstr ""
-"Hvis det ikke er mulig, kan grensen din noen ganger økes. <a "
-"href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Rapporter et problem</a> of fortell oss om det:"
+"Hvis det ikke er mulig, kan grensen din noen ganger økes. <a href=\"%"
+"(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Rapporter et problem</a> of fortell oss om det:"
 
 #: warehouse/templates/pages/help.html:1079
 msgid ""
@@ -10675,9 +10666,9 @@ msgid ""
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python-"
-"programvarestiftelsen</a>"
+"<strong>Enkel</strong> takketvitring fra <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python-programvarestiftelsen</"
+"a>"
 
 #: warehouse/templates/pages/help.html:1414
 #, python-format
@@ -10957,9 +10948,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</"
 "a> in 2019"
 msgstr ""
-"Med 80000 dollar i fondsmidler fra <a href=\"%(funder_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</"
-"a> i 2019"
+"Med 80000 dollar i fondsmidler fra <a href=\"%(funder_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> i 2019"
 
 #: warehouse/templates/pages/sponsors.html:40
 msgid "Additional security-focused features for PyPI"

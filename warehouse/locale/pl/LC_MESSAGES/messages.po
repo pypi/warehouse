@@ -14,17 +14,21 @@
 # Jakub Fabijan <animatorzPolski@gmail.com>, 2022.
 # Komornik Bank <pklolkolo@gmail.com>, 2023.
 # Maciej Olko <maciej.olko@gmail.com>, 2023, 2024, 2025, 2026.
-# Krzysztof Beker <Krizzard@users.noreply.hosted.weblate.org>, 2024.
+# Krzysztof Beker <Krizzard@users.noreply.hosted.weblate.org>, 2024, 2026.
 # kaem <konmarciniak@gmail.com>, 2024.
 # Paul <pa.przybyszewski@gmail.com>, 2024.
 # Michał p Biegluk python router <python@users.noreply.hosted.weblate.org>, 2026.
+# Maciej Olko <m-aciek@users.noreply.hosted.weblate.org>, 2026.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Lukasz <lukabombala@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-08-24 01:22+0000\n"
-"Last-Translator: Maciej Olko <maciej.olko@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:43+0000\n"
+"Last-Translator: Krzysztof Beker <Krizzard@users.noreply.hosted.weblate.org>"
+"\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "pl/>\n"
 "Language: pl\n"
@@ -33,7 +37,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -112,8 +116,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na $"
-"{time}. Spróbuj ponownie później."
+"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na ${time}"
+". Spróbuj ponownie później."
 
 #: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."
@@ -451,8 +455,7 @@ msgstr "Odpowiedz na prośbę."
 
 #: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
-msgstr ""
-"Wybierz nazwę konta organizacji składającą się z maksymalnie 50 znaków."
+msgstr "Wybierz nazwę konta organizacji składającą się z maksymalnie 50 znaków."
 
 #: warehouse/manage/forms.py:467
 msgid ""
@@ -600,8 +603,8 @@ msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Zaufane publikowanie GitHub jest tymczasowo wyłączone. Zobacz https://pypi."
-"org/help#admin-intervention aby uzyskać szczegółowe informacje."
+"Zaufane publikowanie GitHub jest tymczasowo wyłączone. Zobacz https://"
+"pypi.org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
 #: warehouse/manage/views/__init__.py:1341
 #, fuzzy
@@ -612,16 +615,16 @@ msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Zaufane publikowanie GitHub jest tymczasowo wyłączone. Zobacz https://pypi."
-"org/help#admin-intervention aby uzyskać szczegółowe informacje."
+"Zaufane publikowanie GitHub jest tymczasowo wyłączone. Zobacz https://"
+"pypi.org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
 #: warehouse/manage/views/__init__.py:1453
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Zaufane publikowanie Google jest tymczasowo wyłączone. Zobacz https://pypi."
-"org/help#admin-intervention aby uzyskać szczegółowe informacje."
+"Zaufane publikowanie Google jest tymczasowo wyłączone. Zobacz https://"
+"pypi.org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
 #: warehouse/manage/views/__init__.py:1562
 #, fuzzy
@@ -1213,10 +1216,10 @@ msgid ""
 "prohibited."
 msgstr ""
 "„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi znakami "
-"towarowymi <a href=\"%(psf_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Software Foundation</a> odnoszącymi się do produktów "
-"i usług związanych z pypi.org. Wszelkie inne wykorzystanie przez jakąkolwiek "
-"inną stronę jest zabronione."
+"towarowymi <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Software Foundation</a> odnoszącymi się do produktów i usług "
+"związanych z pypi.org. Wszelkie inne wykorzystanie przez jakąkolwiek inną "
+"stronę jest zabronione."
 
 #: warehouse/templates/base.html:93
 #, python-format
@@ -1225,10 +1228,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi <a "
-"href=\"%(trademarks_href)s\">znakami towarowymi</a> firmy <a "
-"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>."
+"„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi <a href=\"%"
+"(trademarks_href)s\">znakami towarowymi</a> firmy <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:120 warehouse/templates/index.html:93
 msgid ""
@@ -1700,8 +1702,8 @@ msgid ""
 "again for the next hour."
 msgstr ""
 "\n"
-"              <b>Wskazówka:</b> zamierasz wykonać <a "
-"href=\"%(href)s\">wrażliwe działanie</a>.\n"
+"              <b>Wskazówka:</b> zamierasz wykonać <a href=\"%(href)s\">"
+"wrażliwe działanie</a>.\n"
 "              Jeśli nie używasz osobistego komputera, pamiętaj aby wylogować "
 "się po zakończeniu sesji.\n"
 "              Nie poprosimy cię o potwierdzenie swojego hasła przez następną "
@@ -1750,8 +1752,8 @@ msgid ""
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
-"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
+"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
@@ -1839,8 +1841,8 @@ msgid ""
 "an organization %(role_name)s?"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
-"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
+"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -2204,9 +2206,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą "
-"urządzenia (np. klucza USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą urządzenia "
+"(np. klucza USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2245,8 +2247,8 @@ msgid ""
 msgstr ""
 "<p>Wygeneruj kod korzystając z aplikacji uwierzytelniającej podłączonej do "
 "Twojego konta PyPI. Wprowadź kod w formularzu aby zweryfikować Twoją "
-"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a "
-"href=\"%(href)s\">Znajdź pomoc</a></p>"
+"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a href=\"%(href)s\">"
+"Znajdź pomoc</a></p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2327,8 +2329,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2340,8 +2342,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
-"%(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
+"(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, fuzzy, python-format
@@ -2353,8 +2355,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2370,8 +2372,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2382,8 +2384,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
-"%(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
+"(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2395,8 +2397,8 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 msgid "You are receiving this because you are a member of this team."
@@ -2794,8 +2796,8 @@ msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk for PyPI and its users."
 msgstr ""
-"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny "
-"zabieg \n"
+"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny zabieg "
+"\n"
 "mający na celu ograniczenie ryzyka dla PyPI i użytkowników."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:16
@@ -2863,8 +2865,8 @@ msgid ""
 "reduce the risk of <a href=\"%(href)s\">credential stuffing</a> attacks "
 "against PyPI and its users."
 msgstr ""
-"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny "
-"zabieg \n"
+"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny zabieg "
+"\n"
 "mający na celu ograniczenie ryzyka dla PyPI i użytkowników."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -2876,10 +2878,9 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "Aby odzyskać dostęp do Twojego konta, <a href=\"%(reset_pw_url)s\">zresetuj "
-"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty "
-"Twoich haseł oraz zaznajomienie się z dobrymi praktykami ustalania haseł "
-"dostępu."
+"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a href=\"%"
+"(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty Twoich "
+"haseł oraz zaznajomienie się z dobrymi praktykami ustalania haseł dostępu."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -2895,12 +2896,11 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Używamy darmowej usługi bezpieczeństwa <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> Gdy rejestrujemy, "
-"uwierzytelniamy lub aktualizujemy Twoje hasło generujemy jego hash metodą "
-"SHA1 i używamy pierwszych 5 znaków do zbadania czy hasło zostało ujawnione. "
-"Hasło w formie odkrytego tekstu nigdy nie jest przechowywane przez PyPI ani "
-"przesyłane do HaveIBeenPwned."
+"Używamy darmowej usługi bezpieczeństwa <a href=\"%(have_i_been_pwned_url)s\">"
+"HaveIBeenPwned</a> Gdy rejestrujemy, uwierzytelniamy lub aktualizujemy Twoje "
+"hasło generujemy jego hash metodą SHA1 i używamy pierwszych 5 znaków do "
+"zbadania czy hasło zostało ujawnione. Hasło w formie odkrytego tekstu nigdy "
+"nie jest przechowywane przez PyPI ani przesyłane do HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, python-format
@@ -2919,8 +2919,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"Ktoś, być może ty, wysłał prośbę o zresetowanie hasła do konta PyPI "
-"'%(username)s'."
+"Ktoś, być może ty, wysłał prośbę o zresetowanie hasła do konta PyPI '%"
+"(username)s'."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3058,8 +3058,8 @@ msgstr ""
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3070,8 +3070,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
-"%(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
+"(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3100,8 +3100,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3112,8 +3112,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3138,8 +3138,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
-"%(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
+"(initiator_username)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
@@ -3230,8 +3230,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3243,8 +3243,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
-"<strong>%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
+"s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
 #, python-format
@@ -3617,8 +3617,7 @@ msgstr "Następny"
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
-"Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
+msgstr "Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
@@ -4384,8 +4383,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time "
-"password\">TOTP</abbr>)"
+"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password\">"
+"TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:699
 #: warehouse/templates/manage/unverified-account.html:337
@@ -4704,8 +4703,8 @@ msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
-"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
+"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/account.html:906
@@ -7768,8 +7767,8 @@ msgid ""
 "project %(role_name)s"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
-"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
+"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/project/history.html:160
@@ -8224,8 +8223,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/manage/project/release.html:239
 #, python-format
@@ -9241,8 +9240,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""
@@ -9349,8 +9348,8 @@ msgid ""
 "title=\"time-based one-time password\">TOTP</abbr>) work? How do I set it up "
 "on PyPI?"
 msgstr ""
-"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time "
-"password\">TOTP</abbr>)"
+"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password\">"
+"TOTP</abbr>)"
 
 #: warehouse/templates/pages/help.html:76
 #, fuzzy
@@ -9517,8 +9516,8 @@ msgid ""
 "authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>). Can you help me?"
 msgstr ""
-"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time "
-"password\">TOTP</abbr>)"
+"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password\">"
+"TOTP</abbr>)"
 
 #: warehouse/templates/pages/help.html:181
 msgid "My project says it's in quarantine. What does that mean?"
@@ -10393,8 +10392,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:1070
 #, fuzzy, python-format
@@ -10817,8 +10816,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:1395
 #, python-format
@@ -10848,8 +10847,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:1414
 #, fuzzy, python-format
@@ -10869,8 +10868,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:1432
 #, python-format

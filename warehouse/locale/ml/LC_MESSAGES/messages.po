@@ -4,13 +4,17 @@
 # Alan Jacob Mathew <alanjacobmathew@gmail.com>, 2022, 2023.
 # Manoj Kumar Bavakad <manojnambyar@gmail.com>, 2024.
 # Jyothish Atheendran <athi.jyothish@gmail.com>, 2025.
+# Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# Alan Jacob Mathew <alanjacobmathew@users.noreply.hosted.weblate.org>, 2026.
+# Adolfo Jayme Barrientos <fito@libreoffice.org>, 2026.
+# Baburaj R <baburajr@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-03-17 06:45+0200\n"
-"PO-Revision-Date: 2025-08-15 09:33+0000\n"
-"Last-Translator: Jyothish Atheendran <athi.jyothish@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 13:45+0000\n"
+"Last-Translator: Baburaj R <baburajr@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Malayalam <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ml/>\n"
 "Language: ml\n"
@@ -18,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: warehouse/views.py:149
 msgid ""
@@ -33,8 +37,7 @@ msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
-"ഈ പ്രവർത്തനം നടത്താൻ നിങ്ങളുടെ അക്കൗണ്ടിൽ രണ്ട്-ഘടക പ്രാമാണീകരണം "
-"പ്രവർത്തനക്ഷമമാക്കിയിരിക്കണം."
+"ഈ പ്രവർത്തനം നടത്താൻ നിങ്ങളുടെ അക്കൗണ്ടിൽ രണ്ട്-ഘടക പ്രാമാണീകരണം പ്രവർത്തനക്ഷമമാക്കിയിരിക്കണം."
 
 #: warehouse/views.py:376
 msgid "Locale updated"
@@ -54,9 +57,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ "
-"എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
-"വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ എന്നിവ "
+"ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും വേണം. മറ്റൊരു "
+"ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
 #: warehouse/accounts/forms.py:62
 msgid "Null bytes are not allowed."
@@ -126,7 +129,8 @@ msgstr ""
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
+msgstr ""
+"ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
 
 #: warehouse/accounts/forms.py:304
 msgid ""
@@ -137,7 +141,8 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:337 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
+msgstr ""
+"പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
 
 #: warehouse/accounts/forms.py:428
 msgid "Invalid TOTP code."
@@ -214,7 +219,8 @@ msgstr ""
 
 #: warehouse/accounts/views.py:799
 msgid "Expired token: request a new password reset link"
-msgstr "കാലഹരണപ്പെട്ട ടോക്കൺ: ഒരു പുതിയ പാസ്‌വേഡ് പുനഃസജ്ജീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
+msgstr ""
+"കാലഹരണപ്പെട്ട ടോക്കൺ: ഒരു പുതിയ പാസ്‌വേഡ് പുനഃസജ്ജീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
 
 #: warehouse/accounts/views.py:801
 msgid "Invalid token: request a new password reset link"
@@ -235,7 +241,8 @@ msgstr "അസാധുവായ ടോക്കൺ: ഉപയോക്താവ
 
 #: warehouse/accounts/views.py:834
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr "അസാധുവായ ടോക്കൺ: ഈ ടോക്കൺ അഭ്യർത്ഥിച്ചതു ശേഷം ഉപയോക്താവ് ലോഗിൻ ചെയ്തിട്ടുണ്ട്"
+msgstr ""
+"അസാധുവായ ടോക്കൺ: ഈ ടോക്കൺ അഭ്യർത്ഥിച്ചതു ശേഷം ഉപയോക്താവ് ലോഗിൻ ചെയ്തിട്ടുണ്ട്"
 
 #: warehouse/accounts/views.py:852
 msgid ""
@@ -270,7 +277,8 @@ msgstr "ഇമെയിൽ ഇതിനകം തന്നെ പരിശോധ
 
 #: warehouse/accounts/views.py:949
 msgid "You can now set this email as your primary address"
-msgstr "നിങ്ങൾക്ക് ഇപ്പോൾ ഈ ഇമെയിൽ നിങ്ങളുടെ പ്രാഥമിക വിലാസമായി സജ്ജീകരിക്കാൻ സാധിക്കും"
+msgstr ""
+"നിങ്ങൾക്ക് ഇപ്പോൾ ഈ ഇമെയിൽ നിങ്ങളുടെ പ്രാഥമിക വിലാസമായി സജ്ജീകരിക്കാൻ സാധിക്കും"
 
 #: warehouse/accounts/views.py:953
 msgid "This is your primary address"
@@ -384,7 +392,8 @@ msgstr ""
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
+msgstr ""
+"വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
 
 #: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
 #: warehouse/manage/views/__init__.py:1374
@@ -454,9 +463,9 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ "
-"എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
-"വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ എന്നിവ "
+"ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും വേണം. മറ്റൊരു "
+"ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
 #: warehouse/manage/forms.py:490
 #, fuzzy
@@ -539,7 +548,8 @@ msgstr ""
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
-msgstr "പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
+msgstr ""
+"പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
 
 #: warehouse/manage/forms.py:737
 msgid "You have already submitted the maximum number of "
@@ -595,10 +605,6 @@ msgid "Invalid credentials. Try again"
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1228
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -617,20 +623,12 @@ msgstr ""
 "pypi.org/help#admin-intervention കാണുക."
 
 #: warehouse/manage/views/__init__.py:1453
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1562
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
