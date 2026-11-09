@@ -244,9 +244,8 @@ def _is_valid_dist_file(
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
 
-    ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
-    name enumeration, both of which do CPU-bound work synchronously inside
-    the upload request.
+    ``metrics`` counts wheels with accepted archive comments and sdists with nonstandard
+    tar headers. It also times the YARA scan and tarfile name enumeration.
 
     If ``archive`` is provided, it is retained by the caller for subsequent checks.
     """
@@ -329,7 +328,7 @@ def _is_valid_dist_file(
 
                 # Check the ZIP file record framing
                 # to avoid parser differentials.
-                zip_ok, zip_error = zipfiles.validate_zipfile(zfp)
+                zip_ok, zip_error = zipfiles.validate_zipfile(zfp, metrics=metrics)
                 if not zip_ok:
                     return False, (
                         f"ZIP archive not accepted: {zip_error}. "

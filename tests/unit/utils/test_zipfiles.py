@@ -97,6 +97,31 @@ def test_good_zips(filename):
     assert result[1] is None
 
 
+def test_archive_comment_with_nested_eocd(tmp_path, metrics):
+    wheel = tmp_path / "test-1.0-py3-none-any.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+    with zipfile.ZipFile(wheel, "a") as archive:
+        archive.comment = wheel.read_bytes()
+
+    with zipfile.ZipFile(wheel) as archive:
+        # zipfile reads the EOCD of the copy inside the comment.
+        assert archive.comment == b""
+        assert zipfiles.validate_zipfile(archive) == (
+            False,
+            "EOCD signature in archive comment",
+        )
+
+    assert _is_valid_dist_file(str(wheel), "bdist_wheel", metrics) == (
+        False,
+        (
+            "ZIP archive not accepted: EOCD signature in archive comment. "
+            "See https://docs.pypi.org/archives for more information"
+        ),
+    )
+    metrics.increment.assert_not_called()
+
+
 def test_local_file_header():
     # Positive case!
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, 0)
