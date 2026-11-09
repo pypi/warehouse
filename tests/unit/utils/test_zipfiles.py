@@ -9,6 +9,7 @@ import zipfile
 
 import pytest
 
+from warehouse.forklift.legacy import _is_valid_dist_file
 from warehouse.utils import zipfiles
 
 ZIPDATA_DIR = pathlib.Path(__file__).absolute().parent / "zipdata"
@@ -76,6 +77,17 @@ def test_bad_zips(filename, error):
     result = zipfiles.validate_zipfile(zippath(filename))
     assert result[0] is False, error
     assert result[1] == error
+
+
+def test_wheel_upload_rejects_duplicate_local_headers(metrics):
+    filename = zippath("reject/wheel-1.0-py3-none-any.whl")
+    assert _is_valid_dist_file(filename, "bdist_wheel", metrics) == (
+        False,
+        (
+            "ZIP archive not accepted: Duplicate filename in local headers. "
+            "See https://docs.pypi.org/archives for more information"
+        ),
+    )
 
 
 @pytest.mark.parametrize("filename", list(os.listdir(ZIPDATA_DIR / "accept")))

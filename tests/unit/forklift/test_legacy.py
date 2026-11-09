@@ -478,18 +478,18 @@ class TestFileValidation:
             "Unable to parse name and version from wheel filename",
         )
 
-    def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
-        tar_fn = str(tmpdir.join("test.tar.gz"))
-        data_file = str(tmpdir.join("dummy_data"))
-
-        with open(data_file, "wb") as fp:
-            fp.write(b"Dummy data file.")
-
+    @pytest.mark.parametrize(
+        "members",
+        [(), ("package/PKG-INFO", "notpackage/test.txt")],
+        ids=["empty", "multiple-roots"],
+    )
+    def test_incorrect_number_of_top_level_directories_sdist_tar(
+        self, tmp_path, members
+    ):
+        tar_fn = str(tmp_path / "test.tar.gz")
         with tarfile.open(tar_fn, "w:gz") as tar:
-            tar.add(data_file, arcname="package/module.py")
-            tar.add(data_file, arcname="package/PKG-INFO")
-            tar.add(data_file, arcname="package/data_file.txt")
-            tar.add(data_file, arcname="notpackage/test.txt")
+            for name in members:
+                tar.addfile(tarfile.TarInfo(name))
 
         assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
