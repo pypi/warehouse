@@ -149,6 +149,7 @@
   &__dismiss {
     @include design-utilities.dismiss-button;
     @include link-utilities.link-focus-state(color.adjust(colors.$notification-color, $lightness: -80%));
+
     top: auto;
     color: inherit;
   }

@@ -9,7 +9,6 @@
   "reportInvalidScopeDisables": true,
   "reportNeedlessDisables": true,
   "rules": {
-    "at-rule-empty-line-before": null,
     "comment-empty-line-before": [
       "always",
       {
@@ -24,8 +23,6 @@
         ]
       }
     ],
-    "comment-whitespace-inside": null,
-    "declaration-empty-line-before": null,
     "selector-class-pattern": [
       "^(?!js-)[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
       {

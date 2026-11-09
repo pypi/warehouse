@@ -95,6 +95,7 @@
     cursor: pointer;
     text-align: left;
     position: relative;
+
     @include link-utilities.link-without-underline;
 
     &:hover,
