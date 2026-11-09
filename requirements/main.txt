@@ -746,9 +746,9 @@ deprecated==3.0.1 \
     --hash=sha256:2f5a9fecc9961e26462846cf1e57f73a612b1d0b79c27dceeed8de647beadcee \
     --hash=sha256:eda314c115e8bc0fe52b90a6869e19240ac3cedb7449adfdba5981cf9ef693e1
     # via limits
-disposable-email-domains==0.0.287 \
-    --hash=sha256:19b8e8628d37f56195432feafc5b20bf958c9e7f43afc737e7637a32c5f95a4c \
-    --hash=sha256:c4841c03bfe9ed47e7ca3a4388e22d7fa93456f316d3721252435edcb939d842
+disposable-email-domains==0.0.289 \
+    --hash=sha256:03ae600e1c3f6e89efc25bf8b2b8c2508d94432b2c1a5198f66365e0691d49d5 \
+    --hash=sha256:73d2d11c2ab3f4b87bc389074b038b76c5667262840c7649b746581aa3672f66
     # via -r requirements/main.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -1843,9 +1843,9 @@ plaster-pastedeploy==1.0.1 \
     --hash=sha256:ad3550cc744648969ed3b810f33c9344f515ee8d8a8cec18e8f2c4a643c2181f \
     --hash=sha256:be262e6d2e41a7264875daa2fe2850cbb0615728bcdc92828fdc72736e381412
     # via pyramid
-platformdirs==4.14.0 \
-    --hash=sha256:1dadfc59a8a5d7565b3d9270ae8fa71c065595352c4277b41c11ee6c222c4b91 \
-    --hash=sha256:83f009c1e8c5fc36869b5171755b291887bd2cade7965233cdfabd23d754720b
+platformdirs==4.14.3 \
+    --hash=sha256:021add1ab113483edbcd4694f5fbb2d688b893ea30d35e1155bb371cf4be0be8 \
+    --hash=sha256:cba2d05fe5e18b26b1fa6f376b8e6234c012abe1f8696c486fface7d0054e931
     # via
     #   -r requirements/main.in
     #   sigstore
@@ -2908,10 +2908,12 @@ wrapt==2.5.2 \
     --hash=sha256:fa642d3781c061579cb138773add4a55b16f99de9ebc41603e89a756cf9e62c6 \
     --hash=sha256:fabc60720d1e4a36bbe8aaf1c32024f04c6674991313f5acaca5eeadb564c600
     # via deprecated
-wtforms[email]==3.3.1 \
-    --hash=sha256:2f4728ef3f67173c22590e60e845937598af7455474330fdb84354a609d67ec1 \
-    --hash=sha256:9d10ccb5740290c9ae6673522d87bcae3b669cf0cb4e4584aee229b4694af10c
-    # via -r requirements/main.in
+wtforms[email]==3.3.2 \
+    --hash=sha256:2fac992f39102d6268b06e05cdbdf37a7e9b9a4e103916d2dff1d09a080b531d \
+    --hash=sha256:49bb51d10b7832d497e758736da4d56f7d129a015db24756f36f28992f175404
+    # via
+    #   -r requirements/main.in
+    #   wtforms
 yara-x==1.22.1 \
     --hash=sha256:0c91b629199a4aaf3393efcd0229056844968990303a8a32b7f53cb5bff0776b \
     --hash=sha256:1bf476071c57ec0914b44e5be845c4cf77616d8bf39157d60150ac24f4ebe85b \
