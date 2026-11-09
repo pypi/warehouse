@@ -2,9 +2,6 @@
   "extends": [
     "stylelint-config-standard-scss"
   ],
-  "ignoreFiles": [
-    "warehouse/static/sass/resets/_boxsizing.scss"
-  ],
   "reportDescriptionlessDisables": true,
   "reportInvalidScopeDisables": true,
   "reportNeedlessDisables": true,
