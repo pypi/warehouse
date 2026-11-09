@@ -304,6 +304,26 @@ class TestCloseUploadTempfiles:
 
         assert not pyramid_request.body_file_raw.closed
 
+    def test_closes_when_error_is_not_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+
+        try:
+            raise HTTPBadRequest
+        except HTTPBadRequest:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
+    def test_closes_when_squashed_error_is_not_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+        pyramid_request.exception = HTTPBadRequest()
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
     def test_closes_on_last_attempt_even_if_error_is_retryable(self, pyramid_request):
         upload, body_file = self._consumed_upload(pyramid_request, attempt=2)
 

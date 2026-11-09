@@ -9,6 +9,7 @@ import tarfile
 from http import HTTPStatus
 from pathlib import Path
 
+import psycopg
 import pymacaroons
 import pytest
 
@@ -25,6 +26,7 @@ from tests.common.db.organizations import (
     OrganizationProjectFactory,
 )
 from tests.common.db.packaging import ProjectFactory, RoleFactory
+from warehouse.forklift import legacy
 from warehouse.macaroons import caveats
 from warehouse.organizations.models import OIDCIssuerType
 
@@ -293,6 +295,64 @@ def test_duplicate_file_upload_error(webtest):
         status=HTTPStatus.BAD_REQUEST,
     )
     assert "File already exists" in resp.body.decode()
+
+
+def test_file_upload_survives_retry(webtest, mocker):
+    """
+    pyramid_retry re-runs the request against the same parsed POST, so a retried
+    attempt must still be able to read the upload from the start.
+
+    The webtest fixture keeps pyramid_tm inactive, so attempt 2 shares attempt 1's
+    session; this covers the retry path, not a two-request race.
+    """
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+
+    dm = MacaroonFactory.create(
+        user_id=user.id,
+        caveats=[caveats.RequestUser(user_id=str(user.id))],
+    )
+    m = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        m.add_first_party_caveat(caveats.serialize(caveat))
+    credentials = base64.b64encode(f"__token__:pypi-{m.serialize()}".encode()).decode(
+        "utf-8"
+    )
+
+    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    # Fail the first attempt after the upload has been read to EOF, so the
+    # retried attempt depends on the file being rewound, not just left open.
+    mocker.patch.object(
+        legacy, "_is_duplicate_file", side_effect=[psycopg.IntegrityError(), None]
+    )
+
+    webtest.post(
+        "/legacy/",
+        headers={"Authorization": f"Basic {credentials}"},
+        params={
+            ":action": "file_upload",
+            "protocol_version": "1",
+            "name": "sampleproject",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=HTTPStatus.OK,
+    )
+
+    assert legacy._is_duplicate_file.call_count == 2
+    (release,) = user.projects[0].releases
+    assert [f.filename for f in release.files] == ["sampleproject-3.0.0.tar.gz"]
 
 
 def test_typo_check_name_upload_passes(webtest):

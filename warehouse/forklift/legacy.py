@@ -605,14 +605,14 @@ def _close_upload_tempfiles(request):
     # the upload instead of closing it. The error is still in flight here
     # (we're in ``invoke_request``'s ``finally``) unless an exception view
     # already rendered it, in which case it's on ``request.exception``.
-    content = request.POST.get("content")
-    exc = sys.exc_info()[1] or getattr(request, "exception", None)
+    upload = getattr(request.POST.get("content"), "file", None)
+    exc = sys.exception() or getattr(request, "exception", None)
     if exc is not None and pyramid_retry.is_error_retryable(request, exc):
-        if content is not None and hasattr(content, "file"):
-            content.file.seek(0)
+        if upload is not None:
+            upload.seek(0)
         return
-    if content is not None and hasattr(content, "file"):
-        content.file.close()
+    if upload is not None:
+        upload.close()
     body_file = request.body_file_raw
     if hasattr(body_file, "close") and not getattr(body_file, "closed", True):
         body_file.close()
