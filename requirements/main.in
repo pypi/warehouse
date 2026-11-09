@@ -43,7 +43,7 @@ paginate_sqlalchemy
 # TODO: libpass is a fork of passlib with the same import name. Switch back to passlib
 #       once it has a release past 1.7.4: https://github.com/notypecheck/passlib
 libpass>=1.9.4
-platformdirs>=4.14.0
+platformdirs>=4.14.3
 premailer
 psycopg[binary]
 pydantic

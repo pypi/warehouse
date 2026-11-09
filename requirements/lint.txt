@@ -4,15 +4,15 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-ast-grep-cli==0.51.0 \
-    --hash=sha256:0c2f59d7881d8b4584d319865e7be4e97fa1a26ec09c02b7d2095b30af9a56e4 \
-    --hash=sha256:17007574681fe872473850780304b3df57ca98ac575d88957972fea8c3810c26 \
-    --hash=sha256:17f288ed74bf4e5cc8bfa7fda0e7d23f658cef2e7257216720df0ccb958be9d1 \
-    --hash=sha256:3c6b0b4fe358dab092f56e196974cf77bd19465162b8260c78b837f6d2e2ad2c \
-    --hash=sha256:575f8d1a457e5dd1336a7c8db07cf4ae78cc3b8083f9529261016a2dd0510c9a \
-    --hash=sha256:a134c0795d7e74b7d8530db96b06d82377784f4a30d488497c4fb1414e100c9f \
-    --hash=sha256:be2586df4192adb60fa808bd83c4f3a46c63315f48394400f07700f9e76f4dc6 \
-    --hash=sha256:ff724d3f03cf44b4f3567518acc325dcff3bd383b77778dc0753b66ce2080250
+ast-grep-cli==0.51.1 \
+    --hash=sha256:01827dfcc986673dc8b911d1ebb19b229772aa12e9ef9c28429af09699f78bef \
+    --hash=sha256:1de5b7c8d74a6b1a92dd13545ed7604ad663ffc5b367a2c88fa2adbcac63ecc5 \
+    --hash=sha256:8141811f78542527d9ebfb51eefd8a1dd24d132ca775dda3d7dbdbe05437510d \
+    --hash=sha256:b24a766dbc311fe340831a11bdf4071573543c338f48f38f379dc6a61bdd349c \
+    --hash=sha256:ca4195b9c8d844fbd541991062ca64b1a6b81fb6e90a95c96e6b468366436ffd \
+    --hash=sha256:ccff11653cfd2ca55424d3a32b1301725865403b2d4f0447223d49bc2994ffa3 \
+    --hash=sha256:f924a19765482f2ec8ce5450b053510b8fb609da4b57d19e332ad7b02584587b \
+    --hash=sha256:fab0058789f5bf9c46cbcce58055942128bd170dda6517bcdb03f8e56fb51095
     # via -r requirements/lint.in
 ast-serialize==0.13.1 \
     --hash=sha256:02686b281ec9b8e9614f6f0db27e12e4cac515f336c5d05b678bc9eb73ff2af5 \
@@ -1097,9 +1097,9 @@ types-python-slugify==8.0.2.20240310 \
     --hash=sha256:0efec18b802c69ebd22dcee55c91afaeaa80e1e40ddd66ccabf69fd42ce87b74 \
     --hash=sha256:5157b508c7fed587520c70d77f62aea0fafdc6620893c2ec8972f13a1faf5560
     # via -r requirements/lint.in
-types-pytz==2026.5.0.20261006 \
-    --hash=sha256:1a522c2ec03aad8d4baaf97105958019ad51704b1e471c882d1c6ccea3e5e64b \
-    --hash=sha256:9e4a893b362a8eed4e10a348c80603ade65bdb3819419e589364afafe2ea08b1
+types-pytz==2026.6.0.20261031 \
+    --hash=sha256:8b559955f0c628f68159865c6f24835f4323c407a4408365b3676a074b524261 \
+    --hash=sha256:d0d4fbe482edfb263440421866cba41d25daba37e5584e0cff6712a3b5a9d9e9
     # via
     #   -r requirements/lint.in
     #   types-babel
