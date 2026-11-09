@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2026-10-18 15:42+0200\n"
-"PO-Revision-Date: 2026-11-09 13:48+0000\n"
+"PO-Revision-Date: 2026-11-09 14:03+0000\n"
 "Last-Translator: Daniel Nylander "
 "<yeagersthlm2@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -1217,10 +1217,8 @@ msgstr "Kopierad"
 
 #: warehouse/static/js/warehouse/controllers/filter_list_controller.js:548
 #: warehouse/templates/includes/packaging/project-security.html:197
-#, fuzzy
-#| msgid "No built distributions (wheels) match the current filters."
 msgid "No files match the current filters."
-msgstr "Inga byggda distributioner, wheels, matchar de aktuella filtren."
+msgstr "Inga filer matchar de aktuella filtren."
 
 #: warehouse/static/js/warehouse/controllers/filter_list_controller.js:554
 #, fuzzy
@@ -4029,19 +4027,15 @@ msgstr "Medlemmar"
 #: warehouse/templates/includes/packaging/project-security.html:107
 #: warehouse/templates/includes/packaging/project-security.html:219
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:31
-#, fuzzy
-#| msgid "Provenance"
 msgid "With provenance"
-msgstr "Ursprung"
+msgstr "Med ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/file-provenance-status.html:5
 #: warehouse/templates/includes/packaging/project-security.html:119
 #: warehouse/templates/includes/packaging/project-security.html:223
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:49
-#, fuzzy
-#| msgid "Provenance"
 msgid "Without provenance"
-msgstr "Ursprung"
+msgstr "Utan ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-description.html:14
 msgid "The author of this package has not provided a project description"
@@ -4196,10 +4190,8 @@ msgid "Release files. Focus will be moved to the release files panel."
 msgstr "Utgåvehistorik. Fokus flyttas till panelen för utgåvehistorik."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:69
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the release history panel."
 msgid "Release security. Focus will be moved to the security panel."
-msgstr "Utgåvehistorik. Fokus flyttas till panelen för utgåvehistorik."
+msgstr "Utgåvesäkerhet. Fokus flyttas till säkerhetspanelen."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:72
 #: warehouse/templates/pages/security.html:4
@@ -4280,10 +4272,8 @@ msgstr[1] "%(count)s utgivningsfiler"
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:9
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:14
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:31
-#, fuzzy
-#| msgid "Provenance"
 msgid "Loss of provenance"
-msgstr "Ursprung"
+msgstr "Förlorade ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:32
 #: warehouse/templates/includes/packaging/project-release-history.html:119
@@ -4292,10 +4282,8 @@ msgstr "Ursprung"
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:28
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:52
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:66
-#, fuzzy
-#| msgid "Provenance"
 msgid "Change of provenance"
-msgstr "Ursprung"
+msgstr "Ändrade ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:40
 #: warehouse/templates/includes/packaging/project-release-history.html:121
@@ -4312,44 +4300,35 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:9
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:66
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:118
-#, fuzzy
-#| msgid "Incomplete Expired"
 msgid "Incomplete provenance"
-msgstr "Ofullständig och utgången"
+msgstr "Ofullständiga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:76
 #: warehouse/templates/includes/packaging/project-release-history.html:125
 #: warehouse/templates/includes/packaging/security/full-provenance.html:5
-#, fuzzy
-#| msgid "Provenance"
 msgid "Full provenance"
-msgstr "Ursprung"
+msgstr "Fullständiga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:127
-#, fuzzy
-#| msgid "Provenance"
 msgid "No provenance"
-msgstr "Ursprung"
+msgstr "Inga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:135
 msgid "Yanked reason:"
 msgstr "Orsak till tillbakadragning:"
 
 #: warehouse/templates/includes/packaging/project-security.html:8
-#, fuzzy, python-format
-#| msgid "Source distribution for %(name)s %(version)s"
+#, python-format
 msgid "Security for %(name)s %(version)s"
-msgstr "Källdistribution för %(name)s %(version)s"
+msgstr "Säkerhet för %(name)s %(version)s"
 
 #: warehouse/templates/includes/packaging/project-security.html:12
 msgid "Report project as malware"
 msgstr "Rapportera projektet som skadlig programvara"
 
 #: warehouse/templates/includes/packaging/project-security.html:16
-#, fuzzy
-#| msgid "Upload date"
 msgid "Upload timing"
-msgstr "Uppladdningsdatum"
+msgstr "Tidpunkt för uppladdning"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:65
 #: warehouse/templates/includes/packaging/project-security.html:20
@@ -4389,30 +4368,21 @@ msgstr ""
 "utgåva, men sena tillägg kan också tyda på att säkerheten har äventyrats."
 
 #: warehouse/templates/includes/packaging/project-security.html:63
-#, fuzzy, python-format
-#| msgid "%(count)s file"
-#| msgid_plural "%(count)s files"
+#, python-format
 msgid "Select from %(count)s file"
 msgid_plural "Select from %(count)s files"
-msgstr[0] "%(count)s fil"
-msgstr[1] "%(count)s filer"
+msgstr[0] "Välj bland %(count)s fil"
+msgstr[1] "Välj bland %(count)s filer"
 
 #: warehouse/templates/includes/packaging/project-security.html:82
-#, fuzzy
-#| msgid "Delete file"
 msgid "Filter files"
-msgstr "Ta bort fil"
+msgstr "Filtrera filer"
 
 #: warehouse/templates/includes/packaging/project-security.html:124
-#, fuzzy
-#| msgid "File"
 msgid "File type"
-msgstr "Fil"
+msgstr "Filtyp"
 
 #: warehouse/templates/includes/packaging/project-security.html:135
-#, fuzzy
-#| msgid "Source distribution (sdist)"
-#| msgid_plural "Source distributions (sdists)"
 msgid "Source Distribution (sdist)"
 msgstr "Källdistribution (sdist)"
 
@@ -4421,19 +4391,15 @@ msgid "Wheel"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-security.html:199
-#, fuzzy
-#| msgid "Release files"
 msgid "Reset filters"
-msgstr "Utgåvefiler"
+msgstr "Återställ filter"
 
 #: warehouse/templates/includes/packaging/project-security.html:235
-#, fuzzy, python-format
-#| msgid "%(count)s maintainer"
-#| msgid_plural "%(count)s maintainers"
+#, python-format
 msgid "%(count)s attestation"
 msgid_plural "%(count)s attestations"
-msgstr[0] "%(count)s underhållare"
-msgstr[1] "%(count)s underhållare"
+msgstr[0] "%(count)s attestering"
+msgstr[1] "%(count)s attesteringar"
 
 #: warehouse/templates/includes/packaging/project-security.html:257
 #, python-format
@@ -4803,10 +4769,8 @@ msgstr ""
 "laddades upp till PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:16
-#, fuzzy
-#| msgid "Provenance"
 msgid "About provenance"
-msgstr "Ursprung"
+msgstr "Om ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:27
 msgid "A previous release had provenance metadata, but this release does not."
