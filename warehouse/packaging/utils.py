@@ -88,6 +88,9 @@ def _simple_detail(project, request):
         )
         versions = sorted(parsed_versions, key=parsed_versions.__getitem__)
 
+        # Generate the file route once with an empty path and reuse it as a
+        # prefix for every file below. This assumes `{path}` is the last thing
+        # in `files.url`, which holds in prod and in `dev/environment`.
         files_url = request.route_url("packaging.file", path="") if files else ""
         provenance_url = (
             f"{request.application_url}/integrity/{project.normalized_name}/"

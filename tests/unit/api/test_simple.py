@@ -20,6 +20,15 @@ from ...common.db.packaging import (
 )
 
 
+def _simple_detail_route_url(route, **kw):
+    # `_simple_detail` should look up the file route exactly once, with an empty
+    # path, so it can reuse the prefix for every file. Assert the call shape here
+    # so a wrong route name or path is caught in the unit tests (the functional
+    # tests only catch a wrong route name).
+    assert (route, kw) == ("packaging.file", {"path": ""})
+    return "/file/"
+
+
 def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Origin"] == "*"
     assert headers["Access-Control-Allow-Headers"] == (
@@ -266,7 +275,7 @@ class TestSimpleDetail:
         # let's assert the result is ordered by string comparison of version, filename
         files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda *a, **kw: "/file/"
+        db_request.route_url = _simple_detail_route_url
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
@@ -317,7 +326,7 @@ class TestSimpleDetail:
         # let's assert the result is ordered by version and filename
         files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda *a, **kw: "/file/"
+        db_request.route_url = _simple_detail_route_url
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -405,7 +414,7 @@ class TestSimpleDetail:
             files += files_release
 
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda *a, **kw: "/file/"
+        db_request.route_url = _simple_detail_route_url
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -535,7 +544,7 @@ class TestSimpleDetail:
         )
 
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda *a, **kw: "/file/"
+        db_request.route_url = _simple_detail_route_url
 
         result = simple.simple_detail(project, db_request)
 
@@ -607,7 +616,7 @@ class TestSimpleDetail:
 
         db_request.matchdict["name"] = project.normalized_name
 
-        db_request.route_url = lambda *a, **kw: "/file/"
+        db_request.route_url = _simple_detail_route_url
 
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)

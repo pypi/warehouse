@@ -420,7 +420,7 @@ def get_app_config(database, nondefaults=None):
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
         "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleAdminNotificationService",  # noqa: E501
-        "files.url": "http://localhost:7000/",
+        "files.url": "http://localhost:7000/{path}",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
