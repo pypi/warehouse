@@ -147,10 +147,6 @@ msgstr "Ваші паролі не збігаються. Спробуйте зн
 msgid "The email address is too long. Try again."
 msgstr "Ця електронна адреса занадто довга. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "Ця електронна адреса недійсна. Спробуйте знову."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -719,15 +715,6 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1929
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2115
-#: warehouse/manage/views/__init__.py:2215
-#, fuzzy
-#| msgid "Confirm Invite"
-msgid "Confirm the request"
-msgstr "Підтвердьте запрошення"
-
 #: warehouse/manage/views/__init__.py:1941
 #, fuzzy
 #| msgid "Un-yank release"
@@ -810,47 +797,6 @@ msgstr "Запрошення «${username}» скасовано."
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} в організації"
 
-#: warehouse/manage/views/organizations.py:868
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"GitLab-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-"Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
-"https://pypi.org/help#admin-intervention."
-
-#: warehouse/manage/views/oidc_publishers.py:520
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"Google-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-"Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
-"https://pypi.org/help#admin-intervention."
-
-#: warehouse/manage/views/oidc_publishers.py:631
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"ActiveState-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-"Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
-"https://pypi.org/help#admin-intervention."
-
-#: warehouse/manage/views/organizations.py:957
-#, python-brace-format
-msgid "User '${username}' already has ${role_name} role for organization"
-msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} в організації"
-
 #: warehouse/manage/views/organizations.py:968
 #, python-brace-format
 msgid ""
@@ -892,12 +838,6 @@ msgid ""
 msgstr ""
 "Цей видавець уже зареєстрований у вашій організації. Перегляньте своїх "
 "наявних очікуваних видавців нижче."
-
-#: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-msgid "Invalid project name"
-msgstr "Недійсна назва репозиторію"
 
 #: warehouse/oidc/forms/_core.py:68
 #, python-brace-format
@@ -1090,23 +1030,11 @@ msgstr ""
 "Шлях до файлу верхнього рівня у конвеєрі не може починатися або "
 "закінчуватися пробілом/"
 
-#: warehouse/oidc/forms/gitlab.py:33
-msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "Вкажіть простір імен GitLab (ім’я користувача або групи)"
-
-#: warehouse/oidc/forms/gitlab.py:37
-msgid "Invalid GitLab username or group/subgroup name."
-msgstr "Недійсне ім’я користувача або групи GitLab."
-
 #: warehouse/oidc/forms/gitlab.py:53
 #, fuzzy
 #| msgid "Specify workflow filename"
 msgid "Specify workflow filepath"
 msgstr "Укажіть назву файлу робочого процесу"
-
-#: warehouse/oidc/forms/gitlab.py:61
-msgid "Invalid environment name"
-msgstr "Недійсна назва середовища"
 
 #: warehouse/oidc/forms/gitlab.py:76
 #, fuzzy
@@ -3970,13 +3898,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ще не завантажував(-ла) жодних проєктів до PyPI."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "Електронна адреса"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -4082,13 +4003,6 @@ msgstr "Посилання проєкту"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Статистика на GitHub"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-#, fuzzy
-#| msgid "Release history"
-msgid "Repository"
-msgstr "Історія випусків"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -5296,24 +5210,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "Неможливо видалити себе як власника"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "Видалити"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "Видалити застосунок автентифікації"
@@ -5719,21 +5615,6 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "Керівник(-ця)"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "Власник"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -6254,23 +6135,6 @@ msgstr ""
 "Дізнайтеся більше про підтримку OpenID Connect у GitLab CI/CD <a "
 "href=\"%(href)s\">тут</a>."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-#, fuzzy
-msgid "PyPI Project Name"
-msgstr "Назва проєкту"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -6335,14 +6199,6 @@ msgid ""
 "are not supported)."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-#, fuzzy
-msgid "release"
-msgstr "Випуски"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -6362,65 +6218,12 @@ msgstr ""
 "strong> коли доглядачі вашого репозиторію з правом коміту, не мали б мати "
 "доступу до публікації до PyPI."
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"Дізнайтеся більше про підтримку OpenID Connect у GitLab CI/CD <a href=\"%"
-"(href)s\">тут</a>."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-msgid "Namespace"
-msgstr "Простір імен"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-msgid "namespace"
-msgstr "простір імен"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "Назва проєкту"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project:"
-msgid "project"
-msgstr "Проєкт:"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "Назва репозиторію на GitLab, який містить робочий процес публікації"
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 #, fuzzy
 #| msgid "Workflow name"
 msgid "Workflow file path"
 msgstr "Назва робочого процесу"
-
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
@@ -6429,24 +6232,6 @@ msgid ""
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
 msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
-msgstr ""
-"Назва <a href=\"%(href)s\">середовища у GitLab CI/CD</a>, який "
-"використовується у вищевказаному робочому процесі публікації.  Його можна "
-"створити у налаштуваннях проєкту. Хоч і необов’язково, та самостійне "
-"середовище публікації <strong>рішуче</strong> заохочується, <strong>зокрема</"
-"strong> коли доглядачі вашого репозиторію з правом коміту, не мали б мати "
-"доступу до публікації до PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -13097,40 +12882,6 @@ msgstr[2] "Немає результатів для «%(filters)s»"
 #~ "Ми всі полюбляємо статистику, тож ось кілька корисних статистик про PyPI. "
 #~ "Сторінка статистики кешується на 24 години, тож не очікуйте що ці числа "
 #~ "будуть в реальному часі."
-
-#, fuzzy
-#~| msgid "Workflow name"
-#~ msgid "Workflow file path"
-#~ msgstr "Назва робочого процесу"
-
-#~ msgid "Publisher name"
-#~ msgstr "Ім'я видавця"
-
-#, fuzzy
-#~| msgid "Workflow name"
-#~ msgid "Workflow"
-#~ msgstr "Назва робочого процесу"
-
-#, fuzzy
-#~| msgid "Invalid repository name"
-#~ msgid "Environment"
-#~ msgstr "Недійсна назва репозиторію"
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "\n"
-#~| "If you did not make this change, you can email <a "
-#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~| "administrators.\n"
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "\n"
-#~ "Якщо ви не робили цієї зміни, ви можете написати листа на <a "
-#~ "href=\"%(href)s\">%(email_address)s</a>, аби зв'язатися з "
-#~ "адміністраторами PyPI.\n"
 
 #, fuzzy, python-format
 #~| msgid ""

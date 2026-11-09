@@ -150,10 +150,6 @@ msgstr "رمز های عبور شما هم خوانی ندارند. دوباره
 msgid "The email address is too long. Try again."
 msgstr "آدرس پست الکترونیک شما بسیار طولانی است. دوباره امتحان کنید."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "آدرس پست الکترونیک شما معتبر نیست. دوباره امتحان کنید."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -834,37 +830,17 @@ msgid "Organization invitation could not be re-sent."
 msgstr "دعوت نامه دیگر وجود ندارد."
 
 #: warehouse/manage/views/organizations.py:1086
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
-msgstr "دعوت برای \"$ {project_name}\" رد شد."
+msgstr "دعوت‌نامهٔ منقضی‌شده برای «${username}» حذف شد."
 
 #: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid project name"
-msgstr "کد بازیابی نامعتبر."
+msgstr "نام پروژه نامعتبر است"
 
 #: warehouse/oidc/forms/_core.py:35
 msgid ""
 "This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
-
-#: warehouse/manage/views/organizations.py:1151
-#: warehouse/manage/views/organizations.py:1193
-#, fuzzy
-msgid "Could not find organization invitation."
-msgstr "دعوتنامه نقش پیدا نشد."
-
-#: warehouse/manage/views/organizations.py:1161
-#, fuzzy
-msgid "Organization invitation could not be re-sent."
-msgstr "دعوت نامه دیگر وجود ندارد."
-
-#: warehouse/manage/views/organizations.py:1209
-#, python-brace-format
-msgid "Expired invitation for '${username}' deleted."
-msgstr "دعوت‌نامهٔ منقضی‌شده برای «${username}» حذف شد."
 
 #: warehouse/manage/views/organizations.py:1877
 msgid ""
@@ -873,11 +849,6 @@ msgid ""
 msgstr ""
 "این ناشر قبلاً در سازمان شما ثبت شده است. ناشران در انتظار موجود خود را در زیر "
 "ببینید."
-
-#: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
-msgid "Invalid project name"
-msgstr "نام پروژه نامعتبر است"
 
 #: warehouse/oidc/forms/_core.py:68
 #, python-brace-format
@@ -3470,12 +3441,12 @@ msgstr "نام شما"
 #: warehouse/templates/manage/project/roles.html:172
 #: warehouse/templates/manage/project/roles.html:184
 msgid "Owner"
-msgstr ""
+msgstr "مالک"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:34
 #: warehouse/templates/email/trusted-publisher-removed/body.html:32
 msgid "Repository"
-msgstr ""
+msgstr "مخزن"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 #: warehouse/templates/email/trusted-publisher-removed/body.html:34
@@ -3857,13 +3828,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s هنوز هیچ پروژه ای را در PyPI بارگذاری نکرده است."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "ایمیل"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -3972,11 +3936,6 @@ msgstr "پیوندهای پروژه"
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
 msgstr "آمار GitHub:"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr "مخزن"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -5142,24 +5101,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "ایجاد یک حساب کاربری"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "حذف"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "برنامه احراز هویت را حذف کنید"
@@ -5506,21 +5447,6 @@ msgstr ""
 #| msgid "Manage project"
 msgid "Manager"
 msgstr "پروژه را مدیریت کنید"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "مالک"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -6031,24 +5957,6 @@ msgstr ""
 "برای دسترسی مجدد به حساب خود ، <a href=\"%(href)s\"> گذرواژه خود را </a> در "
 "PyPI تنظیم کنید."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-#, fuzzy
-#| msgid "Project Name"
-msgid "PyPI Project Name"
-msgstr "نام برنامه"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -6117,15 +6025,6 @@ msgid ""
 "are not supported)."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-#, fuzzy
-#| msgid "Releases"
-msgid "release"
-msgstr "منتشر شده"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -6139,61 +6038,6 @@ msgid ""
 "publishing access."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"برای دسترسی مجدد به حساب خود ، <a href=\"%(href)s\"> گذرواژه خود را </a> در "
-"PyPI تنظیم کنید."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
-msgid "Namespace"
-msgstr "نام"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
-msgid "namespace"
-msgstr "هیچ نامی وارد نشد"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project:"
-msgid "project"
-msgstr "برنامه:"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 #, fuzzy
@@ -6201,29 +6045,12 @@ msgstr ""
 msgid "Workflow file path"
 msgstr "نام شما"
 
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
 "The file path of the publishing workflow, relative to the project's root. "
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248
@@ -11632,39 +11459,6 @@ msgstr[1] ""
 #~ "\"target =\" _ blank \"rel =\" noopener \"> Libraries.io </a> یا با "
 #~ "استفاده از <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\"> "
 #~ "مجموعه داده عمومی ما در Google BigQuery </a>"
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow file path"
-#~ msgstr "نام شما"
-
-#, fuzzy
-#~| msgid "Username"
-#~ msgid "Publisher name"
-#~ msgstr "نام کاربری"
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow"
-#~ msgstr "نام شما"
-
-#, fuzzy
-#~| msgid "Invalid recovery code."
-#~ msgid "Environment"
-#~ msgstr "کد بازیابی نامعتبر."
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "If you did not make this change, you can email <a "
-#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~| "administrators."
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "اگر این تغییر را انجام نداده اید ، می توانید برای برقراری ارتباط با "
-#~ "مدیران PyPI <a href=\"%(href)s\"> %(email_address)s </a> را ایمیل کنید."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "PyPI در توییتر"

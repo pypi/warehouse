@@ -155,10 +155,6 @@ msgstr "Ваши пароли не совпадают. Попробуйте ещ
 msgid "The email address is too long. Try again."
 msgstr "Адрес электронной почты слишком длинный. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -3569,13 +3565,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "Пользователь %(username)s ещё не загрузил на PyPI ни одного проекта."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "Электронная почта"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3675,11 +3664,6 @@ msgstr "Ссылки проекта"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Статистика GitHub"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr "Репозиторий"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -4817,24 +4801,6 @@ msgstr "Чтобы удалить этот метод 2FA, необходимо 
 msgid "Cannot remove last 2FA method"
 msgstr "Невозможно удалить последний метод 2FA"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "Удалить"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "Удаление приложения аутентификации"
@@ -5151,21 +5117,6 @@ msgstr "Неактивный"
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "Руководитель"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "Владелец"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -5654,32 +5605,6 @@ msgstr ""
 "Подробнее о поддержке GitLab CI/CD OpenID Connect <a "
 "href=\"%(href)s\">здесь</a>."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-msgid "PyPI Project Name"
-msgstr "Название проекта PyPI"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr "Проект (на PyPI), который будет создан при использовании этого издателя"
-
-#: warehouse/templates/manage/account/publishing.html:146
-#: warehouse/templates/manage/project/publishing.html:129
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"Подробнее о поддержке GitLab CI/CD OpenID Connect <a href=\"%(href)s\">"
-"здесь</a>."
-
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:140
 msgid "Namespace"
@@ -5722,10 +5647,8 @@ msgstr "Имя проекта GitLab, содержащего рабочий пр
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Workflow name"
 msgid "Workflow file path"
-msgstr "Название рабочего процесса"
+msgstr "Путь к файлу рабочего процесса"
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -12123,69 +12046,6 @@ msgstr[2] "Не было результатов для фильтров '%(filte
 #~ "Все мы любим статистику, так что вот некоторые полезные статистические "
 #~ "данные о PyPI. Страница статистики кэшируется на 24 часа, так что не "
 #~ "ждите, что цифры на ней будут обновляться в реальном времени."
-
-#~ msgid "Workflow file path"
-#~ msgstr "Путь к файлу рабочего процесса"
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
-#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-#~ "publishers act as trusted users and can create project releases "
-#~ "automatically."
-#~ msgstr ""
-#~ "Пользователь PyPI <strong>%(username)s</strong> добавил новый доверенный "
-#~ "издатель в проект (<strong>%(project_name)s</strong>), которым вы "
-#~ "управляете. Доверенные издатели действуют как доверенные пользователи и "
-#~ "могут создавать выпуски проектов автоматически."
-
-#~ msgid "Publisher information"
-#~ msgstr "Издательская информация"
-
-#~ msgid "Publisher name"
-#~ msgstr "Имя издателя"
-
-#~ msgid "Workflow"
-#~ msgstr "Рабочий процесс"
-
-#~ msgid "Environment"
-#~ msgstr "Окружающая среда"
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made maliciously, "
-#~ "you can remove it from the project via the \"Publishing\" tab on the "
-#~ "project's page."
-#~ msgstr ""
-#~ "Если вы не сделали это изменение, и вы думаете, что оно было сделано "
-#~ "злонамеренно, вы можете удалить его из проекта через вкладку "
-#~ "«Публикование» на странице проекта."
-
-#, python-format
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "Если вы не можете отменить изменение, а вам это необходимо, вы можете "
-#~ "отправить письмо <a href=\"%(href)s\">%(email_address)s</a> для связи с "
-#~ "администраторами PyPI."
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
-#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
-#~ msgstr ""
-#~ "Пользователь PyPI <strong>%(username)s</strong> удалил доверенного "
-#~ "издателя из проекта (<strong>%(project_name)s</strong>), которым вы "
-#~ "управляете."
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made in error, you "
-#~ "can check the \"Security history\" tab on the project's page."
-#~ msgstr ""
-#~ "Если вы не сделали это изменение, и вы думаете, что оно было сделано в "
-#~ "ошибке, вы можете проверить вкладку «История безопасности» на странице "
-#~ "проекта."
 
 #, python-format
 #~ msgid ""

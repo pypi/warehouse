@@ -126,10 +126,6 @@ msgstr "உங்கள் கடவுச்சொற்கள் பொரு�
 msgid "The email address is too long. Try again."
 msgstr "மின்னஞ்சல் முகவரி மிக நீளமாக உள்ளது. மீண்டும் முயற்சி செய்."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "மின்னஞ்சல் முகவரி தவறானது. மீண்டும் முயற்சி செய்."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -810,12 +806,6 @@ msgid ""
 "This publisher has already been registered in your organization. See your "
 "existing pending publishers below."
 msgstr ""
-
-#: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-msgid "Invalid project name"
-msgstr "மீட்டெடுப்பு குறியீடு தவறானது."
 
 #: warehouse/oidc/forms/_core.py:68
 #, python-brace-format
@@ -3549,13 +3539,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s has not uploaded any திட்டங்கள் பெறுநர் PyPI, yet."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr ""
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3655,11 +3638,6 @@ msgstr "திட்டம் links"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "அறிவிலிமையம் புள்ளிவிவரங்கள்"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -4794,24 +4772,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "கடைசி 2FA முறையை அகற்ற முடியாது"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "அகற்று"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "அங்கீகார பயன்பாட்டை அகற்று"
@@ -5136,21 +5096,6 @@ msgstr "செயலற்றது"
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "மேலாளர்"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -5643,22 +5588,6 @@ msgstr ""
 "அறிவிலிஆய்வு சிஐ/சிடி ஓபன்ஐடி இணைப்பு உதவி <a href = \"%(href)s\"> இங்கே </a> "
 "பற்றி மேலும் வாசிக்க."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-msgid "PyPI Project Name"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -5725,13 +5654,6 @@ msgstr ""
 "திட்டத்தின் மூலத்துடன் தொடர்புடைய மேல்-நிலை குழாய்த்திட்டத்தின் கோப்பு பாதை. மேலே "
 "உள்ளமைக்கப்பட்ட திட்டத்தில் இந்த கோப்பு இருக்க வேண்டும் (வெளிப்புற குழாய்கள் ஆதரிக்கப்படவில்லை)."
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-msgid "release"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -5750,63 +5672,10 @@ msgstr ""
 "ஊக்குவிக்கப்படுகிறது, <strong> குறிப்பாக </strong> உங்கள் திட்டத்தில் பைபி வெளியீட்டு "
 "அணுகல் இல்லாத அணுகல் அணுகக்கூடியதாக இருந்தால்."
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"அறிவிலிஆய்வு சிஐ/சிடி ஓபன்ஐடி இணைப்பு உதவி <a href = \"%(href)s\"> இங்கே </a> "
-"பற்றி மேலும் வாசிக்க."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-msgid "Namespace"
-msgstr "பெயர்வெளி"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-msgid "namespace"
-msgstr "பெயர்வெளி"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-"இந்த திட்டம் கீழ் உள்ள அறிவிலிஆய்வு பயனர்பெயர் அல்லது அறிவிலிஆய்வு குழு/துணைக்குழு "
-"பெயர்வெளி"
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "திட்ட பெயர்"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-msgid "project"
-msgstr "திட்டம்"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "வெளியீட்டு பணிப்பாய்வு கொண்ட அறிவிலிஆய்வு திட்டத்தின் பெயர்"
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 msgid "Workflow file path"
 msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ".tulab-on.yl"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
@@ -5815,23 +5684,6 @@ msgid ""
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
 msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
-msgstr ""
-"<A href = \"%(href)s\"> அறிவிலிஆய்வு சிஐ/சிடி சூழல் </a> வெளியீட்டிற்கு மேலே உள்ள "
-"பணிப்பாய்வு பயன்படுத்துகிறது. இது திட்டத்தின் அமைப்புகளின் கீழ் கட்டமைக்கப்பட வேண்டும். "
-"தேவையில்லை என்றாலும், ஒரு பிரத்யேக வெளியீட்டுச் சூழல் <strong> வலுவாக </strong> "
-"ஊக்குவிக்கப்படுகிறது, <strong> குறிப்பாக </strong> உங்கள் திட்டத்தில் பைபி வெளியீட்டு "
-"அணுகல் இல்லாத அணுகல் அணுகக்கூடியதாக இருந்தால்."
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -11740,11 +11592,6 @@ msgstr[1] "'%(filters)s' வடிப்பான்களுக்கு எந
 
 #~ msgid "Terms of Use"
 #~ msgstr "பயன்பாட்டு விதிமுறைகள்"
-
-#, fuzzy
-#~| msgid "Invalid recovery code."
-#~ msgid "Environment"
-#~ msgstr "மீட்டெடுப்பு குறியீடு தவறானது."
 
 #~ msgid "No user found with that username or email"
 #~ msgstr "அந்த பயனர்பெயர் அல்லது மின்னஞ்சலுடன் எந்த பயனரும் காணப்படவில்லை"

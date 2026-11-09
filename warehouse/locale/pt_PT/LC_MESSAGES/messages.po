@@ -116,10 +116,6 @@ msgstr "As suas palavras-passe não coincidem. Tente novamente."
 msgid "The email address is too long. Try again."
 msgstr "O endereço de e-mail é demasiado longo. Tente novamente."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "O endereço de e-mail não é válido. Tente novamente."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -3163,10 +3159,8 @@ msgstr "Proprietário"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:34
 #: warehouse/templates/email/trusted-publisher-removed/body.html:32
-#, fuzzy
-#| msgid "repository"
 msgid "Repository"
-msgstr "repositório"
+msgstr "Repositório"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 #: warehouse/templates/email/trusted-publisher-removed/body.html:34
@@ -3529,13 +3523,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ainda não enviou nenhum projeto ao PyPI."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "E-mail"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3635,11 +3622,6 @@ msgstr "Ligações do projeto"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Estatísticas do GitHub"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr "Repositório"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -4779,24 +4761,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "Não é possível remover o último método de 2FA"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "Remover"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "Remover aplicação de autenticação"
@@ -5132,21 +5096,6 @@ msgstr "Inativa"
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "Gerente"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "Proprietário"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -5487,10 +5436,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:157
 #: warehouse/templates/manage/account/publishing.html:259
 #: warehouse/templates/manage/account/publishing.html:324
-#, fuzzy
-#| msgid "Project Name"
 msgid "PyPI Project Name"
-msgstr "Nome do projeto"
+msgstr "Nome do Projeto PyPI"
 
 #: warehouse/templates/manage/account/publishing.html:43
 #: warehouse/templates/manage/account/publishing.html:162
@@ -5504,7 +5451,7 @@ msgstr "nome do projeto"
 #: warehouse/templates/manage/account/publishing.html:266
 #: warehouse/templates/manage/account/publishing.html:338
 msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
+msgstr "O projeto (no PyPI) que será criado quando este editor for usado"
 
 #: warehouse/templates/manage/account/publishing.html:31
 #, fuzzy, python-format
@@ -5595,10 +5542,8 @@ msgstr "Motivo (opcional)"
 #: warehouse/templates/manage/account/publishing.html:224
 #: warehouse/templates/manage/project/publishing.html:101
 #: warehouse/templates/manage/project/publishing.html:192
-#, fuzzy
-#| msgid "Releases"
 msgid "release"
-msgstr "Lançamentos"
+msgstr "lançamento"
 
 #: warehouse/templates/manage/account/publishing.html:124
 #: warehouse/templates/manage/project/publishing.html:107
@@ -5628,48 +5573,25 @@ msgstr "Adicionar"
 #: warehouse/templates/manage/account/publishing.html:119
 #: warehouse/templates/manage/organization/publishing.html:116
 #: warehouse/templates/manage/project/publishing.html:126
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub's OpenID Connect provider <a "
-#| "href=\"%(href)s\">here</a>."
+#, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Leia mais sobre o provedor de OpenID Connect do GitHub <a "
-"href=\"%(href)s\">aqui</a>."
-
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-msgid "PyPI Project Name"
-msgstr "Nome do Projeto PyPI"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr "O projeto (no PyPI) que será criado quando este editor for usado"
+"Leia mais sobre o apoio a OpenID Connect do GitLab CI/CD <a href=\"%(href)"
+"s\">aqui</a>."
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
 msgid "Namespace"
-msgstr "Nome"
+msgstr "Espaço de nomes"
 
 #: warehouse/templates/manage/account/publishing.html:151
 #: warehouse/templates/manage/organization/publishing.html:148
 #: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
 msgid "namespace"
-msgstr "Nenhum nome definido"
+msgstr "espaço de nomes"
 
 #: warehouse/templates/manage/account/publishing.html:153
 #: warehouse/templates/manage/organization/publishing.html:150
@@ -5678,6 +5600,8 @@ msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
 msgstr ""
+"O mome de utilizador GitLab ou nome do grupo/subgrupo GitLab no qual o "
+"projeto está"
 
 #: warehouse/templates/manage/account/publishing.html:159
 #: warehouse/templates/manage/organization/publishing.html:156
@@ -5691,16 +5615,15 @@ msgstr "Nome do projeto"
 #: warehouse/templates/manage/account/publishing.html:164
 #: warehouse/templates/manage/organization/publishing.html:161
 #: warehouse/templates/manage/project/publishing.html:158
-#, fuzzy
-#| msgid "Project"
 msgid "project"
-msgstr "Projeto"
+msgstr "projeto"
 
 #: warehouse/templates/manage/account/publishing.html:166
 #: warehouse/templates/manage/organization/publishing.html:163
 #: warehouse/templates/manage/project/publishing.html:160
 msgid "The name of the GitLab project that contains the publishing workflow"
 msgstr ""
+"O nome do projeto do GitLab que contém o fluxo de trabalho de publicação"
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/organization/publishing.html:169
@@ -5712,7 +5635,7 @@ msgstr "Caminho do ficheiro de pipeline de nível superior"
 #: warehouse/templates/manage/organization/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:171
 msgid ".gitlab-ci.yml"
-msgstr ""
+msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:179
 #: warehouse/templates/manage/organization/publishing.html:176
@@ -5726,97 +5649,9 @@ msgstr ""
 "projeto. Este ficheiro deve existir no projeto configurado acima (pipelines "
 "externos não são suportados)."
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-msgid "release"
-msgstr "lançamento"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"Leia mais sobre o apoio a OpenID Connect do GitLab CI/CD <a href=\"%(href)"
-"s\">aqui</a>."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-msgid "Namespace"
-msgstr "Espaço de nomes"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-msgid "namespace"
-msgstr "espaço de nomes"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-"O mome de utilizador GitLab ou nome do grupo/subgrupo GitLab no qual o "
-"projeto está"
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "Nome do projeto"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-msgid "project"
-msgstr "projeto"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr ""
-"O nome do projeto do GitLab que contém o fluxo de trabalho de publicação"
-
-#: warehouse/templates/manage/account/publishing.html:202
-#: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Workflow name"
-msgid "Workflow file path"
-msgstr "Nome do fluxo de trabalho"
-
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ".gitlab-ci.yml"
-
-#: warehouse/templates/manage/account/publishing.html:209
-#: warehouse/templates/manage/project/publishing.html:177
-msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
-"are not supported)."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
@@ -5832,6 +5667,21 @@ msgstr ""
 "<strong>fortemente</strong> encorajado, <strong>especialmente</strong> se o "
 "seu repositorio tem mantenedores com permissão de commit mas não devem "
 "possuir permissão de publicações no PyPL."
+
+#: warehouse/templates/manage/account/publishing.html:202
+#: warehouse/templates/manage/project/publishing.html:170
+#, fuzzy
+#| msgid "Workflow name"
+msgid "Workflow file path"
+msgstr "Nome do fluxo de trabalho"
+
+#: warehouse/templates/manage/account/publishing.html:209
+#: warehouse/templates/manage/project/publishing.html:177
+msgid ""
+"The file path of the publishing workflow, relative to the project's root. "
+"This file should exist in the project configured above (external workflows "
+"are not supported)."
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -12354,41 +12204,6 @@ msgstr[1] "Não houve ocorrências para filtros '%(filters)s'"
 #~ "Todos amamos estatísticas, então aqui estão algumas estatísticas úteis "
 #~ "sobre PyPI. A página de estatísticas é armazenada em cache por 24 horas, "
 #~ "portanto, não espere que os números sejam em tempo real."
-
-#, fuzzy
-#~| msgid "Workflow name"
-#~ msgid "Workflow file path"
-#~ msgstr "Nome do fluxo de trabalho"
-
-#~ msgid "Publisher information"
-#~ msgstr "Informação do editor"
-
-#~ msgid "Publisher name"
-#~ msgstr "Nome do editor"
-
-#, fuzzy
-#~| msgid "Workflow name"
-#~ msgid "Workflow"
-#~ msgstr "Nome do fluxo de trabalho"
-
-#, fuzzy
-#~| msgid "Invalid project name"
-#~ msgid "Environment"
-#~ msgstr "Nome de projeto inválido"
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "If you did not make this change, you can email <a "
-#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~| "administrators."
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "Se não fez essa alteração, pode enviar um e-mail <a "
-#~ "href=\"%(href)s\">%(email_address)s</a> para comunicar com os "
-#~ "administradores do PyPI."
 
 #, fuzzy, python-format
 #~| msgid ""
