@@ -16,14 +16,15 @@
 
 @mixin centered-container($width) {
   max-width: $width;
-
   margin-left: auto;
   margin-right: auto;
+
   @include clearfix;
 }
 
 @mixin site-container {
   @include centered-container(grid.$site-container);
+
   padding: 0 grid.$spacing-unit;
 
   @media screen and (max-width: breakpoints.$small-tablet) {

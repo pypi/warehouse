@@ -41,6 +41,7 @@
   border-radius: 3px;
   display: inline-block;
   text-align: center;
+
   @include link-utilities.link-without-underline;
 
   i.fa {
@@ -88,6 +89,7 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$primary-color);
     }
 
@@ -118,6 +120,7 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$danger-color);
     }
 
@@ -143,6 +146,7 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$warning-color);
     }
 

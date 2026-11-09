@@ -91,6 +91,7 @@
     display: block;
     padding: grid.$half-spacing-unit;
     cursor: pointer;
+
     @include link-utilities.link-without-underline;
 
     &:hover {
@@ -105,6 +106,7 @@
 
     &--mobile {
       display: none;
+
       @media only screen and (max-width: breakpoints.$tablet) {
         display: block;
         border-top: 1px solid colors.$border-color;

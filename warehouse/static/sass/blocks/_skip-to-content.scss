@@ -21,6 +21,7 @@
   height: 1px;
   overflow: hidden;
   z-index: list.index(z-index.$z-index-scale, "skip-to-content");
+
   @include link-utilities.link-without-underline;
 
   &:focus {

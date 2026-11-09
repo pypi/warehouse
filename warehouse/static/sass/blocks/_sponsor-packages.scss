@@ -65,6 +65,7 @@
     h2,
     h3 {
       @include typography.h2;
+
       padding: 0;
     }
   }

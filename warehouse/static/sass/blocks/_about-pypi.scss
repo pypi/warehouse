@@ -20,6 +20,7 @@
 .about-pypi {
   @include layout-utilities.split-table-layout;
   @include layout-utilities.site-container;
+
   table-layout: auto;
   max-width: 1000px;
   margin: 0 auto;

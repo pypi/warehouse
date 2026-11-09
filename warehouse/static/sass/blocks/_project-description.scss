@@ -214,6 +214,7 @@
 
     table {
       @include design-utilities.card;
+
       border-collapse: collapse;
       border-spacing: 0;
       text-align: left;

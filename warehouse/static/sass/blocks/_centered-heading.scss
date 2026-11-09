@@ -20,6 +20,7 @@
 
   &__title {
     @include typography.h1-title;
+
     padding-bottom: 0;
   }
 

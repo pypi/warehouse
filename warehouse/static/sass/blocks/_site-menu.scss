@@ -48,6 +48,7 @@
   &__link {
     text-decoration: none;
     display: inline-block;
+
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colors.$white);
 
