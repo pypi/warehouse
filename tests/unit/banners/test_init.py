@@ -1,22 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
-
 from warehouse import banners
 
 
-def test_includeme():
-    config = pretend.stub(
-        get_settings=lambda: {"warehouse.domain": "pypi"},
-        add_route=pretend.call_recorder(lambda name, route, domain: None),
+def test_includeme(mocker, pyramid_config):
+    pyramid_config.include("warehouse.predicates")
+    pyramid_config.registry.settings["warehouse.domain"] = "pypi"
+    add_route = mocker.spy(pyramid_config, "add_route")
+
+    banners.includeme(pyramid_config)
+
+    add_route.assert_called_once_with(
+        "includes.db-banners",
+        "/_includes/unauthed/notification-banners/",
+        domain="pypi",
     )
-
-    banners.includeme(config)
-
-    assert config.add_route.calls == [
-        pretend.call(
-            "includes.db-banners",
-            "/_includes/unauthed/notification-banners/",
-            domain="pypi",
-        ),
-    ]

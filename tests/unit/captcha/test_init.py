@@ -1,26 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import pytest
 
-from warehouse.captcha import includeme, interfaces
+from warehouse.captcha import hcaptcha, includeme, interfaces, recaptcha
 
 
-def test_include_with_custom_backend():
-    cache_class = pretend.stub(create_service=pretend.stub())
-    config = pretend.stub(
-        registry=pretend.stub(settings={"captcha.backend": "tests.CustomBackend"}),
-        maybe_dotted=pretend.call_recorder(lambda n: cache_class),
-        register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name: None
-        ),
+@pytest.mark.parametrize(
+    ("backend", "service_class"),
+    [
+        ("warehouse.captcha.hcaptcha.Service", hcaptcha.Service),
+        ("warehouse.captcha.recaptcha.Service", recaptcha.Service),
+    ],
+)
+def test_includeme(pyramid_config, mocker, backend, service_class):
+    pyramid_config.include("pyramid_services")
+    pyramid_config.registry.settings["captcha.backend"] = backend
+    register_service_factory = mocker.spy(pyramid_config, "register_service_factory")
+
+    includeme(pyramid_config)
+
+    register_service_factory.assert_called_once_with(
+        service_class.create_service,
+        interfaces.ICaptchaService,
+        name="captcha",
     )
-    includeme(config)
-
-    assert config.maybe_dotted.calls == [pretend.call("tests.CustomBackend")]
-    assert config.register_service_factory.calls == [
-        pretend.call(
-            cache_class.create_service,
-            interfaces.ICaptchaService,
-            name="captcha",
-        )
-    ]

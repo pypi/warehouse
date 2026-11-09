@@ -3,7 +3,6 @@
 import socket
 import urllib.parse
 
-import pretend
 import pytest
 import requests
 import responses
@@ -12,53 +11,44 @@ from warehouse.captcha import recaptcha
 
 
 @pytest.fixture
-def session_resetting_request():
-    """A pretend request object with a requests.Session that is reset between tests."""
-    return pretend.stub(
-        # returning a real requests.Session object because responses is responsible
-        # for mocking that out
-        http=requests.Session(),
-        registry=pretend.stub(
-            settings={
-                "recaptcha.site_key": "site_key_value",
-                "recaptcha.secret_key": "secret_key_value",
-            },
-        ),
+def session_resetting_request(pyramid_request):
+    """A request with a fresh requests.Session, which responses intercepts."""
+    pyramid_request.http = requests.Session()
+    pyramid_request.registry.settings.update(
+        {
+            "recaptcha.site_key": "site_key_value",
+            "recaptcha.secret_key": "secret_key_value",
+        }
     )
+    return pyramid_request
 
 
 class TestVerifyResponse:
     @responses.activate
-    def test_verify_service_disabled(self):
+    def test_verify_service_disabled(self, pyramid_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             body="",
         )
-        serv = recaptcha.Service.create_service(
-            context=None, request=pretend.stub(registry=pretend.stub(settings={}))
-        )
+        serv = recaptcha.Service.create_service(context=None, request=pyramid_request)
         assert serv.verify_response("") is None
         assert not responses.calls
 
     @responses.activate
-    def test_verify_service_disabled_with_none(self):
+    def test_verify_service_disabled_with_none(self, pyramid_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             body="",
         )
-        serv = recaptcha.Service.create_service(
-            context=None,
-            request=pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "recaptcha.site_key": None,
-                        "recaptcha.secret_key": None,
-                    },
-                ),
-            ),
+        pyramid_request.registry.settings.update(
+            {
+                "recaptcha.site_key": None,
+                "recaptcha.secret_key": None,
+            }
         )
+        serv = recaptcha.Service.create_service(context=None, request=pyramid_request)
         assert serv.verify_response("") is None
         assert not responses.calls
 
@@ -236,29 +226,27 @@ class TestVerifyResponse:
         assert res.challenge_ts == 0
 
     @responses.activate
-    def test_unexpected_error(self, session_resetting_request):
+    def test_unexpected_error(self, mocker, session_resetting_request):
         serv = recaptcha.Service.create_service(
             context=None, request=session_resetting_request
         )
-        serv.request.http.post = pretend.raiser(socket.error)
+        mocker.patch.object(
+            serv.request.http, "post", autospec=True, side_effect=socket.error
+        )
 
         with pytest.raises(recaptcha.UnexpectedError):
             serv.verify_response("meaningless")
 
 
 class TestCSPPolicy:
-    def test_csp_policy(self):
-        scheme = "https"
-        request = pretend.stub(
-            scheme=scheme,
-            registry=pretend.stub(
-                settings={
-                    "recaptcha.site_key": "foo",
-                    "recaptcha.secret_key": "bar",
-                }
-            ),
+    def test_csp_policy(self, pyramid_request):
+        pyramid_request.registry.settings.update(
+            {
+                "recaptcha.site_key": "foo",
+                "recaptcha.secret_key": "bar",
+            }
         )
-        serv = recaptcha.Service.create_service(context=None, request=request)
+        serv = recaptcha.Service.create_service(context=None, request=pyramid_request)
         assert serv.csp_policy == {
             "script-src": [
                 "{request.scheme}://www.recaptcha.net/recaptcha/",
