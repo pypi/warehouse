@@ -92,6 +92,7 @@ def _get_zip_sdist_testdata():
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as archive:
         archive.writestr("fake_package-1.0/PKG-INFO", b"metadata")
+        archive.comment = b"archive comment"
     return buf.getvalue()
 
 
@@ -454,17 +455,22 @@ class TestFileValidation:
             "WHEEL not found at test-1.0.dist-info/WHEEL",
         )
 
-    def test_wheel_has_wheel_file(self, tmpdir):
+    @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
+    def test_wheel_archive_comment(self, tmpdir, metrics, comment):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("data.bin", b"PK\x05\x06")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
+            zfp.comment = comment
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
-            True,
-            None,
-        )
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", metrics) == (True, None)
+        if comment:
+            metrics.increment.assert_called_once_with(
+                "warehouse.upload.zipfile.policy_error", tags=["reason:archive-comment"]
+            )
+        else:
+            metrics.increment.assert_not_called()
 
     def test_invalid_wheel_filename(self, tmpdir):
         f = str(tmpdir.join("cheese.whl"))
