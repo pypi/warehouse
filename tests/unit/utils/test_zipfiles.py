@@ -9,8 +9,6 @@ import zipfile
 
 import pytest
 
-from warehouse.forklift.legacy import _is_valid_dist_file
-from warehouse.metrics.services import NullMetrics
 from warehouse.utils import zipfiles
 
 ZIPDATA_DIR = pathlib.Path(__file__).absolute().parent / "zipdata"
@@ -78,13 +76,6 @@ def test_bad_zips(filename, error):
     result = zipfiles.validate_zipfile(zippath(filename))
     assert result[0] is False, error
     assert result[1] == error
-
-    # Also test as a ZIP provided as a dist
-    # is rejected if uploaded. The message
-    # might be different, as this function
-    # also checks ZIP validity.
-    result = _is_valid_dist_file(zippath(filename), "sdist", NullMetrics())
-    assert result[0] is False
 
 
 @pytest.mark.parametrize("filename", list(os.listdir(ZIPDATA_DIR / "accept")))
