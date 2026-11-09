@@ -129,10 +129,6 @@ msgstr "आपके पासवर्ड मेल नहीं खाते �
 msgid "The email address is too long. Try again."
 msgstr "ईमेल का पता बहुत लंबा है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "ईमेल पता मान्य नहीं है। पुनः प्रयास करें।"
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -694,15 +690,6 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/manage/views/__init__.py:1929
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2115
-#: warehouse/manage/views/__init__.py:2215
-#, fuzzy
-#| msgid "Confirm Invite"
-msgid "Confirm the request"
-msgstr "आमंत्रण की पुष्टि करें"
-
 #: warehouse/manage/views/__init__.py:1941
 #, fuzzy
 #| msgid "Un-yank release"
@@ -794,18 +781,6 @@ msgstr "विश्वसनीय प्रकाशक पंजीकृत 
 #| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-"नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
-"intervention देखें।"
-
-#: warehouse/manage/views/oidc_publishers.py:404
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"GitLab-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
@@ -3797,13 +3772,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ने अभी तक PyPI पर कोई भी प्रोजेक्ट अपलोड नहीं किया है।"
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "ईमेल"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -3912,11 +3880,6 @@ msgstr "परियोजना लिंक"
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
 msgstr "गिटहब आंकड़े:"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -5126,24 +5089,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "स्वामी खुद को नहीं हटा सकते"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "हटाएं"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "प्रमाणीकरण आवेदन हटाएं"
@@ -5494,21 +5439,6 @@ msgstr ""
 #| msgid "Manage"
 msgid "Manager"
 msgstr "प्रबंधन"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "आयोजक"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -6035,13 +5965,6 @@ msgstr ""
 msgid "PyPI Project Name"
 msgstr "परियोजना का नाम"
 
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> परियोजना %(role_name)s में परिवर्तित किया"
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -6110,15 +6033,6 @@ msgid ""
 "are not supported)."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-#, fuzzy
-#| msgid "Releases"
-msgid "release"
-msgstr "विज्ञप्तियां"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -6132,61 +6046,6 @@ msgid ""
 "publishing access."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"अपने खाते पर दोबारा हक़ हासिल करने के लिए, <a href=\"%(href)s\">अपने पासवर्ड को "
-"PyPI पर रीसेट</a> करें।"
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
-msgid "Namespace"
-msgstr "नाम"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
-msgid "namespace"
-msgstr "कोई नाम सेट नहीं है"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "परियोजना"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project links"
-msgid "project"
-msgstr "परियोजना लिंक"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 #, fuzzy
@@ -6194,29 +6053,12 @@ msgstr ""
 msgid "Workflow file path"
 msgstr "आपका नाम"
 
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
 "The file path of the publishing workflow, relative to the project's root. "
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248
@@ -12007,39 +11849,6 @@ msgstr[1] ""
 #~ "rel=\"noopener\">Librarys.io</a>, या <a href=\"%(gbq_href)s\" "
 #~ "target=\"_blank\" rel=\"noopener\">गूगल BigQuery पर हमारे सार्वजनिक डेटासेट</"
 #~ "a> का उपयोग करके इस परियोजना के आंकड़े देखें"
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow file path"
-#~ msgstr "आपका नाम"
-
-#, fuzzy
-#~| msgid "Username"
-#~ msgid "Publisher name"
-#~ msgstr "उपयोगकर्ता का नाम"
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow"
-#~ msgstr "आपका नाम"
-
-#, fuzzy
-#~| msgid "Invalid Recovery Code."
-#~ msgid "Environment"
-#~ msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "If you did not make this change, you can email <a "
-#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~| "administrators."
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "यदि आपने यह परिवर्तन नहीं किया है, तो आप PyPI व्यवस्थापकों से संवाद करने के लिए <a "
-#~ "href=\"%(href)s\">%(email_address)s</a> को ईमेल कर सकते हैं।"
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "ट्विटर पर PyPI"

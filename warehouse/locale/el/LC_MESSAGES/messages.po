@@ -125,10 +125,6 @@ msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξα
 msgid "The email address is too long. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
@@ -373,15 +369,6 @@ msgstr ""
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: project does not exist"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
-
-#: warehouse/accounts/views.py:1376
-msgid "Role invitation no longer exists."
-msgstr ""
-
-#: warehouse/accounts/views.py:1410
-#, python-brace-format
-msgid "Invitation for '${project_name}' is declined."
-msgstr ""
 
 #: warehouse/accounts/views.py:1476
 #, fuzzy, python-brace-format
@@ -719,15 +706,6 @@ msgid ""
 msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
-
-#: warehouse/manage/views/__init__.py:1929
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2115
-#: warehouse/manage/views/__init__.py:2215
-#, fuzzy
-#| msgid "Confirm form"
-msgid "Confirm the request"
-msgstr "Επιβεβαίωση φόρμας"
 
 #: warehouse/manage/views/__init__.py:1941
 #, fuzzy
@@ -3807,13 +3785,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "Ο χρήστης %(username)s δεν έχει ανεβάσει ακόμα projects στο PyPI."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr ""
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -3923,13 +3894,6 @@ msgstr "Σύνδεσμοι project"
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
 msgstr "Στατιστικά GitHub:"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-#, fuzzy
-#| msgid "Release history"
-msgid "Repository"
-msgstr "Ιστορικό εκδόσεων"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -5176,24 +5140,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "Αφαίρεση"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "Αφαίρεση εφαρμογής πιστοποίησης"
@@ -5551,21 +5497,6 @@ msgstr ""
 #| msgid "Manage"
 msgid "Manager"
 msgstr "Διαχείριση"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "Κάτοχος"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -6088,25 +6019,6 @@ msgstr ""
 "Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
 "href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-#, fuzzy
-#| msgid "Project Name"
-msgid "PyPI Project Name"
-msgstr "Όνομα project"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -6175,15 +6087,6 @@ msgid ""
 "are not supported)."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-#, fuzzy
-#| msgid "Releases"
-msgid "release"
-msgstr "Κυκλοφορίες"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -6197,61 +6100,6 @@ msgid ""
 "publishing access."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
-msgid "Namespace"
-msgstr "Όνομα"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
-msgid "namespace"
-msgstr "Δεν έχει οριστεί όνομα"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "Όνομα project"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project:"
-msgid "project"
-msgstr "Project:"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 #, fuzzy
@@ -6259,29 +6107,12 @@ msgstr ""
 msgid "Workflow file path"
 msgstr "Το όνομα σας"
 
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
 "The file path of the publishing workflow, relative to the project's root. "
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248
@@ -12919,41 +12750,6 @@ msgstr[1] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
 #~ "Αγαπάμε όλα τα στατιστικά. Ορίστε μερικά χρήσιμα σχετικά με το PyPI. Η "
 #~ "σελίδα στατιστικών γίνεται cached για 24 ώρες, οπότε μην περιμένετε οι "
 #~ "αριθμοί να είναι σε πραγματικό χρόνο."
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow file path"
-#~ msgstr "Το όνομα σας"
-
-#, fuzzy
-#~| msgid "Username"
-#~ msgid "Publisher name"
-#~ msgstr "Όνομα χρήστη"
-
-#, fuzzy
-#~| msgid "Your name"
-#~ msgid "Workflow"
-#~ msgstr "Το όνομα σας"
-
-# | msgid "Invalid TOTP code."
-#, fuzzy
-#~| msgid "Invalid recovery code."
-#~ msgid "Environment"
-#~ msgstr "Μη έγκυρος κωδικός ανάκτησης."
-
-#, fuzzy, python-format
-#~| msgid ""
-#~| "If you did not make this change, you can email <a "
-#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~| "administrators."
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
-#~ "href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
-#~ "τους διαχειριστές του PyPI."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "Το PyPI στο Twitter"

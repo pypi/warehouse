@@ -174,10 +174,6 @@ msgstr "两次输入的密码不一致，请重试。"
 msgid "The email address is too long. Try again."
 msgstr "电子邮件地址太长，请重新输入。"
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "电子邮件地址无效，请重试。"
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "无法使用该域名的电子邮件地址，请换一个邮箱供应方。"
@@ -3393,13 +3389,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s 尚未将任何项目上传到 PyPI。"
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "邮件"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3499,11 +3488,6 @@ msgstr "项目链接"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "GitHub 统计信息"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr "存储库"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -4594,24 +4578,6 @@ msgstr "要删除此 2FA 方式，你必须首先添加另一种方式。"
 msgid "Cannot remove last 2FA method"
 msgstr "无法删除上一个双因素身份验证方式"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "删除"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "删除认证申请"
@@ -4908,21 +4874,6 @@ msgstr "不活跃"
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "管理者"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "所有者"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -5366,22 +5317,6 @@ msgstr ""
 "如要获取更多关于GitLab CI/CD OpenID Connect 支持的信息，<a href=\"%(href)s\">"
 "请点击此处</a>。"
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-msgid "PyPI Project Name"
-msgstr "PyPI 项目名称"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr "使用此提发布者时将在 PyPI 上创建的项目"
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -5446,13 +5381,6 @@ msgstr ""
 "相对于项目根目录的顶层管线的文件路径。文件应存在于上面配置的项目中（不支持外"
 "部管线）。"
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-msgid "release"
-msgstr "发行版"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -5470,61 +5398,10 @@ msgstr ""
 "strong> 推荐使用专门的发布环境，<strong>尤其</strong> 如果你的项目存在拥有代"
 "码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"如要获取更多关于GitLab CI/CD OpenID Connect 支持的信息，<a href=\"%(href)s\">"
-"请点击此处</a>。"
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-msgid "Namespace"
-msgstr "命名空间"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-msgid "namespace"
-msgstr "命名空间"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr "GitLab用户名或项目所在的 GitLab 群/子群命名空间"
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "项目名称"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-msgid "project"
-msgstr "项目"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "包含发布工作流的 GitLab 项目的名称"
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 msgid "Workflow file path"
 msgstr "工作流文件路径"
-
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
@@ -5534,22 +5411,6 @@ msgid ""
 "are not supported)."
 msgstr "相对于项目根目录的发布工作流的文件路径。此文件应该在上方所配置的项目中（不支"
 "持外部工作流）。"
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
-msgstr ""
-"上述工作流用于发布目的而使用的 <a href=\"%(href)s\">GitLab CI/CD 环境</a> 的"
-"名称。  这应当在项目的设置下进行配置。 虽然不是必需， 我们<strong>强烈</"
-"strong> 推荐使用专门的发布环境，<strong>尤其</strong> 如果你的项目存在拥有代"
-"码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -11305,71 +11166,6 @@ msgstr[0] "“%(filters)s”筛选器没有结果"
 #~ msgstr ""
 #~ "我们都喜欢统计数据，所以这里有一些关于PyPI的有用统计数据。统计页面被缓存了"
 #~ "24小时，所以不要期望数字是实时的。"
-
-#~ msgid "Workflow file path"
-#~ msgstr "工作流文件路径"
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
-#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-#~ "publishers act as trusted users and can create project releases "
-#~ "automatically."
-#~ msgstr ""
-#~ "PyPI 用户 <strong>%(username)s</strong> 添加了新的受信任发布者发布到你管理"
-#~ "的项目 （<strong>%(project_name)s</strong>）。受信任发布者的权限类似受信任"
-#~ "用户，可以自动创建项目版本。"
-
-#~ msgid "Publisher information"
-#~ msgstr "发布者信息"
-
-#~ msgid "Publisher name"
-#~ msgstr "出版商名"
-
-#~ msgid "Workflow"
-#~ msgstr "工作流"
-
-# | msgid "Invalid TOTP code."
-#~ msgid "Environment"
-#~ msgstr "环境"
-
-#~ msgid "ActiveState Project URL"
-#~ msgstr "ActiveState 项目 URL"
-
-#~ msgid "Actor"
-#~ msgstr "行动者"
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made maliciously, "
-#~ "you can remove it from the project via the \"Publishing\" tab on the "
-#~ "project's page."
-#~ msgstr ""
-#~ "如果你没有进行此更改，并且你认为这是恶意进行的，则可以通过项目页面上的“发"
-#~ "布”选项卡将其从项目中删除。"
-
-#, python-format
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "如果你无法恢复更改而需要这样做，你可以发电子邮件到 <a "
-#~ "href=\"%(href)s\">%(email_address)s</a> 和 PyPI 管理员进行沟通。"
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
-#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
-#~ msgstr ""
-#~ "PyPI 用户 <strong>%(username)s</strong> 已删除一位受信任发布者，它来自你管"
-#~ "理的项目 （<strong>%(project_name)s</strong>）。"
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made in error, you "
-#~ "can check the \"Security history\" tab on the project's page."
-#~ msgstr ""
-#~ "如果你没有进行此更改并且你认为它是个错误，你可以检查项目页面上的“安全历史"
-#~ "记录”选项卡。"
 
 #, python-format
 #~ msgid ""

@@ -101,10 +101,6 @@ msgstr "Vaše heslá sa nezhodujú. Skúste to znova."
 msgid "The email address is too long. Try again."
 msgstr "Emailová adresa je príliš dlhá. Skúste to znovu."
 
-#: warehouse/accounts/forms.py:278
-msgid "The email address isn't valid. Try again."
-msgstr "Neplatná emailová adresa. Skúste to znovu."
-
 #: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "Nemôžete použiť e-mailovú adresu z tejto domény. Použite iný e-mail."
@@ -3530,13 +3526,6 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s zatiaľ nenahral do PyPI žiadne projekty."
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Email"
-msgstr "E-mailová adresa"
-
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3636,11 +3625,6 @@ msgstr "Odkazy na projekty"
 #: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Štatistiky GitHub"
-
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr "Repozitár"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -4790,24 +4774,6 @@ msgstr ""
 msgid "Cannot remove last 2FA method"
 msgstr "Nie je možné odstrániť poslednú metódu 2FA"
 
-#: warehouse/templates/manage/manage_base.html:77
-#: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
-#: warehouse/templates/manage/organization/roles.html:202
-#: warehouse/templates/manage/organization/roles.html:204
-#: warehouse/templates/manage/organization/roles.html:209
-#: warehouse/templates/manage/project/roles.html:89
-#: warehouse/templates/manage/project/roles.html:143
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:205
-#: warehouse/templates/manage/team/roles.html:75
-#: warehouse/templates/manage/team/roles.html:80
-msgid "Remove"
-msgstr "Odstrániť"
-
 #: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "Odstráňte autentifikačnú aplikáciu"
@@ -5122,21 +5088,6 @@ msgstr "Neaktívne"
 #: warehouse/templates/manage/organizations.html:88
 msgid "Manager"
 msgstr "manažér"
-
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/organization/publishing.html:34
-#: warehouse/templates/manage/organization/roles.html:49
-#: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
-#: warehouse/templates/manage/project/roles.html:48
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:200
-#: warehouse/templates/manage/project/roles.html:220
-msgid "Owner"
-msgstr "Vlastník"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
@@ -5628,22 +5579,6 @@ msgstr ""
 "Prečítajte si viac o GitLab CI/CD OpenID Connect podpora <a "
 "href=\"%(href)s\">here</a>."
 
-#: warehouse/templates/manage/account/publishing.html:133
-#: warehouse/templates/manage/account/publishing.html:231
-#: warehouse/templates/manage/account/publishing.html:299
-#: warehouse/templates/manage/organization/publishing.html:21
-#: warehouse/templates/manage/organization/publishing.html:130
-#: warehouse/templates/manage/organization/publishing.html:244
-#: warehouse/templates/manage/organization/publishing.html:312
-msgid "PyPI Project Name"
-msgstr "Názov projektu PyPI"
-
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/account/publishing.html:312
-msgid "The project (on PyPI) that will be created when this publisher is used"
-msgstr "Projekt (na PyPI), ktorý sa vytvorí pri použití tohto vydavateľa"
-
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:140
@@ -5711,13 +5646,6 @@ msgstr ""
 "by mal existovať v projekte nakonfigurovaný vyššie (externé potrubia nie sú "
 "podporované)."
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
-msgid "release"
-msgstr "uvoľniť"
-
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
 #: warehouse/templates/manage/project/publishing.html:188
@@ -5736,65 +5664,12 @@ msgstr ""
 "<strong>strongly</strong> podporované, <strong>najmä</strong> ak váš projekt "
 "udržiavatelia so vstupom, ktorý by nemal mať PyPI vydavateľský prístup."
 
-#: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
-#, python-format
-msgid ""
-"Read more about GitLab CI/CD OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
-msgstr ""
-"Prečítajte si viac o GitLab CI/CD OpenID Connect podpora <a href=\"%(href)"
-"s\">here</a>."
-
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
-msgid "Namespace"
-msgstr "Menný priestor"
-
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
-msgid "namespace"
-msgstr "názovspace"
-
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
-msgid ""
-"The GitLab username or GitLab group/subgroup namespace that the project is "
-"under"
-msgstr ""
-"GitLab užívateľské meno alebo GitLab Group/subgroup namespace, ktorý je "
-"projekt pod"
-
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr "Meno projektu"
-
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
-msgid "project"
-msgstr "projekt"
-
-#: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
-msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "Názov projektu GitLab, ktorý obsahuje publikovanie workflow"
-
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
 #, fuzzy
 #| msgid "Workflow name"
 msgid "Workflow file path"
 msgstr "Názov pracovného postupu"
-
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
-msgid ".gitlab-ci.yml"
-msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
@@ -5810,23 +5685,6 @@ msgid ""
 msgstr ""
 "Názov súboru pracovného postupu publikovania. Tento súbor by mal existovať v "
 "adresári <code>.github/workflows/</code> v úložisku nakonfigurovanom vyššie."
-
-#: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
-#, python-format
-msgid ""
-"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
-"above workflow uses for publishing.  This should be configured under the "
-"project's settings. While not required, a dedicated publishing environment "
-"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
-"project has maintainers with commit access who shouldn't have PyPI "
-"publishing access."
-msgstr ""
-"Názov <a href=\"%(href)s\">GitLab CI/CD prostredia</a>, že vyššie workflow "
-"používa na publikovanie. To by malo byť nakonfigurované podľa nastavení "
-"projektu. Zatiaľ čo nie je potrebné, vyhradené vydavateľstvo je <strong>"
-"strongly</strong> podporované, <strong>najmä</strong> ak váš projekt "
-"udržiavatelia so vstupom, ktorý by nemal mať PyPI vydavateľský prístup."
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -12069,70 +11927,6 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 #~ "Všetci milujeme štatistiky, takže tu je niekoľko užitočných štatistík o "
 #~ "PyPI. Stránka so štatistikami je uložená vo vyrovnávacej pamäti na 24 "
 #~ "hodín, takže neočakávajte, že čísla budú v reálnom čase."
-
-#, fuzzy
-#~| msgid "Workflow name"
-#~ msgid "Workflow file path"
-#~ msgstr "Názov pracovného postupu"
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
-#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-#~ "publishers act as trusted users and can create project releases "
-#~ "automatically."
-#~ msgstr ""
-#~ "Používateľ PyPI <strong>%(username)s</strong> pridal nového dôveryhodného "
-#~ "vydavateľa do projektu (<strong>%(project_name)s</strong>), ktorý "
-#~ "spravujete. Dôveryhodní vydavatelia vystupujú ako dôveryhodní "
-#~ "používatelia a môžu automaticky vytvárať vydania projektu."
-
-#~ msgid "Publisher information"
-#~ msgstr "Informácie o vydavateľovi"
-
-#~ msgid "Publisher name"
-#~ msgstr "Meno vydavateľa"
-
-#~ msgid "Workflow"
-#~ msgstr "Pracovný postup"
-
-#~ msgid "Environment"
-#~ msgstr "Životné prostredie"
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made maliciously, "
-#~ "you can remove it from the project via the \"Publishing\" tab on the "
-#~ "project's page."
-#~ msgstr ""
-#~ "Ak ste túto zmenu neurobili a myslíte si, že bola vykonaná so zlým "
-#~ "úmyslom, môžete ju z projektu odstrániť cez záložku „Publikovanie“ na "
-#~ "stránke projektu."
-
-#, python-format
-#~ msgid ""
-#~ "If you are unable to revert the change and need to do so, you can email "
-#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#~ "administrators."
-#~ msgstr ""
-#~ "Ak nemôžete vrátiť zmenu a potrebujete to urobiť, môžete poslať e-mail na "
-#~ "adresu <a href=\"%(href)s\">%(email_address)s</a> a komunikovať s "
-#~ "administrátormi PyPI."
-
-#, python-format
-#~ msgid ""
-#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
-#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
-#~ msgstr ""
-#~ "Používateľ PyPI <strong>%(username)s</strong> odstránil dôveryhodného "
-#~ "vydavateľa z projektu (<strong>%(project_name)s</strong>), ktorý "
-#~ "spravujete."
-
-#~ msgid ""
-#~ "If you did not make this change and you think it was made in error, you "
-#~ "can check the \"Security history\" tab on the project's page."
-#~ msgstr ""
-#~ "Ak ste túto zmenu neurobili a myslíte si, že bola vykonaná omylom, môžete "
-#~ "skontrolovať záložku „História zabezpečenia“ na stránke projektu."
 
 #, python-format
 #~ msgid ""
