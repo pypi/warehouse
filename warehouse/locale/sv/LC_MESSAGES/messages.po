@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2026-10-18 15:42+0200\n"
-"PO-Revision-Date: 2026-11-09 13:48+0000\n"
+"PO-Revision-Date: 2026-11-09 14:09+0000\n"
 "Last-Translator: Daniel Nylander "
 "<yeagersthlm2@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -230,15 +230,12 @@ msgstr ""
 "Återställningskoden godkändes. Den angivna koden kan inte användas igen."
 
 #: warehouse/accounts/views.py:737
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "New user registration temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Registrering av nya användare är tillfälligt avstängd. Mer information finns "
-"på https://pypi.org/help#admin-intervention."
+"Registrering av nya användare är tillfälligt inaktiverad. Mer information "
+"finns i ${docs_url}."
 
 #: warehouse/accounts/views.py:796
 #, python-brace-format
@@ -441,35 +438,28 @@ msgstr ""
 #: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Trusted publishing is temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "Trusted publishing is temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Betrodd publicering är tillfälligt avstängd. Mer information finns på "
-"https://pypi.org/help#admin-intervention."
+"Betrodd publicering är tillfälligt inaktiverad. Mer information finns i $"
+"{docs_url}."
 
 #: warehouse/accounts/views.py:1928
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
-msgstr ""
+msgstr "inaktiverad. Mer information finns i ${docs_url}."
 
 #: warehouse/accounts/views.py:1950
 #: warehouse/manage/views/organizations.py:1950
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "You must have a verified email in order to register a pending trusted "
-#| "publisher. See https://pypi.org/help#openid-connect for details."
+#, python-brace-format
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See ${docs_url} for details."
 msgstr ""
 "Du måste ha en verifierad e-postadress för att registrera en väntande "
-"betrodd utgivare. Mer information finns på https://pypi.org/help#openid-"
-"connect."
+"betrodd utgivare. Mer information finns i ${docs_url}."
 
 #: warehouse/accounts/views.py:1977
 msgid "You can't register more than 3 pending trusted publishers at once."
@@ -693,6 +683,8 @@ msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
+"Din inställningskod är inte längre giltig. Skanna den nya QR-koden och ange "
+"koden den genererar."
 
 #: warehouse/manage/views/__init__.py:957
 msgid "Recovery codes already generated"
@@ -718,14 +710,11 @@ msgstr "Ogiltiga inloggningsuppgifter. Försök igen"
 #: warehouse/manage/views/__init__.py:1372
 #: warehouse/manage/views/__init__.py:1708
 #: warehouse/manage/views/__init__.py:1837
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
-#| "intervention for details."
+#, python-brace-format
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Borttagning av projekt är tillfälligt inaktiverad. Se https://pypi.org/"
-"help#admin-intervention för mer information."
+"Projektborttagning är tillfälligt inaktiverad. Mer information finns i $"
+"{docs_url}."
 
 #: warehouse/manage/views/__init__.py:1392
 msgid ""
@@ -779,11 +768,9 @@ msgstr ""
 "konsekvenser för att fortsätta"
 
 #: warehouse/manage/views/__init__.py:2007
-#, fuzzy
-#| msgid "Cannot invite new member. Organization is not in good standing."
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
-"Det går inte att bjuda in en ny medlem. Organisationen har inte god status."
+"Det går inte att lägga till medarbetaren. Organisationen har inte god status."
 
 #: warehouse/manage/views/__init__.py:2036
 #, python-brace-format
@@ -835,10 +822,9 @@ msgstr "Den utgångna inbjudan för '${username}' togs bort."
 
 #: warehouse/manage/views/__init__.py:2370
 #: warehouse/manage/views/organizations.py:1301
-#, fuzzy, python-brace-format
-#| msgid "Expired invitation for '${username}' deleted."
+#, python-brace-format
 msgid "Invalid invitation for '${username}' deleted."
-msgstr "Den utgångna inbjudan för '${username}' togs bort."
+msgstr "Ogiltig inbjudan för '${username}' togs bort."
 
 #: warehouse/manage/views/__init__.py:2375
 #: warehouse/manage/views/organizations.py:1306
@@ -911,58 +897,48 @@ msgid "The trusted publisher could not be constrained"
 msgstr "Det gick inte att begränsa den betrodda publiceraren"
 
 #: warehouse/manage/views/oidc_publishers.py:300
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Betrodd publicering via GitHub är tillfälligt inaktiverad. Se https://"
-"pypi.org/help#admin-intervention för mer information."
+"Betrodd publicering via GitHub är tillfälligt inaktiverad. Mer information "
+"finns i ${docs_url}."
 
 #: warehouse/manage/views/oidc_publishers.py:421
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "GitLab-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Betrodd publicering via GitLab är tillfälligt inaktiverad. Se https://"
-"pypi.org/help#admin-intervention för mer information."
+"Betrodd publicering via GitLab är tillfälligt inaktiverad. Mer information "
+"finns i ${docs_url}."
 
 #: warehouse/manage/views/oidc_publishers.py:543
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Google-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Betrodd publicering via Google är tillfälligt inaktiverad. Se https://"
-"pypi.org/help#admin-intervention för mer information."
+"Betrodd publicering via Google är tillfälligt inaktiverad. Mer information "
+"finns i ${docs_url}."
 
 #: warehouse/manage/views/oidc_publishers.py:660
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "ActiveState-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See $"
 "{docs_url} for details."
 msgstr ""
-"Betrodd publicering via ActiveState är tillfälligt inaktiverad. Se https://"
-"pypi.org/help#admin-intervention för mer information."
+"Betrodd publicering via ActiveState är tillfälligt inaktiverad. Mer "
+"information finns i ${docs_url}."
 
 #: warehouse/manage/views/organizations.py:704
 msgid ""
 "This organization is deactivated. To reactivate it, email "
 "support+orgs@pypi.org."
 msgstr ""
+"Den här organisationen är inaktiverad. Skicka e-post till "
+"support+orgs@pypi.org för att återaktivera den."
 
 #: warehouse/manage/views/organizations.py:970
 msgid ""
@@ -1015,6 +991,8 @@ msgid ""
 "You already have 3 pending trusted publishers for this organization. Remove "
 "one before adding another."
 msgstr ""
+"Du har redan tre väntande betrodda utgivare för organisationen. Ta bort en "
+"innan du lägger till en till."
 
 #: warehouse/oidc/forms/_core.py:34 warehouse/oidc/forms/_core.py:45
 #: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
@@ -1217,19 +1195,14 @@ msgstr "Kopierad"
 
 #: warehouse/static/js/warehouse/controllers/filter_list_controller.js:548
 #: warehouse/templates/includes/packaging/project-security.html:197
-#, fuzzy
-#| msgid "No built distributions (wheels) match the current filters."
 msgid "No files match the current filters."
-msgstr "Inga byggda distributioner, wheels, matchar de aktuella filtren."
+msgstr "Inga filer matchar de aktuella filtren."
 
 #: warehouse/static/js/warehouse/controllers/filter_list_controller.js:554
-#, fuzzy
-#| msgid "Showing %1 of %2 built distribution (wheel) file."
-#| msgid_plural "Showing %1 of %2 built distribution (wheel) files."
 msgid "Showing %1 of %2 file."
 msgid_plural "Showing %1 of %2 files."
-msgstr[0] "Visar %1 av %2 fil för byggd distribution, wheel."
-msgstr[1] "Visar %1 av %2 filer för byggda distributioner, wheels."
+msgstr[0] "Visar %1 av %2 fil."
+msgstr[1] "Visar %1 av %2 filer."
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:36
 msgid "Error while validating hashed password, disregard on development"
@@ -1444,10 +1417,8 @@ msgstr "Huvudnavigation"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:60
 #: warehouse/templates/includes/current-user-indicator.html:60
-#, fuzzy
-#| msgid "PyPI Blog"
 msgid "Blog"
-msgstr "PyPI-bloggen"
+msgstr "Blogg"
 
 #: warehouse/templates/base.html:36 warehouse/templates/base.html:63
 #: warehouse/templates/includes/current-user-indicator.html:66
@@ -1629,16 +1600,12 @@ msgid "Help navigation"
 msgstr "Hjälpnavigering"
 
 #: warehouse/templates/base.html:383
-#, fuzzy
-#| msgid "Python documentation"
 msgid "PyPI documentation"
-msgstr "Python-dokumentation"
+msgstr "PyPI-dokumentation"
 
 #: warehouse/templates/base.html:386
-#, fuzzy
-#| msgid "Settings"
 msgid "Getting help"
-msgstr "Inställningar"
+msgstr "Få hjälp"
 
 #: warehouse/templates/base.html:392
 msgid "Installing packages"
@@ -1649,10 +1616,8 @@ msgid "Uploading packages"
 msgstr "Ladda upp paket"
 
 #: warehouse/templates/base.html:404
-#, fuzzy
-#| msgid "Python Packaging User Guide"
 msgid "Packaging user guide"
-msgstr "Användarhandbok för Python-paketering"
+msgstr "Användarhandbok för paketering"
 
 #: warehouse/templates/base.html:410 warehouse/templates/pages/sitemap.html:31
 msgid "About PyPI"
@@ -1663,10 +1628,8 @@ msgid "About PyPI navigation"
 msgstr "Navigering för Om PyPI"
 
 #: warehouse/templates/base.html:414
-#, fuzzy
-#| msgid "PyPI Blog"
 msgid "PyPI blog"
-msgstr "PyPI-bloggen"
+msgstr "PyPI-blogg"
 
 #: warehouse/templates/base.html:420
 msgid "Infrastructure dashboard"
@@ -2198,16 +2161,11 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s har ännu inte laddat upp några projekt till PyPI"
 
 #: warehouse/templates/accounts/profile.html:92
-#, fuzzy, python-format
-#| msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
-#| msgid_plural ""
-#| "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
+#, python-format
 msgid "%(count)s <a href=\"%(href)s\">archived</a> project"
 msgid_plural "%(count)s <a href=\"%(href)s\">archived</a> projects"
-msgstr[0] ""
-"%(count)s <a href=\"%(href)s#archived-project\">arkiverat</a> projekt"
-msgstr[1] ""
-"%(count)s <a href=\"%(href)s#archived-project\">arkiverade</a> projekt"
+msgstr[0] "%(count)s <a href=\"%(href)s\">arkiverat</a> projekt"
+msgstr[1] "%(count)s <a href=\"%(href)s\">arkiverade</a> projekt"
 
 #: warehouse/templates/accounts/profile.html:104
 #: warehouse/templates/includes/packaging/project-release-history.html:91
@@ -2406,19 +2364,15 @@ msgid "Select a password"
 msgstr "Välj ett lösenord"
 
 #: warehouse/templates/accounts/register.html:209
-#, fuzzy, python-format
-#| msgid ""
-#| "This password appears in a security breach or has been compromised and "
-#| "cannot be used. Please refer to the <a href=\"/help/#compromised-"
-#| "password\">FAQ</a> for more information."
+#, python-format
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"%(href)s\">documentation</a> "
 "for more information."
 msgstr ""
 "Det här lösenordet förekommer i ett säkerhetsintrång eller har röjts och kan "
-"inte användas. Se <a href=\"/help/#compromised-password\">vanliga frågor</a> "
-"för mer information."
+"inte användas. Se <a href=\"%(href)s\">dokumentationen</a> för mer "
+"information."
 
 #: warehouse/templates/accounts/register.html:217
 msgid ""
@@ -2633,19 +2587,14 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr "Ditt PyPI-konto <strong>%(username)s</strong> har tagits bort."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:9
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong><a href=\"%(role_faq_url)s\">%(role)s</a></"
-#| "strong> to the %(site)s project <a "
-#| "href=\"%(project_url)s\">%(project_name)s</a> by <a "
-#| "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
+#, python-format
 msgid ""
 "You have been added as <strong><a href=\"%(role_docs_url)s\">%(role)s</a></"
 "strong> to the %(site)s project <a "
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"Du har lagts till som <strong><a href=\"%(role_faq_url)s\">%(role)s</a></"
+"Du har lagts till som <strong><a href=\"%(role_docs_url)s\">%(role)s</a></"
 "strong> i %(site)s-projektet <a href=\"%(project_url)s\">%(project_name)s</"
 "a> av <a href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 
@@ -2780,6 +2729,12 @@ msgid ""
 "href=\"%(recovery_href)s\">account recovery steps</a> to open an issue on "
 "our support tracker instead of emailing the PyPI administrators."
 msgstr ""
+"Om du har glömt lösenordet kan du <a href=\"%(reset_href)s\">återställa "
+"lösenordet</a>. Om du har förlorat åtkomsten till din "
+"tvåfaktorsautentiseringsmetod och dina återställningskoder ska du följa <a "
+"href=\"%(recovery_href)s\">stegen för kontoåterställning</a> och skapa ett "
+"ärende i vårt supportärendesystem i stället för att skicka e-post till PyPI-"
+"administratörerna."
 
 #: warehouse/templates/email/new-email-added/body.html:5
 #, python-format
@@ -2825,6 +2780,10 @@ msgid ""
 "log in to %(domain)s and either verify your primary email address or set a "
 "verified email address as your primary."
 msgstr ""
+"Vi skickade det här e-postmeddelandet till en sekundär adress eftersom ditt "
+"konto saknar en verifierad primär e-postadress. Innan du kan använda "
+"länkarna i meddelandet ska du logga in på %(domain)s och antingen verifiera "
+"din primära e-postadress eller ange en verifierad e-postadress som primär."
 
 #: warehouse/templates/email/new-organization-approved/body.html:16
 msgid "Manage organization"
@@ -3259,20 +3218,15 @@ msgstr ""
 "skickas aldrig till HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, see our <a href=\"%(faq_url)s\">FAQ</a>. For help, "
-#| "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
-#| "communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "For more information, see our <a href=\"%(docs_url)s\">user documentation</"
 "a>. For help, you can email <a href=\"%(email_href)s\">%(email_address)s</a> "
 "to communicate with the PyPI administrators."
 msgstr ""
-"Se <a href=\"%(faq_url)s\">vanliga frågor</a> för mer information. Om du "
-"behöver hjälp kan du skicka e-post till <a "
-"href=\"%(email_href)s\">%(email_address)s</a> för att kontakta PyPI:s "
-"administratörer."
+"Mer information finns i vår <a href=\"%(docs_url)s\">användardokumentation</"
+"a>. Om du behöver hjälp kan du skicka e-post till <a href=\"%(email_href)s\">"
+"%(email_address)s</a> för att kontakta PyPI-administratörerna."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3748,20 +3702,16 @@ msgstr "Kopiera till urklipp"
 
 #: warehouse/templates/includes/file-details.html:58
 #: warehouse/templates/includes/packaging/security/attestation.html:230
-#, fuzzy
-#| msgid "SHA-256 checksum"
 msgid "Copy SHA-256 checksum"
-msgstr "SHA-256-kontrollsumma"
+msgstr "Kopiera SHA-256-kontrollsumma"
 
 #: warehouse/templates/includes/file-details.html:65
 msgid "BLAKE2b-256 checksum"
 msgstr "BLAKE2b-256-kontrollsumma"
 
 #: warehouse/templates/includes/file-details.html:81
-#, fuzzy
-#| msgid "BLAKE2b-256 checksum"
 msgid "Copy BLAKE2b-256 checksum"
-msgstr "BLAKE2b-256-kontrollsumma"
+msgstr "Kopiera BLAKE2b-256-kontrollsumma"
 
 #: warehouse/templates/includes/file-details.html:87
 #: warehouse/templates/manage/project/release.html:60
@@ -4029,19 +3979,15 @@ msgstr "Medlemmar"
 #: warehouse/templates/includes/packaging/project-security.html:107
 #: warehouse/templates/includes/packaging/project-security.html:219
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:31
-#, fuzzy
-#| msgid "Provenance"
 msgid "With provenance"
-msgstr "Ursprung"
+msgstr "Med ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/file-provenance-status.html:5
 #: warehouse/templates/includes/packaging/project-security.html:119
 #: warehouse/templates/includes/packaging/project-security.html:223
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:49
-#, fuzzy
-#| msgid "Provenance"
 msgid "Without provenance"
-msgstr "Ursprung"
+msgstr "Utan ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-description.html:14
 msgid "The author of this package has not provided a project description"
@@ -4092,10 +4038,8 @@ msgstr "Uppladdad"
 
 #: warehouse/templates/includes/packaging/project-files.html:32
 #: warehouse/templates/includes/packaging/project-files.html:180
-#, fuzzy
-#| msgid "Options"
 msgid "Actions"
-msgstr "Inställningar"
+msgstr "Åtgärder"
 
 #: warehouse/templates/includes/packaging/project-files.html:49
 #: warehouse/templates/includes/packaging/project-files.html:203
@@ -4110,7 +4054,7 @@ msgstr[1] "Filer lades till sent"
 #: warehouse/templates/includes/packaging/project-files.html:239
 #, python-format
 msgid "Details <span class=\"sr-only\">for %(filename)s</span>"
-msgstr ""
+msgstr "Detaljer <span class=\"sr-only\">för %(filename)s</span>"
 
 #: warehouse/templates/includes/packaging/project-files.html:74
 msgid "Built distribution (wheel)"
@@ -4190,16 +4134,12 @@ msgid "Metadata. Focus will be moved to the metadata panel."
 msgstr "Metadata. Fokus flyttas till metadatapanelen."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:52
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the release history panel."
 msgid "Release files. Focus will be moved to the release files panel."
-msgstr "Utgåvehistorik. Fokus flyttas till panelen för utgåvehistorik."
+msgstr "Utgåvefiler. Fokus flyttas till panelen med utgåvefiler."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:69
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the release history panel."
 msgid "Release security. Focus will be moved to the security panel."
-msgstr "Utgåvehistorik. Fokus flyttas till panelen för utgåvehistorik."
+msgstr "Utgåvesäkerhet. Fokus flyttas till säkerhetspanelen."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:72
 #: warehouse/templates/pages/security.html:4
@@ -4280,10 +4220,8 @@ msgstr[1] "%(count)s utgivningsfiler"
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:9
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:14
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:31
-#, fuzzy
-#| msgid "Provenance"
 msgid "Loss of provenance"
-msgstr "Ursprung"
+msgstr "Förlorade ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:32
 #: warehouse/templates/includes/packaging/project-release-history.html:119
@@ -4292,10 +4230,8 @@ msgstr "Ursprung"
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:28
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:52
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:66
-#, fuzzy
-#| msgid "Provenance"
 msgid "Change of provenance"
-msgstr "Ursprung"
+msgstr "Ändrade ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:40
 #: warehouse/templates/includes/packaging/project-release-history.html:121
@@ -4304,7 +4240,7 @@ msgstr "Ursprung"
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:47
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:88
 msgid "Inconsistent provenance"
-msgstr ""
+msgstr "Inkonsekventa ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:48
 #: warehouse/templates/includes/packaging/project-release-history.html:123
@@ -4312,51 +4248,39 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:9
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:66
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:118
-#, fuzzy
-#| msgid "Incomplete Expired"
 msgid "Incomplete provenance"
-msgstr "Ofullständig och utgången"
+msgstr "Ofullständiga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:76
 #: warehouse/templates/includes/packaging/project-release-history.html:125
 #: warehouse/templates/includes/packaging/security/full-provenance.html:5
-#, fuzzy
-#| msgid "Provenance"
 msgid "Full provenance"
-msgstr "Ursprung"
+msgstr "Fullständiga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:127
-#, fuzzy
-#| msgid "Provenance"
 msgid "No provenance"
-msgstr "Ursprung"
+msgstr "Inga ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:135
 msgid "Yanked reason:"
 msgstr "Orsak till tillbakadragning:"
 
 #: warehouse/templates/includes/packaging/project-security.html:8
-#, fuzzy, python-format
-#| msgid "Source distribution for %(name)s %(version)s"
+#, python-format
 msgid "Security for %(name)s %(version)s"
-msgstr "Källdistribution för %(name)s %(version)s"
+msgstr "Säkerhet för %(name)s %(version)s"
 
 #: warehouse/templates/includes/packaging/project-security.html:12
 msgid "Report project as malware"
 msgstr "Rapportera projektet som skadlig programvara"
 
 #: warehouse/templates/includes/packaging/project-security.html:16
-#, fuzzy
-#| msgid "Upload date"
 msgid "Upload timing"
-msgstr "Uppladdningsdatum"
+msgstr "Tidpunkt för uppladdning"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:65
 #: warehouse/templates/includes/packaging/project-security.html:20
 #: warehouse/templates/includes/packaging/project-status.html:58
-#, fuzzy
-#| msgid "File added late"
-#| msgid_plural "Files added late"
 msgid "Release file added late"
 msgid_plural "Release files added late"
 msgstr[0] "Fil lades till sent"
@@ -4389,51 +4313,38 @@ msgstr ""
 "utgåva, men sena tillägg kan också tyda på att säkerheten har äventyrats."
 
 #: warehouse/templates/includes/packaging/project-security.html:63
-#, fuzzy, python-format
-#| msgid "%(count)s file"
-#| msgid_plural "%(count)s files"
+#, python-format
 msgid "Select from %(count)s file"
 msgid_plural "Select from %(count)s files"
-msgstr[0] "%(count)s fil"
-msgstr[1] "%(count)s filer"
+msgstr[0] "Välj bland %(count)s fil"
+msgstr[1] "Välj bland %(count)s filer"
 
 #: warehouse/templates/includes/packaging/project-security.html:82
-#, fuzzy
-#| msgid "Delete file"
 msgid "Filter files"
-msgstr "Ta bort fil"
+msgstr "Filtrera filer"
 
 #: warehouse/templates/includes/packaging/project-security.html:124
-#, fuzzy
-#| msgid "File"
 msgid "File type"
-msgstr "Fil"
+msgstr "Filtyp"
 
 #: warehouse/templates/includes/packaging/project-security.html:135
-#, fuzzy
-#| msgid "Source distribution (sdist)"
-#| msgid_plural "Source distributions (sdists)"
 msgid "Source Distribution (sdist)"
 msgstr "Källdistribution (sdist)"
 
 #: warehouse/templates/includes/packaging/project-security.html:147
 msgid "Wheel"
-msgstr ""
+msgstr "Wheel"
 
 #: warehouse/templates/includes/packaging/project-security.html:199
-#, fuzzy
-#| msgid "Release files"
 msgid "Reset filters"
-msgstr "Utgåvefiler"
+msgstr "Återställ filter"
 
 #: warehouse/templates/includes/packaging/project-security.html:235
-#, fuzzy, python-format
-#| msgid "%(count)s maintainer"
-#| msgid_plural "%(count)s maintainers"
+#, python-format
 msgid "%(count)s attestation"
 msgid_plural "%(count)s attestations"
-msgstr[0] "%(count)s underhållare"
-msgstr[1] "%(count)s underhållare"
+msgstr[0] "%(count)s attestering"
+msgstr[1] "%(count)s attesteringar"
 
 #: warehouse/templates/includes/packaging/project-security.html:257
 #, python-format
@@ -4444,15 +4355,19 @@ msgid_plural ""
 "Attestations for <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
 "action=\"project-tabs#tabClick\">%(filename)s</a>"
 msgstr[0] ""
+"Intyg för <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#tabClick\">%(filename)s</a>"
 msgstr[1] ""
+"Intyg för <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#tabClick\">%(filename)s</a>"
 
 #: warehouse/templates/includes/packaging/project-security.html:277
 msgid "This file was uploaded without provenance metadata."
-msgstr ""
+msgstr "Den här filen laddades upp utan ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/project-security.html:285
 msgid "A note on package security"
-msgstr ""
+msgstr "Om paketsäkerhet"
 
 #: warehouse/templates/includes/packaging/project-security.html:287
 msgid ""
@@ -4461,6 +4376,10 @@ msgid ""
 "detect and remove malicious packages, PyPI cannot guarantee the quality, "
 "security or suitability of any given package."
 msgstr ""
+"PyPI är ett arkiv för distribution av paket, inte en tjänst för att granska "
+"dem. Även om externa säkerhetsforskare och vår personal gör sitt bästa för "
+"att upptäcka och ta bort skadliga paket kan PyPI inte garantera kvaliteten, "
+"säkerheten eller lämpligheten hos ett enskilt paket."
 
 #: warehouse/templates/includes/packaging/project-security.html:290
 #, python-format
@@ -4468,6 +4387,8 @@ msgid ""
 "To learn more about protecting yourself from malicious actors, visit our <a "
 "href=\"%(href)s\">package security documentation</a>."
 msgstr ""
+"Besök vår <a href=\"%(href)s\">dokumentation om paketsäkerhet</a> för att "
+"läsa mer om hur du skyddar dig mot skadliga aktörer."
 
 #: warehouse/templates/includes/packaging/project-status.html:13
 #, python-format
@@ -4475,6 +4396,8 @@ msgid ""
 "A previous release had provenance metadata, but this release does not. <a "
 "href=\"%(href)s\">View details</a>."
 msgstr ""
+"En tidigare utgåva hade ursprungsmetadata, men den här utgåvan saknar dem. "
+"<a href=\"%(href)s\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/project-status.html:25
 #, python-format
@@ -4482,6 +4405,8 @@ msgid ""
 "The repository or configuration that created this release differ from a "
 "previous release. <a href=\"%(href)s\">View details</a>."
 msgstr ""
+"Arkivet eller konfigurationen som skapade den här utgåvan skiljer sig från "
+"en tidigare utgåva. <a href=\"%(href)s\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/project-status.html:37
 #, python-format
@@ -4489,6 +4414,8 @@ msgid ""
 "Files in this release originate from inconsistent repositories or "
 "configurations. <a href=\"%(href)s\">View details</a>."
 msgstr ""
+"Filerna i den här utgåvan kommer från inkonsekventa arkiv eller "
+"konfigurationer. <a href=\"%(href)s\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/project-status.html:49
 #, python-format
@@ -4496,6 +4423,8 @@ msgid ""
 "%(without_count)s of %(total_count)s release files were uploaded without "
 "provenance metadata. <a href=\"%(href)s\">View details</a>."
 msgstr ""
+"%(without_count)s av %(total_count)s utgåvefiler laddades upp utan "
+"ursprungsmetadata. <a href=\"%(href)s\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/project-status.html:63
 #, python-format
@@ -4803,26 +4732,29 @@ msgstr ""
 "laddades upp till PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:16
-#, fuzzy
-#| msgid "Provenance"
 msgid "About provenance"
-msgstr "Ursprung"
+msgstr "Om ursprungsuppgifter"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:27
 msgid "A previous release had provenance metadata, but this release does not."
 msgstr ""
+"En tidigare utgåva hade ursprungsmetadata, men den här utgåvan saknar dem."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:35
 msgid ""
 "The repository or configuration that created this release differ from a "
 "previous release."
 msgstr ""
+"Arkivet eller konfigurationen som skapade den här utgåvan skiljer sig från "
+"en tidigare utgåva."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:43
 msgid ""
 "Files in this release originate from inconsistent repositories or "
 "configurations."
 msgstr ""
+"Filerna i den här utgåvan kommer från inkonsekventa arkiv eller "
+"konfigurationer."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:51
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:12
@@ -4831,36 +4763,32 @@ msgid ""
 "%(without_count)s of %(total_count)s release files were uploaded without "
 "provenance metadata."
 msgstr ""
+"%(without_count)s av %(total_count)s utgåvefiler laddades upp utan "
+"ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:63
 #: warehouse/templates/includes/packaging/metadata/provenance.html:90
-#, fuzzy
-#| msgid "View release options"
 msgid "View provenance details"
-msgstr "Visa alternativ för utgåvan"
+msgstr "Visa uppgifter om ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:71
-#, fuzzy
-#| msgid ""
-#| "Data provided by the project maintainers, verified at the time the "
-#| "release was uploaded to PyPI."
 msgid ""
 "Data provided by the project maintainers and verified by PyPI at the time of "
 "upload."
 msgstr ""
-"Data tillhandahölls av projektets underhållare och verifierades när utgåvan "
-"laddades upp till PyPI."
+"Data tillhandahölls av projektets underhållare och verifierades av PyPI vid "
+"uppladdningen."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:80
 msgid "Both files in this release have provenance metadata."
-msgstr ""
+msgstr "Båda filerna i den här utgåvan har ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:82
 #, python-format
 msgid "%(count)s file in this release has provenance metadata."
 msgid_plural "All %(count)s files in this release have provenance metadata."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s fil i den här utgåvan har ursprungsmetadata."
+msgstr[1] "Alla %(count)s filer i den här utgåvan har ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/metadata/provides-extra.html:3
 msgid "Provides Extra"
@@ -5016,16 +4944,21 @@ msgid ""
 "The repository and configuration that created this release differ from a "
 "previous release."
 msgstr ""
+"Arkivet och konfigurationen som skapade den här utgåvan skiljer sig från en "
+"tidigare utgåva."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:14
 msgid ""
 "The repository that created this release differs from a previous release."
 msgstr ""
+"Arkivet som skapade den här utgåvan skiljer sig från en tidigare utgåva."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:16
 msgid ""
 "The configuration that created this release differs from a previous release."
 msgstr ""
+"Konfigurationen som skapade den här utgåvan skiljer sig från en tidigare "
+"utgåva."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:18
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:9
@@ -5033,13 +4966,13 @@ msgid ""
 "While this could reflect a routine change by the project maintainers, it may "
 "also indicate that the release files have been compromised."
 msgstr ""
+"Även om detta kan återspegla en rutinmässig ändring från projektets "
+"underhållare kan det också betyda att utgåvans filer har komprometterats."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:32
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:31
-#, fuzzy
-#| msgid "Repository"
 msgid "Repository/Account"
-msgstr "Förråd"
+msgstr "Arkiv/konto"
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:34
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:33
@@ -5051,25 +4984,19 @@ msgstr "Konto"
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:44
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:91
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:20
-#, fuzzy
-#| msgid "Remove"
 msgid "Removed"
-msgstr "Ta bort"
+msgstr "Borttagen"
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:63
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:108
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:40
-#, fuzzy
-#| msgid "Added by"
 msgid "Added"
-msgstr "Tillagd av"
+msgstr "Tillagd"
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:84
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:75
-#, fuzzy
-#| msgid "Confirm Action"
 msgid "Configuration"
-msgstr "Bekräfta åtgärd"
+msgstr "Konfiguration"
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:127
 #, python-format
@@ -5077,14 +5004,17 @@ msgid ""
 "We recommend inspecting the repository and configuration before proceeding. "
 "<a href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar att du granskar arkivet och konfigurationen innan du "
+"fortsätter. <a href=\"%(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:129
-#, fuzzy, python-format
-#| msgid "We recommend inspecting the release file before installing."
+#, python-format
 msgid ""
 "We recommend inspecting the repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
-msgstr "Vi rekommenderar att du granskar utgåvefilen innan du installerar den."
+msgstr ""
+"Vi rekommenderar att du granskar arkivet innan du fortsätter. <a href=\"%"
+"(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:131
 #, python-format
@@ -5092,10 +5022,12 @@ msgid ""
 "We recommend inspecting the configuration before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar att du granskar konfigurationen innan du fortsätter. <a "
+"href=\"%(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/full-provenance.html:9
 msgid "Both files in this release have been uploaded with provenance metadata."
-msgstr ""
+msgstr "Båda filerna i den här utgåvan laddades upp med ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/security/full-provenance.html:11
 #, python-format
@@ -5104,28 +5036,32 @@ msgid ""
 msgid_plural ""
 "All %(count)s files in this release have been uploaded with provenance "
 "metadata."
-msgstr[0] ""
+msgstr[0] "%(count)s fil i den här utgåvan laddades upp med ursprungsmetadata."
 msgstr[1] ""
+"Alla %(count)s filer i den här utgåvan laddades upp med ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:11
 msgid ""
 "The release files originate from multiple, inconsistent repositories and "
 "configurations."
 msgstr ""
+"Utgåvans filer kommer från flera inkonsekventa arkiv och konfigurationer."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:13
 msgid "The release files originate from multiple, inconsistent repositories."
-msgstr ""
+msgstr "Utgåvans filer kommer från flera inkonsekventa arkiv."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:15
 msgid "The release files originate from multiple, inconsistent configurations."
-msgstr ""
+msgstr "Utgåvans filer kommer från flera inkonsekventa konfigurationer."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:17
 msgid ""
 "While this could reflect a legitimate choice by the project maintainers, it "
 "may also indicate that the release has been compromised."
 msgstr ""
+"Även om detta kan återspegla ett legitimt val av projektets underhållare kan "
+"det också betyda att utgåvan har komprometterats."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:42
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:60
@@ -5143,7 +5079,7 @@ msgstr[1] "%(count)s filer"
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:64
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:101
 msgid "Unknown"
-msgstr ""
+msgstr "Okänd"
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:110
 #, python-format
@@ -5151,6 +5087,8 @@ msgid ""
 "We recommend inspecting each repository and configuration before proceeding. "
 "<a href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar att du granskar varje arkiv och konfiguration innan du "
+"fortsätter. <a href=\"%(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:112
 #, python-format
@@ -5158,6 +5096,8 @@ msgid ""
 "We recommend inspecting each repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar att du granskar varje arkiv innan du fortsätter. <a href=\"%"
+"(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:114
 #, python-format
@@ -5165,24 +5105,24 @@ msgid ""
 "We recommend inspecting each configuration before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar att du granskar varje konfiguration innan du fortsätter. <a "
+"href=\"%(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:8
 msgid ""
 "A previous release of these files had provenance metadata, but this release "
 "does not."
 msgstr ""
+"En tidigare utgåva av dessa filer hade ursprungsmetadata, men den här "
+"utgåvan saknar dem."
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:14
-#, fuzzy
-#| msgid "Release history"
 msgid "Release comparison"
-msgstr "Utgåvehistorik"
+msgstr "Jämförelse av utgåvor"
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:33
-#, fuzzy
-#| msgid "Provenance"
 msgid "Partial provenance"
-msgstr "Ursprung"
+msgstr "Delvisa ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:57
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:46
@@ -5191,40 +5131,40 @@ msgid ""
 "We recommend further investigation before installing files from this "
 "release. <a href=\"%(href)s\">Learn more</a>."
 msgstr ""
+"Vi rekommenderar vidare utredning innan du installerar filer från den här "
+"utgåvan. <a href=\"%(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/no-provenance.html:5
-#, fuzzy
-#| msgid "No releases found"
 msgid "No provenance found"
-msgstr "Inga utgåvor hittades"
+msgstr "Inga ursprungsmetadata hittades"
 
 #: warehouse/templates/includes/packaging/security/no-provenance.html:7
 msgid ""
 "None of the files in this release were uploaded with provenance metadata."
-msgstr ""
+msgstr "Inga av filerna i den här utgåvan laddades upp med ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:18
 msgid "Files with provenance"
-msgstr ""
+msgstr "Filer med ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:21
 #, python-format
 msgid "%(with_count)s of %(total_count)s files with provenance"
-msgstr ""
+msgstr "%(with_count)s av %(total_count)s filer med ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:32
 msgid "Files without provenance"
-msgstr ""
+msgstr "Filer utan ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:35
 #, python-format
 msgid "%(without_count)s of %(total_count)s files without provenance"
-msgstr ""
+msgstr "%(without_count)s av %(total_count)s filer utan ursprungsmetadata"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:11
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:12
 msgid "Loss of provenance, with file added late"
-msgstr ""
+msgstr "Förlust av ursprungsmetadata med fil som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:14
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:17
@@ -5232,6 +5172,8 @@ msgid ""
 "This file belongs to a release without provenance metadata, despite a prior "
 "release including this data."
 msgstr ""
+"Den här filen hör till en utgåva utan ursprungsmetadata, trots att en "
+"tidigare utgåva innehöll sådana uppgifter."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:16
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:35
@@ -5239,21 +5181,20 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:77
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:19
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:57
-#, fuzzy, python-format
-#| msgid ""
-#| "This file was uploaded more than %(days)s days after the first file in "
-#| "this release."
+#, python-format
 msgid ""
 "The file was also added more than %(days)s days after the first file in this "
 "release."
 msgstr ""
-"Filen laddades upp mer än %(days)s dagar efter den första filen i utgåvan."
+"Filen lades också till mer än %(days)s dagar efter den första filen i den "
+"här utgåvan."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:17
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:20
 msgid ""
 "These two factors together may indicate that the file has been compromised."
 msgstr ""
+"Dessa två faktorer tillsammans kan tyda på att filen har komprometterats."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:19
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:80
@@ -5264,11 +5205,14 @@ msgid ""
 "href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
 "tabs#tabClick\">View details</a>."
 msgstr ""
+"Vi rekommenderar vidare utredning innan du installerar den här filen. <a "
+"href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
+"tabs#tabClick\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:30
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:50
 msgid "Change of provenance, with file added late"
-msgstr ""
+msgstr "Ändrade ursprungsmetadata med fil som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:33
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:55
@@ -5277,6 +5221,9 @@ msgid ""
 "configuration that created the release files differ from that of a previous "
 "release."
 msgstr ""
+"Den här filen hör till en utgåva med ändrade ursprungsmetadata: arkivet "
+"eller konfigurationen som skapade utgåvans filer skiljer sig från en "
+"tidigare utgåva."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:36
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:55
@@ -5285,6 +5232,8 @@ msgstr ""
 msgid ""
 "These two factors together may indicate that this file has been compromised."
 msgstr ""
+"Dessa två faktorer tillsammans kan tyda på att den här filen har "
+"komprometterats."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:38
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:75
@@ -5294,19 +5243,24 @@ msgid ""
 "<a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
 "tabs#tabClick\">View details</a>."
 msgstr ""
+"Vi rekommenderar att du granskar arkivet och konfigurationen innan du "
+"fortsätter. <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#tabClick\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:49
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:84
 msgid "Inconsistent provenance, with file added late"
 msgid_plural "Inconsistent provenance, with files added late"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Inkonsekventa ursprungsmetadata med fil som lades till sent"
+msgstr[1] "Inkonsekventa ursprungsmetadata med filer som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:52
 msgid ""
 "This file belongs to a release with inconsistent provenance: the files in "
 "this release originate from different repositories or configurations."
 msgstr ""
+"Den här filen hör till en utgåva med inkonsekventa ursprungsmetadata: "
+"filerna i den här utgåvan kommer från olika arkiv eller konfigurationer."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:57
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:103
@@ -5316,25 +5270,32 @@ msgid ""
 "<a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
 "tabs#tabClick\">View details</a>."
 msgstr ""
+"Vi rekommenderar att du granskar varje arkiv och konfiguration innan du "
+"fortsätter. <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#tabClick\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:68
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:114
 msgid "Incomplete provenance, with file added late"
 msgid_plural "Incomplete provenance, with files added late"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ofullständiga ursprungsmetadata med fil som lades till sent"
+msgstr[1] "Ofullständiga ursprungsmetadata med filer som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:72
 msgid ""
 "This file belongs to a release with incomplete provenance: while this file "
 "has provenance metadata, other files in this release do not."
 msgstr ""
+"Den här filen hör till en utgåva med ofullständiga ursprungsmetadata: den "
+"här filen har ursprungsmetadata men andra filer i utgåvan saknar dem."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:74
 msgid ""
 "This file belongs to a release with incomplete provenance: while other files "
 "in this release have provenance metadata, this file does not."
 msgstr ""
+"Den här filen hör till en utgåva med ofullständiga ursprungsmetadata: andra "
+"filer i utgåvan har ursprungsmetadata men den här filen saknar dem."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:90
 #, python-format
@@ -5350,25 +5311,25 @@ msgstr "Vi rekommenderar att du granskar utgåvefilen innan du installerar den."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:29
 msgid "Loss of provenance, with files added late"
-msgstr ""
+msgstr "Förlust av ursprungsmetadata med filer som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:34
 msgid ""
 "These files do not have provenance metadata, despite files in a prior "
 "release including this data."
 msgstr ""
+"Dessa filer saknar ursprungsmetadata, trots att filer i en tidigare utgåva "
+"innehöll sådana uppgifter."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:36
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:71
-#, fuzzy, python-format
-#| msgid ""
-#| "This file was uploaded more than %(days)s days after the first file in "
-#| "this release."
+#, python-format
 msgid ""
 "Some of these files were also added more than %(days)s days after the first "
 "file in this release."
 msgstr ""
-"Filen laddades upp mer än %(days)s dagar efter den första filen i utgåvan."
+"Vissa av dessa filer lades också till mer än %(days)s dagar efter den första "
+"filen i den här utgåvan."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:37
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:99
@@ -5376,6 +5337,7 @@ msgstr ""
 msgid ""
 "These two factors together may indicate that the files have been compromised."
 msgstr ""
+"Dessa två faktorer tillsammans kan tyda på att filerna har komprometterats."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:39
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:133
@@ -5385,36 +5347,37 @@ msgid ""
 "href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
 "tabs#tabClick\">View details</a>."
 msgstr ""
+"Vi rekommenderar vidare utredning innan du installerar dessa filer. <a "
+"href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
+"tabs#tabClick\">Visa detaljer</a>."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:64
 msgid "Change of provenance, with files added late"
-msgstr ""
+msgstr "Ändrade ursprungsmetadata med filer som lades till sent"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:69
 msgid ""
 "The repository or configuration that created these release files differ from "
 "that of a previous release."
 msgstr ""
+"Arkivet eller konfigurationen som skapade dessa utgåvefiler skiljer sig från "
+"en tidigare utgåva."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:72
 msgid ""
 "These two factors together may indicate that these files have been "
 "compromised."
 msgstr ""
+"Dessa två faktorer tillsammans kan tyda på att dessa filer har "
+"komprometterats."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:91
 msgid "These files originate from different repositories or configurations."
-msgstr ""
+msgstr "Dessa filer kommer från olika arkiv eller konfigurationer."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:94
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:124
-#, fuzzy, python-format
-#| msgid ""
-#| "%(count)s file was uploaded more than %(days)s days after the first file "
-#| "in this release."
-#| msgid_plural ""
-#| "%(count)s files were uploaded more than %(days)s days after the first "
-#| "file in this release."
+#, python-format
 msgid ""
 "%(count)s file was also added more than %(days)s days after the first file "
 "in this release."
@@ -5422,11 +5385,11 @@ msgid_plural ""
 "%(count)s files were also added more than %(days)s days after the first file "
 "in this release."
 msgstr[0] ""
-"%(count)s fil laddades upp mer än %(days)s dagar efter den första filen i "
-"utgåvan."
+"%(count)s fil lades också till mer än %(days)s dagar efter den första filen "
+"i den här utgåvan."
 msgstr[1] ""
-"%(count)s filer laddades upp mer än %(days)s dagar efter den första filen i "
-"utgåvan."
+"%(count)s filer lades också till mer än %(days)s dagar efter den första "
+"filen i den här utgåvan."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:121
 #, python-format
@@ -5434,6 +5397,8 @@ msgid ""
 "%(without_count)s of %(total_count)s files were uploaded without provenance "
 "metadata."
 msgstr ""
+"%(without_count)s av %(total_count)s filer laddades upp utan "
+"ursprungsmetadata."
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:151
 msgid "We recommend inspecting the release files before installing."
@@ -6270,18 +6235,14 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:932
 #: warehouse/templates/manage/unverified-account.html:523
-#, fuzzy, python-format
-#| msgid ""
-#| "Events appear here as security-related actions occur on your account. If "
-#| "you notice anything suspicious, please <a href=\"%(faq_url)s\">secure "
-#| "your account</a> as soon as possible."
+#, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
 "notice anything suspicious, please <a href=\"%(docs_url)s\">secure your "
 "account</a> as soon as possible."
 msgstr ""
 "Händelser visas här när säkerhetsrelaterade åtgärder sker på ditt konto. Om "
-"du upptäcker något misstänkt ska du <a href=\"%(faq_url)s\">skydda ditt "
+"du upptäcker något misstänkt ska du <a href=\"%(docs_url)s\">skydda ditt "
 "konto</a> så snart som möjligt."
 
 #: warehouse/templates/manage/account.html:937
@@ -6959,7 +6920,7 @@ msgstr "Faktureringsansvarig"
 #, python-format
 msgid ""
 "Purchase a seat by %(deactivate_on)s or this organization will be deactivated"
-msgstr ""
+msgstr "Köp en plats före %(deactivate_on)s, annars inaktiveras organisationen"
 
 #: warehouse/templates/manage/organizations.html:114
 msgid "View this organization"
@@ -7223,16 +7184,14 @@ msgstr ""
 "postadress innan du kan göra andra ändringar i kontot."
 
 #: warehouse/templates/manage/unverified-account.html:222
-#, fuzzy, python-format
-#| msgid ""
-#| "If you cannot verify any email addresses listed, please see <a "
-#| "href=\"%(help_url)s\">%(help_url)s</a> to recover access to your account."
+#, python-format
 msgid ""
 "If you cannot verify any email addresses listed, please see <a "
 "href=\"%(docs_url)s\">%(docs_url)s</a> to recover access to your account."
 msgstr ""
-"Om du inte kan verifiera någon av e-postadresserna i listan kan du läsa <a "
-"href=\"%(help_url)s\">%(help_url)s</a> för att återfå åtkomsten till kontot."
+"Om du inte kan verifiera någon av de angivna e-postadresserna kan du läsa <a "
+"href=\"%(docs_url)s\">%(docs_url)s</a> för att återfå åtkomsten till ditt "
+"konto."
 
 #: warehouse/templates/manage/unverified-account.html:230
 msgid ""
@@ -7968,16 +7927,13 @@ msgstr ""
 "stället för att hantera API-token manuellt."
 
 #: warehouse/templates/manage/account/token.html:120
-#, fuzzy, python-format
-#| msgid ""
-#| "For further instructions on how to use this token, <a "
-#| "href=\"%(href)s\">visit the PyPI help page</a>."
+#, python-format
 msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI user documentation</a>."
 msgstr ""
-"Mer information om hur du använder denna token finns på <a "
-"href=\"%(href)s\">PyPI:s hjälpsida</a>."
+"Mer information om hur du använder denna token finns i <a href=\"%(href)s\">"
+"PyPI:s användardokumentation</a>."
 
 #: warehouse/templates/manage/account/token.html:124
 msgid "Create another token"
@@ -8023,16 +7979,13 @@ msgstr ""
 "title=\"tidsbaserat engångslösenord\">TOTP</abbr>-standarden</a>."
 
 #: warehouse/templates/manage/account/totp-provision.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "Visit <a href=\"%(href)s\">PyPI's help page</a> for a list of compatible "
-#| "applications."
+#, python-format
 msgid ""
 "Visit <a href=\"%(href)s\">PyPI's user documentation</a> for a list of "
 "compatible applications."
 msgstr ""
-"En lista över kompatibla appar finns på <a href=\"%(href)s\">PyPI:s "
-"hjälpsida</a>."
+"Besök <a href=\"%(href)s\">PyPI:s användardokumentation</a> för en lista "
+"över kompatibla program."
 
 #: warehouse/templates/manage/account/totp-provision.html:26
 msgid "Set up your application"
@@ -8254,16 +8207,16 @@ msgstr "Skicka"
 
 #: warehouse/templates/manage/organization/application.html:117
 #: warehouse/templates/manage/organization/application.html:124
-#, fuzzy
-#| msgid "Pending organization requests"
 msgid "Withdraw organization request"
-msgstr "Väntande organisationsbegäranden"
+msgstr "Återkalla organisationsbegäran"
 
 #: warehouse/templates/manage/organization/application.html:122
 msgid ""
 "Your organization request will be withdrawn and will no longer be reviewed. "
 "You can submit a new request afterwards."
 msgstr ""
+"Din organisationsbegäran återkallas och kommer inte längre att granskas. Du "
+"kan skicka in en ny begäran efteråt."
 
 #: warehouse/templates/manage/organization/history.html:6
 #: warehouse/templates/manage/project/history.html:6
@@ -8296,16 +8249,14 @@ msgid "%(organization_name)s organization deleted"
 msgstr "Organisationen %(organization_name)s har tagits bort"
 
 #: warehouse/templates/manage/organization/history.html:24
-#, fuzzy, python-format
-#| msgid "%(organization_name)s organization declined"
+#, python-format
 msgid "%(organization_name)s organization deactivated"
-msgstr "Organisationen %(organization_name)s har avslagits"
+msgstr "Organisationen %(organization_name)s har inaktiverats"
 
 #: warehouse/templates/manage/organization/history.html:26
-#, fuzzy, python-format
-#| msgid "%(organization_name)s organization created"
+#, python-format
 msgid "%(organization_name)s organization reactivated"
-msgstr "Organisationen %(organization_name)s har skapats"
+msgstr "Organisationen %(organization_name)s har återaktiverats"
 
 #: warehouse/templates/manage/organization/history.html:28
 #, python-format
@@ -8409,16 +8360,13 @@ msgstr ""
 "som %(role_name)s i organisationen"
 
 #: warehouse/templates/manage/organization/history.html:81
-#, fuzzy, python-format
-#| msgid ""
-#| "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
-#| "organization %(role_name)s"
+#, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "organization"
 msgstr ""
-"Återkallade inbjudan för <a href=\"%(href)s\">%(username)s</a> att ansluta "
-"som %(role_name)s i organisationen"
+"Återkallade inbjudan för <a href=\"%(href)s\">%(username)s</a> att gå med i "
+"organisationen"
 
 #: warehouse/templates/manage/organization/history.html:87
 #, python-format
@@ -8592,16 +8540,13 @@ msgid "Back to organizations"
 msgstr "Tillbaka till organisationer"
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:57
-#, fuzzy, python-format
-#| msgid ""
-#| "This organization does not have an active subscription yet. You may only "
-#| "invite a <strong>Billing Manager</strong> until billing is activated."
+#, python-format
 msgid ""
 "This organization does not have an active subscription. If no seat has been "
 "purchased by %(deactivate_on)s, it will be deactivated."
 msgstr ""
-"Denna organisation har ännu ingen aktiv prenumeration. Du kan bara bjuda in "
-"en <strong>faktureringsansvarig</strong> tills faktureringen har aktiverats."
+"Den här organisationen har ingen aktiv prenumeration. Om ingen plats har "
+"köpts före %(deactivate_on)s inaktiveras den."
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:59
 #, python-format
@@ -8611,6 +8556,10 @@ msgid ""
 "it, purchase a seat by %(reactivate_by)s. After that, or for help, email <a "
 "href=\"%(href)s\">%(email)s</a>."
 msgstr ""
+"Den här organisationen är inaktiverad eftersom den saknar en betald plats. "
+"Den kan inte ladda upp nya utgåvor till sina projekt eller bjuda in "
+"medlemmar. Köp en plats före %(reactivate_by)s för att återaktivera den. "
+"Skicka e-post till <a href=\"%(href)s\">%(email)s</a> om du behöver hjälp."
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:61
 #, python-format
@@ -8619,6 +8568,9 @@ msgid ""
 "projects or invite members. To reactivate it, email <a "
 "href=\"%(href)s\">%(email)s</a>."
 msgstr ""
+"Den här organisationen är inaktiverad. Den kan inte ladda upp nya utgåvor "
+"till sina projekt eller bjuda in medlemmar. Skicka e-post till <a href=\"%"
+"(href)s\">%(email)s</a> för att återaktivera den."
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:66
 #: warehouse/templates/manage/organization/settings.html:192
@@ -8768,16 +8720,13 @@ msgid "Pending publishers for this organization"
 msgstr "Väntande utgivare för denna organisation"
 
 #: warehouse/templates/manage/organization/publishing.html:457
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">Verify your primary email address</a> before "
-#| "enabling two factor authentication on your account."
+#, python-format
 msgid ""
 "You must <a href=\"%(href)s\">verify your primary email address</a> before "
 "adding a new pending publisher."
 msgstr ""
-"<a href=\"%(href)s\">Verifiera din primära e-postadress</a> innan du "
-"aktiverar tvåfaktorsautentisering på ditt konto."
+"Du måste <a href=\"%(href)s\">verifiera din primära e-postadress</a> innan "
+"du lägger till en ny väntande utgivare."
 
 #: warehouse/templates/manage/organization/publishing.html:489
 msgid "You must be an organization owner to manage trusted publishers."
@@ -9395,16 +9344,13 @@ msgstr ""
 "som %(role_name)s för projektet"
 
 #: warehouse/templates/manage/project/history.html:154
-#, fuzzy, python-format
-#| msgid ""
-#| "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
-#| "project %(role_name)s"
+#, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "project"
 msgstr ""
-"Återkallade inbjudan för <a href=\"%(href)s\">%(username)s</a> att ansluta "
-"som %(role_name)s för projektet"
+"Återkallade inbjudan för <a href=\"%(href)s\">%(username)s</a> att gå med i "
+"projektet"
 
 #: warehouse/templates/manage/project/history.html:164
 #, python-format
@@ -9562,14 +9508,12 @@ msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:60
 #: warehouse/templates/manage/project/release.html:46
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more in the <a href=\"%(href)s\">project in quarantine</a> help "
-#| "article."
+#, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> "
 "documentation."
-msgstr "Läs mer i hjälpartikeln <a href=\"%(href)s\">projekt i karantän</a>."
+msgstr ""
+"Läs mer i dokumentationen om <a href=\"%(href)s\">projekt i karantän</a>."
 
 #: warehouse/templates/manage/project/manage_project_base.html:67
 msgid "This project has been archived."
@@ -9856,21 +9800,15 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
-#, fuzzy, python-format
-#| msgid ""
-#| "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">yanking</a> this release, making a new release or a <a "
-#| "href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">post release</a> instead."
+#, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\">yanking</a> this release, making a new "
 "release or a <a href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
-"Överväg i stället att <a href=\"%(yank_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">dra tillbaka</a> utgåvan, skapa en ny "
-"utgåva eller en <a href=\"%(post_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">efterföljande utgåva</a>."
+"Överväg i stället att <a href=\"%(yank_href)s\">dra tillbaka</a> den här "
+"utgåvan, skapa en ny utgåva eller en <a href=\"%(post_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">efterföljande utgåva</a>."
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10075,10 +10013,9 @@ msgstr "Projektstorlek:"
 
 #: warehouse/templates/manage/project/settings.html:18
 #: warehouse/templates/manage/project/settings.html:25
-#, fuzzy, python-format
-#| msgid "<a href=\"%(help_url)s\">(request an increase)</a>"
+#, python-format
 msgid "<a href=\"%(docs_url)s\">(request an increase)</a>"
-msgstr "<a href=\"%(help_url)s\">(begär en ökning)</a>"
+msgstr "<a href=\"%(docs_url)s\">(begär en höjning)</a>"
 
 #: warehouse/templates/manage/project/settings.html:35
 #, python-format
@@ -10660,18 +10597,13 @@ msgstr ""
 "Granska organisationens historik för att se vem som ändrade vad och när"
 
 #: warehouse/templates/pages/organizations.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "The features are the same for every organization. For full details, see "
-#| "the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">organization accounts documentation</a>."
+#, python-format
 msgid ""
 "The features are the same for every organization. For full details, see the "
 "<a href=\"%(href)s\">organization accounts documentation</a>."
 msgstr ""
 "Funktionerna är desamma för alla organisationer. Fullständig information "
-"finns i <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">dokumentationen för organisationskonton</a>."
+"finns i <a href=\"%(href)s\">dokumentationen för organisationskonton</a>."
 
 #: warehouse/templates/pages/organizations.html:32
 msgid "Community organization"
@@ -10756,17 +10688,12 @@ msgid ""
 msgstr "Berätta om era krav så kontaktar vi er när arbetet går vidare."
 
 #: warehouse/templates/pages/organizations.html:83
-#, fuzzy, python-format
-#| msgid ""
-#| "For help with an existing organization, see <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">organization "
-#| "accounts support</a>."
+#, python-format
 msgid ""
 "For help with an existing organization, see <a "
 "href=\"%(href)s\">organization accounts support</a>."
 msgstr ""
-"Hjälp med en befintlig organisation finns i <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">stödet för "
+"Hjälp med en befintlig organisation finns i <a href=\"%(href)s\">stödet för "
 "organisationskonton</a>."
 
 #: warehouse/templates/pages/organizations.html:90
@@ -10820,19 +10747,15 @@ msgstr ""
 "Om du har identifierat ett säkerhetsproblem i ett projekt som finns på PyPI"
 
 #: warehouse/templates/pages/security.html:30
-#, fuzzy
-#| msgid ""
-#| "Login to your PyPI account, then visit the project's page on PyPI. At the "
-#| "bottom of the sidebar, click <strong>Report project as malware</strong>. "
-#| "Supply the following details in the form:"
 msgid ""
 "Login to your PyPI account, then visit the project's page on PyPI. At the "
 "top of the <strong>Security</strong> tab, click <strong>Report project as "
 "malware</strong>. Supply the following details in the form:"
 msgstr ""
-"Logga in på PyPI-kontot och gå sedan till projektets sida på PyPI. Klicka "
-"längst ned i sidofältet på <strong>Rapportera projekt som skadlig "
-"programvara</strong>. Ange följande uppgifter i formuläret:"
+"Logga in på ditt PyPI-konto och gå sedan till projektets sida på PyPI. "
+"Klicka högst upp på fliken <strong>Säkerhet</strong> på <strong>Rapportera "
+"projekt som skadlig programvara</strong>. Ange sedan följande uppgifter i "
+"formuläret:"
 
 #: warehouse/templates/pages/security.html:37
 msgid "A URL to the project in question"
@@ -10898,10 +10821,8 @@ msgstr ""
 "postmeddelanden."
 
 #: warehouse/templates/pages/security.html:57
-#, fuzzy
-#| msgid "This security policy was last updated on March 2024."
 msgid "This security policy was last updated in September 2026."
-msgstr "Denna säkerhetspolicy uppdaterades senast i mars 2024."
+msgstr "Denna säkerhetspolicy uppdaterades senast i september 2026."
 
 #: warehouse/templates/pages/sitemap.html:9
 msgid "PyPI site map"
