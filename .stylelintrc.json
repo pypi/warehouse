@@ -3,8 +3,7 @@
     "stylelint-config-standard-scss"
   ],
   "ignoreFiles": [
-    "warehouse/static/sass/resets/_boxsizing.scss",
-    "warehouse/static/sass/resets/_reset.scss"
+    "warehouse/static/sass/resets/_boxsizing.scss"
   ],
   "reportDescriptionlessDisables": true,
   "reportInvalidScopeDisables": true,
@@ -14,6 +13,12 @@
     "comment-empty-line-before": [
       "always",
       {
+        "except": [
+          "first-nested"
+        ],
+        "ignore": [
+          "stylelint-commands"
+        ],
         "ignoreComments": [
           "/rtl/"
         ]
@@ -21,22 +26,12 @@
     ],
     "comment-whitespace-inside": null,
     "declaration-empty-line-before": null,
-    "font-family-no-missing-generic-family-keyword": [
-      true,
-      {
-        "ignoreFontFamilies": [
-          "/^Font Awesome.*$/"
-        ]
-      }
-    ],
-    "no-descending-specificity": null,
     "selector-class-pattern": [
       "^(?!js-)[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
       {
         "message": "Expected class selector \"%s\" to be kebab-case BEM (block__element--modifier) and not a js- hook"
       }
     ],
-    "scss/dollar-variable-colon-space-after": "at-least-one-space",
-    "scss/no-global-function-names": null
+    "scss/dollar-variable-colon-space-after": "at-least-one-space"
   }
 }

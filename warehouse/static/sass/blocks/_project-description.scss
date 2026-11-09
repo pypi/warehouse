@@ -297,7 +297,6 @@
     }
 
     s { /* pygments Literal.String */
-
       /* Override browser default behavior */
       text-decoration: none;
     }
@@ -452,7 +451,6 @@
     color: $darkest-blue;
   }
 
-  // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
   .nd { /* Name.Decorator */ /* codespell:ignore nd */
     color: $mid-grey;
   }
