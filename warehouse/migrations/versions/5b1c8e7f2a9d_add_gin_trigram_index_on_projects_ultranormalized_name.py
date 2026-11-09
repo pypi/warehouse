@@ -21,11 +21,18 @@ def upgrade():
     op.get_bind().commit()
 
     with op.get_context().autocommit_block():
-        # env.py sets statement_timeout = 5000; a cancelled build leaves an
-        # INVALID index that blocks the retry. Normalizing every name alone
+        # env.py sets statement_timeout = 5000. Normalizing every name alone
         # takes ~2s in production, and the GIN build sits on top of that.
         op.execute(sa.text("SET statement_timeout = 300000"))  # 300s
         op.execute(sa.text("SET lock_timeout = 5000"))  # 5s
+
+        # A cancelled earlier attempt leaves an INVALID index behind; drop it so
+        # a retry rebuilds rather than failing on the existing name.
+        op.execute(
+            sa.text(
+                "DROP INDEX CONCURRENTLY IF EXISTS projects_name_ultranormalized_trgm"
+            )
+        )
 
         # Raw SQL: op.create_index() attaches the operator class by expression
         # key, which a text() expression lacks, so it would silently be dropped.
