@@ -3,27 +3,35 @@
 import datetime as dt
 
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import opensearchpy
-import pretend
 import pytest
-import sqlalchemy
 
+from paginate import Page
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPClientError,
+    HTTPForbidden,
     HTTPNotFound,
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
+    exception_response,
 )
+from pyramid.i18n import Localizer
+from pyramid.interfaces import ITranslationDirectories
 from pyramid.response import FileResponse
 from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
+from warehouse.csp import CSPPolicy
+from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
+from warehouse.rate_limiting import DummyRateLimiter, RateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
@@ -64,60 +72,55 @@ def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
 
 
+@pytest.fixture
+def csp(pyramid_services):
+    policy = CSPPolicy({})
+    pyramid_services.register_service(policy, name="csp")
+    return policy
+
+
 class TestHTTPExceptionView:
-    def test_returns_context_when_no_template(self, pyramid_config):
+    def test_returns_context_when_no_template(self, pyramid_config, pyramid_request):
         pyramid_config.testing_add_renderer("non-existent.html")
 
-        response = context = pretend.stub(status_code=499)
-        request = pretend.stub(context=None)
-        assert httpexception_view(context, request) is response
+        context = HTTPClientError()
+        context.status = "499 Client Closed Request"
+        assert httpexception_view(context, pyramid_request) is context
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
-    def test_renders_template(self, pyramid_config, status_code):
+    def test_renders_template(self, pyramid_config, pyramid_request, csp, status_code):
         renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
-        context = pretend.stub(
-            status=f"{status_code} My Cool Status",
-            status_code=status_code,
-            headers={},
-        )
-        request = pretend.stub(context=None)
-        response = httpexception_view(context, request)
+        context = exception_response(status_code)
+        context.status = f"{status_code} My Cool Status"
+        response = httpexception_view(context, pyramid_request)
 
         assert response.status_code == status_code
         assert response.status == f"{status_code} My Cool Status"
         _assert_has_cors_headers(response.headers)
-        renderer.assert_()
+        renderer.assert_(project_name=None)
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
-    def test_renders_template_with_headers(self, pyramid_config, status_code):
+    def test_renders_template_with_headers(
+        self, pyramid_config, pyramid_request, csp, status_code
+    ):
         renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
-        context = pretend.stub(
-            status=f"{status_code} My Cool Status",
-            status_code=status_code,
-            headers={"Foo": "Bar"},
-        )
-        request = pretend.stub(context=None)
-        response = httpexception_view(context, request)
+        context = exception_response(status_code, headers={"Foo": "Bar"})
+        context.status = f"{status_code} My Cool Status"
+        response = httpexception_view(context, pyramid_request)
 
         assert response.status_code == status_code
         assert response.status == f"{status_code} My Cool Status"
         assert response.headers["Foo"] == "Bar"
         _assert_has_cors_headers(response.headers)
-        renderer.assert_()
+        renderer.assert_(project_name=None)
 
-    def test_renders_404_with_csp(self, pyramid_config):
+    def test_renders_404_with_csp(self, pyramid_config, pyramid_request, csp):
         renderer = pyramid_config.testing_add_renderer("404.html")
 
-        csp = {}
-        services = {"csp": pretend.stub(merge=csp.update)}
-
         context = HTTPNotFound()
-        request = pretend.stub(
-            find_service=lambda name: services[name], path="", context=None
-        )
-        response = httpexception_view(context, request)
+        response = httpexception_view(context, pyramid_request)
 
         assert response.status_code == 404
         assert response.status == "404 Not Found"
@@ -126,205 +129,148 @@ class TestHTTPExceptionView:
             "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
         }
         _assert_has_cors_headers(response.headers)
-        renderer.assert_()
+        renderer.assert_(project_name=None)
 
-    def test_simple_404(self):
-        csp = {}
-        services = {"csp": pretend.stub(merge=csp.update)}
+    @pytest.mark.parametrize(
+        "path", ["/simple/not_found_package", "/simple/some/unusual/path/"]
+    )
+    def test_simple_404(self, pyramid_request, csp, path):
         context = HTTPNotFound()
-        for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
-            request = pretend.stub(
-                find_service=lambda name: services[name], path=path, context=None
-            )
-            response = httpexception_view(context, request)
-            assert response.status_code == 404
-            assert response.status == "404 Not Found"
-            assert response.content_type == "text/plain"
-            assert response.text == "404 Not Found"
-            _assert_has_cors_headers(response.headers)
+        pyramid_request.path = path
+        response = httpexception_view(context, pyramid_request)
+        assert response.status_code == 404
+        assert response.status == "404 Not Found"
+        assert response.content_type == "text/plain"
+        assert response.text == "404 Not Found"
+        _assert_has_cors_headers(response.headers)
 
-    def test_json_404(self):
-        csp = {}
-        services = {"csp": pretend.stub(merge=csp.update)}
+    @pytest.mark.parametrize(
+        "path", ["/pypi/not_found_package/json", "/pypi/not_found_package/1.0.0/json"]
+    )
+    def test_json_404(self, pyramid_request, csp, path):
         context = HTTPNotFound()
-        for path in (
-            "/pypi/not_found_package/json",
-            "/pypi/not_found_package/1.0.0/json",
-        ):
-            request = pretend.stub(
-                find_service=lambda name: services[name], path=path, context=None
-            )
-            response = httpexception_view(context, request)
-            assert response.status_code == 404
-            assert response.status == "404 Not Found"
-            assert response.content_type == "application/json"
-            assert response.text == '{"message": "Not Found"}'
-            _assert_has_cors_headers(response.headers)
+        pyramid_request.path = path
+        response = httpexception_view(context, pyramid_request)
+        assert response.status_code == 404
+        assert response.status == "404 Not Found"
+        assert response.content_type == "application/json"
+        assert response.text == '{"message": "Not Found"}'
+        _assert_has_cors_headers(response.headers)
 
-    def test_context_is_project(self, pyramid_config, monkeypatch):
-        csp = {}
-        services = {"csp": pretend.stub(merge=csp.update)}
+    def test_context_is_project(self, pyramid_config, pyramid_request, csp):
+        renderer = pyramid_config.testing_add_renderer("404.html")
 
         context = HTTPNotFound()
         project = ProjectFactory.create()
-        request = pretend.stub(
-            find_service=lambda name: services[name],
-            path="",
-            context=project,
-        )
-        stub_response = pretend.stub(headers=[])
-        render_to_response = pretend.call_recorder(
-            lambda filename, kwargs, request: stub_response
-        )
-        monkeypatch.setattr(views, "render_to_response", render_to_response)
-        response = httpexception_view(context, request)
+        pyramid_request.context = project
+        response = httpexception_view(context, pyramid_request)
 
-        assert response == stub_response
-        assert render_to_response.calls == [
-            pretend.call(
-                "404.html",
-                {"project_name": project.name},
-                request=request,
-            )
-        ]
+        assert response.status_code == 404
+        renderer.assert_(project_name=project.name)
 
-    def test_context_is_projectfactory(self, pyramid_config, monkeypatch):
-        csp = {}
-        services = {"csp": pretend.stub(merge=csp.update)}
+    def test_context_is_projectfactory(self, pyramid_config, pyramid_request, csp):
+        renderer = pyramid_config.testing_add_renderer("404.html")
 
         context = HTTPNotFound()
-        request = pretend.stub(
-            find_service=lambda name: services[name],
-            path="",
-            matchdict={"name": "missing-project"},
-        )
-        request.context = DBProjectFactory(request)
-        stub_response = pretend.stub(headers=[])
-        render_to_response = pretend.call_recorder(
-            lambda filename, kwargs, request: stub_response
-        )
-        monkeypatch.setattr(views, "render_to_response", render_to_response)
-        response = httpexception_view(context, request)
+        pyramid_request.matchdict = {"name": "missing-project"}
+        pyramid_request.context = DBProjectFactory(pyramid_request)
+        response = httpexception_view(context, pyramid_request)
 
-        assert response == stub_response
-        assert render_to_response.calls == [
-            pretend.call(
-                "404.html",
-                {"project_name": "missing-project"},
-                request=request,
-            )
-        ]
+        assert response.status_code == 404
+        renderer.assert_(project_name="missing-project")
 
 
 class TestForbiddenView:
-    def test_logged_in_returns_exception(self, pyramid_config):
+    def test_logged_in_returns_exception(
+        self, mocker, pyramid_config, pyramid_request, pyramid_user
+    ):
         renderer = pyramid_config.testing_add_renderer("403.html")
 
-        exc = pretend.stub(
-            status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
-        )
-        request = pretend.stub(user=pretend.stub(), context=None)
-        resp = forbidden(exc, request)
+        exc = HTTPForbidden(result=mocker.sentinel.result)
+        resp = forbidden(exc, pyramid_request)
         assert resp.status_code == 403
-        renderer.assert_()
+        renderer.assert_(project_name=None)
 
-    def test_logged_out_redirects_login(self):
-        exc = pretend.stub()
-        request = pretend.stub(
-            user=None,
-            path_qs="/foo/bar/?b=s",
-            route_url=pretend.call_recorder(
-                lambda route, _query: "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
-            ),
-            context=None,
-        )
+    def test_logged_out_redirects_login(self, pyramid_config, pyramid_request):
+        pyramid_config.add_route("accounts.login", "/account/login/")
+        pyramid_request.path_qs = "/foo/bar/?b=s"
 
-        resp = forbidden(exc, request)
+        resp = forbidden(HTTPForbidden(), pyramid_request)
 
         assert resp.status_code == 303
-        assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+        location = urlsplit(resp.headers["Location"])
+        assert location.path == "/account/login/"
+        assert parse_qs(location.query) == {"next": ["/foo/bar/?b=s"]}
 
     @pytest.mark.parametrize("reason", ["manage_2fa_required"])
-    def test_two_factor_required(self, reason):
-        result = WarehouseDenied("Some summary", reason=reason)
-        exc = pretend.stub(result=result)
-        request = pretend.stub(
-            user=pretend.stub(),
-            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
-            path_qs="/foo/bar/?b=s",
-            route_url=pretend.call_recorder(
-                lambda route, _query: "/the/url/?next=/foo/bar/%3Fb%3Ds"
-            ),
-            _=lambda x: x,
+    def test_two_factor_required(
+        self, mocker, pyramid_config, pyramid_request, pyramid_user, reason
+    ):
+        pyramid_config.add_route(
+            "manage.account.two-factor", "/manage/account/two-factor/"
         )
+        flash = mocker.spy(pyramid_request.session, "flash")
+        result = WarehouseDenied("Some summary", reason=reason)
+        pyramid_request.path_qs = "/foo/bar/?b=s"
 
-        resp = forbidden(exc, request)
+        resp = forbidden(HTTPForbidden(result=result), pyramid_request)
 
         assert resp.status_code == 303
-        assert resp.headers["Location"] == "/the/url/?next=/foo/bar/%3Fb%3Ds"
-        assert request.route_url.calls == [
-            pretend.call("manage.account.two-factor", _query={"next": "/foo/bar/?b=s"})
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Two-factor authentication must be enabled on your account to "
-                "perform this action.",
-                queue="error",
-            )
-        ]
+        location = urlsplit(resp.headers["Location"])
+        assert location.path == "/manage/account/two-factor/"
+        assert parse_qs(location.query) == {"next": ["/foo/bar/?b=s"]}
+        flash.assert_called_once_with(
+            "Two-factor authentication must be enabled on your account to "
+            "perform this action.",
+            queue="error",
+        )
 
     @pytest.mark.parametrize(
         "requested_path",
         ["/manage/projects/", "/manage/account/two-factor/", "/manage/organizations/"],
     )
-    def test_unverified_email_redirects(self, requested_path):
-        result = WarehouseDenied("Some summary", reason="unverified_email")
-        exc = pretend.stub(result=result)
-        request = pretend.stub(
-            user=pretend.stub(),
-            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
-            path_qs=requested_path,
-            route_url=pretend.call_recorder(lambda route, _query: "/manage/account/"),
-            _=lambda x: x,
+    def test_unverified_email_redirects(
+        self, mocker, pyramid_config, pyramid_request, pyramid_user, requested_path
+    ):
+        pyramid_config.add_route(
+            "manage.unverified-account", "/manage/unverified-account/"
         )
+        flash = mocker.spy(pyramid_request.session, "flash")
+        result = WarehouseDenied("Some summary", reason="unverified_email")
+        pyramid_request.path_qs = requested_path
 
-        resp = forbidden(exc, request)
+        resp = forbidden(HTTPForbidden(result=result), pyramid_request)
 
         assert resp.status_code == 303
-        assert resp.location == "/manage/account/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "You must verify your **primary** email address before you "
-                "can perform this action.",
-                queue="error",
-            )
-        ]
+        location = urlsplit(resp.location)
+        assert location.path == "/manage/unverified-account/"
+        assert parse_qs(location.query) == {"next": [requested_path]}
+        flash.assert_called_once_with(
+            "You must verify your **primary** email address before you "
+            "can perform this action.",
+            queue="error",
+        )
 
-    def test_generic_warehousedeined(self, pyramid_config):
+    def test_generic_warehousedeined(
+        self, pyramid_config, pyramid_request, pyramid_user
+    ):
         result = WarehouseDenied(
             "This project requires two factor authentication to be enabled "
             "for all contributors.",
             reason="some_other_reason",
         )
-        exc = pretend.stub(result=result)
 
         renderer = pyramid_config.testing_add_renderer("403.html")
 
-        exc = pretend.stub(
-            status_code=403, status="403 Forbidden", headers={}, result=result
-        )
-        request = pretend.stub(user=pretend.stub(), context=None)
-        resp = forbidden(exc, request)
+        exc = HTTPForbidden(result=result)
+        resp = forbidden(exc, pyramid_request)
         assert resp.status_code == 403
-        renderer.assert_()
+        renderer.assert_(project_name=None)
 
 
 class TestForbiddenIncludeView:
-    def test_forbidden_include(self):
-        exc = pretend.stub()
-        request = pretend.stub()
-
-        resp = forbidden_include(exc, request)
+    def test_forbidden_include(self, mocker):
+        resp = forbidden_include(mocker.sentinel.exc, mocker.sentinel.request)
 
         assert resp.status_code == 403
         assert resp.content_type == "text/html"
@@ -332,11 +278,8 @@ class TestForbiddenIncludeView:
 
 
 class TestForbiddenAPIView:
-    def test_forbidden_api(self):
-        exc = pretend.stub()
-        request = pretend.stub()
-
-        resp = forbidden_api(exc, request)
+    def test_forbidden_api(self, mocker):
+        resp = forbidden_api(mocker.sentinel.exc, mocker.sentinel.request)
 
         assert resp.status_code == 403
         assert resp.content_type == "application/json"
@@ -348,7 +291,7 @@ class TestServiceUnavailableView:
         renderer = pyramid_config.testing_add_renderer("503.html")
         renderer.string_response = "A 503 Error"
 
-        resp = service_unavailable(pretend.stub(), pyramid_request)
+        resp = service_unavailable(DatabaseNotAvailableError(), pyramid_request)
 
         assert resp.status_code == 503
         assert resp.content_type == "text/html"
@@ -356,8 +299,8 @@ class TestServiceUnavailableView:
         _assert_has_cors_headers(resp.headers)
 
 
-def test_favicon(pyramid_request):
-    pyramid_request.static_path = pretend.call_recorder(lambda path: f"/static/{path}")
+def test_favicon(pyramid_config, pyramid_request):
+    pyramid_config.add_static_view("static", "warehouse:static/dist/")
     # Construct the path to the favicon.ico file relative to the codebase directory
     codebase_dir = Path(__file__).resolve().parent.parent.parent
     favicon_path = (
@@ -421,7 +364,7 @@ class TestLocale:
     @pytest.mark.parametrize(
         ("referer", "redirect", "get", "valid"),
         [
-            (None, "/fake-route", MultiDict({"locale_id": "en"}), True),
+            (None, "/", MultiDict({"locale_id": "en"}), True),
             (
                 "/robots.txt",
                 "/robots.txt",
@@ -430,21 +373,22 @@ class TestLocale:
             ),
         ],
     )
-    def test_locale(self, referer, redirect, get, valid, monkeypatch):
-        localizer = pretend.stub(translate=lambda *a: "translated")
-        make_localizer = pretend.call_recorder(lambda *a: localizer)
-        monkeypatch.setattr(views, "make_localizer", make_localizer)
-        tdirs = pretend.stub()
-        request = pretend.stub(
-            GET=get,
-            referer=referer,
-            route_path=pretend.call_recorder(lambda r: "/fake-route"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            host=None,
-            registry=pretend.stub(queryUtility=lambda *a: tdirs),
+    def test_locale(
+        self, mocker, pyramid_config, pyramid_request, referer, redirect, get, valid
+    ):
+        localizer = mocker.create_autospec(Localizer, instance=True)
+        localizer.translate.return_value = "translated"
+        make_localizer = mocker.patch.object(
+            views, "make_localizer", autospec=True, return_value=localizer
         )
+        tdirs = mocker.sentinel.tdirs
+        pyramid_config.registry.registerUtility(tdirs, ITranslationDirectories)
+        pyramid_config.add_route("index", "/")
+        flash = mocker.spy(pyramid_request.session, "flash")
+        pyramid_request.GET = get
+        pyramid_request.referer = referer
 
-        result = locale(request)
+        result = locale(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.location == redirect
@@ -452,12 +396,12 @@ class TestLocale:
         if valid:
             assert "Set-Cookie" in result.headers
             assert f"_LOCALE_={get['locale_id']};" in result.headers["Set-Cookie"]
-            assert make_localizer.calls == [pretend.call(get["locale_id"], tdirs)]
-            assert request.session.flash.calls == [
-                pretend.call("translated", queue="success")
-            ]
+            make_localizer.assert_called_once_with(get["locale_id"], tdirs)
+            flash.assert_called_once_with("translated", queue="success")
         else:
             assert "Set-Cookie" not in result.headers
+            make_localizer.assert_not_called()
+            flash.assert_not_called()
 
     @pytest.mark.parametrize(
         "get",
@@ -466,108 +410,127 @@ class TestLocale:
             MultiDict([("locale_id", "one"), ("locale_id", "two")]),
         ],
     )
-    def test_locale_bad_request(self, get, monkeypatch):
-        request = pretend.stub(
-            GET=get,
-            route_path=pretend.call_recorder(lambda r: "/fake-route"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            host=None,
-        )
+    def test_locale_bad_request(self, pyramid_request, get):
+        pyramid_request.GET = get
 
         with pytest.raises(HTTPBadRequest):
-            locale(request)
+            locale(pyramid_request)
 
 
-def test_csi_current_user_indicator():
-    assert current_user_indicator(pretend.stub()) == {}
+def test_csi_current_user_indicator(mocker):
+    assert current_user_indicator(mocker.sentinel.request) == {}
 
 
-def test_csi_flash_messages():
-    assert flash_messages(pretend.stub()) == {}
+def test_csi_flash_messages(mocker):
+    assert flash_messages(mocker.sentinel.request) == {}
 
 
-def test_csi_session_notifications():
-    assert session_notifications(pretend.stub()) == {}
+def test_csi_session_notifications(mocker):
+    assert session_notifications(mocker.sentinel.request) == {}
 
 
-def test_csi_sidebar_sponsor_logo():
-    assert sidebar_sponsor_logo(pretend.stub()) == {}
+def test_csi_sidebar_sponsor_logo(mocker):
+    assert sidebar_sponsor_logo(mocker.sentinel.request) == {}
 
 
 class TestSearch:
+    @pytest.fixture
+    def search_ratelimiter(self, mocker, pyramid_services):
+        ratelimiter = DummyRateLimiter()
+        mocker.spy(ratelimiter, "test")
+        mocker.spy(ratelimiter, "hit")
+        pyramid_services.register_service(
+            ratelimiter, IRateLimiter, None, name="search"
+        )
+        return ratelimiter
+
+    @pytest.fixture
+    def get_opensearch_query(self, mocker, db_request):
+        db_request.opensearch = mocker.sentinel.opensearch
+        return mocker.patch.object(
+            views,
+            "get_opensearch_query",
+            autospec=True,
+            return_value=mocker.sentinel.opensearch_query,
+        )
+
+    @pytest.fixture
+    def opensearch(self, mocker, db_request):
+        db_request.opensearch = mocker.create_autospec(
+            opensearchpy.Search, instance=True
+        )
+        db_request.opensearch.query.return_value = mocker.sentinel.opensearch_query
+        return db_request.opensearch
+
+    @pytest.fixture
+    def url_maker_factory(self, mocker):
+        return mocker.patch.object(
+            views,
+            "paginate_url_factory",
+            autospec=True,
+            return_value=mocker.sentinel.url_maker,
+        )
+
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(
-        self, monkeypatch, pyramid_services, db_request, metrics, page
+        self,
+        mocker,
+        search_ratelimiter,
+        get_opensearch_query,
+        url_maker_factory,
+        db_request,
+        metrics,
+        page,
     ):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
-            params["page"] = page
+            params["page"] = str(page)
         db_request.params = params
 
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
+        page_obj = Page([], item_count=1000, items_per_page=10)
+        page_cls = mocker.patch.object(
+            views, "OpenSearchPage", autospec=True, return_value=page_obj
         )
 
-        db_request.opensearch = pretend.stub()
-        opensearch_query = pretend.stub()
-        get_opensearch_query = pretend.call_recorder(lambda *a, **kw: opensearch_query)
-        monkeypatch.setattr(views, "get_opensearch_query", get_opensearch_query)
-
-        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
-
-        assert search(db_request) == {
+        result = search(db_request)
+        assert result["page"] is page_obj
+        assert result == {
             "page": page_obj,
             "term": params.get("q", ""),
             "order": "",
             "applied_filters": [],
             "available_filters": [],
         }
-        assert get_opensearch_query.calls == [
-            pretend.call(db_request.opensearch, params.get("q"), "", [])
-        ]
-        assert page_cls.calls == [
-            pretend.call(opensearch_query, url_maker=url_maker, page=page or 1)
-        ]
-        assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.views.search.results", 1000)
-        ]
+        get_opensearch_query.assert_called_once_with(
+            mocker.sentinel.opensearch, params.get("q"), "", []
+        )
+        page_cls.assert_called_once_with(
+            mocker.sentinel.opensearch_query,
+            url_maker=mocker.sentinel.url_maker,
+            page=page or 1,
+        )
+        url_maker_factory.assert_called_once_with(db_request)
+        search_ratelimiter.hit.assert_called_once_with(db_request.remote_addr)
+        search_ratelimiter.test.assert_called_once_with(db_request.remote_addr)
+        metrics.histogram.assert_called_once_with(
+            "warehouse.views.search.results", 1000
+        )
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_classifiers(
-        self, monkeypatch, pyramid_services, db_request, metrics, page
+        self,
+        mocker,
+        search_ratelimiter,
+        get_opensearch_query,
+        url_maker_factory,
+        db_request,
+        metrics,
+        page,
     ):
         params = MultiDict([("q", "foo bar"), ("c", "foo :: bar"), ("c", "fiz :: buz")])
         if page is not None:
-            params["page"] = page
+            params["page"] = str(page)
         db_request.params = params
-
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
-        )
-
-        opensearch_query = pretend.stub()
-        db_request.opensearch = pretend.stub()
-        get_opensearch_query = pretend.call_recorder(lambda *a, **kw: opensearch_query)
-        monkeypatch.setattr(views, "get_opensearch_query", get_opensearch_query)
 
         classifier1 = ClassifierFactory.create(classifier="foo :: bar")
         classifier2 = ClassifierFactory.create(classifier="foo :: baz")
@@ -579,15 +542,13 @@ class TestSearch:
         release1._classifiers.append(classifier1)
         release1._classifiers.append(classifier2)
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+        page_obj = Page([], item_count=1000, items_per_page=10)
+        page_cls = mocker.patch.object(
+            views, "OpenSearchPage", autospec=True, return_value=page_obj
+        )
 
         search_view = search(db_request)
+        assert search_view["page"] is page_obj
         assert search_view == {
             "page": page_obj,
             "term": params.get("q", ""),
@@ -603,152 +564,108 @@ class TestSearch:
             ],
         }
         assert ("fiz", [classifier3.classifier]) not in search_view["available_filters"]
-        assert page_cls.calls == [
-            pretend.call(opensearch_query, url_maker=url_maker, page=page or 1)
-        ]
+        page_cls.assert_called_once_with(
+            mocker.sentinel.opensearch_query,
+            url_maker=mocker.sentinel.url_maker,
+            page=page or 1,
+        )
 
-        assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert get_opensearch_query.calls == [
-            pretend.call(db_request.opensearch, params.get("q"), "", params.getall("c"))
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.views.search.results", 1000)
-        ]
+        url_maker_factory.assert_called_once_with(db_request)
+        get_opensearch_query.assert_called_once_with(
+            mocker.sentinel.opensearch, params.get("q"), "", params.getall("c")
+        )
+        metrics.histogram.assert_called_once_with(
+            "warehouse.views.search.results", 1000
+        )
 
     def test_returns_404_with_pagenum_too_high(
-        self, monkeypatch, pyramid_services, db_request, metrics
+        self,
+        mocker,
+        search_ratelimiter,
+        opensearch,
+        url_maker_factory,
+        db_request,
+        metrics,
     ):
-        params = MultiDict({"page": 15})
+        params = MultiDict({"page": "15"})
         db_request.params = params
 
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
+        page_obj = Page([], item_count=1000, items_per_page=100)
+        page_cls = mocker.patch.object(
+            views, "OpenSearchPage", autospec=True, return_value=page_obj
         )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
-        )
-
-        opensearch_query = pretend.stub()
-        db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
         with pytest.raises(HTTPNotFound):
             search(db_request)
 
-        assert page_cls.calls == [
-            pretend.call(opensearch_query, url_maker=url_maker, page=15)
-        ]
-        assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert metrics.histogram.calls == []
+        page_cls.assert_called_once_with(
+            mocker.sentinel.opensearch_query,
+            url_maker=mocker.sentinel.url_maker,
+            page=15,
+        )
+        url_maker_factory.assert_called_once_with(db_request)
+        metrics.histogram.assert_not_called()
 
     def test_raises_400_with_pagenum_type_str(
-        self, monkeypatch, pyramid_services, db_request, metrics
+        self, mocker, search_ratelimiter, opensearch, db_request, metrics
     ):
         params = MultiDict({"page": "abc"})
         db_request.params = params
 
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
-        )
-
-        opensearch_query = pretend.stub()
-        db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+        page_cls = mocker.patch.object(views, "OpenSearchPage", autospec=True)
 
         with pytest.raises(HTTPBadRequest):
             search(db_request)
 
-        assert page_cls.calls == []
-        assert metrics.histogram.calls == []
+        page_cls.assert_not_called()
+        metrics.histogram.assert_not_called()
 
     def test_return_413_when_query_too_long(
-        self, pyramid_services, db_request, metrics
+        self, mocker, search_ratelimiter, db_request, metrics
     ):
         params = MultiDict({"q": "a" * 1001})
         db_request.params = params
 
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
-        )
-
         with pytest.raises(HTTPRequestEntityTooLarge):
             search(db_request)
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.hit"),
-            pretend.call("warehouse.views.search.error", tags=["error:query_too_long"]),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.search.ratelimiter.hit"),
+            mocker.call("warehouse.views.search.error", tags=["error:query_too_long"]),
         ]
 
     def test_returns_503_when_opensearch_unavailable(
-        self, monkeypatch, pyramid_services, db_request, metrics
+        self,
+        mocker,
+        search_ratelimiter,
+        opensearch,
+        url_maker_factory,
+        db_request,
+        metrics,
     ):
-        params = MultiDict({"page": 15})
+        params = MultiDict({"page": "15"})
         db_request.params = params
 
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
+        mocker.patch.object(
+            views,
+            "OpenSearchPage",
+            autospec=True,
+            side_effect=opensearchpy.ConnectionError,
         )
-        pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
-        )
-
-        opensearch_query = pretend.stub()
-        db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
-
-        def raiser(*args, **kwargs):
-            raise opensearchpy.ConnectionError
-
-        monkeypatch.setattr(views, "OpenSearchPage", raiser)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
         with pytest.raises(HTTPServiceUnavailable):
             search(db_request)
 
-        assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.hit"),
-            pretend.call("warehouse.views.search.error"),
+        url_maker_factory.assert_called_once_with(db_request)
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.search.ratelimiter.hit"),
+            mocker.call("warehouse.views.search.error"),
         ]
-        assert metrics.histogram.calls == []
+        metrics.histogram.assert_not_called()
 
     @pytest.mark.parametrize("resets_in", [None, 1, 5])
     def test_returns_429_when_ratelimited(
-        self, monkeypatch, pyramid_services, db_request, metrics, resets_in
+        self, mocker, pyramid_services, db_request, metrics, resets_in
     ):
         params = MultiDict({"q": "foo bar"})
         db_request.params = params
@@ -756,18 +673,14 @@ class TestSearch:
         stats = [
             WindowStats(amount=5, window_seconds=1, remaining=0, resets_in_seconds=1)
         ]
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: False,
-            hit=lambda *a: True,
-            resets_in=lambda *a: (
-                None
-                if resets_in is None
-                else pretend.stub(total_seconds=lambda *a: resets_in)
-            ),
-            get_window_stats=lambda *a: stats,
+        ratelimiter = mocker.create_autospec(RateLimiter, instance=True)
+        ratelimiter.test.return_value = False
+        ratelimiter.resets_in.return_value = (
+            None if resets_in is None else dt.timedelta(seconds=resets_in)
         )
+        ratelimiter.get_window_stats.return_value = stats
         pyramid_services.register_service(
-            fake_rate_limiter, IRateLimiter, None, name="search"
+            ratelimiter, IRateLimiter, None, name="search"
         )
 
         with pytest.raises(HTTPTooManyRequests) as exc_info:
@@ -781,9 +694,11 @@ class TestSearch:
             message += f" Limit may reset in {resets_in} seconds."
 
         assert exc_info.value.args[0] == message
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.exceeded")
-        ]
+        ratelimiter.hit.assert_called_once_with(db_request.remote_addr)
+        ratelimiter.test.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_called_once_with(
+            "warehouse.search.ratelimiter.exceeded"
+        )
         # Snapshot is recorded even on the blocked path so headers can be
         # emitted on the 429 response.
         snapshots = db_request._rate_limit_snapshots
@@ -812,37 +727,30 @@ def test_stats(db_request):
     }
 
 
-def test_health():
-    request = pretend.stub(
-        db=pretend.stub(execute=pretend.call_recorder(lambda q: None))
-    )
+def test_health(db_request, query_recorder):
+    with query_recorder:
+        assert health(db_request) == "OK"
 
-    assert health(request) == "OK"
-    assert len(request.db.execute.calls) == 1
-    assert len(request.db.execute.calls[0].args) == 1
-    assert len(request.db.execute.calls[0].kwargs) == 0
-    assert isinstance(
-        request.db.execute.calls[0].args[0], sqlalchemy.sql.expression.TextClause
-    )
-    assert request.db.execute.calls[0].args[0].text == "SELECT 1"
+    assert query_recorder.queries == ["SELECT 1"]
 
 
 class TestForceStatus:
-    def test_valid(self):
+    def test_valid(self, pyramid_request):
+        pyramid_request.matchdict = {"status": "400"}
         with pytest.raises(HTTPBadRequest):
-            force_status(pretend.stub(matchdict={"status": "400"}))
+            force_status(pyramid_request)
 
-    def test_invalid(self):
+    def test_invalid(self, pyramid_request):
+        pyramid_request.matchdict = {"status": "599"}
         with pytest.raises(HTTPNotFound):
-            force_status(pretend.stub(matchdict={"status": "599"}))
+            force_status(pyramid_request)
 
 
 class TestSecurityKeyGiveaway:
-    def test_default_response(self):
-        assert SecurityKeyGiveaway(pretend.stub()).default_response == {}
+    def test_default_response(self, mocker):
+        assert SecurityKeyGiveaway(mocker.sentinel.request).default_response == {}
 
-    def test_security_key_giveaway(self):
-        request = pretend.stub()
-        view = SecurityKeyGiveaway(request)
+    def test_security_key_giveaway(self, mocker):
+        view = SecurityKeyGiveaway(mocker.sentinel.request)
 
         assert view.security_key_giveaway() == view.default_response

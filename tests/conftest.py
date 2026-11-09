@@ -75,6 +75,7 @@ from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+from .common.forms import FormRequest
 
 _HERE = Path(__file__).parent.resolve()
 _FIXTURES = _HERE / "_fixtures"
@@ -283,7 +284,7 @@ def pyramid_services(
 @pytest.fixture
 def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
-    dummy_request = pyramid.testing.DummyRequest()
+    dummy_request = FormRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
@@ -501,6 +502,7 @@ def app_config_dbsession_from_env(database):
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
         "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
+        "token.remember_device.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
     }

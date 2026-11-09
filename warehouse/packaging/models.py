@@ -509,44 +509,35 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        if self.lifecycle_status not in [
-            LifecycleStatus.Archived,
-            LifecycleStatus.ArchivedNoindex,
-            LifecycleStatus.QuarantineEnter,
-        ]:
-            # The project has zero or more OIDC publishers registered to it,
-            # each of which serves as an identity with the ability to upload releases
-            # (only if the project is not archived or quarantined)
-            acls.extend(
-                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
-                for publisher in self.oidc_publishers
-            )
-
         # Get all of the users for this project.
         user_query = (
             session.query(Role)
             .filter(Role.project == self)
-            .options(orm.lazyload(Role.project), orm.lazyload(Role.user))
+            .options(orm.lazyload(Role.project))
         )
         permissions = {
-            (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
+            (role.user, "Administer" if role.role_name == "Owner" else "Upload")
             for role in user_query.all()
         }
 
-        # Add all of the team members for this project.
-        team_query = (
-            session.query(TeamProjectRole)
-            .filter(TeamProjectRole.project == self)
-            .options(
-                orm.lazyload(TeamProjectRole.project),
-                orm.lazyload(TeamProjectRole.team),
+        if self.organization and self.organization.is_in_good_standing():
+            # Add all of the team members for this project.
+            team_query = (
+                session.query(TeamProjectRole)
+                .filter(TeamProjectRole.project == self)
+                .options(
+                    orm.lazyload(TeamProjectRole.project),
+                    orm.lazyload(TeamProjectRole.team),
+                )
             )
-        )
-        for role in team_query.all():
-            permissions |= {
-                (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
-                for user in role.team.members
-            }
+            for role in team_query.all():
+                permissions |= {
+                    (
+                        user,
+                        "Administer" if role.role_name.value == "Owner" else "Upload",
+                    )
+                    for user in role.team.members
+                }
 
         # Add all organization owners for this project.
         if self.organization:
@@ -558,12 +549,25 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 )
                 .options(
                     orm.lazyload(OrganizationRole.organization),
-                    orm.lazyload(OrganizationRole.user),
                 )
             )
-            permissions |= {(role.user_id, "Administer") for role in org_query.all()}
+            permissions |= {(role.user, "Administer") for role in org_query.all()}
 
-        for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
+        if self.lifecycle_status not in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+            LifecycleStatus.QuarantineEnter,
+        ] and not any(user.is_frozen or not user.is_active for user, _ in permissions):
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived or quarantined, and no user
+            # on the project is frozen or inactive)
+            acls.extend(
+                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                for publisher in self.oidc_publishers
+            )
+
+        for user, permission_name in sorted(permissions, key=lambda x: (x[1], x[0].id)):
             # Disallow Write permissions for Projects in quarantine, allow Upload
             if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
                 current_permissions = [
@@ -582,12 +586,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             if self.lifecycle_status in [
                 LifecycleStatus.Archived,
                 LifecycleStatus.ArchivedNoindex,
-            ]:
-                # Disallow upload permissions for archived projects
+            ] or (self.organization and not self.organization.is_in_good_standing()):
+                # Disallow upload permissions for archived projects or
+                # projects in organizations not in good standing
                 current_permissions.remove(Permissions.ProjectsUpload)
 
             if current_permissions:
-                acls.append((Allow, f"user:{user_id}", current_permissions))
+                acls.append((Allow, f"user:{user.id}", current_permissions))
         return acls
 
     @property

@@ -199,6 +199,14 @@ deactivated organization from its admin page. The admin action deletes the
 schedule, so an organization that still lacks a paid seat can get a new
 30-day notice period.
 
+## Permissions when not in good standing
+
+When an organization is not in good standing (`not organization.is_in_good_standing()`):
+
+- **Uploads are blocked**: `Project.__acl__` withholds `Permissions.ProjectsUpload` and omits `TeamProjectRole` grants, and `file_upload` rejects release uploads to projects owned by the organization.
+- **Role additions and changes are restricted**: Adding new collaborators or teams to the organization's projects (`manage_project_roles`) is blocked. At the organization level (`manage_organization_roles`, `change_organization_role`), only the `Billing Manager` role (`OrganizationRoleType.BillingManager`) may be invited or assigned (for active organizations) so that an organization without active billing can designate someone to activate or restore billing.
+- **Project removal and transfer remain permitted (by design)**: Organization owners intentionally retain `Permissions.ProjectsRead` and `Permissions.ProjectsWrite` (`Administer` without `ProjectsUpload` in `Project.__acl__`) and are allowed to remove projects from the organization (`remove_organization_project`) or transfer them to another active organization (`transfer_organization_project`). This is an intentional product and security design decision so that projects are not held hostage inside an unpaid or deactivated organization; detaching or transferring a project out of an organization that is not in good standing to resume individual or active-organization management is expected behavior and not an authorization bypass or security vulnerability.
+
 ## Local development
 
 `dev/environment` sets `BILLING_BACKEND` to `MockStripeBillingService`,

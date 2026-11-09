@@ -18,7 +18,10 @@ skip = [
 
 [tool.coverage.run]
 branch = true
-dynamic_context = "test_function"
+# Empty unless COVERAGE_DYNAMIC_CONTEXT is set (bin/tests sets it for
+# COVERAGE_HTML=yes). Without dynamic contexts coverage can use the faster
+# sys.monitoring core on Python 3.14+; with them it falls back to ctrace.
+dynamic_context = "${COVERAGE_DYNAMIC_CONTEXT-}"
 source = ["warehouse", "tests", "pyramid_components/tests"]
 # Resolved by import location rather than by path. pyramid_components is installed
 # editable from `pyramid_components/src/`, and under CI the container's working
