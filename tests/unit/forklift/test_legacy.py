@@ -88,6 +88,13 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
+def _get_zip_sdist_testdata():
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as archive:
+        archive.writestr("fake_package-1.0/PKG-INFO", b"metadata")
+    return buf.getvalue()
+
+
 def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
@@ -261,23 +268,13 @@ class TestFileValidation:
         with pytest.raises(ValueError, match="Unsupported distribution file"):
             legacy._open_dist_file("test.exe", ExitStack())
 
-    def test_defaults_to_true(self):
-        assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
-
-    @pytest.mark.parametrize(
-        ("filename", "filetype"),
-        [
-            ("test.zip", "sdist"),
-            ("test.whl", "bdist_wheel"),
-        ],
-    )
-    def test_bails_with_invalid_zipfile(self, tmpdir, filename, filetype):
-        f = str(tmpdir.join(filename))
+    def test_bails_with_invalid_zipfile(self, tmpdir):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with open(f, "wb") as fp:
             fp.write(b"this isn't a valid zip file")
 
-        assert legacy._is_valid_dist_file(f, filetype, NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File is not a zipfile",
         )
@@ -396,62 +393,52 @@ class TestFileValidation:
             None,
         )
 
-    def test_zip_no_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+    def test_zip_sdist_unsupported(self, tmp_path):
+        filename = tmp_path / "test-1.0.zip"
+        with zipfile.ZipFile(filename, "w") as archive:
+            archive.writestr("test-1.0/PKG-INFO", b"this is the package info")
 
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("package/something.txt", b"Just a placeholder file")
-            zfp.writestr("package/else.txt", b"Just a placeholder file")
-
-        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(str(filename), "sdist", NullMetrics()) == (
             False,
-            "PKG-INFO not found at package/PKG-INFO",
+            "Unsupported distribution file extension",
         )
 
-    def test_zip_has_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("package/something.txt", b"Just a placeholder file")
-            zfp.writestr("package/PKG-INFO", b"this is the package info")
-
-        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (True, None)
-
     def test_zipfile_supported_compression(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
-            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (True, None)
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
 
     @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
     def test_zipfile_unsupported_compression(self, tmpdir, method):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
-            zfp.writestr("test-1.0/3.txt", b"3", method)
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("data.txt", b"3", method)
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File does not use a supported compression type",
         )
 
     def test_zipfile_exceeds_compression_threshold(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
             zfp.writestr(
                 "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
             )
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File exceeds compression ratio of 50",
         )
@@ -491,35 +478,20 @@ class TestFileValidation:
             "Unable to parse name and version from wheel filename",
         )
 
-    def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
-        tar_fn = str(tmpdir.join("test.tar.gz"))
-        data_file = str(tmpdir.join("dummy_data"))
-
-        with open(data_file, "wb") as fp:
-            fp.write(b"Dummy data file.")
-
+    @pytest.mark.parametrize(
+        "members",
+        [(), ("package/PKG-INFO", "notpackage/test.txt")],
+        ids=["empty", "multiple-roots"],
+    )
+    def test_incorrect_number_of_top_level_directories_sdist_tar(
+        self, tmp_path, members
+    ):
+        tar_fn = str(tmp_path / "test.tar.gz")
         with tarfile.open(tar_fn, "w:gz") as tar:
-            tar.add(data_file, arcname="package/module.py")
-            tar.add(data_file, arcname="package/PKG-INFO")
-            tar.add(data_file, arcname="package/data_file.txt")
-            tar.add(data_file, arcname="notpackage/test.txt")
+            for name in members:
+                tar.addfile(tarfile.TarInfo(name))
 
         assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
-            False,
-            "Incorrect number of top-level directories in sdist",
-        )
-
-    def test_incorrect_number_of_top_level_directories_sdist_zip(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
-            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
-            zfp.writestr("notpackage/test.txt", b"2", zipfile.ZIP_DEFLATED)
-
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
@@ -757,7 +729,7 @@ class TestFileValidation:
         tar_buf = io.BytesIO()
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, "w") as zfp:
-            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("package-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
         with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
             data_file = tmpdir.join("data-file.txt")
             with open(data_file, "wb") as f:
@@ -765,13 +737,16 @@ class TestFileValidation:
             tar: tarfile.TarFile
             tar.add(data_file, arcname="package/PKG-INFO")
 
-        for filename in ("package.tar.gz", "package.zip"):
+        for filename, filetype in (
+            ("package-1.0.tar.gz", "sdist"),
+            ("package-1.0-py3-none-any.whl", "bdist_wheel"),
+        ):
             tar_zip = str(tmpdir.join(filename))
             with open(tar_zip, "wb") as fp:
                 fp.write(tar_buf.getvalue())
                 fp.write(zip_buf.getvalue())
 
-            assert legacy._is_valid_dist_file(tar_zip, "", NullMetrics()) == (
+            assert legacy._is_valid_dist_file(tar_zip, filetype, NullMetrics()) == (
                 False,
                 "File is both a zip and a tar file",
             )
@@ -1765,7 +1740,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information"
         )
@@ -2005,7 +1980,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.zip".format(
+        filename = "{}-{}-py3-none-any.whl".format(
             project.normalized_name.replace("-", "_"), release.version
         )
 
@@ -2014,7 +1989,8 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "sdist",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
                 "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
                 "content": _content_field(
                     filename=filename, file=io.BytesIO(b"a"), type="application/zip"
@@ -2450,8 +2426,16 @@ class TestFileUpload:
             "deleted. Use a different version. See /the/docs/url/ for more information."
         )
 
+    @pytest.mark.parametrize(
+        ("extension", "content_type", "data"),
+        [
+            (".tar.gz", "application/tar", _TAR_GZ_PKG_TESTDATA),
+            (".zip", "application/zip", _get_zip_sdist_testdata()),
+        ],
+        ids=["tar.gz", "legacy-zip"],
+    )
     def test_upload_noop_with_existing_filename_same_content(
-        self, pyramid_config, db_request, mocker
+        self, pyramid_config, db_request, mocker, extension, content_type, data
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2462,10 +2446,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(
-            project.normalized_name.replace("-", "_"), release.version
-        )
-        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        name = project.normalized_name.replace("-", "_")
+        filename = f"{name}-{release.version}{extension}"
+        file_content = io.BytesIO(data)
 
         db_request.POST = MultiDict(
             {
@@ -2475,7 +2458,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
                 "content": _content_field(
-                    filename=filename, file=file_content, type="application/tar"
+                    filename=filename, file=file_content, type=content_type
                 ),
             }
         )
@@ -2850,7 +2833,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information"
         )
@@ -6211,7 +6194,7 @@ class TestFileUpload:
     )
     def test_upload_fails_pep625(
         self,
-        monkeypatch,
+        mocker,
         pyramid_config,
         db_request,
         project_service,
@@ -6229,17 +6212,23 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(identity=owner)
 
+        if filename.endswith(".zip"):
+            data = _get_zip_sdist_testdata()
+            content_type = "application/zip"
+        else:
+            data = _TAR_GZ_PKG_TESTDATA
+            content_type = "application/tar"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": version,
                 "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
+                "md5_digest": hashlib.md5(data).hexdigest(),
                 "content": _content_field(
                     filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
+                    file=io.BytesIO(data),
+                    type=content_type,
                 ),
             }
         )
@@ -6251,9 +6240,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        monkeypatch.setattr(
-            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
-        )
+        open_dist_file = mocker.spy(legacy, "_open_dist_file")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -6264,6 +6251,7 @@ class TestFileUpload:
         assert resp.status == (
             f"400 Filename {filename!r} is invalid, should be {expected!r}."
         )
+        open_dist_file.assert_not_called()
 
     @pytest.mark.parametrize(
         ("version", "expected_version", "filetype", "mimetype"),
