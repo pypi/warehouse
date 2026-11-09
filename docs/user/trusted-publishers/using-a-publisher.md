@@ -335,6 +335,10 @@ below describe the setup process for each supported Trusted Publisher.
     You have successfully published a Python wheel using the ActiveState Platform.
 
     !!! note
+        ActiveState does not currently produce [attestations](../attestations/index.md),
+        so files published from ActiveState will not display attestations on PyPI.
+
+    !!! note
         Buildscript tips:
 
         You can leave `pypi_uri` and `audience` fields blank to publish

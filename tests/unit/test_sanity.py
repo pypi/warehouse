@@ -3,11 +3,11 @@
 import io
 import re
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPOk
 from pyramid.request import Request
+from pyramid.response import Response
 
 from warehouse import sanity
 
@@ -86,58 +86,49 @@ def test_unicode_redirects(original_location, expected_location):
 
 
 class TestSanityTween:
-    def test_ingress_valid(self, monkeypatch):
-        junk_encoding = pretend.call_recorder(lambda request: None)
-        monkeypatch.setattr(sanity, "junk_encoding", junk_encoding)
+    def test_ingress_valid(self, mocker):
+        junk_encoding = mocker.spy(sanity, "junk_encoding")
+        invalid_forms = mocker.spy(sanity, "invalid_forms")
+        response = Response()
+        handler = mocker.create_autospec(lambda request: None, return_value=response)
+        request = Request.blank("/")
 
-        invalid_forms = pretend.call_recorder(lambda request: None)
-        monkeypatch.setattr(sanity, "invalid_forms", invalid_forms)
-
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
-
-        request = pretend.stub()
-
-        tween = sanity.sanity_tween_factory_ingress(handler, registry)
+        tween = sanity.sanity_tween_factory_ingress(handler, mocker.sentinel.registry)
 
         assert tween(request) is response
-        assert junk_encoding.calls == [pretend.call(request)]
-        assert invalid_forms.calls == [pretend.call(request)]
-        assert handler.calls == [pretend.call(request)]
+        junk_encoding.assert_called_once_with(request)
+        invalid_forms.assert_called_once_with(request)
+        handler.assert_called_once_with(request)
 
-    def test_ingress_invalid(self, monkeypatch):
+    def test_ingress_invalid(self, mocker):
         response = HTTPBadRequest()
+        junk_encoding = mocker.patch.object(
+            sanity, "junk_encoding", autospec=True, side_effect=response
+        )
+        invalid_forms = mocker.spy(sanity, "invalid_forms")
+        handler = mocker.create_autospec(lambda request: None)
+        request = Request.blank("/")
 
-        @pretend.call_recorder
-        def junk_encoding(request):
-            raise response
-
-        monkeypatch.setattr(sanity, "junk_encoding", junk_encoding)
-
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
-
-        request = pretend.stub()
-
-        tween = sanity.sanity_tween_factory_ingress(handler, registry)
+        tween = sanity.sanity_tween_factory_ingress(handler, mocker.sentinel.registry)
 
         assert tween(request) is response
-        assert junk_encoding.calls == [pretend.call(request)]
-        assert handler.calls == []
+        junk_encoding.assert_called_once_with(request)
+        invalid_forms.assert_not_called()
+        handler.assert_not_called()
 
-    def test_egress(self, monkeypatch):
-        unicode_redirects = pretend.call_recorder(lambda resp: resp)
-        monkeypatch.setattr(sanity, "unicode_redirects", unicode_redirects)
+    def test_egress(self, mocker):
+        unicode_redirects = mocker.patch.object(
+            sanity,
+            "unicode_redirects",
+            autospec=True,
+            return_value=mocker.sentinel.redirected_response,
+        )
+        response = Response()
+        handler = mocker.create_autospec(lambda request: None, return_value=response)
+        request = Request.blank("/")
 
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
+        tween = sanity.sanity_tween_factory_egress(handler, mocker.sentinel.registry)
 
-        request = pretend.stub()
-
-        tween = sanity.sanity_tween_factory_egress(handler, registry)
-
-        assert tween(request) is response
-        assert handler.calls == [pretend.call(request)]
-        assert unicode_redirects.calls == [pretend.call(response)]
+        assert tween(request) is mocker.sentinel.redirected_response
+        handler.assert_called_once_with(request)
+        unicode_redirects.assert_called_once_with(response)

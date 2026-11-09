@@ -403,7 +403,12 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         form = two_factor_state["totp_form"]
         if form.validate():
             two_factor_method = "totp"
-            if user_service.device_is_known(userid, request, two_factor_method):
+            if user_service.device_is_known(
+                userid,
+                request,
+                two_factor_method,
+                remember_device=form.remember_device.data,
+            ):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
                 _login_user(request, userid, two_factor_method, two_factor_label="totp")
@@ -565,7 +570,9 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
         samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
-    request.user.record_event(
+    # Not `request.user`: right after login it is `None` for a frozen account.
+    user_service = request.find_service(IUserService, context=None)
+    user_service.get_user(userid).record_event(
         tag=EventTag.Account.TwoFactorDeviceRemembered,
         request=request,
         additional={
@@ -1040,7 +1047,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
     has_translations=True,
 )
 def confirm_login(request):
-    if request.user is not None:
+    # NOTE: `request.user` is reified; reading it here would cache `None` and
+    #  break `_remember_device` after `_login_user` below.
+    if request.identity is not None:
         return HTTPSeeOther(request.route_path("index"))
 
     if not request.params.get("token"):
@@ -1100,6 +1109,9 @@ def confirm_login(request):
     _login_user(request, user.id, two_factor_method="email-confirmation")
     resp = HTTPSeeOther(request.route_path("manage.projects"))
     _set_userid_insecure_cookie(resp, user.id)
+    # TokenService.dumps stringifies values, so the flag round-trips as "True"
+    if data.get("remember_device") == "True":
+        _remember_device(request, resp, user.id, "email-confirmation")
     request.session.flash(
         request._("Your login has been confirmed and this device is now recognized."),
         queue="success",

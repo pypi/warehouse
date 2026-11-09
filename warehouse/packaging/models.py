@@ -528,20 +528,24 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             for role in user_query.all()
         }
 
-        # Add all of the team members for this project.
-        team_query = (
-            session.query(TeamProjectRole)
-            .filter(TeamProjectRole.project == self)
-            .options(
-                orm.lazyload(TeamProjectRole.project),
-                orm.lazyload(TeamProjectRole.team),
+        if self.organization and self.organization.is_in_good_standing():
+            # Add all of the team members for this project.
+            team_query = (
+                session.query(TeamProjectRole)
+                .filter(TeamProjectRole.project == self)
+                .options(
+                    orm.lazyload(TeamProjectRole.project),
+                    orm.lazyload(TeamProjectRole.team),
+                )
             )
-        )
-        for role in team_query.all():
-            permissions |= {
-                (user, "Administer" if role.role_name.value == "Owner" else "Upload")
-                for user in role.team.members
-            }
+            for role in team_query.all():
+                permissions |= {
+                    (
+                        user,
+                        "Administer" if role.role_name.value == "Owner" else "Upload",
+                    )
+                    for user in role.team.members
+                }
 
         # Add all organization owners for this project.
         if self.organization:
@@ -590,8 +594,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             if self.lifecycle_status in [
                 LifecycleStatus.Archived,
                 LifecycleStatus.ArchivedNoindex,
-            ]:
-                # Disallow upload permissions for archived projects
+            ] or (self.organization and not self.organization.is_in_good_standing()):
+                # Disallow upload permissions for archived projects or
+                # projects in organizations not in good standing
                 current_permissions.remove(Permissions.ProjectsUpload)
 
             if current_permissions:
