@@ -2,9 +2,6 @@
   "extends": [
     "stylelint-config-standard-scss"
   ],
-  "plugins": [
-    "stylelint-selector-bem-pattern"
-  ],
   "ignoreFiles": [
     "warehouse/static/sass/resets/_boxsizing.scss",
     "warehouse/static/sass/resets/_reset.scss"
@@ -33,10 +30,12 @@
       }
     ],
     "no-descending-specificity": null,
-    "plugin/selector-bem-pattern": {
-      "preset": "bem"
-    },
-    "selector-class-pattern": null,
+    "selector-class-pattern": [
+      "^(?!js-)[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Expected class selector \"%s\" to be kebab-case BEM (block__element--modifier) and not a js- hook"
+      }
+    ],
     "scss/dollar-variable-colon-space-after": "at-least-one-space",
     "scss/no-global-function-names": null
   }
