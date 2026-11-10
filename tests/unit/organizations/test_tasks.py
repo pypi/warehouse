@@ -392,17 +392,15 @@ class TestUpdateOrganizationSubscriptionUsage:
                 {"subscription_item_id": "si_1234", "organization_member_count": "1"},
             ],
         )
-        increment = mocker.spy(metrics, "increment")
-
         update_organziation_subscription_usage_record(db_request)
 
         # Both subscriptions are attempted even though the first one raised.
         assert create_usage_record.call_count == 2
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.error",
             tags=[f"error_type:{error.__class__.__name__}"],
         )
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.updated"
         )
 
@@ -807,7 +805,6 @@ class TestScheduleUnpaidOrganizationDeactivations:
         mocker.patch.object(
             organization_tasks, "_queue_reminder", side_effect=fail_after_queueing
         )
-        task = mocker.patch.object(db_request, "task")
 
         with (
             pytest.raises(RuntimeError, match="producer failed"),
@@ -819,7 +816,7 @@ class TestScheduleUnpaidOrganizationDeactivations:
         assert first.deactivation_schedule is None
         assert second.deactivation_schedule is None
         assert _queued(db_request) == []
-        task.assert_not_called()
+        db_request.task.assert_not_called()
 
     def test_disallowed_by_admin_flag(self, db_request):
         db_request.db.get(

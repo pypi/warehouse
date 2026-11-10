@@ -5,6 +5,7 @@ import hmac
 import os.path
 import posixpath
 import re
+import sys
 import tarfile
 import tempfile
 import zipfile
@@ -18,6 +19,7 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import pyramid_retry
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -591,9 +593,20 @@ def _close_upload_tempfiles(request):
     # FieldStorage. Neither is closed by WebOb on its own — without explicit
     # cleanup the OS file descriptors are only reclaimed when the request is
     # garbage collected, triggering ResourceWarning under -W error.
-    content = request.POST.get("content")
-    if content is not None and hasattr(content, "file"):
-        content.file.close()
+    #
+    # This runs once per pyramid_retry attempt, and a retried attempt reuses
+    # the same parsed POST, so if this attempt is about to be retried, rewind
+    # the upload instead of closing it. The error is still in flight here
+    # (we're in ``invoke_request``'s ``finally``) unless an exception view
+    # already rendered it, in which case it's on ``request.exception``.
+    upload = getattr(request.POST.get("content"), "file", None)
+    exc = sys.exception() or getattr(request, "exception", None)
+    if exc is not None and pyramid_retry.is_error_retryable(request, exc):
+        if upload is not None:
+            upload.seek(0)
+        return
+    if upload is not None:
+        upload.close()
     body_file = request.body_file_raw
     if hasattr(body_file, "close") and not getattr(body_file, "closed", True):
         body_file.close()
@@ -615,7 +628,8 @@ def file_upload(request):
     # WebOb's multipart parser backs the request body and uploaded "content"
     # field with tempfiles; ensure they're closed at request teardown
     # regardless of which exit path this view takes, so the fds aren't
-    # reclaimed by GC later (which would surface as a ResourceWarning).
+    # reclaimed by GC later (which would surface as a ResourceWarning). An
+    # attempt that pyramid_retry is about to retry keeps them open instead.
     request.add_finished_callback(_close_upload_tempfiles)
 
     # This is a list of warnings that we'll emit *IF* the request is successful.

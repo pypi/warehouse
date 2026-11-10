@@ -10,7 +10,7 @@ import responses
 from tests.common.db.accounts import UserFactory
 from warehouse import integrations
 from warehouse.events.tags import EventTag
-from warehouse.integrations.secrets import utils
+from warehouse.integrations.secrets import tasks, utils
 from warehouse.macaroons import caveats
 from warehouse.macaroons.services import deserialize_raw_macaroon
 
@@ -829,8 +829,7 @@ def test_analyze_disclosures_wrong_type(mocker, metrics, someorigin):
 
 
 def test_analyze_disclosures_raise(pyramid_request, mocker, metrics, someorigin):
-    delay = mocker.Mock()
-    pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
+    delay = pyramid_request.task.return_value.delay
 
     utils.analyze_disclosures(
         request=pyramid_request,
@@ -839,6 +838,11 @@ def test_analyze_disclosures_raise(pyramid_request, mocker, metrics, someorigin)
         metrics=metrics,
     )
 
+    assert pyramid_request.task.call_args_list == [
+        mocker.call(tasks.analyze_disclosure_task),
+        mocker.call(tasks.analyze_disclosure_task),
+        mocker.call(tasks.analyze_disclosure_task),
+    ]
     assert delay.call_args_list == [
         mocker.call(disclosure_record=1, origin=someorigin.to_dict()),
         mocker.call(disclosure_record=2, origin=someorigin.to_dict()),

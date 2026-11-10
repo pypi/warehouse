@@ -81,9 +81,7 @@ class TestFastlyCache:
     def test_verify_service(self):
         assert verifyClass(IOriginCache, fastly.FastlyCache)
 
-    def test_create_service(self, pyramid_request, mocker):
-        task = mocker.Mock(spec=["delay"])
-        mocker.patch.object(pyramid_request, "task", return_value=task)
+    def test_create_service(self, pyramid_request):
         pyramid_request.registry.settings.update(
             {
                 "origin_cache.api_endpoint": "https://api.example.com",
@@ -97,12 +95,10 @@ class TestFastlyCache:
         assert cacher.api_connect_via is None
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
-        assert cacher._purger is task.delay
+        assert cacher._purger is pyramid_request.task.return_value.delay
         pyramid_request.task.assert_called_once_with(fastly.purge_key)
 
-    def test_create_service_default_endpoint(self, pyramid_request, mocker):
-        task = mocker.Mock(spec=["delay"])
-        mocker.patch.object(pyramid_request, "task", return_value=task)
+    def test_create_service_default_endpoint(self, pyramid_request):
         pyramid_request.registry.settings.update(
             {
                 "origin_cache.api_key": "the api key",
@@ -115,11 +111,10 @@ class TestFastlyCache:
         assert cacher.api_connect_via is None
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
-        assert cacher._purger is task.delay
+        assert cacher._purger is pyramid_request.task.return_value.delay
+        pyramid_request.task.assert_called_once_with(fastly.purge_key)
 
-    def test_create_service_connect_via(self, pyramid_request, mocker):
-        task = mocker.Mock(spec=["delay"])
-        mocker.patch.object(pyramid_request, "task", return_value=task)
+    def test_create_service_connect_via(self, pyramid_request):
         pyramid_request.registry.settings.update(
             {
                 "origin_cache.api_connect_via": "172.16.0.1",
@@ -133,7 +128,8 @@ class TestFastlyCache:
         assert cacher.api_connect_via == "172.16.0.1"
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
-        assert cacher._purger is task.delay
+        assert cacher._purger is pyramid_request.task.return_value.delay
+        pyramid_request.task.assert_called_once_with(fastly.purge_key)
 
     def test_adds_surrogate_key(self, mocker):
         response = types.SimpleNamespace(headers={})
@@ -561,9 +557,7 @@ class TestFastlyCache:
 
 
 class TestNullFastlyCache:
-    def test_purge_key_prints(self, pyramid_request, mocker, capsys, metrics):
-        task = mocker.Mock(spec=["delay"])
-        mocker.patch.object(pyramid_request, "task", return_value=task)
+    def test_purge_key_prints(self, pyramid_request, capsys, metrics):
         pyramid_request.registry.settings.update(
             {
                 "origin_cache.api_endpoint": "https://api.example.com",

@@ -1,16 +1,17 @@
 # SigireddyBalasai <sigireddybalasai@gmail.com>, 2023.
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
 # SigireddyBalasai <sigireddybalasai@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2023-06-14 18:20+0200\n"
-"PO-Revision-Date: 2026-11-09 13:47+0000\n"
-"Last-Translator: SigireddyBalasai "
-"<sigireddybalasai@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Telugu <https://hosted.weblate.org/projects/pypa/warehouse/te/"
-">\n"
+"PO-Revision-Date: 2026-11-10 14:26+0000\n"
+"Last-Translator: GitHub webhook <noreply-webhook-github-"
+"integration@weblate.org>\n"
+"Language-Team: Telugu <https://hosted.weblate.org/projects/pypa/warehouse/"
+"te/>\n"
 "Language: te\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,7 +29,8 @@ msgstr ""
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr "ఈ చర్యను నిర్వహించడానికి మీ ఖాతాలో రెండు-కారకాల ప్రమాణీకరణ తప్పనిసరిగా ప్రారంభించబడాలి."
+msgstr ""
+"ఈ చర్యను నిర్వహించడానికి మీ ఖాతాలో రెండు-కారకాల ప్రమాణీకరణ తప్పనిసరిగా ప్రారంభించబడాలి."
 
 #: warehouse/views.py:377
 msgid "Locale updated"
@@ -83,7 +85,8 @@ msgstr "50 అక్షరాలు లేదా అంతకంటే తక్
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
+msgstr ""
+"ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -110,19 +113,22 @@ msgstr "ఇమెయిల్ చిరునామా చెల్లదు. �
 
 #: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr "మీరు ఈ డొమైన్ నుండి ఇమెయిల్ చిరునామాను ఉపయోగించలేరు. వేరే ఇమెయిల్‌ని ఉపయోగించండి."
+msgstr ""
+"మీరు ఈ డొమైన్ నుండి ఇమెయిల్ చిరునామాను ఉపయోగించలేరు. వేరే ఇమెయిల్‌ని ఉపయోగించండి."
 
 #: warehouse/accounts/forms.py:425
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "ఈ ఇమెయిల్ చిరునామా ఇప్పటికే ఈ ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే ఇమెయిల్ ఉపయోగించండి."
+msgstr ""
+"ఈ ఇమెయిల్ చిరునామా ఇప్పటికే ఈ ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే ఇమెయిల్ ఉపయోగించండి."
 
 #: warehouse/accounts/forms.py:436
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr "ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
+msgstr ""
+"ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:468
 #, fuzzy, python-brace-format
@@ -141,11 +147,13 @@ msgstr "ఇమెయిల్ చిరునామా చెల్లదు. �
 #| msgid ""
 #| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
-msgstr "మీరు ఈ డొమైన్ నుండి ఇమెయిల్ చిరునామాను ఉపయోగించలేరు. వేరే ఇమెయిల్‌ని ఉపయోగించండి."
+msgstr ""
+"మీరు ఈ డొమైన్ నుండి ఇమెయిల్ చిరునామాను ఉపయోగించలేరు. వేరే ఇమెయిల్‌ని ఉపయోగించండి."
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "పేరు చాలా పొడవుగా ఉంది. 100 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న పేరును ఎంచుకోండి."
+msgstr ""
+"పేరు చాలా పొడవుగా ఉంది. 100 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న పేరును ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:590
 msgid "URLs are not allowed in the name field."
@@ -603,7 +611,8 @@ msgstr ""
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
-msgstr "పేరు చాలా పొడవుగా ఉంది. 100 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న పేరును ఎంచుకోండి."
+msgstr ""
+"పేరు చాలా పొడవుగా ఉంది. 100 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న పేరును ఎంచుకోండి."
 
 #: warehouse/manage/forms.py:793
 #, python-brace-format
