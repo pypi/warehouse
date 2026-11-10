@@ -8,14 +8,15 @@
 # behzod musurmonqulov <behzodmusurmonqulov@users.noreply.hosted.weblate.org>, 2026.
 # Jasur <jasur-py@users.noreply.hosted.weblate.org>, 2026.
 # Muzaffar Murodovich <muzaffar@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2026-11-09 13:45+0000\n"
-"Last-Translator: Muzaffar Murodovich "
-"<muzaffar@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-10 14:23+0000\n"
+"Last-Translator: GitHub webhook <noreply-webhook-github-"
+"integration@weblate.org>\n"
 "Language-Team: Uzbek (Latin script) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/uz_Latn/>\n"
 "Language: uz_Latn\n"
@@ -326,8 +327,7 @@ msgstr ""
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
-"Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
+msgstr "Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
 #: warehouse/accounts/views.py:1032
 msgid "You have reset your password"
@@ -2282,8 +2282,7 @@ msgstr ""
 #| "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
 msgid "%(count)s <a href=\"%(href)s\">archived</a> project"
 msgid_plural "%(count)s <a href=\"%(href)s\">archived</a> projects"
-msgstr[0] ""
-"%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyiha"
+msgstr[0] "%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyiha"
 msgstr[1] ""
 "%(count)s <a href=\"%(href)s#archived-project\">arxivlangan</a> loyihalar"
 

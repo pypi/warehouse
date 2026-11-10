@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-11-09 13:43+0000\n"
+"PO-Revision-Date: 2026-11-10 14:21+0000\n"
 "Last-Translator: Lucian-Mihai Cosovanu "
 "<lucian.mihai.cosovanu@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -253,8 +253,7 @@ msgstr "Aserțiune WebAuthn cu succes"
 
 #: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
-"Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
+msgstr "Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
 
 #: warehouse/accounts/views.py:737
 #, fuzzy, python-brace-format

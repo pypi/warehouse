@@ -3,12 +3,13 @@
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
 # Hadi Reza <unknownmeovo@users.noreply.hosted.weblate.org>, 2026.
 # Muneeb Khurram <muneebkhurram9@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-06-07 14:16+0200\n"
-"PO-Revision-Date: 2026-11-09 13:45+0000\n"
+"PO-Revision-Date: 2026-11-10 14:23+0000\n"
 "Last-Translator: Muneeb Khurram "
 "<muneebkhurram9@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Urdu (Pakistan) <https://hosted.weblate.org/projects/pypa/"
@@ -107,8 +108,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔ آپ کو ${time} کے لیے لاک کر "
-"دیا گیا ہے۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
+"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔ آپ کو ${time} کے لیے لاک کر دیا "
+"گیا ہے۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
@@ -205,8 +206,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for Please try again later."
 msgstr ""
-"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔آپ کو {} کے لیے لاک کر دیا گیا "
-"ہے۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
+"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔آپ کو {} کے لیے لاک کر دیا گیا ہے"
+"۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/views.py:141
 #, fuzzy, python-brace-format
@@ -279,8 +280,8 @@ msgstr ""
 msgid ""
 "Too many registration attempts from your network. Please try again later."
 msgstr ""
-"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔آپ کو {} کے لیے لاک کر دیا گیا "
-"ہے۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
+"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔آپ کو {} کے لیے لاک کر دیا گیا ہے"
+"۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/views.py:862
 msgid ""
@@ -293,8 +294,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 
 #: warehouse/accounts/views.py:961
 msgid "Invalid token: request a new password reset link"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
 #: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
@@ -399,8 +399,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:1256
 #, fuzzy
@@ -442,8 +441,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:1434
 #, fuzzy
@@ -459,8 +457,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: project does not exist"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:1456
 msgid "Role invitation no longer exists."
