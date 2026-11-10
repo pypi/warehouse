@@ -331,7 +331,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
         # Construct necessary two_factor information
         two_factor_method = "remembered-device" if _two_factor_remembered else None
-        two_factor_label = two_factor_method
+        two_factor_label = _two_factor_remembered
 
         # Actually perform the login routine for our user.
         _login_user(
@@ -538,27 +538,33 @@ def _set_userid_insecure_cookie(resp, userid):
     )
 
 
-def _check_remember_device_token(request, user_id) -> bool:
+def _check_remember_device_token(request, user_id) -> str | None:
     """
-    Returns true if the given remember device cookie is valid for the given user.
+    Returns the two-factor method if the given remember device cookie is valid
+    for the given user, or None otherwise.
     """
     remember_device_token = request.cookies.get(REMEMBER_DEVICE_COOKIE)
     if not remember_device_token:
-        return False
+        return None
     token_service = request.find_service(ITokenService, name="remember_device")
     try:
         data = token_service.loads(remember_device_token)
         user_id_token = data.get("user_id")
-        return user_id_token == str(user_id)
+        if user_id_token == str(user_id):
+            return data.get("two_factor_method", "totp")
+        return None
     except TokenException:
-        return False
+        return None
 
 
 def _remember_device(request, response, userid, two_factor_method) -> None:
     """
     Generates and sets a cookie for remembering this device.
     """
-    remember_device_data = {"user_id": str(userid)}
+    remember_device_data = {
+        "user_id": str(userid),
+        "two_factor_method": two_factor_method,
+    }
     token_service = request.find_service(ITokenService, name="remember_device")
     token = token_service.dumps(remember_device_data)
     response.set_cookie(
@@ -1641,7 +1647,11 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if unique_login:
         unique_login.last_used = now
 
-    if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
+    if (
+        unique_login is None
+        and two_factor_method not in PHISHABLE_METHODS
+        and two_factor_label not in PHISHABLE_METHODS
+    ):
         # We haven't seen this login before. Create a new one and mark it as confirmed
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
@@ -1654,6 +1664,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         unique_login is not None
         and unique_login.status == UniqueLoginStatus.PENDING
         and two_factor_method not in PHISHABLE_METHODS
+        and two_factor_label not in PHISHABLE_METHODS
     ):
         # The user had a pending login, but has since logged in with a non-phishable
         # method, so mark it as confirmed.
