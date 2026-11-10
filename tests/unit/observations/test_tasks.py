@@ -267,8 +267,7 @@ class TestAutoQuarantineProject:
 
     @pytest.fixture
     def logger(self, db_request, mocker):
-        """Give ``request.log.bind`` a bound logger distinct from ``request.log``."""
-        db_request.log = mocker.create_autospec(BoundLogger, instance=True)
+        """Override the shared ``log.bind.return_value`` to tell bound calls apart."""
         db_request.log.bind.return_value = mocker.create_autospec(
             BoundLogger, instance=True
         )
