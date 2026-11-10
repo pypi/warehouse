@@ -8,6 +8,7 @@ import hashlib
 import io
 import json
 import re
+import struct
 import tarfile
 import tempfile
 import zipfile
@@ -16,6 +17,7 @@ import zlib
 from collections.abc import Callable
 from contextlib import ExitStack
 from textwrap import dedent
+from typing import Literal
 from unittest import mock
 
 import psycopg
@@ -120,6 +122,34 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
 
 def _storage_hash(data):
     return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
+
+
+def _corrupt_zip_member(
+    path: str, member: str, *, mode: Literal["crc", "deflate"]
+) -> None:
+    """
+    Damage one member of a ZIP archive on disk, leaving the framing intact:
+    either its stored CRC-32 or its compressed bytes.
+    """
+    with open(path, "rb") as fp:
+        data = bytearray(fp.read())
+    with zipfile.ZipFile(path) as zfp:
+        info = zfp.getinfo(member)
+        central_directory = zfp.start_dir
+
+    if mode == "crc":
+        # The 46-byte central directory header precedes the filename.
+        entry = data.index(member.encode(), central_directory) - 46
+        data[entry + 16 : entry + 20] = struct.pack("<I", info.CRC ^ 0xFFFFFFFF)
+    else:
+        # The 30-byte local file header, filename and extra field precede the data.
+        header = info.header_offset
+        name_len, extra_len = struct.unpack("<HH", data[header + 26 : header + 30])
+        start = header + 30 + name_len + extra_len
+        data[start : start + info.compress_size] = b"\xff" * info.compress_size
+
+    with open(path, "wb") as fp:
+        fp.write(data)
 
 
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
@@ -453,6 +483,32 @@ class TestFileValidation:
         assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "WHEEL not found at test-1.0.dist-info/WHEEL",
+        )
+
+    @pytest.mark.parametrize(
+        ("member", "mode", "message"),
+        [
+            ("RECORD", "crc", "Bad CRC-32 for file 'test-1.0.dist-info/RECORD'"),
+            ("METADATA", "crc", "Bad CRC-32 for file 'test-1.0.dist-info/METADATA'"),
+            (
+                "RECORD",
+                "deflate",
+                "Error -3 while decompressing data: invalid block type",
+            ),
+        ],
+    )
+    def test_wheel_corrupt_dist_info_member(self, tmpdir, member, mode, message):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED) as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("test-1.0.dist-info/METADATA", b"Metadata-Version: 2.4")
+            zfp.writestr("test-1.0.dist-info/RECORD", b"test-1.0.dist-info/WHEEL,,")
+        _corrupt_zip_member(f, f"test-1.0.dist-info/{member}", mode=mode)
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            False,
+            message,
         )
 
     @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
