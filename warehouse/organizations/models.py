@@ -297,6 +297,11 @@ class OrganizationApplicationFactory:
         self.request = request
 
     def __getitem__(self, organization_application_id):
+        # A segment that isn't a UUID fails in Postgres instead of finding no row.
+        try:
+            organization_application_id = UUID(organization_application_id)
+        except ValueError:
+            raise KeyError from None
         # Try returning organization application with matching id.
         try:
             return (
