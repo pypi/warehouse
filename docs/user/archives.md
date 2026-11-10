@@ -58,9 +58,17 @@ as marking a ZIP as ZIP64 or defining the Unicode filename.
 
 ### Trailing data or comments
 
-Many archives support trailing or prepended data
-or comments within records. PyPI disallows these features
-to avoid smuggling other archive records within comments.
+PyPI currently rejects the following:
+
+- Appended or prepended data on a ZIP
+- Comments on a ZIP's members
+- Trailing (archive-level) comments on a ZIP, _if_ those comments are
+  confusable with ZIP control structures
+
+!!! info
+
+    In the future, PyPI will reject all ZIP comments,
+    regardless of their contents.
 
 ## Source distributions
 

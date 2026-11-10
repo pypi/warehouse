@@ -64,7 +64,7 @@ You can review attestation metadata directly in the UI, or click on the transpar
 
 #### No Provenance
 
-"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the file _origin_ cannot be cryptographically verified**.
+"No provenance" simply means that no file in the release has an attestation. This is typical for older releases or projects that have not yet configured Trusted Publishing. **No provenance does not necessarily indicate that a release or release file is malicious; it instead means that the _file origin cannot be cryptographically verified_**.
 
 When there is no provenance, you should rely on surrounding trust signals to assess security, such as maintainer history, release patterns, and repository activity. If you maintain the package, consider using [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) with a [publisher that generates attestations](https://docs.pypi.org/attestations/producing-attestations/) for your next release.
 
@@ -143,7 +143,7 @@ Alongside the interface updates, [PyPI's user documentation](https://docs.pypi.o
 
 ## Looking Ahead & Acknowledgments
 
-The new security tab gives PyPI a dedicated home for future attestation types and security notices. To help the wider open source ecosystem benefit from this work, we've also [published a case study in the OpenSSF Attestations Style Guide](https://repos.openssf.org/attestations-style-guide/pypi-case-study) detailing the design patterns and error models developed during this project.
+The new security tab gives PyPI a dedicated home for future attestation types and security notices. To help the wider open source ecosystem benefit from this work, we've also [published a case study in the OpenSSF Attestations Style Guide](https://repos.openssf.org/attestations-style-guide/pypi-case-study) detailing the design patterns and warnings developed during this project.
 
 This initiative was funded by the [Open Source Security Foundation](https://openssf.org/) and implemented by [Kabu Creative](https://kabucreative.com/). We would like to thank [Dustin Ingram](https://github.com/di), [Zach Steindler](https://github.com/steiza), and the members of the [OpenSSF Securing Software Repositories Working Group](https://repos.openssf.org/) for championing this effort. Special thanks to [Mike Fiedler](https://github.com/miketheman), [Jacob Coffee](https://github.com/JacobCoffee), and members of the PyPI team for their thoughtful design feedback and code reviews, [@cofiem](https://github.com/cofiem) for their contributions to the new release files tab, and our [user interview participants](https://github.com/pypi/warehouse/issues/20111) and community testers for helping shape the final design.
 

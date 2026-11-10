@@ -10,7 +10,6 @@ import zipfile
 import pytest
 
 from warehouse.forklift.legacy import _is_valid_dist_file
-from warehouse.metrics.services import NullMetrics
 from warehouse.utils import zipfiles
 
 ZIPDATA_DIR = pathlib.Path(__file__).absolute().parent / "zipdata"
@@ -79,12 +78,16 @@ def test_bad_zips(filename, error):
     assert result[0] is False, error
     assert result[1] == error
 
-    # Also test as a ZIP provided as a dist
-    # is rejected if uploaded. The message
-    # might be different, as this function
-    # also checks ZIP validity.
-    result = _is_valid_dist_file(zippath(filename), "sdist", NullMetrics())
-    assert result[0] is False
+
+def test_wheel_upload_rejects_duplicate_local_headers(metrics):
+    filename = zippath("reject/wheel-1.0-py3-none-any.whl")
+    assert _is_valid_dist_file(filename, "bdist_wheel", metrics) == (
+        False,
+        (
+            "ZIP archive not accepted: Duplicate filename in local headers. "
+            "See https://docs.pypi.org/archives for more information"
+        ),
+    )
 
 
 @pytest.mark.parametrize("filename", list(os.listdir(ZIPDATA_DIR / "accept")))
@@ -92,6 +95,31 @@ def test_good_zips(filename):
     result = zipfiles.validate_zipfile(zippath(f"accept/{filename}"))
     assert result[0] is True, f"Expected no error, got {result[1]!r}"
     assert result[1] is None
+
+
+def test_archive_comment_with_nested_eocd(tmp_path, metrics):
+    wheel = tmp_path / "test-1.0-py3-none-any.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+    with zipfile.ZipFile(wheel, "a") as archive:
+        archive.comment = wheel.read_bytes()
+
+    with zipfile.ZipFile(wheel) as archive:
+        # zipfile reads the EOCD of the copy inside the comment.
+        assert archive.comment == b""
+        assert zipfiles.validate_zipfile(archive) == (
+            False,
+            "EOCD signature in archive comment",
+        )
+
+    assert _is_valid_dist_file(str(wheel), "bdist_wheel", metrics) == (
+        False,
+        (
+            "ZIP archive not accepted: EOCD signature in archive comment. "
+            "See https://docs.pypi.org/archives for more information"
+        ),
+    )
+    metrics.increment.assert_not_called()
 
 
 def test_local_file_header():

@@ -4,10 +4,10 @@ import http
 
 from textwrap import dedent
 
-import pretend
 import pytest
 import requests
 import responses
+import structlog
 
 from pyramid_retry import RetryableException
 from zope.interface.verify import verifyClass
@@ -21,6 +21,18 @@ from warehouse.helpdesk.services import (
 )
 
 
+@pytest.fixture
+def helpscout_request(pyramid_request):
+    pyramid_request.http = requests.Session()
+    pyramid_request.registry.settings.update(
+        {
+            "helpscout.app_id": "an insecure helpscout app id",
+            "helpscout.app_secret": "an insecure helpscout app secret",
+        }
+    )
+    return pyramid_request
+
+
 @pytest.mark.parametrize("service_class", [ConsoleHelpDeskService, HelpScoutService])
 class TestHelpDeskService:
     """Common tests for the service interface."""
@@ -29,25 +41,14 @@ class TestHelpDeskService:
         assert verifyClass(IHelpDeskService, service_class)
 
     @responses.activate
-    def test_create_service(self, service_class):
+    def test_create_service(self, service_class, helpscout_request):
         responses.add(
             responses.POST,
             "https://api.helpscout.net/v2/oauth2/token",
             json={"access_token": "NOT_REAL_TOKEN"},
         )
 
-        context = None
-        request = pretend.stub(
-            http=requests.Session(),
-            registry=pretend.stub(
-                settings={
-                    "helpscout.app_id": "an insecure helpscout app id",
-                    "helpscout.app_secret": "an insecure helpscout app secret",
-                },
-            ),
-        )
-
-        service = service_class.create_service(context, request)
+        service = service_class.create_service(None, helpscout_request)
         assert isinstance(service, service_class)
 
 
@@ -85,37 +86,27 @@ class TestHelpScoutService:
     @pytest.mark.parametrize(
         "partial_setting", ["helpscout.app_id", "helpscout.app_secret"]
     )
-    def test_create_service_fails_when_missing_setting(self, partial_setting):
-        context = None
-        request = pretend.stub(
-            http=pretend.stub(),
-            registry=pretend.stub(settings={partial_setting: "some value"}),
-        )
+    def test_create_service_fails_when_missing_setting(
+        self, mocker, pyramid_request, partial_setting
+    ):
+        pyramid_request.http = mocker.create_autospec(requests.Session, instance=True)
+        pyramid_request.registry.settings.update({partial_setting: "some value"})
 
         with pytest.raises(KeyError):
-            HelpScoutService.create_service(context, request)
+            HelpScoutService.create_service(None, pyramid_request)
+
+        assert not pyramid_request.http.method_calls
 
     @responses.activate
-    def test_retries_on_error(self):
+    def test_retries_on_error(self, helpscout_request):
         responses.add(
             responses.POST,
             "https://api.helpscout.net/v2/oauth2/token",
             body=requests.exceptions.RequestException(),
         )
 
-        context = None
-        request = pretend.stub(
-            http=requests.Session(),
-            registry=pretend.stub(
-                settings={
-                    "helpscout.app_id": "an insecure helpscout app id",
-                    "helpscout.app_secret": "an insecure helpscout app secret",
-                },
-            ),
-        )
-
         with pytest.raises(RetryableException):
-            HelpScoutService.create_service(context, request)
+            HelpScoutService.create_service(None, helpscout_request)
 
     @responses.activate
     def test_create_conversation(self):
@@ -221,25 +212,20 @@ class TestAdminNotificationService:
     def test_verify_service_class(self, service_class):
         assert verifyClass(IAdminNotificationService, service_class)
 
-    def test_create_service(self, service_class):
-        context = None
-        request = pretend.stub(
-            http=pretend.stub(),
-            log=pretend.stub(
-                debug=pretend.call_recorder(lambda msg: None),
-            ),
-            registry=pretend.stub(
-                settings={
-                    "helpdesk.notification_service_url": "https://webhook.example/1234",
-                }
-            ),
-        )
-
-        service = service_class.create_service(context, request)
-        assert isinstance(service, service_class)
-
 
 class TestConsoleAdminNotificationService:
+    def test_create_service(self, mocker, pyramid_request):
+        pyramid_request.log = mocker.create_autospec(
+            structlog.stdlib.BoundLogger, instance=True
+        )
+
+        service = ConsoleAdminNotificationService.create_service(None, pyramid_request)
+
+        assert isinstance(service, ConsoleAdminNotificationService)
+        pyramid_request.log.debug.assert_called_once_with(
+            "Creating ConsoleWebhookNotificationService"
+        )
+
     def test_send_notification(self, capsys):
         service = ConsoleAdminNotificationService()
 
@@ -256,6 +242,20 @@ class TestConsoleAdminNotificationService:
 
 
 class TestSlackAdminNotificationService:
+    def test_create_service(self, mocker, pyramid_request):
+        pyramid_request.http = mocker.create_autospec(requests.Session, instance=True)
+        pyramid_request.registry.settings.update(
+            {
+                "helpdesk.notification_service_url": "https://webhook.example/1234",
+            }
+        )
+
+        service = SlackAdminNotificationService.create_service(None, pyramid_request)
+
+        assert isinstance(service, SlackAdminNotificationService)
+        assert service.webhook_url == "https://webhook.example/1234"
+        assert service.http is pyramid_request.http
+
     @responses.activate
     def test_send_notification(self):
         responses.add(

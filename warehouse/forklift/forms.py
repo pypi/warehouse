@@ -8,6 +8,8 @@ import wtforms.validators
 from warehouse.utils.project import PROJECT_NAME_RE
 
 _filetype_extension_mapping = {
+    # Recognize historical ZIP sdists for duplicate-file checks. New sdists
+    # must pass the canonical .tar.gz filename check before archive validation.
     "sdist": {".zip", ".tar.gz"},
     "bdist_wheel": {".whl"},
 }

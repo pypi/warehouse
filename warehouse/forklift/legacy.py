@@ -160,14 +160,14 @@ def _validate_filename(filename, filetype):
     else:
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid file extension: Use .tar.gz, .whl or .zip "
+            "Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information",
         )
 
 
 def _open_dist_file(filename, stack: ExitStack):
-    if filename.endswith((".zip", ".whl")):
+    if filename.endswith(".whl"):
         return stack.enter_context(zipfile.ZipFile(filename))
     if filename.endswith(".tar.gz"):
         return stack.enter_context(tarfile.open(filename, mode="r:gz"))
@@ -246,9 +246,8 @@ def _is_valid_dist_file(
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
 
-    ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
-    name enumeration, both of which do CPU-bound work synchronously inside
-    the upload request.
+    ``metrics`` counts wheels with accepted archive comments and sdists with nonstandard
+    tar headers. It also times the YARA scan and tarfile name enumeration.
 
     If ``archive`` is provided, it is retained by the caller for subsequent checks.
     """
@@ -258,12 +257,11 @@ def _is_valid_dist_file(
     if is_zipfile and is_tarfile:
         return False, "File is both a zip and a tar file"
 
-    if filename.endswith((".zip", ".whl")):
+    if filename.endswith(".whl"):
         if not is_zipfile:
             return False, "File is not a zipfile"
 
-        # Ensure that this is a valid zip file, and that it has a
-        # PKG-INFO or WHEEL file.
+        # Ensure that this is a valid zip file and that it has a WHEEL file.
         try:
             archive_context = (
                 zipfile.ZipFile(filename) if archive is None else nullcontext(archive)
@@ -305,31 +303,15 @@ def _is_valid_dist_file(
                 if (alias := _non_canonical_member_path(zfp.namelist())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
 
-                if filename.endswith(".zip"):
-                    top_level = _commonpath(zfp.namelist())
-                    if top_level in [".", "/", ""]:
-                        return (
-                            False,
-                            "Incorrect number of top-level directories in sdist",
-                        )
-                    target_file = os.path.join(top_level, "PKG-INFO")
-                    try:
-                        zfp.read(target_file)
-                    except KeyError:
-                        return False, f"PKG-INFO not found at {target_file}"
-                if filename.endswith(".whl"):
-                    try:
-                        name, version, _ = os.path.basename(filename).split("-", 2)
-                    except ValueError:
-                        return (
-                            False,
-                            "Unable to parse name and version from wheel filename",
-                        )
-                    target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
-                    try:
-                        zfp.read(target_file)
-                    except KeyError:
-                        return False, f"WHEEL not found at {target_file}"
+                try:
+                    name, version, _ = os.path.basename(filename).split("-", 2)
+                except ValueError:
+                    return False, "Unable to parse name and version from wheel filename"
+                target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
+                try:
+                    zfp.read(target_file)
+                except KeyError:
+                    return False, f"WHEEL not found at {target_file}"
 
                 # Scan archive members for YARA rule matches while open
                 if scan:
@@ -348,7 +330,7 @@ def _is_valid_dist_file(
 
                 # Check the ZIP file record framing
                 # to avoid parser differentials.
-                zip_ok, zip_error = zipfiles.validate_zipfile(zfp)
+                zip_ok, zip_error = zipfiles.validate_zipfile(zfp, metrics=metrics)
                 if not zip_ok:
                     return False, (
                         f"ZIP archive not accepted: {zip_error}. "
@@ -364,7 +346,7 @@ def _is_valid_dist_file(
 
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
-        # (decompression bomb), like we do for wheel/zip above.
+        # (decompression bomb), like we do for wheels above.
         try:
             # Ignore SIM115: the returned TarFile is managed by the context below.
             archive_context = (
@@ -413,8 +395,9 @@ def _is_valid_dist_file(
         except tarfile.ReadError, EOFError, zlib.error:
             return False, None
 
-    # If we haven't yet decided it's not valid, then we'll assume it is and
-    # allow it.
+    else:
+        return False, "Unsupported distribution file extension"
+
     return True, None
 
 
@@ -1273,65 +1256,20 @@ def file_upload(request):
                 f"{MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed.",
             )
 
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
+        if form.filetype.data == "sdist":
+            # Only one sdist may be uploaded per release.
+            if request.db.query(
                 request.db.query(File)
                 .filter((File.release == release) & (File.packagetype == "sdist"))
                 .exists()
-            ).scalar()
-        ):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
-            )
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
+            ).scalar():
+                request.metrics.increment(
+                    "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest, "Only one sdist may be uploaded per release."
+                )
 
-        # Check the file to make sure it is a valid distribution file.
-        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
-        with request.metrics.timed(
-            "warehouse.upload.validate",
-            tags=[f"filetype:{form.filetype.data}"],
-        ):
-            upload_archive = None
-            try:
-                upload_archive = _open_dist_file(
-                    temporary_filename,
-                    archive_stack,
-                )
-            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
-                _valid, _msg = _is_valid_dist_file(
-                    temporary_filename,
-                    form.filetype.data,
-                    request.metrics,
-                    scan=_scan,
-                )
-            else:
-                _valid, _msg = _is_valid_dist_file(
-                    temporary_filename,
-                    form.filetype.data,
-                    request.metrics,
-                    scan=_scan,
-                    archive=upload_archive,
-                )
-        if not _valid:
-            request.metrics.increment(
-                "warehouse.upload.failed",
-                tags=[
-                    "reason:invalid-distribution-file",
-                    f"filetype:{form.filetype.data}",
-                    f"message:{_msg}",
-                ],
-            )
-            raise _exc_with_message(
-                HTTPBadRequest, f"Invalid distribution file. {_msg}"
-            )
-
-        # Check that the sdist filename is correct
-        if form.filetype.data == "sdist":
             # Extract the project name and version from the filename and check it.
             try:
                 name_from_filename, _version_from_filename = (
@@ -1408,6 +1346,47 @@ def file_upload(request):
                     f"{expected_filename!r}.",
                 )
 
+        # Check the file to make sure it is a valid distribution file.
+        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
+        with request.metrics.timed(
+            "warehouse.upload.validate",
+            tags=[f"filetype:{form.filetype.data}"],
+        ):
+            upload_archive = None
+            try:
+                upload_archive = _open_dist_file(
+                    temporary_filename,
+                    archive_stack,
+                )
+            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                )
+            else:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                    archive=upload_archive,
+                )
+        if not _valid:
+            request.metrics.increment(
+                "warehouse.upload.failed",
+                tags=[
+                    "reason:invalid-distribution-file",
+                    f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
+                ],
+            )
+            raise _exc_with_message(
+                HTTPBadRequest, f"Invalid distribution file. {_msg}"
+            )
+
+        if form.filetype.data == "sdist":
             filename = os.path.basename(temporary_filename)
 
             # _is_valid_dist_file above checked that this is a tarfile with a
