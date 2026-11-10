@@ -187,9 +187,21 @@ separate, later migration.
 
 Removing, renaming or reordering values autogenerates `op.sync_enum_values()`
 instead. It recreates the type and alters every column using it, which rewrites
-those tables and holds an exclusive lock while it does. Treat it like a
-[destructive migration](#destructive-migrations): stop using the value in one
-PR, then remove it in a second PR, and expect large tables to need a longer
-[timeout](#migration-timeouts) or a maintainer to run the change.
+those tables and holds an exclusive lock while it does. Expect large tables to
+need a longer [timeout](#migration-timeouts) or a maintainer to run the change.
+
+The cast to the recreated type fails if any row still holds a value that no
+longer exists in it. To remove a value, use two PRs:
+
+1. Stop writing the value, and move existing rows off it with a data migration.
+   Keep the value in the Python enum: SQLAlchemy raises `LookupError` when it
+   reads a stored value the enum does not define.
+2. Remove the value from the Python enum and autogenerate the
+   `sync_enum_values` migration.
+
+To rename a value, autogenerate the migration and fill in the generated
+`enum_values_to_rename=[]` by hand, e.g. `enum_values_to_rename=[("old", "new")]`,
+so existing rows are converted instead of failing the cast.
+
 The generated `downgrade()` for an added value also uses `sync_enum_values`,
 since PostgreSQL cannot drop an enum value.
