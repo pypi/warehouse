@@ -746,9 +746,9 @@ deprecated==3.0.1 \
     --hash=sha256:2f5a9fecc9961e26462846cf1e57f73a612b1d0b79c27dceeed8de647beadcee \
     --hash=sha256:eda314c115e8bc0fe52b90a6869e19240ac3cedb7449adfdba5981cf9ef693e1
     # via limits
-disposable-email-domains==0.0.289 \
-    --hash=sha256:03ae600e1c3f6e89efc25bf8b2b8c2508d94432b2c1a5198f66365e0691d49d5 \
-    --hash=sha256:73d2d11c2ab3f4b87bc389074b038b76c5667262840c7649b746581aa3672f66
+disposable-email-domains==0.0.290 \
+    --hash=sha256:6bab96baec64e80b15528a5b0b4bbe02775de912d4fdb911dbce7292793f804c \
+    --hash=sha256:75324982bfa6aff096798a926ed4a7d5215fcef7cf1b81af4de10fe56c0e3010
     # via -r requirements/main.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -1953,7 +1953,6 @@ pyasn1==0.6.5 \
     --hash=sha256:6b11616a6bcf3a40e635f082bb232fa57b5e0dd7f517bd7ddd69ec3794508a47
     # via
     #   pyasn1-modules
-    #   pypi-attestations
     #   webauthn
 pyasn1-modules==0.4.2 \
     --hash=sha256:29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a \
@@ -2178,9 +2177,9 @@ pyparsing==3.3.3 \
     --hash=sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36 \
     --hash=sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4
     # via linehaul
-pypi-attestations==0.0.29 \
-    --hash=sha256:278a28d741b57d62973c00d453ec9b9bb30456464d69296c6780474cd0bf098e \
-    --hash=sha256:2daf3ec46ff4c7123184ec892852b4d4599b78128f01f742a44406a73200c5df
+pypi-attestations==0.0.31 \
+    --hash=sha256:5a2473aca7d7f65caf2c3a985691c5cf9264a97fa68c98fbae6e96320bcc7c9a \
+    --hash=sha256:c022f7bc771545463fdcbb019160b86b87a6048c9a9edb7d541824593d64a1c8
     # via -r requirements/main.in
 pyqrcode-binary==1.2.1 \
     --hash=sha256:6d330e6886fd29b6673bca0d2e775bd4499b83bd7d555942f92f7c34603ce558
@@ -2911,9 +2910,7 @@ wrapt==2.5.2 \
 wtforms[email]==3.3.2 \
     --hash=sha256:2fac992f39102d6268b06e05cdbdf37a7e9b9a4e103916d2dff1d09a080b531d \
     --hash=sha256:49bb51d10b7832d497e758736da4d56f7d129a015db24756f36f28992f175404
-    # via
-    #   -r requirements/main.in
-    #   wtforms
+    # via -r requirements/main.in
 yara-x==1.22.1 \
     --hash=sha256:0c91b629199a4aaf3393efcd0229056844968990303a8a32b7f53cb5bff0776b \
     --hash=sha256:1bf476071c57ec0914b44e5be845c4cf77616d8bf39157d60150ac24f4ebe85b \
