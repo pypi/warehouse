@@ -2069,8 +2069,12 @@ class ManageOrganizationPublishingViews:
         self.request.session.flash(
             self.request._(
                 "Registered a new pending publisher to create "
-                f"the project '{pending_publisher.project_name}' "
-                f"owned by the '{self.organization.name}' organization."
+                "the project '${project_name}' "
+                "owned by the '${organization_name}' organization.",
+                mapping={
+                    "project_name": pending_publisher.project_name,
+                    "organization_name": self.organization.name,
+                },
             ),
             queue="success",
         )
