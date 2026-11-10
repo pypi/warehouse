@@ -257,13 +257,10 @@ class TestReleaseDetail:
         )
         mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
-        # Mock request task handler
-        request_task_mock = mocker.Mock()
-        db_request.task = request_task_mock
-
         views.release_render(release, db_request)
 
-        request_task_mock.assert_called_with(update_release_description)
+        db_request.task.assert_called_once_with(update_release_description)
+        db_request.task.return_value.delay.assert_called_once_with(release.id)
 
         db_request.session.flash.assert_called_once_with(
             f"Task sent to re-render description for {release}", queue="success"
@@ -1064,7 +1061,7 @@ class TestDeleteRole:
 
 class TestReindexProject:
     def test_reindexes_project(self, db_request, mocker):
-        project = ProjectFactory.create(name="foo")
+        project = ProjectFactory.create(name="Foo_Bar")
 
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/admin/projects/"
@@ -1072,17 +1069,15 @@ class TestReindexProject:
         mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
-        # Mock request task handler
-        request_task_mock = mocker.Mock()
-        db_request.task = request_task_mock
-
         views.reindex_project(project, db_request)
 
-        # Make sure reindex_project task was called
-        request_task_mock.assert_called_with(reindex_project)
+        db_request.task.assert_called_once_with(reindex_project)
+        db_request.task.return_value.delay.assert_called_once_with(
+            project.normalized_name
+        )
 
         db_request.session.flash.assert_called_once_with(
-            "Task sent to reindex the project 'foo'", queue="success"
+            "Task sent to reindex the project 'Foo_Bar'", queue="success"
         )
 
 

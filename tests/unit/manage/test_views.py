@@ -3078,7 +3078,7 @@ class TestManageProjectDocumentation:
             mocker.call(remove_documentation),
             mocker.call(remove_documentation),
         ]
-        assert project_request._task_stub.delay.call_args_list == [
+        assert project_request.task.return_value.delay.call_args_list == [
             mocker.call(project.name),
             mocker.call(project.normalized_name),
         ]

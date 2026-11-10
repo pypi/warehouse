@@ -44,8 +44,8 @@ class TestReportVulnerabilities:
         )
         verifier_cls.return_value.verify.return_value = True
 
-        delay = mocker.Mock()
-        task = pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
+        task = pyramid_request.task
+        delay = task.return_value.delay
 
         response = views.report_vulnerabilities(pyramid_request)
 

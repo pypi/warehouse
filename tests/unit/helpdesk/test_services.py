@@ -7,7 +7,6 @@ from textwrap import dedent
 import pytest
 import requests
 import responses
-import structlog
 
 from pyramid_retry import RetryableException
 from zope.interface.verify import verifyClass
@@ -214,11 +213,7 @@ class TestAdminNotificationService:
 
 
 class TestConsoleAdminNotificationService:
-    def test_create_service(self, mocker, pyramid_request):
-        pyramid_request.log = mocker.create_autospec(
-            structlog.stdlib.BoundLogger, instance=True
-        )
-
+    def test_create_service(self, pyramid_request):
         service = ConsoleAdminNotificationService.create_service(None, pyramid_request)
 
         assert isinstance(service, ConsoleAdminNotificationService)
