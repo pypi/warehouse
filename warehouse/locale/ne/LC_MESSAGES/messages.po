@@ -2,15 +2,17 @@
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2022.
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
 # Shrawan Poudel <shrawanx@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2022-06-26 07:02+0200\n"
-"PO-Revision-Date: 2026-11-09 13:47+0000\n"
-"Last-Translator: Shrawan Poudel <shrawanx@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Nepali <https://hosted.weblate.org/projects/pypa/warehouse/ne/"
-">\n"
+"PO-Revision-Date: 2026-11-10 14:25+0000\n"
+"Last-Translator: GitHub webhook <noreply-webhook-github-"
+"integration@weblate.org>\n"
+"Language-Team: Nepali <https://hosted.weblate.org/projects/pypa/warehouse/"
+"ne/>\n"
 "Language: ne\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -114,13 +116,15 @@ msgstr "इमेल ठेगाना मान्य छैन। पुन: 
 
 #: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr "तपाईंले यो डोमेनबाट इमेल ठेगाना प्रयोग गर्न सक्नुहुन्न। फरक इमेल प्रयोग गर्नुहोस्।"
+msgstr ""
+"तपाईंले यो डोमेनबाट इमेल ठेगाना प्रयोग गर्न सक्नुहुन्न। फरक इमेल प्रयोग गर्नुहोस्।"
 
 #: warehouse/accounts/forms.py:425
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "यो इमेल ठेगाना यस खाताले पहिले नै प्रयोग गरिरहेको छ। फरक इमेल प्रयोग गर्नुहोस्।"
+msgstr ""
+"यो इमेल ठेगाना यस खाताले पहिले नै प्रयोग गरिरहेको छ। फरक इमेल प्रयोग गर्नुहोस्।"
 
 #: warehouse/accounts/forms.py:436
 msgid ""
@@ -146,7 +150,8 @@ msgstr "इमेल ठेगाना मान्य छैन। पुन: 
 #| msgid ""
 #| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
-msgstr "तपाईंले यो डोमेनबाट इमेल ठेगाना प्रयोग गर्न सक्नुहुन्न। फरक इमेल प्रयोग गर्नुहोस्।"
+msgstr ""
+"तपाईंले यो डोमेनबाट इमेल ठेगाना प्रयोग गर्न सक्नुहुन्न। फरक इमेल प्रयोग गर्नुहोस्।"
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."

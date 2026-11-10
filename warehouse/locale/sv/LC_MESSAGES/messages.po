@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2026-10-18 15:42+0200\n"
-"PO-Revision-Date: 2026-11-09 14:30+0000\n"
+"PO-Revision-Date: 2026-11-10 14:26+0000\n"
 "Last-Translator: Daniel Nylander "
 "<yeagersthlm2@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -432,8 +432,7 @@ msgstr "Du är nu ${role} i projektet '${project_name}'."
 #: warehouse/accounts/views.py:1674
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
-msgstr ""
-"Läs igenom våra uppdaterade <a href=\"${tos_url}\">användarvillkor</a>."
+msgstr "Läs igenom våra uppdaterade <a href=\"${tos_url}\">användarvillkor</a>."
 
 #: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
 #: warehouse/manage/views/oidc_publishers.py:126
@@ -960,8 +959,7 @@ msgstr ""
 #: warehouse/manage/views/organizations.py:1027
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
-msgstr ""
-"Användaren '${username}' har redan rollen ${role_name} i organisationen"
+msgstr "Användaren '${username}' har redan rollen ${role_name} i organisationen"
 
 #: warehouse/manage/views/organizations.py:1038
 #, python-brace-format
@@ -1173,8 +1171,7 @@ msgstr "Välj GitLab-utfärdarens URL"
 
 #: warehouse/oidc/forms/gitlab.py:113
 msgid "Top-level pipeline file path must end with .yml or .yaml"
-msgstr ""
-"Sökvägen till pipelinefilen på toppnivå måste sluta på .yml eller .yaml"
+msgstr "Sökvägen till pipelinefilen på toppnivå måste sluta på .yml eller .yaml"
 
 #: warehouse/oidc/forms/gitlab.py:117
 msgid "Top-level pipeline file path cannot start or end with /"
@@ -1394,9 +1391,8 @@ msgid ""
 msgstr ""
 "Överväg att <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">bidra</a> eller <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" "
-"rel=\"noopener\">donera</a> för att hjälpa oss att bygga en stabilare och "
-"säkrare plattform."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">"
+"donera</a> för att hjälpa oss att bygga en stabilare och säkrare plattform."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -1469,9 +1465,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
 "\"%(wordmark)s\", \"%(name)s\" och blocklogotyperna är registrerade <a "
-"href=\"%(trademarks_href)s\">varumärken</a> som tillhör <a "
-"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>."
+"href=\"%(trademarks_href)s\">varumärken</a> som tillhör <a href=\"%(psf_href)"
+"s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:115
 msgid "TestPyPI, the Python Package Index test instance"
@@ -1764,8 +1759,8 @@ msgstr "Eller <a href=\"%(href)s\">bläddra bland projekt</a>"
 msgid ""
 "Publishing as a team? Use an <a href=\"%(href)s\">organization account</a>"
 msgstr ""
-"Publicerar ni som ett team? Använd ett <a "
-"href=\"%(href)s\">organisationskonto</a>"
+"Publicerar ni som ett team? Använd ett <a href=\"%(href)s\">"
+"organisationskonto</a>"
 
 #: warehouse/templates/index.html:59
 #, python-format
@@ -1978,8 +1973,8 @@ msgid ""
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"<b>Tips:</b> Du ska precis utföra en <a href=\"%(href)s\">känslig åtgärd</"
-"a>. Om du inte använder en personlig dator ska du logga ut när sessionen är "
+"<b>Tips:</b> Du ska precis utföra en <a href=\"%(href)s\">känslig åtgärd</a>"
+". Om du inte använder en personlig dator ska du logga ut när sessionen är "
 "klar. Vi ber dig inte bekräfta lösenordet igen under den närmaste timmen."
 
 #: warehouse/templates/upload.html:12
@@ -1993,9 +1988,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"Mer information om att ladda upp projekt till PyPI finns i <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging User Guide</a>."
+"Mer information om att ladda upp projekt till PyPI finns i <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+"User Guide</a>."
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -2014,9 +2009,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"Vill du tacka ja till inbjudan att ansluta till ”<a "
-"href=\"%(project_link)s\">%(project_name)s</a>” som %(role_name)s för "
-"projektet?"
+"Vill du tacka ja till inbjudan att ansluta till ”<a href=\"%(project_link)"
+"s\">%(project_name)s</a>” som %(role_name)s för projektet?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
@@ -2091,8 +2085,8 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"Vill du tacka ja till inbjudan att ansluta till ”%(organization_name)s” som "
-"%(role_name)s för organisationen?"
+"Vill du tacka ja till inbjudan att ansluta till ”%(organization_name)s” som %"
+"(role_name)s för organisationen?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
 #, python-format
@@ -2235,8 +2229,7 @@ msgstr "Skapa ett konto på %(title)s"
 msgid ""
 "Before creating an account on %(title)s, familiarize yourself with the "
 "following guidelines:"
-msgstr ""
-"Innan du skapar ett konto på %(title)s ska du läsa följande riktlinjer:"
+msgstr "Innan du skapar ett konto på %(title)s ska du läsa följande riktlinjer:"
 
 #: warehouse/templates/accounts/register.html:26
 #, python-format
@@ -2295,9 +2288,9 @@ msgid ""
 msgstr ""
 "Läs hela <a href=\"%(aup)s\" title=\"%(external)s\" target=\"_blank\" "
 "rel=\"noopener\">policyn för godtagbar användning</a> för mer information. "
-"Säkerhetsforskare hänvisas till vår <a "
-"href=\"%(security_page)s\">publicerade säkerhetspolicy</a> och ska samordna "
-"sig genom lämpliga kanaler för ansvarsfull rapportering."
+"Säkerhetsforskare hänvisas till vår <a href=\"%(security_page)s\">"
+"publicerade säkerhetspolicy</a> och ska samordna sig genom lämpliga kanaler "
+"för ansvarsfull rapportering."
 
 #: warehouse/templates/accounts/register.html:49
 msgid ""
@@ -2392,9 +2385,9 @@ msgid ""
 "Policy</a>."
 msgstr ""
 "Jag godkänner <a href=\"%(tos)s\" title=\"%(external)s\" target=\"_blank\" "
-"rel=\"noopener\">PyPI:s användarvillkor</a> och <a href=\"%(aup)s\" "
-"title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">policyn för "
-"godtagbar användning</a>."
+"rel=\"noopener\">PyPI:s användarvillkor</a> och <a href=\"%(aup)s\" title=\"%"
+"(external)s\" target=\"_blank\" rel=\"noopener\">policyn för godtagbar "
+"användning</a>."
 
 #: warehouse/templates/accounts/register.html:243
 msgid "Create account"
@@ -2485,9 +2478,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Uppgradera webbläsaren</a> för att logga in med en "
-"säkerhetsenhet, till exempel en USB-nyckel"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Uppgradera webbläsaren</a> för att logga in med en säkerhetsenhet, till "
+"exempel en USB-nyckel"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2537,8 +2530,8 @@ msgid ""
 msgstr ""
 "<p> <strong>Du har inte skapat återställningskoder för kontot.</strong> </p> "
 "<p> Om du förlorar åtkomsten till dina tvåfaktorsmetoder kan du förlora "
-"åtkomsten till kontot. <a href=\"%(href)s\">Få hjälp med återställningskoder."
-"</a> </p>"
+"åtkomsten till kontot. <a href=\"%(href)s\">Få hjälp med "
+"återställningskoder.</a> </p>"
 
 #: warehouse/templates/email/account-association-added/body.html:5
 #, python-format
@@ -2547,9 +2540,9 @@ msgid ""
 "<strong>@%(external_username)s</strong> to your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Någon, kanske du, har anslutit <strong>%(service)s</strong>-kontot "
-"<strong>@%(external_username)s</strong> till ditt PyPI-konto "
-"<strong>%(username)s</strong>."
+"Någon, kanske du, har anslutit <strong>%(service)s</strong>-kontot <strong>@%"
+"(external_username)s</strong> till ditt PyPI-konto <strong>%(username)s</"
+"strong>."
 
 #: warehouse/templates/email/account-association-added/body.html:9
 #: warehouse/templates/email/account-association-removed/body.html:9
@@ -2566,9 +2559,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Om du inte gjorde den här ändringen kan du skicka e-post till <a "
-"href=\"%(href)s\">%(email_address)s</a> för att kontakta PyPI:s "
-"administratörer."
+"Om du inte gjorde den här ändringen kan du skicka e-post till <a href=\"%"
+"(href)s\">%(email_address)s</a> för att kontakta PyPI:s administratörer."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, python-format
@@ -2578,8 +2570,8 @@ msgid ""
 "<strong>%(username)s</strong>."
 msgstr ""
 "Någon, kanske du, har kopplat från <strong>%(service)s</strong>-kontot "
-"<strong>@%(external_username)s</strong> från ditt PyPI-konto "
-"<strong>%(username)s</strong>."
+"<strong>@%(external_username)s</strong> från ditt PyPI-konto <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, python-format
@@ -2615,8 +2607,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Du har lagts till som <strong>%(role)s</strong> i %(site)s-organisationen "
-"%(organization_name)s av <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"Du har lagts till som <strong>%(role)s</strong> i %(site)s-organisationen %"
+"(organization_name)s av <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2665,13 +2657,12 @@ msgid ""
 "error. We recommend removing the API token and only using the Trusted "
 "Publisher to publish."
 msgstr ""
-"En API-token som tillhör användaren <a "
-"href=\"%(account_href)s\">%(token_owner_username)s</a> användes för att "
-"ladda upp filer till projektet <a "
-"href=\"%(project_href)s\">%(project_name)s</a>, trots att projektet har en "
-"betrodd utgivare konfigurerad. Det kan ha skett av misstag. Vi rekommenderar "
-"att API-token tas bort och att endast den betrodda utgivaren används för "
-"publicering."
+"En API-token som tillhör användaren <a href=\"%(account_href)s\">%"
+"(token_owner_username)s</a> användes för att ladda upp filer till projektet "
+"<a href=\"%(project_href)s\">%(project_name)s</a>, trots att projektet har "
+"en betrodd utgivare konfigurerad. Det kan ha skett av misstag. Vi "
+"rekommenderar att API-token tas bort och att endast den betrodda utgivaren "
+"används för publicering."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
 #, python-format
@@ -2717,8 +2708,8 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr ""
-"Du har tackat nej till en inbjudan att ansluta till organisationen "
-"”%(organization_name)s”"
+"Du har tackat nej till en inbjudan att ansluta till organisationen ”%"
+"(organization_name)s”"
 
 #: warehouse/templates/email/includes/account-help.html:3
 #, python-format
@@ -2752,9 +2743,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Om du inte gjorde den här ändringen kan du skicka e-post till <a "
-"href=\"%(href)s\">%(new_email_address)s</a> för att kontakta PyPI:s "
-"administratörer."
+"Om du inte gjorde den här ändringen kan du skicka e-post till <a href=\"%"
+"(href)s\">%(new_email_address)s</a> för att kontakta PyPI:s administratörer."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, python-format
@@ -2857,8 +2847,8 @@ msgid ""
 "Your request to create a new organization named '%(organization_name)s' was "
 "not approved."
 msgstr ""
-"Din begäran om att skapa en ny organisation med namnet "
-"”%(organization_name)s” godkändes inte."
+"Din begäran om att skapa en ny organisation med namnet ”%(organization_name)s"
+"” godkändes inte."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:7
 #, python-format
@@ -2909,8 +2899,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Om detta har skett av misstag kan du skicka e-post till <a href=\"mailto:"
-"%(email_address)s\">%(email_address)s</a> för att kontakta %(site)s-"
+"Om detta har skett av misstag kan du skicka e-post till <a href=\"mailto:%"
+"(email_address)s\">%(email_address)s</a> för att kontakta %(site)s-"
 "administratörerna."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
@@ -3018,8 +3008,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a>s roll i organisationen "
-"”%(organization_name)s” har ändrats till %(role)s"
+"<a href=\"%(user_profile)s\">%(username)s</a>s roll i organisationen ”%"
+"(organization_name)s” har ändrats till %(role)s"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:17
 msgid "New role"
@@ -3035,8 +3025,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"%(site)s-projektet ”%(project_name)s” har lagts till i organisationen "
-"”%(organization_name)s”."
+"%(site)s-projektet ”%(project_name)s” har lagts till i organisationen ”%"
+"(organization_name)s”."
 
 #: warehouse/templates/email/organization-project-added/body.html:16
 #: warehouse/templates/email/organization-project-removed/body.html:16
@@ -3051,8 +3041,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"%(site)s-projektet ”%(project_name)s” har tagits bort från organisationen "
-"”%(organization_name)s”."
+"%(site)s-projektet ”%(project_name)s” har tagits bort från organisationen ”%"
+"(organization_name)s”."
 
 #: warehouse/templates/email/organization-renamed/body.html:11
 #, python-format
@@ -3106,8 +3096,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Någon, kanske du, har ändrat lösenordet för ditt PyPI-konto "
-"<strong>%(username)s</strong>."
+"Någon, kanske du, har ändrat lösenordet för ditt PyPI-konto <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -3192,9 +3182,9 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "<a href=\"%(reset_pw_url)s\">Återställ lösenordet</a> på PyPI för att få "
-"åtkomst till kontot igen. Vi rekommenderar också att du går till <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>, kontrollerar dina "
-"andra lösenord och läser om god lösenordspraxis."
+"åtkomst till kontot igen. Vi rekommenderar också att du går till <a href=\"%"
+"(have_i_been_pwned_url)s\">HaveIBeenPwned</a>, kontrollerar dina andra "
+"lösenord och läser om god lösenordspraxis."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3210,9 +3200,9 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Vi använder en kostnadsfri säkerhetstjänst från <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. När du registrerar "
-"dig, autentiserar dig eller uppdaterar lösenordet skapar vi en SHA1-hash av "
+"Vi använder en kostnadsfri säkerhetstjänst från <a href=\"%"
+"(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. När du registrerar dig, "
+"autentiserar dig eller uppdaterar lösenordet skapar vi en SHA1-hash av "
 "lösenordet och använder de första fem tecknen i hashen för att avgöra om "
 "lösenordet har röjts. Lösenordet i klartext lagras aldrig av PyPI och "
 "skickas aldrig till HaveIBeenPwned."
@@ -3225,9 +3215,8 @@ msgid ""
 "to communicate with the PyPI administrators."
 msgstr ""
 "Mer information finns i vår <a href=\"%(docs_url)s\">användardokumentation</"
-"a>. Om du behöver hjälp kan du skicka e-post till <a "
-"href=\"%(email_href)s\">%(email_address)s</a> för att kontakta PyPI-"
-"administratörerna."
+"a>. Om du behöver hjälp kan du skicka e-post till <a href=\"%(email_href)s\">"
+"%(email_address)s</a> för att kontakta PyPI-administratörerna."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3317,9 +3306,9 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated "
 "recovery codes for this account."
 msgstr ""
-"Vi har märkt att du nyligen loggade in på ditt PyPI-konto "
-"<strong>%(username)s</strong>, där tvåfaktorsautentisering är aktiverad, men "
-"ännu inte har skapat återställningskoder för kontot."
+"Vi har märkt att du nyligen loggade in på ditt PyPI-konto <strong>%(username)"
+"s</strong>, där tvåfaktorsautentisering är aktiverad, men ännu inte har "
+"skapat återställningskoder för kontot."
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
 msgid ""
@@ -3337,8 +3326,8 @@ msgid ""
 "You can generate recovery codes for your account here: <a "
 "href=\"%(href)s\">%(href)s</a>"
 msgstr ""
-"Du kan skapa återställningskoder för kontot här: <a "
-"href=\"%(href)s\">%(href)s</a>"
+"Du kan skapa återställningskoder för kontot här: <a href=\"%(href)s\">%(href)"
+"s</a>"
 
 #: warehouse/templates/email/recovery-code-used/body.html:5
 #, python-format
@@ -3389,8 +3378,8 @@ msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Du har tagits bort från teamet ”%(team_name)s” i organisationen "
-"”%(organization_name)s”"
+"Du har tagits bort från teamet ”%(team_name)s” i organisationen ”%"
+"(organization_name)s”"
 
 #: warehouse/templates/email/removed-as-team-member/body.html:9
 msgid "You are receiving this because you were a member of this team."
@@ -3473,16 +3462,15 @@ msgstr "Du får detta eftersom du är ägare till projektet."
 #: warehouse/templates/email/team-collaborator-removed/body.html:11
 #, python-format
 msgid "A collaborator was removed from a project you own on %(site)s"
-msgstr ""
-"En medarbetare har tagits bort från ett projekt som du äger på %(site)s"
+msgstr "En medarbetare har tagits bort från ett projekt som du äger på %(site)s"
 
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:11
 #, python-format
 msgid ""
 "A collaborator's permissions were changed for a project you own on %(site)s"
 msgstr ""
-"En medarbetares behörigheter har ändrats för ett projekt som du äger på "
-"%(site)s"
+"En medarbetares behörigheter har ändrats för ett projekt som du äger på %"
+"(site)s"
 
 #: warehouse/templates/email/team-created/body.html:5
 #, python-format
@@ -3490,8 +3478,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"Ett team med namnet ”%(team_name)s” har skapats i organisationen "
-"”%(organization_name)s”."
+"Ett team med namnet ”%(team_name)s” har skapats i organisationen ”%"
+"(organization_name)s”."
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3509,8 +3497,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"Ett team med namnet ”%(team_name)s” har tagits bort i organisationen "
-"”%(organization_name)s”."
+"Ett team med namnet ”%(team_name)s” har tagits bort i organisationen ”%"
+"(organization_name)s”."
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, python-format
@@ -3519,9 +3507,9 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(submitter_profile)s\">%(submitter)s</a> har lagt till <a "
-"href=\"%(user_profile)s\">%(username)s</a> som medlem i teamet "
-"”%(team_name)s” i organisationen ”%(organization_name)s”."
+"<a href=\"%(submitter_profile)s\">%(submitter)s</a> har lagt till <a href=\"%"
+"(user_profile)s\">%(username)s</a> som medlem i teamet ”%(team_name)s” i "
+"organisationen ”%(organization_name)s”."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, python-format
@@ -3531,8 +3519,8 @@ msgid ""
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a> har tagit bort <a "
-"href=\"%(user_profile)s\">%(username)s</a> som medlem i teamet "
-"”%(team_name)s” i organisationen ”%(organization_name)s”."
+"href=\"%(user_profile)s\">%(username)s</a> som medlem i teamet ”%(team_name)s"
+"” i organisationen ”%(organization_name)s”."
 
 #: warehouse/templates/email/two-factor-added/body.html:5
 #, python-format
@@ -3540,8 +3528,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Någon, kanske du, har lagt till en tvåfaktorsautentiseringsmetod med "
-"%(method)s till ditt PyPI-konto <strong>%(username)s</strong>."
+"Någon, kanske du, har lagt till en tvåfaktorsautentiseringsmetod med %"
+"(method)s till ditt PyPI-konto <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:5
 #, python-format
@@ -3549,8 +3537,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Någon, kanske du, har tagit bort en tvåfaktorsautentiseringsmetod med "
-"%(method)s från ditt PyPI-konto <strong>%(username)s</strong>."
+"Någon, kanske du, har tagit bort en tvåfaktorsautentiseringsmetod med %"
+"(method)s från ditt PyPI-konto <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:5
 #, python-format
@@ -3764,8 +3752,8 @@ msgid ""
 msgstr ""
 "<strong>Ursprung</strong> beskriver varifrån en fil kommer. På PyPI delas "
 "ursprungsinformation genom <strong>attesteringar</strong>, som ger ett "
-"verifierbart register över bygge eller publiceringsdetaljer. <a "
-"href=\"%(href)s\">Visa detaljer, begränsningar och förbehåll.</a>"
+"verifierbart register över bygge eller publiceringsdetaljer. <a href=\"%"
+"(href)s\">Visa detaljer, begränsningar och förbehåll.</a>"
 
 #: warehouse/templates/includes/flash-messages.html:10
 msgid "Error"
@@ -3829,8 +3817,8 @@ msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"Återställningskoder för tvåfaktorsautentisering är tillgängliga. <a "
-"href=\"%(href)s\">Skapa dem nu för ditt konto.</a>"
+"Återställningskoder för tvåfaktorsautentisering är tillgängliga. <a href=\"%"
+"(href)s\">Skapa dem nu för ditt konto.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:4
 msgid "Edit profile"
@@ -3843,9 +3831,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Du har ännu inte laddat upp några projekt till PyPI. Läs <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging User Guide</a> för att komma i gång"
+"Du har ännu inte laddat upp några projekt till PyPI. Läs <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+"User Guide</a> för att komma i gång"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:11
 #, python-format
@@ -5014,8 +5002,8 @@ msgid ""
 "We recommend inspecting the repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
-"Vi rekommenderar att du granskar arkivet innan du fortsätter. <a "
-"href=\"%(href)s\">Läs mer</a>."
+"Vi rekommenderar att du granskar arkivet innan du fortsätter. <a href=\"%"
+"(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:131
 #, python-format
@@ -5097,8 +5085,8 @@ msgid ""
 "We recommend inspecting each repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
-"Vi rekommenderar att du granskar varje arkiv innan du fortsätter. <a "
-"href=\"%(href)s\">Läs mer</a>."
+"Vi rekommenderar att du granskar varje arkiv innan du fortsätter. <a href=\"%"
+"(href)s\">Läs mer</a>."
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:114
 #, python-format
@@ -5768,8 +5756,8 @@ msgid ""
 "Removing this association will disconnect your %(service)s account "
 "<strong>%(username)s</strong> from PyPI."
 msgstr ""
-"Om du tar bort den här kopplingen kopplas ditt %(service)s-konto "
-"<strong>%(username)s</strong> bort från PyPI."
+"Om du tar bort den här kopplingen kopplas ditt %(service)s-konto <strong>%"
+"(username)s</strong> bort från PyPI."
 
 #: warehouse/templates/manage/account.html:555
 #, python-format
@@ -6346,8 +6334,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">Överför ägarskapet</a> eller <a "
-"href=\"%(delete_href)s\">ta bort projektet</a>"
+"<a href=\"%(transfer_href)s\">Överför ägarskapet</a> eller <a href=\"%"
+"(delete_href)s\">ta bort projektet</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, python-format
@@ -6384,8 +6372,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(roles_href)s\">Lägg till en ägare</a> eller <a "
-"href=\"%(delete_href)s\">ta bort organisationen</a>"
+"<a href=\"%(roles_href)s\">Lägg till en ägare</a> eller <a href=\"%"
+"(delete_href)s\">ta bort organisationen</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6432,9 +6420,9 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
-"Tvåfaktorsautentisering ger ditt konto ett extra skyddslager. <a "
-"href=\"%(href)s\">Läs mer om <abbr title=\"two factor authentication\">2FA</"
-"abbr></a>. När 2FA har aktiverats kan den inte inaktiveras."
+"Tvåfaktorsautentisering ger ditt konto ett extra skyddslager. <a href=\"%"
+"(href)s\">Läs mer om <abbr title=\"two factor authentication\">2FA</abbr></a>"
+". När 2FA har aktiverats kan den inte inaktiveras."
 
 #: warehouse/templates/manage/manage_base.html:18
 msgid "Recovery methods enabled"
@@ -6593,9 +6581,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Uppgradera din webbläsare</a> för att ställa in "
-"tvåfaktorsautentisering med en säkerhetsenhet (t.ex. USB-nyckel)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Uppgradera din webbläsare</a> för att ställa in tvåfaktorsautentisering med "
+"en säkerhetsenhet (t.ex. USB-nyckel)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -6655,8 +6643,8 @@ msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">not be able to re-upload any deleted versions</a>."
 msgstr ""
-"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">inte kan ladda upp några borttagna versioner igen</a>."
+"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">"
+"inte kan ladda upp några borttagna versioner igen</a>."
 
 #: warehouse/templates/manage/manage_base.html:518
 msgid ""
@@ -6696,8 +6684,8 @@ msgid ""
 "I understand that I am permanently deleting all files for the "
 "%(release_version)s release of this project."
 msgstr ""
-"Jag förstår att jag permanent tar bort alla filer för projektets utgåva "
-"%(release_version)s."
+"Jag förstår att jag permanent tar bort alla filer för projektets utgåva %"
+"(release_version)s."
 
 #: warehouse/templates/manage/manage_base.html:552
 msgid ""
@@ -6714,9 +6702,8 @@ msgid ""
 "rel=\"noopener\">not be able to re-upload any deleted files using the same "
 "file names</a>."
 msgstr ""
-"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">inte kan ladda upp borttagna filer igen med samma filnamn</"
-"a>."
+"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">"
+"inte kan ladda upp borttagna filer igen med samma filnamn</a>."
 
 #: warehouse/templates/manage/manage_base.html:580
 msgid ""
@@ -6733,9 +6720,8 @@ msgid ""
 "rel=\"noopener\">not be able to re-upload a file using the same file name</"
 "a> %(filename)s."
 msgstr ""
-"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">inte kan ladda upp en fil igen med samma filnamn</a> "
-"%(filename)s."
+"Jag förstår att jag <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">"
+"inte kan ladda upp en fil igen med samma filnamn</a> %(filename)s."
 
 #: warehouse/templates/manage/manage_base.html:654
 msgid "Trusted Publisher Management"
@@ -6765,8 +6751,8 @@ msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Du kan läsa mer om betrodda utgivare och hur du använder dem <a "
-"href=\"%(href)s\">här</a>."
+"Du kan läsa mer om betrodda utgivare och hur du använder dem <a href=\"%"
+"(href)s\">här</a>."
 
 #: warehouse/templates/manage/manage_base.html:698
 #: warehouse/templates/manage/manage_base.html:709
@@ -7164,9 +7150,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Du har inte laddat upp några projekt till PyPI ännu. Läs <a "
-"href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a> för att komma igång"
+"Du har inte laddat upp några projekt till PyPI ännu. Läs <a href=\"%(href)"
+"s\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a> för "
+"att komma igång"
 
 #: warehouse/templates/manage/projects.html:132
 msgid "Archived Projects"
@@ -7248,8 +7234,8 @@ msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Läs mer om stödet för OpenID Connect i GitHub Actions <a "
-"href=\"%(href)s\">här</a>."
+"Läs mer om stödet för OpenID Connect i GitHub Actions <a href=\"%(href)s\">"
+"här</a>."
 
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
@@ -7326,8 +7312,8 @@ msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
 msgstr ""
-"Filnamnet för publiceringsarbetsflödet. Filen ska finnas i katalogen "
-"<code>.github/workflows/</code> i förrådet som konfigurerats ovan."
+"Filnamnet för publiceringsarbetsflödet. Filen ska finnas i katalogen <code>"
+".github/workflows/</code> i förrådet som konfigurerats ovan."
 
 #: warehouse/templates/manage/account/publishing.html:86
 #: warehouse/templates/manage/account/publishing.html:185
@@ -7393,8 +7379,8 @@ msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Läs mer om stödet för OpenID Connect i GitLab CI/CD <a "
-"href=\"%(href)s\">här</a>."
+"Läs mer om stödet för OpenID Connect i GitLab CI/CD <a href=\"%(href)s\">"
+"här</a>."
 
 #: warehouse/templates/manage/account/publishing.html:133
 #: warehouse/templates/manage/account/publishing.html:231
@@ -7543,8 +7529,8 @@ msgid ""
 msgstr ""
 "Subjektet är det numeriska ID som representerar den huvudman som gör "
 "begäran. Det är inte obligatoriskt men om du anger subjektet begränsas "
-"identiteten som används för publicering ytterligare. <a "
-"href=\"%(href)s\">Mer information finns här.</a>"
+"identiteten som används för publicering ytterligare. <a href=\"%(href)s\">"
+"Mer information finns här.</a>"
 
 #: warehouse/templates/manage/account/publishing.html:285
 #: warehouse/templates/manage/organization/publishing.html:302
@@ -7680,8 +7666,8 @@ msgid ""
 msgstr ""
 "Dessa utgivare fungerar på samma sätt som betrodda utgivare som registrerats "
 "för specifika projekt men de låter användare <strong>skapa</strong> "
-"projektet om det inte redan finns. När projektet har skapats blir den "
-"”väntande” utgivaren en vanlig betrodd utgivare. Läs mer om ”väntande” och "
+"projektet om det inte redan finns. När projektet har skapats blir den ”"
+"väntande” utgivaren en vanlig betrodd utgivare. Läs mer om ”väntande” och "
 "vanliga betrodda utgivare <a href=\"%(href)s\">här</a>."
 
 #: warehouse/templates/manage/account/publishing.html:452
@@ -7913,8 +7899,8 @@ msgid ""
 "documentation</a> for details."
 msgstr ""
 "Twine har även stöd för andra sätt att ange autentiseringsuppgifter, "
-"inklusive nyckelringsintegrering. Mer information finns i <a "
-"href=\"%(twine_docs_href)s\">Twines dokumentation om autentisering</a>."
+"inklusive nyckelringsintegrering. Mer information finns i <a href=\"%"
+"(twine_docs_href)s\">Twines dokumentation om autentisering</a>."
 
 #: warehouse/templates/manage/account/token.html:115
 #, python-format
@@ -7933,8 +7919,8 @@ msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI user documentation</a>."
 msgstr ""
-"Mer information om hur du använder denna token finns i <a "
-"href=\"%(href)s\">PyPI:s användardokumentation</a>."
+"Mer information om hur du använder denna token finns i <a href=\"%(href)s\">"
+"PyPI:s användardokumentation</a>."
 
 #: warehouse/templates/manage/account/token.html:124
 msgid "Create another token"
@@ -7975,9 +7961,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"time-"
 "based one-time password\">TOTP</abbr> standard</a>."
 msgstr ""
-"PyPI har stöd för alla appar som följer <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
-"title=\"tidsbaserat engångslösenord\">TOTP</abbr>-standarden</a>."
+"PyPI har stöd för alla appar som följer <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"tidsbaserat "
+"engångslösenord\">TOTP</abbr>-standarden</a>."
 
 #: warehouse/templates/manage/account/totp-provision.html:21
 #, python-format
@@ -8047,8 +8033,8 @@ msgid ""
 "PyPI supports any device that adheres to the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
 msgstr ""
-"PyPI har stöd för alla enheter som följer <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO-standarden</a>."
+"PyPI har stöd för alla enheter som följer <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">FIDO-standarden</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:12
 #, python-format
@@ -8059,11 +8045,11 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
-"Vanliga <em>USB-nycklar</em> är <a href=\"%(yubico_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
-"href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Google Titan</a> och <a href=\"%(thetis_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
+"Vanliga <em>USB-nycklar</em> är <a href=\"%(yubico_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
+"och <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:36
 msgid "Name your device to begin"
@@ -8096,9 +8082,9 @@ msgid ""
 msgstr ""
 "<strong>Fungerar det inte?</strong> Kontrollera att du använder en enhet som "
 "följer <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">FIDO-specifikationen</a> och en <a "
-"href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">kompatibel webbläsare</a>."
+"rel=\"noopener\">FIDO-specifikationen</a> och en <a href=\"%(mozilla_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kompatibel "
+"webbläsare</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:79
 msgid ""
@@ -8264,8 +8250,8 @@ msgstr "Organisationen %(organization_name)s har återaktiverats"
 msgid ""
 "%(previous_organization_name)s organization renamed to %(organization_name)s"
 msgstr ""
-"Organisationen %(previous_organization_name)s har bytt namn till "
-"%(organization_name)s"
+"Organisationen %(previous_organization_name)s har bytt namn till %"
+"(organization_name)s"
 
 #: warehouse/templates/manage/organization/history.html:30
 #, python-format
@@ -8375,8 +8361,8 @@ msgid ""
 "Invitation for <a href=\"%(href)s\">%(username)s</a> to join as organization "
 "%(role_name)s expired"
 msgstr ""
-"Inbjudan till <a href=\"%(href)s\">%(username)s</a> att ansluta som "
-"%(role_name)s i organisationen har löpt ut"
+"Inbjudan till <a href=\"%(href)s\">%(username)s</a> att ansluta som %"
+"(role_name)s i organisationen har löpt ut"
 
 #: warehouse/templates/manage/organization/history.html:91
 #: warehouse/templates/manage/team/history.html:17
@@ -8397,8 +8383,8 @@ msgid ""
 "%(team_name)s team added as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamet %(team_name)s har lagts till som %(role_name)s för <a "
-"href=\"%(href)s\">%(project_name)s</a>"
+"Teamet %(team_name)s har lagts till som %(role_name)s för <a href=\"%(href)"
+"s\">%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:101
 #: warehouse/templates/manage/team/history.html:29
@@ -8407,8 +8393,8 @@ msgid ""
 "%(team_name)s team removed as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamet %(team_name)s har tagits bort som %(role_name)s för <a "
-"href=\"%(href)s\">%(project_name)s</a>"
+"Teamet %(team_name)s har tagits bort som %(role_name)s för <a href=\"%(href)"
+"s\">%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:105
 #: warehouse/templates/manage/team/history.html:33
@@ -8417,8 +8403,8 @@ msgid ""
 "%(team_name)s team changed to project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamet %(team_name)s har ändrats till %(role_name)s för <a "
-"href=\"%(href)s\">%(project_name)s</a>"
+"Teamet %(team_name)s har ändrats till %(role_name)s för <a href=\"%(href)s\">"
+"%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:111
 #: warehouse/templates/manage/team/history.html:39
@@ -8432,8 +8418,8 @@ msgstr ""
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> har tagits bort från teamet "
-"%(team_name)s"
+"<a href=\"%(href)s\">%(username)s</a> har tagits bort från teamet %"
+"(team_name)s"
 
 #: warehouse/templates/manage/organization/history.html:121
 #, python-format
@@ -8570,8 +8556,8 @@ msgid ""
 "href=\"%(href)s\">%(email)s</a>."
 msgstr ""
 "Den här organisationen är inaktiverad. Den kan inte ladda upp nya utgåvor "
-"till sina projekt eller bjuda in medlemmar. Skicka e-post till <a "
-"href=\"%(href)s\">%(email)s</a> för att återaktivera den."
+"till sina projekt eller bjuda in medlemmar. Skicka e-post till <a href=\"%"
+"(href)s\">%(email)s</a> för att återaktivera den."
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:66
 #: warehouse/templates/manage/organization/settings.html:192
@@ -8599,9 +8585,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Kom i gång genom att lägga till ett projekt som du äger med formuläret "
-"nedan. Information om hur du skapar ett nytt projekt finns i <a "
-"href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">användarhandboken för "
-"Python-paketering</a>"
+"nedan. Information om hur du skapar ett nytt projekt finns i <a href=\"%"
+"(href)s\" target=\"_blank\" rel=\"noopener\">användarhandboken för Python-"
+"paketering</a>"
 
 #: warehouse/templates/manage/organization/projects.html:88
 msgid "Add project to organization"
@@ -8673,8 +8659,8 @@ msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
 msgstr ""
-"Projektet på PyPI som skapas och ägs av organisationen "
-"'%(organization_name)s' när denna utgivare används"
+"Projektet på PyPI som skapas och ägs av organisationen '%(organization_name)"
+"s' när denna utgivare används"
 
 #: warehouse/templates/manage/organization/publishing.html:208
 #: warehouse/templates/manage/project/publishing.html:191
@@ -9010,8 +8996,8 @@ msgid ""
 "to communicate with %(site)s administrators."
 msgstr ""
 "Om du behöver ändra organisationskontot från ett företagskonto till ett "
-"gemenskapskonto kan du skicka e-post till <a href=\"mailto:"
-"%(email)s\">%(email)s</a> för att kontakta administratörerna för %(site)s."
+"gemenskapskonto kan du skicka e-post till <a href=\"mailto:%(email)s\">%"
+"(email)s</a> för att kontakta administratörerna för %(site)s."
 
 #: warehouse/templates/manage/organization/settings.html:146
 msgid "Update organization"
@@ -9134,9 +9120,9 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">överföra ägarskapet</a> och <a "
-"href=\"%(remove_delete_href)s\">ta bort projektet</a> <b>eller</b> <a "
-"href=\"%(remove_delete_href)s\">ta bort projektet permanent</a>"
+"<a href=\"%(transfer_href)s\">överföra ägarskapet</a> och <a href=\"%"
+"(remove_delete_href)s\">ta bort projektet</a> <b>eller</b> <a href=\"%"
+"(remove_delete_href)s\">ta bort projektet permanent</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 msgid "You will not be able to recover your organization after you delete it."
@@ -9159,8 +9145,8 @@ msgid ""
 "Please ensure you have retrieved all invoices from <a "
 "href=\"%(billing_href)s\">your billing portal</a> before proceeding."
 msgstr ""
-"Kontrollera att du har hämtat alla fakturor från <a "
-"href=\"%(billing_href)s\">faktureringsportalen</a> innan du fortsätter."
+"Kontrollera att du har hämtat alla fakturor från <a href=\"%(billing_href)"
+"s\">faktureringsportalen</a> innan du fortsätter."
 
 #: warehouse/templates/manage/organization/teams.html:4
 msgid "Organization teams"
@@ -9227,9 +9213,9 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading "
 "new documentation is no longer supported."
 msgstr ""
-"Om du vill TA BORT befintlig dokumentation som finns på <a "
-"href=\"%(url)s\">%(url)s</a> går det <strong>inte</strong> att ångra, "
-"eftersom det inte längre går att ladda upp ny dokumentation."
+"Om du vill TA BORT befintlig dokumentation som finns på <a href=\"%(url)s\">%"
+"(url)s</a> går det <strong>inte</strong> att ångra, eftersom det inte längre "
+"går att ladda upp ny dokumentation."
 
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Destroy Documentation for project"
@@ -9538,8 +9524,8 @@ msgid ""
 msgstr ""
 "Subjektet är det numeriska ID som representerar den huvudman som gör "
 "begäran. Det är inte obligatoriskt men om du anger subjektet begränsas "
-"identiteten som används för publicering ytterligare. <a "
-"href=\"%(href)s\">Mer information finns här.</a>"
+"identiteten som används för publicering ytterligare. <a href=\"%(href)s\">"
+"Mer information finns här.</a>"
 
 #: warehouse/templates/manage/project/publishing.html:355
 msgid "Manage current publishers"
@@ -9808,9 +9794,8 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 "Överväg i stället att <a href=\"%(yank_href)s\">dra tillbaka</a> den här "
-"utgåvan, skapa en ny utgåva eller en <a href=\"%(post_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">efterföljande utgåva</"
-"a>."
+"utgåvan, skapa en ny utgåva eller en <a href=\"%(post_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">efterföljande utgåva</a>."
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10050,13 +10035,12 @@ msgid ""
 "more help."
 msgstr ""
 "Om du vill ange beskrivning, upphovsperson, länkar, klassificerare och andra "
-"uppgifter för nästa utgåva av %(project_name)s använder du <a "
-"href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
-"target=\"_blank\">metadatafälten <code>project</code> i filen "
-"<code>pyproject.toml</code></a>. Om du uppdaterar dessa fält ändras inte "
-"metadata för tidigare utgåvor. Mer hjälp finns i <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Python "
-"Packaging User Guide</a>."
+"uppgifter för nästa utgåva av %(project_name)s använder du <a href=\"%"
+"(pyproject_args_href)s\" rel=\"noopener\" target=\"_blank\">metadatafälten "
+"<code>project</code> i filen <code>pyproject.toml</code></a>. Om du "
+"uppdaterar dessa fält ändras inte metadata för tidigare utgåvor. Mer hjälp "
+"finns i <a href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">"
+"Python Packaging User Guide</a>."
 
 #: warehouse/templates/manage/project/settings.html:76
 msgid "Remove project from organization"
@@ -10079,8 +10063,8 @@ msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
-"Återkalla projektbehörigheter för team i organisationen "
-"%(organization_name)s."
+"Återkalla projektbehörigheter för team i organisationen %(organization_name)"
+"s."
 
 #: warehouse/templates/manage/project/settings.html:89
 #: warehouse/templates/manage/project/settings.html:94
@@ -10135,8 +10119,7 @@ msgstr "Återkalla din direkta ägarroll för projektet."
 msgid ""
 "You will retain Owner permissions on the project through your organization "
 "role."
-msgstr ""
-"Du behåller ägarbehörigheter för projektet genom din organisationsroll."
+msgstr "Du behåller ägarbehörigheter för projektet genom din organisationsroll."
 
 #: warehouse/templates/manage/project/settings.html:140
 msgid "Add the project to another organization that you own."
@@ -10217,9 +10200,9 @@ msgstr ""
 "publicerar en slutlig utgåva och uppdaterar projektbeskrivningen för att "
 "varna användarna om att projektet inte får fler uppdateringar samt nämna "
 "eventuella alternativa projekt som kan ersätta det. Om projektet är <a "
-"href=\"%(readme_description_href)s\" rel=\"noopener\" "
-"target=\"_blank\">konfigurerat för detta</a> kan du uppdatera "
-"projektbeskrivningen genom att redigera README-filen."
+"href=\"%(readme_description_href)s\" rel=\"noopener\" target=\"_blank\">"
+"konfigurerat för detta</a> kan du uppdatera projektbeskrivningen genom att "
+"redigera README-filen."
 
 #: warehouse/templates/manage/project/settings.html:208
 #: warehouse/templates/manage/project/settings.html:211
@@ -10457,10 +10440,9 @@ msgid ""
 "reviewed more quickly, so please ensure that the link is to a meaningful "
 "portion of the relevant files."
 msgstr ""
-"Du måste ange en länk till relevant källkod med vår tjänst <a "
-"href=\"%(href)s\">Inspector</a>. Det gör att rapporter kan granskas "
-"snabbare, så kontrollera att länken går till en betydelsefull del av de "
-"berörda filerna."
+"Du måste ange en länk till relevant källkod med vår tjänst <a href=\"%(href)"
+"s\">Inspector</a>. Det gör att rapporter kan granskas snabbare, så "
+"kontrollera att länken går till en betydelsefull del av de berörda filerna."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:27
 msgid ""
@@ -10595,8 +10577,7 @@ msgstr "Konfigurera betrodd publicering för organisationens projekt"
 
 #: warehouse/templates/pages/organizations.html:21
 msgid "Review your organization's history to see who changed what, and when"
-msgstr ""
-"Granska organisationens historik för att se vem som ändrade vad och när"
+msgstr "Granska organisationens historik för att se vem som ändrade vad och när"
 
 #: warehouse/templates/pages/organizations.html:24
 #, python-format
@@ -10885,8 +10866,8 @@ msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
-"Den lyckade nylanseringen av Python Package Index med den nya kodbasen "
-"”Warehouse”"
+"Den lyckade nylanseringen av Python Package Index med den nya kodbasen ”"
+"Warehouse”"
 
 #: warehouse/templates/pages/sponsors.html:36
 #, python-format
@@ -10897,9 +10878,9 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 "Med <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">170 000 dollar i finansiering</a> från <a "
-"href=\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Mozilla Open Source Support Program</a> under 2018"
+"rel=\"noopener\">170 000 dollar i finansiering</a> från <a href=\"%"
+"(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Mozilla Open Source Support Program</a> under 2018"
 
 #: warehouse/templates/pages/sponsors.html:45
 msgid ""
@@ -10916,9 +10897,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</"
 "a> in 2019"
 msgstr ""
-"Med 80 000 dollar i finansiering från <a href=\"%(funder_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</"
-"a> under 2019"
+"Med 80 000 dollar i finansiering från <a href=\"%(funder_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> under "
+"2019"
 
 #: warehouse/templates/pages/sponsors.html:53
 msgid "Additional security-focused features for PyPI"
@@ -10933,9 +10914,9 @@ msgid ""
 "in 2019 and 2020"
 msgstr ""
 "Med <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">100 000 dollar i finansiering</a> från <a "
-"href=\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Facebook Research</a> under 2019 och 2020"
+"rel=\"noopener\">100 000 dollar i finansiering</a> från <a href=\"%"
+"(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Facebook Research</a> under 2019 och 2020"
 
 #: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
@@ -10952,11 +10933,11 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
 "Med <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">407 000 dollar i finansiering</a> från <a "
-"href=\"%(funder0_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Chan Zuckerberg Initiative</a> och <a "
-"href=\"%(funder1_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Mozilla Open Source Support Program</a> under 2020"
+"rel=\"noopener\">407 000 dollar i finansiering</a> från <a href=\"%"
+"(funder0_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Chan Zuckerberg Initiative</a> och <a href=\"%(funder1_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support "
+"Program</a> under 2020"
 
 #: warehouse/templates/pages/sponsors.html:79
 msgid ""
@@ -11044,8 +11025,7 @@ msgstr "PyPI-statistik"
 
 #: warehouse/templates/pages/stats.html:11
 msgid "We all love stats, so here are some useful statistics about PyPI."
-msgstr ""
-"Vi gillar alla statistik, så här är några användbara uppgifter om PyPI."
+msgstr "Vi gillar alla statistik, så här är några användbara uppgifter om PyPI."
 
 #: warehouse/templates/pages/stats.html:15
 msgid "First-party statistics"
@@ -11156,8 +11136,7 @@ msgstr "Filtrera efter <a href=\"%(href)s\">klassificerare</a>"
 
 #: warehouse/templates/search/results.html:106
 msgid "Enter a search query, or select a filter from the list of classifiers."
-msgstr ""
-"Skriv en sökfråga eller välj ett filter från listan med klassificerare."
+msgstr "Skriv en sökfråga eller välj ett filter från listan med klassificerare."
 
 #: warehouse/templates/search/results.html:109
 msgid "Enter a search query, or add a filter by clicking on the button."

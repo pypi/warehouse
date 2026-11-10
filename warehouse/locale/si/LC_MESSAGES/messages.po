@@ -1,12 +1,13 @@
 # Kavindu Santhusa <kavindusanthusa@gmail.com>, 2020, 2022.
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
 # Kavindu Santhusa <kavindusanthusa@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-07-18 08:43+0200\n"
-"PO-Revision-Date: 2026-11-09 13:45+0000\n"
+"PO-Revision-Date: 2026-11-10 14:23+0000\n"
 "Last-Translator: Kavindu Santhusa "
 "<kavindusanthusa@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Sinhala <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -83,7 +84,8 @@ msgstr "අක්ෂර 50 ක් හෝ ඊට අඩු පරිශීලක 
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -197,8 +199,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර "
-"සත්‍යාපන සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
+"සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර සත්‍යාපන "
+"සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
 
 #: warehouse/accounts/views.py:153
 #, fuzzy, python-brace-format
@@ -210,8 +212,8 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: $"
 "{ip})"
 msgstr ""
-"සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර "
-"සත්‍යාපන සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
+"සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර සත්‍යාපන "
+"සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
 
 #: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
 #: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
@@ -239,8 +241,8 @@ msgstr "ප්‍රතිසාධන කේතය පිළිගෙන ඇත
 msgid ""
 "New user registration temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/accounts/views.py:796
 #, python-brace-format
@@ -462,8 +464,8 @@ msgstr ""
 msgid ""
 "Trusted publishing is temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/accounts/views.py:1928
 #: warehouse/manage/views/organizations.py:1928
@@ -588,7 +590,8 @@ msgstr ""
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/manage/forms.py:515
 #, fuzzy
@@ -598,7 +601,8 @@ msgstr "මෙම පරිශීලක නාමය දැනටමත් ව�
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/manage/forms.py:564
 msgid "Select project"
@@ -622,7 +626,8 @@ msgstr ""
 #| "different username."
 msgid ""
 "This project name has already been used. Choose a different project name."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/manage/forms.py:610
 msgid "Cannot transfer to Company Organization with inactive billing"
@@ -672,7 +677,8 @@ msgstr "නම දිග වැඩියි. අක්ෂර 100 ක් හෝ �
 msgid ""
 "You have already submitted the maximum number of Organization requests ($"
 "{count})."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/manage/forms.py:826
 #, fuzzy
@@ -692,7 +698,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This team name has already been used. Choose a different team name."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/manage/views/__init__.py:438
 msgid "Account details updated"
@@ -738,8 +745,8 @@ msgstr ""
 #| "help#admin-intervention for details."
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/manage/views/__init__.py:1392
 msgid ""
@@ -920,8 +927,8 @@ msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/manage/views/oidc_publishers.py:421
 #, fuzzy, python-brace-format
@@ -932,8 +939,8 @@ msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/manage/views/oidc_publishers.py:543
 #, fuzzy, python-brace-format
@@ -944,8 +951,8 @@ msgid ""
 "Google-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/manage/views/oidc_publishers.py:660
 #, fuzzy, python-brace-format
@@ -956,8 +963,8 @@ msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See $"
 "{docs_url} for details."
 msgstr ""
-"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
-"help#admin-intervention බලන්න."
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/help#admin-"
+"intervention බලන්න."
 
 #: warehouse/manage/views/organizations.py:704
 msgid ""
@@ -1029,7 +1036,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This project already exists."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/oidc/forms/_core.py:75
 #, fuzzy
@@ -1037,7 +1045,8 @@ msgstr "මෙම පරිශීලක නාමය දැනටමත් ව�
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This project name isn't allowed"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/oidc/forms/_core.py:79
 msgid "This project name is too similar to an existing project"
@@ -3894,7 +3903,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Release quarantined"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/includes/packaging/project-release-history.html:57
 #, python-format
@@ -3907,7 +3917,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project quarantined"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/includes/packaging/project-release-history.html:66
 #, python-format
@@ -3930,7 +3941,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project archived on %(date)s"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/includes/packaging/project-release-history.html:95
 #: warehouse/templates/includes/packaging/project-status.html:136
@@ -4328,7 +4340,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project quarantined:"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:38
 #, fuzzy
@@ -4336,7 +4349,8 @@ msgstr "මෙම පරිශීලක නාමය දැනටමත් ව�
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Release quarantined:"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:40
 #, fuzzy
@@ -6465,7 +6479,8 @@ msgstr "අක්ෂර 50 ක් හෝ ඊට අඩු පරිශීලක 
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This Organization request has been declined"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/organization/application.html:20
 #: warehouse/templates/manage/organizations.html:171
@@ -6755,7 +6770,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project Name"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/account/publishing.html:29
 #: warehouse/templates/manage/account/publishing.html:138
@@ -7547,7 +7563,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This organization request has been declined"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/organization/application.html:24
 msgid "More information needed"
@@ -8771,7 +8788,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project archived"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/project/history.html:277
 #, fuzzy
@@ -8785,7 +8803,8 @@ msgstr "ප්‍රතිසාධන කේතය අවලංගුයි."
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "Project unarchived"
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/project/history.html:282
 #, fuzzy
@@ -8834,7 +8853,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This project has been quarantined."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/project/manage_project_base.html:53
 msgid ""
@@ -8857,7 +8877,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This project has been archived."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/project/publishing.html:9
 msgid ""
@@ -8949,7 +8970,8 @@ msgstr ""
 #| "This username is already being used by another account. Choose a "
 #| "different username."
 msgid "This release has been quarantined."
-msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
+msgstr ""
+"මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/templates/manage/project/release.html:38
 msgid ""

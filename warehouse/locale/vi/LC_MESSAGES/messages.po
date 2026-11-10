@@ -11,13 +11,15 @@
 # ThienFakeVN <ngotranquangthien2011@gmail.com>, 2026.
 # "trituenhantao.io" <trituenhantaoio@users.noreply.hosted.weblate.org>, 2026.
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-11-09 13:44+0000\n"
-"Last-Translator: Anonymous <anonymous@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-10 14:22+0000\n"
+"Last-Translator: GitHub webhook <noreply-webhook-github-"
+"integration@weblate.org>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/pypa/"
 "warehouse/vi/>\n"
 "Language: vi\n"
@@ -1865,8 +1867,8 @@ msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>%(sha)s</code></a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Giá trị băm</a> của %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Giá trị băm</a> của %(filename)s"
 
 #: warehouse/templates/confirm-action.html:4
 #, fuzzy
@@ -2155,8 +2157,8 @@ msgstr ""
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
-"Nếu không, chúng tôi gợi ý bạn <a href=\"%(href)s\">đi tới trang chủ PyPI</"
-"a>."
+"Nếu không, chúng tôi gợi ý bạn <a href=\"%(href)s\">đi tới trang chủ PyPI</a>"
+"."
 
 #: warehouse/templates/accounts/invite-confirmation.html:4
 #, fuzzy
@@ -2533,10 +2535,10 @@ msgid ""
 "title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
 "Policy</a>."
 msgstr ""
-"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"hoặc bằng cách sử dụng <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">dữ liệu công khai của chúng tôi trên Google BigQuery</a>"
+"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, hoặc bằng cách sử "
+"dụng <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">dữ liệu "
+"công khai của chúng tôi trên Google BigQuery</a>"
 
 #: warehouse/templates/accounts/register.html:243
 msgid "Create account"
@@ -2626,9 +2628,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Nâng cấp trình duyệt của bạn</a> để đăng nhập bằng một thiết "
-"bị bảo mật (ví dụ: Khóa USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Nâng cấp trình duyệt của bạn</a> để đăng nhập bằng một thiết bị bảo mật "
+"(ví dụ: Khóa USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2688,8 +2690,8 @@ msgid ""
 "<strong>@%(external_username)s</strong> to your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI "
-"<strong>%(username)s</strong>."
+"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/account-association-added/body.html:9
 #: warehouse/templates/email/account-association-removed/body.html:9
@@ -2706,9 +2708,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a "
-"href=\"%(href)s\">%(email_address)s</a> để giao tiếp với các quản trị viên "
-"PyPI."
+"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a href=\"%(href)s\">%"
+"(email_address)s</a> để giao tiếp với các quản trị viên PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2720,8 +2721,8 @@ msgid ""
 "account <strong>@%(external_username)s</strong> from your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI "
-"<strong>%(username)s</strong>."
+"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, python-format
@@ -2850,9 +2851,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a "
-"href=\"%(href)s\">%(email_address)s</a> để giao tiếp với các quản trị viên "
-"PyPI."
+"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a href=\"%(href)s\">%"
+"(email_address)s</a> để giao tiếp với các quản trị viên PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2906,9 +2906,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a "
-"href=\"%(href)s\">%(email_address)s</a> để giao tiếp với các quản trị viên "
-"PyPI."
+"Nếu bạn không thực hiện thay đổi này, bạn có thể email <a href=\"%(href)s\">%"
+"(email_address)s</a> để giao tiếp với các quản trị viên PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, python-format
@@ -3048,8 +3047,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Nếu đây là một lỗi, bạn có thể gửi email <a "
-"href=\"%(href)s\">%(email_address)s</a> để liên lạc với quản trị viên PyPI."
+"Nếu đây là một lỗi, bạn có thể gửi email <a href=\"%(href)s\">%"
+"(email_address)s</a> để liên lạc với quản trị viên PyPI."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3065,8 +3064,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/organization-member-added/body.html:17
 #: warehouse/templates/email/organization-member-invited/body.html:17
@@ -3127,8 +3125,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
 "join the \"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/organization-member-invited/body.html:11
 #, fuzzy, python-format
@@ -3137,8 +3134,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
 "\"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/organization-member-invited/body.html:23
 #, fuzzy
@@ -3190,8 +3186,7 @@ msgstr "Thay đổi bởi:"
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/organization-project-added/body.html:16
 #: warehouse/templates/email/organization-project-removed/body.html:16
@@ -3273,8 +3268,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI "
-"<strong>%(username)s</strong>."
+"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -3394,10 +3389,10 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Để lấy lại quyền truy cập vào tài khoản của bạn, <a "
-"href=\"%(reset_pw_url)s\">Đặt lại mật khẩu</a> trên PyPI. Chúng tôi cũng "
-"khuyên bạn hãy vào <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> "
-"và kiểm tra các mật khẩu khác của bạn và học được các mẫu mật khẩu tốt."
+"Để lấy lại quyền truy cập vào tài khoản của bạn, <a href=\"%(reset_pw_url)"
+"s\">Đặt lại mật khẩu</a> trên PyPI. Chúng tôi cũng khuyên bạn hãy vào <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> và kiểm tra các mật "
+"khẩu khác của bạn và học được các mẫu mật khẩu tốt."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3413,12 +3408,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Chúng tôi sử dụng dịch vụ bảo mật miễn phí từ <a "
-"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Khi đăng ký, xác "
-"thực, hoặc cập nhật mật khẩu của bạn, chúng tôi tạo ra một băm SHA1 cho mật "
-"khẩu của bạn và sử dụng 5 ký tự đầu tiên của giá trị băm để phát hiện mật "
-"khẩu có nguy cơ. Mật khẩu gốc không bao giờ được lưu trữ bởi PyPI hoặc gửi "
-"đến HaveIBeenPwned."
+"Chúng tôi sử dụng dịch vụ bảo mật miễn phí từ <a href=\"%"
+"(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Khi đăng ký, xác thực, hoặc "
+"cập nhật mật khẩu của bạn, chúng tôi tạo ra một băm SHA1 cho mật khẩu của "
+"bạn và sử dụng 5 ký tự đầu tiên của giá trị băm để phát hiện mật khẩu có "
+"nguy cơ. Mật khẩu gốc không bao giờ được lưu trữ bởi PyPI hoặc gửi đến "
+"HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3432,9 +3427,8 @@ msgid ""
 "to communicate with the PyPI administrators."
 msgstr ""
 "Để biết thêm thông tin, hãy xem <a href=\"%(faq_url)s\">Câu hỏi thường gặp</"
-"a> của chúng tôi. Để được trợ giúp, bạn có thể gửi email <a "
-"href=\"%(email_href)s\">%(email_address)s</a> để liên lạc với quản trị viên "
-"PyPI."
+"a> của chúng tôi. Để được trợ giúp, bạn có thể gửi email <a href=\"%"
+"(email_href)s\">%(email_address)s</a> để liên lạc với quản trị viên PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3602,8 +3596,7 @@ msgstr ""
 msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/removed-as-team-member/body.html:9
 #, fuzzy
@@ -3729,8 +3722,7 @@ msgstr "Một cộng tác viên mới đã được thêm vào một dự án b�
 msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3751,8 +3743,7 @@ msgstr ""
 msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, fuzzy, python-format
@@ -3787,8 +3778,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI "
-"<strong>%(username)s</strong>."
+"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:5
 #, fuzzy, python-format
@@ -3799,8 +3790,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI "
-"<strong>%(username)s</strong>."
+"Một ai đó, có thể là bạn, đã thay đổi mật khẩu của tài khoản PyPI <strong>%"
+"(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:5
 #, python-format
@@ -6348,8 +6339,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Phương pháp: Ứng dụng xác thực (<abbr title=\"time-based one-time "
-"password\">TOTP</abbr>)"
+"Phương pháp: Ứng dụng xác thực (<abbr title=\"time-based one-time password\">"
+"TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:800
 #: warehouse/templates/manage/unverified-account.html:444
@@ -6646,8 +6637,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a "
-"href=\"%(delete_href)s\">xóa dự án</a>"
+"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a href=\"%"
+"(delete_href)s\">xóa dự án</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, fuzzy, python-format
@@ -6706,8 +6697,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a "
-"href=\"%(delete_href)s\">xóa dự án</a>"
+"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a href=\"%"
+"(delete_href)s\">xóa dự án</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6945,9 +6936,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Nâng cấp trình duyệt của bạn </a> để thiết lập xác thực hai "
-"yếu tố với thiết bị bảo mật (ví dụ: Khóa USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Nâng cấp trình duyệt của bạn </a> để thiết lập xác thực hai yếu tố với thiết "
+"bị bảo mật (ví dụ: Khóa USB)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -7693,8 +7684,7 @@ msgstr "Tên dự án"
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid ""
 "The project that will be created on %(sitename)s when this publisher is used"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/account/publishing.html:42
 #: warehouse/templates/manage/organization/publishing.html:40
@@ -8363,8 +8353,8 @@ msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI user documentation</a>."
 msgstr ""
-"Để biết thêm hướng dẫn về cách sử dụng mã thông báo này, <a "
-"href=\"%(href)s\">truy cập trang trợ giúp PyPI</a>."
+"Để biết thêm hướng dẫn về cách sử dụng mã thông báo này, <a href=\"%(href)"
+"s\">truy cập trang trợ giúp PyPI</a>."
 
 #: warehouse/templates/manage/account/token.html:124
 #, fuzzy
@@ -8535,8 +8525,7 @@ msgstr ""
 msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/application.html:6
 #, fuzzy, python-format
@@ -8730,8 +8719,7 @@ msgstr "Quản lý '%(project_name)s'"
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:43
 #, fuzzy, python-format
@@ -8748,8 +8736,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách "
-"%(role_name)s của dự án"
+"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách %(role_name)"
+"s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:55
 #, fuzzy, python-format
@@ -8774,8 +8762,7 @@ msgstr ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:68
 #, fuzzy, python-format
@@ -8784,8 +8771,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
 "%(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:73
 #, fuzzy, python-format
@@ -8794,8 +8780,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:79
 #, fuzzy, python-format
@@ -8869,8 +8854,8 @@ msgstr ""
 #| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách "
-"%(role_name)s của dự án"
+"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách %(role_name)"
+"s của dự án"
 
 #: warehouse/templates/manage/organization/history.html:115
 #: warehouse/templates/manage/team/history.html:43
@@ -9139,8 +9124,7 @@ msgstr "Quản lý '%(project_name)s'"
 msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/organization/publishing.html:208
 #: warehouse/templates/manage/project/publishing.html:191
@@ -9517,8 +9501,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Nếu đây là một lỗi, bạn có thể gửi email <a "
-"href=\"%(href)s\">%(email_address)s</a> để liên lạc với quản trị viên PyPI."
+"Nếu đây là một lỗi, bạn có thể gửi email <a href=\"%(href)s\">%"
+"(email_address)s</a> để liên lạc với quản trị viên PyPI."
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
@@ -9676,8 +9660,8 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a "
-"href=\"%(delete_href)s\">xóa dự án</a>"
+"<a href=\"%(transfer_href)s\"> chuyển quyền sở hữ</a> hoặc <a href=\"%"
+"(delete_href)s\">xóa dự án</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 #, fuzzy
@@ -9784,9 +9768,9 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading "
 "new documentation is no longer supported."
 msgstr ""
-"Nếu bạn muốn TIÊU HỦY bất kỳ tài liệu nào đang lưu trữ tại <a "
-"href=\"%(url)s\">%(url)s</a> <strong>không</strong> thể hoàn tác, vì việc "
-"tải lên tài liệu mới không được hỗ trợ nữa."
+"Nếu bạn muốn TIÊU HỦY bất kỳ tài liệu nào đang lưu trữ tại <a href=\"%(url)"
+"s\">%(url)s</a> <strong>không</strong> thể hoàn tác, vì việc tải lên tài "
+"liệu mới không được hỗ trợ nữa."
 
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Destroy Documentation for project"
@@ -9868,8 +9852,8 @@ msgstr "Tệp bị xóa khỏi bản phát hành phiên bản %(version)s"
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách "
-"%(role_name)s của dự án"
+"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách %(role_name)"
+"s của dự án"
 
 #: warehouse/templates/manage/project/history.html:123
 #, python-format
@@ -9880,8 +9864,7 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:130
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/project/history.html:137
 #, fuzzy, python-format
@@ -9900,8 +9883,7 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as project "
 "%(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/project/history.html:152
 #, fuzzy, python-format
@@ -9928,16 +9910,15 @@ msgstr ""
 #| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgid "%(team_name)s team added as project %(role_name)s"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách "
-"%(role_name)s của dự án"
+"<a href=\"%(href)s\">%(username)s</a> được thêm vào với tư cách %(role_name)"
+"s của dự án"
 
 #: warehouse/templates/manage/project/history.html:172
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid "%(team_name)s team changed to project %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+msgstr "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
 
 #: warehouse/templates/manage/project/history.html:180
 #, fuzzy, python-format
@@ -10418,10 +10399,10 @@ msgid ""
 "release or a <a href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
-"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"hoặc bằng cách sử dụng <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">dữ liệu công khai của chúng tôi trên Google BigQuery</a>"
+"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, hoặc bằng cách sử "
+"dụng <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">dữ liệu "
+"công khai của chúng tôi trên Google BigQuery</a>"
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10497,9 +10478,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"Tìm hiểu cách tạo bản phát hành mới tại <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Hướng dẫn đóng gói "
-"Python</a>"
+"Tìm hiểu cách tạo bản phát hành mới tại <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Hướng dẫn đóng gói Python</a>"
 
 #: warehouse/templates/manage/project/roles.html:5
 #, python-format
@@ -10709,14 +10689,14 @@ msgid ""
 msgstr ""
 "Để thiết lập mô tả, tác giả, liên kết, phân loại và các chi tiết khác cho "
 "bản phát hành tiếp theo của bạn trong dự án '%(project_name)s', sử dụng đối "
-"số <a href=\"%(setup_args_href)s\" rel=\"noopener\" "
-"target=\"_blank\"><code>setup()</code> trong tệp <code>setup.py</code>của "
-"bạn</a>. Việc cập nhật các trường này sẽ không thay đổi siêu dữ liệu cho các "
-"bản phát hành cũ. Ngoài ra, bạn <strong>phải</strong> sử dụng <a "
-"href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> để "
-"tải lên các tệp của bạn để có được hỗ trợ đầy đủ cho các trường này. Xem <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Hướng dẫn "
-"đóng gói Python</a> để được trợ giúp thêm."
+"số <a href=\"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\"><code>"
+"setup()</code> trong tệp <code>setup.py</code>của bạn</a>. Việc cập nhật các "
+"trường này sẽ không thay đổi siêu dữ liệu cho các bản phát hành cũ. Ngoài "
+"ra, bạn <strong>phải</strong> sử dụng <a href=\"%(twine_docs_href)s\" "
+"rel=\"noopener\" target=\"_blank\">Twine</a> để tải lên các tệp của bạn để "
+"có được hỗ trợ đầy đủ cho các trường này. Xem <a href=\"%(distribution_href)"
+"s\" rel=\"noopener\" target=\"_blank\">Hướng dẫn đóng gói Python</a> để được "
+"trợ giúp thêm."
 
 #: warehouse/templates/manage/project/settings.html:76
 #, fuzzy
@@ -10941,8 +10921,7 @@ msgstr "Xóa vĩnh viễn dự án"
 
 #: warehouse/templates/manage/project/settings.html:245
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
-msgstr ""
-"Cung cấp tên dự án cho <strong>bất kỳ người dùng PyPI</strong> nào khác"
+msgstr "Cung cấp tên dự án cho <strong>bất kỳ người dùng PyPI</strong> nào khác"
 
 #: warehouse/templates/manage/project/settings.html:248
 msgid ""
@@ -11191,10 +11170,10 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
-"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"hoặc bằng cách sử dụng <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">dữ liệu công khai của chúng tôi trên Google BigQuery</a>"
+"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, hoặc bằng cách sử "
+"dụng <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">dữ liệu "
+"công khai của chúng tôi trên Google BigQuery</a>"
 
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""
@@ -11528,9 +11507,9 @@ msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Nâng cấp trình duyệt của bạn </a> để thiết lập xác thực hai "
-"yếu tố với thiết bị bảo mật (ví dụ: Khóa USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Nâng cấp trình duyệt của bạn </a> để thiết lập xác thực hai yếu tố với thiết "
+"bị bảo mật (ví dụ: Khóa USB)"
 
 #: warehouse/templates/pages/sponsors.html:31
 msgid "Recent projects funded include:"
@@ -11555,10 +11534,10 @@ msgid ""
 "href=\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
-"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"hoặc bằng cách sử dụng <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">dữ liệu công khai của chúng tôi trên Google BigQuery</a>"
+"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, hoặc bằng cách sử "
+"dụng <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">dữ liệu "
+"công khai của chúng tôi trên Google BigQuery</a>"
 
 #: warehouse/templates/pages/sponsors.html:45
 msgid ""
@@ -11596,10 +11575,10 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> "
 "in 2019 and 2020"
 msgstr ""
-"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"hoặc bằng cách sử dụng <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">dữ liệu công khai của chúng tôi trên Google BigQuery</a>"
+"Xem thống kê cho dự án này qua <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, hoặc bằng cách sử "
+"dụng <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">dữ liệu "
+"công khai của chúng tôi trên Google BigQuery</a>"
 
 #: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
