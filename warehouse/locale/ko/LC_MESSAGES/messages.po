@@ -67,10 +67,10 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-11-09 13:41+0000\n"
-"Last-Translator: Jun-Seong Lee <leejs209@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
-">\n"
+"PO-Revision-Date: 2026-11-10 05:39+0000\n"
+"Last-Translator: Junwon Lee <cpprhtn@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/"
+"ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -122,6 +122,8 @@ msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
 msgstr ""
+"사용자 이름은 이메일 주소와 다릅니다. 이메일 주소 대신 사용자 이름을 "
+"입력하세요."
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
@@ -189,38 +191,29 @@ msgstr ""
 "다른 계정에서 이미 사용 중인 이메일 주소입니다. 다른 이메일을 사용해 주세요."
 
 #: warehouse/accounts/forms.py:468
-#, fuzzy, python-brace-format
-#| msgid "The email address isn't valid. Try again."
+#, python-brace-format
 msgid "Too many email addresses checked. Try again in ${time}."
-msgstr "유효하지 않은 이메일입니다. 다시 시도해 주세요."
+msgstr "이메일 주소 확인 요청이 너무 많습니다. ${time} 후에 다시 시도해 주세요."
 
 #: warehouse/accounts/forms.py:475
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "Too many email addresses checked. Try again later."
-msgstr "유효하지 않은 이메일입니다. 다시 시도해 주세요."
+msgstr "이메일 주소 확인 요청이 너무 많습니다. 나중에 다시 시도해 주세요."
 
 #: warehouse/accounts/forms.py:550
-#, fuzzy
-#| msgid ""
-#| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
-msgstr ""
-"이 도메인의 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
+msgstr "일회용 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "너무 긴 이름입니다. 100글자 이하의 이름을 입력해 주세요."
 
 #: warehouse/accounts/forms.py:590
-#, fuzzy
-#| msgid "Double dashes are not allowed in the name"
 msgid "URLs are not allowed in the name field."
-msgstr "'--'는 이름에서 허용되지 않습니다."
+msgstr "이름 필드에는 URL을 입력할 수 없습니다."
 
 #: warehouse/accounts/forms.py:600
 msgid "You must agree to the Terms of Service and Acceptable Use Policy."
-msgstr ""
+msgstr "서비스 이용약관 및 운영정책에 동의해야 합니다."
 
 #: warehouse/accounts/forms.py:688
 msgid "Invalid TOTP code."
@@ -1781,7 +1774,7 @@ msgstr "PyPI 탐색 사용 방법"
 #: warehouse/templates/base.html:473
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
-msgstr "이용 약관"
+msgstr "이용약관"
 
 #: warehouse/templates/base.html:476
 msgid "Report security issue"
