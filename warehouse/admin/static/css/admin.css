@@ -42,6 +42,11 @@ table.dataTable {
   border-top: 0;
 }
 
+/* Tabulator greys every <span> in a group header, which includes badges. */
+.tabulator-row.tabulator-group .badge {
+  color: #fff;
+}
+
 .preserve-line-breaks {
   white-space: pre-line;
 }
