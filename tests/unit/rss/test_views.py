@@ -2,7 +2,6 @@
 
 import datetime as dt
 
-import pretend
 import pytest
 
 from warehouse.rss import views as rss
@@ -21,14 +20,6 @@ def _assert_has_cors_headers(headers):
 
 
 def test_rss_updates(db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
-    db_request.session = pretend.stub()
-
     project1 = ProjectFactory.create()
     project2 = ProjectFactory.create()
 
@@ -54,14 +45,6 @@ def test_rss_updates(db_request):
 
 
 def test_rss_packages(db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
-    db_request.session = pretend.stub()
-
     project1 = ProjectFactory.create()
     project1.created = dt.date(2011, 1, 1)
     ReleaseFactory.create(project=project1)
@@ -81,14 +64,6 @@ def test_rss_packages(db_request):
 
 
 def test_rss_project_releases(db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
-    db_request.session = pretend.stub()
-
     project = ProjectFactory.create()
 
     release_v1 = ReleaseFactory.create(project=project, version="1.0.0")
@@ -139,13 +114,6 @@ def test_rss_project_releases(db_request):
     ],
 )
 def test_format_author(db_request, author_email, expected):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-    db_request.session = pretend.stub()
-
     release = ReleaseFactory.create()
 
     release.author_email = author_email

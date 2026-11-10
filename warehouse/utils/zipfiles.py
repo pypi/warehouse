@@ -184,9 +184,10 @@ def _handle_central_directory_header(fp: typing.IO[bytes]) -> tuple[bytes, bytes
     return filename, extra
 
 
-def _handle_eocd(fp: typing.IO[bytes]) -> tuple[int, int, int]:
+def _handle_eocd(fp: typing.IO[bytes]) -> tuple[tuple[int, int, int], bytes]:
     """
     Parses the body of an End of Central Directory (EOCD) record.
+    Returns the central directory fields and the archive comment.
 
     See section 4.3.16 of APPNOTE.TXT.
     """
@@ -200,8 +201,8 @@ def _handle_eocd(fp: typing.IO[bytes]) -> tuple[int, int, int]:
     ) = struct.unpack("<xxxxHHLLH", data)
     if cd_records_on_disk != cd_records:
         raise InvalidZipFileError("Malformed zip file")
-    _seek_check(fp, comment_size)
-    return cd_records, cd_size, cd_offset
+    comment = _read_check(fp, comment_size)
+    return (cd_records, cd_size, cd_offset), comment
 
 
 def _handle_eocd64(fp: typing.IO[bytes]) -> tuple[int, int, int]:
@@ -233,7 +234,7 @@ def _handle_eocd64_locator(fp: typing.IO[bytes]) -> int:
     return eocd64_offset
 
 
-def _validate_zipfile(archive: zipfile.ZipFile) -> tuple[bool, str | None]:
+def _validate_zipfile(archive: zipfile.ZipFile, *, metrics) -> tuple[bool, str | None]:
     """
     Validates that a ZIP file would parse the same through
     a ZIP implementation that checks the Central Directory
@@ -336,10 +337,9 @@ def _validate_zipfile(archive: zipfile.ZipFile) -> tuple[bool, str | None]:
 
                     # If this archive is ZIP64 we use the values
                     # from the EOCD64 values, otherwise use EOCD values.
-                    if actual_eocd64_offset is not None and eocd_cd_offset is not None:
-                        _handle_eocd(fp)
-                    else:
-                        eocd_cd_records, eocd_cd_size, eocd_cd_offset = _handle_eocd(fp)
+                    eocd_values, comment = _handle_eocd(fp)
+                    if actual_eocd64_offset is None or eocd_cd_offset is None:
+                        eocd_cd_records, eocd_cd_size, eocd_cd_offset = eocd_values
 
                     if eocd_cd_records != cd_records:
                         raise InvalidZipFileError(
@@ -391,19 +391,29 @@ def _validate_zipfile(archive: zipfile.ZipFile) -> tuple[bool, str | None]:
         if cur != fp.tell():
             return False, "Trailing data"
 
+        # zipfile searches backward and can mistake this signature in the
+        # comment for the EOCD. Use the comment from the forward parser.
+        if RECORD_SIG_EOCD in comment:
+            return False, "EOCD signature in archive comment"
+        if comment and metrics is not None:
+            metrics.increment(
+                "warehouse.upload.zipfile.policy_error",
+                tags=["reason:archive-comment"],
+            )
+
         return True, None
     finally:
         fp.seek(original_position)
 
 
 def validate_zipfile(
-    archive: str | zipfile.ZipFile,
+    archive: str | zipfile.ZipFile, *, metrics=None
 ) -> tuple[bool, str | None]:
     if isinstance(archive, zipfile.ZipFile):
-        return _validate_zipfile(archive)
+        return _validate_zipfile(archive, metrics=metrics)
     try:
         with zipfile.ZipFile(archive, mode="r") as zip_archive:
-            return _validate_zipfile(zip_archive)
+            return _validate_zipfile(zip_archive, metrics=metrics)
     except zipfile.BadZipFile as exc:
         return False, str(exc)
 
