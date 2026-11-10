@@ -4,14 +4,15 @@
 # Anonymous <anonymous@users.noreply.hosted.weblate.org>, 2026.
 # Ville Skyttä <scop@users.noreply.hosted.weblate.org>, 2026.
 # Markus Mikkonen <markusmikkonen@users.noreply.hosted.weblate.org>, 2026.
+# GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-05-02 23:30+0200\n"
-"PO-Revision-Date: 2026-11-09 13:45+0000\n"
-"Last-Translator: Markus Mikkonen "
-"<markusmikkonen@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-10 14:23+0000\n"
+"Last-Translator: GitHub webhook <noreply-webhook-github-"
+"integration@weblate.org>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fi/>\n"
 "Language: fi\n"
@@ -1515,9 +1516,9 @@ msgid ""
 msgstr ""
 "Harkitse <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">auttamista</a> tai <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" "
-"rel=\"noopener\">lahjoittamista</a> auttaksesi meitä rakentamaan vakaamman "
-"ja turvallisemman alustan."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">"
+"lahjoittamista</a> auttaksesi meitä rakentamaan vakaamman ja turvallisemman "
+"alustan."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -1695,8 +1696,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a> and Python "
 "community, for the Python community."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/base.html:370
@@ -1857,8 +1858,8 @@ msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>%(sha)s</code></a>"
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/confirm-action.html:4
@@ -1895,8 +1896,7 @@ msgstr "Testaa Python-pakettijulkaisua Python Package Index:n testiversiolla"
 
 #: warehouse/templates/index.html:22
 msgid "Find, install and publish Python packages with the Python Package Index"
-msgstr ""
-"Etsi, asenna ja julkaise Python-paketteja Python Package Index:n avulla"
+msgstr "Etsi, asenna ja julkaise Python-paketteja Python Package Index:n avulla"
 
 #: warehouse/templates/index.html:49
 #, python-format
@@ -2133,8 +2133,8 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/upload.html:17
@@ -2556,8 +2556,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"Sähköpostiviestissä on linkki salasanan nollaamiseen. Tämä linkki vanhenee "
-"%(n_hours)s tunnissa."
+"Sähköpostiviestissä on linkki salasanan nollaamiseen. Tämä linkki vanhenee %"
+"(n_hours)s tunnissa."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -3845,8 +3845,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Service "
 "Agreement Interest</a> survey and we'll follow up."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:23
@@ -3979,8 +3979,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">package formats "
 "documentation</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/includes/packaging/project-files.html:17
@@ -6538,8 +6538,8 @@ msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">not be able to re-upload any deleted versions</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/manage/manage_base.html:518
@@ -6559,8 +6559,8 @@ msgid ""
 "href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">under some "
 "circumstances</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/manage/manage_base.html:530
@@ -8449,8 +8449,8 @@ msgid ""
 "how to create a new project, visit the <a href=\"%(href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/manage/organization/projects.html:88
@@ -9705,8 +9705,8 @@ msgid ""
 "release or a <a href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guidessa</a>."
 
 #: warehouse/templates/manage/project/releases.html:6
