@@ -4899,7 +4899,7 @@ class TestConfirmLogin:
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
         if remember_device:
             _remember_device.assert_called_once_with(
-                confirm_request, result, user.id, "email-confirmation"
+                confirm_request, result, user.id, "totp"
             )
         else:
             _remember_device.assert_not_called()

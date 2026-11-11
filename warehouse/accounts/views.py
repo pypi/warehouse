@@ -1117,7 +1117,7 @@ def confirm_login(request):
     _set_userid_insecure_cookie(resp, user.id)
     # TokenService.dumps stringifies values, so the flag round-trips as "True"
     if data.get("remember_device") == "True":
-        _remember_device(request, resp, user.id, "email-confirmation")
+        _remember_device(request, resp, user.id, "totp")
     request.session.flash(
         request._("Your login has been confirmed and this device is now recognized."),
         queue="success",
