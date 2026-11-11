@@ -149,6 +149,26 @@ def test_unrecognized_login_remember_device_via_email_link(webtest, mocker):
     )
     assert len(unique_logins) == 1
 
+    # Manually logging out deletes the remembered-device cookie, requiring 2FA
+    # on the next login
+    logout_page = webtest.get("/account/logout/", status=HTTPStatus.OK)
+    logout_form = next(
+        form
+        for form in logout_page.forms.values()
+        if form.action.endswith("/account/logout/")
+    )
+    resp = logout_form.submit()
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert "remember_device" not in webtest.cookies
+
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    resp = login_form.submit()
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert resp.headers["Location"].startswith("http://localhost/account/two-factor/")
+
 
 def test_frozen_user_remember_device_via_email_link(webtest, mocker):
     """

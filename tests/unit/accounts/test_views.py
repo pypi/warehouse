@@ -1740,6 +1740,12 @@ class TestLogout:
         forget = mocker.patch.object(
             views, "forget", autospec=True, return_value=[("foo", "bar")]
         )
+        mocker.patch.object(
+            pyramid_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/login/",
+        )
 
         pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
@@ -1753,6 +1759,18 @@ class TestLogout:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert result.headers["foo"] == "bar"
+        set_cookies = result.headers.getall("Set-Cookie")
+        assert any(
+            cookie.startswith("user_id__insecure=; Max-Age=0; Path=/;")
+            for cookie in set_cookies
+        )
+        assert any(
+            cookie.startswith(
+                f"{REMEMBER_DEVICE_COOKIE}=; Max-Age=0; Path=/account/login/;"
+            )
+            for cookie in set_cookies
+        )
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         forget.assert_called_once_with(pyramid_request)
         pyramid_request.session.invalidate.assert_called_once_with()
         security_policy.reset.assert_called_once_with(pyramid_request)
@@ -1768,8 +1786,14 @@ class TestLogout:
         ],
     )
     def test_post_redirects_user(
-        self, pyramid_request, expected_next_url, observed_next_url
+        self, pyramid_request, expected_next_url, observed_next_url, mocker
     ):
+        mocker.patch.object(
+            pyramid_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/login/",
+        )
         pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url

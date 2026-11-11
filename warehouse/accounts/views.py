@@ -729,9 +729,13 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # where they were originally, or to the default view.
         resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-        # Ensure that we delete our user_id__insecure cookie, since the user is
-        # no longer logged in.
+        # Ensure that we delete our user_id__insecure and remember_device
+        # cookies, since the user is no longer logged in.
         resp.delete_cookie(USER_ID_INSECURE_COOKIE)
+        resp.delete_cookie(
+            REMEMBER_DEVICE_COOKIE,
+            path=request.route_path("accounts.login"),
+        )
 
         return resp
 
