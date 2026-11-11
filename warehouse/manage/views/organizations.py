@@ -1925,14 +1925,15 @@ class ManageOrganizationPublishingViews:
         if self.request.flags.disallow_oidc(admin_flag):
             self.request.session.flash(
                 self.request._(
-                    f"{publisher_name}-based trusted publishing is temporarily "
+                    "${publisher_name}-based trusted publishing is temporarily "
                     "disabled. See ${docs_url} for "
                     "details.",
                     mapping={
+                        "publisher_name": publisher_name,
                         "docs_url": self.request.user_docs_url(
                             "/about/security-and-internals/",
                             anchor="temporarily-disabled-features",
-                        )
+                        ),
                     },
                 ),
                 queue="error",
@@ -2069,8 +2070,12 @@ class ManageOrganizationPublishingViews:
         self.request.session.flash(
             self.request._(
                 "Registered a new pending publisher to create "
-                f"the project '{pending_publisher.project_name}' "
-                f"owned by the '{self.organization.name}' organization."
+                "the project '${project_name}' "
+                "owned by the '${organization_name}' organization.",
+                mapping={
+                    "project_name": pending_publisher.project_name,
+                    "organization_name": self.organization.name,
+                },
             ),
             queue="success",
         )
