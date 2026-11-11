@@ -43,7 +43,7 @@ paginate_sqlalchemy
 # TODO: libpass is a fork of passlib with the same import name. Switch back to passlib
 #       once it has a release past 1.7.4: https://github.com/notypecheck/passlib
 libpass>=1.9.4
-platformdirs>=4.14.3
+platformdirs>=4.14.4
 premailer
 psycopg[binary]
 pydantic
@@ -68,7 +68,7 @@ rfc3986
 sentry-sdk
 # TODO: 0.0.30 adds CircleCIPublisher to the Publisher union, which the
 # exhaustive match in warehouse/attestations/models.py has no arm for.
-pypi-attestations<0.0.30
+pypi-attestations<0.0.32
 sqlalchemy[asyncio]
 stdlib-list
 stripe
