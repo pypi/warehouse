@@ -548,12 +548,17 @@ def _check_remember_device_token(request, user_id) -> str | None:
     if not remember_device_token:
         return None
     token_service = request.find_service(ITokenService, name="remember_device")
+    user_service = request.find_service(IUserService, context=None)
     try:
         data = token_service.loads(remember_device_token)
         user_id_token = data.get("user_id")
-        if user_id_token == str(user_id):
-            return data.get("two_factor_method", "totp")
-        return None
+        if user_id_token != str(user_id):
+            return None
+        if data.get("password_timestamp") != str(
+            user_service.get_password_timestamp(user_id)
+        ):
+            return None
+        return data.get("two_factor_method", "totp")
     except TokenException:
         return None
 
@@ -562,9 +567,12 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
     """
     Generates and sets a cookie for remembering this device.
     """
+    # Not `request.user`: right after login it is `None` for a frozen account.
+    user_service = request.find_service(IUserService, context=None)
     remember_device_data = {
         "user_id": str(userid),
         "two_factor_method": two_factor_method,
+        "password_timestamp": user_service.get_password_timestamp(userid),
     }
     token_service = request.find_service(ITokenService, name="remember_device")
     token = token_service.dumps(remember_device_data)
@@ -577,8 +585,6 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
         samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
-    # Not `request.user`: right after login it is `None` for a frozen account.
-    user_service = request.find_service(IUserService, context=None)
     user_service.get_user(userid).record_event(
         tag=EventTag.Account.TwoFactorDeviceRemembered,
         request=request,

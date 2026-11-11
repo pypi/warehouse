@@ -630,6 +630,7 @@ class TestLogin:
     def test_login_with_remembered_device_confirms_unique_login(
         self,
         db_request,
+        user_service,
         remember_device_token_service,
         breach_service,
         form_class,
@@ -653,7 +654,11 @@ class TestLogin:
 
         db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
             remember_device_token_service.dumps(
-                {"user_id": user.id, "two_factor_method": "webauthn"}
+                {
+                    "user_id": user.id,
+                    "two_factor_method": "webauthn",
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                }
             )
         )
         db_request.method = "POST"
@@ -681,6 +686,7 @@ class TestLogin:
     def test_login_with_totp_remembered_device_does_not_confirm_unique_login(
         self,
         db_request,
+        user_service,
         remember_device_token_service,
         breach_service,
         form_class,
@@ -704,7 +710,11 @@ class TestLogin:
 
         db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
             remember_device_token_service.dumps(
-                {"user_id": user.id, "two_factor_method": "totp"}
+                {
+                    "user_id": user.id,
+                    "two_factor_method": "totp",
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                }
             )
         )
         db_request.method = "POST"
@@ -1306,18 +1316,30 @@ class TestRememberDevice:
     @pytest.mark.parametrize(
         ("token_data", "expected"),
         [
-            ({"user_id": 1}, "totp"),
-            ({"user_id": 1, "two_factor_method": "totp"}, "totp"),
-            ({"user_id": 1, "two_factor_method": "webauthn"}, "webauthn"),
+            ({}, "totp"),
+            ({"two_factor_method": "totp"}, "totp"),
+            ({"two_factor_method": "webauthn"}, "webauthn"),
         ],
     )
     def test_check_remember_device_token_valid(
-        self, pyramid_request, remember_device_token_service, token_data, expected
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        token_data,
+        expected,
     ):
+        user = UserFactory.create()
         pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
-            remember_device_token_service.dumps(token_data)
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    **token_data,
+                }
+            )
         )
-        assert views._check_remember_device_token(pyramid_request, 1) == expected
+        assert views._check_remember_device_token(pyramid_request, user.id) == expected
 
     def test_check_remember_device_token_invalid_no_cookie(self, pyramid_request):
         assert views._check_remember_device_token(pyramid_request, 1) is None
@@ -1336,8 +1358,40 @@ class TestRememberDevice:
         )
         assert views._check_remember_device_token(pyramid_request, 1) is None
 
+    @pytest.mark.parametrize("action", ["missing", "reset", "disable"])
+    def test_check_remember_device_token_invalid_password_changed(
+        self,
+        db_request,
+        user_service,
+        remember_device_token_service,
+        action,
+    ):
+        user = UserFactory.create(
+            clear_pwd="password",
+            password_date=dt.datetime(2020, 1, 1, tzinfo=dt.UTC),
+        )
+        token_data = {"user_id": user.id, "two_factor_method": "totp"}
+        if action != "missing":
+            token_data["password_timestamp"] = user_service.get_password_timestamp(
+                user.id
+            )
+        db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(token_data)
+        )
+
+        if action == "reset":
+            user_service.update_user(user.id, password="new-password")
+            db_request.db.flush()
+            db_request.db.refresh(user)
+        elif action == "disable":
+            user_service.disable_password(user.id, db_request)
+            db_request.db.flush()
+            db_request.db.refresh(user)
+
+        assert views._check_remember_device_token(db_request, user.id) is None
+
     def test_remember_device(
-        self, pyramid_request, remember_device_token_service, mocker
+        self, pyramid_request, user_service, remember_device_token_service, mocker
     ):
         mocker.spy(remember_device_token_service, "dumps")
         pyramid_request.scheme = "https"
@@ -1356,7 +1410,11 @@ class TestRememberDevice:
         views._remember_device(pyramid_request, response, user.id, "webauthn")
 
         remember_device_token_service.dumps.assert_called_once_with(
-            {"user_id": str(user.id), "two_factor_method": "webauthn"}
+            {
+                "user_id": str(user.id),
+                "two_factor_method": "webauthn",
+                "password_timestamp": user_service.get_password_timestamp(user.id),
+            }
         )
         response.set_cookie.assert_called_once_with(
             REMEMBER_DEVICE_COOKIE,
