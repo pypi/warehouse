@@ -2,7 +2,6 @@
 
 from types import SimpleNamespace
 
-import pretend
 import psycopg
 import pytest
 
@@ -750,7 +749,7 @@ class TestCircleCIPublisher:
         check = CircleCIPublisher.__optional_verifiable_claims__[
             "oidc.circleci.com/context-ids"
         ]
-        assert check(truth, claim, pretend.stub()) is valid
+        assert check(truth, claim, {}) is valid
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
@@ -768,7 +767,7 @@ class TestCircleCIPublisher:
         check = CircleCIPublisher.__optional_verifiable_claims__[
             "oidc.circleci.com/vcs-ref"
         ]
-        assert check(truth, claim, pretend.stub()) is valid
+        assert check(truth, claim, {}) is valid
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
@@ -786,7 +785,7 @@ class TestCircleCIPublisher:
         check = CircleCIPublisher.__optional_verifiable_claims__[
             "oidc.circleci.com/vcs-origin"
         ]
-        assert check(truth, claim, pretend.stub()) is valid
+        assert check(truth, claim, {}) is valid
 
 
 class TestPendingCircleCIPublisher:
