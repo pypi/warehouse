@@ -643,6 +643,7 @@ class TestLogin:
         )
 
         user = UserFactory.create(with_terms_of_service_agreement=True)
+        WebAuthnFactory.create(user=user)
         mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
         if has_pending_login:
@@ -658,6 +659,9 @@ class TestLogin:
                     "user_id": user.id,
                     "two_factor_method": "webauthn",
                     "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, "webauthn"
+                    ),
                 }
             )
         )
@@ -714,6 +718,7 @@ class TestLogin:
                     "user_id": user.id,
                     "two_factor_method": "totp",
                     "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(user, "totp"),
                 }
             )
         )
@@ -1330,16 +1335,50 @@ class TestRememberDevice:
         expected,
     ):
         user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
         pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
             remember_device_token_service.dumps(
                 {
                     "user_id": user.id,
                     "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(user, expected),
                     **token_data,
                 }
             )
         )
         assert views._check_remember_device_token(pyramid_request, user.id) == expected
+
+    @pytest.mark.parametrize("two_factor_method", ["totp", "webauthn"])
+    def test_check_remember_device_token_valid_when_other_method_changes(
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        two_factor_method,
+    ):
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": two_factor_method,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, two_factor_method
+                    ),
+                }
+            )
+        )
+        if two_factor_method == "totp":
+            WebAuthnFactory.create(user=user)
+        else:
+            user.totp_secret = b"rotated-totp-secret"
+
+        assert (
+            views._check_remember_device_token(pyramid_request, user.id)
+            == two_factor_method
+        )
 
     def test_check_remember_device_token_invalid_no_cookie(self, pyramid_request):
         assert views._check_remember_device_token(pyramid_request, 1) is None
@@ -1390,6 +1429,49 @@ class TestRememberDevice:
 
         assert views._check_remember_device_token(db_request, user.id) is None
 
+    @pytest.mark.parametrize(
+        ("two_factor_method", "action"),
+        [
+            ("totp", "rotate"),
+            ("totp", "delete"),
+            ("webauthn", "rotate"),
+            ("webauthn", "delete"),
+        ],
+    )
+    def test_check_remember_device_token_invalid_two_factor_changed(
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        two_factor_method,
+        action,
+    ):
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": two_factor_method,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, two_factor_method
+                    ),
+                }
+            )
+        )
+
+        if two_factor_method == "totp" and action == "rotate":
+            user.totp_secret = b"rotated-totp-secret"
+        elif two_factor_method == "totp" and action == "delete":
+            user.totp_secret = None
+        elif two_factor_method == "webauthn" and action == "rotate":
+            WebAuthnFactory.create(user=user)
+        else:
+            user.webauthn.clear()
+
+        assert views._check_remember_device_token(pyramid_request, user.id) is None
+
     def test_remember_device(
         self, pyramid_request, user_service, remember_device_token_service, mocker
     ):
@@ -1400,6 +1482,7 @@ class TestRememberDevice:
         )
         # request.user stays None, as it does right after login for a frozen user
         user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
         mocker.patch.object(user, "record_event", autospec=True)
         pyramid_request.registry.settings = {
             "remember_device.seconds": dt.timedelta(days=30).total_seconds()
@@ -1414,6 +1497,7 @@ class TestRememberDevice:
                 "user_id": str(user.id),
                 "two_factor_method": "webauthn",
                 "password_timestamp": user_service.get_password_timestamp(user.id),
+                "two_factor_state": views._two_factor_method_state(user, "webauthn"),
             }
         )
         response.set_cookie.assert_called_once_with(
