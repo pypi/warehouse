@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 import time
 
-from base64 import b32encode
+from base64 import b32decode
 from urllib.parse import parse_qsl
 
 import pytest
@@ -25,7 +26,12 @@ def test_generate_totp_secret():
 
 
 def test_generate_totp_provisioning_uri():
-    secret = b"F" * 32
+    """
+    The URI follows the Key URI Format that authenticator apps parse.
+
+    See: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+    """
+    secret = otp.generate_totp_secret()
     username = "pony"
     issuer_name = "pypi.org"
     uri = otp.generate_totp_provisioning_uri(secret, username, issuer_name=issuer_name)
@@ -36,13 +42,37 @@ def test_generate_totp_provisioning_uri():
     assert parsed.netloc == "totp"
     assert parsed.path == f"/{issuer_name}:{username}"
 
-    query = parse_qsl(parsed.query)
+    query = dict(parse_qsl(parsed.query))
 
-    assert ("digits", "6") in query
-    assert ("secret", b32encode(secret).decode()) in query
-    assert ("algorithm", "SHA1") in query
-    assert ("issuer", issuer_name) in query
-    assert ("period", "30") in query
+    assert query["digits"] == "6"
+    assert query["algorithm"] == "SHA1"
+    assert query["issuer"] == issuer_name
+    assert query["period"] == "30"
+    # A 160-bit secret encodes to base32 with no padding, which the format
+    # asks for; `cryptography` does not strip padding for other lengths.
+    assert re.fullmatch(r"[A-Z2-7]+", query["secret"])
+    assert b32decode(query["secret"]) == secret
+
+
+@pytest.mark.parametrize(
+    ("timestamp", "expected"),
+    [
+        (59, "287082"),
+        (1111111109, "081804"),
+        (1111111111, "050471"),
+        (1234567890, "005924"),
+        (2000000000, "279037"),
+        (20000000000, "353130"),
+    ],
+)
+def test_totp_rfc6238_test_vectors(timestamp, expected):
+    """
+    The SHA1 test vectors from RFC 6238, truncated to our 6 digits.
+
+    See: https://datatracker.ietf.org/doc/html/rfc6238#appendix-B
+    """
+    totp = otp._get_totp(b"12345678901234567890")
+    assert totp.generate(timestamp).decode() == expected
 
 
 @pytest.mark.parametrize("skew", [0, -20, 20])

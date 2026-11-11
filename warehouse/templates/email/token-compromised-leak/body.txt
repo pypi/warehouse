@@ -60,7 +60,7 @@ for unintentional {{ site_name }} token publications and warns us every time it 
 one. We check every disclosure we receive and take action when the token appears valid.
 
 {% endif %}
-For more information, see our FAQ at {{ request.help_url(_anchor='compromised-token') }}
+For more information, see the PyPI user documentation at {{ request.user_docs_url('/your-account/security-alerts/', anchor='compromised-api-tokens') }}
 
 For help, you can send an email to admin@pypi.org to communicate with the PyPI
 administrators.

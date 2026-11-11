@@ -2,7 +2,7 @@
 
 import base64
 import builtins
-import datetime
+import datetime as dt
 import gzip
 import hashlib
 import io
@@ -86,6 +86,14 @@ def _get_tar_testdata(compression_type=""):
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.MIT")
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.APACHE")
     return temp_f.getvalue()
+
+
+def _get_zip_sdist_testdata():
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as archive:
+        archive.writestr("fake_package-1.0/PKG-INFO", b"metadata")
+        archive.comment = b"archive comment"
+    return buf.getvalue()
 
 
 def _get_whl_testdata(name="fake_package", version="1.0"):
@@ -255,29 +263,99 @@ class TestCloseUploadTempfiles:
 
         close.assert_not_called()
 
+    @staticmethod
+    def _consumed_upload(pyramid_request, attempt):
+        """Put a fully-read upload on the request at the given retry attempt."""
+        content = _content_field(file=io.BytesIO(b"dist"))
+        content.file.read()
+        pyramid_request.POST = {"content": content}
+        pyramid_request.body_file_raw = io.BytesIO()
+        pyramid_request.environ.update({"retry.attempt": attempt, "retry.attempts": 3})
+        return content.file, pyramid_request.body_file_raw
+
+    def test_rewinds_instead_of_closing_when_attempt_will_be_retried(
+        self, pyramid_request
+    ):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not upload.closed
+        assert upload.tell() == 0
+        assert not body_file.closed
+
+    def test_rewinds_when_squashed_retryable_error_will_be_retried(
+        self, pyramid_request
+    ):
+        # An exception view rendered the error, so it's on request.exception.
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+        pyramid_request.exception = psycopg.IntegrityError()
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not upload.closed
+        assert upload.tell() == 0
+        assert not body_file.closed
+
+    def test_retry_without_content_field(self, pyramid_request):
+        pyramid_request.POST = {}
+        pyramid_request.body_file_raw = io.BytesIO()
+        pyramid_request.environ.update({"retry.attempt": 0, "retry.attempts": 3})
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert not pyramid_request.body_file_raw.closed
+
+    def test_closes_when_error_is_not_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+
+        try:
+            raise HTTPBadRequest
+        except HTTPBadRequest:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
+    def test_closes_when_squashed_error_is_not_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=0)
+        pyramid_request.exception = HTTPBadRequest()
+
+        legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
+    def test_closes_on_last_attempt_even_if_error_is_retryable(self, pyramid_request):
+        upload, body_file = self._consumed_upload(pyramid_request, attempt=2)
+
+        try:
+            raise psycopg.IntegrityError
+        except psycopg.IntegrityError:
+            legacy._close_upload_tempfiles(pyramid_request)
+
+        assert upload.closed
+        assert body_file.closed
+
 
 class TestFileValidation:
     def test_open_dist_file_rejects_unsupported_extension(self):
         with pytest.raises(ValueError, match="Unsupported distribution file"):
             legacy._open_dist_file("test.exe", ExitStack())
 
-    def test_defaults_to_true(self):
-        assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
-
-    @pytest.mark.parametrize(
-        ("filename", "filetype"),
-        [
-            ("test.zip", "sdist"),
-            ("test.whl", "bdist_wheel"),
-        ],
-    )
-    def test_bails_with_invalid_zipfile(self, tmpdir, filename, filetype):
-        f = str(tmpdir.join(filename))
+    def test_bails_with_invalid_zipfile(self, tmpdir):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with open(f, "wb") as fp:
             fp.write(b"this isn't a valid zip file")
 
-        assert legacy._is_valid_dist_file(f, filetype, NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File is not a zipfile",
         )
@@ -396,62 +474,52 @@ class TestFileValidation:
             None,
         )
 
-    def test_zip_no_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+    def test_zip_sdist_unsupported(self, tmp_path):
+        filename = tmp_path / "test-1.0.zip"
+        with zipfile.ZipFile(filename, "w") as archive:
+            archive.writestr("test-1.0/PKG-INFO", b"this is the package info")
 
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("package/something.txt", b"Just a placeholder file")
-            zfp.writestr("package/else.txt", b"Just a placeholder file")
-
-        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(str(filename), "sdist", NullMetrics()) == (
             False,
-            "PKG-INFO not found at package/PKG-INFO",
+            "Unsupported distribution file extension",
         )
 
-    def test_zip_has_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("package/something.txt", b"Just a placeholder file")
-            zfp.writestr("package/PKG-INFO", b"this is the package info")
-
-        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (True, None)
-
     def test_zipfile_supported_compression(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
-            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (True, None)
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
 
     @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
     def test_zipfile_unsupported_compression(self, tmpdir, method):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
-            zfp.writestr("test-1.0/3.txt", b"3", method)
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("data.txt", b"3", method)
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File does not use a supported compression type",
         )
 
     def test_zipfile_exceeds_compression_threshold(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
             zfp.writestr(
                 "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
             )
 
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "File exceeds compression ratio of 50",
         )
@@ -467,17 +535,22 @@ class TestFileValidation:
             "WHEEL not found at test-1.0.dist-info/WHEEL",
         )
 
-    def test_wheel_has_wheel_file(self, tmpdir):
+    @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
+    def test_wheel_archive_comment(self, tmpdir, metrics, comment):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("data.bin", b"PK\x05\x06")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
+            zfp.comment = comment
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
-            True,
-            None,
-        )
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", metrics) == (True, None)
+        if comment:
+            metrics.increment.assert_called_once_with(
+                "warehouse.upload.zipfile.policy_error", tags=["reason:archive-comment"]
+            )
+        else:
+            metrics.increment.assert_not_called()
 
     def test_invalid_wheel_filename(self, tmpdir):
         f = str(tmpdir.join("cheese.whl"))
@@ -491,35 +564,20 @@ class TestFileValidation:
             "Unable to parse name and version from wheel filename",
         )
 
-    def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
-        tar_fn = str(tmpdir.join("test.tar.gz"))
-        data_file = str(tmpdir.join("dummy_data"))
-
-        with open(data_file, "wb") as fp:
-            fp.write(b"Dummy data file.")
-
+    @pytest.mark.parametrize(
+        "members",
+        [(), ("package/PKG-INFO", "notpackage/test.txt")],
+        ids=["empty", "multiple-roots"],
+    )
+    def test_incorrect_number_of_top_level_directories_sdist_tar(
+        self, tmp_path, members
+    ):
+        tar_fn = str(tmp_path / "test.tar.gz")
         with tarfile.open(tar_fn, "w:gz") as tar:
-            tar.add(data_file, arcname="package/module.py")
-            tar.add(data_file, arcname="package/PKG-INFO")
-            tar.add(data_file, arcname="package/data_file.txt")
-            tar.add(data_file, arcname="notpackage/test.txt")
+            for name in members:
+                tar.addfile(tarfile.TarInfo(name))
 
         assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
-            False,
-            "Incorrect number of top-level directories in sdist",
-        )
-
-    def test_incorrect_number_of_top_level_directories_sdist_zip(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
-            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
-            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
-            zfp.writestr("notpackage/test.txt", b"2", zipfile.ZIP_DEFLATED)
-
-        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
@@ -609,12 +667,51 @@ class TestFileValidation:
                 "See https://docs.pypi.org/archives for more information"
             ),
         )
-        assert increment.call_args_list == [
-            mock.call(
-                "warehouse.upload.tarfile.policy_error",
-                tags=["reason:sparse-member"],
-            )
-        ]
+        metric = mock.call(
+            "warehouse.upload.tarfile.policy_error",
+            tags=["reason:sparse-member"],
+        )
+        assert metric in increment.call_args_list
+
+    def test_invalid_tar_identity(self, tmp_path, mocker):
+        tar_fn = tmp_path / "test.tar.gz"
+        metrics = NullMetrics()
+        increment = mocker.spy(metrics, "increment")
+
+        sink = io.BytesIO()
+        with tarfile.open(fileobj=sink, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+        # tarfile cannot write V7 headers, so clear the UStar magic and version.
+        raw = sink.getbuffer()
+        raw[257:265] = b"\x00" * 8
+        # The tar checksum counts its own field as eight spaces.
+        raw[148:156] = b" " * 8
+        checksum = sum(raw[: tarfile.BLOCKSIZE])
+        raw[148:156] = f"{checksum:06o}\0 ".encode("ascii")
+        tar_fn.write_bytes(gzip.compress(raw))
+
+        assert legacy._is_valid_dist_file(
+            str(tar_fn),
+            "sdist",
+            metrics,
+            scan=False,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: must be pax. "
+                "See https://docs.pypi.org/archives"
+                "#source-distributions-must-be-in-pax-format for more information"
+            ),
+        )
+        metric = mock.call(
+            "warehouse.upload.tarfile.policy_error",
+            tags=["reason:unknown-header"],
+        )
+        assert metric in increment.call_args_list
 
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
@@ -718,7 +815,7 @@ class TestFileValidation:
         tar_buf = io.BytesIO()
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, "w") as zfp:
-            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("package-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
         with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
             data_file = tmpdir.join("data-file.txt")
             with open(data_file, "wb") as f:
@@ -726,13 +823,16 @@ class TestFileValidation:
             tar: tarfile.TarFile
             tar.add(data_file, arcname="package/PKG-INFO")
 
-        for filename in ("package.tar.gz", "package.zip"):
+        for filename, filetype in (
+            ("package-1.0.tar.gz", "sdist"),
+            ("package-1.0-py3-none-any.whl", "bdist_wheel"),
+        ):
             tar_zip = str(tmpdir.join(filename))
             with open(tar_zip, "wb") as fp:
                 fp.write(tar_buf.getvalue())
                 fp.write(zip_buf.getvalue())
 
-            assert legacy._is_valid_dist_file(tar_zip, "", NullMetrics()) == (
+            assert legacy._is_valid_dist_file(tar_zip, filetype, NullMetrics()) == (
                 False,
                 "File is both a zip and a tar file",
             )
@@ -883,13 +983,8 @@ class TestIsDuplicateFile:
 
 class TestFileUpload:
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
-    def test_fails_invalid_version(
-        self, pyramid_config, pyramid_request, version, mocker
-    ):
+    def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
-        pyramid_request.help_url = mocker.Mock(
-            side_effect=lambda **kw: "/the/help/url/"
-        )
 
         user = UserFactory.create(with_verified_primary_email=True)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -915,9 +1010,11 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "None is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "None is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -928,27 +1025,33 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "'-1' is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'-1' is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # name errors.
             (
                 {"metadata_version": "1.2"},
-                "'' is an invalid value for Name. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'' is an invalid value for Name. "
+                    "Error: This field is required. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name. "
-                "Error: Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'foo-' is an invalid value for Name. "
+                    "Error: Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             # version errors.
             (
@@ -959,9 +1062,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'version' is a required field. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'version' is a required field. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -971,9 +1076,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'dog' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'dog' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -983,9 +1090,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'1.0.dev.a1' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'1.0.dev.a1' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             # filetype/pyversion errors.
             (
@@ -1005,8 +1114,10 @@ class TestFileUpload:
                     "filetype": "bdist_wheel",
                     "content": "fake binary content",
                 },
-                "Invalid value for pyversion. "
-                "Error: Python version is required for binary distribution uploads.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Python version is required for binary distribution uploads."
+                ),
             ),
             (
                 {
@@ -1027,8 +1138,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Invalid value for pyversion. "
-                "Error: Use 'source' as Python version for an sdist.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Use 'source' as Python version for an sdist."
+                ),
             ),
             # digest errors.
             (
@@ -1049,8 +1162,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "Invalid value for sha256_digest. "
-                "Error: Use a valid, hex-encoded, SHA256 message digest.",
+                (
+                    "Invalid value for sha256_digest. "
+                    "Error: Use a valid, hex-encoded, SHA256 message digest."
+                ),
             ),
             # summary errors
             (
@@ -1062,9 +1177,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'summary' field must be 512 characters or less. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' field must be 512 characters or less. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -1075,9 +1192,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "'summary' must be a single line. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' must be a single line. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # local version error
             (
@@ -1088,9 +1207,28 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in '1.0+local' is not allowed. "
-                "See https://packaging.python.org/en/latest/specifications/"
-                "version-specifiers/#local-version-identifiers for more information.",
+                (
+                    "The use of local versions in '1.0+local' is not allowed. "
+                    "See https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers "
+                    "for more information."
+                ),
+            ),
+            # version length error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": ".".join(["1"] * 65),
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                (
+                    "The version must be 128 characters or less after "
+                    "normalization, but is 129 characters. See "
+                    "https://docs.pypi.org/project_metadata/#version-length-limit "
+                    "for more information."
+                ),
             ),
         ],
     )
@@ -1134,18 +1272,21 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
-            f"400 The name {name!r} isn't allowed. See /the/help/url/ for more "
+            f"400 The name {name!r} isn't allowed. See /the/docs/url/ for more "
             "information."
         )
 
@@ -1185,19 +1326,22 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
             f"400 The name {conflicting_name!r} is too similar to an existing project. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     @pytest.mark.parametrize(
@@ -1206,15 +1350,19 @@ class TestFileUpload:
             (
                 "text/x-rst",
                 ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render for 'text/x-rst'. "
+                    "See /the/docs/url/ for more information."
+                ),
             ),
             (
                 None,
                 ".. invalid-directive::",
-                "400 The description failed to render in the default format "
-                "of reStructuredText. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render in the default format "
+                    "of reStructuredText. "
+                    "See /the/docs/url/ for more information."
+                ),
             ),
         ],
     )
@@ -1251,7 +1399,7 @@ class TestFileUpload:
         if description_content_type is not None:
             db_request.POST.add("description_content_type", description_content_type)
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -1261,7 +1409,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == message
 
-        db_request.help_url.assert_called_once_with(_anchor="description-content-type")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/project-descriptions/",
+            anchor="specifying-the-long-description",
+        )
 
     @pytest.mark.parametrize(
         "name",
@@ -1310,20 +1461,23 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
 
         assert resp.status_code == 400
         assert resp.status == (
             f"400 The name {name!r} isn't allowed (conflict "
             "with Python Standard Library module name). "
-            "See /the/help/url/ "
+            "See /the/docs/url/ "
             "for more information."
         )
 
@@ -1435,10 +1589,7 @@ class TestFileUpload:
         db_request.registry.settings = {
             "warehouse.release_files_table": "example.pypi.distributions"
         }
-        delay = mocker.Mock()
-        db_request.task = mocker.Mock(
-            return_value=mocker.Mock(spec=["delay"], delay=delay)
-        )
+        delay = db_request.task.return_value.delay
 
         resp = legacy.file_upload(db_request)
 
@@ -1672,7 +1823,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information"
         )
@@ -1764,16 +1915,20 @@ class TestFileUpload:
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
-                "400 The classifier 'AA :: BB' has been deprecated, use one of "
-                "['CC :: DD'] instead. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated, use one of "
+                    "['CC :: DD'] instead. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {"AA :: BB": []},
-                "400 The classifier 'AA :: BB' has been deprecated. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
         ],
     )
@@ -1908,7 +2063,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.zip".format(
+        filename = "{}-{}-py3-none-any.whl".format(
             project.normalized_name.replace("-", "_"), release.version
         )
 
@@ -1917,7 +2072,8 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "sdist",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
                 "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
                 "content": _content_field(
                     filename=filename, file=io.BytesIO(b"a"), type="application/zip"
@@ -2004,7 +2160,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2012,13 +2168,13 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-file-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 100 MB. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_too_large_project_size_default_limit(
@@ -2052,7 +2208,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2060,14 +2216,14 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-project-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
             " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_too_large_project_size_custom_limit(
@@ -2108,7 +2264,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2116,14 +2272,14 @@ class TestFileUpload:
         resp = excinfo.value
 
         db_request.user_docs_url.assert_called_once_with(
-            "/project-management/storage-limits",
+            "/project-management/storage-limits/",
             anchor="requesting-a-project-size-limit-increase",
         )
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
             " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_succeeds_custom_project_size_limit(
@@ -2333,22 +2489,36 @@ class TestFileUpload:
         )
 
         db_request.db.add(Filename(filename=filename))
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename was previously used by a file that has since been "
-            "deleted. Use a different version. See /the/help/url/ for more information."
+            "deleted. Use a different version. See /the/docs/url/ for more information."
         )
 
+    @pytest.mark.parametrize(
+        ("extension", "content_type", "data"),
+        [
+            (".tar.gz", "application/tar", _TAR_GZ_PKG_TESTDATA),
+            (".zip", "application/zip", _get_zip_sdist_testdata()),
+        ],
+        ids=["tar.gz", "legacy-zip"],
+    )
     def test_upload_noop_with_existing_filename_same_content(
-        self, pyramid_config, db_request, mocker
+        self, pyramid_config, db_request, mocker, extension, content_type, data
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2359,10 +2529,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(
-            project.normalized_name.replace("-", "_"), release.version
-        )
-        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        name = project.normalized_name.replace("-", "_")
+        filename = f"{name}-{release.version}{extension}"
+        file_content = io.BytesIO(data)
 
         db_request.POST = MultiDict(
             {
@@ -2372,7 +2541,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
                 "content": _content_field(
-                    filename=filename, file=file_content, type="application/tar"
+                    filename=filename, file=file_content, type=content_type
                 ),
             }
         )
@@ -2438,18 +2607,24 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({filename!r}, "
             f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_diff_filename_same_blake2(
@@ -2496,19 +2671,25 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="file-name-reuse")
+        db_request.user_docs_url.assert_called_once_with(
+            "/publishing/troubleshooting/",
+            anchor=(
+                "why-am-i-getting-a-filename-or-contents-already-exists-"
+                "or-filename-has-been-previously-used-error"
+            ),
+        )
         assert resp.status_code == 400
         assert resp.status == (
             f"400 File already exists ({db_request.POST['content'].filename!r}, "
             f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     @pytest.mark.parametrize(
@@ -2572,7 +2753,6 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2592,8 +2772,10 @@ class TestFileUpload:
         [
             (
                 "wutang-6.6.6.tar.gz",
-                "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
-                "'wutang-1.2.3.tar.gz'.",
+                (
+                    "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
+                    "'wutang-1.2.3.tar.gz'."
+                ),
             ),
             (
                 "wutang-6.6.6-py3-none-any.whl",
@@ -2639,7 +2821,6 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -2735,7 +2916,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information"
         )
@@ -2847,19 +3028,22 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/project-management/choosing-a-name/",
+            anchor="why-isnt-my-desired-project-name-available",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The user '{user2.username}' "
             f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_without_oidc_publisher_permission(
@@ -2889,18 +3073,20 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        db_request.help_url.assert_called_once_with(_anchor="project-name")
+        db_request.user_docs_url.assert_called_once_with(
+            "/trusted-publishers/troubleshooting/"
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 The given token isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_with_unverified_email_after_permission_check(
@@ -2935,19 +3121,23 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/managing-your-account/",
+            anchor="email-address-verification",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have a verified primary email address. Please add a "
             "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_fails_without_two_factor_after_permission_check(
@@ -2979,19 +3169,22 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/two-factor-authentication/"
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have two-factor authentication enabled. Please enable "
             "two-factor authentication before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_permission_error_surfaces_before_email_check(
@@ -3028,7 +3221,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
@@ -3039,7 +3232,7 @@ class TestFileUpload:
         assert resp.status == (
             f"403 The user {intruder.username!r} "
             f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
 
     def test_upload_new_project_fails_with_unverified_email(
@@ -3066,19 +3259,23 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        db_request.user_docs_url.assert_called_once_with(
+            "/your-account/managing-your-account/",
+            anchor="email-address-verification",
+        )
         assert resp.status_code == 403
         assert resp.status == (
             f"403 User {user.username!r}, associated with the API token used, "
             "does not have a verified primary email address. Please add a "
             "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
+            "See /the/docs/url/ for more information."
         )
         # The project must not have been created.
         assert (
@@ -3667,8 +3864,10 @@ class TestFileUpload:
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid wheel filename (invalid version): "
-                "'foo-0.0.4test1-py3-none-any'",
+                (
+                    "400 Invalid wheel filename (invalid version): "
+                    "'foo-0.0.4test1-py3-none-any'"
+                ),
             ),
             (
                 "something.tar.gz",
@@ -5619,7 +5818,7 @@ class TestFileUpload:
         limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
         limiter.test.return_value = False
         limiter.hit.return_value = False
-        limiter.resets_in.return_value = datetime.timedelta(seconds=60)
+        limiter.resets_in.return_value = dt.timedelta(seconds=60)
         limiter.get_window_stats.return_value = []
         limiter.override.return_value = limiter
         project_service.ratelimiters[failing_limiter] = limiter
@@ -5636,6 +5835,62 @@ class TestFileUpload:
 
         assert resp.status_code == 429
         assert resp.status == ("429 Too many new projects created")
+
+    def test_upload_new_project_failure_spends_attempt_not_creation_limit(
+        self, pyramid_config, db_request, project_service, storage_service, mocker
+    ):
+        """
+        This test checks that a failed upload rolls back its new project, so it
+        spends an attempt but not the uploader's creation quota.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "0" * 32,
+                "content": _content_field(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        creation_limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
+        creation_limiter.test.return_value = True
+        creation_limiter.get_window_stats.return_value = []
+        creation_limiter.override.return_value = creation_limiter
+        attempt_limiter = mocker.create_autospec(DummyRateLimiter, instance=True)
+        attempt_limiter.test.return_value = True
+        attempt_limiter.hit.return_value = True
+        attempt_limiter.get_window_stats.return_value = []
+        attempt_limiter.override.return_value = attempt_limiter
+        project_service.ratelimiters["project.create.user"] = creation_limiter
+        project_service.ratelimiters["project.create.attempt.user"] = attempt_limiter
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        assert excinfo.value.status == (
+            "400 The digest supplied does not match a digest calculated "
+            "from the uploaded file."
+        )
+        attempt_limiter.hit.assert_called_once_with(user.id)
+        creation_limiter.hit.assert_not_called()
 
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, project_service, storage_service
@@ -5936,13 +6191,17 @@ class TestFileUpload:
         [
             (
                 "Some_Thing",
-                "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'Some_Thing'.",
+                (
+                    "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'Some_Thing'."
+                ),
             ),
             (
                 "some.thing",
-                "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'some.thing'.",
+                (
+                    "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'some.thing'."
+                ),
             ),
         ],
     )
@@ -5957,7 +6216,6 @@ class TestFileUpload:
         project_name,
         status,
         storage_service,
-        mocker,
     ):
         project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
@@ -5992,7 +6250,6 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -6020,7 +6277,7 @@ class TestFileUpload:
     )
     def test_upload_fails_pep625(
         self,
-        monkeypatch,
+        mocker,
         pyramid_config,
         db_request,
         project_service,
@@ -6029,7 +6286,6 @@ class TestFileUpload:
         version,
         expected,
         storage_service,
-        mocker,
     ):
         project = ProjectFactory.create(name="some_thing")
         owner = UserFactory.create()
@@ -6039,17 +6295,23 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(identity=owner)
 
+        if filename.endswith(".zip"):
+            data = _get_zip_sdist_testdata()
+            content_type = "application/zip"
+        else:
+            data = _TAR_GZ_PKG_TESTDATA
+            content_type = "application/tar"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": version,
                 "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
+                "md5_digest": hashlib.md5(data).hexdigest(),
                 "content": _content_field(
                     filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
+                    file=io.BytesIO(data),
+                    type=content_type,
                 ),
             }
         )
@@ -6060,11 +6322,8 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
 
-        monkeypatch.setattr(
-            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
-        )
+        open_dist_file = mocker.spy(legacy, "_open_dist_file")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -6075,6 +6334,7 @@ class TestFileUpload:
         assert resp.status == (
             f"400 Filename {filename!r} is invalid, should be {expected!r}."
         )
+        open_dist_file.assert_not_called()
 
     @pytest.mark.parametrize(
         ("version", "expected_version", "filetype", "mimetype"),
@@ -6684,7 +6944,7 @@ class TestFileUpload:
         # Create organization with generous limit
         organization = OrganizationFactory.create(
             orgtype="Company",
-            upload_limit=150 * (1024**2),  # 150 MiB
+            upload_limit=250 * (1024**2),  # 250 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6697,7 +6957,7 @@ class TestFileUpload:
         ).project
 
         # Verify our model property returns the expected value (most generous)
-        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+        assert project.upload_limit_size == 250 * (1024**2)  # Should be org limit
 
         # Upload file that's between project and org limits (120 MiB)
         filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
@@ -6780,7 +7040,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -6833,7 +7093,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.user_docs_url = mocker.Mock(return_value="/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -6865,8 +7125,10 @@ class TestFileUpload:
             "_is_valid_dist_file",
             lambda *a, **kw: (
                 False,
-                "PyArmor-encrypted content is not allowed. "
-                "See https://pypi.org/policy/terms-of-use/ for more information.",
+                (
+                    "PyArmor-encrypted content is not allowed. "
+                    "See https://pypi.org/policy/terms-of-use/ for more information."
+                ),
             ),
         )
 
@@ -6915,8 +7177,8 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        now = datetime.datetime.now()
-        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+        now = dt.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(seconds=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6966,8 +7228,8 @@ class TestFileUpload:
         # 'Closed release' error, as this is a non-error outcome
         # when used with --skip-existing on old releases.
 
-        now = datetime.datetime.now()
-        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+        now = dt.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(seconds=1)
 
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -7011,7 +7273,7 @@ class TestFileUpload:
                 upload_time=then,
             )
         )
-        db_request.help_url = mocker.Mock(side_effect=lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)

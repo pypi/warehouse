@@ -8,9 +8,14 @@ import stripe
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 
 from warehouse.api import billing
+from warehouse.organizations.models import (
+    OrganizationDeactivationReason,
+    OrganizationRoleType,
+)
 
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -108,7 +113,11 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_checkout_complete_add(
         self, db_request, subscription_service, mocker, billing_service
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype="Company")
+        OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Owner
+        )
+        organization.deactivate(OrganizationDeactivationReason.NoPaidSeat)
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
@@ -150,6 +159,8 @@ class TestHandleBillingWebhookEvent:
         )
 
         billing.handle_billing_webhook_event(db_request, event)
+
+        assert organization.is_active
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_status(
         self, db_request
@@ -278,6 +289,40 @@ class TestHandleBillingWebhookEvent:
         }
 
         billing.handle_billing_webhook_event(db_request, event)
+
+    def test_handle_billing_webhook_event_subscription_deleted_is_idempotent(
+        self, db_request, subscription_service
+    ):
+        # Stripe redelivers webhooks, so a second delivery must not record a
+        # second cancel event once the status is already canceled.
+        organization = OrganizationFactory.create()
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        event = {
+            "type": "customer.subscription.deleted",
+            "data": {
+                "object": {
+                    "customer": stripe_customer.customer_id,
+                    "status": "canceled",
+                    "id": subscription.subscription_id,
+                },
+            },
+        }
+
+        billing.handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
+
+        cancel_events = organization.events.filter_by(
+            tag="organization:subscription:cancel"
+        ).all()
+        assert len(cancel_events) == 1
 
     def test_handle_billing_webhook_event_subscription_deleted(
         self, db_request, subscription_service

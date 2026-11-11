@@ -13,7 +13,7 @@ See: dev/admin-user-export.md for the document schema.
 """
 
 import dataclasses
-import datetime
+import datetime as dt
 import enum
 
 from collections.abc import Mapping, Sequence, Sized
@@ -22,7 +22,7 @@ from uuid import UUID
 
 from packaging.utils import canonicalize_name
 from pyramid.request import Request
-from sqlalchemy import Row, Select, desc, func, select
+from sqlalchemy import NotNullable, Row, Select, desc, func, select
 from sqlalchemy.orm import (
     InstrumentedAttribute,
     Session,
@@ -115,7 +115,7 @@ _EMAIL_EVENT_FIELDS = {
 }
 
 
-def _dt(value: datetime.datetime | None) -> str | None:
+def _dt(value: dt.datetime | None) -> str | None:
     """
     Serialize an optional timestamp as an ISO-8601 UTC string.
 
@@ -125,7 +125,7 @@ def _dt(value: datetime.datetime | None) -> str | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        value = value.replace(tzinfo=datetime.UTC)
+        value = value.replace(tzinfo=dt.UTC)
     return value.isoformat()
 
 
@@ -215,6 +215,7 @@ def _user_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
         "is_superuser": user.is_superuser,
         "is_support": user.is_support,
         "is_moderator": user.is_moderator,
+        "is_org_application_reviewer": user.is_org_application_reviewer,
         "is_psf_staff": user.is_psf_staff,
         "is_observer": user.is_observer,
         "prohibit_password_reset": user.prohibit_password_reset,
@@ -311,9 +312,7 @@ def _wrap(rows: list[dict]) -> dict:
     return {"count": len(rows), "rows": rows}
 
 
-def _capped_total(
-    db: Session, rows: Sized, count: Select[tuple[int]]
-) -> tuple[int, bool]:
+def _capped_total(db: Session, rows: Sized, count: Select[int]) -> tuple[int, bool]:
     """
     A capped fetch's true total, and whether the cap dropped rows.
 
@@ -328,7 +327,7 @@ def _capped_total(
 
 # One uploaded release, as selected by `_membership_sections`:
 # project_id, version, created, uploaded_via.
-_UploadRow = Row[tuple[UUID, str, datetime.datetime, str | None]]
+type _UploadRow = Row[UUID, str, dt.datetime, str | None]
 
 
 def _release_ref(release: _UploadRow) -> dict:
@@ -511,7 +510,7 @@ def _membership_sections(user: User, db: Session) -> dict:
     # being a large document and start being a bind-parameter error.
     own_journaled = (
         select(
-            JournalEntry.name,
+            NotNullable(JournalEntry.name),
             func.max(JournalEntry.submitted_date).label("last_journaled"),
         )
         .where(
@@ -777,7 +776,7 @@ def _observation_actions(actions: dict | None) -> list[dict]:
         return []
     return [
         {
-            "at": _dt(datetime.datetime.fromtimestamp(int(at), tz=datetime.UTC)),
+            "at": _dt(dt.datetime.fromtimestamp(int(at), tz=dt.UTC)),
             **{
                 field: action[field]
                 for field in _OBSERVATION_ACTION_FIELDS
@@ -797,10 +796,7 @@ def _observation_fields(obs: Observation) -> dict:
         "related_name": obs.related_name,
         "related_id": str(obs.related_id) if obs.related_id else None,
         "actions": _observation_actions(obs.actions),
-        # `classify_observation` encodes malware-triage rules - a removed
-        # project reads as a confirmed report - which say nothing about an
-        # account_abuse or account_recovery observation, so the verdict is
-        # only offered for the kind it was written for.
+        # See `classify_observation`: its verdict only applies to is_malware.
         "verdict": (
             classify_observation(obs.actions, obs.related_id)
             if obs.kind == ObservationKind.IsMalware.value[0]
@@ -832,7 +828,7 @@ def _timeline_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
     )
     truncated: dict[str, bool] = dict.fromkeys(counts, False)
 
-    def _mark(kind: str, rows: Sized, count: Select[tuple[int]]) -> None:
+    def _mark(kind: str, rows: Sized, count: Select[int]) -> None:
         """Record a source's true total and whether the cap dropped rows."""
         counts[kind], truncated[kind] = _capped_total(db, rows, count)
 
@@ -1117,7 +1113,7 @@ def _pending_publishers_section(user: User, db: Session) -> dict:
 
 
 def export_user(
-    user: User, request: Request, generated_at: datetime.datetime | None = None
+    user: User, request: Request, generated_at: dt.datetime | None = None
 ) -> dict:
     """
     Assemble the full user account export document.

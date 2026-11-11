@@ -61,6 +61,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization.reactivate",
+            "/admin/organizations/{organization_id}/reactivate/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization.set_upload_limit",
             "/admin/organizations/{organization_id}/set_upload_limit/",
             domain=warehouse,
@@ -83,6 +88,11 @@ def test_includeme(mocker):
         mocker.call(
             "admin.organization.delete_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.organization_name.list",
+            "/admin/organization_names/",
             domain=warehouse,
         ),
         mocker.call(
@@ -121,6 +131,14 @@ def test_includeme(mocker):
         mocker.call(
             "admin.organization_application.addnote",
             "/admin/organization_applications/{organization_application_id}/addnote/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.organization_application.requestmoreinfo.preview",
+            (
+                "/admin/organization_applications/{organization_application_id}"
+                "/requestmoreinfo/preview/"
+            ),
             domain=warehouse,
         ),
         mocker.call("admin.user.list", "/admin/users/", domain=warehouse),

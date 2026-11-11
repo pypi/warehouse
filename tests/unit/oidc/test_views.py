@@ -17,8 +17,13 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
     PendingGitHubPublisherFactory,
+    PendingGitLabPublisherFactory,
 )
-from tests.common.db.organizations import OrganizationFactory
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationOIDCIssuerFactory,
+    OrganizationRoleFactory,
+)
 from tests.common.db.packaging import (
     ProhibitedProjectFactory,
     ProjectFactory,
@@ -31,13 +36,21 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import GitHubPublisher
+from warehouse.oidc.models import (
+    GitHubPublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+)
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.views import (
     is_from_reusable_workflow,
     should_send_environment_warning_email,
 )
-from warehouse.organizations.models import OrganizationProject
+from warehouse.organizations.models import (
+    OIDCIssuerType,
+    OrganizationProject,
+    OrganizationRoleType,
+)
 from warehouse.packaging import services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
@@ -452,6 +465,11 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     """Test creating a project from an organization-owned pending publisher"""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
 
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
@@ -528,8 +546,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     [
         (
             timedelta(seconds=600),
-            "this organization has created too many new projects recently. "
-            "Try again in 600 seconds",
+            (
+                "this organization has created too many new projects recently. "
+                "Try again in 600 seconds"
+            ),
         ),
         (
             None,
@@ -539,17 +559,26 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     ids=["with-reset-hint", "without-reset-hint"],
 )
 @pytest.mark.parametrize(
-    "limiter_method",
-    ["test", "hit"],
+    ("limiter_name", "limiter_method"),
+    [
+        ("project.create.organization", "test"),
+        ("project.create.attempt.organization", "hit"),
+    ],
     ids=["rejected-before-writing", "rejected-after-writing"],
 )
 def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
-    db_request, mocker, resets_in, expected_description, limiter_method
+    db_request, mocker, resets_in, expected_description, limiter_name, limiter_method
 ):
-    """`hit` rejects after the project is in the session; committing would leave
-    an org-owned project whose pending publisher was never reified."""
+    """`hit` (on the attempt limiter) rejects after the project is in the
+    session; committing would leave an org-owned project whose pending
+    publisher was never reified."""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
 
     PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
@@ -565,11 +594,11 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
     db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
 
-    org_limiter = DummyRateLimiter()
-    mocker.patch.object(org_limiter, limiter_method, return_value=False)
-    mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+    limiter = DummyRateLimiter()
+    mocker.patch.object(limiter, limiter_method, return_value=False)
+    mocker.patch.object(limiter, "resets_in", return_value=resets_in)
     project_service = db_request.find_service(IProjectService)
-    project_service.ratelimiters["project.create.organization"] = org_limiter
+    project_service.ratelimiters[limiter_name] = limiter
 
     resp = views.mint_token_from_oidc(db_request)
 
@@ -579,6 +608,296 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
         "errors": [{"code": "rate-limited", "description": expected_description}],
     }
     assert db_request.tm.isDoomed()
+
+
+@pytest.mark.parametrize(
+    "role_name",
+    [None, OrganizationRoleType.Member],
+    ids=["removed-member", "demoted-member"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_organization_invalid(
+    db_request, role_name
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    if role_name is not None:
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=role_name,
+        )
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+    expected_event_additional = {
+        "project": pending_publisher.project_name,
+        "publisher": pending_publisher.publisher_name,
+        "id": str(pending_publisher.id),
+        "specifier": str(pending_publisher),
+        "url": pending_publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "redact_ip": True,
+    }
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": (
+                    "valid token, but organization pending publisher is no longer valid"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == []
+    assert db_request.db.query(Project).all() == []
+    org_event = organization.events.one()
+    assert org_event.tag == EventTag.Organization.PendingOIDCPublisherRemoved
+    assert org_event.additional == {
+        "organization_name": organization.name,
+        **expected_event_additional,
+    }
+    user_event = user.events.one()
+    assert user_event.tag == EventTag.Account.PendingOIDCPublisherRemoved
+    assert user_event.additional == expected_event_additional
+
+
+def test_mint_token_pending_gitlab_publisher_for_organization_custom_issuer_invalid(
+    mocker, db_request
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+    pending_publisher = PendingGitLabPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        issuer_url="https://gitlab.example.com",
+        organization_id=organization.id,
+    )
+    claims = {"iss": "https://gitlab.example.com"}
+    oidc_service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    oidc_service.verify_jwt_signature.return_value = claims
+    oidc_service.find_publisher.return_value = pending_publisher
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": (
+                    "valid token, but organization pending publisher is no longer valid"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitLabPublisher).all() == []
+    assert db_request.db.query(Project).all() == []
+
+
+def test_mint_token_pending_gitlab_publisher_for_organization_custom_issuer_ok(
+    mocker, db_request, pyramid_services
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+    OrganizationOIDCIssuerFactory.create(
+        organization=organization,
+        issuer_type=OIDCIssuerType.GitLab,
+        issuer_url="https://gitlab.example.com",
+        created_by=user,
+    )
+    pending_publisher = PendingGitLabPublisherFactory.create(
+        project_name="org-gitlab-project",
+        added_by=user,
+        issuer_url="https://gitlab.example.com",
+        organization_id=organization.id,
+    )
+    reified_publisher = GitLabPublisherFactory.create(
+        issuer_url="https://gitlab.example.com"
+    )
+    claims = {"iss": "https://gitlab.example.com", "ref_path": "main", "sha": "abc"}
+    oidc_service = mocker.create_autospec(OIDCPublisherService, instance=True)
+    oidc_service.verify_jwt_signature.return_value = claims
+    oidc_service.find_publisher.side_effect = [pending_publisher, reified_publisher]
+    oidc_service.reify_pending_publisher.return_value = reified_publisher
+    db_request.remote_addr = "0.0.0.0"
+    db_request.domain = "fakedomain"
+
+    ratelimiter = DummyRateLimiter()
+    pyramid_services.register_service(
+        ratelimiter, IRateLimiter, None, name="user_oidc.publisher.register"
+    )
+    pyramid_services.register_service(
+        ratelimiter, IRateLimiter, None, name="ip_oidc.publisher.register"
+    )
+    mocker.patch.object(
+        views, "send_pending_trusted_publisher_reified_email", autospec=True
+    )
+
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
+    assert resp["success"] is True
+
+
+def test_mint_token_from_oidc_pending_publisher_for_organization_not_in_good_standing(
+    db_request,
+):
+    user = UserFactory.create()
+    organization = OrganizationFactory.create(is_active=False)
+    OrganizationRoleFactory.create(
+        organization=organization,
+        user=user,
+        role_name=OrganizationRoleType.Owner,
+    )
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-pending-publisher",
+                "description": "valid token, but organization is not active",
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == []
+
+
+@pytest.mark.parametrize(
+    "user_kwargs",
+    [
+        {"is_frozen": True},
+        {"is_active": False},
+    ],
+    ids=["frozen-user", "inactive-user"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_inactive_user(
+    db_request, user_kwargs
+):
+    user = UserFactory.create(**user_kwargs)
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-publisher",
+                "description": (
+                    "valid token, but no corresponding publisher "
+                    "(Publisher with matching claims was not found)"
+                ),
+            }
+        ],
+    }
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == []
+
+
+@pytest.mark.parametrize(
+    "user_kwargs",
+    [
+        {"is_frozen": True},
+        {"is_active": False},
+    ],
+    ids=["frozen-user", "inactive-user"],
+)
+def test_mint_token_from_oidc_pending_publisher_for_inactive_user_falls_through(
+    db_request, user_kwargs
+):
+    active_user = UserFactory.create()
+    legit_project = ProjectFactory.create()
+    RoleFactory.create(user=active_user, project=legit_project, role_name="Owner")
+    publisher = GitHubPublisherFactory.create(
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+    publisher.projects = [legit_project]
+
+    inactive_user = UserFactory.create(**user_kwargs)
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+        added_by=inactive_user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+    )
+
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+    assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+    assert db_request.db.query(Project).all() == [legit_project]
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -869,7 +1188,7 @@ def test_mint_token_with_prohibited_name_fails(mocker, db_request):
 
     db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
-    db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+    db_request.user_docs_url = mocker.Mock(return_value="/the/docs/url/")
 
     resp = views.mint_token_from_oidc(db_request)
 
@@ -880,7 +1199,7 @@ def test_mint_token_with_prohibited_name_fails(mocker, db_request):
         assert err["code"] == "invalid-payload"
         assert err["description"] == (
             f"The name {prohibited_project_name.name!r} isn't allowed. "
-            "See /the/help/url/ "
+            "See /the/docs/url/ "
             "for more information."
         )
 

@@ -109,7 +109,7 @@ def _base_and_conditions(
     return base, conditions
 
 
-def _build_observations_query(params: TabulatorParams) -> Select[Any]:
+def _build_observations_query(params: TabulatorParams) -> Select[*tuple[Any, ...]]:
     """Build the page SELECT, fetching one extra row to detect a next page.
 
     Neither sortable column is unique — `created` is a transaction-scoped

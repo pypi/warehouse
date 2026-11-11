@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import pytest
 
@@ -112,8 +112,8 @@ class TestRateLimiting:
     @pytest.mark.parametrize(
         ("resets_in_delta", "expected"),
         [
-            (datetime.timedelta(minutes=11, seconds=6.9), 666),
-            (datetime.timedelta(seconds=0), 1),
+            (dt.timedelta(minutes=11, seconds=6.9), 666),
+            (dt.timedelta(seconds=0), 1),
         ],
     )
     def test_ratelimiting_block_with_hint(
@@ -168,7 +168,7 @@ class TestSearch:
             "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
             f"Please use https://{domain or 'example.org'}/search "
             "(via a browser) instead. See "
-            "https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+            "https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
             "for more information."
         )
         metrics.increment.assert_not_called()
@@ -181,7 +181,7 @@ def test_list_packages(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC list_packages method. "
         "Use Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -226,7 +226,7 @@ def test_top_packages(num, pyramid_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been removed. Use BigQuery instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -242,7 +242,7 @@ def test_package_urls(domain, db_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been deprecated. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -258,7 +258,7 @@ def test_package_data(domain, db_request):
 
     assert exc.value.faultString == (
         "RuntimeError: This API has been deprecated. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -270,7 +270,7 @@ def test_package_releases(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC package_releases method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -282,7 +282,7 @@ def test_release_data(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC release_data method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -294,7 +294,7 @@ def test_release_urls(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC release_urls method. "
         "Use JSON or Simple API instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 
@@ -340,7 +340,7 @@ def test_changelog_since_serial(db_request):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
+            int(e.submitted_date.replace(tzinfo=dt.UTC).timestamp()),
             e.action,
             e.id,
         )
@@ -369,7 +369,7 @@ def test_browse(pyramid_request):
     assert exc.value.faultString == (
         "RuntimeError: PyPI no longer supports the XMLRPC browse method. "
         "Use BigQuery instead. "
-        "See https://warehouse.pypa.io/api-reference/xml-rpc/#deprecated-methods "
+        "See https://dev.pypi.org/api-reference/xml-rpc/#deprecated-methods "
         "for more information."
     )
 

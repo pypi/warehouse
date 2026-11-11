@@ -79,6 +79,8 @@ class RootFactory:
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -121,6 +123,8 @@ class RootFactory:
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -154,6 +158,7 @@ class RootFactory:
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
@@ -176,6 +181,14 @@ class RootFactory:
                 Permissions.AdminDashboardRead,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminSponsorsWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:org_application_reviewers",
+            (
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
             ),
         ),
         (
@@ -205,6 +218,11 @@ class RootFactory:
 
     def __init__(self, request):
         pass
+
+
+def has_root_permission(request, permission):
+    """Check a site-wide permission, ignoring the resource being viewed."""
+    return request.has_permission(permission, RootFactory(request))
 
 
 def require_https_tween_factory(handler, registry):
@@ -586,6 +604,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.password_reset_ip_ratelimit_string",
+        "PASSWORD_RESET_IP_RATELIMIT_STRING",
+        default="10 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.register_ratelimit_string",
         "REGISTER_RATELIMIT_STRING",
         default="10 per 5 minutes, 30 per hour",
@@ -619,6 +643,24 @@ def configure(settings=None):
         "warehouse.packaging.project_create_organization_ratelimit_string",
         "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
         default="10 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_USER_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_IP_RATELIMIT_STRING",
+        default="200 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string",
+        "PROJECT_CREATE_ATTEMPT_ORGANIZATION_RATELIMIT_STRING",
+        default="50 per day",
     )
     maybe_set(
         settings,
@@ -756,7 +798,6 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
-    filters.setdefault("natsort", "natsort:natsorted")
     filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
@@ -769,6 +810,7 @@ def configure(settings=None):
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
+    jglobals.setdefault("has_root_permission", "warehouse.config:has_root_permission")
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")

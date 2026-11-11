@@ -58,14 +58,34 @@ as marking a ZIP as ZIP64 or defining the Unicode filename.
 
 ### Trailing data or comments
 
-Many archives support trailing or prepended data
-or comments within records. PyPI disallows these features
-to avoid smuggling other archive records within comments.
+PyPI currently rejects the following:
+
+- Appended or prepended data on a ZIP
+- Comments on a ZIP's members
+- Trailing (archive-level) comments on a ZIP, _if_ those comments are
+  confusable with ZIP control structures
+
+!!! info
+
+    In the future, PyPI will reject all ZIP comments,
+    regardless of their contents.
 
 ## Source distributions
 
 Source distributions use the "tarball" (gzipped tar archive)
 format, and are subject to the following restrictions.
+
+### Source distributions must be in pax format
+
+The [source distribution specification](https://packaging.python.org/en/latest/specifications/source-distribution-format/)
+says that source distributions must be in pax format. That means that V7 and GNU tarballs
+are **not** valid source distributions.
+
+!!! info
+
+    PyPI currently allows GNU-style tarballs for compatibility reasons.
+    In the future, PyPI will warn users when uploading GNU-style tarballs,
+    and shortly thereafter will begin to reject them.
 
 ### Sparse members are not allowed
 

@@ -10,7 +10,7 @@ import responses
 from tests.common.db.accounts import UserFactory
 from warehouse import integrations
 from warehouse.events.tags import EventTag
-from warehouse.integrations.secrets import utils
+from warehouse.integrations.secrets import tasks, utils
 from warehouse.macaroons import caveats
 from warehouse.macaroons.services import deserialize_raw_macaroon
 
@@ -64,8 +64,10 @@ def test_invalid_token_leak_request():
         ({}, "Record is missing attribute(s): token, type, url", "format"),
         (
             {"type": "not_found", "token": "a", "url": "b"},
-            "Matcher with code not_found not found. "
-            "Available codes are: failure, pypi_api_token",
+            (
+                "Matcher with code not_found not found. "
+                "Available codes are: failure, pypi_api_token"
+            ),
             "invalid_matcher",
         ),
         (
@@ -488,9 +490,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )
@@ -525,9 +529,11 @@ class TestGenericTokenScanningPayloadVerifier:
         [
             (
                 "GitHub",
-                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+                (
+                    b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                    b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                    b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+                ),
             )
         ],
     )
@@ -823,8 +829,7 @@ def test_analyze_disclosures_wrong_type(mocker, metrics, someorigin):
 
 
 def test_analyze_disclosures_raise(pyramid_request, mocker, metrics, someorigin):
-    delay = mocker.Mock()
-    pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
+    delay = pyramid_request.task.return_value.delay
 
     utils.analyze_disclosures(
         request=pyramid_request,
@@ -833,6 +838,11 @@ def test_analyze_disclosures_raise(pyramid_request, mocker, metrics, someorigin)
         metrics=metrics,
     )
 
+    assert pyramid_request.task.call_args_list == [
+        mocker.call(tasks.analyze_disclosure_task),
+        mocker.call(tasks.analyze_disclosure_task),
+        mocker.call(tasks.analyze_disclosure_task),
+    ]
     assert delay.call_args_list == [
         mocker.call(disclosure_record=1, origin=someorigin.to_dict()),
         mocker.call(disclosure_record=2, origin=someorigin.to_dict()),

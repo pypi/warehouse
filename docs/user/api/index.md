@@ -80,21 +80,26 @@ URLs can be constructed as follows, with wheel file names following
 [PEP 491's file name convention].
 
 ```python
-host = 'https://files.pythonhosted.org'
+host = "https://files.pythonhosted.org"
+
 
 def source_url(name, version):
-    return f'{host}/packages/source/{name[0]}/{name}/{name}-{version}.tar.gz'
+    return f"{host}/packages/source/{name[0]}/{name}/{name}-{version}.tar.gz"
+
 
 def wheel_url(name, version, build_tag, python_tag, abi_tag, platform_tag):
     # https://www.python.org/dev/peps/pep-0491/#file-name-convention
     wheel_parts = {
-        tag: re.sub(r'[^\w\d.]+', '_', part, re.UNICODE)
+        tag: re.sub(r"[^\w\d.]+", "_", part, re.UNICODE)
         for tag, part in locals().items()
     }
-    wheel_parts['optional_build_tag'] = f'-{wheel_parts["build_tag"]}' if build_tag else ''
-    filename = '{name}-{version}{optional_build_tag}-{python_tag}-{abi_tag}-{platform_tag}.whl'\
-               .format_map(wheel_parts)
-    return f'{host}/packages/{python_tag}/{name[0]}/{name}/{filename}'
+    wheel_parts["optional_build_tag"] = (
+        f"-{wheel_parts['build_tag']}" if build_tag else ""
+    )
+    filename = "{name}-{version}{optional_build_tag}-{python_tag}-{abi_tag}-{platform_tag}.whl".format_map(
+        wheel_parts
+    )
+    return f"{host}/packages/{python_tag}/{name[0]}/{name}/{filename}"
 ```
 
 Example predictable URL use:

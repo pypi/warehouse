@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-import datetime
+import datetime as dt
 import hashlib
 import hmac
 import os.path
 import posixpath
 import re
+import sys
 import tarfile
 import tempfile
 import zipfile
@@ -18,6 +19,7 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import pyramid_retry
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -99,6 +101,12 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
+# The identity for a pax-style tar. This covers both UStar and pax archives.
+TAR_PAX_IDENTITY = b"ustar\x0000"
+
+# The identity for a GNU-style tar. This covers GNU archives.
+TAR_GNU_IDENTITY = b"ustar  \x00"
+
 
 def _valid_platform_tag(platform_tag):
     return is_valid_platform_tag(platform_tag)
@@ -152,18 +160,75 @@ def _validate_filename(filename, filetype):
     else:
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid file extension: Use .tar.gz, .whl or .zip "
+            "Invalid file extension: Use .tar.gz or .whl "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
             "and https://peps.python.org/pep-0715/ for more information",
         )
 
 
 def _open_dist_file(filename, stack: ExitStack):
-    if filename.endswith((".zip", ".whl")):
+    if filename.endswith(".whl"):
         return stack.enter_context(zipfile.ZipFile(filename))
     if filename.endswith(".tar.gz"):
         return stack.enter_context(tarfile.open(filename, mode="r:gz"))
     raise ValueError(f"Unsupported distribution file: {filename}")
+
+
+def _is_valid_sdist_tar(tar: tarfile.TarFile, metrics) -> tuple[bool, str | None]:
+    """
+    Check whether a given tar is valid as a source distribution.
+    """
+
+    for member in tar:
+        # Sparse members rely on GNU extensions, including when stored
+        # in a pax header, and are not valid in PEP 625 sdists.
+        if member.issparse():
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: Sparse members are not allowed. "
+                    "See https://docs.pypi.org/archives for more information"
+                ),
+            )
+
+        # PEP 625 requires sdists to be pax, not GNU or V7.
+        # We can't ban GNU tar sdists yet because they're too common.
+        # `tarfile` does not provide a magic API, so we need to do it
+        # manually.
+
+        # To get the header, we take the offset to the member's data and
+        # seek + read one block back from it.
+        where = member.offset_data
+        tar.fileobj.seek(where - tarfile.BLOCKSIZE)
+        raw_header = tar.fileobj.read(512)
+
+        # The "identity" of a tar file is the combined 8 bytes from
+        # its magic and version fields.
+        identity = raw_header[257:265]
+        if identity == TAR_GNU_IDENTITY:
+            # We can't ban these yet, but perhaps soon (tm).
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error", tags=["reason:gnu-header"]
+            )
+        elif identity != TAR_PAX_IDENTITY:
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:unknown-header"],
+            )
+            return (
+                False,
+                (
+                    "tar archive not accepted: must be pax. "
+                    "See https://docs.pypi.org/archives"
+                    "#source-distributions-must-be-in-pax-format for more information"
+                ),
+            )
+
+    return True, None
 
 
 def _is_valid_dist_file(
@@ -181,9 +246,8 @@ def _is_valid_dist_file(
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
 
-    ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
-    name enumeration, both of which do CPU-bound work synchronously inside
-    the upload request.
+    ``metrics`` counts wheels with accepted archive comments and sdists with nonstandard
+    tar headers. It also times the YARA scan and tarfile name enumeration.
 
     If ``archive`` is provided, it is retained by the caller for subsequent checks.
     """
@@ -193,12 +257,11 @@ def _is_valid_dist_file(
     if is_zipfile and is_tarfile:
         return False, "File is both a zip and a tar file"
 
-    if filename.endswith((".zip", ".whl")):
+    if filename.endswith(".whl"):
         if not is_zipfile:
             return False, "File is not a zipfile"
 
-        # Ensure that this is a valid zip file, and that it has a
-        # PKG-INFO or WHEEL file.
+        # Ensure that this is a valid zip file and that it has a WHEEL file.
         try:
             archive_context = (
                 zipfile.ZipFile(filename) if archive is None else nullcontext(archive)
@@ -220,8 +283,10 @@ def _is_valid_dist_file(
                     )
                     return (
                         False,
-                        "File exceeds compression ratio of "
-                        f"{COMPRESSION_RATIO_THRESHOLD}",
+                        (
+                            "File exceeds compression ratio of "
+                            f"{COMPRESSION_RATIO_THRESHOLD}"
+                        ),
                     )
 
                 # Check that the compression type is valid
@@ -238,31 +303,15 @@ def _is_valid_dist_file(
                 if (alias := _non_canonical_member_path(zfp.namelist())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
 
-                if filename.endswith(".zip"):
-                    top_level = _commonpath(zfp.namelist())
-                    if top_level in [".", "/", ""]:
-                        return (
-                            False,
-                            "Incorrect number of top-level directories in sdist",
-                        )
-                    target_file = os.path.join(top_level, "PKG-INFO")
-                    try:
-                        zfp.read(target_file)
-                    except KeyError:
-                        return False, f"PKG-INFO not found at {target_file}"
-                if filename.endswith(".whl"):
-                    try:
-                        name, version, _ = os.path.basename(filename).split("-", 2)
-                    except ValueError:
-                        return (
-                            False,
-                            "Unable to parse name and version from wheel filename",
-                        )
-                    target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
-                    try:
-                        zfp.read(target_file)
-                    except KeyError:
-                        return False, f"WHEEL not found at {target_file}"
+                try:
+                    name, version, _ = os.path.basename(filename).split("-", 2)
+                except ValueError:
+                    return False, "Unable to parse name and version from wheel filename"
+                target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
+                try:
+                    zfp.read(target_file)
+                except KeyError:
+                    return False, f"WHEEL not found at {target_file}"
 
                 # Scan archive members for YARA rule matches while open
                 if scan:
@@ -281,7 +330,7 @@ def _is_valid_dist_file(
 
                 # Check the ZIP file record framing
                 # to avoid parser differentials.
-                zip_ok, zip_error = zipfiles.validate_zipfile(zfp)
+                zip_ok, zip_error = zipfiles.validate_zipfile(zfp, metrics=metrics)
                 if not zip_ok:
                     return False, (
                         f"ZIP archive not accepted: {zip_error}. "
@@ -297,7 +346,7 @@ def _is_valid_dist_file(
 
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
-        # (decompression bomb), like we do for wheel/zip above.
+        # (decompression bomb), like we do for wheels above.
         try:
             # Ignore SIM115: the returned TarFile is managed by the context below.
             archive_context = (
@@ -310,20 +359,11 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
-                # Sparse members rely on GNU extensions, including when stored
-                # in a pax header, and are not valid in PEP 625 sdists.
-                if any(member.issparse() for member in tar.getmembers()):
-                    metrics.increment(
-                        "warehouse.upload.tarfile.policy_error",
-                        tags=["reason:sparse-member"],
-                    )
-                    return (
-                        False,
-                        (
-                            "tar archive not accepted: Sparse members are not allowed. "
-                            "See https://docs.pypi.org/archives for more information"
-                        ),
-                    )
+
+                sdist_is_valid_tar, reason = _is_valid_sdist_tar(tar, metrics)
+                if not sdist_is_valid_tar:
+                    return (sdist_is_valid_tar, reason)
+
                 if (alias := _non_canonical_member_path(tar.getnames())) is not None:
                     return False, f"Archive member path is not normalized: {alias!r}"
                 if top_level in [".", "/", ""]:
@@ -355,8 +395,9 @@ def _is_valid_dist_file(
         except tarfile.ReadError, EOFError, zlib.error:
             return False, None
 
-    # If we haven't yet decided it's not valid, then we'll assume it is and
-    # allow it.
+    else:
+        return False, "Unsupported distribution file extension"
+
     return True, None
 
 
@@ -509,7 +550,10 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
+                project_help=request.user_docs_url(
+                    "/your-account/managing-your-account/",
+                    anchor="email-address-verification",
+                ),
             ),
         ) from None
 
@@ -524,7 +568,9 @@ def _ensure_user_can_upload(request: Request) -> None:
                 "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
-                project_help=request.help_url(_anchor="two-factor-authentication"),
+                project_help=request.user_docs_url(
+                    "/your-account/two-factor-authentication/"
+                ),
             ),
         ) from None
 
@@ -536,9 +582,20 @@ def _close_upload_tempfiles(request):
     # FieldStorage. Neither is closed by WebOb on its own — without explicit
     # cleanup the OS file descriptors are only reclaimed when the request is
     # garbage collected, triggering ResourceWarning under -W error.
-    content = request.POST.get("content")
-    if content is not None and hasattr(content, "file"):
-        content.file.close()
+    #
+    # This runs once per pyramid_retry attempt, and a retried attempt reuses
+    # the same parsed POST, so if this attempt is about to be retried, rewind
+    # the upload instead of closing it. The error is still in flight here
+    # (we're in ``invoke_request``'s ``finally``) unless an exception view
+    # already rendered it, in which case it's on ``request.exception``.
+    upload = getattr(request.POST.get("content"), "file", None)
+    exc = sys.exception() or getattr(request, "exception", None)
+    if exc is not None and pyramid_retry.is_error_retryable(request, exc):
+        if upload is not None:
+            upload.seek(0)
+        return
+    if upload is not None:
+        upload.close()
     body_file = request.body_file_raw
     if hasattr(body_file, "close") and not getattr(body_file, "closed", True):
         body_file.close()
@@ -560,7 +617,8 @@ def file_upload(request):
     # WebOb's multipart parser backs the request body and uploaded "content"
     # field with tempfiles; ensure they're closed at request teardown
     # regardless of which exit path this view takes, so the fds aren't
-    # reclaimed by GC later (which would surface as a ResourceWarning).
+    # reclaimed by GC later (which would surface as a ResourceWarning). An
+    # attempt that pyramid_retry is about to retry keeps them open instead.
     request.add_finished_callback(_close_upload_tempfiles)
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
@@ -582,7 +640,7 @@ def file_upload(request):
             if field_name in form.errors:
                 break
         else:
-            field_name = sorted(form.errors.keys())[0]
+            field_name = min(form.errors.keys())
 
         if field_name in form:
             field = form[field_name]
@@ -633,7 +691,7 @@ def file_upload(request):
             if field_name in errors:
                 break
         else:
-            field_name = sorted(errors.keys())[0]
+            field_name = min(errors.keys())
 
         # Return an error for the field, using the first error that we can find
         # for that field
@@ -642,13 +700,17 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
-        _see_url = (
-            "https://packaging.python.org/en/latest/specifications/"
-            "version-specifiers/#local-version-identifiers"
-            if field_name == "version"
-            and any("use of local versions" in str(e) for e in errors["version"])
-            else "https://packaging.python.org/specifications/core-metadata"
-        )
+        _see_url = "https://packaging.python.org/specifications/core-metadata"
+        if field_name == "version":
+            if any("use of local versions" in str(e) for e in errors["version"]):
+                _see_url = (
+                    "https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers"
+                )
+            elif any("after normalization" in str(e) for e in errors["version"]):
+                _see_url = request.user_docs_url(
+                    "/project_metadata/", anchor="version-length-limit"
+                )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
@@ -742,7 +804,10 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 )
                 if reason is None
                 else allowed.msg
@@ -754,7 +819,7 @@ def file_upload(request):
                     "See {} for more information."
                 ).format(
                     project.name,
-                    request.help_url(_anchor="project-name"),
+                    request.user_docs_url("/trusted-publishers/troubleshooting/"),
                 )
                 if reason is None
                 else allowed.msg
@@ -847,7 +912,10 @@ def file_upload(request):
                 HTTPBadRequest,
                 "{message} See {projecthelp} for more information.".format(
                     message=message,
-                    projecthelp=request.help_url(_anchor="description-content-type"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/project-descriptions/",
+                        anchor="specifying-the-long-description",
+                    ),
                 ),
             ) from None
 
@@ -1077,7 +1145,7 @@ def file_upload(request):
                         f"{file_size_limit // ONE_MIB} MB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-file-size-limit-increase",
                         )
                         + " for more information.",
@@ -1090,9 +1158,10 @@ def file_upload(request):
                         f"{project_size_limit // ONE_GIB} GB. "
                         "See "
                         + request.user_docs_url(
-                            "/project-management/storage-limits",
+                            "/project-management/storage-limits/",
                             anchor="requesting-a-project-size-limit-increase",
-                        ),
+                        )
+                        + " for more information.",
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1141,7 +1210,13 @@ def file_upload(request):
                 "File already exists "
                 f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
                 " See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 
@@ -1156,7 +1231,13 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename was previously used by a file that has since been "
                 "deleted. Use a different version. See "
-                + request.help_url(_anchor="file-name-reuse")
+                + request.user_docs_url(
+                    "/publishing/troubleshooting/",
+                    anchor=(
+                        "why-am-i-getting-a-filename-or-contents-already-exists-"
+                        "or-filename-has-been-previously-used-error"
+                    ),
+                )
                 + " for more information.",
             )
 
@@ -1165,7 +1246,7 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        if added_late(datetime.datetime.now(), release.created):
+        if added_late(dt.datetime.now(), release.created):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:closed-release"]
             )
@@ -1175,65 +1256,20 @@ def file_upload(request):
                 f"{MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed.",
             )
 
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
+        if form.filetype.data == "sdist":
+            # Only one sdist may be uploaded per release.
+            if request.db.query(
                 request.db.query(File)
                 .filter((File.release == release) & (File.packagetype == "sdist"))
                 .exists()
-            ).scalar()
-        ):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
-            )
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
+            ).scalar():
+                request.metrics.increment(
+                    "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest, "Only one sdist may be uploaded per release."
+                )
 
-        # Check the file to make sure it is a valid distribution file.
-        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
-        with request.metrics.timed(
-            "warehouse.upload.validate",
-            tags=[f"filetype:{form.filetype.data}"],
-        ):
-            upload_archive = None
-            try:
-                upload_archive = _open_dist_file(
-                    temporary_filename,
-                    archive_stack,
-                )
-            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
-                _valid, _msg = _is_valid_dist_file(
-                    temporary_filename,
-                    form.filetype.data,
-                    request.metrics,
-                    scan=_scan,
-                )
-            else:
-                _valid, _msg = _is_valid_dist_file(
-                    temporary_filename,
-                    form.filetype.data,
-                    request.metrics,
-                    scan=_scan,
-                    archive=upload_archive,
-                )
-        if not _valid:
-            request.metrics.increment(
-                "warehouse.upload.failed",
-                tags=[
-                    "reason:invalid-distribution-file",
-                    f"filetype:{form.filetype.data}",
-                    f"message:{_msg}",
-                ],
-            )
-            raise _exc_with_message(
-                HTTPBadRequest, f"Invalid distribution file. {_msg}"
-            )
-
-        # Check that the sdist filename is correct
-        if form.filetype.data == "sdist":
             # Extract the project name and version from the filename and check it.
             try:
                 name_from_filename, _version_from_filename = (
@@ -1310,6 +1346,47 @@ def file_upload(request):
                     f"{expected_filename!r}.",
                 )
 
+        # Check the file to make sure it is a valid distribution file.
+        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
+        with request.metrics.timed(
+            "warehouse.upload.validate",
+            tags=[f"filetype:{form.filetype.data}"],
+        ):
+            upload_archive = None
+            try:
+                upload_archive = _open_dist_file(
+                    temporary_filename,
+                    archive_stack,
+                )
+            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                )
+            else:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                    archive=upload_archive,
+                )
+        if not _valid:
+            request.metrics.increment(
+                "warehouse.upload.failed",
+                tags=[
+                    "reason:invalid-distribution-file",
+                    f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
+                ],
+            )
+            raise _exc_with_message(
+                HTTPBadRequest, f"Invalid distribution file. {_msg}"
+            )
+
+        if form.filetype.data == "sdist":
             filename = os.path.basename(temporary_filename)
 
             # _is_valid_dist_file above checked that this is a tarfile with a

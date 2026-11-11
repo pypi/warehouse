@@ -256,11 +256,19 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
             "PEP740AttestationViewer": views.PEP740AttestationViewer,
-            "wheel_filters_all": {
-                "interpreter": {},
-                "abi": {},
-                "platform": {},
-                "other": {},
+            "wheel_filter_options": {
+                "interpreter": [],
+                "abi": [],
+                "platform": [],
+                "other": [],
+            },
+            "wheel_filter_tags": {
+                files[1].filename: {
+                    "interpreter": [],
+                    "abi": [],
+                    "platform": [],
+                    "other": ["source"],
+                },
             },
             "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
         }
@@ -499,6 +507,9 @@ class TestPEP740AttestationViewer:
         )
 
         assert viewer.workflow_filename == ""
+        assert viewer.workflow_url == ""
+        assert viewer.permalink_with_digest == ""
+        assert viewer.permalink_with_reference == ""
         assert (
             viewer._format_url("https://example.com", "refs/heads/main")
             == "https://example.com/refs/heads/main"
@@ -509,10 +520,7 @@ class TestProjectSubmitMalwareObservation:
     def test_get_render_form(self, pyramid_request):
         project = ProjectFactory.build()
 
-        # DummyRequest defaults these to plain dicts, aliased to each other;
-        # WTForms needs a multidict
         pyramid_request.GET = MultiDict({"summary": "Bad stuff in here"})
-        pyramid_request.POST = MultiDict()
 
         result = views.submit_malware_observation(project, pyramid_request)
 

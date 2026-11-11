@@ -2,7 +2,7 @@
 
 """Tests for the admin user account export serializers."""
 
-import datetime
+import datetime as dt
 import json
 
 import pytest
@@ -59,12 +59,12 @@ class TestHelpers:
 
     def test_dt_value(self):
         """Timestamps serialize as ISO-8601 strings."""
-        moment = datetime.datetime(2026, 7, 31, 12, 0, 0, tzinfo=datetime.UTC)
+        moment = dt.datetime(2026, 7, 31, 12, 0, 0, tzinfo=dt.UTC)
         assert user_export._dt(moment) == "2026-07-31T12:00:00+00:00"
 
     def test_dt_naive_stamped_utc(self):
         """Naive timestamps (stored UTC) gain an explicit +00:00 offset."""
-        moment = datetime.datetime(2026, 7, 31, 12, 0, 0)
+        moment = dt.datetime(2026, 7, 31, 12, 0, 0)
         assert user_export._dt(moment) == "2026-07-31T12:00:00+00:00"
 
     def test_enum_none(self):
@@ -100,7 +100,7 @@ class TestHelpers:
             geoip_info={"country_code": "US"},
             is_banned=True,
             ban_reason=BanReason.AUTHENTICATION_ATTEMPTS,
-            ban_date=datetime.datetime(2026, 1, 1),
+            ban_date=dt.datetime(2026, 1, 1),
         )
         result = user_export._ip(ip)
         assert result == {
@@ -261,7 +261,7 @@ class TestMembershipSections:
             project=project,
             uploader=user,
             version="2.0",
-            created=first.created + datetime.timedelta(days=1),
+            created=first.created + dt.timedelta(days=1),
         )
 
         result = user_export._membership_sections(user, db_request.db)
@@ -310,7 +310,7 @@ class TestMembershipSections:
             project=project,
             uploader=user,
             version="2.0",
-            created=first.created + datetime.timedelta(days=1),
+            created=first.created + dt.timedelta(days=1),
         )
 
         result = user_export._membership_sections(user, db_request.db)
@@ -463,8 +463,8 @@ class TestMembershipSections:
         monkeypatch.setattr(user_export, "SECTION_ROW_LIMIT", 1)
         user = UserFactory.create()
         for name, when in (
-            ("oldpackage", datetime.datetime(2020, 1, 1)),
-            ("newpackage", datetime.datetime(2026, 1, 1)),
+            ("oldpackage", dt.datetime(2020, 1, 1)),
+            ("newpackage", dt.datetime(2026, 1, 1)),
         ):
             JournalEntryFactory.create(
                 name=name, submitted_by=user, submitted_date=when
@@ -748,8 +748,8 @@ class TestTimelineSection:
         user = UserFactory.create(observer=ObserverFactory.create())
         admin = UserFactory.create()
         email = EmailFactory.create(user=user, primary=True)
-        older = datetime.datetime(2020, 1, 1)
-        newer = datetime.datetime(2026, 1, 1)
+        older = dt.datetime(2020, 1, 1)
+        newer = dt.datetime(2026, 1, 1)
         for when in (older, newer):
             UserEventFactory.create(source=user, tag="account:login:success", time=when)
             JournalEntryFactory.create(
@@ -851,14 +851,14 @@ class TestTimelineSection:
             name="samplepackage",
             action="new release",
             submitted_by=user,
-            submitted_date=datetime.datetime(2015, 1, 1),
+            submitted_date=dt.datetime(2015, 1, 1),
         )
         for action in ("project quarantined", "remove project"):
             JournalEntryFactory.create(
                 name="samplepackage",
                 action=action,
                 submitted_by=admin,
-                submitted_date=datetime.datetime(2026, 1, 1),
+                submitted_date=dt.datetime(2026, 1, 1),
             )
 
         result = user_export._timeline_section(user, db_request.db, {})

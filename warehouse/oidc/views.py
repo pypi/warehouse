@@ -29,7 +29,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
-from warehouse.oidc.models.gitlab import GitLabPublisher
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import (
     OIDC_ISSUER_ADMIN_FLAGS,
@@ -210,7 +210,11 @@ def mint_token(
         pending_publisher = oidc_service.find_publisher(claims, pending=True)
         factory = ProjectFactory(request)
 
-        if isinstance(pending_publisher, PendingOIDCPublisher):
+        if (
+            isinstance(pending_publisher, PendingOIDCPublisher)
+            and not pending_publisher.added_by.is_frozen
+            and pending_publisher.added_by.is_active
+        ):
             # If the project already exists, this pending publisher is no longer
             # valid and needs to be removed.
             # NOTE: This is mostly a sanity check, since we dispose of invalidated
@@ -222,6 +226,66 @@ def mint_token(
                         {
                             "code": "invalid-pending-publisher",
                             "description": "valid token, but project already exists",
+                        }
+                    ],
+                    request=request,
+                )
+
+            if pending_publisher.pypi_organization is not None and (
+                pending_publisher.added_by
+                not in pending_publisher.pypi_organization.owners
+                or (
+                    isinstance(pending_publisher, PendingGitLabPublisher)
+                    and pending_publisher.issuer_url
+                    not in pending_publisher.get_available_issuer_urls(
+                        pending_publisher.pypi_organization
+                    )
+                )
+            ):
+                additional = {
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url(),
+                    "submitted_by": "OpenID created token",
+                    "redact_ip": True,
+                }
+                pending_publisher.pypi_organization.record_event(
+                    tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                pending_publisher.added_by.record_event(
+                    tag=EventTag.Account.PendingOIDCPublisherRemoved,
+                    request=request,
+                    additional=additional.copy(),
+                )
+                request.db.delete(pending_publisher)
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-pending-publisher",
+                            "description": (
+                                "valid token, but organization pending publisher "
+                                "is no longer valid"
+                            ),
+                        }
+                    ],
+                    request=request,
+                )
+
+            if (
+                pending_publisher.pypi_organization is not None
+                and not pending_publisher.pypi_organization.is_in_good_standing()
+            ):
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-pending-publisher",
+                            "description": (
+                                "valid token, but organization is not active"
+                            ),
                         }
                     ],
                     request=request,

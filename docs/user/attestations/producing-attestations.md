@@ -21,7 +21,7 @@ Before uploading attestations to the index, please:
 
 === "GitHub Actions"
 
-    <h3>The easy way</h3>
+    <h3 id="the-easy-way">The easy way</h3>
 
     If you publish to PyPI with [`pypa/gh-action-pypi-publish`][gh-action-pypi-publish]
     (the official PyPA action), attestations are generated and uploaded automatically
@@ -95,7 +95,7 @@ Before uploading attestations to the index, please:
     from pypi_attestations import Attestation
     from sigstore.models import Bundle
 
-    raw_bundle = "..." # read the bundle's JSON
+    raw_bundle = "..."  # read the bundle's JSON
     bundle = Bundle.from_json(raw_bundle)
     attestation = Attestation.from_bundle(bundle)
 

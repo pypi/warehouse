@@ -1,26 +1,41 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+from __future__ import annotations
+
+import datetime as dt
 import shlex
 import uuid
+
+from typing import TYPE_CHECKING
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_, select
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
-from warehouse.admin.views.helpers import ALLOWED_DAYS, parse_days_param
+from warehouse.admin.views.helpers import (
+    ALLOWED_DAYS,
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    execute_bounded,
+    parse_days_param,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
+from warehouse.cache.http import add_vary
 from warehouse.constants import (
     MAX_FILESIZE,
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    ORGANIZATION_MAX_FILESIZE,
+    ORGANIZATION_MAX_PROJECT_SIZE,
     UPLOAD_LIMIT_CAP,
 )
 from warehouse.email import (
@@ -45,110 +60,204 @@ from warehouse.utils.project import (
     unarchive_project,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any
+
+    from pyramid.request import Request
+    from sqlalchemy import Row, Select
+    from sqlalchemy.sql import ColumnElement
+
+    from warehouse.admin.views.helpers import TabulatorParams
+
+# Mirrors warehouse.admin.views.journals.
+
+# normalized_name is the only indexed column.
+_SORTABLE_FIELDS = frozenset({"name"})
+_FILTER_FIELDS = frozenset({"name"})
+
+
+def _project_id(value: str) -> uuid.UUID | None:
+    # Dashed form only: a 32-hex-character project name is a name.
+    if len(value) != 36:
+        return None
+    try:
+        return uuid.UUID(value)
+    except ValueError:
+        return None
+
+
+def _name_contains(value: str) -> ColumnElement[bool]:
+    # ultranormalize_name leaves `%` and `\` alone, so escaping first keeps a
+    # typed `%` literal and a trailing `\` from reaching LIKE unescaped.
+    escaped = value.replace("\\", "\\\\").replace("%", "\\%")
+    return func.ultranormalize_name(Project.name).like(
+        "%" + func.ultranormalize_name(escaped) + "%", escape="\\"
+    )
+
+
+def _name_matches(value: str) -> ColumnElement[bool]:
+    return or_(
+        Project.normalized_name == func.normalize_pep426_name(value),
+        func.ultranormalize_name(Project.name) == func.ultranormalize_name(value),
+    )
+
+
+def _build_projects_query(params: TabulatorParams) -> Select[*tuple[Any, ...]]:
+    # Outright matches are excluded so the index-ordered walk can stop at the
+    # LIMIT; ranking them here would sort every match first.
+    name = Project.normalized_name
+    stmt = select(Project.name, Project.normalized_name)
+    value = params.filters["name"]
+    if (project_id := _project_id(value)) is not None:
+        stmt = stmt.where(Project.id == project_id)
+    else:
+        stmt = stmt.where(_name_contains(value), ~_name_matches(value))
+    return (
+        stmt.order_by(name.desc() if params.sort_dir == "desc" else name.asc())
+        .limit(params.size + 1)
+        .offset(params.offset)
+    )
+
+
+def _exact_matches(request: Request, value: str) -> Sequence[Row[*tuple[Any, ...]]]:
+    stmt = (
+        select(Project.name, Project.normalized_name)
+        .where(_name_matches(value))
+        .order_by(
+            (Project.normalized_name == func.normalize_pep426_name(value)).desc(),
+            Project.normalized_name,
+        )
+    )
+    return request.db.execute(stmt).all()
+
+
+def _render_tabulator_payload(request: Request) -> dict[str, Any]:
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="name",
+        default_sort_dir="asc",
+        filter_fields=_FILTER_FIELDS,
+    )
+    # The dashboard below is the landing view; an unfiltered listing would
+    # push it off screen.
+    if "name" not in params.filters:
+        return {"last_page": 1, "total": 0, "total_estimate": None, "data": []}
+    rows = execute_bounded(
+        request,
+        _build_projects_query(params),
+        timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS,
+    )
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=[Project.__tablename__]
+    )
+
+    exact_rows: Sequence[Row[*tuple[Any, ...]]] = []
+    value = params.filters["name"]
+    if params.page == 1 and _project_id(value) is None:
+        exact_rows = _exact_matches(request, value)
+        if pagination["total"] is not None:
+            pagination["total"] += len(exact_rows)
+
+    data = [
+        {
+            "name": row.name,
+            "normalized_name": row.normalized_name,
+            "detail_link": request.route_path(
+                "admin.project.detail", project_name=row.normalized_name
+            ),
+        }
+        for row in [*exact_rows, *page_rows]
+    ]
+
+    return {**pagination, "data": data}
+
 
 @view_config(
     route_name="admin.project.list",
     renderer="warehouse.admin:templates/admin/projects/list.html",
+    accept="text/html",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
 )
-def project_list(request):
-    q = request.params.get("q")
+def project_list(request: Request) -> dict[str, Any]:
+    days = parse_days_param(request)
 
-    # When there's no search query, show the dashboard view
-    if not q:
-        days = parse_days_param(request)
+    now = dt.datetime.now(dt.UTC)
+    cutoff = now - dt.timedelta(days=days)
+    created_date = func.date_trunc("day", Project.created)
 
-        now = datetime.datetime.now(datetime.UTC)
-        cutoff = now - datetime.timedelta(days=days)
-        created_date = func.date_trunc("day", Project.created)
+    daily_counts = request.db.execute(
+        select(created_date.label("date"), func.count(Project.id))
+        .where(Project.created >= cutoff)
+        .group_by(created_date)
+        .order_by(created_date)
+    ).all()
 
-        daily_counts = request.db.execute(
-            select(created_date.label("date"), func.count(Project.id))
-            .where(Project.created >= cutoff)
-            .group_by(created_date)
-            .order_by(created_date)
-        ).all()
+    # Build a complete series with zeros for days with no creations
+    counts_by_date = {
+        row_date.date().isoformat(): count for row_date, count in daily_counts
+    }
 
-        # Build a complete series with zeros for days with no creations
-        counts_by_date = {
-            row_date.date().isoformat(): count for row_date, count in daily_counts
-        }
+    creation_series = []
+    for i in range(days):
+        day = (cutoff + dt.timedelta(days=i + 1)).date().isoformat()
+        creation_series.append((day, counts_by_date.get(day, 0)))
 
-        creation_series = []
-        for i in range(days):
-            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
-            creation_series.append((day, counts_by_date.get(day, 0)))
-
-        latest_release = (
-            select(Release.version)
-            .where(
-                Release.project_id == Project.id,
-                Release.yanked.is_(False),
-            )
-            .order_by(
-                Release.is_prerelease.nullslast(),
-                Release._pypi_ordering.desc(),
-            )
-            .limit(1)
-            .correlate(Project)
-            .scalar_subquery()
-            .label("latest_version")
+    latest_release = (
+        select(Release.version)
+        .where(
+            Release.project_id == Project.id,
+            Release.yanked.is_(False),
         )
-
-        recent_projects = request.db.execute(
-            select(
-                Project.name,
-                Project.normalized_name,
-                Project.created,
-                latest_release,
-            )
-            .where(Project.created.isnot(None))
-            .order_by(Project.created.desc())
-            .limit(10)
-        ).all()
-
-        return {
-            "query": None,
-            "days": days,
-            "allowed_days": ALLOWED_DAYS,
-            "creation_series": creation_series,
-            "recent_projects": recent_projects,
-        }
-
-    # Search mode
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
-    projects_query = request.db.query(Project).order_by(Project.normalized_name)
-    exact_match = None
-
-    if q.startswith("id:"):
-        try:
-            project_id = uuid.UUID(q[3:])
-        except ValueError:
-            raise HTTPBadRequest("Invalid UUID.") from None
-        projects_query = projects_query.filter(Project.id == project_id)
-    else:
-        projects_query = projects_query.filter(
-            func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
+        .order_by(
+            Release.is_prerelease.nullslast(),
+            Release._pypi_ordering.desc(),
         )
-
-        exact_match = (
-            request.db.query(Project).filter(Project.normalized_name == q).one_or_none()
-        )
-
-    projects = SQLAlchemyORMPage(
-        projects_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
+        .limit(1)
+        .correlate(Project)
+        .scalar_subquery()
+        .label("latest_version")
     )
 
-    return {"projects": projects, "query": q, "exact_match": exact_match}
+    recent_projects = request.db.execute(
+        select(
+            Project.name,
+            Project.normalized_name,
+            Project.created,
+            latest_release,
+        )
+        .where(Project.created.isnot(None))
+        .order_by(Project.created.desc())
+        .limit(10)
+    ).all()
+
+    return {
+        "days": days,
+        "allowed_days": ALLOWED_DAYS,
+        "creation_series": creation_series,
+        "recent_projects": recent_projects,
+    }
+
+
+@view_config(
+    route_name="admin.project.list",
+    renderer="json",
+    accept="application/json",
+    decorator=[add_vary("Accept")],
+    permission=Permissions.AdminProjectsRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def project_list_json(request: Request) -> dict[str, Any]:
+    return _render_tabulator_payload(request)
 
 
 @view_config(
@@ -189,7 +298,7 @@ def project_detail(project, request):
         request.db.query(Role)
         .join(User)
         .filter(Role.project == project)
-        .distinct(User.username)
+        .ext(distinct_on(User.username))
         .all()
     )
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
@@ -231,6 +340,8 @@ def project_detail(project, request):
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "ORGANIZATION_MAX_FILESIZE": ORGANIZATION_MAX_FILESIZE,
+        "ORGANIZATION_MAX_PROJECT_SIZE": ORGANIZATION_MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "observation_kinds": ObservationKind,
         "observations": observations,

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from unittest.mock import call
 
@@ -93,7 +93,7 @@ def test_analyze_vulnerability_update_metadata(db_request, metrics):
 
     metrics.increment.reset_mock()
 
-    withdrawn_date = datetime.datetime.now(datetime.UTC)
+    withdrawn_date = dt.datetime.now(dt.UTC)
 
     tasks.analyze_vulnerability_task(
         request=db_request,

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
@@ -17,6 +17,7 @@ from warehouse.oidc.tasks import (
 )
 
 from ...common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import (
     FileEventFactory,
     FileFactory,
@@ -59,7 +60,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_1_1,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         additional={"publisher_url": "https://fake/url"},
     )
 
@@ -68,7 +69,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_1_2,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
     )
 
     # Scenario: Same project, differences between releases.
@@ -77,7 +78,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_2,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         additional={"publisher_url": "https://fake/url"},
     )
 
@@ -86,7 +87,7 @@ def test_compute_oidc_metrics(db_request, metrics, mocker):
     FileEventFactory.create(
         source=file_3,
         tag="fake:event",
-        time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        time=dt.datetime(2018, 2, 5, 17, 18, 18, 462_634),
     )
 
     compute_oidc_metrics(db_request)
@@ -126,7 +127,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         oidc_publisher_id=publisher.id,
         additional={"oidc": publisher.stored_claims(claims)},
     )
-    old_oidc_macaroon.created -= datetime.timedelta(days=1)
+    old_oidc_macaroon.created -= dt.timedelta(days=1)
 
     # Create an OIDC macaroon and set its creation time to 1 hour ago
     macaroon_service.create_macaroon(
@@ -138,7 +139,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         oidc_publisher_id=publisher.id,
         additional={"oidc": publisher.stored_claims(claims)},
     )
-    old_oidc_macaroon.created -= datetime.timedelta(hours=1)
+    old_oidc_macaroon.created -= dt.timedelta(hours=1)
 
     # Create a normal OIDC macaroon
     macaroon_service.create_macaroon(
@@ -157,7 +158,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         [caveats.RequestUser(user_id=str(user.id))],
         user_id=user.id,
     )
-    non_oidc_macaroon.created -= datetime.timedelta(days=1)
+    non_oidc_macaroon.created -= dt.timedelta(days=1)
 
     assert db_request.db.query(Macaroon).count() == 4
 
@@ -185,17 +186,25 @@ def test_delete_expired_pending_publishers(db_request, metrics, mocker):
         autospec=True,
     )
 
+    organization = OrganizationFactory.create()
     expired_publisher = PendingGitHubPublisherFactory.create(
         project_name="expired-project",
         created=pending_publisher_cutoff(PENDING_PUBLISHER_EXPIRY_DAYS)
-        - datetime.timedelta(seconds=1),
+        - dt.timedelta(seconds=1),
+    )
+    expired_org_publisher = PendingGitHubPublisherFactory.create(
+        project_name="expired-org-project",
+        organization_id=organization.id,
+        created=pending_publisher_cutoff(PENDING_PUBLISHER_EXPIRY_DAYS)
+        - dt.timedelta(seconds=1),
     )
     fresh_publisher = PendingGitHubPublisherFactory.create(
         project_name="fresh-project",
     )
     record_event = mocker.spy(expired_publisher.added_by, "record_event")
+    org_record_event = mocker.spy(organization, "record_event")
 
-    assert db_request.db.query(PendingOIDCPublisher).count() == 2
+    assert db_request.db.query(PendingOIDCPublisher).count() == 3
 
     delete_expired_pending_publishers(db_request)
 
@@ -205,12 +214,20 @@ def test_delete_expired_pending_publishers(db_request, metrics, mocker):
     assert remaining.project_name == fresh_publisher.project_name
 
     # Email was sent to the expired publisher's owner
-    send_email.assert_called_once_with(
-        db_request,
-        expired_publisher.added_by,
-        project_name="expired-project",
-        days=PENDING_PUBLISHER_EXPIRY_DAYS,
-    )
+    assert send_email.call_args_list == [
+        mocker.call(
+            db_request,
+            expired_publisher.added_by,
+            project_name="expired-project",
+            days=PENDING_PUBLISHER_EXPIRY_DAYS,
+        ),
+        mocker.call(
+            db_request,
+            expired_org_publisher.added_by,
+            project_name="expired-org-project",
+            days=PENDING_PUBLISHER_EXPIRY_DAYS,
+        ),
+    ]
 
     # An auto-removal event was recorded against the registrant, with
     # location redacted (system action, not user-initiated).
@@ -227,9 +244,22 @@ def test_delete_expired_pending_publishers(db_request, metrics, mocker):
             "redact_ip": True,
         },
     )
+    org_record_event.assert_called_once_with(
+        tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+        request=db_request,
+        additional={
+            "project": "expired-org-project",
+            "publisher": expired_org_publisher.publisher_name,
+            "id": str(expired_org_publisher.id),
+            "specifier": str(expired_org_publisher),
+            "url": expired_org_publisher.publisher_url(),
+            "submitted_by": "system:ttl-expired",
+            "redact_ip": True,
+        },
+    )
 
     metrics.gauge.assert_called_once_with(
-        "warehouse.oidc.expired_pending_publishers_deleted", 1
+        "warehouse.oidc.expired_pending_publishers_deleted", 2
     )
 
 
@@ -263,11 +293,11 @@ def test_send_pending_publisher_expiration_reminders(db_request, metrics, mocker
     )
     needs_reminder = PendingGitHubPublisherFactory.create(
         project_name="needs-reminder",
-        created=reminder_cutoff - datetime.timedelta(seconds=1),
+        created=reminder_cutoff - dt.timedelta(seconds=1),
     )
     already_reminded = PendingGitHubPublisherFactory.create(
         project_name="already-reminded",
-        created=reminder_cutoff - datetime.timedelta(seconds=1),
+        created=reminder_cutoff - dt.timedelta(seconds=1),
         expiration_reminded=True,
     )
     fresh = PendingGitHubPublisherFactory.create(project_name="fresh-project")

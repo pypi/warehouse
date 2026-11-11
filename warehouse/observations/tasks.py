@@ -127,6 +127,11 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         "tags": ["observation"],
     }
 
+    # Auto-quarantine runs alongside this task, so the project may already be
+    # quarantined before its conversation exists to be tagged.
+    if model.related.lifecycle_status == LifecycleStatus.QuarantineEnter:
+        request_json["tags"].append("quarantined_via_auto")
+
     # if a model has a payload, add it as an attachment.
     if model.payload:
         request_json["threads"][0]["attachments"] = [

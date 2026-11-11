@@ -6,13 +6,14 @@ import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy import text
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 
 import warehouse.constants
 
 from tests.common.db.oidc import GitHubPublisherFactory
-from warehouse.admin.views import projects as views
+from warehouse.admin.views import helpers, projects as views
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import (
@@ -48,7 +49,6 @@ class TestProjectList:
         projects = ProjectFactory.create_batch(5)
         result = views.project_list(db_request)
 
-        assert result["query"] is None
         assert result["days"] == 30
         assert result["allowed_days"] == (30, 60, 90)
         assert len(result["creation_series"]) == 30
@@ -94,69 +94,163 @@ class TestProjectList:
 
         assert len(result["recent_projects"]) == 10
 
-    def test_with_invalid_page(self, pyramid_request):
-        pyramid_request.params = {"q": "something", "page": "not an integer"}
-
-        with pytest.raises(HTTPBadRequest):
-            views.project_list(pyramid_request)
-
-    def test_basic_query(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(5), key=lambda p: p.normalized_name
-        )
-        db_request.GET["q"] = projects[0].name
-        result = views.project_list(db_request)
-
-        assert result == {
-            "projects": [projects[0]],
-            "query": projects[0].name,
-            "exact_match": None,
+    def test_json_view_returns_payload(self, route_request):
+        assert views.project_list_json(route_request) == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
         }
 
-    def test_basic_query_with_page(self, db_request):
+
+def _name_filter(value, page=None):
+    params = {
+        "filter[0][field]": "name",
+        "filter[0][type]": "like",
+        "filter[0][value]": value,
+    }
+    if page is not None:
+        params["page"] = str(page)
+    return params
+
+
+def _names(result):
+    return [row["name"] for row in result["data"]]
+
+
+class TestRenderProjectsPayload:
+    def test_unfiltered_is_empty(self, route_request):
+        ProjectFactory.create()
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == []
+
+    def test_row_shape(self, route_request):
+        ProjectFactory.create(name="Foo_Bar")
+        route_request.GET.update(_name_filter("foo"))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == [
+            {
+                "name": "Foo_Bar",
+                "normalized_name": "foo-bar",
+                "detail_link": "/admin/projects/foo-bar/",
+            }
+        ]
+
+    def test_default_order_and_paging(self, route_request):
         projects = sorted(
-            ProjectFactory.create_batch(30),
+            (ProjectFactory.create(name=f"many-{i:02d}") for i in range(30)),
             key=lambda p: p.normalized_name,
         )
-        db_request.GET["q"] = projects[0].name
-        db_request.GET["page"] = "1"
-        result = views.project_list(db_request)
 
-        assert result == {
-            "projects": [projects[0]],
-            "query": projects[0].name,
-            "exact_match": None,
-        }
+        route_request.GET.update(_name_filter("many"))
+        first = views._render_tabulator_payload(route_request)
+        route_request.GET.update(_name_filter("many", page=2))
+        second = views._render_tabulator_payload(route_request)
 
-    def test_id_query(self, db_request):
-        projects = ProjectFactory.create_batch(3)
-        target = projects[1]
-        db_request.GET["q"] = f"id:{target.id}"
-        result = views.project_list(db_request)
+        assert first["last_page"] == 2
+        assert _names(first) == [p.name for p in projects[:25]]
+        assert _names(second) == [p.name for p in projects[25:]]
+        assert second["total"] == 30
 
-        assert result == {
-            "projects": [target],
-            "query": f"id:{target.id}",
-            "exact_match": None,
-        }
+    def test_name_filter_matches_anywhere(self, route_request):
+        for name in ("structzz", "struct-sdk", "other"):
+            ProjectFactory.create(name=name)
+        route_request.GET.update(_name_filter("struct"))
 
-    def test_id_query_not_found(self, db_request):
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == ["struct-sdk", "structzz"]
+
+    @pytest.mark.parametrize(
+        ("name", "value"),
+        [
+            ("struct-sdk", "Struct_SDK"),  # separators and case
+            ("pillow", "pil1ow"),  # look-alike characters
+        ],
+    )
+    def test_name_filter_folds_like_ultranormalize(self, route_request, name, value):
+        ProjectFactory.create(name=name)
+        route_request.GET.update(_name_filter(value))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == [name]
+
+    def test_exact_match_ranks_first_once(self, route_request):
+        for name in ("aa-ace", "ace", "ace-cream", "A.c.e"):
+            ProjectFactory.create(name=name)
+        route_request.GET.update(_name_filter("ace"))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == ["ace", "A.c.e", "aa-ace", "ace-cream"]
+        assert result["total"] == 4
+
+    def test_name_filter_treats_wildcards_literally(self, route_request):
+        ProjectFactory.create(name="percent")
+        route_request.GET.update(_name_filter("per%"))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == []
+
+    def test_uuid_finds_one_project_by_id(self, route_request):
+        project = ProjectFactory.create()
         ProjectFactory.create()
-        missing_id = uuid.uuid4()
-        db_request.GET["q"] = f"id:{missing_id}"
-        result = views.project_list(db_request)
+        route_request.GET.update(_name_filter(str(project.id)))
 
-        assert result == {
-            "projects": [],
-            "query": f"id:{missing_id}",
-            "exact_match": None,
-        }
+        result = views._render_tabulator_payload(route_request)
 
-    def test_id_query_invalid_uuid(self, db_request):
-        db_request.GET["q"] = "id:not-a-uuid"
+        assert _names(result) == [project.name]
 
-        with pytest.raises(HTTPBadRequest):
-            views.project_list(db_request)
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "0123456789abcdef0123456789abcdef",  # 32 hex characters, no dashes
+            "z" * 36,  # uuid-length, but not one
+        ],
+    )
+    def test_uuid_lookalike_name_is_a_name(self, route_request, name):
+        ProjectFactory.create(name=name)
+        route_request.GET.update(_name_filter(name))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == [name]
+
+    def test_filtered_pagination_keeps_total_unknown(self, route_request):
+        ProjectFactory.create(name="many")
+        for i in range(26):
+            ProjectFactory.create(name=f"many-{i:02d}")
+        route_request.GET.update(_name_filter("many"))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["total"] is None
+        assert result["last_page"] == 2
+        assert _names(result)[:2] == ["many", "many-00"]
+        assert len(result["data"]) == 26
+
+    def test_name_filter_uses_trigram_index(self, db_request):
+        params = helpers.parse_tabulator_params(
+            _name_filter("struct"),
+            sortable_fields=views._SORTABLE_FIELDS,
+            default_sort_field="name",
+            filter_fields=views._FILTER_FIELDS,
+        )
+        statement = views._build_projects_query(params).compile(
+            dialect=db_request.db.bind.dialect,
+            compile_kwargs={"literal_binds": True},
+        )
+        db_request.db.execute(text("SET LOCAL enable_seqscan = off"))
+        db_request.db.execute(text("SET LOCAL enable_indexscan = off"))
+        plan = db_request.db.execute(text(f"EXPLAIN {statement}")).scalars().all()
+
+        assert any("projects_name_ultranormalized_trgm" in line for line in plan)
 
 
 class TestProjectDetail:
@@ -185,6 +279,10 @@ class TestProjectDetail:
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
             "MAX_PROJECT_SIZE": warehouse.constants.MAX_PROJECT_SIZE,
+            "ORGANIZATION_MAX_FILESIZE": warehouse.constants.ORGANIZATION_MAX_FILESIZE,
+            "ORGANIZATION_MAX_PROJECT_SIZE": (
+                warehouse.constants.ORGANIZATION_MAX_PROJECT_SIZE
+            ),
             "ONE_GIB": views.ONE_GIB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
             "observation_kinds": ObservationKind,
@@ -253,13 +351,10 @@ class TestReleaseDetail:
         )
         mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
-        # Mock request task handler
-        request_task_mock = mocker.Mock()
-        db_request.task = request_task_mock
-
         views.release_render(release, db_request)
 
-        request_task_mock.assert_called_with(update_release_description)
+        db_request.task.assert_called_once_with(update_release_description)
+        db_request.task.return_value.delay.assert_called_once_with(release.id)
 
         db_request.session.flash.assert_called_once_with(
             f"Task sent to re-render description for {release}", queue="success"
@@ -1060,7 +1155,7 @@ class TestDeleteRole:
 
 class TestReindexProject:
     def test_reindexes_project(self, db_request, mocker):
-        project = ProjectFactory.create(name="foo")
+        project = ProjectFactory.create(name="Foo_Bar")
 
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/admin/projects/"
@@ -1068,17 +1163,15 @@ class TestReindexProject:
         mocker.spy(db_request.session, "flash")
         db_request.user = UserFactory.create()
 
-        # Mock request task handler
-        request_task_mock = mocker.Mock()
-        db_request.task = request_task_mock
-
         views.reindex_project(project, db_request)
 
-        # Make sure reindex_project task was called
-        request_task_mock.assert_called_with(reindex_project)
+        db_request.task.assert_called_once_with(reindex_project)
+        db_request.task.return_value.delay.assert_called_once_with(
+            project.normalized_name
+        )
 
         db_request.session.flash.assert_called_once_with(
-            "Task sent to reindex the project 'foo'", queue="success"
+            "Task sent to reindex the project 'Foo_Bar'", queue="success"
         )
 
 

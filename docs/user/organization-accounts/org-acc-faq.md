@@ -11,7 +11,7 @@ This list of FAQs pertain to organization accounts in PyPI.
     Yes, anyone can create an organization. They are available as a paid feature
     for commercial entities and free of cost for community projects.
     To learn how to create an organization account, please see the steps
-    to follow [here](https://docs.pypi.org/organization-accounts/actions/org-actions/).
+    to follow [here](actions/org-actions.md).
 
 1. **How do I access an organization account?**
 

@@ -64,8 +64,8 @@ def estimate_row_count(request: Request, table_names: Iterable[str]) -> int:
 
 
 def execute_bounded(
-    request: Request, stmt: Select[Any], *, timeout_ms: int
-) -> Sequence[Row[Any]]:
+    request: Request, stmt: Select[*tuple[Any, ...]], *, timeout_ms: int
+) -> Sequence[Row[*tuple[Any, ...]]]:
     """Run a query under a statement timeout, turning timeouts into a 400.
 
     A query the indexes cannot serve would otherwise scan until the
@@ -166,11 +166,11 @@ def parse_tabulator_params(
 
 def tabulator_page(
     request: Request,
-    rows: Sequence[Row[Any]],
+    rows: Sequence[Row[*tuple[Any, ...]]],
     params: TabulatorParams,
     *,
     table_names: Iterable[str],
-) -> tuple[Sequence[Row[Any]], dict[str, Any]]:
+) -> tuple[Sequence[Row[*tuple[Any, ...]]], dict[str, Any]]:
     """Split off the probe row and size the pagination controls.
 
     Expects `rows` to hold up to `size + 1` rows — the extra one is how a next

@@ -54,6 +54,12 @@ requirements/*.in
 setup.cfg
 sitecustomize.py
 tests
+# `tests` above is root-anchored (Docker matches single-component patterns
+# against the whole relative path), so the sibling project needs its own entry.
+# Its README.md and LICENSE stay in the context: `readme` and `license-files` in
+# its pyproject reference them, so the editable install needs both.
+pyramid_components/tests
+pyramid_components/CHANGELOG.md
 **/Makefile
 
 # Not development only files, we use them in the container build/release/runtime

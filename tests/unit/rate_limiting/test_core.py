@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
-import pretend
 import redis
 
 from limits import storage
@@ -29,29 +28,33 @@ class TestRateLimiter:
         assert limiter.test("foo")
         assert not limiter.test("bar")
 
-    def test_error(self, metrics):
+    def test_error(self, mocker, metrics):
         limiter = RateLimiter(
             storage.MemoryStorage(),
             "1 per minute",
             identifiers=["foo"],
             metrics=metrics,
         )
-
-        def raiser(*args, **kwargs):
-            raise redis.ConnectionError
-
-        limiter._window = pretend.stub(hit=raiser, test=raiser, get_window_stats=raiser)
+        for name in ("hit", "test", "get_window_stats"):
+            mocker.patch.object(
+                limiter._window, name, autospec=True, side_effect=redis.ConnectionError
+            )
+        mocker.patch.object(
+            limiter._storage, "clear", autospec=True, side_effect=redis.ConnectionError
+        )
 
         assert limiter.test("foo")
         assert limiter.hit("foo")
+        assert limiter.clear("foo") is None
         assert limiter.resets_in("foo") is None
         assert limiter.get_window_stats("foo") == []
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.ratelimiter.error", tags=["call:test"]),
-            pretend.call("warehouse.ratelimiter.error", tags=["call:hit"]),
-            pretend.call("warehouse.ratelimiter.error", tags=["call:resets_in"]),
-            pretend.call("warehouse.ratelimiter.error", tags=["call:get_window_stats"]),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.ratelimiter.error", tags=["call:test"]),
+            mocker.call("warehouse.ratelimiter.error", tags=["call:hit"]),
+            mocker.call("warehouse.ratelimiter.error", tags=["call:clear"]),
+            mocker.call("warehouse.ratelimiter.error", tags=["call:resets_in"]),
+            mocker.call("warehouse.ratelimiter.error", tags=["call:get_window_stats"]),
         ]
 
     def test_namespacing(self, metrics):
@@ -92,8 +95,8 @@ class TestRateLimiter:
         while limiter.hit("foo"):
             pass
 
-        assert limiter.resets_in("foo") > datetime.timedelta(seconds=0)
-        assert limiter.resets_in("foo") < datetime.timedelta(seconds=60)
+        assert limiter.resets_in("foo") > dt.timedelta(seconds=0)
+        assert limiter.resets_in("foo") < dt.timedelta(seconds=60)
 
     def test_get_window_stats(self, metrics):
         limiter = RateLimiter(
@@ -123,30 +126,35 @@ class TestRateLimiter:
         assert 0 < stats[0].resets_in_seconds <= 60
         assert stats[1].remaining == 8
 
-    def test_resets_in_expired(self, metrics):
+    def test_resets_in_expired(self, mocker, metrics):
         limiter = RateLimiter(
             storage.MemoryStorage(),
             "1 per minute; 1 per hour; 1 per day",
             metrics=metrics,
         )
 
-        current = datetime.datetime.now(tz=datetime.UTC)
-        stats = iter(
-            [
+        current = dt.datetime.now(tz=dt.UTC)
+        get_window_stats = mocker.patch.object(
+            limiter._window,
+            "get_window_stats",
+            autospec=True,
+            side_effect=[
                 (0, 0),
-                ((current + datetime.timedelta(seconds=60)).timestamp(), 0),
-                ((current + datetime.timedelta(seconds=5)).timestamp(), 0),
-            ]
-        )
-
-        limiter._window = pretend.stub(
-            get_window_stats=lambda L, *a: next(stats)  # noqa: N803
+                ((current + dt.timedelta(seconds=60)).timestamp(), 0),
+                ((current + dt.timedelta(seconds=5)).timestamp(), 0),
+            ],
         )
 
         resets_in = limiter.resets_in("foo")
 
-        assert resets_in > datetime.timedelta(seconds=0)
-        assert resets_in <= datetime.timedelta(seconds=5)
+        assert resets_in > dt.timedelta(seconds=0)
+        assert resets_in <= dt.timedelta(seconds=5)
+        assert [
+            (limit.amount, limit.get_expiry(), identifier)
+            for limit, identifier in (
+                call.args for call in get_window_stats.call_args_list
+            )
+        ] == [(1, 60, "foo"), (1, 3600, "foo"), (1, 86400, "foo")]
 
     def test_override_returns_sibling(self, metrics):
         backend = storage.MemoryStorage()
@@ -216,26 +224,29 @@ class TestDummyRateLimiter:
 
 
 class TestRateLimit:
-    def test_basic(self, pyramid_request, metrics):
-        limiter_obj = pretend.stub()
-        limiter_class = pretend.call_recorder(lambda *a, **kw: limiter_obj)
+    def test_basic(self, mocker, pyramid_request):
+        """The default limiter_class builds a real RateLimiter."""
+        pyramid_request.registry["ratelimiter.storage"] = storage.MemoryStorage()
 
-        context = pretend.stub()
-        pyramid_request.registry["ratelimiter.storage"] = pretend.stub()
+        result = RateLimit("1 per 5 minutes", identifiers=["foo"])(
+            mocker.sentinel.context, pyramid_request
+        )
+
+        assert isinstance(result, RateLimiter)
+
+    def test_limiter_class(self, mocker, pyramid_request, metrics):
+        storage_ = storage.MemoryStorage()
+        pyramid_request.registry["ratelimiter.storage"] = storage_
+        limiter_class = mocker.create_autospec(RateLimiter)
 
         result = RateLimit(
             "1 per 5 minutes", identifiers=["foo"], limiter_class=limiter_class
-        )(context, pyramid_request)
+        )(mocker.sentinel.context, pyramid_request)
 
-        assert result is limiter_obj
-        assert limiter_class.calls == [
-            pretend.call(
-                pyramid_request.registry["ratelimiter.storage"],
-                limit="1 per 5 minutes",
-                identifiers=["foo"],
-                metrics=metrics,
-            )
-        ]
+        assert result is limiter_class.return_value
+        limiter_class.assert_called_once_with(
+            storage_, limit="1 per 5 minutes", identifiers=["foo"], metrics=metrics
+        )
 
     def test_repr(self):
         assert repr(RateLimit("one per hour")) == (
@@ -253,42 +264,34 @@ class TestRateLimit:
         assert RateLimit("1 per 5 minutes", identifiers=["foo"]) != object()
 
 
-def test_includeme():
-    registry = {}
-    config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda name, func: None),
-        add_tween=pretend.call_recorder(lambda factory: None),
-        registry=pretend.stub(
-            settings={"ratelimit.url": "memory://"}, __setitem__=registry.__setitem__
-        ),
+def test_includeme(mocker, pyramid_config):
+    pyramid_config.registry.settings["ratelimit.url"] = "memory://"
+    add_directive = mocker.spy(pyramid_config, "add_directive")
+    add_tween = mocker.spy(pyramid_config, "add_tween")
+
+    rate_limiting.includeme(pyramid_config)
+
+    add_directive.assert_called_once_with(
+        "register_rate_limiter", rate_limiting._register_rate_limiter
+    )
+    add_tween.assert_called_once_with(
+        "warehouse.rate_limiting.headers.rate_limit_headers_tween_factory"
+    )
+    assert isinstance(
+        pyramid_config.registry["ratelimiter.storage"], storage.MemoryStorage
     )
 
-    rate_limiting.includeme(config)
 
-    assert config.add_directive.calls == [
-        pretend.call("register_rate_limiter", rate_limiting._register_rate_limiter)
-    ]
-    assert config.add_tween.calls == [
-        pretend.call("warehouse.rate_limiting.headers.rate_limit_headers_tween_factory")
-    ]
-    assert isinstance(registry["ratelimiter.storage"], storage.MemoryStorage)
+def test_register_rate_limiter_directive(mocker, pyramid_config):
+    pyramid_config.include("pyramid_services")
+    register_service_factory = mocker.spy(pyramid_config, "register_service_factory")
 
-
-def test_register_rate_limiter_directive():
-    config = pretend.stub(
-        register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name: None
-        ),
+    rate_limiting._register_rate_limiter(
+        pyramid_config, "10 per minute", "test.limiter"
     )
 
-    rate_limiting._register_rate_limiter(config, "10 per minute", "test.limiter")
-
-    assert len(config.register_service_factory.calls) == 1
-    call = config.register_service_factory.calls[0]
-    assert call.kwargs["name"] == "test.limiter"
-    assert call.args[1] is rate_limiting.IRateLimiter
-    # Verify the factory is a RateLimit with correct parameters
-    factory = call.args[0]
-    assert isinstance(factory, RateLimit)
-    assert factory.limit == "10 per minute"
-    assert factory.identifiers == ["test.limiter"]
+    register_service_factory.assert_called_once_with(
+        RateLimit("10 per minute", identifiers=["test.limiter"]),
+        rate_limiting.IRateLimiter,
+        name="test.limiter",
+    )

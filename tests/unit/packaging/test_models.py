@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from collections import OrderedDict
 
@@ -9,11 +9,13 @@ import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
+from sqlalchemy import update
 
 from warehouse.attestations.models import (
     ProvenanceCounts,
     ProvenanceState,
     PublisherSource,
+    PublisherWorkflow,
 )
 from warehouse.authnz import Permissions
 from warehouse.constants import (
@@ -27,6 +29,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
+from warehouse.packaging import models as packaging_models
 from warehouse.packaging.models import (
     GITHUB_REPO_HOSTS,
     GITHUB_RESERVED_NAMES,
@@ -35,6 +38,7 @@ from warehouse.packaging.models import (
     PROVENANCE_COMPARISON_WINDOW_DAYS,
     Description,
     File,
+    JournalEntry,
     LifecycleStatus,
     Project,
     ProjectFactory,
@@ -65,7 +69,7 @@ from ...common.db.packaging import (
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
 
-_RELEASED_AT = datetime.datetime(2024, 3, 1, 12, 0, 0)
+_RELEASED_AT = dt.datetime(2024, 3, 1, 12, 0, 0)
 
 
 def _release_with_uploads(*delays):
@@ -91,11 +95,11 @@ def _release_pair(days_apart=4):
     """An older and a newer release on one project, `days_apart` apart."""
     project = DBProjectFactory.create()
     older = DBReleaseFactory.create(
-        project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+        project=project, created=dt.datetime(2026, 7, 1, 12, 0, 0)
     )
     newer = DBReleaseFactory.create(
         project=project,
-        created=older.created + datetime.timedelta(days=days_apart),
+        created=older.created + dt.timedelta(days=days_apart),
     )
     return older, newer
 
@@ -133,7 +137,7 @@ def _provenance_history(publisher=None):
     DBFileFactory.create(release=oldest, packagetype="bdist_wheel")
     middle = DBReleaseFactory.create(
         project=oldest.project,
-        created=oldest.created + datetime.timedelta(days=2),
+        created=oldest.created + dt.timedelta(days=2),
     )
     DBFileFactory.create(release=middle, packagetype="bdist_wheel")
     _provenanced_file(newest, publisher=publisher)
@@ -499,6 +503,166 @@ class TestProject:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        "org_kwargs",
+        [
+            {"is_active": False},
+            {"is_active": True, "orgtype": OrganizationType.Company},
+        ],
+    )
+    def test_acl_for_organization_not_in_good_standing(self, db_session, org_kwargs):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        organization = DBOrganizationFactory.create(**org_kwargs)
+        org_owner = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create(organization=organization)
+        DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+        _perms_read_and_write = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsWrite,
+        ]
+
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{org_owner.user.id}", _perms_read_and_write),
+                ],
+                key=lambda x: str(x[1]),
+            ),
+        ]
+
+    @pytest.mark.parametrize(
+        ("role_kind", "role_name", "user_kwargs"),
+        [
+            ("project", "Owner", {"is_frozen": True}),
+            ("project", "Owner", {"is_active": False}),
+            ("project", "Maintainer", {"is_frozen": True}),
+            ("project", "Maintainer", {"is_active": False}),
+            ("organization", None, {"is_frozen": True}),
+            ("organization", None, {"is_active": False}),
+            ("team", TeamProjectRoleType.Owner, {"is_frozen": True}),
+            ("team", TeamProjectRoleType.Owner, {"is_active": False}),
+            ("team", TeamProjectRoleType.Maintainer, {"is_frozen": True}),
+            ("team", TeamProjectRoleType.Maintainer, {"is_active": False}),
+        ],
+    )
+    def test_acl_for_project_with_frozen_or_inactive_user(
+        self, db_session, role_kind, role_name, user_kwargs
+    ):
+        """
+        If any user on a Project (via direct project role, organization owner
+        role, or team project role) is frozen or inactive, the Project ACL
+        should disallow uploads from trusted publishers without affecting other
+        projects sharing the same publisher.
+        """
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        inactive_user_kwargs = {
+            "user__is_frozen": user_kwargs.get("is_frozen", False),
+            "user__is_active": user_kwargs.get("is_active", True),
+        }
+
+        if role_kind == "project":
+            inactive_role = DBRoleFactory.create(
+                project=project,
+                role_name=role_name,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_role.user
+        elif role_kind == "organization":
+            organization = DBOrganizationFactory.create()
+            DBOrganizationProjectFactory.create(
+                organization=organization, project=project
+            )
+            inactive_org_role = DBOrganizationRoleFactory.create(
+                organization=organization,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_org_role.user
+        else:
+            team = DBTeamFactory.create()
+            DBOrganizationProjectFactory.create(
+                organization=team.organization, project=project
+            )
+            DBTeamProjectRoleFactory.create(
+                team=team, project=project, role_name=role_name
+            )
+            inactive_team_role = DBTeamRoleFactory.create(
+                team=team,
+                **inactive_user_kwargs,
+            )
+            inactive_user = inactive_team_role.user
+
+        other_project = DBProjectFactory.create()
+        DBRoleFactory.create(project=other_project)
+
+        publisher = GitHubPublisherFactory.create(projects=[project, other_project])
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+        assert (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]) not in acls
+        assert (
+            Allow,
+            f"user:{owner1.user.id}",
+            [
+                Permissions.ProjectsRead,
+                Permissions.ProjectsUpload,
+                Permissions.ProjectsWrite,
+            ],
+        ) in acls
+        assert any(principal == f"user:{inactive_user.id}" for _, principal, _ in acls)
+
+        other_acls = [
+            item for location in lineage(other_project) for item in location.__acl__()
+        ]
+        assert (
+            Allow,
+            f"oidc:{publisher.id}",
+            [Permissions.ProjectsUpload],
+        ) in other_acls
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
@@ -759,8 +923,12 @@ class TestProject:
         assert status.removed_sources == {
             PublisherSource("GitHub", "example-org/example")
         }
-        assert status.added_workflows == {"publish.yml"}
-        assert status.removed_workflows == {"release.yml"}
+        assert status.added_workflows == {
+            PublisherWorkflow("GitHub", "other/repo", "publish.yml")
+        }
+        assert status.removed_workflows == {
+            PublisherWorkflow("GitHub", "example-org/example", "release.yml")
+        }
 
     def test_provenance_statuses_suppress_a_change_against_unreadable(self, db_session):
         """
@@ -796,7 +964,7 @@ class TestProject:
         order disagree and only the tiebreak can produce the expected answer.
         """
         project = DBProjectFactory.create()
-        tied = datetime.datetime(2026, 7, 1, 12, 0, 0)
+        tied = dt.datetime(2026, 7, 1, 12, 0, 0)
         for version in ("1.0", "1.1"):
             _provenanced_file(
                 DBReleaseFactory.create(project=project, version=version, created=tied)
@@ -804,7 +972,7 @@ class TestProject:
         newest = DBReleaseFactory.create(
             project=project,
             version="2.0",
-            created=tied + datetime.timedelta(days=1),
+            created=tied + dt.timedelta(days=1),
         )
         _provenanced_file(newest)
 
@@ -867,13 +1035,13 @@ class TestProject:
         elsewhere = pypi_attestations.GitHubPublisher(
             repository="other/repo", workflow="publish.yml"
         )
-        day = datetime.datetime(2026, 7, 1, 12, 0, 0)
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
 
         def _release(version, days):
             return DBReleaseFactory.create(
                 project=project,
                 version=version,
-                created=day + datetime.timedelta(days=days),
+                created=day + dt.timedelta(days=days),
             )
 
         no_prov = _release("1.0", 0)
@@ -1391,23 +1559,31 @@ class TestRelease:
         [
             (
                 "https://github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
-                "type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                    "type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://github.com/pypi/warehouse/tree/main",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             ("https://github.com/pypa/", None),
             ("https://github.com/sponsors/pypa/", None),
@@ -1416,13 +1592,17 @@ class TestRelease:
             ("incorrect url", None),
             (
                 "https://www.github.com/pypi/warehouse.git",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
             (
                 "https://www.github.com/pypi/warehouse.git/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
-                "+type:issue+state:open&per_page=1",
+                (
+                    "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                    "+type:issue+state:open&per_page=1"
+                ),
             ),
         ],
     )
@@ -1583,7 +1763,10 @@ class TestRelease:
                     PublisherSource("GitHub", "foo/bar"): 1,
                     PublisherSource("GitHub", "foo/baz"): 1,
                 },
-                {"publish.yml": 2},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/baz", "publish.yml"): 1,
+                },
                 id="two-repositories",
             ),
             pytest.param(
@@ -1594,7 +1777,10 @@ class TestRelease:
                     repository="foo/bar", workflow="release.yml"
                 ),
                 {PublisherSource("GitHub", "foo/bar"): 2},
-                {"publish.yml": 1, "release.yml": 1},
+                {
+                    PublisherWorkflow("GitHub", "foo/bar", "publish.yml"): 1,
+                    PublisherWorkflow("GitHub", "foo/bar", "release.yml"): 1,
+                },
                 id="two-workflows",
             ),
             pytest.param(
@@ -1682,8 +1868,12 @@ class TestRelease:
                 {
                     "added_sources": {PublisherSource("GitHub", "foo/baz")},
                     "removed_sources": {PublisherSource("GitHub", "foo/bar")},
-                    "added_workflows": set(),
-                    "removed_workflows": set(),
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/baz", "publish.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="repository-changed",
             ),
@@ -1697,8 +1887,12 @@ class TestRelease:
                 {
                     "added_sources": set(),
                     "removed_sources": set(),
-                    "added_workflows": {"release.yml"},
-                    "removed_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "release.yml")
+                    },
+                    "removed_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                 },
                 id="workflow-changed",
             ),
@@ -1714,10 +1908,31 @@ class TestRelease:
                     "removed_sources": {
                         PublisherSource("Google", "builder@example.gserviceaccount.com")
                     },
-                    "added_workflows": {"publish.yml"},
+                    "added_workflows": {
+                        PublisherWorkflow("GitHub", "foo/bar", "publish.yml")
+                    },
                     "removed_workflows": set(),
                 },
                 id="moved-from-google-to-github",
+            ),
+            pytest.param(
+                pypi_attestations.GooglePublisher(
+                    email="old@example.gserviceaccount.com"
+                ),
+                pypi_attestations.GooglePublisher(
+                    email="new@example.gserviceaccount.com"
+                ),
+                {
+                    "added_sources": {
+                        PublisherSource("Google", "new@example.gserviceaccount.com")
+                    },
+                    "removed_sources": {
+                        PublisherSource("Google", "old@example.gserviceaccount.com")
+                    },
+                    "added_workflows": set(),
+                    "removed_workflows": set(),
+                },
+                id="google-email-changed",
             ),
         ],
     )
@@ -1756,7 +1971,7 @@ class TestRelease:
         project = DBProjectFactory.create()
         rel0 = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
+            created=dt.datetime(2026, 7, 1, 12, 0, 0),
         )
         _provenanced_file(rel0, packagetype="sdist", filename="file0.tar.gz")
         DBFileFactory.create(
@@ -1765,13 +1980,13 @@ class TestRelease:
 
         rel1_noprov = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 3, 12, 0, 0),
+            created=dt.datetime(2026, 7, 3, 12, 0, 0),
         )
         DBFileFactory.create(release=rel1_noprov)
 
         rel2_same = DBReleaseFactory.create(
             project=project,
-            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
+            created=dt.datetime(2026, 7, 5, 12, 0, 0),
         )
         _provenanced_file(rel2_same)
 
@@ -1918,7 +2133,7 @@ class TestRelease:
 
     def test_late_file_status_is_none_without_files(self, db_session):
         """A release whose files have all been removed has nothing to report."""
-        release = _release_with_uploads(datetime.timedelta(0))
+        release = _release_with_uploads(dt.timedelta(0))
         for file in release.files:
             db_session.delete(file)
         db_session.flush()
@@ -1944,9 +2159,7 @@ class TestRelease:
         SELECT; a template reading several attributes off the status must not
         pay for each one.
         """
-        release = _release_with_uploads(
-            datetime.timedelta(0), datetime.timedelta(days=30)
-        )
+        release = _release_with_uploads(dt.timedelta(0), dt.timedelta(days=30))
         db_session.flush()
         assert release.created is not None  # load the release row before counting
 
@@ -1961,23 +2174,23 @@ class TestRelease:
     def test_late_file_status_brackets_the_uploads(self, db_session):
         """The first and last arrivals bracket the release's files."""
         release = _release_with_uploads(
-            datetime.timedelta(hours=2),
-            datetime.timedelta(0),
-            datetime.timedelta(days=3),
+            dt.timedelta(hours=2),
+            dt.timedelta(0),
+            dt.timedelta(days=3),
         )
 
         status = release.late_file_status
 
         assert status.total_files == 3
         assert status.first_upload == _RELEASED_AT
-        assert status.last_upload == _RELEASED_AT + datetime.timedelta(days=3)
+        assert status.last_upload == _RELEASED_AT + dt.timedelta(days=3)
 
     def test_late_file_status_ignores_punctual_files(self, db_session):
         """Files arriving inside the window are not late."""
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=1),
-            MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(hours=1),
+            dt.timedelta(0),
+            dt.timedelta(days=1),
+            MAXIMUM_AGE_FOR_NEW_UPLOADS - dt.timedelta(hours=1),
         )
 
         status = release.late_file_status
@@ -1987,8 +2200,8 @@ class TestRelease:
     def test_late_file_status_finds_a_late_file(self, db_session):
         """A file past the window is reported, with how long it took to arrive."""
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=30),
+            dt.timedelta(0),
+            dt.timedelta(days=30),
         )
 
         status = release.late_file_status
@@ -1996,29 +2209,29 @@ class TestRelease:
         assert status.total_files == 2
         (late,) = status.late_files
         assert late.filename == f"{release.project.name}-1.0-1.whl"
-        assert late.upload_time == _RELEASED_AT + datetime.timedelta(days=30)
-        assert late.delay == datetime.timedelta(days=30)
+        assert late.upload_time == _RELEASED_AT + dt.timedelta(days=30)
+        assert late.delay == dt.timedelta(days=30)
 
     def test_late_file_status_reports_every_late_file_oldest_first(self, db_session):
         """Several late files are all reported, ordered by when they arrived."""
         release = _release_with_uploads(
-            datetime.timedelta(days=90),
-            datetime.timedelta(0),
-            datetime.timedelta(days=20),
+            dt.timedelta(days=90),
+            dt.timedelta(0),
+            dt.timedelta(days=20),
         )
 
         status = release.late_file_status
 
         assert [late.delay for late in status.late_files] == [
-            datetime.timedelta(days=20),
-            datetime.timedelta(days=90),
+            dt.timedelta(days=20),
+            dt.timedelta(days=90),
         ]
 
     @pytest.mark.parametrize(
         ("delay", "late"),
         [
             (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
-            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(hours=23), True),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + dt.timedelta(hours=23), True),
         ],
     )
     def test_late_file_status_measures_the_window_to_the_second(
@@ -2030,7 +2243,7 @@ class TestRelease:
         A file arriving on the window's last day plus twenty-three hours is
         late; truncating the delta to whole days would let it pass.
         """
-        release = _release_with_uploads(datetime.timedelta(0), delay)
+        release = _release_with_uploads(dt.timedelta(0), delay)
 
         assert bool(release.late_file_status.late_files) is late
 
@@ -2040,8 +2253,8 @@ class TestRelease:
         one it was raised for.
         """
         release = _release_with_uploads(
-            datetime.timedelta(0),
-            datetime.timedelta(days=30),
+            dt.timedelta(0),
+            dt.timedelta(days=30),
         )
         first, _ = sorted(release.files, key=lambda file: file.upload_time)
         db_session.delete(first)
@@ -2051,7 +2264,7 @@ class TestRelease:
 
         assert status.total_files == 1
         assert len(status.late_files) == 1
-        assert status.first_upload == _RELEASED_AT + datetime.timedelta(days=30)
+        assert status.first_upload == _RELEASED_AT + dt.timedelta(days=30)
 
 
 class TestFile:
@@ -2185,9 +2398,9 @@ class TestFile:
     @pytest.mark.parametrize(
         ("delay", "expected"),
         [
-            (datetime.timedelta(0), False),
+            (dt.timedelta(0), False),
             (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
-            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(seconds=1), True),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + dt.timedelta(seconds=1), True),
         ],
     )
     def test_added_late(self, db_session, delay, expected):
@@ -2196,6 +2409,69 @@ class TestFile:
         (file,) = release.files
 
         assert file.added_late is expected
+
+    def test_insert_does_not_rewrite_sibling_requires_python(self, db_session):
+        """
+        Inserting a file must only write its own ``requires_python``.
+        """
+        release = DBReleaseFactory.create(requires_python=">=3.9")
+        sibling = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+
+        # A value the trigger can never produce: if the insert below rewrites
+        # the release's other files, this is reset to the release's value.
+        db_session.execute(
+            update(File).where(File.id == sibling.id).values(requires_python="sentinel")
+        )
+
+        new = DBFileFactory.create(release=release, packagetype="bdist_wheel")
+        db_session.refresh(sibling)
+
+        assert sibling.requires_python == "sentinel"
+        assert new.requires_python == ">=3.9"
+
+    def test_cached_update_does_not_recompute_total_size(self, db_session):
+        """
+        Flipping ``cached`` must not touch the parent project row.
+        """
+
+        rfile = DBFileFactory.create(cached=False)
+        project = rfile.release.project
+
+        # A value the trigger can never produce, if it runs on the flush,
+        # update_project_total_size_release_files resets this to the real sum.
+        project.total_size = sentinel = rfile.size + 1
+        db_session.flush()
+
+        rfile.cached = True
+        db_session.flush()
+        db_session.refresh(project)
+
+        assert project.total_size == sentinel
+
+
+class TestEnsureMonotonicJournals:
+    def test_locks_project_row_before_advisory_lock(self, db_session, query_recorder):
+        """
+        A journal flush must lock the project row before the advisory lock.
+        """
+        project = DBProjectFactory.create()
+        db_session.add(JournalEntry(name=project.name, action="remove release"))
+
+        with query_recorder:
+            db_session.flush()
+
+        order = [
+            kind
+            for statement in query_recorder.queries
+            for kind, needle in (
+                ("project row", "FOR NO KEY UPDATE"),
+                ("advisory lock", "pg_advisory_xact_lock"),
+            )
+            if needle in statement
+        ]
+        # the test suite registers the listeners once per app config,
+        # so the hook can fire more than once.
+        assert order[:2] == ["project row", "advisory lock"]
 
 
 class TestProjectLimitProperties:
@@ -2215,7 +2491,7 @@ class TestProjectLimitProperties:
 
     def test_upload_limit_size_with_organization_limit(self, db_session):
 
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2231,7 +2507,7 @@ class TestProjectLimitProperties:
     def test_upload_limit_size_with_both_limits(self, db_session):
 
         project_limit = 50 * ONE_MIB
-        org_limit = 100 * ONE_MIB
+        org_limit = 300 * ONE_MIB
         organization = DBOrganizationFactory.create(
             orgtype=OrganizationType.Company, upload_limit=org_limit
         )
@@ -2283,6 +2559,28 @@ class TestProjectLimitProperties:
         expected = max(MAX_PROJECT_SIZE, project_limit, org_limit)
         assert project.total_size_limit_value == expected
 
+    def test_organization_default_limits(self, db_session, monkeypatch):
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_FILESIZE", 200 * ONE_MIB
+        )
+        monkeypatch.setattr(
+            packaging_models, "ORGANIZATION_MAX_PROJECT_SIZE", 20 * ONE_GIB
+        )
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        assert project.upload_limit_size == MAX_FILESIZE
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+        project.organization = DBOrganizationFactory.create(
+            upload_limit=None, total_size_limit=None
+        )
+        assert project.upload_limit_size == 200 * ONE_MIB
+        assert project.total_size_limit_value == 20 * ONE_GIB
+
+        project.organization.upload_limit = 300 * ONE_MIB
+        project.organization.total_size_limit = 30 * ONE_GIB
+        assert project.upload_limit_size == 300 * ONE_MIB
+        assert project.total_size_limit_value == 30 * ONE_GIB
+
     def test_upload_limit_size_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
 
@@ -2293,8 +2591,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(upload_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.upload_limit_size == MAX_FILESIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.upload_limit_size == 2 * MAX_FILESIZE
 
     def test_total_size_limit_value_edge_case_with_zero_limits(self, db_session):
         """Edge case: test behavior with zero/negative limits"""
@@ -2306,8 +2604,8 @@ class TestProjectLimitProperties:
         project = DBProjectFactory.create(total_size_limit=0)
         project.organization = organization
 
-        # Should fall back to system default since zero limits are filtered out
-        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+        # Should fall back to the organization default since zero limits are filtered
+        assert project.total_size_limit_value == 2 * MAX_PROJECT_SIZE
 
     def test_upload_limit_size_edge_case_all_none_fallback(self, db_session):
         """Edge case: test fallback when all custom limits are None"""

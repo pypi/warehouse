@@ -148,7 +148,11 @@
   </small>
 {% elif event.tag == EventTag.Project.RoleRevokeInvite %}
   <strong>
-    {% trans href=request.route_path('accounts.profile', username=event.additional.target_user), username=event.additional.target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as project {{ role_name }}{% endtrans %}
+    {% if event.additional.role_name %}
+      {% trans href=request.route_path('accounts.profile', username=event.additional.target_user), username=event.additional.target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as project {{ role_name }}{% endtrans %}
+    {% else %}
+      {% trans href=request.route_path('accounts.profile', username=event.additional.target_user), username=event.additional.target_user %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join the project{% endtrans %}
+    {% endif %}
   </strong>
   <small>
     {% trans %}Revoked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>

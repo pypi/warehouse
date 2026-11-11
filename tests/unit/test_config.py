@@ -9,7 +9,7 @@ from datetime import timedelta
 import pytest
 
 from pyramid import renderers
-from pyramid.authorization import Allow, Authenticated
+from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
@@ -47,7 +47,6 @@ class TestRequireHTTPSTween:
         ("params", "scheme"),
         [
             ({":action": "thing"}, "http"),
-            ({":action": None}, "http"),
             ({":action": ""}, "http"),
         ],
     )
@@ -350,6 +349,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.account.password_reset_ip_ratelimit_string": "10 per hour",
         "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
@@ -357,6 +357,15 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
         "warehouse.packaging.project_create_organization_ratelimit_string": (
             "10 per day"
+        ),
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string": (
+            "100 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string": (
+            "200 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string": (
+            "50 per day"
         ),
         "warehouse.search.ratelimit_string": "5 per second",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
@@ -587,14 +596,13 @@ def test_configure(monkeypatch, mocker, settings, environment):
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
 
 
-def test_root_factory_access_control_list():
-    acl = config.RootFactory.__acl__
-
-    assert acl == [
+@pytest.mark.parametrize("permission", [*Permissions, "unknown:permission"])
+@pytest.mark.parametrize(
+    ("principal", "allowed"),
+    [
         (
-            Allow,
             "group:admins",
-            (
+            {
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,
@@ -611,6 +619,8 @@ def test_root_factory_access_control_list():
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -639,12 +649,11 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
-            ),
+            },
         ),
         (
-            Allow,
             "group:support",
-            (
+            {
                 Permissions.AdminBannerRead,
                 Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
@@ -653,6 +662,8 @@ def test_root_factory_access_control_list():
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
@@ -672,12 +683,11 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
                 Permissions.AdminUsersRecoveryCodesBurn,
-            ),
+            },
         ),
         (
-            Allow,
             "group:moderators",
-            (
+            {
                 Permissions.AdminBannerRead,
                 Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
@@ -686,6 +696,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminJournalRead,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationApplicationsRead,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
@@ -697,40 +708,59 @@ def test_root_factory_access_control_list():
                 Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
-            ),
+            },
         ),
         (
-            Allow,
             "group:psf_staff",
-            (
+            {
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminSponsorsWrite,
-            ),
+            },
         ),
         (
-            Allow,
             "group:observers",
-            (
-                Permissions.APIEcho,
-                Permissions.APIObservationsAdd,
-            ),
+            {Permissions.APIEcho, Permissions.APIObservationsAdd},
         ),
         (
-            Allow,
-            Authenticated,
-            (
-                Permissions.Account2FA,
-                Permissions.AccountAPITokens,
-                Permissions.AccountManage,
-                Permissions.AccountManagePublishing,
-                Permissions.AccountVerifyEmail,
-                Permissions.AccountVerifyOrgRole,
-                Permissions.AccountVerifyProjectRole,
-                Permissions.OrganizationsManage,
-                Permissions.ProjectsRead,
-            ),
+            "group:org_application_reviewers",
+            {
+                Permissions.AdminOrganizationApplicationsRead,
+                Permissions.AdminOrganizationApplicationsWrite,
+            },
         ),
-    ]
+        (Authenticated, set()),
+        ("unknown:principal", set()),
+    ],
+    ids=[
+        "admins",
+        "support",
+        "moderators",
+        "psf-staff",
+        "observers",
+        "org-application-reviewers",
+        "authenticated",
+        "unknown",
+    ],
+)
+def test_root_factory_permissions(principal, allowed, permission):
+    # Every staff role retains ordinary account access, but no extra root grants.
+    account_permissions = {
+        Permissions.Account2FA,
+        Permissions.AccountAPITokens,
+        Permissions.AccountManage,
+        Permissions.AccountManagePublishing,
+        Permissions.AccountVerifyEmail,
+        Permissions.AccountVerifyOrgRole,
+        Permissions.AccountVerifyProjectRole,
+        Permissions.OrganizationsManage,
+        Permissions.ProjectsRead,
+    }
+    principals = [principal]
+    if principal != "unknown:principal":
+        principals.append(Authenticated)
+        allowed = allowed | account_permissions
+    result = ACLHelper().permits(config.RootFactory(None), principals, permission)
+    assert bool(result) == (permission in allowed)

@@ -137,7 +137,7 @@ class TestJSONProject:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        db_request.matchdict = {"name": project.name.swapcase()}
+        db_request.matchdict = {"name": project.name.upper()}
         current_route_path = mocker.patch.object(
             db_request,
             "current_route_path",
@@ -387,7 +387,7 @@ class TestJSONProjectSlash:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        db_request.matchdict = {"name": project.name.swapcase()}
+        db_request.matchdict = {"name": project.name.upper()}
         current_route_path = mocker.patch.object(
             db_request,
             "current_route_path",
@@ -466,7 +466,7 @@ class TestJSONRelease:
         release = ReleaseFactory.create(version="3.0")
 
         db_request.matchdict = {
-            "name": release.project.name.swapcase(),
+            "name": release.project.name.upper(),
             "version": "3.0",
         }
         current_route_path = mocker.patch.object(
@@ -833,7 +833,7 @@ class TestJSONReleaseSlash:
         release = ReleaseFactory.create(version="3.0")
 
         db_request.matchdict = {
-            "name": release.project.name.swapcase(),
+            "name": release.project.name.upper(),
             "version": "3.0",
         }
         current_route_path = mocker.patch.object(

@@ -371,21 +371,23 @@ class TestManageOrganizationRoles:
             {
                 "csrf_token": csrf_token,
                 "role_id": str(member_role.id),
-                "role_name": "Manager",
+                "role_name": "Billing Manager",
             },
         )
         assert resp.status_code == HTTPStatus.SEE_OTHER
         assert resp.location.endswith(
             f"/manage/organization/{organization.normalized_name}/people/"
         )
-        assert member_role.role_name == OrganizationRoleType.Manager
+        assert member_role.role_name == OrganizationRoleType.BillingManager
 
-    def test_company_org_with_lapsed_subscription_blocked(self, webtest):
+    def test_company_org_with_lapsed_subscription_can_invite_billing_manager_only(
+        self, webtest
+    ):
         """
-        A Company org with a lapsed (canceled) subscription is blocked
-        from the roles page.
+        A Company org with a lapsed (canceled) subscription can access the
+        roles page and invite a Billing Manager, but no other roles.
         """
-        owner, _ = self._create_owner_and_target()
+        owner, target = self._create_owner_and_target()
         organization = OrganizationFactory.create(
             name="lapsed-company-org", orgtype=OrganizationType.Company
         )
@@ -404,8 +406,25 @@ class TestManageOrganizationRoles:
 
         self._login_user(webtest, owner)
 
-        resp = self._get_roles_page(webtest, organization, status=HTTPStatus.SEE_OTHER)
-        assert resp.location.endswith("/manage/organizations/")
+        roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
+        csrf_token = roles_page.html.find("input", {"name": "csrf_token"})["value"]
+        role_select = roles_page.html.find("select", {"name": "role_name"})
+        assert [
+            option.get("value")
+            for option in role_select.find_all("option")
+            if option.get("value")
+        ] == ["Billing Manager"]
+
+        resp = self._post_invite(
+            webtest, organization, target.username, "Owner", csrf_token
+        )
+        assert resp.status_code == HTTPStatus.OK
+        assert "Not a valid choice" in resp.text
+
+        resp = self._post_invite(
+            webtest, organization, target.username, "Billing Manager", csrf_token
+        )
+        assert resp.status_code == HTTPStatus.SEE_OTHER
 
     def test_company_org_with_active_subscription_works(self, webtest):
         """

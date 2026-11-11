@@ -377,6 +377,21 @@ $ totp-cli delete localhost <username>
 Password: <the password you set for the totp storage>
 ```
 
+### Reviewing organization applications
+
+Open **Organizations → Applications** in `/admin/`. Superusers, support staff,
+organization application reviewers, and moderators can view applications;
+taking review actions requires a superuser, support, or organization application
+reviewer account.
+Review checks are advisory; recognized code and package hosting domains require
+another way to verify affiliation. The host list is not exhaustive.
+Domain comparisons distinguish separate registrations under
+private suffixes such as `uk.com`. **Ask about this** opens a saved reply for
+review before sending.
+The action buttons show their keyboard shortcuts. In a review modal,
+`Ctrl+Enter` (or `Command+Return`) submits the form, including required-field
+validation. A deferral message is an internal note, not an email to the applicant.
+
 ### Stopping Warehouse and other services
 
 In the terminal where `make serve` is running, you can use `Control-C`
@@ -726,8 +741,18 @@ T=tests/unit/i18n/test_filters.py make tests
     can pass explicit `COVERAGE`:
 
     ```shell
-    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+    T=tests/unit/i18n/test_filters.py COVERAGE=yes make tests
     ```
+
+To write an HTML coverage report to `htmlcov/` that shows which tests ran
+each line, pass `COVERAGE_HTML`:
+
+```shell
+COVERAGE_HTML=yes make tests
+```
+
+Recording per-test contexts needs coverage's slower `ctrace` core, so this
+run takes longer than the default, which measures with `sys.monitoring`.
 
 You can also add arguments to the test runner by using the `TESTARGS`
 variable:
@@ -745,7 +770,7 @@ This is useful in scenarios like passing a
 TESTARGS="--randomly-seed=1234" make tests
 ```
 
-You can run the common tools (formatters, linting, translations) to make sure
+You can run the common tools (formatters, linting) to make sure
 that a patch is ready by running:
 
 ```shell
@@ -784,28 +809,19 @@ disable test parallelism and enable the snapshot approval dialogue. For example:
 T=tests/functional/api/test_simple.py make tests
 ```
 
-## Building translations
+## Translations
 
 Warehouse is translated into a number of different locales, which are stored in
 the `warehouse/locale/` directory.
 
-These translation files contain references to untranslated text in source code
-and HTML templates, as well as the translations which have been submitted by
-our volunteer translators.
-
-When making changes to files with strings marked for translation, it's
-necessary to update these references any time source strings are change, or the
-line numbers of the source strings in the source files.
-
-Use `make` to build the translations. For example:
-
-```shell
-make translations
-```
+`warehouse/locale/messages.pot` lists every translatable string. After each
+merge, CI regenerates it and proposes the change in a bot pull request, so you
+don't need to run anything. To inspect what extraction produces locally, run
+`make translations`, which writes to `.state/messages.pot`.
 
 ## What next?
 
-Look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), find one you
+Look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue+for+humans%22), find one you
 want to work on, comment on it to say you're working on it, then submit a pull
 request. Use our [submitting patches](submitting-patches.md) documentation to help.
 
@@ -819,7 +835,6 @@ involved. And you can meet us in person at [packaging sprints](https://wiki.pyth
 
 Resources to help you learn Warehouse's context:
 
-- [Roadmap](../roadmap.md)
 - [blog posts, mailing list messages, and notes from our core developer meetings](https://wiki.python.org/psf/PackagingWG)
 - [Warehouse codebase](../application.md)
 - [the PyPA's list of presentations and articles](https://www.pypa.io/en/latest/presentations/)

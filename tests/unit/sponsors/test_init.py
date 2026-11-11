@@ -1,47 +1,48 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import pytest
 
 from celery.schedules import crontab
 
-from warehouse import sponsors
+from warehouse import sponsors, tasks
 from warehouse.sponsors.tasks import update_pypi_sponsors
 
 from ...common.db.sponsors import SponsorFactory
 
 
-def test_includeme():
-    settings = {"pythondotorg.api_token": "test-token"}
-    config = pretend.stub(
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
-        add_periodic_task=pretend.call_recorder(lambda crontab, task: None),
-        registry=pretend.stub(settings=settings),
+@pytest.fixture
+def add_periodic_task(mocker, pyramid_config):
+    """Register an autospec of the ``add_periodic_task`` directive."""
+    directive = mocker.create_autospec(tasks._add_periodic_task)
+    pyramid_config.add_directive("add_periodic_task", directive, action_wrap=False)
+    return directive
+
+
+def test_includeme(mocker, pyramid_config, add_periodic_task):
+    pyramid_config.registry.settings["pythondotorg.api_token"] = "test-token"
+    add_request_method = mocker.spy(pyramid_config, "add_request_method")
+
+    sponsors.includeme(pyramid_config)
+
+    add_request_method.assert_called_once_with(
+        sponsors._sponsors, name="sponsors", reify=True
+    )
+    add_periodic_task.assert_called_once_with(
+        pyramid_config, crontab(minute=10), update_pypi_sponsors
     )
 
-    sponsors.includeme(config)
 
-    assert config.add_request_method.calls == [
-        pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-    ]
-    assert config.add_periodic_task.calls == [
-        pretend.call(crontab(minute=10), update_pypi_sponsors),
-    ]
+def test_do_not_schedule_sponsor_api_integration_if_no_token(
+    mocker, pyramid_config, add_periodic_task
+):
+    add_request_method = mocker.spy(pyramid_config, "add_request_method")
 
+    sponsors.includeme(pyramid_config)
 
-def test_do_not_schedule_sponsor_api_integration_if_no_token():
-    settings = {}
-    config = pretend.stub(
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
-        add_periodic_task=pretend.call_recorder(lambda crontab, task: None),
-        registry=pretend.stub(settings=settings),
+    add_request_method.assert_called_once_with(
+        sponsors._sponsors, name="sponsors", reify=True
     )
-
-    sponsors.includeme(config)
-
-    assert config.add_request_method.calls == [
-        pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-    ]
-    assert not config.add_periodic_task.calls
+    add_periodic_task.assert_not_called()
 
 
 def test_list_sponsors(db_request):

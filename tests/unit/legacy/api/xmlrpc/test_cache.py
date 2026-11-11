@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import json
 import types
 
@@ -138,14 +138,14 @@ class TestIncludeMe:
         pyramid_request.registry.settings.update(
             {"warehouse.xmlrpc.cache.url": "null://"}
         )
-        delay = mocker.stub(name="delay")
-        pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
+        delay = pyramid_request.task.return_value.delay
 
         service = NullXMLRPCCache.create_service(None, pyramid_request)
         service.purge_tags(["wu", "tang", "4", "evah"])
 
         assert isinstance(service, NullXMLRPCCache)
         assert service._purger is delay
+        pyramid_request.task.assert_called_once_with(services.purge_tag)
         assert delay.call_args_list == [
             mocker.call("wu"),
             mocker.call("tang"),
@@ -157,14 +157,14 @@ class TestIncludeMe:
         pyramid_request.registry.settings.update(
             {"warehouse.xmlrpc.cache.url": "redis://"}
         )
-        delay = mocker.stub(name="delay")
-        pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
+        delay = pyramid_request.task.return_value.delay
 
         service = RedisXMLRPCCache.create_service(None, pyramid_request)
         service.purge_tags(["wu", "tang", "4", "evah"])
 
         assert isinstance(service, RedisXMLRPCCache)
         assert service._purger is delay
+        pyramid_request.task.assert_called_once_with(services.purge_tag)
         # Without this the cache falls back to StubMetricReporter and reports nothing.
         assert service.redis_lru.metric_reporter is pyramid_request.metrics
 
@@ -245,7 +245,7 @@ class TestRedisLru:
         """
 
         def datetime_func():
-            return {"submitted": datetime.datetime(2020, 1, 1)}
+            return {"submitted": dt.datetime(2020, 1, 1)}
 
         redis_lru = RedisLru(mockredis)
 

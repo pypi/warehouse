@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
 import pytest
@@ -13,6 +13,7 @@ from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
 from ....common.db.banners import BannerFactory
+from ....common.forms import as_posted
 
 
 @pytest.fixture
@@ -22,7 +23,7 @@ def banner_data():
         "name": "Sample Banner",
         "text": "This should be the correct text",
         "link_url": "https://samplebanner.com",
-        "end": (datetime.date.today() + datetime.timedelta(days=2)).isoformat(),
+        "end": (dt.date.today() + dt.timedelta(days=2)).isoformat(),
     }
 
 
@@ -99,11 +100,10 @@ class TestEditBanner:
         form = views.BannerForm(MultiDict(), banner)
         data = form.data.copy()
         data["name"] = "New Name"
-        data["end"] = str(data["end"])
         data.pop("fa_icon")  # do not send fa icon within post data
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
         mocker.patch.object(
             db_request,
             "current_route_path",
@@ -131,7 +131,7 @@ class TestEditBanner:
         data["end"] = ""  # date is required
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
 
         result = views.edit_banner(db_request)
 
@@ -223,7 +223,7 @@ class TestBannerForm:
         }
 
         # Mash the `end` into a date object to match the form's coerced result.
-        banner_data["end"] = datetime.date.fromisoformat(banner_data["end"])
+        banner_data["end"] = dt.date.fromisoformat(banner_data["end"])
         assert data == {**banner_data, **defaults}
 
     def test_required_fields(self, banner_data):

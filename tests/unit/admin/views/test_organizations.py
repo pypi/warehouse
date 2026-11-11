@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 from datetime import date, timedelta
 
@@ -12,7 +12,9 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory
+from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
 from tests.common.db.organizations import (
+    OrganizationDeactivationScheduleFactory,
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
@@ -29,8 +31,10 @@ from tests.common.db.subscriptions import (
 from warehouse.admin.views import organizations as views
 from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.organizations.models import (
     OIDCIssuerType,
+    OrganizationDeactivationReason,
     OrganizationManualActivation,
     OrganizationOIDCIssuer,
     OrganizationRole,
@@ -94,190 +98,152 @@ class TestOrganizationForm:
         assert "400 characters or less" in str(form.description.errors)
 
 
-class TestOrganizationList:
-    def test_no_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
-        )
-        result = views.organization_list(db_request)
+def _tabulator_params(*, page=None, filters=None):
+    """Build the query-string dict Tabulator sends in remote mode."""
+    params = {}
+    if page is not None:
+        params["page"] = str(page)
+    for i, (field, value) in enumerate((filters or {}).items()):
+        params[f"filter[{i}][field]"] = field
+        params[f"filter[{i}][type]"] = "like"
+        params[f"filter[{i}][value]"] = value
+    return params
 
-        assert result == {"organizations": organizations[:25], "query": "", "terms": []}
 
-    def test_with_page(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["page"] = "2"
-        result = views.organization_list(db_request)
+def _names(result):
+    return [row["name"] for row in result["data"]]
 
-        assert result == {"organizations": organizations[25:], "query": "", "terms": []}
 
-    def test_with_invalid_page(self, db_request):
-        db_request.params = {"page": "not an integer"}
-
-        with pytest.raises(HTTPBadRequest):
-            views.organization_list(db_request)
-
-    def test_basic_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = organizations[0].name
-        result = views.organization_list(db_request)
-
-        assert organizations[0] in result["organizations"]
-        assert result["query"] == organizations[0].name
-        assert result["terms"] == [organizations[0].name]
-
-    def test_name_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = f"name:{organizations[0].name}"
-        result = views.organization_list(db_request)
-
-        assert organizations[0] in result["organizations"]
-        assert result["query"] == f"name:{organizations[0].name}"
-        assert result["terms"] == [f"name:{organizations[0].name}"]
-
-    def test_organization_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = f"organization:{organizations[0].display_name}"
-        result = views.organization_list(db_request)
-
-        assert organizations[0] in result["organizations"]
-        assert result["query"] == f"organization:{organizations[0].display_name}"
-        assert result["terms"] == [f"organization:{organizations[0].display_name}"]
-
-    def test_url_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = f"url:{organizations[0].link_url}"
-        result = views.organization_list(db_request)
-
-        assert organizations[0] in result["organizations"]
-        assert result["query"] == f"url:{organizations[0].link_url}"
-        assert result["terms"] == [f"url:{organizations[0].link_url}"]
-
-    def test_description_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = f"description:'{organizations[0].description}'"
-        result = views.organization_list(db_request)
-
-        assert organizations[0] in result["organizations"]
-        assert result["query"] == f"description:'{organizations[0].description}'"
-        assert result["terms"] == [f"description:{organizations[0].description}"]
-
-    def test_activity_inactive_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[2].is_active = False
-        organizations[3].is_active = False
-        organizations[4].is_active = False
-        db_request.GET["q"] = "activity:inactive"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[2:],
-            "query": "activity:inactive",
-            "terms": ["activity:inactive"],
+class TestRenderOrganizationsPayload:
+    def test_empty_database(self, route_request):
+        assert views._render_tabulator_payload(route_request) == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
         }
 
-    def test_type_query(self, db_request):
-        company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        community_org = OrganizationFactory.create(orgtype=OrganizationType.Community)
-        db_request.GET["q"] = "type:company"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": [company_org],
-            "query": "type:company",
-            "terms": ["type:company"],
-        }
-
-        db_request.GET["q"] = "type:community"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": [community_org],
-            "query": "type:community",
-            "terms": ["type:community"],
-        }
-
-    def test_invalid_type_query(self, db_request):
-        company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
-
-        db_request.GET["q"] = "type:invalid"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": [company_org],
-            "query": "type:invalid",
-            "terms": ["type:invalid"],
-        }
-
-    def test_activity_query(self, db_request):
-        # Active: owns a project released within the window.
-        active_org = OrganizationFactory.create()
-        active_project = ProjectFactory.create()
-        OrganizationProjectFactory.create(
-            organization=active_org, project=active_project
-        )
-        ReleaseFactory.create(project=active_project)
-
-        # Dormant: owns a project, but only released long ago.
-        dormant_org = OrganizationFactory.create()
-        dormant_project = ProjectFactory.create()
-        OrganizationProjectFactory.create(
-            organization=dormant_org, project=dormant_project
-        )
-        ReleaseFactory.create(
-            project=dormant_project, created=datetime.datetime(2020, 1, 1)
-        )
-
-        # Unused: owns no projects.
-        unused_org = OrganizationFactory.create()
-
-        db_request.GET["q"] = "activity:active"
-        assert views.organization_list(db_request)["organizations"] == [active_org]
-
-        db_request.GET["q"] = "activity:dormant"
-        assert views.organization_list(db_request)["organizations"] == [dormant_org]
-
-        db_request.GET["q"] = "activity:unused"
-        assert views.organization_list(db_request)["organizations"] == [unused_org]
-
-    def test_has_subscription_query(self, db_request):
-        active_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+    def test_row_shape(self, route_request):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        ReleaseFactory.create(project=project)
         OrganizationStripeSubscriptionFactory.create(
-            organization=active_org,
+            organization=organization,
             subscription=StripeSubscriptionFactory.create(
                 status=StripeSubscriptionStatus.Active
             ),
         )
-        # A trialing subscription also counts.
-        trialing_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert result["data"] == [
+            {
+                "name": organization.name,
+                "display_name": organization.display_name,
+                "link_url": organization.link_url,
+                "description": organization.description,
+                "orgtype": "Company",
+                "activity": "Active",
+                "active_subscription": True,
+                "good_standing": True,
+                "detail_link": f"/admin/organizations/{organization.id}/",
+            }
+        ]
+
+    def test_default_order_and_paging(self, route_request):
+        organizations = sorted(
+            OrganizationFactory.create_batch(30), key=lambda o: o.normalized_name
+        )
+
+        first = views._render_tabulator_payload(route_request)
+        route_request.GET.update(_tabulator_params(page=2))
+        second = views._render_tabulator_payload(route_request)
+
+        assert first["last_page"] == 2
+        assert _names(first) == [o.name for o in organizations[:25]]
+        assert _names(second) == [o.name for o in organizations[25:]]
+        assert second["total"] == 30
+
+    def test_name_filter_matches_normalized_name(self, route_request):
+        OrganizationFactory.create(name="Foo.Bar")
+        OrganizationFactory.create(name="other")
+        route_request.GET.update(_tabulator_params(filters={"name": "foo_bar"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == ["Foo.Bar"]
+
+    def test_description_only_matches_its_own_filter(self, route_request):
+        OrganizationFactory.create(name="lite", description="Keeps things light.")
+        OrganizationFactory.create(name="heavy", description="A lite alternative.")
+
+        route_request.GET.update(_tabulator_params(filters={"name": "lite"}))
+        by_name = views._render_tabulator_payload(route_request)
+        route_request.GET.clear()
+        route_request.GET.update(_tabulator_params(filters={"description": "lite"}))
+        by_description = views._render_tabulator_payload(route_request)
+
+        assert _names(by_name) == ["lite"]
+        assert _names(by_description) == ["heavy"]
+
+    def test_activity_tiers(self, route_request):
+        active = OrganizationFactory.create(name="active")
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=active, project=project)
+        ReleaseFactory.create(project=project)
+        OrganizationFactory.create(name="unused")
+        OrganizationFactory.create(name="inactive", is_active=False)
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert {row["name"]: row["activity"] for row in result["data"]} == {
+            "active": "Active",
+            "unused": "Unused",
+            "inactive": "Inactive",
+        }
+
+    @pytest.mark.parametrize(
+        "filters",
+        [{"orgtype": "charity"}, {"activity": "busy"}, {"subscription": "no"}],
+    )
+    def test_unknown_select_value_is_rejected(self, route_request, filters):
+        route_request.GET.update(_tabulator_params(filters=filters))
+
+        with pytest.raises(HTTPBadRequest):
+            views._render_tabulator_payload(route_request)
+
+    def test_orgtype_filter(self, route_request):
+        company = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationFactory.create(orgtype=OrganizationType.Community)
+        route_request.GET.update(_tabulator_params(filters={"orgtype": "company"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == [company.name]
+
+    def test_activity_filter(self, route_request):
+        # Dormant: owns a project, but only released long ago.
+        dormant = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=dormant, project=project)
+        ReleaseFactory.create(project=project, created=dt.datetime(2020, 1, 1))
+        OrganizationFactory.create()  # unused
+        OrganizationFactory.create(is_active=False)
+        route_request.GET.update(_tabulator_params(filters={"activity": "dormant"}))
+
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == [dormant.name]
+
+    def test_subscription_filter(self, route_request):
+        subscribed = OrganizationFactory.create(orgtype=OrganizationType.Company)
         OrganizationStripeSubscriptionFactory.create(
-            organization=trialing_org,
+            organization=subscribed,
             subscription=StripeSubscriptionFactory.create(
                 status=StripeSubscriptionStatus.Trialing
             ),
         )
-
         # A canceled subscription does not count.
         OrganizationStripeSubscriptionFactory.create(
             organization=OrganizationFactory.create(orgtype=OrganizationType.Company),
@@ -285,43 +251,24 @@ class TestOrganizationList:
                 status=StripeSubscriptionStatus.Canceled
             ),
         )
-        # A Community org with a subscription does not count -- only Company
-        # organizations can subscribe.
-        OrganizationStripeSubscriptionFactory.create(
-            organization=OrganizationFactory.create(orgtype=OrganizationType.Community),
-            subscription=StripeSubscriptionFactory.create(
-                status=StripeSubscriptionStatus.Active
-            ),
-        )
-        OrganizationFactory.create()  # no subscription
+        route_request.GET.update(_tabulator_params(filters={"subscription": "yes"}))
 
-        db_request.GET["q"] = "has:subscription"
-        assert set(views.organization_list(db_request)["organizations"]) == {
-            active_org,
-            trialing_org,
+        result = views._render_tabulator_payload(route_request)
+
+        assert _names(result) == [subscribed.name]
+
+
+class TestOrganizationListViews:
+    def test_html_view_returns_empty_context(self, db_request):
+        assert views.organization_list(db_request) == {}
+
+    def test_json_view_returns_payload(self, route_request):
+        assert views.organization_list_json(route_request) == {
+            "last_page": 1,
+            "total": 0,
+            "total_estimate": None,
+            "data": [],
         }
-
-    def test_invalid_activity_and_has_queries(self, db_request):
-        organization = OrganizationFactory.create()
-        db_request.GET["q"] = "activity:nope has:nope"
-        result = views.organization_list(db_request)
-        assert result["organizations"] == [organization]
-
-    def test_annotates_status(self, db_request):
-        active = OrganizationFactory.create()
-        project = ProjectFactory.create()
-        OrganizationProjectFactory.create(organization=active, project=project)
-        ReleaseFactory.create(project=project)
-        unused = OrganizationFactory.create()
-        inactive = OrganizationFactory.create(is_active=False)
-
-        status = {
-            organization.id: organization.activity
-            for organization in views.organization_list(db_request)["organizations"]
-        }
-        assert status[active.id] == "Active"
-        assert status[unused.id] == "Unused"
-        assert status[inactive.id] == "Inactive"
 
 
 class TestOrganizationActivity:
@@ -333,7 +280,7 @@ class TestOrganizationActivity:
         organization = OrganizationFactory.create()
         project = ProjectFactory.create()
         OrganizationProjectFactory.create(organization=organization, project=project)
-        ReleaseFactory.create(project=project, created=datetime.datetime(2020, 1, 1))
+        ReleaseFactory.create(project=project, created=dt.datetime(2020, 1, 1))
         assert views._organization_activity(db_request, organization) == "Dormant"
 
     def test_dormant_with_no_releases(self, db_request):
@@ -458,6 +405,7 @@ class TestOrganizationDetail:
             autospec=True,
             return_value=f"/admin/organizations/{organization.id}/",
         )
+        db_request.user = UserFactory.create(username="admin-user")
         mocker.spy(db_request.session, "flash")
 
         result = views.organization_detail(db_request)
@@ -503,6 +451,7 @@ class TestOrganizationDetail:
         )
         mocker.spy(db_request.session, "flash")
         db_request.registry.settings["site.name"] = "TestPyPI"
+        db_request.user = UserFactory.create(username="admin-user")
 
         # Patch the billing service's update_customer method
         billing_service = db_request.find_service(IBillingService)
@@ -525,8 +474,94 @@ class TestOrganizationDetail:
             f"Organization {organization.name!r} updated successfully", queue="success"
         )
 
-    def test_does_not_update_with_invalid_form(self, db_request):
-        organization = OrganizationFactory.create()
+    @pytest.mark.parametrize("old_orgtype", list(OrganizationType))
+    @pytest.mark.parametrize("new_orgtype", list(OrganizationType))
+    def test_orgtype_change_with_subscriptions(
+        self, db_request, mocker, old_orgtype, new_orgtype
+    ):
+        organization = OrganizationFactory.create(orgtype=old_orgtype)
+        subscriptions = [
+            StripeSubscriptionFactory.create(status=status)
+            for status in StripeSubscriptionStatus
+        ]
+        for subscription in subscriptions:
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "display_name": "Some Org",
+                "link_url": "https://example.com",
+                "description": "Some description",
+                "orgtype": new_orgtype.value,
+            }
+        )
+        db_request.route_path = mocker.Mock(return_value="/org/")
+        db_request.user = UserFactory.create(username="admin-user")
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
+        cancel_at_period_end = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        result = views.organization_detail(db_request)
+
+        assert result.status_code == 303
+        assert organization.orgtype == new_orgtype
+        expected_ids = (
+            {
+                subscription.subscription_id
+                for subscription in subscriptions
+                if subscription.status
+                in (StripeSubscriptionStatus.Active, StripeSubscriptionStatus.Trialing)
+            }
+            if (old_orgtype, new_orgtype)
+            == (OrganizationType.Company, OrganizationType.Community)
+            else set()
+        )
+        assert sorted(call.args[0] for call in cancel.call_args_list) == sorted(
+            expected_ids
+        )
+        cancel_at_period_end.assert_not_called()
+        cancel_events = organization.events.filter_by(
+            tag=EventTag.Organization.SubscriptionCancel
+        ).all()
+        assert sorted(
+            event.additional["subscription_id"] for event in cancel_events
+        ) == sorted(expected_ids)
+        for event in cancel_events:
+            assert event.additional["at_period_end"] is False
+            assert event.additional["canceled_by"] == db_request.user.username
+
+        type_events = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationSetOrgType
+        ).all()
+        if old_orgtype == new_orgtype:
+            assert type_events == []
+        else:
+            [event] = type_events
+            assert (
+                event.additional.items()
+                >= {
+                    "old_orgtype": old_orgtype.value,
+                    "new_orgtype": new_orgtype.value,
+                    "actor": db_request.user.username,
+                }.items()
+            )
+
+    def test_does_not_update_with_invalid_form(self, db_request, mocker):
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(billing_service, "cancel_subscription")
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
@@ -535,7 +570,7 @@ class TestOrganizationDetail:
                 "display_name": "",  # Required field
                 "link_url": "invalid-url",  # Invalid URL
                 "description": "Some description",
-                "orgtype": "Company",
+                "orgtype": "Community",
             }
         )
 
@@ -546,6 +581,9 @@ class TestOrganizationDetail:
         assert result["form"].errors
         assert "display_name" in result["form"].errors
         assert "link_url" in result["form"].errors
+        assert organization.orgtype == OrganizationType.Company
+        assert organization.events.all() == []
+        cancel.assert_not_called()
 
     def test_detail_with_roles(self, db_request):
         """Test that organization detail view includes roles"""
@@ -1581,6 +1619,56 @@ class TestDeleteManualActivation:
             views.delete_manual_activation(db_request)
 
 
+class TestReactivateOrganization:
+    @pytest.fixture
+    def flash(self, db_request, mocker):
+        db_request.route_path = mocker.Mock(return_value="/admin/organizations/")
+        return mocker.spy(db_request.session, "flash")
+
+    def test_reactivates_and_clears_stale_schedule(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org")
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        OrganizationDeactivationScheduleFactory.create(organization=organization)
+        db_request.user = UserFactory.create()
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+        db_request.db.flush()
+        db_request.db.expire(organization)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert organization.is_active
+        assert organization.deactivated is None
+        assert organization.deactivated_reason is None
+        assert organization.deactivation_schedule is None
+        event = organization.events.filter_by(
+            tag=EventTag.Organization.OrganizationReactivate
+        ).one()
+        assert event.additional["reactivated_by_user_id"] == str(db_request.user.id)
+        flash.assert_called_once_with(
+            "Organization 'test-org' reactivated", queue="success"
+        )
+
+    def test_already_active(self, db_request, flash):
+        organization = OrganizationFactory.create(name="test-org", is_active=True)
+        db_request.matchdict = {"organization_id": str(organization.id)}
+
+        result = views.reactivate_organization(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        flash.assert_called_once_with(
+            "Organization 'test-org' is already active", queue="error"
+        )
+
+    def test_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.reactivate_organization(db_request)
+
+
 class TestSetUploadLimit:
     def test_set_upload_limit_with_integer(self, db_request, mocker):
         organization = OrganizationFactory.create(name="foo")
@@ -1595,22 +1683,22 @@ class TestSetUploadLimit:
         mocker.spy(db_request.session, "flash")
         db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "150"})
+        db_request.POST = MultiDict({"upload_limit": "250"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "Upload limit set to 150.0MiB", queue="success"
+            "Upload limit set to 250.0MiB", queue="success"
         )
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
-        assert organization.upload_limit == 150 * views.ONE_MIB
+        assert organization.upload_limit == 250 * views.ONE_MIB
         event = organization.events.one()
         assert event.tag == "admin:organization:set_upload_limit"
         assert event.additional == {
             "organization_name": organization.name,
             "old_upload_limit": None,
-            "new_upload_limit": 150 * views.ONE_MIB,
+            "new_upload_limit": 250 * views.ONE_MIB,
             "actor": user.username,
         }
 
@@ -1705,12 +1793,13 @@ class TestSetUploadLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"upload_limit": "150"})
 
         result = views.set_upload_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "upload_limit: Upload limit can not be less than 100.0MiB", queue="error"
+            "upload_limit: Upload limit can not be less than 200.0MiB", queue="error"
         )
         assert result.status_code == 303
 
@@ -1819,12 +1908,13 @@ class TestSetTotalSizeLimit:
         )
         mocker.spy(db_request.session, "flash")
         db_request.matchdict["organization_id"] = organization.id
-        db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
+        # Above the system default, but below the organization default
+        db_request.POST = MultiDict({"total_size_limit": "15"})
 
         result = views.set_total_size_limit(db_request)
 
         db_request.session.flash.assert_called_once_with(
-            "total_size_limit: Total organization size can not be less than 10.0GiB",
+            "total_size_limit: Total organization size can not be less than 20.0GiB",
             queue="error",
         )
         assert result.status_code == 303
@@ -2275,3 +2365,63 @@ class TestDeleteOIDCIssuer:
 
         with pytest.raises(HTTPNotFound):
             views.delete_oidc_issuer(db_request)
+
+    def test_delete_oidc_issuer_removes_associated_publishers(self, db_request, mocker):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        issuer = OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        pending_custom = PendingGitLabPublisherFactory.create(
+            organization_id=organization.id,
+            issuer_url="https://gitlab.company.com",
+        )
+        pending_default = PendingGitLabPublisherFactory.create(
+            organization_id=organization.id,
+            issuer_url="https://gitlab.com",
+        )
+
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project1)
+        OrganizationProjectFactory.create(organization=organization, project=project2)
+
+        pub_custom = GitLabPublisherFactory.create(
+            issuer_url="https://gitlab.company.com",
+            projects=[project1, project2],
+        )
+        pub_default = GitLabPublisherFactory.create(
+            issuer_url="https://gitlab.com",
+            projects=[project1],
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": str(issuer.id),
+        }
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value="/admin/organizations/",
+        )
+        mocker.spy(db_request.session, "flash")
+        db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
+
+        result = views.delete_oidc_issuer(db_request)
+        db_request.db.flush()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.db.query(PendingGitLabPublisher).all() == [pending_default]
+        assert pending_custom in db_request.db.deleted or (
+            db_request.db.get(PendingGitLabPublisher, pending_custom.id) is None
+        )
+        assert db_request.db.query(GitLabPublisher).all() == [pub_default]
+        assert db_request.db.get(GitLabPublisher, pub_custom.id) is None
+        assert project1.oidc_publishers == [pub_default]
+        assert project2.oidc_publishers == []

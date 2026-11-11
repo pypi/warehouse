@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import types
 
 from warehouse.packaging.search import Project
@@ -20,7 +20,7 @@ def test_build_search():
         download_url="https://example.com/foobar/downloads/",
         keywords="the, keywords, lol",
         platform="any platform",
-        created=datetime.datetime(1956, 1, 31),
+        created=dt.datetime(1956, 1, 31),
         classifiers=["Alpha", "Beta"],
     )
     obj = Project.from_db(release)
@@ -37,5 +37,5 @@ def test_build_search():
     assert obj["download_url"] == "https://example.com/foobar/downloads/"
     assert obj["keywords"] == "the, keywords, lol"
     assert obj["platform"] == "any platform"
-    assert obj["created"] == datetime.datetime(1956, 1, 31)
+    assert obj["created"] == dt.datetime(1956, 1, 31)
     assert obj["classifiers"] == ["Alpha", "Beta"]

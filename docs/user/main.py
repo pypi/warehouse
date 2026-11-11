@@ -1,8 +1,6 @@
-from pathlib import Path
+# SPDX-License-Identifier: Apache-2.0
 
 PREVIEW_FEATURES = {}
-
-_HERE = Path(__file__).parent.resolve()
 
 
 def define_env(env):

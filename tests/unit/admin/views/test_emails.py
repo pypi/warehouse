@@ -4,18 +4,16 @@ import csv
 import io
 import uuid
 
-from types import SimpleNamespace
-
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import emails as views
 from warehouse.email.ses.models import EmailStatuses
-from warehouse.tasks import WarehouseTask
 
 from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.ses import EmailMessageFactory
+from ....common.forms import file_part
 
 
 class TestEmailList:
@@ -133,10 +131,8 @@ class TestEmailMass:
         )
         wrapper.seek(0)
 
-        task = mocker.create_autospec(WarehouseTask, instance=True)
-        delay = task.delay
-        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
-        db_request.task = mocker.Mock(return_value=task)
+        delay = db_request.task.return_value.delay
+        db_request.params = {"csvfile": file_part(input_file)}
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
@@ -151,6 +147,10 @@ class TestEmailMass:
         db_request.session.flash.assert_called_once_with(
             "Mass emails sent", queue="success"
         )
+        assert db_request.task.call_args_list == [
+            mocker.call(views.send_email),
+            mocker.call(views.send_email),
+        ]
         assert delay.call_args_list == [
             mocker.call(
                 email1.email,
@@ -207,10 +207,7 @@ class TestEmailMass:
         )
         wrapper.seek(0)
 
-        task = mocker.create_autospec(WarehouseTask, instance=True)
-        delay = task.delay
-        db_request.params = {"csvfile": SimpleNamespace(file=input_file)}
-        db_request.task = mocker.Mock(return_value=task)
+        db_request.params = {"csvfile": file_part(input_file)}
         mocker.patch.object(
             db_request, "route_path", autospec=True, return_value="/the-redirect"
         )
@@ -221,7 +218,7 @@ class TestEmailMass:
         assert isinstance(result, HTTPSeeOther)
         db_request.route_path.assert_called_once_with("admin.emails.list")
         assert result.headers["Location"] == "/the-redirect"
-        delay.assert_not_called()
+        db_request.task.assert_not_called()
 
     def test_no_rows_sends_no_emails(self, pyramid_request, mocker):
         input_file = io.BytesIO()
@@ -231,9 +228,7 @@ class TestEmailMass:
         writer.writeheader()
         wrapper.seek(0)
 
-        task = mocker.create_autospec(WarehouseTask, instance=True)
-        pyramid_request.params = {"csvfile": SimpleNamespace(file=input_file)}
-        pyramid_request.task = mocker.Mock(return_value=task)
+        pyramid_request.params = {"csvfile": file_part(input_file)}
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
         )
@@ -247,7 +242,7 @@ class TestEmailMass:
         pyramid_request.session.flash.assert_called_once_with(
             "No emails to send", queue="error"
         )
-        task.delay.assert_not_called()
+        pyramid_request.task.assert_not_called()
 
 
 class TestEmailDetail:

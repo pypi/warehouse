@@ -1,9 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% for banner in banners %}
+  {# Previews are ephemeral: never read or persist the live banner's dismissal. #}
   <div class="notification-bar {{ "notification-bar--dismissable" if banner.dismissable else "" }}"
        data-controller="notification"
        data-notification-target="notification"
-       id="{{ banner.id }}">
+       {% if not is_preview %}id="{{ banner.id }}"{% endif %}>
     <div class="notification-bar__container">
       <span class="notification-bar__icon">
         <i class="fa {{ banner.fa_icon }}" aria-hidden="true"></i>

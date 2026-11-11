@@ -51,7 +51,9 @@ class Observer(db.Model):
         back_populates="observer", uselist=False
     )
 
-    observations: Mapped[list[Observation]] = relationship()
+    observations: Mapped[list[Observation]] = relationship(
+        order_by=lambda: (Observation.created.desc(), Observation.id)
+    )
     parent: AssociationProxy = association_proxy("_association", "parent")
 
 
@@ -258,7 +260,10 @@ class HasObservations:
         # `type(...)` is statically just `type`; the built class really is an
         # Observation subclass, so assert that to match the ClassVar above.
         cls.Observation = typing.cast(type[_ObservationBase], observation_cls)
-        return relationship(cls.Observation)
+        return relationship(
+            cls.Observation,
+            order_by=(cls.Observation.created.desc(), cls.Observation.id),
+        )
 
     def record_observation(
         self,

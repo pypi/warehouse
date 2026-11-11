@@ -11,6 +11,11 @@ def classify_observation(actions: dict | None, related_id) -> str:
     """
     Classify an observation as true_positive, false_positive, or pending.
 
+    Only meaningful for `is_malware` observations. The rules key on malware
+    actions and read a removed project as a confirmed report, which says
+    nothing about any other kind. The signature can't enforce that, so
+    callers holding mixed kinds must check first.
+
     Classification rules:
     - true_positive: has a 'remove_malware', 'confirm_malware', or 'remove_release'
       action OR project removed (related_id=None)

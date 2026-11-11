@@ -31,6 +31,15 @@
     // Any important message here.
   </div>
 
+  // With a footer, set off from the body by a divider
+  <div class="callout-block">
+    <h3 class="callout-block__heading">Optional Heading</h3>
+    // Any important message here.
+    <div class="callout-block__footer">
+      // A call to action, or secondary message, here.
+    </div>
+  </div>
+
   Modifiers:
     - neutral: Makes border grey
     - dark: Makes border dark grey
@@ -82,6 +91,12 @@
     }
   }
 
+  &__footer {
+    margin-top: grid.$half-spacing-unit;
+    padding-top: grid.$half-spacing-unit;
+    border-top: 1px dashed colors.$border-color;
+  }
+
   &::before {
     content: "";
     width: 15px;
@@ -127,7 +142,7 @@
   &--dark {
     border-color: colors.$mid-grey;
 
-    > :not(.modal, .button) {
+    > :not(.modal, .button, .provenance-diff, .provenance-bar) {
       color: colors.$mid-grey;
     }
 
@@ -143,7 +158,7 @@
   &--success {
     border-color: colors.$success-color;
 
-    > :not(.modal, .button) {
+    > :not(.modal, .button, .provenance-diff, .provenance-bar) {
       color: colors.$success-color;
 
       a:not(.button) {
@@ -179,7 +194,7 @@
   &--danger {
     border-color: colors.$danger-color;
 
-    > :not(.modal, .button) {
+    > :not(.modal, .button, .provenance-diff, .provenance-bar) {
       color: colors.$danger-color;
 
       a:not(.button) {

@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
-import pretend
 import pytest
 
 from warehouse.sitemap import views as sitemap
@@ -12,27 +11,17 @@ from ...common.db.packaging import ProjectFactory
 
 
 def test_sitemap_index(db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
     project = ProjectFactory.create(
         name="foobar",
-        created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)),
+        created=(dt.datetime.now(dt.UTC) - dt.timedelta(days=15)),
     )
     users = [
         UserFactory.create(
             username="a",
-            date_joined=(
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)
-            ),
+            date_joined=(dt.datetime.now(dt.UTC) - dt.timedelta(days=15)),
         ),
         UserFactory.create(username="b"),
-        UserFactory.create(
-            username="c", date_joined=(datetime.datetime.now(datetime.UTC))
-        ),
+        UserFactory.create(username="c", date_joined=(dt.datetime.now(dt.UTC))),
     ]
 
     # Have to pass this here, because passing date_joined=None to the create
@@ -51,45 +40,38 @@ def test_sitemap_index(db_request):
     assert db_request.response.content_type == "text/xml"
 
 
+@pytest.fixture
+def sitemap_routes(pyramid_config):
+    pyramid_config.add_route("packaging.project", "/project/{name}/")
+    pyramid_config.add_route("accounts.profile", "/user/{username}/")
+
+
+@pytest.mark.usefixtures("sitemap_routes")
 def test_sitemap_bucket(db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
-    expected = ["/project/foobar/"]
-    expected_iter = iter(expected)
-    db_request.route_url = pretend.call_recorder(lambda *a, **kw: next(expected_iter))
-
     db_request.matchdict["bucket"] = "0a"
 
     ProjectFactory.create(
         name="foobar",
-        created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)),
+        created=(dt.datetime.now(dt.UTC) - dt.timedelta(days=15)),
     )
     UserFactory.create(username="a")
     UserFactory.create(username="b")
 
-    assert sitemap.sitemap_bucket(db_request) == {"urls": ["/project/foobar/"]}
+    assert sitemap.sitemap_bucket(db_request) == {
+        "urls": ["http://example.com/project/foobar/"]
+    }
     assert db_request.response.content_type == "text/xml"
 
 
+@pytest.mark.usefixtures("sitemap_routes")
 def test_sitemap_bucket_too_many(monkeypatch, db_request):
-    db_request.find_service = pretend.call_recorder(
-        lambda *args, **kwargs: pretend.stub(
-            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
-        )
-    )
-
-    db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/")
     db_request.matchdict["bucket"] = "52"
 
     monkeypatch.setattr(sitemap, "SITEMAP_MAXSIZE", 2)
 
     for _ in range(3):
         p = ProjectFactory.create(
-            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15))
+            created=(dt.datetime.now(dt.UTC) - dt.timedelta(days=15))
         )
         p.sitemap_bucket = "52"
 
