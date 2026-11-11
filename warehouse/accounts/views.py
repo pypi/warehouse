@@ -331,7 +331,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
         # Construct necessary two_factor information
         two_factor_method = "remembered-device" if _two_factor_remembered else None
-        two_factor_label = _two_factor_remembered
+        two_factor_label = two_factor_method
 
         # Actually perform the login routine for our user.
         _login_user(
@@ -339,6 +339,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             userid,
             two_factor_method,
             two_factor_label=two_factor_label,
+            remembered_two_factor_method=_two_factor_remembered,
         )
 
         # Now that we're logged in we'll want to redirect the user to
@@ -1579,7 +1580,13 @@ def verify_project_role(request):
     return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
+def _login_user(
+    request,
+    userid,
+    two_factor_method=None,
+    two_factor_label=None,
+    remembered_two_factor_method=None,
+):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -1647,11 +1654,11 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if unique_login:
         unique_login.last_used = now
 
-    if (
-        unique_login is None
-        and two_factor_method not in PHISHABLE_METHODS
-        and two_factor_label not in PHISHABLE_METHODS
-    ):
+    phishable = (
+        two_factor_method in PHISHABLE_METHODS
+        or remembered_two_factor_method in PHISHABLE_METHODS
+    )
+    if unique_login is None and not phishable:
         # We haven't seen this login before. Create a new one and mark it as confirmed
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
@@ -1663,8 +1670,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if (
         unique_login is not None
         and unique_login.status == UniqueLoginStatus.PENDING
-        and two_factor_method not in PHISHABLE_METHODS
-        and two_factor_label not in PHISHABLE_METHODS
+        and not phishable
     ):
         # The user had a pending login, but has since logged in with a non-phishable
         # method, so mark it as confirmed.
