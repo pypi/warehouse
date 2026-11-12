@@ -22,8 +22,8 @@ msgstr ""
 "PO-Revision-Date: 2026-11-10 14:21+0000\n"
 "Last-Translator: GitHub webhook <noreply-webhook-github-"
 "integration@weblate.org>\n"
-"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/>"
-"\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
+">\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -245,27 +245,27 @@ msgstr ""
 "λογαριασμό που δεν ολοκληρώνονται. Ελέγξτε τα εισερχόμενά σας και "
 "ακολουθήστε τους συνδέσμους επαλήθευσης. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "Μη έγκυρη ή ληγμένη σύνδεση δύο βημάτων."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "Ήδη πιστοποιημένος"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
 "χρησιμοποιηθεί ξανά."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -276,14 +276,14 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -294,39 +294,39 @@ msgstr ""
 "Υπήρξαν πάρα πολλές ανεπιτυχείς προσπάθειες σύνδεσης. Έχετε αποκλειστεί για "
 "{}. Παρακαλώ δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "Μη έγκυρο token: δεν έγινε παροχή του token"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "Μη έγκυρο token: δεν αποτελεί token επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Μη έγκυρο token: ο χρήστης συνδέθηκε από τότε που ζητήθηκε αυτό το token"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -334,167 +334,167 @@ msgstr ""
 "Μη έγκυρο token: ο κωδικός έχει ήδη αλλάξει από τότε που ζητήθηκε αυτό το "
 "token"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "Έχετε μηδενίσει τον κωδικό χρήστη σας"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: please try to login again"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "Το email δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "Μπορείτε, πλέον, να θέσετε αυτό το email ως την κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "Αυτή είναι η κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "Η πρόσκληση του οργανισμού δεν είναι έγκυρη."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "Η πρόσκληση οργανισμού δεν υπάρχει πλέον."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Η πρόσκληση για το '${organization_name}' απορρίφθηκε."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, fuzzy, python-brace-format
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "Η πρόσκληση ρόλων δεν είναι έγκυρη."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: project does not exist"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, fuzzy, python-brace-format
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -507,13 +507,13 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -527,13 +527,13 @@ msgstr ""
 "εκδότη σε εκκρεμότητα. Ανατρέξτε στη διεύθυνση https://pypi.org/help#openid-"
 "connect for details."
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Δεν μπορείτε να εγγράψετε περισσότερους από 3 αξιόπιστους εκδότες σε "
 "εκκρεμότητα ταυτόχρονα."
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -547,7 +547,7 @@ msgid ""
 "again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -556,14 +556,14 @@ msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύ
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
@@ -571,21 +571,21 @@ msgid ""
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Διαχείριση έκδοσης"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -1910,8 +1910,8 @@ msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>%(sha)s</code></a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Hashes</a> για %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Hashes</a> για %(filename)s"
 
 #: warehouse/templates/confirm-action.html:4
 #, fuzzy
@@ -1965,8 +1965,8 @@ msgstr "Ή <a href=\"%(href)s\">αναζητήστε projects</a>"
 msgid ""
 "Publishing as a team? Use an <a href=\"%(href)s\">organization account</a>"
 msgstr ""
-"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">%"
-"(anchor_text)s</a>"
+"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a "
+"href=\"%(href)s\">%(anchor_text)s</a>"
 
 #: warehouse/templates/index.html:59
 #, python-format
@@ -2595,8 +2595,9 @@ msgid ""
 "Policy</a>."
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a "
+"href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/accounts/register.html:243
 msgid "Create account"
@@ -2690,9 +2691,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">Αναβαθμίστε τον περιηγητή σας</a> για να συνδεθείτε με μια συσκευή "
-"ασφαλείας (πχ USB key)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">Αναβαθμίστε τον περιηγητή σας</a> για να συνδεθείτε με μια "
+"συσκευή ασφαλείας (πχ USB key)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2776,9 +2777,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\"%"
-"(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
-"διαχειριστές του PyPI."
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
+"href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
+"τους διαχειριστές του PyPI."
 
 # | msgid ""
 # | "Someone, perhaps you, has changed the password for your PyPI
@@ -2811,8 +2812,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2837,8 +2838,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2856,8 +2857,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2881,8 +2882,8 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2920,9 +2921,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\"%"
-"(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
-"διαχειριστές του PyPI."
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
+"href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
+"τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2975,9 +2976,9 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\"%"
-"(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
-"διαχειριστές του PyPI."
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
+"href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
+"τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, fuzzy, python-format
@@ -3122,8 +3123,9 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a href=\"%(href)s\">%"
-"(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a "
+"href=\"%(href)s\">%(email_address)s</a> για να επικοινωνήσετε με τους "
+"διαχειριστές του PyPI."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3405,8 +3407,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:21
 msgid "How can I contact you?"
@@ -3422,8 +3424,8 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with "
 "the PyPI administrators."
 msgstr ""
-"Για περισσότερες πληροφορίες, μπορείτε να στείλετε email στο %(email_address)"
-"s για να επικοινωνήσετε με\n"
+"Για περισσότερες πληροφορίες, μπορείτε να στείλετε email στο "
+"%(email_address)s για να επικοινωνήσετε με\n"
 "  τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:6
@@ -3475,11 +3477,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(reset_pw_url)s\">μηδενίστε τον κωδικό σας</a> στο PyPI. Επίσης, συνιστούμε "
-"να επισκεφτείτε τη διεύθυνση <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a>, να δείτε άλλους κωδικούς και να εξοικειωθείτε με καλές "
-"πρακτικές επιλογής δυνατών κωδικών."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(reset_pw_url)s\">μηδενίστε τον κωδικό σας</a> στο PyPI. Επίσης, "
+"συνιστούμε να επισκεφτείτε τη διεύθυνση <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>, να δείτε άλλους "
+"κωδικούς και να εξοικειωθείτε με καλές πρακτικές επιλογής δυνατών κωδικών."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3495,12 +3497,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Χρησιμοποιούμε μια δωρεάν υπηρεσία ασφάλειας <a href=\"%"
-"(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Όταν δημιουργείτε λογαριασμό, "
-"πιστοποιήστε ή αλλάζετε τον κωδικό χρήστη σας, δημιουργούμε ένα SHA1 hash "
-"του κωδικού σας και χρησιμοποιούμε τους πρώτους 5 χαρακτήρες του hash για να "
-"αποφανθούμε αν ο κωδικός αυτός έχει υποκλαπεί. Ο κωδικός αυτός καθαυτός δεν "
-"αποθηκεύεται ποτέ στο PyPI ή στέλνεται στο HaveIBeenPwned."
+"Χρησιμοποιούμε μια δωρεάν υπηρεσία ασφάλειας <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Όταν δημιουργείτε "
+"λογαριασμό, πιστοποιήστε ή αλλάζετε τον κωδικό χρήστη σας, δημιουργούμε ένα "
+"SHA1 hash του κωδικού σας και χρησιμοποιούμε τους πρώτους 5 χαρακτήρες του "
+"hash για να αποφανθούμε αν ο κωδικός αυτός έχει υποκλαπεί. Ο κωδικός αυτός "
+"καθαυτός δεν αποθηκεύεται ποτέ στο PyPI ή στέλνεται στο HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3514,8 +3516,9 @@ msgid ""
 "to communicate with the PyPI administrators."
 msgstr ""
 "Για περισσότερες πληροφορίες δείτε στο <a href=\"%(faq_url)s\">FAQ</a>. Για "
-"βοήθεια, μπορείτε να στείλετε email στο <a href=\"%(email_href)s\">%"
-"(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+"βοήθεια, μπορείτε να στείλετε email στο <a "
+"href=\"%(email_href)s\">%(email_address)s</a> για να επικοινωνήσετε με τους "
+"διαχειριστές του PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3532,8 +3535,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
-"Αν επιθυμείτε να προχωρήσετε με αυτή την αίτηση, <a href=\"%(href)s\">"
-"κλικάρετε εδώ για να μηδενίσετε τον κωδικό σας</a>."
+"Αν επιθυμείτε να προχωρήσετε με αυτή την αίτηση, <a "
+"href=\"%(href)s\">κλικάρετε εδώ για να μηδενίσετε τον κωδικό σας</a>."
 
 #: warehouse/templates/email/password-reset/body.html:11
 #: warehouse/templates/email/verify-email/body.html:11
@@ -3586,7 +3589,8 @@ msgstr ""
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Read more about verified emails.</a>"
-msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/email/primary-email-change/body.html:5
 #, python-format
@@ -3621,8 +3625,8 @@ msgid ""
 "You can generate recovery codes for your account here: <a "
 "href=\"%(href)s\">%(href)s</a>"
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/email/recovery-code-used/body.html:5
 #, fuzzy, python-format
@@ -3661,8 +3665,8 @@ msgstr "Το λαμβάνετε αυτό επειδή είστε ένας κάτ
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3701,8 +3705,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3713,8 +3717,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 #, fuzzy
@@ -3845,8 +3849,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
-"s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
+"%(project)s από %(submitter)s."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -4174,8 +4178,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
 msgstr ""
-"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s\">"
-"ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
+"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a "
+"href=\"%(href)s\">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
 
 #: warehouse/templates/includes/session-notifications.html:46
 #, fuzzy, python-format
@@ -4186,8 +4190,8 @@ msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s\">"
-"ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
+"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a "
+"href=\"%(href)s\">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:4
 msgid "Edit profile"
@@ -4383,8 +4387,8 @@ msgid ""
 "documentation</a>."
 msgstr ""
 "Για πρόσφατα στατιστικά σχετικά με το uptime και την απόδοση δείτε στη <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"σελίδα κατάστασης μας</a>."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">σελίδα κατάστασης μας</a>."
 
 #: warehouse/templates/includes/packaging/project-files.html:17
 msgid "Source distribution (sdist)"
@@ -4862,7 +4866,8 @@ msgstr ""
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
-msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/includes/packaging/project-status.html:107
 #, python-format
@@ -6020,8 +6025,8 @@ msgstr ""
 "Μπορείτε να συσχετίσετε πολλαπλά email με τον λογαριασμό σας. Μπορείτε να "
 "χρησιμοποιήσετε οποιοδήποτε <span class=\"badge badge--success\"><i "
 "class=\"fa fa-check\" aria-hidden=\"true\"></i> Επιβεβαιωμένο</span> email "
-"για να ανακτήστε τον λογαριασμό σας, αλλά μόνο το <span class=\"badge\">"
-"Κύριο</span> email θα λαμβάνει ειδοποιήσεις."
+"για να ανακτήστε τον λογαριασμό σας, αλλά μόνο το <span "
+"class=\"badge\">Κύριο</span> email θα λαμβάνει ειδοποιήσεις."
 
 #: warehouse/templates/manage/account.html:337
 #: warehouse/templates/manage/unverified-account.html:255
@@ -6479,8 +6484,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\">"
-"TOTP</abbr>)"
+"Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time "
+"password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:800
 #: warehouse/templates/manage/unverified-account.html:444
@@ -6586,8 +6591,8 @@ msgstr "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προ
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr ""
-"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">%"
-"(anchor_text)s</a>"
+"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a "
+"href=\"%(href)s\">%(anchor_text)s</a>"
 
 #: warehouse/templates/manage/account.html:888
 #: warehouse/templates/manage/unverified-account.html:508
@@ -6628,8 +6633,8 @@ msgstr ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> added"
 msgstr ""
-"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">%"
-"(anchor_text)s</a>"
+"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a "
+"href=\"%(href)s\">%(anchor_text)s</a>"
 
 #: warehouse/templates/manage/account.html:904
 #, fuzzy, python-format
@@ -6807,8 +6812,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href=\"%"
-"(delete_href)s\">διαγραφή project</a>"
+"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a "
+"href=\"%(delete_href)s\">διαγραφή project</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, fuzzy, python-format
@@ -6877,8 +6882,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href=\"%"
-"(delete_href)s\">διαγραφή project</a>"
+"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a "
+"href=\"%(delete_href)s\">διαγραφή project</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -7121,9 +7126,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
-"παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την "
+"πιστοποίηση δύο-παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -7285,8 +7290,8 @@ msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/manage_base.html:698
 #: warehouse/templates/manage/manage_base.html:709
@@ -7807,8 +7812,8 @@ msgstr ""
 "Μπορείτε να συσχετίσετε πολλαπλά email με τον λογαριασμό σας. Μπορείτε να "
 "χρησιμοποιήσετε οποιοδήποτε <span class=\"badge badge--success\"><i "
 "class=\"fa fa-check\" aria-hidden=\"true\"></i> Επιβεβαιωμένο</span> email "
-"για να ανακτήστε τον λογαριασμό σας, αλλά μόνο το <span class=\"badge\">"
-"Κύριο</span> email θα λαμβάνει ειδοποιήσεις."
+"για να ανακτήστε τον λογαριασμό σας, αλλά μόνο το <span "
+"class=\"badge\">Κύριο</span> email θα λαμβάνει ειδοποιήσεις."
 
 #: warehouse/templates/manage/unverified-account.html:268
 #, fuzzy
@@ -7845,8 +7850,8 @@ msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
@@ -7999,8 +8004,8 @@ msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:133
 #: warehouse/templates/manage/account/publishing.html:231
@@ -8122,8 +8127,8 @@ msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
 "a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:249
 #: warehouse/templates/manage/organization/publishing.html:265
@@ -8167,8 +8172,8 @@ msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:318
 #: warehouse/templates/manage/project/publishing.html:286
@@ -8443,8 +8448,8 @@ msgid ""
 "For security reasons this token will only appear once. <strong>Copy it now.</"
 "strong>"
 msgstr ""
-"Για λόγους ασφαλείας αυτό το token θα εμφανιστεί μόνο μια φορά. <strong>"
-"Αντιγράψτε το τώρα.</strong>"
+"Για λόγους ασφαλείας αυτό το token θα εμφανιστεί μόνο μια φορά. "
+"<strong>Αντιγράψτε το τώρα.</strong>"
 
 #: warehouse/templates/manage/account/token.html:42
 #: warehouse/templates/manage/account/token.html:45
@@ -8487,8 +8492,8 @@ msgid ""
 "projects to PyPI, set up your <code>%(filename)s</code> file like this:"
 msgstr ""
 "Για παράδειγμα, αν χρησιμοποιείτε το πακέτο <a href=\"%(href)s\">Twine</a> "
-"για να ανεβάσετε τα projects σας στο PyPI, δημιουργήστε ένα αρχείο <code>%"
-"(filename)s</code> με τα εξής περιεχόμενα:"
+"για να ανεβάσετε τα projects σας στο PyPI, δημιουργήστε ένα αρχείο "
+"<code>%(filename)s</code> με τα εξής περιεχόμενα:"
 
 #: warehouse/templates/manage/account/token.html:85
 #, python-format
@@ -8498,8 +8503,8 @@ msgid ""
 "file like this:"
 msgstr ""
 "Για παράδειγμα, αν χρησιμοποιείτε το πακέτο <a href=\"%(href)s\">Twine</a> "
-"για να ανεβάσετε πολλά projects στο PyPI, δημιουργήστε ένα αρχείο <code>%"
-"(filename)s</code> με τα εξής περιεχόμενα:"
+"για να ανεβάσετε πολλά projects στο PyPI, δημιουργήστε ένα αρχείο "
+"<code>%(filename)s</code> με τα εξής περιεχόμενα:"
 
 #: warehouse/templates/manage/account/token.html:97
 msgid ""
@@ -8620,7 +8625,8 @@ msgstr "Ρύθμιση της εφαρμογής σας"
 
 #: warehouse/templates/manage/account/totp-provision.html:28
 msgid "Scan the QR code with the authentication application of your choice."
-msgstr "Σκανάρετε τον κώδικα QR με την εφαρμογή πιστοποίησης της αρέσκείας σας."
+msgstr ""
+"Σκανάρετε τον κώδικα QR με την εφαρμογή πιστοποίησης της αρέσκείας σας."
 
 #: warehouse/templates/manage/account/totp-provision.html:29
 msgid ""
@@ -8693,8 +8699,8 @@ msgstr ""
 "Γνωστά <em>USB keys</em> περιλαμβάνουν τα <a href=\"%(yubico_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
 "href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Google Titan</a> και <a href=\"%(thetis_href)s\" title=\"%"
-"(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
+"rel=\"noopener\">Google Titan</a> και <a href=\"%(thetis_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:36
 msgid "Name your device to begin"
@@ -9757,8 +9763,9 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a href=\"%(href)s\">%"
-"(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a "
+"href=\"%(href)s\">%(email_address)s</a> για να επικοινωνήσετε με τους "
+"διαχειριστές του PyPI."
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
@@ -9921,8 +9928,8 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href=\"%"
-"(delete_href)s\">διαγραφή project</a>"
+"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a "
+"href=\"%(delete_href)s\">διαγραφή project</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 #, fuzzy
@@ -10067,7 +10074,8 @@ msgstr "Το project δημιουργήθηκε"
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
-msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/manage/project/history.html:43
 #, fuzzy, python-format
@@ -10079,7 +10087,8 @@ msgstr "Η έκδοση κυκλοφορίας %(version)s αφαιρέθηκε"
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
-msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/manage/project/history.html:53
 #: warehouse/templates/manage/project/history.html:60
@@ -10092,7 +10101,8 @@ msgstr "Αλλαγή από:"
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
-msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/manage/project/history.html:65
 #, fuzzy, python-format
@@ -10591,8 +10601,8 @@ msgstr ""
 #| "password</a> on PyPI."
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\"%"
-"(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
+"href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/project/release.html:186
 #: warehouse/templates/manage/project/releases.html:134
@@ -10682,8 +10692,9 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a "
+"href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10761,8 +10772,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title=\"%"
-"(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Guide</a>"
 
 #: warehouse/templates/manage/project/roles.html:5
 #, python-format
@@ -10930,8 +10942,8 @@ msgstr "Project:"
 #| msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgid "<a href=\"%(docs_url)s\">(request an increase)</a>"
 msgstr ""
-"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού σας</a>"
-"."
+"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού σας</"
+"a>."
 
 #: warehouse/templates/manage/project/settings.html:35
 #, python-format
@@ -10976,15 +10988,16 @@ msgid ""
 msgstr ""
 "Για να ορίσετε περιγραφή, κάτοχο, συνδέσμους, ταξινομητές (classifiers) και "
 "άλλες λεπτομέρειες για την επόμενη έκδοση του '%(project_name)s', "
-"χρησιμοποιήστε τις παραμέτρους της συνάρτησης <a href=\"%(setup_args_href)"
-"s\" rel=\"noopener\" target=\"_blank\"><code>setup()</code> μέσα στο αρχείο "
-"<code>setup.py</code> file</a>. Ενημερώνοντας αυτά τα πεδία, τα metadata των "
-"παλαιότερων εκδόσεων δεν θα αλλάξουν. Επίσης, θα <strong>πρέπει</strong> να "
-"χρησιμοποιήσετε το πακέτο <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
+"χρησιμοποιήστε τις παραμέτρους της συνάρτησης <a "
+"href=\"%(setup_args_href)s\" rel=\"noopener\" "
+"target=\"_blank\"><code>setup()</code> μέσα στο αρχείο <code>setup.py</code> "
+"file</a>. Ενημερώνοντας αυτά τα πεδία, τα metadata των παλαιότερων εκδόσεων "
+"δεν θα αλλάξουν. Επίσης, θα <strong>πρέπει</strong> να χρησιμοποιήσετε το "
+"πακέτο <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
 "target=\"_blank\">Twine</a> για να ανεβάσετε τα αρχεία σας προκειμένου να "
-"έχετε υποστήριξη για αυτά τα πεδία. Δείτε στο <a href=\"%(distribution_href)"
-"s\" rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
-"για περισσότερες πληροφορίες."
+"έχετε υποστήριξη για αυτά τα πεδία. Δείτε στο <a "
+"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
+"Packaging User Guide</a> για περισσότερες πληροφορίες."
 
 #: warehouse/templates/manage/project/settings.html:76
 #, fuzzy
@@ -11696,9 +11709,9 @@ msgid ""
 "If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
 "strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
-"Αν πιστεύετε ότι αναγνωρίσατε κάποιο θέμα ασφάλειας με το Warehouse, <strong>"
-"ΜΗΝ ΤΟ</strong> αναφέρετε σε κάποιο δημόσιο forum, συμπεριλαμβανομένων (αλλά "
-"όχι περιοριστικά σε αυτά):"
+"Αν πιστεύετε ότι αναγνωρίσατε κάποιο θέμα ασφάλειας με το Warehouse, "
+"<strong>ΜΗΝ ΤΟ</strong> αναφέρετε σε κάποιο δημόσιο forum, "
+"συμπεριλαμβανομένων (αλλά όχι περιοριστικά σε αυτά):"
 
 #: warehouse/templates/pages/security.html:17
 msgid "Our GitHub issue tracker"
@@ -11875,8 +11888,9 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a "
+"href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/sponsors.html:45
 msgid ""
@@ -11918,8 +11932,9 @@ msgid ""
 "in 2019 and 2020"
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a "
+"href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
@@ -11946,11 +11961,11 @@ msgid ""
 "href=\"%(funder1_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
-"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
-"και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Thetis</a>."
+"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
+"href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Google Titan</a> και <a href=\"%(thetis_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/pages/sponsors.html:79
 msgid ""
