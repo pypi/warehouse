@@ -114,6 +114,13 @@ class TestBrowse:
         with pytest.raises(HTTPNotFound):
             pypi.browse(pyramid_request)
 
+    @pytest.mark.parametrize("classifier_id", [str(2**31), str(-(2**31) - 1), "\u0667"])
+    def test_browse_unusable_id(self, db_request, classifier_id):
+        db_request.params = {"c": classifier_id}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.browse(db_request)
+
 
 class TestFiles:
     def test_files(self, db_request, mocker):
