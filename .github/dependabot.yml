@@ -59,7 +59,10 @@ updates:
       patterns:
         - "*"
   ignore:
-    # jQuery 4 is ESM-only and breaks the AdminLTE 3 admin bundle.
+    # The admin bundle depends on AdminLTE 3, jQuery 3 and DataTables.
+    # Hold majors until the admin moves off jQuery.
+    - dependency-name: admin-lte
+      update-types: ["version-update:semver-major"]
     - dependency-name: jquery
       update-types: ["version-update:semver-major"]
   cooldown:
