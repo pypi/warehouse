@@ -15,7 +15,7 @@ celery-redbeat
 certifi
 click
 cryptography>=50.0.2
-datadog>=0.55.0
+datadog>=0.56.0
 disposable-email-domains
 dnspython
 email-validator
@@ -43,7 +43,7 @@ paginate_sqlalchemy
 # TODO: libpass is a fork of passlib with the same import name. Switch back to passlib
 #       once it has a release past 1.7.4: https://github.com/notypecheck/passlib
 libpass>=1.9.4
-platformdirs>=4.14.3
+platformdirs>=4.14.5
 premailer
 psycopg[binary]
 pydantic
