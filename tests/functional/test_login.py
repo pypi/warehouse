@@ -129,6 +129,7 @@ def test_unrecognized_login_remember_device_via_email_link(webtest, mocker):
     assert "remember_device" in webtest.cookies
 
     # Drop the session but keep the remembered-device cookie, then log in again
+    # from a new IP address
     for cookie in list(webtest.cookiejar):
         if cookie.name == "session_id":
             webtest.cookiejar.clear(cookie.domain, cookie.path, cookie.name)
@@ -136,11 +137,17 @@ def test_unrecognized_login_remember_device_via_email_link(webtest, mocker):
     login_form = login_page.forms["login-form"]
     login_form["username"] = user.username
     login_form["password"] = "password"
-    resp = login_form.submit()
+    resp = login_form.submit(extra_environ={"REMOTE_ADDR": "203.0.113.2"})
 
-    # The remembered device skips two-factor authentication
+    # The remembered device skips two-factor authentication, but does not
+    # confirm the new IP address since the device was remembered via TOTP
     assert resp.status_code == HTTPStatus.SEE_OTHER
     assert resp.headers["Location"].endswith("/manage/projects/")
+    db_session = webtest.extra_environ["warehouse.db_session"]
+    unique_logins = (
+        db_session.query(UserUniqueLogin).filter(UserUniqueLogin.user == user).all()
+    )
+    assert len(unique_logins) == 1
 
 
 def test_frozen_user_remember_device_via_email_link(webtest, mocker):
