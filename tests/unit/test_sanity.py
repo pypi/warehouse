@@ -31,6 +31,12 @@ class TestJunkEncoding:
         with pytest.raises(HTTPBadRequest, match=re.escape("Invalid bytes in URL.")):
             sanity.junk_encoding(request)
 
+    def test_nul_in_path(self):
+        request = Request({"PATH_INFO": "/a\x00b.sitemap.xml"})
+
+        with pytest.raises(HTTPBadRequest, match=re.escape("Invalid bytes in URL.")):
+            sanity.junk_encoding(request)
+
 
 class TestInvalidForms:
     def test_valid(self):
