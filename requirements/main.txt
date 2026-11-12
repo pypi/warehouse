@@ -1200,9 +1200,9 @@ jsonschema-specifications==2025.9.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[redis]==5.6.2 \
-    --hash=sha256:8060497058066c6f5aed7c26d7cd0d3b574990b09de842a8c5aaed0b92cc5a55 \
-    --hash=sha256:efcfc559da324d41d61ca311b0c64965ea35b4c55cc04ee36e55386145dace93
+kombu[redis]==5.7.0 \
+    --hash=sha256:31e62fdfd2381caa3422f8e02b84a491d9a2180ddda74507b57f4cb1e1c2c2c9 \
+    --hash=sha256:dede73bff4c89175be382c4203d2f167cf7017c384396ec75c36a1b5678f1587
     # via
     #   -r requirements/main.in
     #   celery
@@ -2854,10 +2854,6 @@ typing-inspection==0.4.5 \
     # via
     #   pydantic
     #   pydantic-settings
-tzdata==2026.6 \
-    --hash=sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec \
-    --hash=sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d
-    # via kombu
 tzlocal==5.4.5 \
     --hash=sha256:ba976898bad27945178c9ca25c222c19e322b30c10342b9f40b46714f70d2d5f \
     --hash=sha256:ecab534f6d65d9deb4c4ea52c121ab6dd5958e9b878e71dcb102578269752454
