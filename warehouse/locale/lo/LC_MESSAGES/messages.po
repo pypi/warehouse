@@ -20,15 +20,13 @@ msgstr ""
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
-"ທ່ານຕ້ອງຢືນຢັນທີ່ຢູ່ອີເມວ **ຫຼັກ** ຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາດດຳເນີນການນີ້ໄດ້."
+msgstr "ທ່ານຕ້ອງຢືນຢັນທີ່ຢູ່ອີເມວ **ຫຼັກ** ຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາດດຳເນີນການນີ້ໄດ້."
 
 #: warehouse/views.py:166
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr ""
-"ຕ້ອງເປີດໃຊ້ງານການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນໃນບັນຊີຂອງທ່ານ ເພື່ອດຳເນີນການນີ້."
+msgstr "ຕ້ອງເປີດໃຊ້ງານການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນໃນບັນຊີຂອງທ່ານ ເພື່ອດຳເນີນການນີ້."
 
 #: warehouse/views.py:377
 msgid "Locale updated"
@@ -48,8 +46,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ຊື່ຜູ້ໃຊ້ບໍ່ຖືກຕ້ອງ. ຊື່ຜູ້ໃຊ້ຕ້ອງປະກອບດ້ວຍ ຕົວອັກສອນ, ຕົວເລກ, ຈໍ້າ (.), ຂີດຕໍ່ (-) ແລະ ຂີດກ້ອງ (_). ທັງ"
-"ຕ້ອງເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກເທົ່ານັ້ນ. ກະລຸນາເລືອກຊື່ຜູ້ໃຊ້ອື່ນ."
+"ຊື່ຜູ້ໃຊ້ບໍ່ຖືກຕ້ອງ. ຊື່ຜູ້ໃຊ້ຕ້ອງປະກອບດ້ວຍ ຕົວອັກສອນ, ຕົວເລກ, ຈໍ້າ (.), ຂີດຕໍ່ (-) ແລະ ຂີດກ້ອງ (_). "
+"ທັງຕ້ອງເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກເທົ່ານັ້ນ. ກະລຸນາເລືອກຊື່ຜູ້ໃຊ້ອື່ນ."
 
 #: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
@@ -59,8 +57,7 @@ msgstr "ບໍ່ອະນຸຍາດໃຫ້ມີໄບທ໌ຫວ່າງ
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
-msgstr ""
-"ຊື່ຜູ້ໃຊ້ບໍ່ແມ່ນອັນດຽວກັບທີ່ຢູ່ອີເມວ. ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ຂອງທ່ານແທນທີ່ຢູ່ອີເມວ."
+msgstr "ຊື່ຜູ້ໃຊ້ບໍ່ແມ່ນອັນດຽວກັບທີ່ຢູ່ອີເມວ. ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ຂອງທ່ານແທນທີ່ຢູ່ອີເມວ."
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
@@ -97,8 +94,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານເປັນເວລາ ${time}. ກະລຸນາ"
-"ລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
+"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານເປັນເວລາ ${time}. "
+"ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
 #: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
@@ -180,8 +177,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for Please try again later."
 msgstr ""
-"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັ"
-"ງ."
+"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
+"ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
 #: warehouse/accounts/views.py:141
 #, python-brace-format
@@ -189,8 +186,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"ມີການເພີ່ມອີເມວຫຼາຍເກີນໄປໃນບັນຊີນີ້ໂດຍທີ່ຍັງບໍ່ທັນໄດ້ຢືນຢັນ. ກະລຸນາກວດເບິ່ງກ່ອງຈົດໝາຍຂອງທ່ານ ແລະ ກົດລິ້ງຢື"
-"ນຢັນ. (IP: ${ip})"
+"ມີການເພີ່ມອີເມວຫຼາຍເກີນໄປໃນບັນຊີນີ້ໂດຍທີ່ຍັງບໍ່ທັນໄດ້ຢືນຢັນ. ກະລຸນາກວດເບິ່ງກ່ອງຈົດໝາຍຂອງທ່ານ ແລະ "
+"ກົດລິ້ງຢືນຢັນ. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:153
 #, python-brace-format
@@ -202,25 +199,25 @@ msgstr ""
 "ມີການຮ້ອງຂໍຕັ້ງລະຫັດຜ່ານໃໝ່ຫຼາຍເກີນໄປສຳລັບບັນຊີນີ້ໂດຍທີ່ຍັງບໍ່ທັນສຳເລັດ. ກະລຸນາກວດເບິ່ງກ່ອງຈົດໝາຍຂອງທ່ານ "
 "ແລະ ກົດລິ້ງຢືນຢັນ. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "ການເຂົ້າສູ່ລະບົບແບບສອງຂັ້ນຕອນບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸແລ້ວ."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "ຢືນຢັນຕົວຕົນແລ້ວ"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "ການຢືນຢັນ WebAuthn ສຳເລັດແລ້ວ"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ຍອມຮັບລະຫັດກູ້ຄືນແລ້ວ. ລະຫັດທີ່ໃຫ້ມານີ້ຈະບໍ່ສາມາດນຳມາໃຊ້ໄດ້ອີກ."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -231,14 +228,14 @@ msgstr ""
 "ປິດການລົງທະບຽນຜູ້ໃຊ້ໃໝ່ຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -246,10 +243,10 @@ msgstr ""
 msgid ""
 "Too many registration attempts from your network. Please try again later."
 msgstr ""
-"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັ"
-"ງ."
+"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
+"ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -257,183 +254,181 @@ msgstr ""
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
-"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັ"
-"ງ."
+"ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
+"ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີການສົ່ງໂທເຄັນມາ"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ພົບຜູ້ໃຊ້"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
-"ໂທເຄັນບໍ່ຖືກຕ້ອງ: ຜູ້ໃຊ້ໄດ້ເຂົ້າສູ່ລະບົບແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
+msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ຜູ້ໃຊ້ໄດ້ເຂົ້າສູ່ລະບົບແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ລະຫັດຜ່ານຖືກປ່ຽນແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "ທ່ານໄດ້ຕັ້ງລະຫັດຜ່ານໃໝ່ແລ້ວ"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 msgid "Expired token: please try to login again"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 msgid "Invalid token: please try to login again"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 msgid "Invalid token: not a login confirmation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນການເຂົ້າສູ່ລະບົບ"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr "ການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
-msgstr ""
-"ລາຍລະອຽດອຸປະກອນບໍ່ກົງກັນ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງຈາກອຸປະກອນທີ່ທ່ານເຄີຍໃຊ້ເຂົ້າສູ່ລະບົບກ່ອນໜ້ານີ້."
+msgstr "ລາຍລະອຽດອຸປະກອນບໍ່ກົງກັນ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງຈາກອຸປະກອນທີ່ທ່ານເຄີຍໃຊ້ເຂົ້າສູ່ລະບົບກ່ອນໜ້ານີ້."
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr "ຢືນຢັນການເຂົ້າສູ່ລະບົບຂອງທ່ານແລ້ວ ແລະ ລະບົບຈື່ຈຳອຸປະກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນອີເມວ"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "ບໍ່ພົບອີເມວ"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "ອີເມວຖືກຢືນຢັນແລ້ວ"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "ຕອນນີ້ທ່ານສາມາດຕັ້ງອີເມວນີ້ນີ້ເປັນທີ່ຢູ່ຫຼັກຂອງທ່ານໄດ້ແລ້ວ"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "ນີ້ແມ່ນທີ່ຢູ່ຫຼັກຂອງທ່ານ"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ຢືນຢັນທີ່ຢູ່ອີເມວ ${email_address} ແລ້ວ. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "ຄຳເຊີນເຂົ້າຮ່ວມອົງກອນບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນເຂົ້າຮ່ວມອົງກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງອົງກອນ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນຮ່ວມມື"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "ຄຳເຊີນຮັບບົດບາດບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 msgid "Invalid token: project does not exist"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີໂຄງການນີ້"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນຮັບບົດບາດນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 "ກະລຸນາກວດເບິ່ງ <a href=\"${tos_url}\">ຂໍ້ກຳນົດການບໍລິການ</a> ທີ່ໄດ້ຮັບການປັບປຸງໃໝ່ຂອງພວກເຮົາ."
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -446,13 +441,13 @@ msgstr ""
 "ການເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -465,12 +460,11 @@ msgstr ""
 "ທ່ານຕ້ອງມີອີເມວທີ່ຢືນຢັນແລ້ວ ເພື່ອລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://"
 "pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
-msgstr ""
-"ທ່ານບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເກີນ 3 ລາຍການໃນເວລາດຽວກັນ."
+msgstr "ທ່ານບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເກີນ 3 ລາຍການໃນເວລາດຽວກັນ."
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -479,10 +473,9 @@ msgstr ""
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr ""
-"ມີການພະຍາຍາມລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຫຼາຍເກີນໄປ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
+msgstr "ມີການພະຍາຍາມລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຫຼາຍເກີນໄປ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -491,7 +484,7 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr "ບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -499,27 +492,27 @@ msgid ""
 msgstr ""
 "ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ນີ້ຖືກລົງທະບຽນແລ້ວ. ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
 "this wasn't intentional."
 msgstr ""
-"ມີຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເຊິ່ງມີການຕັ້ງຄ່ານີ້ ຖືກລົງທະບຽນສຳລັບຊື່ໂຄງການອື່ນແລ້ວ. ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ"
-"ຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
+"ມີຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເຊິ່ງມີການຕັ້ງຄ່ານີ້ ຖືກລົງທະບຽນສຳລັບຊື່ໂຄງການອື່ນແລ້ວ. "
+"ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "ລົງທະບຽນຜູ້ເຜີຍແຜ່ໃໝ່ທີ່ຍັງຄ້າງຢູ່ເພື່ອສ້າງ "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 msgid "Invalid publisher ID"
 msgstr "ID ຜູ້ເຜີຍແຜ່ບໍ່ຖືກຕ້ອງ"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "ຖອນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ສຳລັບໂຄງການອອກແລ້ວ "
 
@@ -558,8 +551,8 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ຊື່ອົງກອນບໍ່ຖືກຕ້ອງ. ຊື່ອົງກອນຕ້ອງປະກອບດ້ວຍ ຕົວອັກສອນ, ຕົວເລກ, ຈໍ້າ (.), ຂີດຕໍ່ (-) ແລະ ຂີດກ້ອງ (_)"
-". ທັງຕ້ອງເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກເທົ່ານັ້ນ. ກະລຸນາເລືອກຊື່ອົງກອນອື່ນ."
+"ຊື່ອົງກອນບໍ່ຖືກຕ້ອງ. ຊື່ອົງກອນຕ້ອງປະກອບດ້ວຍ ຕົວອັກສອນ, ຕົວເລກ, ຈໍ້າ (.), ຂີດຕໍ່ (-) ແລະ ຂີດກ້ອງ "
+"(_). ທັງຕ້ອງເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກເທົ່ານັ້ນ. ກະລຸນາເລືອກຊື່ອົງກອນອື່ນ."
 
 #: warehouse/manage/forms.py:501
 msgid ""
@@ -587,8 +580,8 @@ msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
-"ເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກ ແລະ ປະກອບດ້ວຍຕົວເລກ ASCII, '.', '_' ແລະ '-' ເ"
-"ທົ່ານັ້ນ."
+"ເລີ່ມຕົ້ນ ແລະ ລົງທ້າຍດ້ວຍຕົວອັກສອນ ຫຼື ຕົວເລກ ແລະ ປະກອບດ້ວຍຕົວເລກ ASCII, '.', '_' ແລະ '-' "
+"ເທົ່ານັ້ນ."
 
 #: warehouse/manage/forms.py:580
 msgid ""
@@ -603,15 +596,13 @@ msgstr "ບໍ່ສາມາດໂອນຍ້າຍໄປຍັງອົງກ
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
-msgstr ""
-"ຊື່ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກຊື່ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 100 ຕົວອັກສອນ."
+msgstr "ຊື່ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກຊື່ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 100 ຕົວອັກສອນ."
 
 #: warehouse/manage/forms.py:696
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
-msgstr ""
-"URL ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກ URL ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 400 ຕົວອັກສອນ."
+msgstr "URL ອົງກອນຍາວເກີນໄປ. ກະລຸນາເລືອກ URL ອົງກອນທີ່ມີຄວາມຍາວບໍ່ເກີນ 400 ຕົວອັກສອນ."
 
 #: warehouse/manage/forms.py:702
 msgid "The organization URL must start with http:// or https://"
@@ -650,8 +641,8 @@ msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
-"ຊື່ທີມບໍ່ຖືກຕ້ອງ. ຊື່ທີມບໍ່ສາມາດເລີ່ມຕົ້ນ ຫຼື ລົງທ້າຍດ້ວຍ ວ່າງ, ຈໍ້າ, ຂີດກ້ອງ, ຂີດຕໍ່ ຫຼື ເຄື່ອງໝາຍທັບ. ກະລຸນາເລື"
-"ອກຊື່ທີມອື່ນ."
+"ຊື່ທີມບໍ່ຖືກຕ້ອງ. ຊື່ທີມບໍ່ສາມາດເລີ່ມຕົ້ນ ຫຼື ລົງທ້າຍດ້ວຍ ວ່າງ, ຈໍ້າ, ຂີດກ້ອງ, ຂີດຕໍ່ ຫຼື ເຄື່ອງໝາຍທັບ. "
+"ກະລຸນາເລືອກຊື່ທີມອື່ນ."
 
 #: warehouse/manage/forms.py:860
 msgid "This team name has already been used. Choose a different team name."
@@ -664,8 +655,7 @@ msgstr "ອັບເດດລາຍລະອຽດບັນຊີແລ້ວ"
 #: warehouse/manage/views/__init__.py:469
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
-"ເພີ່ມອີເມວ ${email_address} ແລ້ວ - ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຫາລິ້ງຢືນຢັນ"
+msgstr "ເພີ່ມອີເມວ ${email_address} ແລ້ວ - ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຫາລິ້ງຢືນຢັນ"
 
 #: warehouse/manage/views/__init__.py:717
 msgid ""
@@ -777,16 +767,15 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
-"ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} ສຳລັບໂຄງການ"
-"ໄດ້"
+"ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
+"ສຳລັບໂຄງການໄດ້"
 
 #: warehouse/manage/views/__init__.py:2254
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
-msgstr ""
-"ຜູ້ໃຊ້ '${username}' ມີຄຳເຊີນທີ່ຍັງບໍ່ທັນໝົດອາຍຸຢູ່ແລ້ວ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
+msgstr "ຜູ້ໃຊ້ '${username}' ມີຄຳເຊີນທີ່ຍັງບໍ່ທັນໝົດອາຍຸຢູ່ແລ້ວ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
 #: warehouse/manage/views/__init__.py:2319
 #: warehouse/manage/views/organizations.py:1131
@@ -959,8 +948,8 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} ສຳລັບອົງກອນໄ"
-"ດ້"
+"ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
+"ສຳລັບອົງກອນໄດ້"
 
 #: warehouse/manage/views/organizations.py:1067
 msgid "Cannot invite new member. Organization is not in good standing."
@@ -992,8 +981,8 @@ msgid ""
 "This project already exists: use the project's publishing settings <a href='$"
 "{url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
-"ໂຄງການນີ້ມີຢູ່ແລ້ວ: ໃຊ້ການຕັ້ງຄ່າການເຜີຍແຜ່ຂອງໂຄງການ <a href='${url}'>ທີ່ນີ້</a> ເພື່ອສ້າງຜູ້ເຜີຍແຜ່"
-"ທີ່ເຊື່ອຖືໄດ້."
+"ໂຄງການນີ້ມີຢູ່ແລ້ວ: ໃຊ້ການຕັ້ງຄ່າການເຜີຍແຜ່ຂອງໂຄງການ <a href='${url}'>ທີ່ນີ້</a> "
+"ເພື່ອສ້າງຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້."
 
 #: warehouse/oidc/forms/_core.py:71
 msgid "This project already exists."
@@ -1036,8 +1025,7 @@ msgstr "ບໍ່ອະນຸຍາດໃຫ້ໃຊ້ຂີດຕໍ່ຢູ
 #: warehouse/oidc/forms/activestate.py:68
 #: warehouse/oidc/forms/activestate.py:81
 msgid "Unexpected error from ActiveState. Try again in a few minutes"
-msgstr ""
-"ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດຈາກ ActiveState. ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນອີກບໍ່ເທົ່າໃດນາທີ"
+msgstr "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດຈາກ ActiveState. ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນອີກບໍ່ເທົ່າໃດນາທີ"
 
 #: warehouse/oidc/forms/activestate.py:76
 #: warehouse/oidc/forms/activestate.py:92
@@ -1087,8 +1075,7 @@ msgstr "ບໍ່ຮູ້ຈັກຜູ້ໃຊ້ ຫຼື ອົງກອ�
 
 #: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
-msgstr ""
-"GitHub ໄດ້ຈຳກັດຄວາມຖີ່ໃນການດຳເນີນການນີ້. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
+msgstr "GitHub ໄດ້ຈຳກັດຄວາມຖີ່ໃນການດຳເນີນການນີ້. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
 
 #: warehouse/oidc/forms/github.py:94
 msgid "Unexpected error from GitHub. Try again."
@@ -1096,13 +1083,11 @@ msgstr "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິ
 
 #: warehouse/oidc/forms/github.py:102
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
-msgstr ""
-"ເກີດຂໍ້ຜິດພາດໃນການເຊື່ອມຕໍ່ທີ່ບໍ່ຄາດຄິດຈາກ GitHub. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
+msgstr "ເກີດຂໍ້ຜິດພາດໃນການເຊື່ອມຕໍ່ທີ່ບໍ່ຄາດຄິດຈາກ GitHub. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
 
 #: warehouse/oidc/forms/github.py:111
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
-msgstr ""
-"GitHub ໝົດເວລາການເຊື່ອມຕໍ່ (timeout) ທີ່ບໍ່ຄາດຄິດ. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
+msgstr "GitHub ໝົດເວລາການເຊື່ອມຕໍ່ (timeout) ທີ່ບໍ່ຄາດຄິດ. ກະລຸນາລອງໃໝ່ໃນອີກບໍ່ເທົ່າໃດນາທີ."
 
 #: warehouse/oidc/forms/github.py:123
 msgid "Invalid GitHub user or organization name."
@@ -1114,8 +1099,7 @@ msgstr "ຊື່ workflow ຕ້ອງລົງທ້າຍດ້ວຍ .yml �
 
 #: warehouse/oidc/forms/github.py:142
 msgid "Workflow filename must be a filename only, without directories"
-msgstr ""
-"ຊື່ໄຟລ໌ workflow ຕ້ອງແມ່ນຊື່ໄຟລ໌ເທົ່ານັ້ນ, ຫ້າມມີເສັ້ນທາງໂຟນເດີ (directories)"
+msgstr "ຊື່ໄຟລ໌ workflow ຕ້ອງແມ່ນຊື່ໄຟລ໌ເທົ່ານັ້ນ, ຫ້າມມີເສັ້ນທາງໂຟນເດີ (directories)"
 
 #: warehouse/oidc/forms/github.py:153
 msgid "Environment name is too long (maximum is 255 characters)"
@@ -1198,8 +1182,7 @@ msgstr[0] "ກຳລັງສະແດງ %1 ຈາກທັງໝົດ %2 ໄ�
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:36
 msgid "Error while validating hashed password, disregard on development"
-msgstr ""
-"ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ຢືນຢັນລະຫັດຜ່ານທີ່ຖືກ Hash, ສາມາດຂ້າມໄດ້ໃນຂັ້ນຕອນການພັດທະນາ"
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ຢືນຢັນລະຫັດຜ່ານທີ່ຖືກ Hash, ສາມາດຂ້າມໄດ້ໃນຂັ້ນຕອນການພັດທະນາ"
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:20
 msgid "Passwords match"
@@ -1357,8 +1340,8 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>ພວກເຮົາກຳລັງປະສົບບັນຫາທາງເຕັກນິກທີ່ສົ່ງຜົນກະທົບຕໍ່ການໃຫ້ບໍລິການເວັບໄຊນີ້.</p> <p>ພວກເຮົາຮັບຊາບບັນ"
-"ຫາແລ້ວ ແລະ ກຳລັງເລັ່ງແກ້ໄຂໃຫ້ໄວທີ່ສຸດ.</p>"
+"<p>ພວກເຮົາກຳລັງປະສົບບັນຫາທາງເຕັກນິກທີ່ສົ່ງຜົນກະທົບຕໍ່ການໃຫ້ບໍລິການເວັບໄຊນີ້.</p> "
+"<p>ພວກເຮົາຮັບຊາບບັນຫາແລ້ວ ແລະ ກຳລັງເລັ່ງແກ້ໄຂໃຫ້ໄວທີ່ສຸດ.</p>"
 
 #: warehouse/templates/500.html:20
 msgid "Check our status page"
@@ -1382,16 +1365,16 @@ msgid ""
 msgstr ""
 "ພິຈາລະນາ <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">ການມີສ່ວນຮ່ວມ</a> ຫຼື <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">ບໍລິຈາ"
-"ກ</a> ເພື່ອຊ່ວຍພວກເຮົາສ້າງແພລັດຟອມທີ່ໝັ້ນຄົງ ແລະ ປອດໄພຍິ່ງຂຶ້ນ."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" "
+"rel=\"noopener\">ບໍລິຈາກ</a> ເພື່ອຊ່ວຍພວກເຮົາສ້າງແພລັດຟອມທີ່ໝັ້ນຄົງ ແລະ ປອດໄພຍິ່ງຂຶ້ນ."
 
 #: warehouse/templates/base.html:13
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"ເລືອກລະຫັດຜ່ານທີ່ແຂງແຮງເຊິ່ງປະກອບດ້ວຍ ຕົວອັກສອນ (ຕົວພິມໃຫຍ່ ແລະ ຕົວພິມນ້ອຍ), ຕົວເລກ ແລະ ອັກສອນພິ"
-"ເສດ. ຫຼີກເວັ້ນການໃຊ້ຄຳສັບທົ່ວໄປ ຫຼື ການໃຊ້ຕົວອັກສອນຊ້ຳໆ."
+"ເລືອກລະຫັດຜ່ານທີ່ແຂງແຮງເຊິ່ງປະກອບດ້ວຍ ຕົວອັກສອນ (ຕົວພິມໃຫຍ່ ແລະ ຕົວພິມນ້ອຍ), ຕົວເລກ ແລະ "
+"ອັກສອນພິເສດ. ຫຼີກເວັ້ນການໃຊ້ຄຳສັບທົ່ວໄປ ຫຼື ການໃຊ້ຕົວອັກສອນຊ້ຳໆ."
 
 #: warehouse/templates/base.html:16
 msgid "Password strength:"
@@ -1444,10 +1427,10 @@ msgid ""
 "and services associated with pypi.org. Any other use by any other party is "
 "prohibited."
 msgstr ""
-"\"%(wordmark)s\", \"%(name)s\", ແລະ ໂລໂກ້ຮູບຕັນ (blocks) ແມ່ນເຄື່ອງໝາຍການຄ້າທີ່ຈົດທະບຽນ"
-"ຂອງ <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a> ເຊິ່ງໝາຍເຖິງຜະລິດຕະພັນ ແລະ ການບໍລິການທີ່ກ່ຽວຂ້ອງກັບ pypi.org. ຫ້າມ"
-"ບຸກຄົນອື່ນນຳໄປໃຊ້ໃນຮູບແບບອື່ນໂດຍເດັດຂາດ."
+"\"%(wordmark)s\", \"%(name)s\", ແລະ ໂລໂກ້ຮູບຕັນ (blocks) "
+"ແມ່ນເຄື່ອງໝາຍການຄ້າທີ່ຈົດທະບຽນຂອງ <a href=\"%(psf_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Software Foundation</a> ເຊິ່ງໝາຍເຖິງຜະລິດຕະພັນ ແລະ "
+"ການບໍລິການທີ່ກ່ຽວຂ້ອງກັບ pypi.org. ຫ້າມບຸກຄົນອື່ນນຳໄປໃຊ້ໃນຮູບແບບອື່ນໂດຍເດັດຂາດ."
 
 #: warehouse/templates/base.html:83
 #, python-format
@@ -1456,9 +1439,10 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"\"%(wordmark)s\", \"%(name)s\", ແລະ ໂລໂກ້ຮູບຕັນ (blocks) ແມ່ນ <a href=\"%"
-"(trademarks_href)s\">ເຄື່ອງໝາຍການຄ້າ</a> ທີ່ຈົດທະບຽນຂອງ <a href=\"%(psf_href)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
+"\"%(wordmark)s\", \"%(name)s\", ແລະ ໂລໂກ້ຮູບຕັນ (blocks) ແມ່ນ <a "
+"href=\"%(trademarks_href)s\">ເຄື່ອງໝາຍການຄ້າ</a> ທີ່ຈົດທະບຽນຂອງ <a "
+"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>."
 
 #: warehouse/templates/base.html:115
 msgid "TestPyPI, the Python Package Index test instance"
@@ -1520,8 +1504,8 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"ທ່ານກຳລັງໃຊ້ TestPyPI – ເຊິ່ງເປັນລະບົບແຍກຕ່າງຫາກຂອງ Python Package Index ທີ່ຊ່ວຍໃຫ້ທ່ານສາມ"
-"າດທົດລອງເຄື່ອງມື ແລະ ຂັ້ນຕອນການເຜີຍແຜ່ໄດ້ ໂດຍບໍ່ມີຜົນກະທົບຕໍ່ລະບົບຈິງ."
+"ທ່ານກຳລັງໃຊ້ TestPyPI – ເຊິ່ງເປັນລະບົບແຍກຕ່າງຫາກຂອງ Python Package Index "
+"ທີ່ຊ່ວຍໃຫ້ທ່ານສາມາດທົດລອງເຄື່ອງມື ແລະ ຂັ້ນຕອນການເຜີຍແຜ່ໄດ້ ໂດຍບໍ່ມີຜົນກະທົບຕໍ່ລະບົບຈິງ."
 
 #: warehouse/templates/base.html:261
 msgid ""
@@ -1785,8 +1769,7 @@ msgstr[0] "%(num_users_formatted)s ຜູ້ໃຊ້"
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
-msgstr ""
-"PyPI ຊ່ວຍໃຫ້ທ່ານຄົ້ນຫາ ແລະ ຕິດຕັ້ງຊອບແວທີ່ພັດທະນາ ແລະ ແບ່ງປັນໂດຍຊຸມຊົນ Python."
+msgstr "PyPI ຊ່ວຍໃຫ້ທ່ານຄົ້ນຫາ ແລະ ຕິດຕັ້ງຊອບແວທີ່ພັດທະນາ ແລະ ແບ່ງປັນໂດຍຊຸມຊົນ Python."
 
 #: warehouse/templates/index.html:104
 msgid "Learn about installing packages"
@@ -1963,9 +1946,10 @@ msgid ""
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"<b>ຄຳແນະນຳ:</b> ທ່ານກຳລັງຈະດຳເນີນການ <a href=\"%(href)s\">ທີ່ມີຄວາມລະອຽດອ່ອນ</a>. ຫາ"
-"ກທ່ານບໍ່ໄດ້ໃຊ້ອຸປະກອນສ່ວນຕົວ, ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າໄດ້ອອກຈາກລະບົບແລ້ວຫຼັງຈາກສຳເລັດການໃຊ້ງານ. ພ"
-"ວກເຮົາຈະບໍ່ຖາມຫາລະຫັດຜ່ານເພື່ອຢືນຢັນອີກໃນພາຍໃນໜຶ່ງຊົ່ວໂມງຕໍ່ໜ້າ."
+"<b>ຄຳແນະນຳ:</b> ທ່ານກຳລັງຈະດຳເນີນການ <a href=\"%(href)s\">ທີ່ມີຄວາມລະອຽດອ່ອນ</a>. "
+"ຫາກທ່ານບໍ່ໄດ້ໃຊ້ອຸປະກອນສ່ວນຕົວ, "
+"ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າໄດ້ອອກຈາກລະບົບແລ້ວຫຼັງຈາກສຳເລັດການໃຊ້ງານ. "
+"ພວກເຮົາຈະບໍ່ຖາມຫາລະຫັດຜ່ານເພື່ອຢືນຢັນອີກໃນພາຍໃນໜຶ່ງຊົ່ວໂມງຕໍ່ໜ້າ."
 
 #: warehouse/templates/upload.html:12
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1986,8 +1970,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
-msgstr ""
-"ຖ້າບໍ່ດັ່ງນັ້ນ, ພວກເຮົາແນະນຳໃຫ້ທ່ານ <a href=\"%(href)s\">ໄປຫາໜ້າຫຼັກຂອງ PyPI</a>."
+msgstr "ຖ້າບໍ່ດັ່ງນັ້ນ, ພວກເຮົາແນະນຳໃຫ້ທ່ານ <a href=\"%(href)s\">ໄປຫາໜ້າຫຼັກຂອງ PyPI</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:4
 msgid "Confirm Invite"
@@ -1999,8 +1982,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"ທ່ານຕ້ອງການຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມ '<a href=\"%(project_link)s\">%(project_name)s</a>"
-"' ໃນຖານະ %(role_name)s ຂອງໂຄງການບໍ?"
+"ທ່ານຕ້ອງການຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມ '<a href=\"%(project_link)s\">%(project_name)s</"
+"a>' ໃນຖານະ %(role_name)s ຂອງໂຄງການບໍ?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
@@ -2023,8 +2006,8 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join a project."
 msgstr ""
-"ທ່ານຕ້ອງເປີດໃຊ້ງານ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນ</a> ໃນບັນຊີຂອງທ່ານກ່ອ"
-"ນ ຈຶ່ງຈະສາມາດຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມໂຄງການໄດ້."
+"ທ່ານຕ້ອງເປີດໃຊ້ງານ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນ</a> "
+"ໃນບັນຊີຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາດຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມໂຄງການໄດ້."
 
 #: warehouse/templates/accounts/login.html:17
 #, python-format
@@ -2075,8 +2058,8 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"ທ່ານຕ້ອງການຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມ '%(organization_name)s' ໃນຖານະ %(role_name)s ຂອງອົງກ"
-"ອນບໍ?"
+"ທ່ານຕ້ອງການຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມ '%(organization_name)s' ໃນຖານະ %(role_name)s "
+"ຂອງອົງກອນບໍ?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
 #, python-format
@@ -2084,8 +2067,8 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join an organization."
 msgstr ""
-"ທ່ານຕ້ອງເປີດໃຊ້ງານ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນ</a> ໃນບັນຊີຂອງທ່ານກ່ອ"
-"ນ ຈຶ່ງຈະສາມາດຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໄດ້."
+"ທ່ານຕ້ອງເປີດໃຊ້ງານ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນ</a> "
+"ໃນບັນຊີຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາດຍອມຮັບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໄດ້."
 
 #: warehouse/templates/accounts/profile.html:4
 #, python-format
@@ -2195,9 +2178,9 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
-"PyPI ອະນຸຍາດໃຫ້ສ້າງລະຫັດກູ້ຄືນເພື່ອເກັບຮັກສາໄວ້ແບບອອບລາຍຢ່າງປອດໄພ ໃນກໍລະນີທີ່ອຸປະກອນ ຫຼື ແອັບພລິເຄຊັ"
-"ນຂອງທ່ານເສຍ. ປ້ອນລະຫັດໃດໜຶ່ງເຫຼົ່ານີ້ໃນແບບຟອມເພື່ອຢືນຢັນຕົວຕົນຂອງທ່ານ. ເມື່ອໃຊ້ແລ້ວ, ລະຫັດກູ້ຄືນນັ້ນຈະບໍ່ສ"
-"າມາດໃຊ້ໄດ້ອີກ."
+"PyPI ອະນຸຍາດໃຫ້ສ້າງລະຫັດກູ້ຄືນເພື່ອເກັບຮັກສາໄວ້ແບບອອບລາຍຢ່າງປອດໄພ ໃນກໍລະນີທີ່ອຸປະກອນ ຫຼື "
+"ແອັບພລິເຄຊັນຂອງທ່ານເສຍ. ປ້ອນລະຫັດໃດໜຶ່ງເຫຼົ່ານີ້ໃນແບບຟອມເພື່ອຢືນຢັນຕົວຕົນຂອງທ່ານ. ເມື່ອໃຊ້ແລ້ວ, "
+"ລະຫັດກູ້ຄືນນັ້ນຈະບໍ່ສາມາດໃຊ້ໄດ້ອີກ."
 
 #: warehouse/templates/accounts/recovery-code.html:56
 #, python-format
@@ -2273,8 +2256,8 @@ msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
-"ກະລຸນາຍືນຢັນວ່າທີ່ຢູ່ອີເມລຂອງທ່ານແມ່ນ <strong data-email-confirmation-target=\"email\">"
-"</strong>."
+"ກະລຸນາຍືນຢັນວ່າທີ່ຢູ່ອີເມລຂອງທ່ານແມ່ນ <strong data-email-confirmation-"
+"target=\"email\"></strong>."
 
 #: warehouse/templates/accounts/register.html:52
 msgid "Confirm"
@@ -2399,16 +2382,14 @@ msgstr "ສົ່ງອີເມລຕັ້ງລະຫັດໃໝ່ແລ້
 msgid ""
 "If you submitted a valid username or verified email address, an email has "
 "been sent to your registered email address."
-msgstr ""
-"ຖ້າທ່ານສົ່ງຊື່ຜູ້ໃຊ້ທີ່ຖືກຕ້ອງ ຫຼື ທີ່ຢູ່ອີເມລທີ່ຢືນຢັນແລ້ວ, ອີເມລຈະຖືກສົ່ງໄປຫາທີ່ຢູ່ອີເມລທີ່ທ່ານລົງທະບຽນໄວ້."
+msgstr "ຖ້າທ່ານສົ່ງຊື່ຜູ້ໃຊ້ທີ່ຖືກຕ້ອງ ຫຼື ທີ່ຢູ່ອີເມລທີ່ຢືນຢັນແລ້ວ, ອີເມລຈະຖືກສົ່ງໄປຫາທີ່ຢູ່ອີເມລທີ່ທ່ານລົງທະບຽນໄວ້."
 
 #: warehouse/templates/accounts/request-password-reset.html:44
 #, python-format
 msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
-msgstr ""
-"ອີເມລດັ່ງກ່າວປະກອບມີລິ້ງເພື່ອຕັ້ງລະຫັດຜ່ານໃໝ່. ລິ້ງນີ້ຈະໝົດອາຍຸພາຍໃນ %(n_hours)s ຊົ່ວໂມງ."
+msgstr "ອີເມລດັ່ງກ່າວປະກອບມີລິ້ງເພື່ອຕັ້ງລະຫັດຜ່ານໃໝ່. ລິ້ງນີ້ຈະໝົດອາຍຸພາຍໃນ %(n_hours)s ຊົ່ວໂມງ."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2438,13 +2419,11 @@ msgstr "ຢືນຢັນຕົວຕົນດ້ວຍອຸປະກອນຄ
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
-"ເຊື່ອມຕໍ່ອຸປະກອນຄວາມປອດໄພຂອງທ່ານ ແລະ ຄລິກປຸ່ມ \"ຢືນຢັນຕົວຕົນດ້ວຍອຸປະກອນ\"."
+msgstr "ເຊື່ອມຕໍ່ອຸປະກອນຄວາມປອດໄພຂອງທ່ານ ແລະ ຄລິກປຸ່ມ \"ຢືນຢັນຕົວຕົນດ້ວຍອຸປະກອນ\"."
 
 #: warehouse/templates/accounts/two-factor.html:24
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr ""
-"ເປີດໃຊ້ JavaScript ເພື່ອເຂົ້າສູ່ລະບົບດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
+msgstr "ເປີດໃຊ້ JavaScript ເພື່ອເຂົ້າສູ່ລະບົບດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
 
 #: warehouse/templates/accounts/two-factor.html:31
 msgid "Authenticate with device"
@@ -2457,8 +2436,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">ອັບເກຣດບຣາວເຊີຂອງທ່ານ</a> ເພື່ອເຂົ້າສູ່ລະບົບດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">ອັບເກຣດບຣາວເຊີຂອງທ່ານ</a> ເພື່ອເຂົ້າສູ່ລະບົບດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: "
+"USB key)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2487,9 +2467,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity. </p> <p> "
 "Lost your application? Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr ""
-"<p> ສ້າງລະຫັດໂດຍໃຊ້ແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນທີ່ເຊື່ອມຕໍ່ກັບບັນຊີ PyPI ຂອງທ່ານ. ປ້ອນລະຫັດນີ້ໃນແບບຟອມເພື່ອ"
-"ຢືນຢັນຕົວຕົນຂອງທ່ານ. </p> <p> ແອັບພລິເຄຊັນເສຍບໍ? ໃຊ້ວຽກບໍ່ໄດ້ບໍ? <a href=\"%(href)s\">ຂໍຄວາມ"
-"ຊ່ວຍເຫຼືອ</a>. </p>"
+"<p> ສ້າງລະຫັດໂດຍໃຊ້ແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນທີ່ເຊື່ອມຕໍ່ກັບບັນຊີ PyPI ຂອງທ່ານ. "
+"ປ້ອນລະຫັດນີ້ໃນແບບຟອມເພື່ອຢືນຢັນຕົວຕົນຂອງທ່ານ. </p> <p> ແອັບພລິເຄຊັນເສຍບໍ? ໃຊ້ວຽກບໍ່ໄດ້ບໍ? <a "
+"href=\"%(href)s\">ຂໍຄວາມຊ່ວຍເຫຼືອ</a>. </p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2502,9 +2482,9 @@ msgid ""
 "If you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a> </p>"
 msgstr ""
-"<p> <strong>ທ່ານຍັງບໍ່ໄດ້ສ້າງລະຫັດກູ້ຄືນບັນຊີ.</strong> </p> <p> ຖ້າທ່ານເສຍການເຂົ້າເຖິງວິທີການຢືນ"
-"ຢັນຕົວຕົນສອງຂັ້ນຕອນ, ທ່ານອາດຈະເສຍການເຂົ້າເຖິງບັນຊີຂອງທ່ານຖາວອນ. <a href=\"%(href)s\">ຂໍຄວາ"
-"ມຊ່ວຍເຫຼືອກ່ຽວກັບລະຫັດກູ້ຄືນ.</a> </p>"
+"<p> <strong>ທ່ານຍັງບໍ່ໄດ້ສ້າງລະຫັດກູ້ຄືນບັນຊີ.</strong> </p> <p> "
+"ຖ້າທ່ານເສຍການເຂົ້າເຖິງວິທີການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນ, ທ່ານອາດຈະເສຍການເຂົ້າເຖິງບັນຊີຂອງທ່ານຖາວອນ. "
+"<a href=\"%(href)s\">ຂໍຄວາມຊ່ວຍເຫຼືອກ່ຽວກັບລະຫັດກູ້ຄືນ.</a> </p>"
 
 #: warehouse/templates/email/account-association-added/body.html:5
 #, python-format
@@ -2513,9 +2493,9 @@ msgid ""
 "<strong>@%(external_username)s</strong> to your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ເຊື່ອມຕໍ່ບັນຊີ <strong>%(service)s</strong> <strong>@%"
-"(external_username)s</strong> ກັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong>"
-"."
+"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ເຊື່ອມຕໍ່ບັນຊີ <strong>%(service)s</strong> "
+"<strong>@%(external_username)s</strong> ກັບບັນຊີ PyPI ຂອງທ່ານ "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/account-association-added/body.html:9
 #: warehouse/templates/email/account-association-removed/body.html:9
@@ -2532,8 +2512,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ຖ້າທ່ານບໍ່ໄດ້ເຮັດການປ່ຽນແປງນີ້, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"%(href)s\">%(email_address)"
-"s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
+"ຖ້າທ່ານບໍ່ໄດ້ເຮັດການປ່ຽນແປງນີ້, ທ່ານສາມາດສົ່ງອີເມລຫາ <a "
+"href=\"%(href)s\">%(email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, python-format
@@ -2542,9 +2522,9 @@ msgid ""
 "account <strong>@%(external_username)s</strong> from your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ຕັດການເຊື່ອມຕໍ່ບັນຊີ <strong>%(service)s</strong> <strong>@%"
-"(external_username)s</strong> ຈາກບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</"
-"strong>."
+"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ຕັດການເຊື່ອມຕໍ່ບັນຊີ <strong>%(service)s</strong> "
+"<strong>@%(external_username)s</strong> ຈາກບັນຊີ PyPI ຂອງທ່ານ "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, python-format
@@ -2564,8 +2544,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"ທ່ານໄດ້ຖືກເພີ່ມເປັນ <strong><a href=\"%(role_faq_url)s\">%(role)s</a></strong> ໃນໂປ"
-"ຣເຈັກ %(site)s <a href=\"%(project_url)s\">%(project_name)s</a> ໂດຍ <a "
+"ທ່ານໄດ້ຖືກເພີ່ມເປັນ <strong><a href=\"%(role_faq_url)s\">%(role)s</a></strong> "
+"ໃນໂປຣເຈັກ %(site)s <a href=\"%(project_url)s\">%(project_name)s</a> ໂດຍ <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
@@ -2575,8 +2555,9 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"ທ່ານໄດ້ຮັບອີເມລນີ້ເພາະວ່າທ່ານຖືກເພີ່ມໂດຍ <a href=\"%(initiator_url)s\">%"
-"(initiator_username)s</a> ເຂົ້າໃນໂປຣເຈັກໃດໜຶ່ງໃນ %(site)s."
+"ທ່ານໄດ້ຮັບອີເມລນີ້ເພາະວ່າທ່ານຖືກເພີ່ມໂດຍ <a "
+"href=\"%(initiator_url)s\">%(initiator_username)s</a> ເຂົ້າໃນໂປຣເຈັກໃດໜຶ່ງໃນ "
+"%(site)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, python-format
@@ -2585,8 +2566,9 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"ທ່ານໄດ້ຖືກເພີ່ມເປັນ <strong>%(role)s</strong> ຂອງອົງກອນ %(site)s %"
-"(organization_name)s ໂດຍ <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"ທ່ານໄດ້ຖືກເພີ່ມເປັນ <strong>%(role)s</strong> ຂອງອົງກອນ %(site)s "
+"%(organization_name)s ໂດຍ <a href=\"%(submitter_profile)s\">%(submitter)s</"
+"a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2634,10 +2616,10 @@ msgid ""
 "error. We recommend removing the API token and only using the Trusted "
 "Publisher to publish."
 msgstr ""
-"ໂທເຄັນ API ຂອງຜູ້ໃຊ້ <a href=\"%(account_href)s\">%(token_owner_username)s</a> ຖືກ"
-"ນຳໃຊ້ເພື່ອອັບໂຫຼດໄຟລ໌ໄປຫາໂປຣເຈັກ <a href=\"%(project_href)s\">%(project_name)s</a>, "
-"ເຖິງແມ່ນວ່າໂປຣເຈັກຈະມີການຕັ້ງຄ່າ Trusted Publisher ໄວ້ແລ້ວກໍຕາມ. ນີ້ອາດຈະເປັນຂໍ້ຜິດພາດ. ພວກເຮົາ"
-"ແນະນຳໃຫ້ລຶບໂທເຄັນ API ອອກ ແລະ ໃຊ້ພຽງແຕ່ Trusted Publisher ເພື່ອເຜີຍແຜ່."
+"ໂທເຄັນ API ຂອງຜູ້ໃຊ້ <a href=\"%(account_href)s\">%(token_owner_username)s</a> "
+"ຖືກນຳໃຊ້ເພື່ອອັບໂຫຼດໄຟລ໌ໄປຫາໂປຣເຈັກ <a href=\"%(project_href)s\">%(project_name)s</"
+"a>, ເຖິງແມ່ນວ່າໂປຣເຈັກຈະມີການຕັ້ງຄ່າ Trusted Publisher ໄວ້ແລ້ວກໍຕາມ. ນີ້ອາດຈະເປັນຂໍ້ຜິດພາດ. "
+"ພວກເຮົາແນະນຳໃຫ້ລຶບໂທເຄັນ API ອອກ ແລະ ໃຊ້ພຽງແຕ່ Trusted Publisher ເພື່ອເຜີຍແຜ່."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
 #, python-format
@@ -2647,8 +2629,8 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 "ຖ້າທ່ານເປັນເຈົ້າຂອງໂທເຄັນນີ້, ທ່ານສາມາດລຶບມັນໄດ້ໂດຍການໄປທີ່ <a href=\"%(href)s#api-"
-"tokens\">ການຕັ້ງຄ່າໂທເຄັນ API</a> ແລະ ລຶບໂທເຄັນທີ່ຊື່ວ່າ <strong>%(token_name)s</strong>"
-"."
+"tokens\">ການຕັ້ງຄ່າໂທເຄັນ API</a> ແລະ ລຶບໂທເຄັນທີ່ຊື່ວ່າ <strong>%(token_name)s</"
+"strong>."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:26
 #, python-format
@@ -2657,8 +2639,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ຖ້າທ່ານເຊື່ອວ່ານີ້ແມ່ນຂໍ້ຜິດພາດ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"%(href)s\">%(email_address)"
-"s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
+"ຖ້າທ່ານເຊື່ອວ່ານີ້ແມ່ນຂໍ້ຜິດພາດ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a "
+"href=\"%(href)s\">%(email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2706,24 +2688,23 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"ຖ້າທ່ານບໍ່ໄດ້ເຮັດການປ່ຽນແປງນີ້, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"%(href)s\">%"
-"(new_email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
+"ຖ້າທ່ານບໍ່ໄດ້ເຮັດການປ່ຽນແປງນີ້, ທ່ານສາມາດສົ່ງອີເມລຫາ <a "
+"href=\"%(href)s\">%(new_email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, python-format
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and "
 "created."
-msgstr ""
-"ອົງກອນໃໝ່ຂອງທ່ານທີ່ຊື່ວ່າ '%(organization_name)s' ໄດ້ຮັບການອະນຸມັດ ແລະ ສ້າງຂຶ້ນແລ້ວ."
+msgstr "ອົງກອນໃໝ່ຂອງທ່ານທີ່ຊື່ວ່າ '%(organization_name)s' ໄດ້ຮັບການອະນຸມັດ ແລະ ສ້າງຂຶ້ນແລ້ວ."
 
 #: warehouse/templates/email/new-organization-approved/body.html:9
 msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
 msgstr ""
-"ທ່ານເປັນເຈົ້າຂອງອົງກອນໃໝ່ ແລະ ສາມາດເຂົ້າສູ່ລະບົບເພື່ອຈັດການໂປຣເຈັກ, ຜູ້ຮ່ວມງານ, ທິມ ຫຼື ການຕັ້ງຄ່າຕ່າງ"
-"ໆ ຂອງອົງກອນ."
+"ທ່ານເປັນເຈົ້າຂອງອົງກອນໃໝ່ ແລະ ສາມາດເຂົ້າສູ່ລະບົບເພື່ອຈັດການໂປຣເຈັກ, ຜູ້ຮ່ວມງານ, ທິມ ຫຼື "
+"ການຕັ້ງຄ່າຕ່າງໆ ຂອງອົງກອນ."
 
 #: warehouse/templates/email/new-organization-approved/body.html:12
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:12
@@ -2797,8 +2778,7 @@ msgstr ""
 msgid ""
 "Your request to create a new organization named '%(organization_name)s' was "
 "not approved."
-msgstr ""
-"ການຮ້ອງຂໍສ້າງອົງກອນໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' ຂອງທ່ານບໍ່ໄດ້ຮັບການອະນຸມັດ."
+msgstr "ການຮ້ອງຂໍສ້າງອົງກອນໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' ຂອງທ່ານບໍ່ໄດ້ຮັບການອະນຸມັດ."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:7
 #, python-format
@@ -2806,8 +2786,8 @@ msgid ""
 "We need more information to process your request to create a new "
 "organization named '%(organization_name)s'."
 msgstr ""
-"ພວກເຮົາຕ້ອງການຂໍ້ມູນເພີ່ມເຕີມເພື່ອດຳເນີນການຮ້ອງຂໍສ້າງອົງກອນໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' ຂອ"
-"ງທ່ານ."
+"ພວກເຮົາຕ້ອງການຂໍ້ມູນເພີ່ມເຕີມເພື່ອດຳເນີນການຮ້ອງຂໍສ້າງອົງກອນໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' "
+"ຂອງທ່ານ."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:16
 #, python-format
@@ -2819,8 +2799,7 @@ msgstr "ສົ່ງຄຳຕອບຂອງທ່ານໃນ %(domain)s"
 msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
-msgstr ""
-"ການຮ້ອງຂໍສ້າງອົງກອນ PyPI ໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' ຂອງທ່ານໄດ້ຖືກສົ່ງແລ້ວ."
+msgstr "ການຮ້ອງຂໍສ້າງອົງກອນ PyPI ໃໝ່ທີ່ຊື່ວ່າ '%(organization_name)s' ຂອງທ່ານໄດ້ຖືກສົ່ງແລ້ວ."
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
 #: warehouse/templates/manage/organization/application.html:30
@@ -2848,8 +2827,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"ຖ້ານີ້ແມ່ນຂໍ້ຜິດພາດ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"mailto:%(email_address)s\">%"
-"(email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ %(site)s."
+"ຖ້ານີ້ແມ່ນຂໍ້ຜິດພາດ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 msgid "You are receiving this because you were an owner of this organization."
@@ -2861,8 +2840,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ໄດ້ເຂົ້າຮ່ວມອົງກອນ \"%"
-"(organization_name)s\" ແລ້ວ"
+"<a href=\"%(user_profile)s\">%(username)s</a> ໄດ້ເຂົ້າຮ່ວມອົງກອນ "
+"\"%(organization_name)s\" ແລ້ວ"
 
 #: warehouse/templates/email/organization-member-added/body.html:17
 #: warehouse/templates/email/organization-member-invited/body.html:17
@@ -2910,8 +2889,8 @@ msgid ""
 "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join the "
 "\"%(organization_name)s\" organization has been canceled"
 msgstr ""
-"ຄຳເຊີນສຳລັບ <a href=\"%(user_profile)s\">%(username)s</a> ເພື່ອເຂົ້າຮ່ວມອົງກອນ \"%"
-"(organization_name)s\" ຖືກຍົກເລີກແລ້ວ"
+"ຄຳເຊີນສຳລັບ <a href=\"%(user_profile)s\">%(username)s</a> ເພື່ອເຂົ້າຮ່ວມອົງກອນ "
+"\"%(organization_name)s\" ຖືກຍົກເລີກແລ້ວ"
 
 #: warehouse/templates/email/organization-member-invite-declined/body.html:5
 #, python-format
@@ -2919,8 +2898,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
 "join the \"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ໄດ້ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ \"%"
-"(organization_name)s\""
+"<a href=\"%(user_profile)s\">%(username)s</a> ໄດ້ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-invited/body.html:11
 #, python-format
@@ -2928,8 +2907,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກເຊີນໃຫ້ເຂົ້າຮ່ວມອົງກອນ \"%"
-"(organization_name)s\""
+"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກເຊີນໃຫ້ເຂົ້າຮ່ວມອົງກອນ "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-invited/body.html:23
 msgid "Invited by"
@@ -2941,8 +2920,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກຍ້າຍອອກຈາກອົງກອນ \"%"
-"(organization_name)s\" ແລ້ວ"
+"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກຍ້າຍອອກຈາກອົງກອນ "
+"\"%(organization_name)s\" ແລ້ວ"
 
 #: warehouse/templates/email/organization-member-removed/body.html:20
 #: warehouse/templates/email/organization-project-removed/body.html:9
@@ -2956,8 +2935,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
-"ບົດບາດຂອງ <a href=\"%(user_profile)s\">%(username)s</a> ໃນອົງກອນ \"%"
-"(organization_name)s\" ຖືກປ່ຽນເປັນ %(role)s ແລ້ວ"
+"ບົດບາດຂອງ <a href=\"%(user_profile)s\">%(username)s</a> ໃນອົງກອນ "
+"\"%(organization_name)s\" ຖືກປ່ຽນເປັນ %(role)s ແລ້ວ"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:17
 msgid "New role"
@@ -2973,16 +2952,15 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"ໂປຣເຈັກ %(site)s \"%(project_name)s\" ໄດ້ຖືກເພີ່ມເຂົ້າໃນອົງກອນ \"%(organization_name)"
-"s\" ແລ້ວ."
+"ໂປຣເຈັກ %(site)s \"%(project_name)s\" ໄດ້ຖືກເພີ່ມເຂົ້າໃນອົງກອນ "
+"\"%(organization_name)s\" ແລ້ວ."
 
 #: warehouse/templates/email/organization-project-added/body.html:16
 #: warehouse/templates/email/organization-project-removed/body.html:16
 msgid ""
 "You are receiving this because you are an owner of the project or the "
 "organization."
-msgstr ""
-"ທ່ານໄດ້ຮັບອີເມລນີ້ເພາະວ່າທ່ານເປັນເຈົ້າຂອງໂປຣເຈັກ ຫຼື ເປັນເຈົ້າຂອງອົງກອນ."
+msgstr "ທ່ານໄດ້ຮັບອີເມລນີ້ເພາະວ່າທ່ານເປັນເຈົ້າຂອງໂປຣເຈັກ ຫຼື ເປັນເຈົ້າຂອງອົງກອນ."
 
 #: warehouse/templates/email/organization-project-removed/body.html:6
 #, python-format
@@ -2990,8 +2968,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"ໂປຣເຈັກ %(site)s \"%(project_name)s\" ຖືກຍ້າຍອອກຈາກອົງກອນ \"%(organization_name)"
-"s\" ແລ້ວ."
+"ໂປຣເຈັກ %(site)s \"%(project_name)s\" ຖືກຍ້າຍອອກຈາກອົງກອນ "
+"\"%(organization_name)s\" ແລ້ວ."
 
 #: warehouse/templates/email/organization-renamed/body.html:11
 #, python-format
@@ -2999,8 +2977,8 @@ msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
-"ອົງກອນ %(site)s ໄດ້ຖືກປ່ຽນຊື່ຈາກ \"%(previous_organization_name)s\" ເປັນ \"%"
-"(organization_name)s\"."
+"ອົງກອນ %(site)s ໄດ້ຖືກປ່ຽນຊື່ຈາກ \"%(previous_organization_name)s\" ເປັນ "
+"\"%(organization_name)s\"."
 
 #: warehouse/templates/email/organization-updated/body.html:15
 #, python-format
@@ -3060,9 +3038,9 @@ msgid ""
 "you will no longer be able to log in or upload to PyPI with your existing "
 "password."
 msgstr ""
-"ຜູ້ດູແລລະບົບ PyPI ກວດພົບວ່າລະຫັດຜ່ານຂອງທ່ານຕົກຢູ່ໃນຄວາມສ່ຽງ. ເພື່ອປົກປ້ອງທ່ານ ແລະ ຜູ້ໃຊ້ອື່ນໆ, ພວກເຮົ"
-"າໄດ້ຕັ້ງລະຫັດຜ່ານຂອງທ່ານໃໝ່ໄວ້ກ່ອນ ແລະ ທ່ານຈະບໍ່ສາມາດເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ PyPI ດ້ວຍລະຫັດຜ່ານ"
-"ເກົ່າໄດ້ອີກ."
+"ຜູ້ດູແລລະບົບ PyPI ກວດພົບວ່າລະຫັດຜ່ານຂອງທ່ານຕົກຢູ່ໃນຄວາມສ່ຽງ. ເພື່ອປົກປ້ອງທ່ານ ແລະ ຜູ້ໃຊ້ອື່ນໆ, "
+"ພວກເຮົາໄດ້ຕັ້ງລະຫັດຜ່ານຂອງທ່ານໃໝ່ໄວ້ກ່ອນ ແລະ ທ່ານຈະບໍ່ສາມາດເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ PyPI "
+"ດ້ວຍລະຫັດຜ່ານເກົ່າໄດ້ອີກ."
 
 #: warehouse/templates/email/password-compromised/body.html:12
 msgid ""
@@ -3104,9 +3082,10 @@ msgid ""
 "have preemptively reset your password and you will no longer be able to log "
 "in or upload to PyPI with your existing password."
 msgstr ""
-"ໃນລະຫວ່າງການພະຍາຍາມເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ PyPI ຫວ່າງມໍ່ໆນີ້, ພວກເຮົາສັງເກດເຫັນວ່າລະຫັດຜ່ານຂ"
-"ອງທ່ານປາກົດຢູ່ໃນຂໍ້ມູນທີ່ຮົ່ວໄຫຼໃນສາທາລະນະ. ເພື່ອປົກປ້ອງທ່ານ ແລະ ຜູ້ໃຊ້ອື່ນໆ, ພວກເຮົາໄດ້ຕັ້ງລະຫັດຜ່ານຂອງທ່"
-"ານໃໝ່ໄວ້ກ່ອນ ແລະ ທ່ານຈະບໍ່ສາມາດເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ PyPI ດ້ວຍລະຫັດຜ່ານເກົ່າໄດ້ອີກ."
+"ໃນລະຫວ່າງການພະຍາຍາມເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ PyPI ຫວ່າງມໍ່ໆນີ້, "
+"ພວກເຮົາສັງເກດເຫັນວ່າລະຫັດຜ່ານຂອງທ່ານປາກົດຢູ່ໃນຂໍ້ມູນທີ່ຮົ່ວໄຫຼໃນສາທາລະນະ. ເພື່ອປົກປ້ອງທ່ານ ແລະ "
+"ຜູ້ໃຊ້ອື່ນໆ, ພວກເຮົາໄດ້ຕັ້ງລະຫັດຜ່ານຂອງທ່ານໃໝ່ໄວ້ກ່ອນ ແລະ ທ່ານຈະບໍ່ສາມາດເຂົ້າສູ່ລະບົບ ຫຼື ອັບໂຫຼດໄປຫາ "
+"PyPI ດ້ວຍລະຫັດຜ່ານເກົ່າໄດ້ອີກ."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:12
 #, python-format
@@ -3126,9 +3105,10 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"ເພື່ອເຂົ້າເຖິງບັນຊີຂອງທ່ານຄືນໃໝ່, ກະລຸນາ <a href=\"%(reset_pw_url)s\">ຕັ້ງລະຫັດຜ່ານຂອງທ່ານໃ"
-"ໝ່</a> ໃນ PyPI. ພວກເຮົາຍັງແນະນຳໃຫ້ທ່ານໄປທີ່ <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a> ເພື່ອກວດສອບລະຫັດຜ່ານອື່ນໆຂອງທ່ານ ແລະ ສຶກສາວິທີການໃຊ້ລະຫັດຜ່ານທີ່ດີ."
+"ເພື່ອເຂົ້າເຖິງບັນຊີຂອງທ່ານຄືນໃໝ່, ກະລຸນາ <a "
+"href=\"%(reset_pw_url)s\">ຕັ້ງລະຫັດຜ່ານຂອງທ່ານໃໝ່</a> ໃນ PyPI. "
+"ພວກເຮົາຍັງແນະນຳໃຫ້ທ່ານໄປທີ່ <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</"
+"a> ເພື່ອກວດສອບລະຫັດຜ່ານອື່ນໆຂອງທ່ານ ແລະ ສຶກສາວິທີການໃຊ້ລະຫັດຜ່ານທີ່ດີ."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3144,10 +3124,11 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"ພວກເຮົາໃຊ້ບໍລິການຄວາມປອດໄພຟຣີຈາກ <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a>. ເມື່ອມີການລົງທະບຽນ, ຢືນຢັນຕົວຕົນ ຫຼື ອັບເດດລະຫັດຜ່ານ, ພວກເຮົາຈະສ້າງ "
-"SHA1 hash ຂອງລະຫັດຜ່ານຂອງທ່ານ ແລະ ໃຊ້ 5 ຕົວອັກສອນທຳອິດຂອງ hash ເພື່ອຕັດສິນວ່າລະຫັດຜ່ານນັ້ນປອດ"
-"ໄພຫຼືບໍ່. ລະຫັດຜ່ານແບບຂໍ້ຄວາມທຳມະດາຈະບໍ່ຖືກເກັບໄວ້ໃນ PyPI ຫຼື ສົ່ງໄປຫາ HaveIBeenPwned ເດັດຂາດ."
+"ພວກເຮົາໃຊ້ບໍລິການຄວາມປອດໄພຟຣີຈາກ <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. ເມື່ອມີການລົງທະບຽນ, "
+"ຢືນຢັນຕົວຕົນ ຫຼື ອັບເດດລະຫັດຜ່ານ, ພວກເຮົາຈະສ້າງ SHA1 hash ຂອງລະຫັດຜ່ານຂອງທ່ານ ແລະ ໃຊ້ 5 "
+"ຕົວອັກສອນທຳອິດຂອງ hash ເພື່ອຕັດສິນວ່າລະຫັດຜ່ານນັ້ນປອດໄພຫຼືບໍ່. "
+"ລະຫັດຜ່ານແບບຂໍ້ຄວາມທຳມະດາຈະບໍ່ຖືກເກັບໄວ້ໃນ PyPI ຫຼື ສົ່ງໄປຫາ HaveIBeenPwned ເດັດຂາດ."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3160,9 +3141,9 @@ msgid ""
 "a>. For help, you can email <a href=\"%(email_href)s\">%(email_address)s</a> "
 "to communicate with the PyPI administrators."
 msgstr ""
-"ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ, ເບິ່ງທີ່ <a href=\"%(faq_url)s\">ຄຳຖາມທີ່ພົບເລື້ອຍ (FAQ)</a>. ຫາກຕ້ອງການ"
-"ຄວາມຊ່ວຍເຫຼືອ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a href=\"%(email_href)s\">%(email_address)s</"
-"a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
+"ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ, ເບິ່ງທີ່ <a href=\"%(faq_url)s\">ຄຳຖາມທີ່ພົບເລື້ອຍ (FAQ)</a>. "
+"ຫາກຕ້ອງການຄວາມຊ່ວຍເຫຼືອ, ທ່ານສາມາດສົ່ງອີເມລຫາ <a "
+"href=\"%(email_href)s\">%(email_address)s</a> ເພື່ອຕິດຕໍ່ກັບຜູ້ດູແລລະບົບ PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3197,23 +3178,21 @@ msgstr "ຖ້າທ່ານບໍ່ໄດ້ສົ່ງຄຳຮ້ອງຂ
 msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI account "
 "associated with this email address."
-msgstr ""
-"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ຮ້ອງຂໍຕັ້ງລະຫັດຜ່ານໃໝ່ສຳລັບບັນຊີ PyPI ທີ່ກ່ຽວຂ້ອງກັບທີ່ຢູ່ອີເມລນີ້."
+msgstr "ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ຮ້ອງຂໍຕັ້ງລະຫັດຜ່ານໃໝ່ສຳລັບບັນຊີ PyPI ທີ່ກ່ຽວຂ້ອງກັບທີ່ຢູ່ອີເມລນີ້."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:8
 msgid ""
 "However, the email used to make this request is not verified. Your email "
 "address must be verified before you can use it to reset your password."
 msgstr ""
-"ແນວໃດກໍຕາມ, ອີເມລທີ່ໃຊ້ໃນການຮ້ອງຂໍນີ້ຍັງບໍ່ທັນໄດ້ຮັບການຢືນຢັນ. ທີ່ຢູ່ອີເມລຂອງທ່ານຕ້ອງໄດ້ຮັບການຢືນຢັນກ່ອນ ທ່"
-"ານຈຶ່ງຈະສາມາດໃຊ້ມັນເພື່ອຕັ້ງລະຫັດຜ່ານໃໝ່ໄດ້."
+"ແນວໃດກໍຕາມ, ອີເມລທີ່ໃຊ້ໃນການຮ້ອງຂໍນີ້ຍັງບໍ່ທັນໄດ້ຮັບການຢືນຢັນ. ທີ່ຢູ່ອີເມລຂອງທ່ານຕ້ອງໄດ້ຮັບການຢືນຢັນກ່ອນ "
+"ທ່ານຈຶ່ງຈະສາມາດໃຊ້ມັນເພື່ອຕັ້ງລະຫັດຜ່ານໃໝ່ໄດ້."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:11
 msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
-msgstr ""
-"ຖ້າທ່ານມີທີ່ຢູ່ອີເມລອື່ນທີ່ຢືນຢັນແລ້ວທີ່ກ່ຽວຂ້ອງກັບບັນຊີ PyPI ຂອງທ່ານ, ກະລຸນາລອງໃຊ້ອີເມລນັ້ນແທນ."
+msgstr "ຖ້າທ່ານມີທີ່ຢູ່ອີເມລອື່ນທີ່ຢືນຢັນແລ້ວທີ່ກ່ຽວຂ້ອງກັບບັນຊີ PyPI ຂອງທ່ານ, ກະລຸນາລອງໃຊ້ອີເມລນັ້ນແທນ."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:14
 #, python-format
@@ -3221,8 +3200,8 @@ msgid ""
 "If you cannot use another verified email, follow <a "
 "href=\"%(href)s\">account recovery steps</a> for your PyPI account."
 msgstr ""
-"ຖ້າທ່ານບໍ່ສາມາດໃຊ້ທີ່ຢູ່ອີເມລອື່ນທີ່ຢືນຢັນແລ້ວໄດ້, ກະລຸນາປະຕິບັດຕາມ <a href=\"%(href)s\">ຂັ້ນຕອນການກູ້"
-"ຄືນບັນຊີ</a> ສຳລັບບັນຊີ PyPI ຂອງທ່ານ."
+"ຖ້າທ່ານບໍ່ສາມາດໃຊ້ທີ່ຢູ່ອີເມລອື່ນທີ່ຢືນຢັນແລ້ວໄດ້, ກະລຸນາປະຕິບັດຕາມ <a "
+"href=\"%(href)s\">ຂັ້ນຕອນການກູ້ຄືນບັນຊີ</a> ສຳລັບບັນຊີ PyPI ຂອງທ່ານ."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:17
 #, python-format
@@ -3235,8 +3214,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"ອີເມລຫຼັກສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ໄດ້ຖືກປ່ຽນຈາກ <code>%"
-"(old_email)s</code> ເປັນ <code>%(new_email)s</code> ແລ້ວ"
+"ອີເມລຫຼັກສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ໄດ້ຖືກປ່ຽນຈາກ "
+"<code>%(old_email)s</code> ເປັນ <code>%(new_email)s</code> ແລ້ວ"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -3245,8 +3224,8 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated "
 "recovery codes for this account."
 msgstr ""
-"ພວກເຮົາສັງເກດເຫັນວ່າທ່ານໄດ້ເຂົ້າສູ່ລະບົບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ຫວ່"
-"າງມໍ່ໆນີ້, ເຊິ່ງບັນຊີນີ້ໄດ້ເປີດໃຊ້ການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນໄວ້ ແຕ່ທ່ານຍັງບໍ່ທັນໄດ້ສ້າງລະຫັດກູ້ຄືນສຳລັບບັນຊີນີ້."
+"ພວກເຮົາສັງເກດເຫັນວ່າທ່ານໄດ້ເຂົ້າສູ່ລະບົບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> "
+"ຫວ່າງມໍ່ໆນີ້, ເຊິ່ງບັນຊີນີ້ໄດ້ເປີດໃຊ້ການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນໄວ້ ແຕ່ທ່ານຍັງບໍ່ທັນໄດ້ສ້າງລະຫັດກູ້ຄືນສຳລັບບັນຊີນີ້."
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
 msgid ""
@@ -3254,32 +3233,29 @@ msgid ""
 "have access to these recovery codes, you may permanently lose access to your "
 "PyPI account!"
 msgstr ""
-"ຖ້າທ່ານເສຍແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື ຄີຄວາມປອດໄພ ແລະ ບໍ່ມີລະຫັດກູ້ຄືນເຫຼົ່ານີ້, ທ່ານອາດຈະເສຍການເຂົ້າເຖິ"
-"ງບັນຊີ PyPI ຂອງທ່ານຖາວອນ!"
+"ຖ້າທ່ານເສຍແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື ຄີຄວາມປອດໄພ ແລະ ບໍ່ມີລະຫັດກູ້ຄືນເຫຼົ່ານີ້, "
+"ທ່ານອາດຈະເສຍການເຂົ້າເຖິງບັນຊີ PyPI ຂອງທ່ານຖາວອນ!"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
 #, python-format
 msgid ""
 "You can generate recovery codes for your account here: <a "
 "href=\"%(href)s\">%(href)s</a>"
-msgstr ""
-"ທ່ານສາມາດສ້າງລະຫັດກູ້ຄືນສຳລັບບັນຊີຂອງທ່ານໄດ້ທີ່ນີ້: <a href=\"%(href)s\">%(href)s</a>"
+msgstr "ທ່ານສາມາດສ້າງລະຫັດກູ້ຄືນສຳລັບບັນຊີຂອງທ່ານໄດ້ທີ່ນີ້: <a href=\"%(href)s\">%(href)s</a>"
 
 #: warehouse/templates/email/recovery-code-used/body.html:5
 #, python-format
 msgid ""
 "A recovery code for your PyPI account <strong>%(username)s</strong> has been "
 "used."
-msgstr ""
-"ລະຫັດກູ້ຄືນສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ຖືກນຳໃຊ້ແລ້ວ."
+msgstr "ລະຫັດກູ້ຄືນສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ຖືກນຳໃຊ້ແລ້ວ."
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:5
 #, python-format
 msgid ""
 "New recovery codes for your PyPI account <strong>%(username)s</strong> have "
 "been generated."
-msgstr ""
-"ລະຫັດກູ້ຄືນໃໝ່ສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ຖືກສ້າງຂຶ້ນແລ້ວ."
+msgstr "ລະຫັດກູ້ຄືນໃໝ່ສຳລັບບັນຊີ PyPI ຂອງທ່ານ <strong>%(username)s</strong> ຖືກສ້າງຂຶ້ນແລ້ວ."
 
 #: warehouse/templates/email/removed-as-organization-member/body.html:5
 #, python-format
@@ -3347,8 +3323,8 @@ msgid ""
 "upload releases but cannot add collaborators, delete files, releases or the "
 "project."
 msgstr ""
-"ດຽວນີ້ທິມຂອງທ່ານມີສິດໃນການອັບໂຫຼດລຸ້ນໃໝ່ (releases) ສຳລັບໂປຣເຈັກ. ທ່ານສາມາດອັບໂຫຼດລຸ້ນໃໝ່ໄດ້ ແຕ່ບໍ່ສ"
-"າມາດເພີ່ມຜູ້ຮ່ວມງານ, ລຶບໄຟລ໌, ລຸ້ນຕ່າງໆ ຫຼື ໂປຣເຈັກໄດ້."
+"ດຽວນີ້ທິມຂອງທ່ານມີສິດໃນການອັບໂຫຼດລຸ້ນໃໝ່ (releases) ສຳລັບໂປຣເຈັກ. ທ່ານສາມາດອັບໂຫຼດລຸ້ນໃໝ່ໄດ້ "
+"ແຕ່ບໍ່ສາມາດເພີ່ມຜູ້ຮ່ວມງານ, ລຶບໄຟລ໌, ລຸ້ນຕ່າງໆ ຫຼື ໂປຣເຈັກໄດ້."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:17
 #, python-format
@@ -3396,16 +3372,14 @@ msgstr "ຜູ້ຮ່ວມງານຖືກຍ້າຍອອກຈາກໂ
 #, python-format
 msgid ""
 "A collaborator's permissions were changed for a project you own on %(site)s"
-msgstr ""
-"ສິດການນຳໃຊ້ຂອງຜູ້ຮ່ວມງານຖືກປ່ຽນແປງສຳລັບໂປຣເຈັກທີ່ທ່ານເປັນເຈົ້າຂອງໃນ %(site)s"
+msgstr "ສິດການນຳໃຊ້ຂອງຜູ້ຮ່ວມງານຖືກປ່ຽນແປງສຳລັບໂປຣເຈັກທີ່ທ່ານເປັນເຈົ້າຂອງໃນ %(site)s"
 
 #: warehouse/templates/email/team-created/body.html:5
 #, python-format
 msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"ທິມທີ່ຊື່ວ່າ \"%(team_name)s\" ໄດ້ຖືກສ້າງຂຶ້ນໃນອົງກອນ \"%(organization_name)s\"."
+msgstr "ທິມທີ່ຊື່ວ່າ \"%(team_name)s\" ໄດ້ຖືກສ້າງຂຶ້ນໃນອົງກອນ \"%(organization_name)s\"."
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3421,8 +3395,7 @@ msgstr "ທ່ານໄດ້ຮັບອີເມລນີ້ເພາະວ່
 msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"ທິມທີ່ຊື່ວ່າ \"%(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ຖືກລຶບແລ້ວ."
+msgstr "ທິມທີ່ຊື່ວ່າ \"%(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ຖືກລຶບແລ້ວ."
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, python-format
@@ -3431,9 +3404,9 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກເພີ່ມເປັນສະມາຊິກຂອງທິມ \"%"
-"(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ໂດຍ <a href=\"%"
-"(submitter_profile)s\">%(submitter)s</a>."
+"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກເພີ່ມເປັນສະມາຊິກຂອງທິມ "
+"\"%(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ໂດຍ <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, python-format
@@ -3442,9 +3415,9 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກຍ້າຍອອກຈາກສະມາຊິກຂອງທິມ \"%"
-"(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ໂດຍ <a href=\"%"
-"(submitter_profile)s\">%(submitter)s</a>."
+"<a href=\"%(user_profile)s\">%(username)s</a> ຖືກຍ້າຍອອກຈາກສະມາຊິກຂອງທິມ "
+"\"%(team_name)s\" ໃນອົງກອນ \"%(organization_name)s\" ໂດຍ <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/two-factor-added/body.html:5
 #, python-format
@@ -3452,8 +3425,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ເພີ່ມວິທີການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນແບບ %(method)s ເຂົ້າໃນບັນຊີ PyPI ຂ"
-"ອງທ່ານ <strong>%(username)s</strong>."
+"ມີບາງຄົນ, ຫຼື ອາດແມ່ນທ່ານ, ໄດ້ເພີ່ມວິທີການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນແບບ %(method)s ເຂົ້າໃນບັນຊີ PyPI "
+"ຂອງທ່ານ <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:5
 #, python-format
@@ -3479,8 +3452,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
-"ຖ້າທ່ານຕ້ອງການດຳເນີນການຕາມການຮ້ອງຂໍນີ້, <a href=\"%(href)s\">ຄລິກລິ້ງນີ້ເພື່ອຢືນຢັນທີ່ຢູ່ອີເມລຂອງທ່າ"
-"ນ</a>."
+"ຖ້າທ່ານຕ້ອງການດຳເນີນການຕາມການຮ້ອງຂໍນີ້, <a "
+"href=\"%(href)s\">ຄລິກລິ້ງນີ້ເພື່ອຢືນຢັນທີ່ຢູ່ອີເມລຂອງທ່ານ</a>."
 
 #: warehouse/templates/email/verify-organization-role/body.html:5
 #, python-format
@@ -3488,8 +3461,8 @@ msgid ""
 "<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> has "
 "invited you to join the \"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> ໄດ້ເຊີນທ່ານເຂົ້າ"
-"ຮ່ວມອົງກອນ \"%(organization_name)s\""
+"<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> "
+"ໄດ້ເຊີນທ່ານເຂົ້າຮ່ວມອົງກອນ \"%(organization_name)s\""
 
 #: warehouse/templates/email/verify-organization-role/body.html:8
 #, python-format
@@ -3497,8 +3470,8 @@ msgid ""
 "If you wish to proceed, follow <a href=\"%(href)s\">this link</a> to accept "
 "or decline this invitation."
 msgstr ""
-"ຖ້າທ່ານຕ້ອງການດຳເນີນການຕໍ່, ໃຫ້ໄປທີ່ <a href=\"%(href)s\">ລິ້ງນີ້</a> ເພື່ອຕອບຮັບ ຫຼື ປະຕິເສດຄຳເ"
-"ຊີນ."
+"ຖ້າທ່ານຕ້ອງການດຳເນີນການຕໍ່, ໃຫ້ໄປທີ່ <a href=\"%(href)s\">ລິ້ງນີ້</a> ເພື່ອຕອບຮັບ ຫຼື "
+"ປະຕິເສດຄຳເຊີນ."
 
 #: warehouse/templates/email/verify-organization-role/body.html:10
 msgid "Otherwise, you can safely ignore this email."
@@ -3741,8 +3714,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
 msgstr ""
-"ມີລະບົບການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນໃຫ້ໃຊ້ງານ, <a href=\"%(href)s\">ເປີດໃຊ້ດຽວນີ້ສຳລັບບັນຊີຂອງທ່າ"
-"ນ.</a>"
+"ມີລະບົບການຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນໃຫ້ໃຊ້ງານ, <a href=\"%(href)s\">ເປີດໃຊ້ດຽວນີ້ສຳລັບບັນຊີຂອງທ່ານ."
+"</a>"
 
 #: warehouse/templates/includes/session-notifications.html:46
 #, python-format
@@ -3764,9 +3737,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"ທ່ານຍັງບໍ່ທັນໄດ້ອັບໂຫຼດໂປຣເຈັກໃດໆ ໄປຫາ PyPI ເທື່ອ. ເພື່ອຮຽນຮູ້ວິທີເລີ່ມຕົ້ນ, ໃຫ້ໄປທີ່ <a href=\"%"
-"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ "
-"Python Packaging</a>"
+"ທ່ານຍັງບໍ່ທັນໄດ້ອັບໂຫຼດໂປຣເຈັກໃດໆ ໄປຫາ PyPI ເທື່ອ. ເພື່ອຮຽນຮູ້ວິທີເລີ່ມຕົ້ນ, ໃຫ້ໄປທີ່ <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ Python Packaging</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:11
 #, python-format
@@ -4388,8 +4361,8 @@ msgid ""
 "This project has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
 "It cannot be installed or modified until a security review is complete."
 msgstr ""
-"ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື ແກ້ໄຂໄດ້ຈົນ"
-"ກວ່າການກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
+"ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື "
+"ແກ້ໄຂໄດ້ຈົນກວ່າການກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
 
 #: warehouse/templates/includes/packaging/project-status.html:91
 #, python-format
@@ -4397,8 +4370,8 @@ msgid ""
 "This release has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
 "It cannot be installed or modified until a security review is complete."
 msgstr ""
-"ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື ແກ້ໄຂໄດ້ຈົນກວ່າກ"
-"ານກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
+"ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ກັກກັນ</a> ໂດຍຜູ້ດູແລ PyPI. ມັນບໍ່ສາມາດຕິດຕັ້ງ ຫຼື "
+"ແກ້ໄຂໄດ້ຈົນກວ່າການກວດສອບຄວາມປອດໄພຈະສຳເລັດ."
 
 #: warehouse/templates/includes/packaging/project-status.html:94
 #: warehouse/templates/includes/packaging/project-status.html:110
@@ -4412,8 +4385,8 @@ msgid ""
 "This release has been <a href=\"%(href)s\">yanked</a> by its maintainers, "
 "and will be ignored by installers, except when explicitly specified."
 msgstr ""
-"ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ຖອນອອກ (yanked)</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ ຈະຖືກລະເລີຍໂດ"
-"ຍຕົວຕິດຕັ້ງ ຍົກເວັ້ນແຕ່ຈະມີການລະບຸໄວ້ຢ່າງຊັດເຈນ."
+"ລຸ້ນນີ້ຖືກ <a href=\"%(href)s\">ຖອນອອກ (yanked)</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ "
+"ຈະຖືກລະເລີຍໂດຍຕົວຕິດຕັ້ງ ຍົກເວັ້ນແຕ່ຈະມີການລະບຸໄວ້ຢ່າງຊັດເຈນ."
 
 #: warehouse/templates/includes/packaging/project-status.html:114
 msgid "Reason given by maintainers:"
@@ -4425,8 +4398,8 @@ msgid ""
 "This project has been <a href=\"%(href)s\">archived</a> by its maintainers, "
 "and is no longer receiving any updates."
 msgstr ""
-"ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ເກັບເຂົ້າຄັງ</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ ຈະບໍ່ມີການອັບເດດໃດ"
-"ໆ ອີກຕໍ່ໄປ."
+"ໂປຣເຈັກນີ້ຖືກ <a href=\"%(href)s\">ເກັບເຂົ້າຄັງ</a> ໂດຍຜູ້ດູແລແພັກເກດ, ແລະ "
+"ຈະບໍ່ມີການອັບເດດໃດໆ ອີກຕໍ່ໄປ."
 
 #: warehouse/templates/includes/packaging/project-status.html:139
 #, python-format
@@ -4434,8 +4407,8 @@ msgid ""
 "This release is a <a href=\"%(href)s\">pre-release</a> and may not be stable "
 "for production use."
 msgstr ""
-"ລຸ້ນນີ້ແມ່ນ <a href=\"%(href)s\">ລຸ້ນກ່ອນເຜີຍແຜ່ຕົວຈິງ (pre-release)</a> ແລະ ອາດຈະບໍ່ມີຄວາມສ"
-"ະຖຽນສຳລັບການນຳໃຊ້ໃນການຜະລິດ."
+"ລຸ້ນນີ້ແມ່ນ <a href=\"%(href)s\">ລຸ້ນກ່ອນເຜີຍແຜ່ຕົວຈິງ (pre-release)</a> ແລະ "
+"ອາດຈະບໍ່ມີຄວາມສະຖຽນສຳລັບການນຳໃຊ້ໃນການຜະລິດ."
 
 #: warehouse/templates/includes/packaging/metadata/classifiers.html:3
 #: warehouse/templates/pages/classifiers.html:4
@@ -4465,8 +4438,7 @@ msgid ""
 "Data provided by the project maintainers, verified at the time the release "
 "was uploaded to PyPI. Confirms that the provided email matches a verified, "
 "public email address on a PyPI user account associated with the project."
-msgstr ""
-"ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
+msgstr "ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:16
 #: warehouse/templates/includes/packaging/metadata/credits.html:40
@@ -4496,9 +4468,9 @@ msgid ""
 "verified by PyPI at the time of upload. Stars, forks, and open issues/PRs "
 "are derived from that repository and have not been independently verified."
 msgstr ""
-"ຄັງເກັບຊອດໂຄ້ດ GitHub ຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ ແລະ ໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ໃນເວລາທີ່ອັບໂຫຼ"
-"ດ. ຈຳນວນດາວ (Stars), ການແຍກສາຂາ (Forks), ແລະ ບັນຫາ/PR ທີ່ຍັງເປີດຢູ່ ແມ່ນໄດ້ມາຈາກຄັງເກັບນັ້"
-"ນ ແລະ ບໍ່ໄດ້ຮັບການຢືນຢັນແຍກຕ່າງຫາກ."
+"ຄັງເກັບຊອດໂຄ້ດ GitHub ຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ ແລະ ໄດ້ຮັບການຢືນຢັນໂດຍ PyPI "
+"ໃນເວລາທີ່ອັບໂຫຼດ. ຈຳນວນດາວ (Stars), ການແຍກສາຂາ (Forks), ແລະ ບັນຫາ/PR ທີ່ຍັງເປີດຢູ່ "
+"ແມ່ນໄດ້ມາຈາກຄັງເກັບນັ້ນ ແລະ ບໍ່ໄດ້ຮັບການຢືນຢັນແຍກຕ່າງຫາກ."
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:23
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:22
@@ -4536,9 +4508,9 @@ msgid ""
 "verified by PyPI at the time of upload. Stars, forks, and open issues/PRs "
 "are derived from that repository and have not been independently verified."
 msgstr ""
-"ຄັງເກັບຊອດໂຄ້ດ GitLab ຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ ແລະ ໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ໃນເວລາທີ່ອັບໂຫຼ"
-"ດ. ຈຳນວນດາວ (Stars), ການແຍກສາຂາ (Forks), ແລະ ບັນຫາ/ຄຳຮ້ອງຂໍລວມ (merge requests) "
-"ທີ່ຍັງເປີດຢູ່ ແມ່ນໄດ້ມາຈາກຄັງເກັບນັ້ນ ແລະ ບໍ່ໄດ້ຮັບການຢືນຢັນແຍກຕ່າງຫາກ."
+"ຄັງເກັບຊອດໂຄ້ດ GitLab ຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ ແລະ ໄດ້ຮັບການຢືນຢັນໂດຍ PyPI "
+"ໃນເວລາທີ່ອັບໂຫຼດ. ຈຳນວນດາວ (Stars), ການແຍກສາຂາ (Forks), ແລະ ບັນຫາ/ຄຳຮ້ອງຂໍລວມ "
+"(merge requests) ທີ່ຍັງເປີດຢູ່ ແມ່ນໄດ້ມາຈາກຄັງເກັບນັ້ນ ແລະ ບໍ່ໄດ້ຮັບການຢືນຢັນແຍກຕ່າງຫາກ."
 
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:57
 msgid "Open merge requests"
@@ -4658,8 +4630,7 @@ msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ
 msgid ""
 "Data provided by the project maintainers, verified at the time the release "
 "was uploaded to PyPI."
-msgstr ""
-"ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
+msgstr "ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:16
 msgid "About provenance"
@@ -4704,8 +4675,7 @@ msgstr "ເບິ່ງລາຍລະອຽດ"
 msgid ""
 "Data provided by the project maintainers and verified by PyPI at the time of "
 "upload."
-msgstr ""
-"ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
+msgstr "ຂໍ້ມູນຖືກສະໜອງໃຫ້ໂດຍຜູ້ດູແລໂປຣເຈັກ, ໄດ້ຮັບການຢືນຢັນໃນເວລາທີ່ອັບໂຫຼດລຸ້ນດັ່ງກ່າວໄປຫາ PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:80
 msgid "Both files in this release have provenance metadata."
@@ -5447,8 +5417,7 @@ msgstr "ລຶບໂທເຄັນ API"
 #: warehouse/templates/manage/unverified-account.html:179
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
-msgstr ""
-"ແອັບພລິເຄຊັນ ຫຼື ສະຄຣິບ ທີ່ໃຊ້ໂທເຄັນນີ້ຈະບໍ່ສາມາດເຂົ້າເຖິງ PyPI ໄດ້ອີກຕໍ່ໄປ."
+msgstr "ແອັບພລິເຄຊັນ ຫຼື ສະຄຣິບ ທີ່ໃຊ້ໂທເຄັນນີ້ຈະບໍ່ສາມາດເຂົ້າເຖິງ PyPI ໄດ້ອີກຕໍ່ໄປ."
 
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/unverified-account.html:193
@@ -5520,8 +5489,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a "
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
-"ໜຶ່ງໃນອີເມລທີ່ຢືນຢັນແລ້ວຂອງທ່ານສາມາດສະແດງຢູ່ໃນ <a href=\"%(href)s\">ໂປຣໄຟລ໌ສາທາລະນະ</a> ໃ"
-"ຫ້ກັບຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບເບິ່ງໄດ້."
+"ໜຶ່ງໃນອີເມລທີ່ຢືນຢັນແລ້ວຂອງທ່ານສາມາດສະແດງຢູ່ໃນ <a href=\"%(href)s\">ໂປຣໄຟລ໌ສາທາລະນະ</a> "
+"ໃຫ້ກັບຜູ້ໃຊ້ທີ່ເຂົ້າສູ່ລະບົບເບິ່ງໄດ້."
 
 #: warehouse/templates/manage/account.html:318
 msgid "Update account"
@@ -5540,9 +5509,9 @@ msgid ""
 "your <span class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
 "ທ່ານສາມາດເຊື່ອມຕໍ່ອີເມລຫຼາຍອັນເຂົ້າກັບບັນຊີຂອງທ່ານ. ທ່ານສາມາດໃຊ້ທີ່ຢູ່ອີເມລໃດກໍໄດ້ທີ່ <span "
-"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\">"
-"</i> ຢືນຢັນແລ້ວ</span> ເພື່ອກູ້ຄືນບັນຊີຂອງທ່ານ, ແຕ່ຈະມີພຽງແຕ່ອີເມລ <span class=\"badge\">ຫຼັ"
-"ກ</span> ເທົ່ານັ້ນທີ່ຈະໄດ້ຮັບການແຈ້ງເຕືອນ."
+"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
+"hidden=\"true\"></i> ຢືນຢັນແລ້ວ</span> ເພື່ອກູ້ຄືນບັນຊີຂອງທ່ານ, ແຕ່ຈະມີພຽງແຕ່ອີເມລ <span "
+"class=\"badge\">ຫຼັກ</span> ເທົ່ານັ້ນທີ່ຈະໄດ້ຮັບການແຈ້ງເຕືອນ."
 
 #: warehouse/templates/manage/account.html:337
 #: warehouse/templates/manage/unverified-account.html:255
@@ -5592,8 +5561,8 @@ msgid ""
 "Link your PyPI account with external services. Connected accounts may be "
 "used for account recovery or accessing service-specific features."
 msgstr ""
-"ເຊື່ອມຕໍ່ບັນຊີ PyPI ຂອງທ່ານກັບບໍລິການພາຍນອກ. ບັນຊີທີ່ເຊື່ອມຕໍ່ແລ້ວອາດຈະຖືກນຳໃຊ້ເພື່ອ ກູ້ຄືນບັນຊີ ຫຼື ເຂົ້າເຖິງ"
-"ຄຸນສົມບັດສະເພາະຂອງບໍລິການນັ້ນໆ."
+"ເຊື່ອມຕໍ່ບັນຊີ PyPI ຂອງທ່ານກັບບໍລິການພາຍນອກ. ບັນຊີທີ່ເຊື່ອມຕໍ່ແລ້ວອາດຈະຖືກນຳໃຊ້ເພື່ອ ກູ້ຄືນບັນຊີ ຫຼື "
+"ເຂົ້າເຖິງຄຸນສົມບັດສະເພາະຂອງບໍລິການນັ້ນໆ."
 
 #: warehouse/templates/manage/account.html:478
 msgid "Services linked to your account"
@@ -5652,8 +5621,8 @@ msgid ""
 "Removing this association will disconnect your %(service)s account "
 "<strong>%(username)s</strong> from PyPI."
 msgstr ""
-"ການລຶບການເຊື່ອມໂຍງນີ້ຈະເຮັດໃຫ້ບັນຊີ %(service)s ຂອງທ່ານ <strong>%(username)s</strong> ຕັ"
-"ດການເຊື່ອມຕໍ່ຈາກ PyPI."
+"ການລຶບການເຊື່ອມໂຍງນີ້ຈະເຮັດໃຫ້ບັນຊີ %(service)s ຂອງທ່ານ <strong>%(username)s</strong> "
+"ຕັດການເຊື່ອມຕໍ່ຈາກ PyPI."
 
 #: warehouse/templates/manage/account.html:555
 #, python-format
@@ -5676,8 +5645,7 @@ msgstr "ເຊື່ອມຕໍ່ບັນຊີພາຍນອກ"
 msgid ""
 "Link your external accounts to your PyPI account. You'll be redirected to "
 "authorize the connection."
-msgstr ""
-"ເຊື່ອມຕໍ່ບັນຊີພາຍນອກຂອງທ່ານກັບບັນຊີ PyPI. ທ່ານຈະຖືກສົ່ງໄປໜ້າອະນຸມັດການເຊື່ອມຕໍ່."
+msgstr "ເຊື່ອມຕໍ່ບັນຊີພາຍນອກຂອງທ່ານກັບບັນຊີ PyPI. ທ່ານຈະຖືກສົ່ງໄປໜ້າອະນຸມັດການເຊື່ອມຕໍ່."
 
 #: warehouse/templates/manage/account.html:596
 msgid "Connect GitHub"
@@ -5691,8 +5659,7 @@ msgstr "ເຊື່ອມຕໍ່ GitLab"
 msgid ""
 "Need to connect a different account from the same service? Remove the "
 "existing connection first."
-msgstr ""
-"ຕ້ອງການເຊື່ອມຕໍ່ບັນຊີອື່ນຈາກບໍລິການດຽວກັນບໍ? ໃຫ້ລຶບການເຊື່ອມຕໍ່ທີ່ມີຢູ່ອອກກ່ອນ."
+msgstr "ຕ້ອງການເຊື່ອມຕໍ່ບັນຊີອື່ນຈາກບໍລິການດຽວກັນບໍ? ໃຫ້ລຶບການເຊື່ອມຕໍ່ທີ່ມີຢູ່ອອກກ່ອນ."
 
 #: warehouse/templates/manage/account.html:616
 #: warehouse/templates/manage/project/settings.html:29
@@ -5723,8 +5690,7 @@ msgstr "ເພີ່ມໂທເຄັນ API"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
 "to your account."
-msgstr ""
-"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ເພື່ອເພີ່ມໂທເຄັນ API ເຂົ້າໃນບັນຊີ."
+msgstr "<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ເພື່ອເພີ່ມໂທເຄັນ API ເຂົ້າໃນບັນຊີ."
 
 #: warehouse/templates/manage/account.html:665
 #: warehouse/templates/manage/account.html:875
@@ -6105,8 +6071,7 @@ msgstr "%(heading)s"
 #, python-format
 msgid ""
 "Organization: %(organization_name)s; team: %(team_name)s; role: %(role_name)s"
-msgstr ""
-"ອົງກອນ: %(organization_name)s; ທີມ: %(team_name)s; ບົດບາດ: %(role_name)s"
+msgstr "ອົງກອນ: %(organization_name)s; ທີມ: %(team_name)s; ບົດບາດ: %(role_name)s"
 
 #: warehouse/templates/manage/account.html:932
 #: warehouse/templates/manage/unverified-account.html:523
@@ -6120,8 +6085,9 @@ msgid ""
 "notice anything suspicious, please <a href=\"%(docs_url)s\">secure your "
 "account</a> as soon as possible."
 msgstr ""
-"ເຫດການຕ່າງໆຈະປະກົດຂຶ້ນທີ່ນີ້ເມື່ອມີການດຳເນີນການທີ່ກ່ຽວຂ້ອງກັບຄວາມປອດໄພໃນບັນຊີຂອງທ່ານ. ຫາກທ່ານພົບເຫັນ"
-"ສິ່ງຜິດປົກກະຕິ, ກະລຸນາ <a href=\"%(faq_url)s\">ປົກປ້ອງບັນຊີຂອງທ່ານ</a> ໃຫ້ໄວທີ່ສຸດ."
+"ເຫດການຕ່າງໆຈະປະກົດຂຶ້ນທີ່ນີ້ເມື່ອມີການດຳເນີນການທີ່ກ່ຽວຂ້ອງກັບຄວາມປອດໄພໃນບັນຊີຂອງທ່ານ. "
+"ຫາກທ່ານພົບເຫັນສິ່ງຜິດປົກກະຕິ, ກະລຸນາ <a href=\"%(faq_url)s\">ປົກປ້ອງບັນຊີຂອງທ່ານ</a> "
+"ໃຫ້ໄວທີ່ສຸດ."
 
 #: warehouse/templates/manage/account.html:937
 #: warehouse/templates/manage/unverified-account.html:528
@@ -6177,8 +6143,7 @@ msgstr "ຂໍ້ມູນອຸປະກອນ"
 #: warehouse/templates/manage/unverified-account.html:554
 msgid ""
 "Events will appear here as security-related actions occur on your account."
-msgstr ""
-"ເຫດການຕ່າງໆຈະປະກົດຂຶ້ນທີ່ນີ້ເມື່ອມີການດຳເນີນການທີ່ກ່ຽວຂ້ອງກັບຄວາມປອດໄພໃນບັນຊີຂອງທ່ານ."
+msgstr "ເຫດການຕ່າງໆຈະປະກົດຂຶ້ນທີ່ນີ້ເມື່ອມີການດຳເນີນການທີ່ກ່ຽວຂ້ອງກັບຄວາມປອດໄພໃນບັນຊີຂອງທ່ານ."
 
 #: warehouse/templates/manage/account.html:970
 msgid "Delete account"
@@ -6196,8 +6161,7 @@ msgid ""
 msgid_plural ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
 "projects."
-msgstr[0] ""
-"ບັນຊີຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງ %(count)s ໂຄງການ."
+msgstr[0] "ບັນຊີຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງ %(count)s ໂຄງການ."
 
 #: warehouse/templates/manage/account.html:981
 msgid ""
@@ -6206,8 +6170,7 @@ msgid ""
 msgid_plural ""
 "You must transfer ownership or delete these projects before you can delete "
 "your account."
-msgstr[0] ""
-"ທ່ານຕ້ອງໂອນກຳມະສິດ ຫຼື ລຶບໂຄງການເຫຼົ່ານີ້ອອກກ່ອນ ຈຶ່ງຈະສາມາດລຶບບັນຊີຂອງທ່ານໄດ້."
+msgstr[0] "ທ່ານຕ້ອງໂອນກຳມະສິດ ຫຼື ລຶບໂຄງການເຫຼົ່ານີ້ອອກກ່ອນ ຈຶ່ງຈະສາມາດລຶບບັນຊີຂອງທ່ານໄດ້."
 
 #: warehouse/templates/manage/account.html:991
 #, python-format
@@ -6215,8 +6178,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">ໂອນກຳມະສິດ</a> ຫຼື <a href=\"%(delete_href)s\">ລຶບໂ"
-"ຄງການ</a>"
+"<a href=\"%(transfer_href)s\">ໂອນກຳມະສິດ</a> ຫຼື <a "
+"href=\"%(delete_href)s\">ລຶບໂຄງການ</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, python-format
@@ -6226,8 +6189,7 @@ msgid ""
 msgid_plural ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
 "organizations."
-msgstr[0] ""
-"ບັນຊີຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງ %(count)s ອົງກອນ."
+msgstr[0] "ບັນຊີຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງ %(count)s ອົງກອນ."
 
 #: warehouse/templates/manage/account.html:1007
 msgid ""
@@ -6236,8 +6198,7 @@ msgid ""
 msgid_plural ""
 "You must add another owner or delete these organizations before you can "
 "delete your account."
-msgstr[0] ""
-"ທ່ານຕ້ອງເພີ່ມເຈົ້າຂອງຄົນອື່ນ ຫຼື ລຶບອົງກອນເຫຼົ່ານີ້ອອກກ່ອນ ຈຶ່ງຈະສາມາດລຶບບັນຊີຂອງທ່ານໄດ້."
+msgstr[0] "ທ່ານຕ້ອງເພີ່ມເຈົ້າຂອງຄົນອື່ນ ຫຼື ລຶບອົງກອນເຫຼົ່ານີ້ອອກກ່ອນ ຈຶ່ງຈະສາມາດລຶບບັນຊີຂອງທ່ານໄດ້."
 
 #: warehouse/templates/manage/account.html:1017
 #, python-format
@@ -6245,8 +6206,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(roles_href)s\">ເພີ່ມເຈົ້າຂອງ</a> ຫຼື <a href=\"%(delete_href)s\">ລຶບອົງກອ"
-"ນ</a>"
+"<a href=\"%(roles_href)s\">ເພີ່ມເຈົ້າຂອງ</a> ຫຼື <a "
+"href=\"%(delete_href)s\">ລຶບອົງກອນ</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6293,9 +6254,9 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
-"ການຢືນຢັນຕົວຕົນສອງຊັ້ນຈະເພີ່ມຄວາມປອດໄພອີກຊັ້ນໜຶ່ງໃຫ້ກັບບັນຊີຂອງທ່ານ. <a href=\"%(href)s\">ຮຽນຮູ້ເ"
-"ພີ່ມເຕີມກ່ຽວກັບ <abbr title=\"two factor authentication\">2FA</abbr></a>. ເມື່ອເປີດໃ"
-"ຊ້ 2FA ແລ້ວ, ຈະບໍ່ສາມາດປິດການໃຊ້ງານໄດ້."
+"ການຢືນຢັນຕົວຕົນສອງຊັ້ນຈະເພີ່ມຄວາມປອດໄພອີກຊັ້ນໜຶ່ງໃຫ້ກັບບັນຊີຂອງທ່ານ. <a "
+"href=\"%(href)s\">ຮຽນຮູ້ເພີ່ມເຕີມກ່ຽວກັບ <abbr title=\"two factor "
+"authentication\">2FA</abbr></a>. ເມື່ອເປີດໃຊ້ 2FA ແລ້ວ, ຈະບໍ່ສາມາດປິດການໃຊ້ງານໄດ້."
 
 #: warehouse/templates/manage/manage_base.html:18
 msgid "Recovery methods enabled"
@@ -6363,8 +6324,8 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
 "additional two factor authentication methods to your account."
 msgstr ""
-"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເພີ່ມວິທີ ການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີ"
-"ມເຂົ້າໃນບັນຊີ."
+"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເພີ່ມວິທີ "
+"ການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີມເຂົ້າໃນບັນຊີ."
 
 #: warehouse/templates/manage/manage_base.html:123
 #, python-format
@@ -6372,16 +6333,16 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
 "two factor authentication on your account."
 msgstr ""
-"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເປີດໃຊ້ ການຢືນຢັນຕົວຕົນສອງຊັ້ນໃນບັນ"
-"ຊີ."
+"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເປີດໃຊ້ "
+"ການຢືນຢັນຕົວຕົນສອງຊັ້ນໃນບັນຊີ."
 
 #: warehouse/templates/manage/manage_base.html:134
 msgid ""
 "You must generate and safely store recovery codes before adding additional "
 "two factor authentication methods to your account."
 msgstr ""
-"ທ່ານຕ້ອງສ້າງ ແລະ ເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ໃຫ້ປອດໄພ ກ່ອນທີ່ຈະເພີ່ມວິທີ ການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີມເຂົ້າໃນ"
-"ບັນຊີ."
+"ທ່ານຕ້ອງສ້າງ ແລະ ເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ໃຫ້ປອດໄພ ກ່ອນທີ່ຈະເພີ່ມວິທີ "
+"ການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີມເຂົ້າໃນບັນຊີ."
 
 #: warehouse/templates/manage/manage_base.html:139
 msgid ""
@@ -6398,8 +6359,7 @@ msgstr "ສ້າງລະຫັດກູ້ຄືນ"
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
-msgstr ""
-"ໃຊ້ລະຫັດກູ້ຄືນກ່ອນທີ່ຈະເພີ່ມວິທີການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີມເຂົ້າໃນບັນຊີ."
+msgstr "ໃຊ້ລະຫັດກູ້ຄືນກ່ອນທີ່ຈະເພີ່ມວິທີການຢືນຢັນຕົວຕົນສອງຊັ້ນເພີ່ມເຕີມເຂົ້າໃນບັນຊີ."
 
 #: warehouse/templates/manage/manage_base.html:160
 msgid ""
@@ -6436,8 +6396,7 @@ msgstr ""
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
-msgstr ""
-"ເປີດໃຊ້ JavaScript ເພື່ອຕັ້ງຄ່າການຢືນຢັນສອງຊັ້ນດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
+msgstr "ເປີດໃຊ້ JavaScript ເພື່ອຕັ້ງຄ່າການຢືນຢັນສອງຊັ້ນດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:51
 #: warehouse/templates/manage/manage_base.html:210
@@ -6447,8 +6406,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ອັ"
-"ບເກຣດບຣາວເຊີຂອງທ່ານ</a> ເພື່ອຕັ້ງຄ່າການຢືນຢັນສອງຊັ້ນດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">ອັບເກຣດບຣາວເຊີຂອງທ່ານ</a> "
+"ເພື່ອຕັ້ງຄ່າການຢືນຢັນສອງຊັ້ນດ້ວຍອຸປະກອນຄວາມປອດໄພ (ເຊັ່ນ: USB key)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -6508,8 +6468,7 @@ msgstr ""
 #| "of this project."
 msgid ""
 "I understand that my users will no longer be able to install this project."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
 
 #: warehouse/templates/manage/manage_base.html:512
 #, fuzzy, python-format
@@ -6521,8 +6480,8 @@ msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">not be able to re-upload any deleted versions</a>."
 msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ບໍ່ສາມາ"
-"ດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
 
 #: warehouse/templates/manage/manage_base.html:518
 msgid ""
@@ -6541,8 +6500,8 @@ msgid ""
 "href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">under some "
 "circumstances</a>."
 msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ບໍ່ສາມາ"
-"ດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
 
 #: warehouse/templates/manage/manage_base.html:530
 #: warehouse/templates/manage/manage_base.html:564
@@ -6569,8 +6528,7 @@ msgstr ""
 msgid ""
 "I understand that my users will no longer be able to install this release of "
 "this project."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
 
 #: warehouse/templates/manage/manage_base.html:558
 #, python-format
@@ -6579,15 +6537,14 @@ msgid ""
 "rel=\"noopener\">not be able to re-upload any deleted files using the same "
 "file names</a>."
 msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ບໍ່ສາມາ"
-"ດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໃດໆທີ່ຖືກລຶບໄປແລ້ວໂດຍໃຊ້ຊື່ເດີມໄດ້</a>."
 
 #: warehouse/templates/manage/manage_base.html:580
 msgid ""
 "I understand that my users will no longer be able to install this file for "
 "this release of this project."
-msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງໄຟລ໌ນີ້ສຳລັບເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
+msgstr "ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ໃຊ້ຂອງຂ້ອຍຈະບໍ່ສາມາດຕິດຕັ້ງໄຟລ໌ນີ້ສຳລັບເວີຊັນນີ້ຂອງໂຄງການໄດ້ອີກຕໍ່ໄປ."
 
 #: warehouse/templates/manage/manage_base.html:586
 #, fuzzy, python-format
@@ -6600,8 +6557,8 @@ msgid ""
 "rel=\"noopener\">not be able to re-upload a file using the same file name</"
 "a> %(filename)s."
 msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=%(href)s target=\"_blank\" rel=\"noopener\">ບໍ່ສາມາດອັບໂ"
-"ຫຼດໄຟລ໌ໂດຍໃຊ້ຊື່ເດີມຄືນໄດ້</a> %(filename)s."
+"ຂ້ອຍເຂົ້າໃຈວ່າຂ້ອຍຈະ <a href=%(href)s target=\"_blank\" "
+"rel=\"noopener\">ບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ໂດຍໃຊ້ຊື່ເດີມຄືນໄດ້</a> %(filename)s."
 
 #: warehouse/templates/manage/manage_base.html:654
 msgid "Trusted Publisher Management"
@@ -6613,16 +6570,17 @@ msgid ""
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
-"OpenID Connect (OIDC) ເປັນກົນໄກທີ່ຍືດຫຍຸ່ນ ແລະ ບໍ່ຕ້ອງໃຊ້ຂໍ້ມູນຢືນຢັນຕົວຕົນ ສຳລັບການມອບໝາຍສິດທິໃນກ"
-"ານເຜີຍແຜ່ແພັກເກດ PyPI ໃຫ້ກັບບໍລິການພາກສ່ວນທີສາມທີ່ເຊື່ອຖືໄດ້ ເຊັ່ນ GitHub Actions."
+"OpenID Connect (OIDC) ເປັນກົນໄກທີ່ຍືດຫຍຸ່ນ ແລະ ບໍ່ຕ້ອງໃຊ້ຂໍ້ມູນຢືນຢັນຕົວຕົນ "
+"ສຳລັບການມອບໝາຍສິດທິໃນການເຜີຍແຜ່ແພັກເກດ PyPI ໃຫ້ກັບບໍລິການພາກສ່ວນທີສາມທີ່ເຊື່ອຖືໄດ້ ເຊັ່ນ GitHub "
+"Actions."
 
 #: warehouse/templates/manage/manage_base.html:665
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
-"ຜູ້ໃຊ້ ແລະ ໂຄງການ PyPI ສາມາດໃຊ້ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ເພື່ອເຮັດໃຫ້ຂະບວນການອອກເວີຊັນ ເປັນແບບອັດຕະໂນມັ"
-"ດ ໂດຍບໍ່ຕ້ອງໃຊ້ໂທເຄັນ API ຫຼື ລະຫັດຜ່ານ."
+"ຜູ້ໃຊ້ ແລະ ໂຄງການ PyPI ສາມາດໃຊ້ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ເພື່ອເຮັດໃຫ້ຂະບວນການອອກເວີຊັນ "
+"ເປັນແບບອັດຕະໂນມັດ ໂດຍບໍ່ຕ້ອງໃຊ້ໂທເຄັນ API ຫຼື ລະຫັດຜ່ານ."
 
 #: warehouse/templates/manage/manage_base.html:671
 #, python-format
@@ -6630,8 +6588,8 @@ msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"ທ່ານສາມາດອ່ານເພີ່ມເຕີມກ່ຽວກັບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ ແລະ ວິທີການໃຊ້ງານ <a href=\"%(href)s\">ໄດ້ທີ່"
-"ນີ້</a>."
+"ທ່ານສາມາດອ່ານເພີ່ມເຕີມກ່ຽວກັບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ ແລະ ວິທີການໃຊ້ງານ <a "
+"href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
 #: warehouse/templates/manage/manage_base.html:698
 #: warehouse/templates/manage/manage_base.html:709
@@ -6649,8 +6607,8 @@ msgid ""
 "Removing this %(publisher_name)s trusted publisher will prevent automated "
 "package uploads from this source. You can re-add it later if needed."
 msgstr ""
-"ການລຶບຜູ້ເຜີຍແຜ່ %(publisher_name)s ທີ່ເຊື່ອຖືໄດ້ນີ້ ຈະປ້ອງກັນການອັບໂຫຼດແພັກເກດ ແບບອັດຕະໂນມັດຈາກແ"
-"ຫຼ່ງນີ້. ທ່ານສາມາດເພີ່ມມັນຄືນໃໝ່ໄດ້ໃນພາຍຫຼັງຫາກຕ້ອງການ."
+"ການລຶບຜູ້ເຜີຍແຜ່ %(publisher_name)s ທີ່ເຊື່ອຖືໄດ້ນີ້ ຈະປ້ອງກັນການອັບໂຫຼດແພັກເກດ "
+"ແບບອັດຕະໂນມັດຈາກແຫຼ່ງນີ້. ທ່ານສາມາດເພີ່ມມັນຄືນໃໝ່ໄດ້ໃນພາຍຫຼັງຫາກຕ້ອງການ."
 
 #: warehouse/templates/manage/manage_base.html:750
 msgid "Remove publisher"
@@ -6765,8 +6723,7 @@ msgstr "ການຮຽກເກັບເງິນບໍ່ໄດ້ເປີດ
 msgid ""
 "This organization's billing can be activated by an organization owner or "
 "billing manager"
-msgstr ""
-"ການຮຽກເກັບເງິນຂອງອົງກອນນີ້ສາມາດເປີດໃຊ້ໄດ້ໂດຍເຈົ້າຂອງອົງກອນ ຫຼື ຜູ້ຈັດການການຮຽກເກັບເງິນ"
+msgstr "ການຮຽກເກັບເງິນຂອງອົງກອນນີ້ສາມາດເປີດໃຊ້ໄດ້ໂດຍເຈົ້າຂອງອົງກອນ ຫຼື ຜູ້ຈັດການການຮຽກເກັບເງິນ"
 
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:235
@@ -6922,8 +6879,8 @@ msgid ""
 "Estimated number of PyPI Users you anticipate joining this Organization. "
 "<b>Not</b> the number of people in your organization."
 msgstr ""
-"ຈຳນວນຜູ້ໃຊ້ PyPI ທີ່ທ່ານຄາດວ່າຈະເຂົ້າຮ່ວມອົງກອນນີ້. <b>ບໍ່ແມ່ນ</b> ຈຳນວນຄົນທັງໝົດໃນ ບໍລິສັດ ຫຼື ອົງກອນ"
-"ຂອງທ່ານ."
+"ຈຳນວນຜູ້ໃຊ້ PyPI ທີ່ທ່ານຄາດວ່າຈະເຂົ້າຮ່ວມອົງກອນນີ້. <b>ບໍ່ແມ່ນ</b> ຈຳນວນຄົນທັງໝົດໃນ ບໍລິສັດ ຫຼື "
+"ອົງກອນຂອງທ່ານ."
 
 #: warehouse/templates/manage/organizations.html:326
 msgid "Anticipated Usage"
@@ -6936,8 +6893,7 @@ msgstr "ຄຳອະທິບາຍກ່ຽວກັບວິທີທີ່ທ
 #: warehouse/templates/manage/organizations.html:346
 msgid ""
 "Tell us a little bit about how you plan to use PyPI Organizations features."
-msgstr ""
-"ບອກພວກເຮົາເລັກນ້ອຍກ່ຽວກັບວິທີທີ່ທ່ານວາງແຜນຈະໃຊ້ຄຸນສົມບັດ PyPI Organizations."
+msgstr "ບອກພວກເຮົາເລັກນ້ອຍກ່ຽວກັບວິທີທີ່ທ່ານວາງແຜນຈະໃຊ້ຄຸນສົມບັດ PyPI Organizations."
 
 #: warehouse/templates/manage/organizations.html:353
 msgid "️Organization Type"
@@ -6949,8 +6905,8 @@ msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
-"ບໍລິສັດສາມາດສ້າງບັນຊີອົງກອນເປັນບໍລິການແບບມີຄ່າໃຊ້ຈ່າຍ ໃນຂະນະທີ່ໂຄງການຊຸມຊົນ ຈະໄດ້ຮັບສິດເຂົ້າເຖິງໂດຍບໍ່ເ"
-"ສຍຄ່າໃຊ້ຈ່າຍ."
+"ບໍລິສັດສາມາດສ້າງບັນຊີອົງກອນເປັນບໍລິການແບບມີຄ່າໃຊ້ຈ່າຍ ໃນຂະນະທີ່ໂຄງການຊຸມຊົນ "
+"ຈະໄດ້ຮັບສິດເຂົ້າເຖິງໂດຍບໍ່ເສຍຄ່າໃຊ້ຈ່າຍ."
 
 #: warehouse/templates/manage/organization/teams.html:81
 #: warehouse/templates/manage/organizations.html:369
@@ -6963,8 +6919,8 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before requesting an organization."
 msgstr ""
-"ທ່ານຕ້ອງເປີດໃຊ້ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນສອງຊັ້ນ</a> ໃນບັນຊີຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາ"
-"ດຮ້ອງຂໍອົງກອນໄດ້."
+"ທ່ານຕ້ອງເປີດໃຊ້ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນສອງຊັ້ນ</a> ໃນບັນຊີຂອງທ່ານກ່ອນ "
+"ຈຶ່ງຈະສາມາດຮ້ອງຂໍອົງກອນໄດ້."
 
 #: warehouse/templates/manage/organizations.html:385
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
@@ -7026,8 +6982,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"ທ່ານຍັງບໍ່ໄດ້ອັບໂຫຼດໂຄງການໃດໆໄປຍັງ PyPI ເທື່ອ. ເພື່ອຮຽນຮູ້ວິທີເລີ່ມຕົ້ນ, ໃຫ້ໄປທີ່ <a href=\"%(href)"
-"s\" target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ການແພັກເກດ Python</a>"
+"ທ່ານຍັງບໍ່ໄດ້ອັບໂຫຼດໂຄງການໃດໆໄປຍັງ PyPI ເທື່ອ. ເພື່ອຮຽນຮູ້ວິທີເລີ່ມຕົ້ນ, ໃຫ້ໄປທີ່ <a "
+"href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ການແພັກເກດ Python</"
+"a>"
 
 #: warehouse/templates/manage/projects.html:132
 msgid "Archived Projects"
@@ -7041,8 +6998,7 @@ msgstr "ເປີດໃຊ້ບັນຊີຂອງທ່ານ"
 msgid ""
 "You must verify an existing email address and make it your primary email "
 "address before making any other changes to your account."
-msgstr ""
-"ທ່ານຕ້ອງຢືນຢັນອີເມວທີ່ມີຢູ່ ແລະ ຕັ້ງໃຫ້ເປັນອີເມວຫຼັກກ່ອນ ຈຶ່ງຈະສາມາດປ່ຽນແປງຂໍ້ມູນອື່ນໆໃນບັນຊີໄດ້."
+msgstr "ທ່ານຕ້ອງຢືນຢັນອີເມວທີ່ມີຢູ່ ແລະ ຕັ້ງໃຫ້ເປັນອີເມວຫຼັກກ່ອນ ຈຶ່ງຈະສາມາດປ່ຽນແປງຂໍ້ມູນອື່ນໆໃນບັນຊີໄດ້."
 
 #: warehouse/templates/manage/unverified-account.html:222
 #, fuzzy, python-format
@@ -7053,22 +7009,20 @@ msgid ""
 "If you cannot verify any email addresses listed, please see <a "
 "href=\"%(docs_url)s\">%(docs_url)s</a> to recover access to your account."
 msgstr ""
-"ຫາກທ່ານບໍ່ສາມາດຢືນຢັນທີ່ຢູ່ອີເມວໃດໆທີ່ລະບຸໄວ້, ກະລຸນາເບິ່ງທີ່ <a href=\"%(help_url)s\">%"
-"(help_url)s</a> ເພື່ອກູ້ຄືນການເຂົ້າເຖິງບັນຊີຂອງທ່ານ."
+"ຫາກທ່ານບໍ່ສາມາດຢືນຢັນທີ່ຢູ່ອີເມວໃດໆທີ່ລະບຸໄວ້, ກະລຸນາເບິ່ງທີ່ <a "
+"href=\"%(help_url)s\">%(help_url)s</a> ເພື່ອກູ້ຄືນການເຂົ້າເຖິງບັນຊີຂອງທ່ານ."
 
 #: warehouse/templates/manage/unverified-account.html:230
 msgid ""
 "You must verify the primary email address listed below before making any "
 "other changes to your account."
-msgstr ""
-"ທ່ານຕ້ອງຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກທີ່ລະບຸໄວ້ຂ້າງລຸ່ມນີ້ກ່ອນ ຈຶ່ງຈະສາມາດປ່ຽນແປງຂໍ້ມູນອື່ນໆໃນບັນຊີໄດ້."
+msgstr "ທ່ານຕ້ອງຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກທີ່ລະບຸໄວ້ຂ້າງລຸ່ມນີ້ກ່ອນ ຈຶ່ງຈະສາມາດປ່ຽນແປງຂໍ້ມູນອື່ນໆໃນບັນຊີໄດ້."
 
 #: warehouse/templates/manage/unverified-account.html:236
 msgid ""
 "If you cannot verify the primary email address listed, you can correct it "
 "below."
-msgstr ""
-"ຫາກທ່ານບໍ່ສາມາດຢືນຢັນອີເມວຫຼັກທີ່ລະບຸໄວ້, ທ່ານສາມາດແກ້ໄຂມັນໄດ້ຢູ່ຂ້າງລຸ່ມນີ້."
+msgstr "ຫາກທ່ານບໍ່ສາມາດຢືນຢັນອີເມວຫຼັກທີ່ລະບຸໄວ້, ທ່ານສາມາດແກ້ໄຂມັນໄດ້ຢູ່ຂ້າງລຸ່ມນີ້."
 
 #: warehouse/templates/manage/unverified-account.html:246
 msgid ""
@@ -7088,8 +7042,8 @@ msgid ""
 "If you made a typo when registering, you can correct your email address "
 "below. A new verification email will be sent to the updated address."
 msgstr ""
-"ຫາກທ່ານພິມຜິດໃນເວລາລົງທະບຽນ, ທ່ານສາມາດແກ້ໄຂທີ່ຢູ່ອີເມວໄດ້ຢູ່ຂ້າງລຸ່ມນີ້. ອີເມວຢືນຢັນໃໝ່ຈະຖືກສົ່ງໄປຫາທີ່ຢູ່ທີ່"
-"ທ່ານອັບເດດ."
+"ຫາກທ່ານພິມຜິດໃນເວລາລົງທະບຽນ, ທ່ານສາມາດແກ້ໄຂທີ່ຢູ່ອີເມວໄດ້ຢູ່ຂ້າງລຸ່ມນີ້. "
+"ອີເມວຢືນຢັນໃໝ່ຈະຖືກສົ່ງໄປຫາທີ່ຢູ່ທີ່ທ່ານອັບເດດ."
 
 #: warehouse/templates/manage/unverified-account.html:283
 msgid "New email address"
@@ -7107,8 +7061,8 @@ msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ GitHub Actions <a href=\"%(href)"
-"s\">ໄດ້ທີ່ນີ້</a>."
+"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ GitHub Actions <a "
+"href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
@@ -7145,8 +7099,7 @@ msgstr "ເຈົ້າຂອງ"
 #: warehouse/templates/manage/project/publishing.html:37
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
-msgstr ""
-"ຊື່ອົງກອນ GitHub ຫຼື ຊື່ຜູ້ໃຊ້ GitHub ທີ່ເປັນເຈົ້າຂອງຄັງເກັບ (repository)"
+msgstr "ຊື່ອົງກອນ GitHub ຫຼື ຊື່ຜູ້ໃຊ້ GitHub ທີ່ເປັນເຈົ້າຂອງຄັງເກັບ (repository)"
 
 #: warehouse/templates/manage/account/publishing.html:50
 #: warehouse/templates/manage/organization/publishing.html:48
@@ -7222,9 +7175,10 @@ msgid ""
 "have PyPI publishing access."
 msgstr ""
 "ຊື່ຂອງ <a href=\"%(href)s\">ສະພາບແວດລ້ອມ GitHub Actions</a> ທີ່ workflow ຂ້າງເທິງໃຊ້ "
-"ເພື່ອເຜີຍແຜ່. ສິ່ງນີ້ຄວນຖືກຕັ້ງຄ່າໃນການຕັ້ງຄ່າຂອງຄັງເກັບ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການໃຊ້ ສະພາບແວດລ້ອມການ"
-"ເຜີຍແຜ່ສະເພາະແມ່ນໄດ້ຮັບການ <strong>ແນະນຳຢ່າງຍິ່ງ</strong>, <strong>ໂດຍສະເພາະ</"
-"strong> ຫາກຄັງເກັບຂອງທ່ານມີຜູ້ດູແລທີ່ມີສິດ commit ແຕ່ບໍ່ຄວນ ມີສິດເຜີຍແຜ່ໃນ PyPI."
+"ເພື່ອເຜີຍແຜ່. ສິ່ງນີ້ຄວນຖືກຕັ້ງຄ່າໃນການຕັ້ງຄ່າຂອງຄັງເກັບ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການໃຊ້ "
+"ສະພາບແວດລ້ອມການເຜີຍແຜ່ສະເພາະແມ່ນໄດ້ຮັບການ <strong>ແນະນຳຢ່າງຍິ່ງ</strong>, "
+"<strong>ໂດຍສະເພາະ</strong> ຫາກຄັງເກັບຂອງທ່ານມີຜູ້ດູແລທີ່ມີສິດ commit ແຕ່ບໍ່ຄວນ ມີສິດເຜີຍແຜ່ໃນ "
+"PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:112
 #: warehouse/templates/manage/account/publishing.html:210
@@ -7251,8 +7205,8 @@ msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ GitLab CI/CD <a href=\"%(href)s\">ໄ"
-"ດ້ທີ່ນີ້</a>."
+"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ GitLab CI/CD <a "
+"href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
 #: warehouse/templates/manage/account/publishing.html:133
 #: warehouse/templates/manage/account/publishing.html:231
@@ -7288,8 +7242,7 @@ msgstr "ເນມສະເປດ"
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
-msgstr ""
-"ຊື່ຜູ້ໃຊ້ GitLab ຫຼື namespace ຂອງກຸ່ມ/ກຸ່ມຍ່ອຍ GitLab ທີ່ໂຄງການສັງກັດຢູ່"
+msgstr "ຊື່ຜູ້ໃຊ້ GitLab ຫຼື namespace ຂອງກຸ່ມ/ກຸ່ມຍ່ອຍ GitLab ທີ່ໂຄງການສັງກັດຢູ່"
 
 #: warehouse/templates/manage/account/publishing.html:159
 #: warehouse/templates/manage/organization/publishing.html:158
@@ -7332,8 +7285,8 @@ msgid ""
 "This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
-"ເສັ້ນທາງໄຟລ໌ຂອງ pipeline ລະດັບເທິງສຸດ, ທຽບກັບຮາກຂອງໂຄງການ. ໄຟລ໌ນີ້ຄວນຈະມີ ຢູ່ໃນໂຄງການທີ່ຕັ້ງຄ່າ"
-"ໄວ້ຂ້າງເທິງ (ບໍ່ຮອງຮັບ pipeline ຈາກພາຍນອກ)."
+"ເສັ້ນທາງໄຟລ໌ຂອງ pipeline ລະດັບເທິງສຸດ, ທຽບກັບຮາກຂອງໂຄງການ. ໄຟລ໌ນີ້ຄວນຈະມີ "
+"ຢູ່ໃນໂຄງການທີ່ຕັ້ງຄ່າໄວ້ຂ້າງເທິງ (ບໍ່ຮອງຮັບ pipeline ຈາກພາຍນອກ)."
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/organization/publishing.html:191
@@ -7354,10 +7307,11 @@ msgid ""
 "project has maintainers with commit access who shouldn't have PyPI "
 "publishing access."
 msgstr ""
-"ຊື່ຂອງ <a href=\"%(href)s\">ສະພາບແວດລ້ອມ GitLab CI/CD</a> ທີ່ workflow ຂ້າງເທິງໃຊ້ ເພື່"
-"ອເຜີຍແຜ່. ສິ່ງນີ້ຄວນຖືກຕັ້ງຄ່າໃນການຕັ້ງຄ່າຂອງໂຄງການ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການໃຊ້ ສະພາບແວດລ້ອມການເ"
-"ຜີຍແຜ່ສະເພາະແມ່ນໄດ້ຮັບການ <strong>ແນະນຳຢ່າງຍິ່ງ</strong>, <strong>ໂດຍສະເພາະ</strong> "
-"ຫາກໂຄງການຂອງທ່ານມີຜູ້ດູແລທີ່ມີສິດ commit ແຕ່ບໍ່ຄວນ ມີສິດເຜີຍແຜ່ໃນ PyPI."
+"ຊື່ຂອງ <a href=\"%(href)s\">ສະພາບແວດລ້ອມ GitLab CI/CD</a> ທີ່ workflow ຂ້າງເທິງໃຊ້ "
+"ເພື່ອເຜີຍແຜ່. ສິ່ງນີ້ຄວນຖືກຕັ້ງຄ່າໃນການຕັ້ງຄ່າຂອງໂຄງການ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການໃຊ້ "
+"ສະພາບແວດລ້ອມການເຜີຍແຜ່ສະເພາະແມ່ນໄດ້ຮັບການ <strong>ແນະນຳຢ່າງຍິ່ງ</strong>, "
+"<strong>ໂດຍສະເພາະ</strong> ຫາກໂຄງການຂອງທ່ານມີຜູ້ດູແລທີ່ມີສິດ commit ແຕ່ບໍ່ຄວນ ມີສິດເຜີຍແຜ່ໃນ "
+"PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:217
 #: warehouse/templates/manage/organization/publishing.html:233
@@ -7380,8 +7334,7 @@ msgstr "ອີເມວ"
 #: warehouse/templates/manage/organization/publishing.html:267
 #: warehouse/templates/manage/project/publishing.html:237
 msgid "The email address of the account or service account used to publish."
-msgstr ""
-"ທີ່ຢູ່ອີເມວຂອງບັນຊີ ຫຼື ບັນຊີບໍລິການ (service account) ທີ່ໃຊ້ເພື່ອເຜີຍແຜ່."
+msgstr "ທີ່ຢູ່ອີເມວຂອງບັນຊີ ຫຼື ບັນຊີບໍລິການ (service account) ທີ່ໃຊ້ເພື່ອເຜີຍແຜ່."
 
 #: warehouse/templates/manage/account/publishing.html:264
 #: warehouse/templates/manage/organization/publishing.html:280
@@ -7397,8 +7350,9 @@ msgid ""
 "request. While not required, providing the subject further restricts the "
 "identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
-"Subject ແມ່ນ ID ຕົວເລກທີ່ເປັນຕົວແທນຂອງຜູ້ຮ້ອງຂໍ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການລະບຸ subject ຈະຊ່ວຍຈຳ"
-"ກັດຕົວຕົນທີ່ໃຊ້ໃນການເຜີຍແຜ່ໃຫ້ຮັດກຸມຂຶ້ນ. <a href=\"%(href)s\">ລາຍລະອຽດເພີ່ມເຕີມທີ່ນີ້.</a>"
+"Subject ແມ່ນ ID ຕົວເລກທີ່ເປັນຕົວແທນຂອງຜູ້ຮ້ອງຂໍ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການລະບຸ subject "
+"ຈະຊ່ວຍຈຳກັດຕົວຕົນທີ່ໃຊ້ໃນການເຜີຍແຜ່ໃຫ້ຮັດກຸມຂຶ້ນ. <a href=\"%(href)s\">ລາຍລະອຽດເພີ່ມເຕີມທີ່ນີ້.</"
+"a>"
 
 #: warehouse/templates/manage/account/publishing.html:285
 #: warehouse/templates/manage/organization/publishing.html:302
@@ -7408,8 +7362,8 @@ msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ ActiveState <a href=\"%(href)s\">ໄດ້"
-"ທີ່ນີ້</a>."
+"ອ່ານເພີ່ມເຕີມກ່ຽວກັບການຮອງຮັບ OpenID Connect ຂອງ ActiveState <a "
+"href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
 #: warehouse/templates/manage/account/publishing.html:318
 #: warehouse/templates/manage/project/publishing.html:286
@@ -7465,8 +7419,7 @@ msgstr "my-username"
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
-msgstr ""
-"ຊື່ຜູ້ໃຊ້ສຳລັບບັນຊີ ActiveState ທີ່ຈະເປັນຕົວເລີ່ມຕົ້ນການສ້າງຊິ້ນງານ Python ຂອງທ່ານ."
+msgstr "ຊື່ຜູ້ໃຊ້ສຳລັບບັນຊີ ActiveState ທີ່ຈະເປັນຕົວເລີ່ມຕົ້ນການສ້າງຊິ້ນງານ Python ຂອງທ່ານ."
 
 #: warehouse/templates/manage/account/publishing.html:380
 msgid "Manage publishers"
@@ -7481,8 +7434,8 @@ msgid ""
 "No publishers are currently configured. Publishers for existing projects can "
 "be added in the publishing configuration for each individual project."
 msgstr ""
-"ຍັງບໍ່ມີການຕັ້ງຄ່າຜູ້ເຜີຍແຜ່ເທື່ອ. ຜູ້ເຜີຍແຜ່ສຳລັບໂຄງການທີ່ມີຢູ່ແລ້ວສາມາດເພີ່ມໄດ້ ໃນການຕັ້ງຄ່າການເຜີຍແຜ່ຂອງແຕ່"
-"ລະໂຄງການ."
+"ຍັງບໍ່ມີການຕັ້ງຄ່າຜູ້ເຜີຍແຜ່ເທື່ອ. ຜູ້ເຜີຍແຜ່ສຳລັບໂຄງການທີ່ມີຢູ່ແລ້ວສາມາດເພີ່ມໄດ້ "
+"ໃນການຕັ້ງຄ່າການເຜີຍແຜ່ຂອງແຕ່ລະໂຄງການ."
 
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:419
@@ -7517,8 +7470,7 @@ msgstr "ເພີ່ມຜູ້ເຜີຍແຜ່ທີ່ລໍຖ້າກ
 #: warehouse/templates/manage/account/publishing.html:437
 #: warehouse/templates/manage/organization/publishing.html:437
 msgid "You can use this page to register \"pending\" trusted publishers."
-msgstr ""
-"ທ່ານສາມາດໃຊ້ໜ້ານີ້ເພື່ອລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບ \"ລໍຖ້າການສ້າງ (pending)\"."
+msgstr "ທ່ານສາມາດໃຊ້ໜ້ານີ້ເພື່ອລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບ \"ລໍຖ້າການສ້າງ (pending)\"."
 
 #: warehouse/templates/manage/account/publishing.html:442
 #: warehouse/templates/manage/organization/publishing.html:439
@@ -7531,10 +7483,11 @@ msgid ""
 "more about \"pending\" and ordinary trusted publishers <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"ຜູ້ເຜີຍແຜ່ເຫຼົ່ານີ້ເຮັດວຽກຄ້າຍຄືກັບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ເຊິ່ງລົງທະບຽນໄວ້ກັບໂຄງການສະເພາະ, ຍົກເວັ້ນແຕ່ພວກເຂົາອ"
-"ະນຸຍາດໃຫ້ຜູ້ໃຊ້ <strong>ສ້າງ</strong> ໂຄງການໄດ້ຫາກມັນຍັງບໍ່ມີເທື່ອ. ເມື່ອໂຄງການຖືກສ້າງຂຶ້ນແລ້ວ, ຜູ້ເ"
-"ຜີຍແຜ່ \"pending\" ຈະກາຍເປັນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບທຳມະດາ. ທ່ານສາມາດອ່ານເພີ່ມເຕີມກ່ຽວກັບຜູ້ເຜີຍແຜ່"
-"ແບບ \"pending\" ແລະ ແບບທຳມະດາ <a href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
+"ຜູ້ເຜີຍແຜ່ເຫຼົ່ານີ້ເຮັດວຽກຄ້າຍຄືກັບຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ເຊິ່ງລົງທະບຽນໄວ້ກັບໂຄງການສະເພາະ, "
+"ຍົກເວັ້ນແຕ່ພວກເຂົາອະນຸຍາດໃຫ້ຜູ້ໃຊ້ <strong>ສ້າງ</strong> ໂຄງການໄດ້ຫາກມັນຍັງບໍ່ມີເທື່ອ. "
+"ເມື່ອໂຄງການຖືກສ້າງຂຶ້ນແລ້ວ, ຜູ້ເຜີຍແຜ່ \"pending\" ຈະກາຍເປັນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບທຳມະດາ. "
+"ທ່ານສາມາດອ່ານເພີ່ມເຕີມກ່ຽວກັບຜູ້ເຜີຍແຜ່ແບບ \"pending\" ແລະ ແບບທຳມະດາ <a "
+"href=\"%(href)s\">ໄດ້ທີ່ນີ້</a>."
 
 #: warehouse/templates/manage/account/publishing.html:452
 #: warehouse/templates/manage/organization/publishing.html:449
@@ -7543,9 +7496,9 @@ msgid ""
 "strong> reserve that name. Until the project is created, any other user may "
 "create it, including via their own \"pending\" publisher."
 msgstr ""
-"ການຕັ້ງຄ່າຜູ້ເຜີຍແຜ່ແບບ \"pending\" ສຳລັບຊື່ໂຄງການ <strong>ບໍ່ໄດ້</strong> ເປັນການຈອງຊື່ນັ້ນໄ"
-"ວ້. ຈົນກວ່າໂຄງການຈະຖືກສ້າງຂຶ້ນ, ຜູ້ໃຊ້ອື່ນອາດຈະສ້າງມັນໄດ້, ລວມທັງຜ່ານຜູ້ເຜີຍແຜ່ \"pending\" ຂອງພວກ"
-"ເຂົາເອງ."
+"ການຕັ້ງຄ່າຜູ້ເຜີຍແຜ່ແບບ \"pending\" ສຳລັບຊື່ໂຄງການ <strong>ບໍ່ໄດ້</strong> "
+"ເປັນການຈອງຊື່ນັ້ນໄວ້. ຈົນກວ່າໂຄງການຈະຖືກສ້າງຂຶ້ນ, ຜູ້ໃຊ້ອື່ນອາດຈະສ້າງມັນໄດ້, ລວມທັງຜ່ານຜູ້ເຜີຍແຜ່ "
+"\"pending\" ຂອງພວກເຂົາເອງ."
 
 #: warehouse/templates/manage/account/publishing.html:487
 #: warehouse/templates/manage/project/publishing.html:407
@@ -7554,30 +7507,28 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before adding a new publisher."
 msgstr ""
-"ທ່ານຕ້ອງເປີດໃຊ້ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນສອງຊັ້ນ</a> ໃນບັນຊີຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາ"
-"ດເພີ່ມຜູ້ເຜີຍແຜ່ໃໝ່ໄດ້."
+"ທ່ານຕ້ອງເປີດໃຊ້ <a href=\"%(href)s\">ການຢືນຢັນຕົວຕົນສອງຊັ້ນ</a> ໃນບັນຊີຂອງທ່ານກ່ອນ "
+"ຈຶ່ງຈະສາມາດເພີ່ມຜູ້ເຜີຍແຜ່ໃໝ່ໄດ້."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:16
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
-"ເພື່ອຢືນຢັນວ່າທ່ານໄດ້ເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ຢ່າງປອດໄພເພື່ອໃຊ້ໃນກໍລະນີທີ່ອຸປະກອນ 2FA ເສຍ, ໃຫ້ສົ່ງລະຫັດກູ້ຄືນ"
-"ອັນໜຶ່ງຂອງທ່ານທີ່ນີ້."
+"ເພື່ອຢືນຢັນວ່າທ່ານໄດ້ເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ຢ່າງປອດໄພເພື່ອໃຊ້ໃນກໍລະນີທີ່ອຸປະກອນ 2FA ເສຍ, "
+"ໃຫ້ສົ່ງລະຫັດກູ້ຄືນອັນໜຶ່ງຂອງທ່ານທີ່ນີ້."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:21
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
-msgstr ""
-"ລະຫັດກູ້ຄືນທີ່ທ່ານເລືອກຈະຖືວ່າຖືກໃຊ້ແລ້ວ ແລະ ຈະບໍ່ສາມາດນຳມາໃຊ້ເພື່ອຂ້າມ 2FA ໄດ້ອີກ."
+msgstr "ລະຫັດກູ້ຄືນທີ່ທ່ານເລືອກຈະຖືວ່າຖືກໃຊ້ແລ້ວ ແລະ ຈະບໍ່ສາມາດນຳມາໃຊ້ເພື່ອຂ້າມ 2FA ໄດ້ອີກ."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:26
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
-msgstr ""
-"<strong>ລືມເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ໃຫ້ປອດໄພບໍ?</strong> ທ່ານຈະຕ້ອງສ້າງພວກມັນໃໝ່."
+msgstr "<strong>ລືມເກັບຮັກສາລະຫັດກູ້ຄືນໄວ້ໃຫ້ປອດໄພບໍ?</strong> ທ່ານຈະຕ້ອງສ້າງພວກມັນໃໝ່."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:4
 msgid "Account recovery codes"
@@ -7593,16 +7544,17 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
-"ຫາກທ່ານເສຍສິດການເຂົ້າເຖິງແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື ກະແຈຄວາມປອດໄພ, ທ່ານຈະຕ້ອງໃຊ້ລະຫັດກູ້ຄືນເຫຼົ່ານີ້ອັ"
-"ນໜຶ່ງເພື່ອເຂົ້າສູ່ບັນຊີ PyPI ຂອງທ່ານ. ແຕ່ລະລະຫັດສາມາດໃຊ້ໄດ້ພຽງ <strong>ຄັ້ງດຽວ</strong> ເທົ່ານັ້ນ."
+"ຫາກທ່ານເສຍສິດການເຂົ້າເຖິງແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື ກະແຈຄວາມປອດໄພ, "
+"ທ່ານຈະຕ້ອງໃຊ້ລະຫັດກູ້ຄືນເຫຼົ່ານີ້ອັນໜຶ່ງເພື່ອເຂົ້າສູ່ບັນຊີ PyPI ຂອງທ່ານ. ແຕ່ລະລະຫັດສາມາດໃຊ້ໄດ້ພຽງ "
+"<strong>ຄັ້ງດຽວ</strong> ເທົ່ານັ້ນ."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:31
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
-"ລະຫັດເຫຼົ່ານີ້ຄວນຖືກໃຊ້ <strong>ສະເພາະ</strong> ເພື່ອກູ້ຄືນບັນຊີເທົ່ານັ້ນ, ບໍ່ແມ່ນສຳລັບການເຂົ້າສູ່ລະບົບທົ່ວ"
-"ໄປ."
+"ລະຫັດເຫຼົ່ານີ້ຄວນຖືກໃຊ້ <strong>ສະເພາະ</strong> ເພື່ອກູ້ຄືນບັນຊີເທົ່ານັ້ນ, "
+"ບໍ່ແມ່ນສຳລັບການເຂົ້າສູ່ລະບົບທົ່ວໄປ."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:34
 msgid ""
@@ -7610,8 +7562,9 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
-"<strong>ເກັບຮັກສາລະຫັດເຫຼົ່ານີ້ໄວ້ບ່ອນທີ່ປອດໄພ</strong>. ຫາກທ່ານເສຍແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື ກະແ"
-"ຈຄວາມປອດໄພ ແລະ ບໍ່ມີລະຫັດກູ້ຄືນເຫຼົ່ານີ້, ທ່ານອາດຈະເສຍສິດການເຂົ້າເຖິງ ບັນຊີ PyPI ຂອງທ່ານຢ່າງຖາວອນ!"
+"<strong>ເກັບຮັກສາລະຫັດເຫຼົ່ານີ້ໄວ້ບ່ອນທີ່ປອດໄພ</strong>. ຫາກທ່ານເສຍແອັບພລິເຄຊັນຢືນຢັນຕົວຕົນ ຫຼື "
+"ກະແຈຄວາມປອດໄພ ແລະ ບໍ່ມີລະຫັດກູ້ຄືນເຫຼົ່ານີ້, ທ່ານອາດຈະເສຍສິດການເຂົ້າເຖິງ ບັນຊີ PyPI "
+"ຂອງທ່ານຢ່າງຖາວອນ!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Save your recovery codes"
@@ -7638,8 +7591,7 @@ msgstr "ລະຫັດເຫຼົ່ານີ້ຈະບໍ່ສະແດງ
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:71
 msgid "Ensure that you have securely stored them before continuing."
-msgstr ""
-"ກວດສອບໃຫ້ແນ່ໃຈວ່າທ່ານໄດ້ເກັບຮັກສາພວກມັນໄວ້ຢ່າງປອດໄພກ່ອນທີ່ຈະດຳເນີນການຕໍ່."
+msgstr "ກວດສອບໃຫ້ແນ່ໃຈວ່າທ່ານໄດ້ເກັບຮັກສາພວກມັນໄວ້ຢ່າງປອດໄພກ່ອນທີ່ຈະດຳເນີນການຕໍ່."
 
 #: warehouse/templates/manage/account/token.html:4
 msgid "Create API token"
@@ -7708,8 +7660,7 @@ msgstr "ຕັ້ງຊື່ຜູ້ໃຊ້ຂອງທ່ານເປັນ
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
-msgstr ""
-"ຕັ້ງລະຫັດຜ່ານຂອງທ່ານເປັນຄ່າໂທເຄັນ, ລວມທັງຄຳນຳໜ້າ <code>%(prefix)s</code>"
+msgstr "ຕັ້ງລະຫັດຜ່ານຂອງທ່ານເປັນຄ່າໂທເຄັນ, ລວມທັງຄຳນຳໜ້າ <code>%(prefix)s</code>"
 
 #: warehouse/templates/manage/account/token.html:75
 #, python-format
@@ -7734,8 +7685,7 @@ msgstr ""
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as the "
 "default"
-msgstr ""
-"ບໍ່ວ່າຈະເປັນໂທເຄັນຂອບເຂດຜູ້ໃຊ້ ຫຼື ໂທເຄັນຂອບເຂດໂຄງການທີ່ທ່ານຕ້ອງການຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ"
+msgstr "ບໍ່ວ່າຈະເປັນໂທເຄັນຂອບເຂດຜູ້ໃຊ້ ຫຼື ໂທເຄັນຂອບເຂດໂຄງການທີ່ທ່ານຕ້ອງການຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ"
 
 #: warehouse/templates/manage/account/token.html:102
 msgid "a project token"
@@ -7798,8 +7748,8 @@ msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
 msgstr ""
-"ໂທເຄັນ API ທີ່ມີຂອບເຂດທັງໝົດບັນຊີ ຈະມີສິດໃນການອັບໂຫຼດສຳລັບທຸກໂຄງການ ທັງໃນປັດຈຸບັນ ແລະ ໃນອະນາຄົດຂ"
-"ອງທ່ານ."
+"ໂທເຄັນ API ທີ່ມີຂອບເຂດທັງໝົດບັນຊີ ຈະມີສິດໃນການອັບໂຫຼດສຳລັບທຸກໂຄງການ ທັງໃນປັດຈຸບັນ ແລະ "
+"ໃນອະນາຄົດຂອງທ່ານ."
 
 #: warehouse/templates/manage/account/token.html:193
 msgid "Create token"
@@ -7869,8 +7819,7 @@ msgstr "ລະຫັດຢືນຢັນຕົວຕົນ"
 msgid ""
 "To finalize the set-up process, enter the 6-digit code provided by your TOTP "
 "application."
-msgstr ""
-"ເພື່ອເຮັດໃຫ້ຂັ້ນຕອນການຕັ້ງຄ່າສຳເລັດ, ໃຫ້ປ້ອນລະຫັດ 6 ຫຼັກທີ່ໄດ້ຈາກແອັບພລິເຄຊັນ TOTP ຂອງທ່ານ."
+msgstr "ເພື່ອເຮັດໃຫ້ຂັ້ນຕອນການຕັ້ງຄ່າສຳເລັດ, ໃຫ້ປ້ອນລະຫັດ 6 ຫຼັກທີ່ໄດ້ຈາກແອັບພລິເຄຊັນ TOTP ຂອງທ່ານ."
 
 #: warehouse/templates/manage/account/totp-provision.html:86
 msgid "Set up application"
@@ -7898,11 +7847,11 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
-"<em>ກະແຈ USB</em> ທີ່ໄດ້ຮັບຄວາມນິຍົມລວມມີ <a href=\"%(yubico_href)s\" title=\"%"
-"(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%"
-"(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Google Titan</a> ແລະ <a href=\"%(thetis_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Thetis</a>."
+"<em>ກະແຈ USB</em> ທີ່ໄດ້ຮັບຄວາມນິຍົມລວມມີ <a href=\"%(yubico_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
+"href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Google Titan</a> ແລະ <a href=\"%(thetis_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:36
 msgid "Name your device to begin"
@@ -7932,10 +7881,10 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">compatible browser</"
 "a>."
 msgstr ""
-"<strong>ໃຊ້ງານບໍ່ໄດ້ບໍ?</strong> ກະລຸນາກວດສອບວ່າທ່ານກຳລັງໃຊ້ອຸປະກອນທີ່ປະຕິບັດຕາມ <a href=\"%"
-"(fido_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ຂໍ້ກຳນົດ "
-"FIDO</a> ແລະ <a href=\"%(mozilla_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">ບຣາວເຊີທີ່ຮອງຮັບ</a>."
+"<strong>ໃຊ້ງານບໍ່ໄດ້ບໍ?</strong> ກະລຸນາກວດສອບວ່າທ່ານກຳລັງໃຊ້ອຸປະກອນທີ່ປະຕິບັດຕາມ <a "
+"href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">ຂໍ້ກຳນົດ FIDO</a> ແລະ <a href=\"%(mozilla_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ບຣາວເຊີທີ່ຮອງຮັບ</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:79
 msgid ""
@@ -7955,8 +7904,7 @@ msgstr "ເປີດໃຊ້ການຕິດຕາມ"
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
-msgstr ""
-"ບັນຊີບໍລິສັດຕ້ອງມີການຕິດຕາມທີ່ໃຊ້ງານຢູ່. ກະລຸນາປ້ອນຂໍ້ມູນການຊຳລະເງິນທີ່ເປັນປັດຈຸບັນເພື່ອເປີດໃຊ້ບັນຊີ."
+msgstr "ບັນຊີບໍລິສັດຕ້ອງມີການຕິດຕາມທີ່ໃຊ້ງານຢູ່. ກະລຸນາປ້ອນຂໍ້ມູນການຊຳລະເງິນທີ່ເປັນປັດຈຸບັນເພື່ອເປີດໃຊ້ບັນຊີ."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:28
 #, python-format
@@ -7964,8 +7912,8 @@ msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
 msgstr ""
-"ຂ້ອຍຕົກລົງເຫັນດີຕໍ່ <a href=\"%(tos_url)s\">ຂໍ້ກຳນົດການບໍລິການ</a> ຂອງ PyPI ໃນນາມຂອງອົງກອ"
-"ນ %(organization_name)s."
+"ຂ້ອຍຕົກລົງເຫັນດີຕໍ່ <a href=\"%(tos_url)s\">ຂໍ້ກຳນົດການບໍລິການ</a> ຂອງ PyPI "
+"ໃນນາມຂອງອົງກອນ %(organization_name)s."
 
 #: warehouse/templates/manage/organization/application.html:6
 #, python-format
@@ -8067,8 +8015,8 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this organization, the action is recorded and displayed here."
 msgstr ""
-"ທຸກຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບອົງກອນນີ້, ການດຳເນີນການດັ່ງ"
-"ກ່າວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ທີ່ນີ້."
+"ທຸກຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບອົງກອນນີ້, "
+"ການດຳເນີນການດັ່ງກ່າວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ທີ່ນີ້."
 
 #: warehouse/templates/manage/organization/history.html:17
 #, python-format
@@ -8101,8 +8049,7 @@ msgstr "ສ້າງອົງກອນ %(organization_name)s ແລ້ວ"
 #, python-format
 msgid ""
 "%(previous_organization_name)s organization renamed to %(organization_name)s"
-msgstr ""
-"ປ່ຽນຊື່ອົງກອນ %(previous_organization_name)s ເປັນ %(organization_name)s ແລ້ວ"
+msgstr "ປ່ຽນຊື່ອົງກອນ %(previous_organization_name)s ເປັນ %(organization_name)s ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:30
 #, fuzzy, python-format
@@ -8177,8 +8124,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມເປັນ %(role_name)s ຂອງອົ"
-"ງກອນ"
+"<a href=\"%(href)s\">%(username)s</a> ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມເປັນ %(role_name)s "
+"ຂອງອົງກອນ"
 
 #: warehouse/templates/manage/organization/history.html:79
 #, python-format
@@ -8186,8 +8133,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
 "organization %(role_name)s"
 msgstr ""
-"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ %"
-"(role_name)s ຂອງອົງກອນແລ້ວ"
+"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ "
+"%(role_name)s ຂອງອົງກອນແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:81
 #, fuzzy, python-format
@@ -8198,8 +8145,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "organization"
 msgstr ""
-"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ %"
-"(role_name)s ຂອງອົງກອນແລ້ວ"
+"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ "
+"%(role_name)s ຂອງອົງກອນແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:87
 #, python-format
@@ -8229,8 +8176,8 @@ msgid ""
 "%(team_name)s team added as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"ເພີ່ມທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a href=\"%(href)s\">%"
-"(project_name)s</a> ແລ້ວ"
+"ເພີ່ມທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
+"href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:101
 #: warehouse/templates/manage/team/history.html:29
@@ -8239,8 +8186,8 @@ msgid ""
 "%(team_name)s team removed as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"ເອົາທີມ %(team_name)s ອອກຈາກບົດບາດ %(role_name)s ຂອງໂຄງການສຳລັບ <a href=\"%(href)"
-"s\">%(project_name)s</a> ແລ້ວ"
+"ເອົາທີມ %(team_name)s ອອກຈາກບົດບາດ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
+"href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:105
 #: warehouse/templates/manage/team/history.html:33
@@ -8249,15 +8196,14 @@ msgid ""
 "%(team_name)s team changed to project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"ປ່ຽນທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a href=\"%(href)s\">%"
-"(project_name)s</a> ແລ້ວ"
+"ປ່ຽນທີມ %(team_name)s ເປັນ %(role_name)s ຂອງໂຄງການສຳລັບ <a "
+"href=\"%(href)s\">%(project_name)s</a> ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:111
 #: warehouse/templates/manage/team/history.html:39
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
-msgstr ""
-"ເພີ່ມ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າໃນທີມ %(team_name)s ແລ້ວ"
+msgstr "ເພີ່ມ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າໃນທີມ %(team_name)s ແລ້ວ"
 
 #: warehouse/templates/manage/organization/history.html:115
 #: warehouse/templates/manage/team/history.html:43
@@ -8419,8 +8365,8 @@ msgid ""
 "how to create a new project, visit the <a href=\"%(href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"ເລີ່ມຕົ້ນໂດຍການເພີ່ມໂຄງການທີ່ທ່ານເປັນເຈົ້າຂອງໂດຍໃຊ້ແບບຟອມຂ້າງລຸ່ມນີ້. ເພື່ອຮຽນຮູ້ວິທີສ້າງໂຄງການໃໝ່, ເຂົ້າ"
-"ເບິ່ງ <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ Python "
+"ເລີ່ມຕົ້ນໂດຍການເພີ່ມໂຄງການທີ່ທ່ານເປັນເຈົ້າຂອງໂດຍໃຊ້ແບບຟອມຂ້າງລຸ່ມນີ້. ເພື່ອຮຽນຮູ້ວິທີສ້າງໂຄງການໃໝ່, "
+"ເຂົ້າເບິ່ງ <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">ຄູ່ມືຜູ້ໃຊ້ Python "
 "Packaging</a>"
 
 #: warehouse/templates/manage/organization/projects.html:88
@@ -8435,8 +8381,7 @@ msgstr "ໂຄງການໃໝ່ ຫຼື ໂຄງການທີ່ມີ�
 msgid ""
 "Transfer an existing project that you own, or create and add a new project "
 "to the organization."
-msgstr ""
-"ໂອນໂຄງການທີ່ມີຢູ່ແລ້ວທີ່ທ່ານເປັນເຈົ້າຂອງ ຫຼື ສ້າງ ແລະ ເພີ່ມໂຄງການໃໝ່ເຂົ້າໃນອົງກອນ."
+msgstr "ໂອນໂຄງການທີ່ມີຢູ່ແລ້ວທີ່ທ່ານເປັນເຈົ້າຂອງ ຫຼື ສ້າງ ແລະ ເພີ່ມໂຄງການໃໝ່ເຂົ້າໃນອົງກອນ."
 
 #: warehouse/templates/manage/organization/projects.html:108
 msgid "️Name of existing project"
@@ -8453,9 +8398,9 @@ msgid ""
 "organization. A project that has been added to another organization can be "
 "transferred from the project settings page."
 msgstr ""
-"ເຈົ້າຂອງ ຫຼື ຜູ້ຈັດການອົງກອນນີ້ສາມາດໂອນໂຄງການທີ່ເຂົາເຈົ້າເປັນເຈົ້າຂອງມາສູ່ອົງກອນນີ້ໄດ້ ຖ້າໂຄງການນັ້ນຍັງບໍ່ທັ"
-"ນໄດ້ຖືກເພີ່ມເຂົ້າໃນອົງກອນອື່ນ. ໂຄງການທີ່ຖືກເພີ່ມເຂົ້າໃນອົງກອນອື່ນແລ້ວສາມາດໂອນໄດ້ຈາກໜ້າການຕັ້ງຄ່າໂຄງກາ"
-"ນ."
+"ເຈົ້າຂອງ ຫຼື ຜູ້ຈັດການອົງກອນນີ້ສາມາດໂອນໂຄງການທີ່ເຂົາເຈົ້າເປັນເຈົ້າຂອງມາສູ່ອົງກອນນີ້ໄດ້ "
+"ຖ້າໂຄງການນັ້ນຍັງບໍ່ທັນໄດ້ຖືກເພີ່ມເຂົ້າໃນອົງກອນອື່ນ. "
+"ໂຄງການທີ່ຖືກເພີ່ມເຂົ້າໃນອົງກອນອື່ນແລ້ວສາມາດໂອນໄດ້ຈາກໜ້າການຕັ້ງຄ່າໂຄງການ."
 
 #: warehouse/templates/manage/organization/projects.html:124
 msgid "Transfer existing project"
@@ -8489,8 +8434,8 @@ msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
 msgstr ""
-"ໂຄງການ (ໃນ PyPI) ທີ່ຈະຖືກສ້າງຂຶ້ນ ແລະ ເປັນເຈົ້າຂອງໂດຍອົງກອນ '%(organization_name)s' ເມື່ອ"
-"ໃຊ້ຜູ້ເຜີຍແຜ່ນີ້"
+"ໂຄງການ (ໃນ PyPI) ທີ່ຈະຖືກສ້າງຂຶ້ນ ແລະ ເປັນເຈົ້າຂອງໂດຍອົງກອນ '%(organization_name)s' "
+"ເມື່ອໃຊ້ຜູ້ເຜີຍແຜ່ນີ້"
 
 #: warehouse/templates/manage/organization/publishing.html:208
 #: warehouse/templates/manage/project/publishing.html:191
@@ -8516,8 +8461,9 @@ msgid ""
 "organization when the project is created. Organization owners can manage "
 "these publishers and their associated projects."
 msgstr ""
-"<strong>ຄຳແນະນຳ:</strong> ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ສ້າງຢູ່ທີ່ນີ້ຈະເປັນຂອງອົງກອນນີ້ເມື່ອມີການສ້າງໂຄງກາ"
-"ນ. ເຈົ້າຂອງອົງກອນສາມາດຈັດການຜູ້ເຜີຍແຜ່ເຫຼົ່ານີ້ ແລະ ໂຄງການທີ່ກ່ຽວຂ້ອງໄດ້."
+"<strong>ຄຳແນະນຳ:</strong> "
+"ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ສ້າງຢູ່ທີ່ນີ້ຈະເປັນຂອງອົງກອນນີ້ເມື່ອມີການສ້າງໂຄງການ. "
+"ເຈົ້າຂອງອົງກອນສາມາດຈັດການຜູ້ເຜີຍແຜ່ເຫຼົ່ານີ້ ແລະ ໂຄງການທີ່ກ່ຽວຂ້ອງໄດ້."
 
 #: warehouse/templates/manage/organization/publishing.html:406
 msgid "Pending publishers"
@@ -8528,8 +8474,8 @@ msgid ""
 "Pending publishers are trusted publishers for projects that do not exist "
 "yet. They can be used to create a new project on first upload."
 msgstr ""
-"ຜູ້ເຜີຍແຜ່ທີ່ລໍຖ້າການອະນຸມັດແມ່ນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ສຳລັບໂຄງການທີ່ຍັງບໍ່ທັນມີຢູ່. ສາມາດໃຊ້ເພື່ອສ້າງໂຄງການໃໝ່ໃນ"
-"ການອັບໂຫຼດຄັ້ງທຳອິດ."
+"ຜູ້ເຜີຍແຜ່ທີ່ລໍຖ້າການອະນຸມັດແມ່ນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ສຳລັບໂຄງການທີ່ຍັງບໍ່ທັນມີຢູ່. "
+"ສາມາດໃຊ້ເພື່ອສ້າງໂຄງການໃໝ່ໃນການອັບໂຫຼດຄັ້ງທຳອິດ."
 
 #: warehouse/templates/manage/organization/publishing.html:416
 msgid "Pending publishers for this organization"
@@ -8544,8 +8490,8 @@ msgid ""
 "You must <a href=\"%(href)s\">verify your primary email address</a> before "
 "adding a new pending publisher."
 msgstr ""
-"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເປີດໃຊ້ ການຢືນຢັນຕົວຕົນສອງຊັ້ນໃນບັນ"
-"ຊີ."
+"<a href=\"%(href)s\">ຢືນຢັນທີ່ຢູ່ອີເມວຫຼັກຂອງທ່ານ</a> ກ່ອນທີ່ຈະເປີດໃຊ້ "
+"ການຢືນຢັນຕົວຕົນສອງຊັ້ນໃນບັນຊີ."
 
 #: warehouse/templates/manage/organization/publishing.html:489
 msgid "You must be an organization owner to manage trusted publishers."
@@ -8584,8 +8530,7 @@ msgstr "ປິດໃຊ້ 2FA ແລ້ວ"
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "'%(organization_name)s'."
-msgstr ""
-"ໃຊ້ໜ້ານີ້ເພື່ອຄວບຄຸມວ່າຜູ້ໃຊ້ PyPI ໃດສາມາດຊ່ວຍທ່ານຈັດການ '%(organization_name)s' ໄດ້."
+msgstr "ໃຊ້ໜ້ານີ້ເພື່ອຄວບຄຸມວ່າຜູ້ໃຊ້ PyPI ໃດສາມາດຊ່ວຍທ່ານຈັດການ '%(organization_name)s' ໄດ້."
 
 #: warehouse/templates/manage/organization/roles.html:36
 msgid "Organization Roles"
@@ -8598,8 +8543,8 @@ msgid ""
 "organization. Refer to the following matrix for details on what each role "
 "can do."
 msgstr ""
-"ມີ %(number_of_roles)s ບົດບາດທີ່ເປັນໄປໄດ້ສຳລັບບຸກຄະລາກອນໃນອົງກອນນີ້. ກະລຸນາເບິ່ງຕາຕະລາງຕໍ່ໄປນີ້"
-"ສຳລັບລາຍລະອຽດກ່ຽວກັບສິ່ງທີ່ແຕ່ລະບົດບາດສາມາດເຮັດໄດ້."
+"ມີ %(number_of_roles)s ບົດບາດທີ່ເປັນໄປໄດ້ສຳລັບບຸກຄະລາກອນໃນອົງກອນນີ້. "
+"ກະລຸນາເບິ່ງຕາຕະລາງຕໍ່ໄປນີ້ສຳລັບລາຍລະອຽດກ່ຽວກັບສິ່ງທີ່ແຕ່ລະບົດບາດສາມາດເຮັດໄດ້."
 
 #: warehouse/templates/manage/organization/roles.html:43
 msgid "Organization Role Permissions Matrix"
@@ -8771,8 +8716,7 @@ msgstr "ຍັງເຫຼືອ %(available)s ບ່ອນນັ່ງ."
 msgid ""
 "You have exceeded your seat limit. Invited members can still accept "
 "invitations."
-msgstr ""
-"ທ່ານໄດ້ໃຊ້ເກີນຂີດຈຳກັດບ່ອນນັ່ງແລ້ວ. ສະມາຊິກທີ່ຖືກເຊີນຍັງສາມາດຕອບຮັບຄຳເຊີນໄດ້."
+msgstr "ທ່ານໄດ້ໃຊ້ເກີນຂີດຈຳກັດບ່ອນນັ່ງແລ້ວ. ສະມາຊິກທີ່ຖືກເຊີນຍັງສາມາດຕອບຮັບຄຳເຊີນໄດ້."
 
 #: warehouse/templates/manage/organization/roles.html:391
 #, fuzzy
@@ -8873,8 +8817,8 @@ msgid ""
 "organization. These issuers can be used to configure Trusted Publishing for "
 "your organization's projects."
 msgstr ""
-"ຜູ້ອອກໃບຢັ້ງຢືນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບກຳນົດເອງຕໍ່ໄປນີ້ຖືກຕັ້ງຄ່າສຳລັບອົງກອນນີ້ແລ້ວ. ຜູ້ອອກເຫຼົ່ານີ້ສາມາດໃຊ້ເພື່ອຕັ້"
-"ງຄ່າ Trusted Publishing ສຳລັບໂຄງການຂອງອົງກອນທ່ານ."
+"ຜູ້ອອກໃບຢັ້ງຢືນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບກຳນົດເອງຕໍ່ໄປນີ້ຖືກຕັ້ງຄ່າສຳລັບອົງກອນນີ້ແລ້ວ. "
+"ຜູ້ອອກເຫຼົ່ານີ້ສາມາດໃຊ້ເພື່ອຕັ້ງຄ່າ Trusted Publishing ສຳລັບໂຄງການຂອງອົງກອນທ່ານ."
 
 #: warehouse/templates/manage/organization/settings.html:216
 msgid "Modifying custom Trusted Publishers is not currently supported."
@@ -8886,8 +8830,8 @@ msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
 "custom Trusted Publishers."
 msgstr ""
-"ກະລຸນາຕິດຕໍ່ <a href=%(href)s>ຝ່າຍສະໜັບສະໜູນ PyPI</a> ຫາກທ່ານຕ້ອງການແກ້ໄຂຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແ"
-"ບບກຳນົດເອງ."
+"ກະລຸນາຕິດຕໍ່ <a href=%(href)s>ຝ່າຍສະໜັບສະໜູນ PyPI</a> "
+"ຫາກທ່ານຕ້ອງການແກ້ໄຂຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ແບບກຳນົດເອງ."
 
 #: warehouse/templates/manage/organization/settings.html:226
 msgid "Change organization account name"
@@ -8943,9 +8887,9 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">ໂອນກຳມະສິດ</a> ແລະ <a href=\"%"
-"(remove_delete_href)s\">ເອົາໂຄງການອອກ</a> <b>ຫຼື</b> <a href=\"%"
-"(remove_delete_href)s\">ລຶບໂຄງການ</a>"
+"<a href=\"%(transfer_href)s\">ໂອນກຳມະສິດ</a> ແລະ <a "
+"href=\"%(remove_delete_href)s\">ເອົາໂຄງການອອກ</a> <b>ຫຼື</b> <a "
+"href=\"%(remove_delete_href)s\">ລຶບໂຄງການ</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 msgid "You will not be able to recover your organization after you delete it."
@@ -8955,8 +8899,7 @@ msgstr "ທ່ານຈະບໍ່ສາມາດກູ້ຄືນອົງກ
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
-msgstr ""
-"ການຕິດຕາມຂອງທ່ານຈະຖືກຍົກເລີກ ແລະ ທ່ານຈະສູນເສຍການເຂົ້າເຖິງພອດທໍການຊຳລະເງິນ."
+msgstr "ການຕິດຕາມຂອງທ່ານຈະຖືກຍົກເລີກ ແລະ ທ່ານຈະສູນເສຍການເຂົ້າເຖິງພອດທໍການຊຳລະເງິນ."
 
 #: warehouse/templates/manage/organization/settings.html:308
 msgid "You will lose access to the billing portal."
@@ -8968,8 +8911,8 @@ msgid ""
 "Please ensure you have retrieved all invoices from <a "
 "href=\"%(billing_href)s\">your billing portal</a> before proceeding."
 msgstr ""
-"ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າທ່ານໄດ້ດາວໂຫຼດໃບເກັບເງິນທັງໝົດຈາກ <a href=\"%(billing_href)s\">ພອ"
-"ດທໍການຊຳລະເງິນຂອງທ່ານ</a> ກ່ອນທີ່ຈະດຳເນີນການຕໍ່."
+"ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າທ່ານໄດ້ດາວໂຫຼດໃບເກັບເງິນທັງໝົດຈາກ <a "
+"href=\"%(billing_href)s\">ພອດທໍການຊຳລະເງິນຂອງທ່ານ</a> ກ່ອນທີ່ຈະດຳເນີນການຕໍ່."
 
 #: warehouse/templates/manage/organization/teams.html:4
 msgid "Organization teams"
@@ -8999,8 +8942,7 @@ msgstr "ເບິ່ງທີມນີ້"
 msgid ""
 "There are no teams in your organization, yet. Organization owners and "
 "managers can create new teams for the organization."
-msgstr ""
-"ຍັງບໍ່ມີທີມໃດໆໃນອົງກອນຂອງທ່ານ. ເຈົ້າຂອງ ແລະ ຜູ້ຈັດການອົງກອນສາມາດສ້າງທີມໃໝ່ໃຫ້ກັບອົງກອນໄດ້."
+msgstr "ຍັງບໍ່ມີທີມໃດໆໃນອົງກອນຂອງທ່ານ. ເຈົ້າຂອງ ແລະ ຜູ້ຈັດການອົງກອນສາມາດສ້າງທີມໃໝ່ໃຫ້ກັບອົງກອນໄດ້."
 
 #: warehouse/templates/manage/organization/teams.html:61
 msgid "Create new team"
@@ -9015,8 +8957,8 @@ msgid ""
 "Owners and managers of this organization can create a team for the "
 "organization and manage team members, team projects, and team settings."
 msgstr ""
-"ເຈົ້າຂອງ ແລະ ຜູ້ຈັດການອົງກອນນີ້ສາມາດສ້າງທີມສຳລັບອົງກອນ ແລະ ຈັດການສະມາຊິກທີມ, ໂຄງການຂອງທີມ ແລ"
-"ະ ການຕັ້ງຄ່າທີມໄດ້."
+"ເຈົ້າຂອງ ແລະ ຜູ້ຈັດການອົງກອນນີ້ສາມາດສ້າງທີມສຳລັບອົງກອນ ແລະ ຈັດການສະມາຊິກທີມ, ໂຄງການຂອງທີມ "
+"ແລະ ການຕັ້ງຄ່າທີມໄດ້."
 
 #: warehouse/templates/manage/project/documentation.html:5
 #, python-format
@@ -9054,8 +8996,8 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this project, the action is recorded and displayed here."
 msgstr ""
-"ທຸກຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບໂຄງການນີ້, ການດຳເນີນການດັ່"
-"ງກ່າວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ທີ່ນີ້."
+"ທຸກຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບໂຄງການນີ້, "
+"ການດຳເນີນການດັ່ງກ່າວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ທີ່ນີ້."
 
 #: warehouse/templates/manage/project/history.html:17
 msgid "Project created"
@@ -9113,8 +9055,8 @@ msgstr ""
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
-"ເອົາ <a href=\"%(href)s\">%(username)s</a> ອອກຈາກບົດບາດ %(role_name)s ຂອງໂຄງການ"
-"ແລ້ວ"
+"ເອົາ <a href=\"%(href)s\">%(username)s</a> ອອກຈາກບົດບາດ %(role_name)s "
+"ຂອງໂຄງການແລ້ວ"
 
 #: warehouse/templates/manage/project/history.html:130
 #, python-format
@@ -9128,8 +9070,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as project "
 "%(role_name)s"
 msgstr ""
-"ເຊີນ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າຮ່ວມເປັນ %(role_name)s ຂອງໂຄງການແລ້"
-"ວ"
+"ເຊີນ <a href=\"%(href)s\">%(username)s</a> ເຂົ້າຮ່ວມເປັນ %(role_name)s "
+"ຂອງໂຄງການແລ້ວ"
 
 #: warehouse/templates/manage/project/history.html:144
 #, python-format
@@ -9137,8 +9079,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as project "
 "%(role_name)s"
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມເປັນ %(role_name)s ຂອງໂ"
-"ຄງການ"
+"<a href=\"%(href)s\">%(username)s</a> ປະຕິເສດຄຳເຊີນເຂົ້າຮ່ວມເປັນ %(role_name)s "
+"ຂອງໂຄງການ"
 
 #: warehouse/templates/manage/project/history.html:152
 #, python-format
@@ -9146,8 +9088,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
 "project %(role_name)s"
 msgstr ""
-"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ %"
-"(role_name)s ຂອງໂຄງການແລ້ວ"
+"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ "
+"%(role_name)s ຂອງໂຄງການແລ້ວ"
 
 #: warehouse/templates/manage/project/history.html:154
 #, fuzzy, python-format
@@ -9158,8 +9100,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "project"
 msgstr ""
-"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ %"
-"(role_name)s ຂອງໂຄງການແລ້ວ"
+"ຍົກເລີກຄຳເຊີນສຳລັບ <a href=\"%(href)s\">%(username)s</a> ໃນການເຂົ້າຮ່ວມເປັນ "
+"%(role_name)s ຂອງໂຄງການແລ້ວ"
 
 #: warehouse/templates/manage/project/history.html:164
 #, python-format
@@ -9311,8 +9253,8 @@ msgid ""
 "quarantine, the project is not installable by clients, and cannot be being "
 "modified by its maintainers."
 msgstr ""
-"ຜູ້ດູແລລະບົບ PyPI ຈຳເປັນຕ້ອງກວດສອບໂຄງການນີ້ກ່ອນທີ່ຈະສາມາດກູ້ຄືນໄດ້. ໃນລະຫວ່າງການກັກບໍລິເວນ, ໂຄງກ"
-"ານຈະບໍ່ສາມາດຕິດຕັ້ງໄດ້ໂດຍຜູ້ໃຊ້ ແລະ ຜູ້ດູແລໂຄງການຈະບໍ່ສາມາດແກ້ໄຂໄດ້."
+"ຜູ້ດູແລລະບົບ PyPI ຈຳເປັນຕ້ອງກວດສອບໂຄງການນີ້ກ່ອນທີ່ຈະສາມາດກູ້ຄືນໄດ້. ໃນລະຫວ່າງການກັກບໍລິເວນ, "
+"ໂຄງການຈະບໍ່ສາມາດຕິດຕັ້ງໄດ້ໂດຍຜູ້ໃຊ້ ແລະ ຜູ້ດູແລໂຄງການຈະບໍ່ສາມາດແກ້ໄຂໄດ້."
 
 #: warehouse/templates/manage/project/manage_project_base.html:60
 #: warehouse/templates/manage/project/release.html:46
@@ -9323,8 +9265,7 @@ msgstr ""
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> "
 "documentation."
-msgstr ""
-"ອ່ານເພີ່ມເຕີມໃນບົດຄວາມຊ່ວຍເຫຼືອ <a href=\"%(href)s\">ໂຄງການໃນການກັກບໍລິເວນ</a>."
+msgstr "ອ່ານເພີ່ມເຕີມໃນບົດຄວາມຊ່ວຍເຫຼືອ <a href=\"%(href)s\">ໂຄງການໃນການກັກບໍລິເວນ</a>."
 
 #: warehouse/templates/manage/project/manage_project_base.html:67
 msgid "This project has been archived."
@@ -9334,8 +9275,7 @@ msgstr "ໂຄງການນີ້ຖືກເກັບເຂົ້າຄັງ
 msgid ""
 "Some form fields have been autofilled, please double-check their values "
 "before submitting the form."
-msgstr ""
-"ບາງຊ່ອງຂໍ້ມູນຖືກປ້ອນໃຫ້ໂດຍອັດຕະໂນມັດ, ກະລຸນາກວດສອບຄ່າຂອງມັນຄືນໃໝ່ກ່ອນທີ່ຈະສົ່ງແບບຟອມ."
+msgstr "ບາງຊ່ອງຂໍ້ມູນຖືກປ້ອນໃຫ້ໂດຍອັດຕະໂນມັດ, ກະລຸນາກວດສອບຄ່າຂອງມັນຄືນໃໝ່ກ່ອນທີ່ຈະສົ່ງແບບຟອມ."
 
 #: warehouse/templates/manage/project/publishing.html:258
 #, python-format
@@ -9345,8 +9285,9 @@ msgid ""
 "identity which is used for publishing. <a href=\"%(href)s\">More details "
 "here.</a>"
 msgstr ""
-"Subject ແມ່ນ ID ຕົວເລກທີ່ສະແດງເຖິງຜູ້ທີ່ເຮັດຄຳຮ້ອງຂໍ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການລະບຸ Subject ຈະຊ່ວ"
-"ຍຈຳກັດຕົວຕົນທີ່ໃຊ້ໃນການເຜີຍແຜ່ໃຫ້ຮັດກຸມຂຶ້ນ. <a href=\"%(href)s\">ລາຍລະອຽດເພີ່ມເຕີມຢູ່ທີ່ນີ້.</a>"
+"Subject ແມ່ນ ID ຕົວເລກທີ່ສະແດງເຖິງຜູ້ທີ່ເຮັດຄຳຮ້ອງຂໍ. ເຖິງວ່າຈະບໍ່ບັງຄັບ, ແຕ່ການລະບຸ Subject "
+"ຈະຊ່ວຍຈຳກັດຕົວຕົນທີ່ໃຊ້ໃນການເຜີຍແຜ່ໃຫ້ຮັດກຸມຂຶ້ນ. <a href=\"%(href)s\">ລາຍລະອຽດເພີ່ມເຕີມຢູ່ທີ່ນີ້.</"
+"a>"
 
 #: warehouse/templates/manage/project/publishing.html:355
 msgid "Manage current publishers"
@@ -9381,8 +9322,8 @@ msgid ""
 "either change them all to '%(constrained_environment_name)s' or register "
 "each as a Trusted Publisher."
 msgstr ""
-"ຫາກປະຈຸບັນທ່ານໃຊ້ຫຼາຍສະພາບແວດລ້ອມໃນ CI/CD workflow, ທ່ານຕ້ອງປ່ຽນທັງໝົດເປັນ '%"
-"(constrained_environment_name)s' ຫຼື ລົງທະບຽນແຕ່ລະອັນເປັນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້."
+"ຫາກປະຈຸບັນທ່ານໃຊ້ຫຼາຍສະພາບແວດລ້ອມໃນ CI/CD workflow, ທ່ານຕ້ອງປ່ຽນທັງໝົດເປັນ "
+"'%(constrained_environment_name)s' ຫຼື ລົງທະບຽນແຕ່ລະອັນເປັນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້."
 
 #: warehouse/templates/manage/project/publishing.html:448
 #, python-format
@@ -9390,8 +9331,8 @@ msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
-"ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ນີ້ຈະອະນຸຍາດໃຫ້ອັບໂຫຼດຈາກ CI/CD workflows ທີ່ເຮັດວຽກໃນສະພາບແວດລ້"
-"ອມ '%(constrained_environment_name)s' ເທົ່ານັ້ນ."
+"ຂ້ອຍເຂົ້າໃຈວ່າຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ນີ້ຈະອະນຸຍາດໃຫ້ອັບໂຫຼດຈາກ CI/CD workflows "
+"ທີ່ເຮັດວຽກໃນສະພາບແວດລ້ອມ '%(constrained_environment_name)s' ເທົ່ານັ້ນ."
 
 #: warehouse/templates/manage/project/publishing.html:453
 msgid "New Environment Name"
@@ -9427,8 +9368,9 @@ msgid ""
 "quarantine, the release is not installable by clients, and cannot be "
 "modified by its maintainers. Other releases of this project are unaffected."
 msgstr ""
-"ຜູ້ດູແລລະບົບ PyPI ຈຳເປັນຕ້ອງກວດສອບເວີຊັນນີ້ກ່ອນທີ່ຈະສາມາດກູ້ຄືນໄດ້. ໃນລະຫວ່າງການກັກບໍລິເວນ, ເວີຊັນນີ້ຈ"
-"ະບໍ່ສາມາດຕິດຕັ້ງໄດ້ໂດຍຜູ້ໃຊ້ ແລະ ຜູ້ດູແລຈະບໍ່ສາມາດແກ້ໄຂໄດ້. ເວີຊັນອື່ນໆຂອງໂຄງການນີ້ຈະບໍ່ໄດ້ຮັບຜົນກະທົບ."
+"ຜູ້ດູແລລະບົບ PyPI ຈຳເປັນຕ້ອງກວດສອບເວີຊັນນີ້ກ່ອນທີ່ຈະສາມາດກູ້ຄືນໄດ້. ໃນລະຫວ່າງການກັກບໍລິເວນ, "
+"ເວີຊັນນີ້ຈະບໍ່ສາມາດຕິດຕັ້ງໄດ້ໂດຍຜູ້ໃຊ້ ແລະ ຜູ້ດູແລຈະບໍ່ສາມາດແກ້ໄຂໄດ້. "
+"ເວີຊັນອື່ນໆຂອງໂຄງການນີ້ຈະບໍ່ໄດ້ຮັບຜົນກະທົບ."
 
 #: warehouse/templates/manage/project/release.html:54
 #, python-format
@@ -9494,8 +9436,7 @@ msgstr "ການຕັ້ງຄ່າການເຜີຍແຜ່"
 #: warehouse/templates/manage/project/release.html:159
 msgid ""
 "Yank and delete actions are unavailable while this release is in quarantine."
-msgstr ""
-"ການຖອນ (Yank) ແລະ ການລຶບ ບໍ່ສາມາດໃຊ້ງານໄດ້ໃນຂະນະທີ່ເວີຊັນນີ້ຢູ່ໃນການກັກບໍລິເວນ."
+msgstr "ການຖອນ (Yank) ແລະ ການລຶບ ບໍ່ສາມາດໃຊ້ງານໄດ້ໃນຂະນະທີ່ເວີຊັນນີ້ຢູ່ໃນການກັກບໍລິເວນ."
 
 #: warehouse/templates/manage/project/release.html:164
 #: warehouse/templates/manage/project/release.html:198
@@ -9512,15 +9453,14 @@ msgid_plural ""
 "Yanking will mark this release (and %(count)s files within it) to be ignored "
 "when installing in most common scenarios."
 msgstr[0] ""
-"ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ (ແລະ %(count)s ໄຟລ໌ພາຍໃນ) ໃຫ້ຖືກລະເລີຍໃນເວລາຕິ"
-"ດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
+"ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ (ແລະ %(count)s ໄຟລ໌ພາຍໃນ) "
+"ໃຫ້ຖືກລະເລີຍໃນເວລາຕິດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
 
 #: warehouse/templates/manage/project/release.html:173
 msgid ""
 "Yanking will mark this release to be ignored when installing in most common "
 "scenarios."
-msgstr ""
-"ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ໃຫ້ຖືກລະເລີຍໃນເວລາຕິດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
+msgstr "ການຖອນການເຜີຍແຜ່ (Yanking) ຈະໝາຍເວີຊັນນີ້ໃຫ້ຖືກລະເລີຍໃນເວລາຕິດຕັ້ງໃນສະຖານະການທົ່ວໄປ."
 
 #: warehouse/templates/manage/project/release.html:177
 #, python-format
@@ -9528,8 +9468,8 @@ msgid ""
 "This release will still be installable for users pinning to this exact "
 "version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
-"ເວີຊັນນີ້ຍັງຄົງສາມາດຕິດຕັ້ງໄດ້ສຳລັບຜູ້ໃຊ້ທີ່ລະບຸເວີຊັນທີ່ແນ່ນອນ ເຊັ່ນ: ເມື່ອໃຊ້ <code>%(project_name)"
-"s==%(version)s</code>."
+"ເວີຊັນນີ້ຍັງຄົງສາມາດຕິດຕັ້ງໄດ້ສຳລັບຜູ້ໃຊ້ທີ່ລະບຸເວີຊັນທີ່ແນ່ນອນ ເຊັ່ນ: ເມື່ອໃຊ້ "
+"<code>%(project_name)s==%(version)s</code>."
 
 #: warehouse/templates/manage/project/release.html:180
 #, python-format
@@ -9543,8 +9483,8 @@ msgid ""
 "You may provide a reason for yanking this release, which will be displayed "
 "by pip to users who install <code>%(project_name)s==%(version)s</code>."
 msgstr ""
-"ທ່ານສາມາດລະບຸເຫດຜົນໃນການຖອນການເຜີຍແຜ່ນີ້, ເຊິ່ງຈະຖືກສະແດງໂດຍ pip ໃຫ້ກັບຜູ້ໃຊ້ທີ່ຕິດຕັ້ງ <code>%"
-"(project_name)s==%(version)s</code>."
+"ທ່ານສາມາດລະບຸເຫດຜົນໃນການຖອນການເຜີຍແຜ່ນີ້, ເຊິ່ງຈະຖືກສະແດງໂດຍ pip ໃຫ້ກັບຜູ້ໃຊ້ທີ່ຕິດຕັ້ງ "
+"<code>%(project_name)s==%(version)s</code>."
 
 #: warehouse/templates/manage/project/release.html:190
 #: warehouse/templates/manage/project/releases.html:138
@@ -9572,8 +9512,7 @@ msgid ""
 "Deleting will irreversibly delete this release along with %(count)s file."
 msgid_plural ""
 "Deleting will irreversibly delete this release along with %(count)s files."
-msgstr[0] ""
-"ການລຶບຈະເຮັດໃຫ້ເວີຊັນນີ້ ແລະ %(count)s ໄຟລ໌ ຖືກລຶບຖາວອນໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້."
+msgstr[0] "ການລຶບຈະເຮັດໃຫ້ເວີຊັນນີ້ ແລະ %(count)s ໄຟລ໌ ຖືກລຶບຖາວອນໂດຍບໍ່ສາມາດກູ້ຄືນໄດ້."
 
 #: warehouse/templates/manage/project/release.html:212
 msgid "Deleting will irreversibly delete this release."
@@ -9593,8 +9532,8 @@ msgid ""
 "this package. It is intended as a last resort to address legal issues or "
 "remove harmful releases."
 msgstr ""
-"ການລຶບຈະເຮັດໃຫ້ໂຄງການອື່ນໆທີ່ໃຊ້ເວີຊັນນີ້ຢູ່ເກີດຄວາມເສຍຫາຍ. ຄວນເຮັດໃນກໍລະນີສຸດທ້າຍເພື່ອແກ້ໄຂບັນຫາທາງກົ"
-"ດໝາຍ ຫຼື ເອົາເວີຊັນທີ່ເປັນອັນຕະລາຍອອກເທົ່ານັ້ນ."
+"ການລຶບຈະເຮັດໃຫ້ໂຄງການອື່ນໆທີ່ໃຊ້ເວີຊັນນີ້ຢູ່ເກີດຄວາມເສຍຫາຍ. "
+"ຄວນເຮັດໃນກໍລະນີສຸດທ້າຍເພື່ອແກ້ໄຂບັນຫາທາງກົດໝາຍ ຫຼື ເອົາເວີຊັນທີ່ເປັນອັນຕະລາຍອອກເທົ່ານັ້ນ."
 
 #: warehouse/templates/manage/project/release.html:221
 #: warehouse/templates/manage/project/releases.html:157
@@ -9610,9 +9549,9 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 "ພິຈາລະນາການ <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">ຖອນການເຜີຍແຜ່ (yanking)</a> ເວີຊັນນີ້, ການສ້າງເວີຊັນໃໝ່ ຫຼື <a href=\"%"
-"(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-"release</a> ແທນ."
+"rel=\"noopener\">ຖອນການເຜີຍແຜ່ (yanking)</a> ເວີຊັນນີ້, ການສ້າງເວີຊັນໃໝ່ ຫຼື <a "
+"href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">post release</a> ແທນ."
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -9697,8 +9636,7 @@ msgstr "ຈັດການຜູ້ຮ່ວມງານຂອງ '%(project_nam
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s."
-msgstr ""
-"ໃຊ້ໜ້ານີ້ເພື່ອຄວບຄຸມວ່າຜູ້ໃຊ້ PyPI ໃດສາມາດຊ່ວຍທ່ານຈັດການ %(project_name)s ໄດ້."
+msgstr "ໃຊ້ໜ້ານີ້ເພື່ອຄວບຄຸມວ່າຜູ້ໃຊ້ PyPI ໃດສາມາດຊ່ວຍທ່ານຈັດການ %(project_name)s ໄດ້."
 
 #: warehouse/templates/manage/project/roles.html:40
 msgid "Project Roles"
@@ -9721,16 +9659,16 @@ msgid ""
 "Has permissions to upload releases for the project. Can upload releases. "
 "Cannot invite collaborators. Cannot delete files, releases, or the project."
 msgstr ""
-"ມີສິດອັບໂຫຼດເວີຊັນຕ່າງໆສຳລັບໂຄງການ. ສາມາດອັບໂຫຼດໄດ້ ແຕ່ບໍ່ສາມາດເຊີນຜູ້ຮ່ວມງານ. ບໍ່ສາມາດລຶບໄຟລ໌, ເວີຊັ"
-"ນ ຫຼື ຕົວໂຄງການໄດ້."
+"ມີສິດອັບໂຫຼດເວີຊັນຕ່າງໆສຳລັບໂຄງການ. ສາມາດອັບໂຫຼດໄດ້ ແຕ່ບໍ່ສາມາດເຊີນຜູ້ຮ່ວມງານ. ບໍ່ສາມາດລຶບໄຟລ໌, "
+"ເວີຊັນ ຫຼື ຕົວໂຄງການໄດ້."
 
 #: warehouse/templates/manage/project/roles.html:50
 msgid ""
 "Has permissions to administer the project. Can upload releases. Can invite "
 "other collaborators. Can delete files, releases, or the entire project."
 msgstr ""
-"ມີສິດໃນການບໍລິຫານໂຄງການ. ສາມາດອັບໂຫຼດເວີຊັນ, ເຊີນຜູ້ຮ່ວມງານຄົນອື່ນໆ, ແລະ ລຶບໄຟລ໌, ເວີຊັນ ຫຼື ຕົວໂຄງ"
-"ການທັງໝົດໄດ້."
+"ມີສິດໃນການບໍລິຫານໂຄງການ. ສາມາດອັບໂຫຼດເວີຊັນ, ເຊີນຜູ້ຮ່ວມງານຄົນອື່ນໆ, ແລະ ລຶບໄຟລ໌, ເວີຊັນ ຫຼື "
+"ຕົວໂຄງການທັງໝົດໄດ້."
 
 #: warehouse/templates/manage/project/roles.html:55
 #, python-format
@@ -9828,8 +9766,8 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
-"<a href=\"%(href)s\">ຢືນຢັນອີເມວຫຼັກຂອງທ່ານ</a> ເພື່ອເພີ່ມ API token ສຳລັບ %"
-"(project_name)s."
+"<a href=\"%(href)s\">ຢືນຢັນອີເມວຫຼັກຂອງທ່ານ</a> ເພື່ອເພີ່ມ API token ສຳລັບ "
+"%(project_name)s."
 
 #: warehouse/templates/manage/project/settings.html:48
 msgid "Project description and sidebar"
@@ -9847,8 +9785,8 @@ msgid ""
 "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> for "
 "more help."
 msgstr ""
-"ເພື່ອຕັ້ງຄ່າຄຳອະທິບາຍ, ຜູ້ຂຽນ, ລິງກ໌, ແລະ ລາຍລະອຽດອື່ນໆຂອງ '%(project_name)s' ສຳລັບເວີຊັນຖັດໄ"
-"ປ, ໃຫ້ໃຊ້ <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
+"ເພື່ອຕັ້ງຄ່າຄຳອະທິບາຍ, ຜູ້ຂຽນ, ລິງກ໌, ແລະ ລາຍລະອຽດອື່ນໆຂອງ '%(project_name)s' "
+"ສຳລັບເວີຊັນຖັດໄປ, ໃຫ້ໃຊ້ <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
 "target=\"_blank\">ຊ່ອງຂໍ້ມູນ <code>project</code> ໃນໄຟລ໌ <code>pyproject.toml</"
 "code> ຂອງທ່ານ</a>. ການອັບເດດຊ່ອງຂໍ້ມູນເຫຼົ່ານີ້ຈະບໍ່ປ່ຽນແປງຂໍ້ມູນຂອງເວີຊັນກ່ອນໜ້ານີ້. ເບິ່ງ <a "
 "href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">ຄູ່ມືຜູ້ໃຊ້ "
@@ -9881,8 +9819,7 @@ msgstr "ຍົກເລີກສິດທິຂອງໂຄງການສຳລ
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
-msgstr ""
-"ເຈົ້າຂອງ ແລະ ຜູ້ດູແລໂຄງການແຕ່ລະຄົນຍັງຄົງຮັກສາສິດທິໃນໂຄງການຂອງເຂົາເຈົ້າໄວ້ຄືເກົ່າ."
+msgstr "ເຈົ້າຂອງ ແລະ ຜູ້ດູແລໂຄງການແຕ່ລະຄົນຍັງຄົງຮັກສາສິດທິໃນໂຄງການຂອງເຂົາເຈົ້າໄວ້ຄືເກົ່າ."
 
 #: warehouse/templates/manage/project/settings.html:93
 #, python-format
@@ -9904,8 +9841,8 @@ msgid ""
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
-"ປະຈຸບັນອົງກອນຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງໂຄງການ. ທ່ານຕ້ອງເພີ່ມບຸກຄົນເປັ"
-"ນເຈົ້າຂອງໂຄງການກ່ອນທີ່ຈະສາມາດເອົາໂຄງການອອກຈາກອົງກອນໄດ້."
+"ປະຈຸບັນອົງກອນຂອງທ່ານເປັນ <strong>ເຈົ້າຂອງພຽງຜູ້ດຽວ</strong> ຂອງໂຄງການ. "
+"ທ່ານຕ້ອງເພີ່ມບຸກຄົນເປັນເຈົ້າຂອງໂຄງການກ່ອນທີ່ຈະສາມາດເອົາໂຄງການອອກຈາກອົງກອນໄດ້."
 
 #: warehouse/templates/manage/project/settings.html:117
 msgid "Transfer project to another organization"
@@ -9927,8 +9864,7 @@ msgstr "ຖອນສິດບົດບາດການເປັນເຈົ້າ
 msgid ""
 "You will retain Owner permissions on the project through your organization "
 "role."
-msgstr ""
-"ທ່ານຈະຍັງຄົງມີສິດອະນຸຍາດເປັນເຈົ້າຂອງໃນໂຄງການນີ້ຜ່ານບົດບາດໃນອົງກອນຂອງທ່ານ."
+msgstr "ທ່ານຈະຍັງຄົງມີສິດອະນຸຍາດເປັນເຈົ້າຂອງໃນໂຄງການນີ້ຜ່ານບົດບາດໃນອົງກອນຂອງທ່ານ."
 
 #: warehouse/templates/manage/project/settings.html:140
 msgid "Add the project to another organization that you own."
@@ -9965,8 +9901,7 @@ msgstr "ບໍ່ສາມາດໂອນໂຄງການໄປຍັງອົ
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
-msgstr ""
-"ເຈົ້າຂອງອົງກອນສາມາດໂອນໂຄງການໄປຍັງອົງກອນທີ່ພວກເຂົາເປັນເຈົ້າຂອງ ຫຼື ຈັດການໄດ້."
+msgstr "ເຈົ້າຂອງອົງກອນສາມາດໂອນໂຄງການໄປຍັງອົງກອນທີ່ພວກເຂົາເປັນເຈົ້າຂອງ ຫຼື ຈັດການໄດ້."
 
 #: warehouse/templates/manage/project/settings.html:184
 msgid "You are not an owner or manager of any other organizations."
@@ -9976,8 +9911,7 @@ msgstr "ທ່ານບໍ່ໄດ້ເປັນເຈົ້າຂອງ ຫ�
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
-msgstr ""
-"ເຈົ້າຂອງໂຄງການສາມາດໂອນໂຄງການໄປຍັງອົງກອນທີ່ພວກເຂົາເປັນເຈົ້າຂອງ ຫຼື ຈັດການໄດ້."
+msgstr "ເຈົ້າຂອງໂຄງການສາມາດໂອນໂຄງການໄປຍັງອົງກອນທີ່ພວກເຂົາເປັນເຈົ້າຂອງ ຫຼື ຈັດການໄດ້."
 
 #: warehouse/templates/manage/project/settings.html:187
 msgid "You are not an owner or manager of any organizations."
@@ -10002,11 +9936,12 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 "ການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະປ້ອງກັນການອັບໂຫຼດໃໝ່ ແລະ ເອົາໂຄງການອອກຈາກຜົນການຄົ້ນຫາຂອງ "
-"PyPI. ກ່ອນທີ່ຈະເຮັດແນວນັ້ນ, ພວກເຮົາແນະນຳໃຫ້ເຜີຍແຜ່ລຸ້ນສຸດທ້າຍພ້ອມກັບການອັບເດດຄຳອະທິບາຍໂຄງການເພື່ອ"
-"ເຕືອນຜູ້ໃຊ້ວ່າໂຄງການຈະບໍ່ໄດ້ຮັບການອັບເດດອີກຕໍ່ໄປ, ແລະ ເພື່ອແນະນຳໂຄງການທາງເລືອກອື່ນທີ່ພວກເຂົາອາດຈະພິ"
-"ຈາລະນາໃຊ້ແທນ. ຖ້າໂຄງການຂອງທ່ານຖືກ <a href=\"%(readme_description_href)s\" "
-"rel=\"noopener\" target=\"_blank\">ຕັ້ງຄ່າໃຫ້ເຮັດແນວນັ້ນ</a>, ທ່ານສາມາດອັບເດດຄຳອະທິບາຍໂ"
-"ຄງການໄດ້ໂດຍການແກ້ໄຂໄຟລ໌ README."
+"PyPI. ກ່ອນທີ່ຈະເຮັດແນວນັ້ນ, "
+"ພວກເຮົາແນະນຳໃຫ້ເຜີຍແຜ່ລຸ້ນສຸດທ້າຍພ້ອມກັບການອັບເດດຄຳອະທິບາຍໂຄງການເພື່ອເຕືອນຜູ້ໃຊ້ວ່າໂຄງການຈະບໍ່ໄດ້ຮັບການອັບເດດອີກຕໍ່ໄປ, "
+"ແລະ ເພື່ອແນະນຳໂຄງການທາງເລືອກອື່ນທີ່ພວກເຂົາອາດຈະພິຈາລະນາໃຊ້ແທນ. ຖ້າໂຄງການຂອງທ່ານຖືກ <a "
+"href=\"%(readme_description_href)s\" rel=\"noopener\" "
+"target=\"_blank\">ຕັ້ງຄ່າໃຫ້ເຮັດແນວນັ້ນ</a>, "
+"ທ່ານສາມາດອັບເດດຄຳອະທິບາຍໂຄງການໄດ້ໂດຍການແກ້ໄຂໄຟລ໌ README."
 
 #: warehouse/templates/manage/project/settings.html:208
 #: warehouse/templates/manage/project/settings.html:211
@@ -10018,16 +9953,16 @@ msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
-"ການຍົກເລີກການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະອະນຸຍາດໃຫ້ມີການອັບໂຫຼດໄຟລ໌ໃໝ່ ແລະ ເພີ່ມໂຄງການເຂົ້າໃ"
-"ນດັດຊະນີການຄົ້ນຫາ."
+"ການຍົກເລີກການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະອະນຸຍາດໃຫ້ມີການອັບໂຫຼດໄຟລ໌ໃໝ່ ແລະ "
+"ເພີ່ມໂຄງການເຂົ້າໃນດັດຊະນີການຄົ້ນຫາ."
 
 #: warehouse/templates/manage/project/settings.html:222
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
-"ການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະບລັອກການອັບໂຫຼດໄຟລ໌ໃໝ່ ແລະ ເອົາໂຄງການອອກຈາກດັດຊະນີການຄົ້ນຫ"
-"າ."
+"ການເກັບໂຄງການໄວ້ໃນບ່ອນເກັບຖາວອນຈະບລັອກການອັບໂຫຼດໄຟລ໌ໃໝ່ ແລະ "
+"ເອົາໂຄງການອອກຈາກດັດຊະນີການຄົ້ນຫາ."
 
 #: warehouse/templates/manage/project/settings.html:227
 #: warehouse/templates/manage/project/settings.html:259
@@ -10065,17 +10000,17 @@ msgid ""
 "are generated by combining the project name + version number + distribution "
 "type)"
 msgstr ""
-"ຜູ້ໃຊ້ນີ້ຈະສາມາດສ້າງລຸ້ນໃໝ່ພາຍໃຕ້ຊື່ໂຄງການນີ້ໄດ້, ຕາບໃດທີ່ຊື່ໄຟລ໌ການແຈກຢາຍບໍ່ກົງກັບຊື່ໄຟລ໌ຈາກການແຈກຢາຍທີ່ເ"
-"ຄີຍປ່ອຍມາກ່ອນໜ້ານີ້ (ຊື່ໄຟລ໌ການແຈກຢາຍ PyPI ທັງໝົດແມ່ນເປັນເອກະລັກ, ເພາະມັນຖືກສ້າງຂຶ້ນໂດຍການລວມ ຊື່ໂ"
-"ຄງການ + ເລກລຸ້ນ + ປະເພດການແຈກຢາຍ)"
+"ຜູ້ໃຊ້ນີ້ຈະສາມາດສ້າງລຸ້ນໃໝ່ພາຍໃຕ້ຊື່ໂຄງການນີ້ໄດ້, "
+"ຕາບໃດທີ່ຊື່ໄຟລ໌ການແຈກຢາຍບໍ່ກົງກັບຊື່ໄຟລ໌ຈາກການແຈກຢາຍທີ່ເຄີຍປ່ອຍມາກ່ອນໜ້ານີ້ (ຊື່ໄຟລ໌ການແຈກຢາຍ PyPI "
+"ທັງໝົດແມ່ນເປັນເອກະລັກ, ເພາະມັນຖືກສ້າງຂຶ້ນໂດຍການລວມ ຊື່ໂຄງການ + ເລກລຸ້ນ + ປະເພດການແຈກຢາຍ)"
 
 #: warehouse/templates/manage/team/history.html:11
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this team, the action is recorded and displayed here."
 msgstr ""
-"ທຸກໆຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບທີມນີ້, ການດຳເນີນການດັ່ງກ່າ"
-"ວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ບ່ອນນີ້."
+"ທຸກໆຄັ້ງທີ່ທ່ານ (ຫຼື ຜູ້ຮ່ວມງານຂອງທ່ານ) ດຳເນີນການດ້ານຄວາມປອດໄພທີ່ກ່ຽວຂ້ອງກັບທີມນີ້, "
+"ການດຳເນີນການດັ່ງກ່າວຈະຖືກບັນທຶກ ແລະ ສະແດງຢູ່ບ່ອນນີ້."
 
 #: warehouse/templates/manage/team/history.html:21
 #, python-format
@@ -10105,8 +10040,8 @@ msgid ""
 "This team does not have admin or upload permissions for any projects, yet. "
 "Get started by configuring collaborators for a project in your organization."
 msgstr ""
-"ທີມນີ້ຍັງບໍ່ມີສິດຜູ້ດູແລ ຫຼື ສິດໃນການອັບໂຫຼດສຳລັບໂຄງການໃດໆເລີຍ. ເລີ່ມຕົ້ນໂດຍການຕັ້ງຄ່າຜູ້ຮ່ວມງານສຳລັບໂຄງກາ"
-"ນໃນອົງກອນຂອງທ່ານ."
+"ທີມນີ້ຍັງບໍ່ມີສິດຜູ້ດູແລ ຫຼື ສິດໃນການອັບໂຫຼດສຳລັບໂຄງການໃດໆເລີຍ. "
+"ເລີ່ມຕົ້ນໂດຍການຕັ້ງຄ່າຜູ້ຮ່ວມງານສຳລັບໂຄງການໃນອົງກອນຂອງທ່ານ."
 
 #: warehouse/templates/manage/team/roles.html:5
 #, python-format
@@ -10147,8 +10082,9 @@ msgid ""
 "href=\"%(href)s\">Manage organization members</a> to view all users in the "
 "organization or to invite a user to the organization."
 msgstr ""
-"ເພີ່ມເຈົ້າຂອງອົງກອນ, ຜູ້ຈັດການ ຫຼື ສະມາຊິກເຂົ້າໃນທີມ. <a href=\"%(href)s\">ຈັດການສະມາຊິກອົງກອ"
-"ນ</a>ເພື່ອເບິ່ງຜູ້ໃຊ້ທັງໝົດໃນອົງກອນ ຫຼື ເພື່ອເຊີນຜູ້ໃຊ້ເຂົ້າຮ່ວມອົງກອນ."
+"ເພີ່ມເຈົ້າຂອງອົງກອນ, ຜູ້ຈັດການ ຫຼື ສະມາຊິກເຂົ້າໃນທີມ. <a "
+"href=\"%(href)s\">ຈັດການສະມາຊິກອົງກອນ</a>ເພື່ອເບິ່ງຜູ້ໃຊ້ທັງໝົດໃນອົງກອນ ຫຼື "
+"ເພື່ອເຊີນຜູ້ໃຊ້ເຂົ້າຮ່ວມອົງກອນ."
 
 #: warehouse/templates/manage/team/settings.html:4
 #: warehouse/templates/manage/team/settings.html:10
@@ -10220,9 +10156,9 @@ msgid ""
 "squatting, dependency confusion, data exfiltration, obfuscation, command/"
 "control, and other similar behaviors."
 msgstr ""
-"ໃຊ້ແບບຟອມນີ້ເພື່ອສົ່ງລາຍງານກ່ຽວກັບໂຄງການທີ່ເປັນອັນຕະລາຍເພື່ອໃຫ້ຜູ້ດູແລລະບົບ PyPI ກວດສອບ. ຕົວຢ່າງຂອງ"
-"ກິດຈະກຳທີ່ເປັນອັນຕະລາຍໃນໂຄງການລວມມີ typo-squatting, dependency confusion, ການລັກຂໍ້ມູ"
-"ນ, ການອຳພາງໂຄດ, ການສັ່ງການ/ຄວບຄຸມ ແລະ ພຶດຕິກຳອື່ນໆທີ່ຄ້າຍຄືກັນ."
+"ໃຊ້ແບບຟອມນີ້ເພື່ອສົ່ງລາຍງານກ່ຽວກັບໂຄງການທີ່ເປັນອັນຕະລາຍເພື່ອໃຫ້ຜູ້ດູແລລະບົບ PyPI ກວດສອບ. "
+"ຕົວຢ່າງຂອງກິດຈະກຳທີ່ເປັນອັນຕະລາຍໃນໂຄງການລວມມີ typo-squatting, dependency confusion, "
+"ການລັກຂໍ້ມູນ, ການອຳພາງໂຄດ, ການສັ່ງການ/ຄວບຄຸມ ແລະ ພຶດຕິກຳອື່ນໆທີ່ຄ້າຍຄືກັນ."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:21
 #, python-format
@@ -10233,8 +10169,8 @@ msgid ""
 "portion of the relevant files."
 msgstr ""
 "ທ່ານຈະຕ້ອງສະໜອງລີ້ງໄປຫາຊອດໂຄດທີ່ກ່ຽວຂ້ອງໂດຍໃຊ້ບໍລິການ <a href=\"%(href)s\">Inspector</"
-"a> ຂອງພວກເຮົາ. ສິ່ງນີ້ຈະຊ່ວຍໃຫ້ລາຍງານຖືກກວດສອບໄດ້ໄວຂຶ້ນ, ສະນັ້ນກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າລີ້ງນັ້ນນຳໄປ"
-"ຫາສ່ວນທີ່ສຳຄັນຂອງໄຟລ໌ທີ່ກ່ຽວຂ້ອງ."
+"a> ຂອງພວກເຮົາ. ສິ່ງນີ້ຈະຊ່ວຍໃຫ້ລາຍງານຖືກກວດສອບໄດ້ໄວຂຶ້ນ, "
+"ສະນັ້ນກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າລີ້ງນັ້ນນຳໄປຫາສ່ວນທີ່ສຳຄັນຂອງໄຟລ໌ທີ່ກ່ຽວຂ້ອງ."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:27
 msgid ""
@@ -10242,8 +10178,9 @@ msgid ""
 "as well as any other pertinent details such as what specific release(s) or "
 "file(s) are involved if it is not an entirely malicious Project."
 msgstr ""
-"ບົດສະຫຼຸບຂອງທ່ານຄວນລວມມີຄຳອະທິບາຍທົ່ວໄປກ່ຽວກັບພຶດຕິກຳທີ່ເປັນອັນຕະລາຍ ຕະຫຼອດຈົນເຖິງລາຍລະອຽດທີ່ກ່ຽວຂ້ອ"
-"ງອື່ນໆ ເຊັ່ນ: ລຸ້ນໃດ ຫຼື ໄຟລ໌ໃດທີ່ກ່ຽວຂ້ອງ ຫາກມັນບໍ່ແມ່ນໂຄງການທີ່ເປັນອັນຕະລາຍທັງໝົດ."
+"ບົດສະຫຼຸບຂອງທ່ານຄວນລວມມີຄຳອະທິບາຍທົ່ວໄປກ່ຽວກັບພຶດຕິກຳທີ່ເປັນອັນຕະລາຍ "
+"ຕະຫຼອດຈົນເຖິງລາຍລະອຽດທີ່ກ່ຽວຂ້ອງອື່ນໆ ເຊັ່ນ: ລຸ້ນໃດ ຫຼື ໄຟລ໌ໃດທີ່ກ່ຽວຂ້ອງ "
+"ຫາກມັນບໍ່ແມ່ນໂຄງການທີ່ເປັນອັນຕະລາຍທັງໝົດ."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:46
 msgid "Fill with a link to the problematic code lines from"
@@ -10259,17 +10196,15 @@ msgid ""
 "to categorize each release, describing who it's for, what systems it can run "
 "on, and how mature it is."
 msgstr ""
-"ຜູ້ບຳລຸງຮັກສາແຕ່ລະໂຄງການຈະສະໜອງລາຍຊື່ \"ຕົວຈຳແນກປະເພດ Trove\" ໃຫ້ກັບ PyPI ເພື່ອຈັດໝວດໝູ່ແຕ່ລະ"
-"ລຸ້ນ, ໂດຍອະທິບາຍວ່າໂຄງການນີ້ສ້າງມາເພື່ອໃຜ, ສາມາດເຮັດວຽກໃນລະບົບໃດໄດ້ແດ່ ແລະ ມັນມີຄວາມສົມບູນພຽງໃ"
-"ດ."
+"ຜູ້ບຳລຸງຮັກສາແຕ່ລະໂຄງການຈະສະໜອງລາຍຊື່ \"ຕົວຈຳແນກປະເພດ Trove\" ໃຫ້ກັບ PyPI "
+"ເພື່ອຈັດໝວດໝູ່ແຕ່ລະລຸ້ນ, ໂດຍອະທິບາຍວ່າໂຄງການນີ້ສ້າງມາເພື່ອໃຜ, ສາມາດເຮັດວຽກໃນລະບົບໃດໄດ້ແດ່ ແລະ "
+"ມັນມີຄວາມສົມບູນພຽງໃດ."
 
 #: warehouse/templates/pages/classifiers.html:14
 msgid ""
 "These standardized classifiers can then be used by community members to find "
 "projects based on their desired criteria."
-msgstr ""
-"ຕົວຈຳແນກປະເພດມາດຕະຖານເຫຼົ່ານີ້ສາມາດຖືກນຳໃຊ້ໂດຍສະມາຊິກຊຸມຊົນເພື່ອຊອກຫາໂຄງການຕາມເງື່ອນໄຂທີ່ພວກເຂົ"
-"າຕ້ອງການ."
+msgstr "ຕົວຈຳແນກປະເພດມາດຕະຖານເຫຼົ່ານີ້ສາມາດຖືກນຳໃຊ້ໂດຍສະມາຊິກຊຸມຊົນເພື່ອຊອກຫາໂຄງການຕາມເງື່ອນໄຂທີ່ພວກເຂົາຕ້ອງການ."
 
 #: warehouse/templates/pages/classifiers.html:17
 #, python-format
@@ -10281,12 +10216,12 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
-"ຄຳແນະນຳກ່ຽວກັບວິທີການເພີ່ມຕົວຈຳແນກປະເພດ Trove ເຂົ້າໃນໂຄງການສາມາດເບິ່ງໄດ້ທີ່ <a href=\"%"
-"(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Packaging User Guide</a>. ເພື່ອອ່ານຂໍ້ກຳນົດຂອງຕົວຈຳແນກປະເພດຕົ້ນສະບັບ, ກະລຸນາອ້າງອີງເຖິງ <a "
-"href=\"%(pep301_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 301</"
-"a>."
+"ຄຳແນະນຳກ່ຽວກັບວິທີການເພີ່ມຕົວຈຳແນກປະເພດ Trove ເຂົ້າໃນໂຄງການສາມາດເບິ່ງໄດ້ທີ່ <a "
+"href=\"%(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Packaging User Guide</a>. "
+"ເພື່ອອ່ານຂໍ້ກຳນົດຂອງຕົວຈຳແນກປະເພດຕົ້ນສະບັບ, ກະລຸນາອ້າງອີງເຖິງ <a href=\"%(pep301_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
+"enhancement proposal\">PEP</abbr> 301</a>."
 
 #: warehouse/templates/pages/classifiers.html:29
 #, fuzzy
@@ -10499,8 +10434,8 @@ msgid ""
 "We take security very seriously and ask that you follow our security policy "
 "carefully."
 msgstr ""
-"ພວກເຮົາໃຫ້ຄວາມສຳຄັນກັບຄວາມປອດໄພເປັນຢ່າງຍິ່ງ ແລະ ຂໍໃຫ້ທ່ານປະຕິບັດຕາມນະໂຍບາຍຄວາມປອດໄພຂອງພວກເ"
-"ຮົາຢ່າງເຄັ່ງຄັດ."
+"ພວກເຮົາໃຫ້ຄວາມສຳຄັນກັບຄວາມປອດໄພເປັນຢ່າງຍິ່ງ ແລະ "
+"ຂໍໃຫ້ທ່ານປະຕິບັດຕາມນະໂຍບາຍຄວາມປອດໄພຂອງພວກເຮົາຢ່າງເຄັ່ງຄັດ."
 
 #: warehouse/templates/pages/security.html:13
 msgid "Important!"
@@ -10511,8 +10446,8 @@ msgid ""
 "If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
 "strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
-"ຖ້າທ່ານເຊື່ອວ່າທ່ານພົບຫາບັນຫາຄວາມປອດໄພກັບ PyPI, <strong>ຫ້າມ</strong> ລາຍງານບັນຫານັ້ນໃນເວທີ"
-"ສາທາລະນະໃດໆ, ລວມທັງ (ແຕ່ບໍ່ຈຳກັດພຽງແຕ່):"
+"ຖ້າທ່ານເຊື່ອວ່າທ່ານພົບຫາບັນຫາຄວາມປອດໄພກັບ PyPI, <strong>ຫ້າມ</strong> "
+"ລາຍງານບັນຫານັ້ນໃນເວທີສາທາລະນະໃດໆ, ລວມທັງ (ແຕ່ບໍ່ຈຳກັດພຽງແຕ່):"
 
 #: warehouse/templates/pages/security.html:17
 msgid "Our GitHub issue tracker"
@@ -10558,23 +10493,22 @@ msgid ""
 "A link to the problematic lines in the project's distributions via <a "
 "href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
-"ລີ້ງໄປຫາແຖວທີ່ມີບັນຫາໃນການແຈກຢາຍຂອງໂຄງການຜ່ານ <a href=\"%(href)s\">"
-"inspector.pypi.io</a>"
+"ລີ້ງໄປຫາແຖວທີ່ມີບັນຫາໃນການແຈກຢາຍຂອງໂຄງການຜ່ານ <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
 
 #: warehouse/templates/pages/security.html:44
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
 "confusion, data exfiltration, obfuscation, command/control, etc."
 msgstr ""
-"ລາຍງານມັລແວທີ່ຖືກຕ້ອງອາດລວມມີຕົວຢ່າງຂອງ typo-squatting, dependency confusion, ການລັກຂໍ້ມູ"
-"ນ, ການອຳພາງໂຄດ, ການສັ່ງການ/ຄວບຄຸມ ແລະ ອື່ນໆ."
+"ລາຍງານມັລແວທີ່ຖືກຕ້ອງອາດລວມມີຕົວຢ່າງຂອງ typo-squatting, dependency confusion, "
+"ການລັກຂໍ້ມູນ, ການອຳພາງໂຄດ, ການສັ່ງການ/ຄວບຄຸມ ແລະ ອື່ນໆ."
 
 #: warehouse/templates/pages/security.html:46
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
-msgstr ""
-"ຖ້າທ່ານພົບຫາບັນຫາຄວາມປອດໄພກັບຕົວ PyPI ເອງ (ບໍ່ແມ່ນໂຄງການທີ່ໂຮດຢູ່ໃນ PyPI)"
+msgstr "ຖ້າທ່ານພົບຫາບັນຫາຄວາມປອດໄພກັບຕົວ PyPI ເອງ (ບໍ່ແມ່ນໂຄງການທີ່ໂຮດຢູ່ໃນ PyPI)"
 
 #: warehouse/templates/pages/security.html:48
 #, python-format
@@ -10582,8 +10516,8 @@ msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
 "information as possible, including reproducing steps."
 msgstr ""
-"ສົ່ງອີເມວຫາ <a href=\"%(href)s\">security@pypi.org</a>, ໂດຍລະບຸຂໍ້ມູນທີ່ກ່ຽວຂ້ອງໃຫ້ຫຼາຍທີ່ສຸດ"
-"ເທົ່າທີ່ຈະເຮັດໄດ້, ລວມທັງຂັ້ນຕອນການເຮັດໃຫ້ເກີດບັນຫາຊ້ຳ."
+"ສົ່ງອີເມວຫາ <a href=\"%(href)s\">security@pypi.org</a>, "
+"ໂດຍລະບຸຂໍ້ມູນທີ່ກ່ຽວຂ້ອງໃຫ້ຫຼາຍທີ່ສຸດເທົ່າທີ່ຈະເຮັດໄດ້, ລວມທັງຂັ້ນຕອນການເຮັດໃຫ້ເກີດບັນຫາຊ້ຳ."
 
 #: warehouse/templates/pages/security.html:50
 msgid "What happens next?"
@@ -10593,8 +10527,7 @@ msgstr "ຈະເກີດຫຍັງຂຶ້ນຕໍ່ໄປ?"
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
-msgstr ""
-"ຫຼັງຈາກທີ່ທ່ານສົ່ງບັນຫາຜ່ານອີເມວແລ້ວ, ທ່ານຄວນຈະໄດ້ຮັບການຕອບຮັບພາຍໃນ 48 ຊົ່ວໂມງ."
+msgstr "ຫຼັງຈາກທີ່ທ່ານສົ່ງບັນຫາຜ່ານອີເມວແລ້ວ, ທ່ານຄວນຈະໄດ້ຮັບການຕອບຮັບພາຍໃນ 48 ຊົ່ວໂມງ."
 
 #: warehouse/templates/pages/security.html:54
 msgid ""
@@ -10655,8 +10588,8 @@ msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
-"Python Software Foundation ລະດົມທຶນ ແລະ ຈັດສັນງົບປະມານເພື່ອປັບປຸງລະບົບນິເວດການສ້າງແພັກເກດຂ"
-"ອງ Python."
+"Python Software Foundation ລະດົມທຶນ ແລະ "
+"ຈັດສັນງົບປະມານເພື່ອປັບປຸງລະບົບນິເວດການສ້າງແພັກເກດຂອງ Python."
 
 #: warehouse/templates/pages/sponsors.html:31
 msgid "Recent projects funded include:"
@@ -10686,8 +10619,7 @@ msgstr ""
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
-msgstr ""
-"ການປັບປຸງຄວາມປອດໄພ ແລະ ການເຂົ້າເຖິງຂອງ PyPI, ແລະ ການເພີ່ມການຮອງຮັບຫຼາຍພາສາ"
+msgstr "ການປັບປຸງຄວາມປອດໄພ ແລະ ການເຂົ້າເຖິງຂອງ PyPI, ແລະ ການເພີ່ມການຮອງຮັບຫຼາຍພາສາ"
 
 #: warehouse/templates/pages/sponsors.html:47
 #, python-format
@@ -10736,16 +10668,16 @@ msgstr ""
 "rel=\"noopener\">ເງິນທຶນ 407,000 ໂດລາ</a> ຈາກ <a href=\"%(funder0_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
 "Initiative</a> ແລະ <a href=\"%(funder1_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> ໃນ"
-"ປີ 2020"
+"target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
+"ໃນປີ 2020"
 
 #: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
-"ດ້ວຍການສະໜັບສະໜູນຂອງທ່ານ, PSF ຈະສາມາດສືບຕໍ່ໃຫ້ທຶນໃນການປັບປຸງການສ້າງແພັກເກດ, ເຊິ່ງເປັນປະໂຫຍດຕໍ່ຜູ້"
-"ໃຊ້ Python ຫຼາຍລ້ານຄົນທົ່ວໂລກ."
+"ດ້ວຍການສະໜັບສະໜູນຂອງທ່ານ, PSF ຈະສາມາດສືບຕໍ່ໃຫ້ທຶນໃນການປັບປຸງການສ້າງແພັກເກດ, "
+"ເຊິ່ງເປັນປະໂຫຍດຕໍ່ຜູ້ໃຊ້ Python ຫຼາຍລ້ານຄົນທົ່ວໂລກ."
 
 #: warehouse/templates/pages/sponsors.html:87
 msgid "PSF Sponsorship"
@@ -10757,14 +10689,13 @@ msgid ""
 "community uses daily. This work can only be done with the generous financial "
 "support that you or your organization provides."
 msgstr ""
-"ທຸກໆຂໍ້ລິເລີ່ມເຫຼົ່ານີ້ຊ່ວຍບຳລຸງຮັກສາ ແລະ ສະໜັບສະໜູນເຄື່ອງມືທີ່ຊຸມຊົນ Python ໃຊ້ເປັນປະຈຳທຸກວັນ. ວຽກງານນີ້ຈ"
-"ະສຳເລັດໄດ້ກໍ່ຍ້ອນການສະໜັບສະໜູນດ້ານການເງິນຈາກທ່ານ ຫຼື ອົງກອນຂອງທ່ານ."
+"ທຸກໆຂໍ້ລິເລີ່ມເຫຼົ່ານີ້ຊ່ວຍບຳລຸງຮັກສາ ແລະ ສະໜັບສະໜູນເຄື່ອງມືທີ່ຊຸມຊົນ Python ໃຊ້ເປັນປະຈຳທຸກວັນ. "
+"ວຽກງານນີ້ຈະສຳເລັດໄດ້ກໍ່ຍ້ອນການສະໜັບສະໜູນດ້ານການເງິນຈາກທ່ານ ຫຼື ອົງກອນຂອງທ່ານ."
 
 #: warehouse/templates/pages/sponsors.html:93
 msgid ""
 "Your contributions matter and they make an impact. Every donation counts!"
-msgstr ""
-"ການປະກອບສ່ວນຂອງທ່ານມີຄວາມສຳຄັນ ແລະ ສ້າງຜົນກະທົບທີ່ຍິ່ງໃຫຍ່. ທຸກໆການບໍລິຈາກລ້ວນແຕ່ມີຄຸນຄ່າ!"
+msgstr "ການປະກອບສ່ວນຂອງທ່ານມີຄວາມສຳຄັນ ແລະ ສ້າງຜົນກະທົບທີ່ຍິ່ງໃຫຍ່. ທຸກໆການບໍລິຈາກລ້ວນແຕ່ມີຄຸນຄ່າ!"
 
 #: warehouse/templates/pages/sponsors.html:100
 msgid "Become a sponsor"
@@ -10788,8 +10719,8 @@ msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
-"ຕ້ອງການເພີ່ມການເບິ່ງເຫັນແບຣນຂອງທ່ານບໍ່? ໃນປີທີ່ຜ່ານມາ*, ມີຜູ້ເຂົ້າຊົມ PyPI.org ເຖິງ 21.1 ລ້ານຄົນຈາ"
-"ກ 237 ປະເທດ."
+"ຕ້ອງການເພີ່ມການເບິ່ງເຫັນແບຣນຂອງທ່ານບໍ່? ໃນປີທີ່ຜ່ານມາ*, ມີຜູ້ເຂົ້າຊົມ PyPI.org ເຖິງ 21.1 "
+"ລ້ານຄົນຈາກ 237 ປະເທດ."
 
 #: warehouse/templates/pages/sponsors.html:116
 msgid "* Data as of March 2020"
@@ -10804,8 +10735,8 @@ msgid ""
 "Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
-"ເງິນທຶນທີ່ລະດົມໄດ້ໂດຍ Python Software Foundation ຈະຖືກນຳໄປໃຊ້ໂດຍກົງເພື່ອປັບປຸງເຄື່ອງມືທີ່ບໍລິສັດຂອ"
-"ງທ່ານໃຊ້ຢູ່ທຸກມື້."
+"ເງິນທຶນທີ່ລະດົມໄດ້ໂດຍ Python Software Foundation "
+"ຈະຖືກນຳໄປໃຊ້ໂດຍກົງເພື່ອປັບປຸງເຄື່ອງມືທີ່ບໍລິສັດຂອງທ່ານໃຊ້ຢູ່ທຸກມື້."
 
 #: warehouse/templates/pages/sponsors.html:126
 msgid "Boost your reputation"
@@ -10815,8 +10746,7 @@ msgstr "ເສີມສ້າງຊື່ສຽງຂອງທ່ານ"
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
-msgstr ""
-"ເສີມສ້າງຊື່ສຽງໃຫ້ບໍລິສັດຂອງທ່ານໂດຍການລົງທຶນໃນ Python ແລະ ຊຸມຊົນໂອເພນຊອດ."
+msgstr "ເສີມສ້າງຊື່ສຽງໃຫ້ບໍລິສັດຂອງທ່ານໂດຍການລົງທຶນໃນ Python ແລະ ຊຸມຊົນໂອເພນຊອດ."
 
 #: warehouse/templates/pages/stats.html:9
 msgid "PyPI statistics"
@@ -10838,8 +10768,7 @@ msgstr "ສະຖິຕິເຫຼົ່ານີ້ແມ່ນສະໜອງ
 msgid ""
 "PyPI provides public datasets, including download statistics and metadata "
 "via BigQuery"
-msgstr ""
-"PyPI ສະໜອງຊຸດຂໍ້ມູນສາທາລະນະ, ລວມທັງສະຖິຕິການດາວໂຫຼດ ແລະ ຂໍ້ມູນເມຕາຜ່ານ BigQuery"
+msgstr "PyPI ສະໜອງຊຸດຂໍ້ມູນສາທາລະນະ, ລວມທັງສະຖິຕິການດາວໂຫຼດ ແລະ ຂໍ້ມູນເມຕາຜ່ານ BigQuery"
 
 #: warehouse/templates/pages/stats.html:29
 msgid ""
@@ -10854,8 +10783,7 @@ msgstr "ສະຖິຕິຈາກພາກສ່ວນພາຍນອກ"
 msgid ""
 "These statistics are provided by other third-party services unaffiliated "
 "with PyPI."
-msgstr ""
-"ສະຖິຕິເຫຼົ່ານີ້ແມ່ນສະໜອງໃຫ້ໂດຍບໍລິການພາຍນອກອື່ນໆທີ່ບໍ່ໄດ້ກ່ຽວຂ້ອງກັບ PyPI."
+msgstr "ສະຖິຕິເຫຼົ່ານີ້ແມ່ນສະໜອງໃຫ້ໂດຍບໍລິການພາຍນອກອື່ນໆທີ່ບໍ່ໄດ້ກ່ຽວຂ້ອງກັບ PyPI."
 
 #: warehouse/templates/pages/stats.html:53
 msgid "Top projects by total package size"
@@ -10867,8 +10795,8 @@ msgid ""
 "sizes (in bytes). This page is cached for 24 hours, so don't expect the "
 "numbers to be realtime."
 msgstr ""
-"ນີ້ແມ່ນລາຍຊື່ 100 ໂຄງການຍອດນິຍົມໂດຍອີງຕາມຜົນລວມຂອງຂະໜາດແພັກເກດ (ເປັນໄບຕ໌). ໜ້ານີ້ຈະຖືກເກັບໄວ້ໃນ"
-"ແຄຊເປັນເວລາ 24 ຊົ່ວໂມງ, ດັ່ງນັ້ນຕົວເລກອາດຈະບໍ່ແມ່ນແບບລຽວທາມ (real-time)."
+"ນີ້ແມ່ນລາຍຊື່ 100 ໂຄງການຍອດນິຍົມໂດຍອີງຕາມຜົນລວມຂອງຂະໜາດແພັກເກດ (ເປັນໄບຕ໌). "
+"ໜ້ານີ້ຈະຖືກເກັບໄວ້ໃນແຄຊເປັນເວລາ 24 ຊົ່ວໂມງ, ດັ່ງນັ້ນຕົວເລກອາດຈະບໍ່ແມ່ນແບບລຽວທາມ (real-time)."
 
 #: warehouse/templates/pages/stats.html:62
 msgid "Statistics by project"
@@ -10950,8 +10878,7 @@ msgstr "ສ່ວນຂະຫຍາຍ Sphinx ທີ່ມີສະຖານະ 
 
 #: warehouse/templates/search/results.html:125
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
-msgstr ""
-"ໂຄງການທີ່ກ່ຽວຂ້ອງກັບ \"graphics\" ພ້ອມກັບລິຂະສິດທີ່ໄດ້ຮັບການຮັບຮອງໂດຍ OSI"
+msgstr "ໂຄງການທີ່ກ່ຽວຂ້ອງກັບ \"graphics\" ພ້ອມກັບລິຂະສິດທີ່ໄດ້ຮັບການຮັບຮອງໂດຍ OSI"
 
 #: warehouse/templates/search/results.html:141
 #, python-format
