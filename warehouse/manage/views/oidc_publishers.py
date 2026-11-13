@@ -27,8 +27,8 @@ from warehouse.oidc.models import (
     GooglePublisher,
     OIDCPublisher,
 )
+from warehouse.oidc.view_mixins import OIDCPublisherViewMixin
 from warehouse.packaging import Project
-from warehouse.rate_limiting import IRateLimiter
 
 
 @view_defaults(
@@ -43,7 +43,7 @@ from warehouse.rate_limiting import IRateLimiter
     require_reauth=True,
     http_cache=0,
 )
-class ManageOIDCPublisherViews:
+class ManageOIDCPublisherViews(OIDCPublisherViewMixin):
     def __init__(self, project, request):
         self.request = request
         self.project = project
@@ -64,36 +64,6 @@ class ManageOIDCPublisherViews:
         self.prefilled_provider = None
 
     @property
-    def _ratelimiters(self):
-        return {
-            "user.oidc": self.request.find_service(
-                IRateLimiter, name="user_oidc.publisher.register"
-            ),
-            "ip.oidc": self.request.find_service(
-                IRateLimiter, name="ip_oidc.publisher.register"
-            ),
-        }
-
-    def _hit_ratelimits(self):
-        self._ratelimiters["user.oidc"].hit(self.request.user.id)
-        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
-
-    def _check_ratelimits(self):
-        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
-            raise TooManyOIDCRegistrations(
-                resets_in=self._ratelimiters["user.oidc"].resets_in(
-                    self.request.user.id
-                )
-            )
-
-        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
-            raise TooManyOIDCRegistrations(
-                resets_in=self._ratelimiters["ip.oidc"].resets_in(
-                    self.request.remote_addr
-                )
-            )
-
-    @property
     def default_response(self):
         return {
             "project": self.project,
@@ -101,39 +71,14 @@ class ManageOIDCPublisherViews:
             "gitlab_publisher_form": self.gitlab_publisher_form,
             "google_publisher_form": self.google_publisher_form,
             "activestate_publisher_form": self.activestate_publisher_form,
-            "disabled": {
-                "GitHub": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GITHUB_OIDC
-                ),
-                "GitLab": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GITLAB_OIDC
-                ),
-                "Google": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
-                ),
-                "ActiveState": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
-                ),
-            },
+            "disabled": self._disabled_publishers(),
             "prefilled_provider": self.prefilled_provider,
         }
 
     @view_config(request_method="GET")
     def manage_project_oidc_publishers(self):
         if self.request.flags.disallow_oidc():
-            self.request.session.flash(
-                self.request._(
-                    "Trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
+            self._flash_oidc_disabled()
 
         return self.default_response
 
@@ -289,36 +234,28 @@ class ManageOIDCPublisherViews:
 
         return HTTPSeeOther(self.request.path)
 
-    @view_config(
-        request_method="POST",
-        request_param=GitHubPublisherForm.__params__,
-    )
-    def add_github_oidc_publisher(self):
-        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
-            self.request.session.flash(
-                self.request._(
-                    "GitHub-based trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
+    def _add_oidc_publisher(
+        self,
+        *,
+        publisher_name,
+        publisher_class,
+        admin_flag,
+        form_key,
+        make_existence_filters,
+        make_publisher,
+    ):
+        if self.request.flags.disallow_oidc(admin_flag):
+            self._flash_oidc_disabled(publisher_name)
             return self.default_response
 
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
-        )
+        metric_tags = [f"publisher:{publisher_name}"]
+        self.metrics.increment("warehouse.oidc.add_publisher.attempt", tags=metric_tags)
 
         try:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
             self.metrics.increment(
-                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:GitHub"]
+                "warehouse.oidc.add_publisher.ratelimited", tags=metric_tags
             )
             return HTTPTooManyRequests(
                 self.request._(
@@ -331,7 +268,7 @@ class ManageOIDCPublisherViews:
         self._hit_ratelimits()
 
         response = self.default_response
-        form = response["github_publisher_form"]
+        form = response[form_key]
 
         if not form.validate():
             self.request.session.flash(
@@ -340,265 +277,15 @@ class ManageOIDCPublisherViews:
             )
             return response
 
-        # GitHub OIDC publishers are unique on the tuple of
-        # (repository_name, repository_owner, workflow_filename, environment),
-        # so we check for an already registered one before creating.
+        # Publishers are unique on their identifying claims, so we check for an
+        # already registered one before creating.
         publisher = (
-            self.request.db.query(GitHubPublisher)
-            .filter(
-                GitHubPublisher.repository_name == form.repository.data,
-                GitHubPublisher.repository_owner == form.normalized_owner,
-                GitHubPublisher.workflow_filename == form.workflow_filename.data,
-                GitHubPublisher.environment == form.normalized_environment,
-            )
+            self.request.db.query(publisher_class)
+            .filter_by(**make_existence_filters(form))
             .one_or_none()
         )
         if publisher is None:
-            publisher = GitHubPublisher(
-                repository_name=form.repository.data,
-                repository_owner=form.normalized_owner,
-                repository_owner_id=form.owner_id,
-                workflow_filename=form.workflow_filename.data,
-                environment=form.normalized_environment,
-            )
-
-            self.request.db.add(publisher)
-
-        # Each project has a unique set of OIDC publishers; the same
-        # publisher can't be registered to the project more than once.
-        if publisher in self.project.oidc_publishers:
-            self.request.session.flash(
-                self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
-                ),
-                queue="error",
-            )
-            return response
-
-        for user in self.project.users:
-            send_trusted_publisher_added_email(
-                self.request,
-                user,
-                project_name=self.project.name,
-                publisher=publisher,
-            )
-
-        self.project.oidc_publishers.append(publisher)
-
-        self.project.record_event(
-            tag=EventTag.Project.OIDCPublisherAdded,
-            request=self.request,
-            additional={
-                "publisher": publisher.publisher_name,
-                "id": str(publisher.id),
-                "specifier": str(publisher),
-                "url": publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-                "reified_from_pending_publisher": False,
-                "constrained_from_existing_publisher": False,
-            },
-        )
-
-        self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
-            queue="success",
-        )
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]
-        )
-
-        return HTTPSeeOther(self.request.path)
-
-    @view_config(
-        request_method="POST",
-        request_param=GitLabPublisherForm.__params__,
-    )
-    def add_gitlab_oidc_publisher(self):
-        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITLAB_OIDC):
-            self.request.session.flash(
-                self.request._(
-                    "GitLab-based trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitLab"]
-        )
-
-        try:
-            self._check_ratelimits()
-        except TooManyOIDCRegistrations as exc:
-            self.metrics.increment(
-                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:GitLab"]
-            )
-            return HTTPTooManyRequests(
-                self.request._(
-                    "There have been too many attempted trusted publisher "
-                    "registrations. Try again later."
-                ),
-                retry_after=exc.resets_in.total_seconds(),
-            )
-
-        self._hit_ratelimits()
-
-        response = self.default_response
-        form = response["gitlab_publisher_form"]
-
-        if not form.validate():
-            self.request.session.flash(
-                self.request._("The trusted publisher could not be registered"),
-                queue="error",
-            )
-            return response
-
-        # GitLab OIDC publishers are unique on the tuple of
-        # (namespace, project, workflow_filepath, environment),
-        # so we check for an already registered one before creating.
-        publisher = (
-            self.request.db.query(GitLabPublisher)
-            .filter(
-                GitLabPublisher.namespace == form.namespace.data,
-                GitLabPublisher.project == form.project.data,
-                GitLabPublisher.workflow_filepath == form.workflow_filepath.data,
-                GitLabPublisher.environment == form.normalized_environment,
-                GitLabPublisher.issuer_url == form.issuer_url.data,
-            )
-            .one_or_none()
-        )
-        if publisher is None:
-            publisher = GitLabPublisher(
-                namespace=form.namespace.data,
-                project=form.project.data,
-                workflow_filepath=form.workflow_filepath.data,
-                environment=form.normalized_environment,
-                issuer_url=form.issuer_url.data,
-            )
-
-            self.request.db.add(publisher)
-
-        # Each project has a unique set of OIDC publishers; the same
-        # publisher can't be registered to the project more than once.
-        if publisher in self.project.oidc_publishers:
-            self.request.session.flash(
-                self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
-                ),
-                queue="error",
-            )
-            return response
-
-        for user in self.project.users:
-            send_trusted_publisher_added_email(
-                self.request,
-                user,
-                project_name=self.project.name,
-                publisher=publisher,
-            )
-
-        self.project.oidc_publishers.append(publisher)
-
-        self.project.record_event(
-            tag=EventTag.Project.OIDCPublisherAdded,
-            request=self.request,
-            additional={
-                "publisher": publisher.publisher_name,
-                "id": str(publisher.id),
-                "specifier": str(publisher),
-                "url": publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-                "reified_from_pending_publisher": False,
-                "constrained_from_existing_publisher": False,
-            },
-        )
-
-        self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
-            queue="success",
-        )
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.ok", tags=["publisher:GitLab"]
-        )
-
-        return HTTPSeeOther(self.request.path)
-
-    @view_config(
-        request_method="POST",
-        request_param=GooglePublisherForm.__params__,
-    )
-    def add_google_oidc_publisher(self):
-        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GOOGLE_OIDC):
-            self.request.session.flash(
-                self.request._(
-                    "Google-based trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Google"]
-        )
-
-        try:
-            self._check_ratelimits()
-        except TooManyOIDCRegistrations as exc:
-            self.metrics.increment(
-                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:Google"]
-            )
-            return HTTPTooManyRequests(
-                self.request._(
-                    "There have been too many attempted trusted publisher "
-                    "registrations. Try again later."
-                ),
-                retry_after=exc.resets_in.total_seconds(),
-            )
-
-        self._hit_ratelimits()
-
-        response = self.default_response
-        form = response["google_publisher_form"]
-
-        if not form.validate():
-            self.request.session.flash(
-                self.request._("The trusted publisher could not be registered"),
-                queue="error",
-            )
-            return response
-
-        # Google OIDC publishers are unique on the tuple of (email, sub), so we
-        # check for an already registered one before creating.
-        publisher = (
-            self.request.db.query(GooglePublisher)
-            .filter(
-                GooglePublisher.email == form.email.data,
-                GooglePublisher.sub == form.sub.data,
-            )
-            .one_or_none()
-        )
-        if publisher is None:
-            publisher = GooglePublisher(
-                email=form.email.data,
-                sub=form.sub.data,
-            )
-
+            publisher = make_publisher(form)
             self.request.db.add(publisher)
 
         # Each project has a unique set of OIDC publishers; the same
@@ -643,129 +330,103 @@ class ManageOIDCPublisherViews:
             queue="success",
         )
 
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.ok", tags=["publisher:Google"]
-        )
+        self.metrics.increment("warehouse.oidc.add_publisher.ok", tags=metric_tags)
 
         return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=GitHubPublisherForm.__params__,
+    )
+    def add_github_oidc_publisher(self):
+        return self._add_oidc_publisher(
+            publisher_name="GitHub",
+            publisher_class=GitHubPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITHUB_OIDC,
+            form_key="github_publisher_form",
+            make_existence_filters=lambda form: {
+                "repository_name": form.repository.data,
+                "repository_owner": form.normalized_owner,
+                "workflow_filename": form.workflow_filename.data,
+                "environment": form.normalized_environment,
+            },
+            make_publisher=lambda form: GitHubPublisher(
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                repository_owner_id=form.owner_id,
+                workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=GitLabPublisherForm.__params__,
+    )
+    def add_gitlab_oidc_publisher(self):
+        return self._add_oidc_publisher(
+            publisher_name="GitLab",
+            publisher_class=GitLabPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            form_key="gitlab_publisher_form",
+            make_existence_filters=lambda form: {
+                "namespace": form.namespace.data,
+                "project": form.project.data,
+                "workflow_filepath": form.workflow_filepath.data,
+                "environment": form.normalized_environment,
+                "issuer_url": form.issuer_url.data,
+            },
+            make_publisher=lambda form: GitLabPublisher(
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.normalized_environment,
+                issuer_url=form.issuer_url.data,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=GooglePublisherForm.__params__,
+    )
+    def add_google_oidc_publisher(self):
+        return self._add_oidc_publisher(
+            publisher_name="Google",
+            publisher_class=GooglePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+            form_key="google_publisher_form",
+            make_existence_filters=lambda form: {
+                "email": form.email.data,
+                "sub": form.sub.data,
+            },
+            make_publisher=lambda form: GooglePublisher(
+                email=form.email.data,
+                sub=form.sub.data,
+            ),
+        )
 
     @view_config(
         request_method="POST",
         request_param=ActiveStatePublisherForm.__params__,
     )
     def add_activestate_oidc_publisher(self):
-        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC):
-            self.request.session.flash(
-                self.request._(
-                    "ActiveState-based trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.attempt", tags=["publisher:ActiveState"]
-        )
-
-        try:
-            self._check_ratelimits()
-        except TooManyOIDCRegistrations as exc:
-            self.metrics.increment(
-                "warehouse.oidc.add_publisher.ratelimited",
-                tags=["publisher:ActiveState"],
-            )
-            return HTTPTooManyRequests(
-                self.request._(
-                    "There have been too many attempted trusted publisher "
-                    "registrations. Try again later."
-                ),
-                retry_after=exc.resets_in.total_seconds(),
-            )
-
-        self._hit_ratelimits()
-
-        response = self.default_response
-        form = response["activestate_publisher_form"]
-
-        if not form.validate():
-            self.request.session.flash(
-                self.request._("The trusted publisher could not be registered"),
-                queue="error",
-            )
-            return response
-
-        # Check for an already registered publisher before creating.
-        publisher = (
-            self.request.db.query(ActiveStatePublisher)
-            .filter(
-                ActiveStatePublisher.organization == form.organization.data,
-                ActiveStatePublisher.activestate_project_name == form.project.data,
-                ActiveStatePublisher.actor_id == form.actor_id,
-            )
-            .one_or_none()
-        )
-        if publisher is None:
-            publisher = ActiveStatePublisher(
+        return self._add_oidc_publisher(
+            publisher_name="ActiveState",
+            publisher_class=ActiveStatePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            form_key="activestate_publisher_form",
+            make_existence_filters=lambda form: {
+                "organization": form.organization.data,
+                "activestate_project_name": form.project.data,
+                "actor_id": form.actor_id,
+            },
+            make_publisher=lambda form: ActiveStatePublisher(
                 organization=form.organization.data,
                 activestate_project_name=form.project.data,
                 actor=form.actor.data,
                 actor_id=form.actor_id,
-            )
-
-            self.request.db.add(publisher)
-
-        # Each project has a unique set of OIDC publishers; the same
-        # publisher can't be registered to the project more than once.
-        if publisher in self.project.oidc_publishers:
-            self.request.session.flash(
-                self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
-                ),
-                queue="error",
-            )
-            return response
-
-        for user in self.project.users:
-            send_trusted_publisher_added_email(
-                self.request,
-                user,
-                project_name=self.project.name,
-                publisher=publisher,
-            )
-
-        self.project.oidc_publishers.append(publisher)
-
-        self.project.record_event(
-            tag=EventTag.Project.OIDCPublisherAdded,
-            request=self.request,
-            additional={
-                "publisher": publisher.publisher_name,
-                "id": str(publisher.id),
-                "specifier": str(publisher),
-                "url": publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-                "reified_from_pending_publisher": False,
-                "constrained_from_existing_publisher": False,
-            },
+            ),
         )
-
-        self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
-            queue="success",
-        )
-
-        self.metrics.increment(
-            "warehouse.oidc.add_publisher.ok", tags=["publisher:ActiveState"]
-        )
-
-        return HTTPSeeOther(self.request.path)
 
     @view_config(
         request_method="POST",

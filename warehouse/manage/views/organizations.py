@@ -2,23 +2,20 @@
 
 import contextlib
 import datetime as dt
-import functools
 
 from urllib.parse import urljoin
 
 import humanize
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
     HTTPNotFound,
     HTTPSeeOther,
-    HTTPTooManyRequests,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func, orm, select
+from sqlalchemy import orm
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import (
@@ -73,7 +70,6 @@ from warehouse.oidc.forms import (
     PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
 )
-from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     GitLabPublisher,
     PendingActiveStatePublisher,
@@ -82,6 +78,7 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
+from warehouse.oidc.view_mixins import PendingOIDCPublisherViewMixin
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -95,7 +92,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
-from warehouse.rate_limiting.interfaces import IRateLimiter, RateLimiterException
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 from warehouse.subscriptions.services import MockStripeBillingService
@@ -1797,7 +1794,9 @@ def transfer_organization_project(project, request):
     has_translations=True,
     require_reauth=True,
 )
-class ManageOrganizationPublishingViews:
+class ManageOrganizationPublishingViews(PendingOIDCPublisherViewMixin):
+    _pending_metric_tags = ["organization:true"]
+
     def __init__(self, organization, request):
         self.organization = organization
         self.request = request
@@ -1833,36 +1832,6 @@ class ManageOrganizationPublishingViews:
             user=request.user,
         )
 
-    @functools.cached_property
-    def _ratelimiters(self):
-        return {
-            "user.oidc": self.request.find_service(
-                IRateLimiter, name="user_oidc.publisher.register"
-            ),
-            "ip.oidc": self.request.find_service(
-                IRateLimiter, name="ip_oidc.publisher.register"
-            ),
-        }
-
-    def _hit_ratelimits(self):
-        self._ratelimiters["user.oidc"].hit(self.request.user.id)
-        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
-
-    def _check_ratelimits(self):
-        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
-            raise TooManyOIDCRegistrations(
-                resets_in=self._ratelimiters["user.oidc"].resets_in(
-                    self.request.user.id
-                )
-            )
-
-        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
-            raise TooManyOIDCRegistrations(
-                resets_in=self._ratelimiters["ip.oidc"].resets_in(
-                    self.request.remote_addr
-                )
-            )
-
     @property
     def default_response(self):
         # Get pending publishers owned by this organization
@@ -1875,212 +1844,44 @@ class ManageOrganizationPublishingViews:
             "pending_google_publisher_form": self.pending_google_publisher_form,
             "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
             "pending_oidc_publishers": pending_oidc_publishers,
-            "disabled": {
-                "GitHub": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GITHUB_OIDC
-                ),
-                "GitLab": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GITLAB_OIDC
-                ),
-                "Google": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
-                ),
-                "ActiveState": self.request.flags.disallow_oidc(
-                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
-                ),
-            },
+            "disabled": self._disabled_publishers(),
         }
 
     @view_config(request_method="GET")
     def manage_organization_publishing(self):
         if self.request.flags.disallow_oidc():
-            self.request.session.flash(
-                self.request._(
-                    "Trusted publishing is temporarily disabled. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
+            self._flash_oidc_disabled()
 
         return self.default_response
 
-    def _add_pending_oidc_publisher(
-        self,
-        publisher_name,
-        publisher_class,
-        admin_flag,
-        form,
-        make_pending_publisher,
-        make_existence_filters,
-    ):
-        """Common logic for adding organization-level pending OIDC publishers."""
-        # Check admin flags
-        if self.request.flags.disallow_oidc(admin_flag):
-            self.request.session.flash(
-                self.request._(
-                    f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See ${docs_url} for "
-                    "details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/about/security-and-internals/",
-                            anchor="temporarily-disabled-features",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
+    def _pending_count_scope(self):
+        # Counting only the user's own rows within this organization keeps one
+        # owner from filling the organization's slots, since only the user who
+        # added a pending publisher can remove it.
+        return PendingOIDCPublisher.organization_id == self.organization.id
 
-        self.metrics.increment(
-            "warehouse.oidc.add_pending_publisher.attempt",
-            tags=[f"publisher:{publisher_name}", "organization:true"],
+    def _too_many_pending_message(self):
+        return self.request._(
+            "You already have 3 pending trusted publishers for this "
+            "organization. Remove one before adding another."
         )
 
-        if not self.request.user.has_primary_verified_email:
-            self.request.session.flash(
-                self.request._(
-                    "You must have a verified email in order to register a "
-                    "pending trusted publisher. "
-                    "See ${docs_url} for details.",
-                    mapping={
-                        "docs_url": self.request.user_docs_url(
-                            "/your-account/managing-your-account/",
-                            anchor="email-address-verification",
-                        )
-                    },
-                ),
-                queue="error",
-            )
-            return self.default_response
+    def _ratelimited_response(self, exc):
+        raise self._too_many_requests(exc)
 
-        # Separately from having permission to register pending OIDC publishers,
-        # we limit each user to no more than 3 pending publishers at once per
-        # organization. Counting only the user's own rows keeps one owner from
-        # filling the organization's slots, since only the user who added a
-        # pending publisher can remove it.
-        pending_count = self.request.db.scalar(
-            select(func.count()).where(
-                PendingOIDCPublisher.organization_id == self.organization.id,
-                PendingOIDCPublisher.added_by_id == self.request.user.id,
-            )
-        )
-        if pending_count >= 3:
-            self.request.session.flash(
-                self.request._(
-                    "You already have 3 pending trusted publishers for this "
-                    "organization. Remove one before adding another."
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        try:
-            self._check_ratelimits()
-        except TooManyOIDCRegistrations as exc:
-            self.metrics.increment(
-                "warehouse.oidc.add_pending_publisher.ratelimited",
-                tags=[f"publisher:{publisher_name}", "organization:true"],
-            )
-            raise HTTPTooManyRequests(
-                self.request._(
-                    "There have been too many attempted trusted publisher "
-                    "registrations. Try again later."
-                ),
-                retry_after=(
-                    exc.resets_in.total_seconds() if exc.resets_in is not None else None
-                ),
-            )
-
-        self._hit_ratelimits()
-
-        # Validate form
-        if not form.validate():
-            self.request.session.flash(
-                self.request._("The trusted publisher could not be registered"),
-                queue="error",
-            )
-            return self.default_response
-
-        # Check if publisher already exists
-        publisher_already_exists = (
-            self.request.db.query(publisher_class)
-            .filter_by(**make_existence_filters(form))
-            .first()
-            is not None
-        )
-
-        if publisher_already_exists:
-            self.request.session.flash(
-                self.request._(
-                    "This trusted publisher has already been registered. "
-                    "Please contact PyPI's admins if this wasn't intentional."
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        # Create pending publisher associated with organization
-        pending_publisher = make_pending_publisher(self.request, form)
-
-        try:
-            self.request.db.add(pending_publisher)
-            self.request.db.flush()  # ast-grep-ignore: db-flush -- To get the new ID
-        except UniqueViolation:
-            # The DB unique constraint covers (repo, owner, workflow,
-            # environment) but not project_name, so this fires when another
-            # pending publisher already targets the same external identity
-            # under a different project name.
-            #
-            # The failed INSERT leaves the transaction in an aborted state, so
-            # roll back before doing anything else with the session.
-            self.request.db.rollback()
-            self.request.session.flash(
-                self.request._(
-                    "A pending trusted publisher matching this configuration "
-                    "has already been registered for a different project name. "
-                    "Please contact PyPI's admins if this wasn't intentional."
-                ),
-                queue="error",
-            )
-            return self.default_response
-
-        # Record event on organization
+    def _record_pending_publisher_added(self, additional):
         self.organization.record_event(
             tag=EventTag.Organization.PendingOIDCPublisherAdded,
             request=self.request,
-            additional={
-                "project": pending_publisher.project_name,
-                "publisher": pending_publisher.publisher_name,
-                "id": str(pending_publisher.id),
-                "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-            },
+            additional=additional,
         )
 
-        self.request.session.flash(
-            self.request._(
-                "Registered a new pending publisher to create "
-                f"the project '{pending_publisher.project_name}' "
-                f"owned by the '{self.organization.name}' organization."
-            ),
-            queue="success",
+    def _pending_publisher_added_message(self, pending_publisher):
+        return self.request._(
+            "Registered a new pending publisher to create "
+            f"the project '{pending_publisher.project_name}' "
+            f"owned by the '{self.organization.name}' organization."
         )
-
-        self.metrics.increment(
-            "warehouse.oidc.add_pending_publisher.ok",
-            tags=[f"publisher:{publisher_name}", "organization:true"],
-        )
-
-        return HTTPSeeOther(self.request.path)
 
     @view_config(
         request_method="POST", request_param=PendingGitHubPublisherForm.__params__
