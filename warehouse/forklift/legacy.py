@@ -337,8 +337,19 @@ def _is_valid_dist_file(
                         f"See https://docs.pypi.org/archives for more information"
                     )
 
-        except zipfile.BadZipFile:  # pragma: no cover
-            return False, None
+                # The upload reads several dist-info members later (METADATA,
+                # RECORD, entry_points.txt, licenses); check that every dist-info
+                # member decompresses and passes its CRC-32 here, so corruption
+                # is reported as a 400 rather than a 500.
+                dist_info_prefix = f"{name}-{version}.dist-info/"
+                for zinfo in zfp.infolist():
+                    if zinfo.filename.startswith(dist_info_prefix):
+                        with zfp.open(zinfo) as member:
+                            while member.read(65536):
+                                pass
+
+        except (zipfile.BadZipFile, zlib.error) as exc:
+            return False, str(exc)
 
     elif filename.endswith(".tar.gz"):
         if not is_tarfile:
