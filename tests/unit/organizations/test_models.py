@@ -51,7 +51,7 @@ class TestOrganizationApplicationFactory:
         organization_application = DBOrganizationApplicationFactory.create()
         _organization_application = OrganizationApplicationFactory(db_request)
         assert (
-            _organization_application[organization_application.id]
+            _organization_application[str(organization_application.id)]
             == organization_application
         )
 
@@ -61,13 +61,19 @@ class TestOrganizationApplicationFactory:
         with pytest.raises(KeyError):
             _organization_application["deadbeef-dead-beef-dead-beefdeadbeef"]
 
+    @pytest.mark.parametrize("organization_application_id", ["not-a-uuid", "1"])
+    def test_traversal_rejects_non_uuid(self, db_request, organization_application_id):
+        _organization_application = OrganizationApplicationFactory(db_request)
+        with pytest.raises(KeyError):
+            _organization_application[organization_application_id]
+
     def test_traversal_hides_withdrawn(self, db_request):
         organization_application = DBOrganizationApplicationFactory.create(
             status=OrganizationApplicationStatus.Withdrawn
         )
         _organization_application = OrganizationApplicationFactory(db_request)
         with pytest.raises(KeyError):
-            _organization_application[organization_application.id]
+            _organization_application[str(organization_application.id)]
 
 
 class TestOrganizationApplication:
