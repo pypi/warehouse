@@ -4,14 +4,15 @@
 # Hadi Reza <unknownmeovo@users.noreply.hosted.weblate.org>, 2026.
 # Muneeb Khurram <muneebkhurram9@users.noreply.hosted.weblate.org>, 2026.
 # GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
+# Faisal Muzaffar <faisalimap@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-06-07 14:16+0200\n"
-"PO-Revision-Date: 2026-11-10 14:23+0000\n"
-"Last-Translator: Muneeb Khurram "
-"<muneebkhurram9@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-13 21:53+0000\n"
+"Last-Translator: Faisal Muzaffar "
+"<faisalimap@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Urdu (Pakistan) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/ur_PK/>\n"
 "Language: ur_PK\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.11.2.dev0\n"
+"X-Generator: Weblate 2026.12.dev0\n"
 
 #: warehouse/views.py:150
 msgid ""
@@ -68,6 +69,8 @@ msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
 msgstr ""
+"یوزرنیم (username) اور ای میل پتے ایک جیسے نہیں ہوتے۔ اپنے ای میل پتے کی جگہ "
+"اپنا یوزرنیم (username) درج کریں۔"
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
@@ -101,25 +104,21 @@ msgid "Password too long."
 msgstr "پاس ورڈ بہت لمبا ہے."
 
 #: warehouse/accounts/forms.py:261
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"لاگ ان کرنے کی بہت ساری ناکام کوششیں ہوئی ہیں۔ آپ کو ${time} کے لیے لاک کر "
-"دیا گیا ہے۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔"
+"لاگ ان کی بہت زیادہ ناکام کوششیں ہوئی ہیں۔ آپ کو ${time}  کے لیے رسائی سے روک "
+"دیا گیا ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
 msgstr "آپ کے پاس ورڈ درست نہیں۔ دوبارہ کوشش کریں."
 
 #: warehouse/accounts/forms.py:328
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "آپ کا ایمیل بہت لمبا ہے۔ دوبارہ کوشش کریں۔"
+msgstr "ای میل ایڈریس درست نہیں ہے؛ یہ بہت طویل ہے۔ دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
@@ -144,25 +143,23 @@ msgstr ""
 "ای میل استعمال کریں۔"
 
 #: warehouse/accounts/forms.py:468
-#, fuzzy, python-brace-format
-#| msgid "The email address isn't valid. Try again."
+#, python-brace-format
 msgid "Too many email addresses checked. Try again in ${time}."
-msgstr "آپ کی ایمیلایڈریس درست نہیں۔ دوبارہ کوشش کریں۔"
+msgstr ""
+"بہت زیادہ ای میل ایڈریسز کی جانچ کی گئی ہے جو درست نہیں ہیں۔ ${time}  میں "
+"دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/forms.py:475
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "Too many email addresses checked. Try again later."
-msgstr "آپ کی ایمیلایڈریس درست نہیں۔ دوبارہ کوشش کریں۔"
+msgstr ""
+"بہت زیادہ ای میل ایڈریسز کی جانچ کی گئی ہے جو درست نہیں ہیں۔ ${time} میں "
+"دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/forms.py:550
-#, fuzzy
-#| msgid ""
-#| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
 msgstr ""
-"آپ اس ڈومین سے ای میل استعمال نہیں کرسکتے ہیں۔ برائے مہربانی مختلف ای میل "
-"استعمال کریں۔"
+"آپ اس ڈومین سے عارضی (ڈسپوزایبل) ای میل ایڈریس استعمال نہیں کر سکتے۔ کوئی "
+"دوسرا ای میل استعمال کریں۔"
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -170,11 +167,13 @@ msgstr "نام بہت زیادہ لمبا ہے۔ ۱۰۰ یا اس سے کم حر
 
 #: warehouse/accounts/forms.py:590
 msgid "URLs are not allowed in the name field."
-msgstr ""
+msgstr "نام کے خانے میں لنک (URLs) کی اجازت نہیں ہے۔"
 
 #: warehouse/accounts/forms.py:600
 msgid "You must agree to the Terms of Service and Acceptable Use Policy."
 msgstr ""
+"آپ کو ’سروس کی شرائط‘ (Terms of Service) اور ’قابلِ قبول استعمال کی پالیسی‘ "
+"(Acceptable Use Policy) سے اتفاق کرنا ہوگا۔"
 
 #: warehouse/accounts/forms.py:688
 msgid "Invalid TOTP code."
@@ -193,10 +192,8 @@ msgid "Recovery code has been previously used."
 msgstr "ریکاوری کوڈ پہلے استعمال ہو چکا ہے."
 
 #: warehouse/accounts/forms.py:807
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "آپ کے صارف نام آپس میں نہیں ملتے۔ دوبارہ کوشش کریں۔"
+msgstr "ای میل ایڈریس کا یوزرنیم (username) درست نہیں ہے۔ دوبارہ کوشش کریں۔"
 
 #: warehouse/accounts/views.py:121
 #, fuzzy
