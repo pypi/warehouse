@@ -42,6 +42,7 @@ from warehouse.macaroons import IMacaroonService, caveats
 from warehouse.metrics import IMetricsService
 from warehouse.metrics.services import NullMetrics
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
@@ -63,7 +64,7 @@ from warehouse.utils.scanner import YaraMatch
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.macaroons import MacaroonFactory
-from ...common.db.oidc import GitHubPublisherFactory
+from ...common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationProjectFactory,
@@ -5892,15 +5893,31 @@ class TestFileUpload:
         attempt_limiter.hit.assert_called_once_with(user.id)
         creation_limiter.hit.assert_not_called()
 
+    @pytest.mark.parametrize("has_pending_publisher", [False, True])
     def test_upload_succeeds_creates_project(
-        self, pyramid_config, db_request, project_service, storage_service
+        self,
+        pyramid_config,
+        db_request,
+        project_service,
+        storage_service,
+        mocker,
+        has_pending_publisher,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        if has_pending_publisher:
+            PendingGitHubPublisherFactory.create(added_by=user, project_name="example")
+        reified_email = mocker.patch(
+            "warehouse.packaging.services.send_pending_trusted_publisher_reified_email"
+        )
+        token_warning = mocker.patch.object(
+            legacy, "send_api_token_used_in_trusted_publisher_project_email"
+        )
+        identity = UserContext(user, MacaroonFactory.create(user_id=user.id))
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
-        pyramid_config.testing_securitypolicy(identity=user)
+        pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user = user
         db_request.POST = MultiDict(
             {
@@ -5929,6 +5946,19 @@ class TestFileUpload:
 
         # Ensure that a Project object has been created.
         project = db_request.db.query(Project).filter(Project.name == "example").one()
+
+        assert len(project.oidc_publishers) == int(has_pending_publisher)
+        assert reified_email.call_count == int(has_pending_publisher)
+        assert token_warning.call_count == int(has_pending_publisher)
+        assert db_request.db.query(ProjectMacaroonWarningAssociation).filter_by(
+            macaroon_id=identity.macaroon.id, project_id=project.id
+        ).count() == int(has_pending_publisher)
+        assert (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter_by(project_name="example", added_by=user)
+            .count()
+            == 0
+        )
 
         # Ensure that a Role with the user as owner has been created.
         role = (

@@ -18,6 +18,8 @@ import warehouse.packaging.services
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.constants import RateLimitPeriod
+from warehouse.events.tags import EventTag
+from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
@@ -31,7 +33,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableStdlibError,
     TooManyProjectsCreated,
 )
-from warehouse.packaging.models import Role
+from warehouse.packaging.models import Project, Role
 from warehouse.packaging.services import (
     B2FileStorage,
     GCSFileStorage,
@@ -52,6 +54,12 @@ from warehouse.rate_limiting import DummyRateLimiter, RateLimiter
 from warehouse.rate_limiting.interfaces import WindowStats
 
 from ...common.db.accounts import UserFactory
+from ...common.db.oidc import (
+    PendingActiveStatePublisherFactory,
+    PendingGitHubPublisherFactory,
+    PendingGitLabPublisherFactory,
+    PendingGooglePublisherFactory,
+)
 from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 
@@ -816,6 +824,147 @@ class TestGenericLocalBlobStorage:
 class TestProjectService:
     def test_verify_service(self):
         assert verifyClass(IProjectService, ProjectService)
+
+    @pytest.mark.parametrize(
+        "pending_factory",
+        [
+            PendingGitHubPublisherFactory,
+            PendingGitLabPublisherFactory,
+            PendingGooglePublisherFactory,
+            PendingActiveStatePublisherFactory,
+        ],
+    )
+    def test_create_project_reifies_owned_pending_publishers(
+        self, project_service, db_request, mocker, pending_factory
+    ):
+        creator = UserFactory.create()
+        pending = pending_factory.create(
+            added_by=creator, project_name="Some_New.Project"
+        )
+        second_pending = pending_factory.create(
+            added_by=creator, project_name="some-new-project"
+        )
+        specifiers = {str(pending), str(second_pending)}
+        pending_ids = (pending.id, second_pending.id)
+        unrelated = pending_factory.create(
+            added_by=creator, project_name="different-project"
+        )
+        similar = pending_factory.create(
+            added_by=creator, project_name="somenewproject"
+        )
+        organization_pending = PendingGitHubPublisherFactory.create(
+            added_by=creator,
+            project_name="some-new-project",
+            pypi_organization=OrganizationFactory.create(),
+        )
+        other_owner_pending = PendingGitHubPublisherFactory.create(
+            project_name="some-new-project"
+        )
+        other_owner_id = other_owner_pending.id
+        reified_email = mocker.patch.object(
+            warehouse.packaging.services,
+            "send_pending_trusted_publisher_reified_email",
+        )
+        invalidated_email = mocker.patch.object(
+            warehouse.packaging.services,
+            "send_pending_trusted_publisher_invalidated_email",
+        )
+        record_event = mocker.spy(Project, "record_event")
+
+        project = project_service.create_project(
+            "some-new-project", creator, db_request, reify_pending_publishers=True
+        )
+        db_request.db.flush()
+
+        assert len(project.oidc_publishers) == 2
+        assert {str(publisher) for publisher in project.oidc_publishers} == specifiers
+        assert all(
+            db_request.db.get(PendingOIDCPublisher, pending_id) is None
+            for pending_id in pending_ids
+        )
+        assert db_request.db.get(PendingOIDCPublisher, other_owner_id) is None
+        assert db_request.db.get(PendingOIDCPublisher, unrelated.id) is unrelated
+        assert db_request.db.get(PendingOIDCPublisher, similar.id) is similar
+        assert (
+            db_request.db.get(PendingOIDCPublisher, organization_pending.id)
+            is organization_pending
+        )
+        invalidated_email.assert_called_once_with(
+            db_request,
+            other_owner_pending.added_by,
+            project_name="some-new-project",
+        )
+        assert reified_email.call_count == 2
+        reified_email.assert_has_calls(
+            [
+                mocker.call(
+                    db_request,
+                    creator,
+                    project_name="some-new-project",
+                    publisher_specifier=specifier,
+                )
+                for specifier in specifiers
+            ],
+            any_order=True,
+        )
+        added_events = [
+            call.kwargs["additional"]
+            for call in record_event.call_args_list
+            if call.kwargs["tag"] == EventTag.Project.OIDCPublisherAdded
+        ]
+        assert sorted(added_events, key=lambda event: event["specifier"]) == sorted(
+            [
+                {
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": creator.username,
+                    "reified_from_pending_publisher": True,
+                    "constrained_from_existing_publisher": False,
+                }
+                for publisher in project.oidc_publishers
+            ],
+            key=lambda event: event["specifier"],
+        )
+
+    @pytest.mark.parametrize(
+        ("opt_in", "creator_is_owner", "organization"),
+        [(False, True, False), (True, False, False), (True, True, True)],
+    )
+    def test_create_project_does_not_reify_pending_publishers_implicitly(
+        self,
+        project_service,
+        db_request,
+        mocker,
+        opt_in,
+        creator_is_owner,
+        organization,
+    ):
+        creator = UserFactory.create()
+        pending = PendingGitHubPublisherFactory.create(
+            added_by=creator, project_name="some-new-project"
+        )
+        reified_email = mocker.patch.object(
+            warehouse.packaging.services,
+            "send_pending_trusted_publisher_reified_email",
+        )
+        organization_id = OrganizationFactory.create().id if organization else None
+        kwargs = {"reify_pending_publishers": True} if opt_in else {}
+
+        project = project_service.create_project(
+            "some-new-project",
+            creator,
+            db_request,
+            creator_is_owner=creator_is_owner,
+            organization_id=organization_id,
+            **kwargs,
+        )
+        db_request.db.flush()
+
+        assert project.oidc_publishers == []
+        assert db_request.db.get(PendingOIDCPublisher, pending.id) is pending
+        reified_email.assert_not_called()
 
     @pytest.mark.parametrize("name", ["", ".,;", "_z", "İnspect"])
     def test_check_project_name_invalid(self, mocker, name):
