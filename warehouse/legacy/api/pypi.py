@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound, HTTPOk
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPGone,
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPOk,
+)
 from pyramid.view import forbidden_view_config, view_config
 from trove_classifiers import sorted_classifiers
 
@@ -83,7 +89,7 @@ def browse(request):
     classifier_id = parse_int(request.params.get("c"))
 
     if classifier_id is None:
-        raise HTTPNotFound
+        raise HTTPBadRequest("'c' must be a classifier id.")
 
     classifier = request.db.get(Classifier, classifier_id)
 

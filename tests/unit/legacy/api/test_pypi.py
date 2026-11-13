@@ -99,7 +99,7 @@ class TestBrowse:
     def test_browse_no_id(self, pyramid_request):
         pyramid_request.params = {}
 
-        with pytest.raises(HTTPNotFound):
+        with pytest.raises(HTTPBadRequest):
             pypi.browse(pyramid_request)
 
     def test_browse_bad_id(self, db_request):
@@ -111,12 +111,18 @@ class TestBrowse:
     def test_brows_invalid_id(self, pyramid_request):
         pyramid_request.params = {"c": '7"'}
 
-        with pytest.raises(HTTPNotFound):
+        with pytest.raises(HTTPBadRequest):
             pypi.browse(pyramid_request)
 
-    @pytest.mark.parametrize("classifier_id", [str(2**31), str(-(2**31) - 1), "\u0667"])
-    def test_browse_unusable_id(self, db_request, classifier_id):
-        db_request.params = {"c": classifier_id}
+    @pytest.mark.parametrize("classifier_id", [str(2**31), str(-(2**31) - 1)])
+    def test_browse_out_of_range_id(self, pyramid_request, classifier_id):
+        pyramid_request.params = {"c": classifier_id}
+
+        with pytest.raises(HTTPBadRequest):
+            pypi.browse(pyramid_request)
+
+    def test_browse_non_ascii_digit_id(self, db_request):
+        db_request.params = {"c": "\u0667"}
 
         with pytest.raises(HTTPNotFound):
             pypi.browse(db_request)
