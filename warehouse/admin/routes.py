@@ -531,6 +531,13 @@ def includeme(config):
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
     config.add_route("admin.quarantine.list", "/admin/quarantine/", domain=warehouse)
+    # Release gating related Admin pages
+    config.add_route("admin.gating.list", "/admin/gating/", domain=warehouse)
+    config.add_route(
+        "admin.gating.bypass",
+        "/admin/gating/{release_id}/{kind}/bypass/",
+        domain=warehouse,
+    )
     config.add_route(
         "admin.malware_reports.list",
         "/admin/malware_reports/",

@@ -183,6 +183,8 @@ def project_detail(project, request):
         release = (
             request.db.query(Release)
             .filter(Release.project == project)
+            # A gated release is withheld from the web UI. See `warehouse.gating`.
+            .filter(Release.gated.is_(False))
             .order_by(
                 Release.lifecycle_status.is_not_distinct_from(
                     LifecycleStatus.QuarantineEnter
@@ -214,6 +216,11 @@ def project_detail(project, request):
 )
 def release_detail(release, request):
     project = release.project
+
+    # A gated release is withheld from the index, the JSON API, and the web UI,
+    # so a direct request for its version page is a 404. See `warehouse.gating`.
+    if release.gated:
+        raise HTTPNotFound
 
     # Check if the requested version is equivalent but not exactly the same as
     # the release's version. Use `.get` because this view is used by
