@@ -48,6 +48,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem
+from warehouse.api.simple_errors import is_simple_path, prepare_simple_error
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
@@ -88,6 +89,10 @@ json_path = re.compile(JSON_REGEX)
 @exception_view_config(PredicateMismatch, route_name="api.simple.index")
 @exception_view_config(PredicateMismatch, route_name="api.simple.detail")
 def httpexception_view(exc, request):
+    if 400 <= exc.status_code < 600 and is_simple_path(request.path_info):
+        prepare_simple_error(exc, exc.detail)
+        return exc
+
     # If this is a 404 for a Project, provide the project name requested
     # There is no context when the exception was raised during traversal.
     context = getattr(request, "context", None)
@@ -109,13 +114,7 @@ def httpexception_view(exc, request):
             }
         )
     try:
-        # PEP 847 errors use the same representation for both Simple API formats.
-        if 400 <= exc.status_code < 600 and request.path.startswith("/simple/"):
-            if exc.content_type == PROBLEM_CONTENT_TYPE:
-                response = exc
-            else:
-                response = problem(type(exc), exc.detail or exc.explanation)
-        elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
+        if isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",

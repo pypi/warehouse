@@ -141,7 +141,7 @@ class TestHTTPExceptionView:
     )
     def test_simple_404(self, pyramid_request, csp, path):
         context = HTTPNotFound()
-        pyramid_request.path = path
+        pyramid_request.path_info = path
         response = httpexception_view(context, pyramid_request)
         assert response.status_code == 404
         assert response.status == "404 Not Found"
@@ -166,7 +166,7 @@ class TestHTTPExceptionView:
             },
         )
         context.status = f"{status_code} My Cool Status"
-        pyramid_request.path = path
+        pyramid_request.path_info = path
 
         response = httpexception_view(context, pyramid_request)
 
@@ -190,7 +190,7 @@ class TestHTTPExceptionView:
         pyramid_config.testing_add_renderer("non-existent.html")
         context = HTTPClientError()
         context.status = f"{status_code} My Cool Status"
-        pyramid_request.path = "/simple/"
+        pyramid_request.path_info = "/simple/"
 
         assert httpexception_view(context, pyramid_request) is context
 

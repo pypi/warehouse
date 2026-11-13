@@ -13,6 +13,7 @@ from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
+from warehouse.api.simple_errors import SimpleAPIErrors
 from warehouse.authnz import Permissions
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -418,6 +419,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
             ProxyFixer, token="insecure token", ip_salt="insecure salt", num_proxies=1
         ),
         mocker.call(VhmRootRemover),
+        mocker.call(SimpleAPIErrors),
     ]
     assert configurator_obj.include.call_args_list == (
         [

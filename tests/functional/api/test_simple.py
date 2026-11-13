@@ -11,6 +11,7 @@ from pyramid.httpexceptions import (
     HTTPMethodNotAllowed,
     HTTPServiceUnavailable,
 )
+from webtest import TestApp as WebTestApp
 
 from warehouse.api.integrity import MIME_PYPI_INTEGRITY_V1_JSON
 from warehouse.api.problems import problem
@@ -27,6 +28,7 @@ from ...common.db.packaging import (
     ProvenanceFactory,
     ReleaseFactory,
 )
+from ...conftest import get_app_config
 
 
 def test_simple_api_html(webtest):
@@ -96,6 +98,121 @@ def test_pep847_simple_api_not_found(webtest, accept):
         "detail": path,
     }
     assert resp.headers["Access-Control-Allow-Origin"] == "*"
+
+
+@pytest.mark.parametrize("method", ["GET", "HEAD"])
+@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
+@pytest.mark.parametrize("path", ["/simple/", "/simple/example/"])
+def test_pep847_unsatisfiable_range(webtest, method, accept, path):
+    ProjectFactory.create(name="example")
+    headers = {"Accept": accept}
+    length = len(webtest.get(path, headers=headers).body)
+
+    resp = webtest.request(
+        path,
+        method=method,
+        headers={**headers, "Range": f"bytes={length}-"},
+        status=HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
+    )
+
+    assert resp.content_type == "application/problem+json"
+    assert resp.headers["Content-Range"] == f"bytes */{length}"
+    assert resp.headers["Cache-Control"] == "no-store"
+    assert "Surrogate-Control" not in resp.headers
+    if method == "GET":
+        assert resp.json["status"] == 416
+        assert resp.content_length == len(resp.body)
+    else:
+        assert resp.body == b""
+        assert resp.content_length > 0
+
+
+def test_pep847_successful_conditional_requests(webtest):
+    index = webtest.get("/simple/")
+    partial = webtest.get("/simple/", headers={"Range": "bytes=0-0"}, status=206)
+    assert partial.content_type == index.content_type
+    assert partial.body == index.body[:1]
+
+    cached = webtest.get(
+        "/simple/", headers={"If-None-Match": index.headers["ETag"]}, status=304
+    )
+    assert cached.body == b""
+
+
+@pytest.mark.parametrize("path", ["/simple/?q=%FF", "/simple/%00/", "/simple/%FF/"])
+def test_pep847_invalid_request(webtest, path):
+    resp = webtest.get(path, status=HTTPStatus.BAD_REQUEST)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 400
+
+
+def test_pep847_returned_bad_request(webtest):
+    resp = webtest.request(
+        "/simple/",
+        method="OPTIONS",
+        body=b"x=1&x=2",
+        content_type="application/x-www-form-urlencoded",
+        status=HTTPStatus.BAD_REQUEST,
+    )
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 400
+
+
+def test_pep847_origin_cache_on_errors(database, mocker):
+    config = get_app_config(
+        database,
+        {
+            "origin_cache.backend": "warehouse.cache.origin.fastly.NullFastlyCache",
+            "origin_cache.service_id": "unused",
+            "origin_cache.api_key": "unused",
+        },
+    )
+    app = WebTestApp(config.make_wsgi_app())
+    index = app.get("/simple/")
+    assert "max-age=" in index.headers["Surrogate-Control"]
+    ranged = app.get(
+        "/simple/", headers={"Range": f"bytes={len(index.body)}-"}, status=416
+    )
+    mocker.patch(
+        "warehouse.api.simple._simple_index", side_effect=HTTPServiceUnavailable
+    )
+    unavailable = app.get("/simple/", status=503)
+    for resp in (ranged, unavailable):
+        assert resp.content_type == "application/problem+json"
+        assert resp.headers["Cache-Control"] == "no-store"
+        assert "Surrogate-Control" not in resp.headers
+
+
+def test_pep847_insecure_action(app_config, monkeypatch):
+    monkeypatch.setitem(app_config.registry.settings, "enforce_https", True)
+    app = WebTestApp(app_config.make_wsgi_app())
+    resp = app.get("/simple/?:action=x", status=HTTPStatus.FORBIDDEN)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 403
+    assert resp.headers["X-Fastly-Error"] == "803"
+
+
+def test_pep847_mounted_simple_api(webtest):
+    resp = webtest.get(
+        "/simple/missing/",
+        extra_environ={"SCRIPT_NAME": "/mirror"},
+        status=HTTPStatus.NOT_FOUND,
+    )
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 404
+
+
+def test_pep847_unhandled_error(webtest, mocker, caplog):
+    mocker.patch(
+        "warehouse.api.simple._simple_index",
+        side_effect=RuntimeError("internal details"),
+    )
+    resp = webtest.get("/simple/", status=HTTPStatus.INTERNAL_SERVER_ERROR)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 500
+    assert resp.headers["Cache-Control"] == "no-store"
+    assert "internal details" not in resp.text
+    assert "internal details" in caplog.text
 
 
 @pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
