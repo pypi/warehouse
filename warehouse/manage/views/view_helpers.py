@@ -50,10 +50,8 @@ def parse_uuid(value: str) -> uuid.UUID | None:
 
 def parse_int(value: str) -> int | None:
     """
-    Return a posted id as an int, or None when it can't be one.
-
-    The id is a Postgres ``integer``, so an out-of-range value fails in the
-    database instead of finding no row.
+    Return ``value`` as an int, or None when it isn't one that fits a Postgres
+    ``integer``.
     """
     try:
         parsed = int(value)
