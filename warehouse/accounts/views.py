@@ -119,9 +119,9 @@ def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
             "There have been too many unsuccessful login attempts. "
-            f"You have been locked out for "
-            f"{humanize.naturaldelta(exc.resets_in.total_seconds())}. "
-            "Please try again later."
+            "You have been locked out for ${time}. "
+            "Please try again later.",
+            mapping={"time": humanize.naturaldelta(exc.resets_in.total_seconds())},
         ),
         retry_after=exc.resets_in.total_seconds(),
     )
@@ -2080,7 +2080,8 @@ class ManageAccountPublishingViews:
         self.request.session.flash(
             self.request._(
                 "Registered a new pending publisher to create "
-                f"the project '{pending_publisher.project_name}'."
+                "the project '${project_name}'.",
+                mapping={"project_name": pending_publisher.project_name},
             ),
             queue="success",
         )
@@ -2255,8 +2256,8 @@ class ManageAccountPublishingViews:
 
         self.request.session.flash(
             self.request._(
-                "Removed trusted publisher for project "
-                f"{pending_publisher.project_name!r}"
+                "Removed trusted publisher for project '${project_name}'",
+                mapping={"project_name": pending_publisher.project_name},
             ),
             queue="success",
         )
