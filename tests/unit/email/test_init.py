@@ -11,6 +11,7 @@ from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from warehouse import email
 from warehouse.accounts.models import User
 from warehouse.email.services import EmailMessage
+from warehouse.tasks import WarehouseTask
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -334,7 +335,7 @@ class TestSendEmail:
         exc = Exception()
         sentry_sdk = mocker.patch.object(email, "sentry_sdk", autospec=True)
         mocker.patch.object(email_service, "send", autospec=True, side_effect=exc)
-        task = mocker.create_autospec(celery.Task, instance=True)
+        task = mocker.create_autospec(WarehouseTask, instance=True)
         task.retry.side_effect = celery.exceptions.Retry
 
         with pytest.raises(celery.exceptions.Retry):
@@ -354,7 +355,7 @@ class TestSendEmail:
         self, exc, pyramid_request, email_service, success_event, mocker
     ):
         mocker.patch.object(email_service, "send", autospec=True, side_effect=exc)
-        task = mocker.create_autospec(celery.Task, instance=True)
+        task = mocker.create_autospec(WarehouseTask, instance=True)
 
         with pytest.raises(exc):
             email.send_email(
