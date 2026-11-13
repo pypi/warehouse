@@ -26,8 +26,8 @@ def problem[E: HTTPError](
     **extensions: object,
 ) -> E:
     """
-    An error response with a problem details body. ``type`` is
-    ``about:blank``, so ``title`` is the HTTP status phrase and ``detail``
+    An error response with a problem details body. ``type`` is omitted, so it
+    defaults to ``about:blank``: ``title`` is the HTTP status phrase and ``detail``
     says what went wrong. ``extensions`` become extension members; they
     can't replace the standard ones. An error describes one request, so it
     is never cached.
@@ -37,7 +37,6 @@ def problem[E: HTTPError](
     return exc_class(
         json={
             **extensions,
-            "type": "about:blank",
             "title": exc_class.title,
             "status": exc_class.code,
             "detail": detail,

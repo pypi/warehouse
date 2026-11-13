@@ -42,7 +42,7 @@ components:
       properties:
         type:
           type: string
-          example: about:blank
+          default: about:blank
         title:
           type: string
           example: Forbidden
@@ -53,7 +53,6 @@ components:
           type: string
           example: Access was denied to this resource.
       required:
-        - type
         - title
         - status
         - detail

@@ -23,7 +23,6 @@ class TestAPIProjectObservations:
 
         assert exc.value.content_type == "application/problem+json"
         assert exc.value.json == {
-            "type": "about:blank",
             "title": "Bad Request",
             "status": 400,
             "detail": "Missing required fields: inspector_url",

@@ -21,7 +21,6 @@ def test_problem():
     assert resp.headers["Retry-After"] == "60"
     # Extension members can't replace the standard ones.
     assert resp.json_body == {
-        "type": "about:blank",
         "title": "Bad Request",
         "status": 400,
         "detail": "Missing required fields: name",
