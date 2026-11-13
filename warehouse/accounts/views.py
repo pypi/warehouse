@@ -1942,14 +1942,14 @@ class ManageAccountPublishingViews:
         if self.request.flags.disallow_oidc(admin_flag):
             self.request.session.flash(
                 self.request._(
-                    f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See ${docs_url} for "
-                    "details.",
+                    "${publisher_name}-based trusted publishing is temporarily "
+                    "disabled. See ${docs_url} for details.",
                     mapping={
+                        "publisher_name": publisher_name,
                         "docs_url": self.request.user_docs_url(
                             "/about/security-and-internals/",
                             anchor="temporarily-disabled-features",
-                        )
+                        ),
                     },
                 ),
                 queue="error",
