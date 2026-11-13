@@ -80,12 +80,13 @@
 # Eana Hufwe <blueset@users.noreply.hosted.weblate.org>, 2026.
 # GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 # B10112 <b10112@users.noreply.hosted.weblate.org>, 2026.
+# yunchu-translate <yunchu@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-11-12 14:39+0000\n"
+"PO-Revision-Date: 2026-11-13 21:53+0000\n"
 "Last-Translator: Hosted Weblate user 54392 "
 "<hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -95,7 +96,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.11.2.dev0\n"
+"X-Generator: Weblate 2026.12.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:150
@@ -117,7 +118,7 @@ msgstr "区域设置已更新"
 
 #: warehouse/accounts/forms.py:51 warehouse/accounts/forms.py:350
 msgid "The email address isn't valid. Try again."
-msgstr "电子邮件地址无效，请重试。"
+msgstr "电子邮箱无效，请重试。"
 
 #: warehouse/accounts/forms.py:52
 msgid "The password is invalid. Try again."
@@ -129,8 +130,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"该用户名无效。其只能包括字母、数字以及“.”、“-”和“_”，且须以字母或数字开始和结"
-"束。请尝试使用其他名称。"
+"该用户名无效。用户名只能包括字母、数字以及“.”、“-”和“_”，且须以字母或数字开始"
+"和结束。请尝试使用其他名称。"
 
 #: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
@@ -140,11 +141,11 @@ msgstr "此处不可留空。"
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
-msgstr ""
+msgstr "用户名不同于电子邮件地址。输入用户名而非电子邮件地址。"
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
-msgstr "未找到使用该用户名的用户"
+msgstr "未找到该用户名的用户"
 
 #: warehouse/accounts/forms.py:127
 #, python-brace-format
@@ -164,7 +165,7 @@ msgstr "用户名不应超过 50 个字符。"
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "此用户名已被其他用户使用，请重新输入。"
+msgstr "此用户名已被其他用户占用，请重新输入。"
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -194,7 +195,7 @@ msgstr "无法使用该域名的电子邮件地址，请换一个邮箱供应方
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "你的账户已使用了此电子邮件地址，无需再新增此地址。"
+msgstr "你的账户已使用了此电子邮箱，无需再新增此邮箱。"
 
 #: warehouse/accounts/forms.py:436
 msgid ""
@@ -205,7 +206,7 @@ msgstr "此电子邮件地址已被其他账户使用，请使用其他电子邮
 #: warehouse/accounts/forms.py:468
 #, python-brace-format
 msgid "Too many email addresses checked. Try again in ${time}."
-msgstr "勾选了太多电子邮件地址。请 ${time} 后重试。"
+msgstr "勾选了太多的电子邮件地址。请 ${time} 后重试。"
 
 #: warehouse/accounts/forms.py:475
 msgid "Too many email addresses checked. Try again later."
@@ -213,11 +214,11 @@ msgstr "勾选了太多的电子邮件地址。请稍后重试。"
 
 #: warehouse/accounts/forms.py:550
 msgid "You can't use a disposable email address. Use a different email."
-msgstr "不能使用临时电子邮件地址。使用不同的电子邮件地址。"
+msgstr "不能使用临时电子邮件地址。请使用不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "用户名太长，不应超过 100 个字符。"
+msgstr "用户名过长，不应超过 100 个字符。"
 
 #: warehouse/accounts/forms.py:590
 msgid "URLs are not allowed in the name field."
@@ -238,11 +239,11 @@ msgstr "WebAuthn 断言无效：数据错误"
 # | msgid "Invalid TOTP code."
 #: warehouse/accounts/forms.py:769
 msgid "Invalid recovery code."
-msgstr "该恢复代码无效。"
+msgstr "该恢复码无效。"
 
 #: warehouse/accounts/forms.py:778
 msgid "Recovery code has been previously used."
-msgstr "这个恢复代码已经被使用过了。"
+msgstr "这个恢复码已经被用过了。"
 
 #: warehouse/accounts/forms.py:807
 msgid "The username isn't valid. Try again."
@@ -252,7 +253,7 @@ msgstr "用户名无效，请重试。"
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for Please try again later."
-msgstr "不成功的登录尝试过多。你已被锁在账户外，请稍后重试。"
+msgstr "登录失败次数过多。账户已锁定，请稍后重试。"
 
 #: warehouse/accounts/views.py:141
 #, python-brace-format
@@ -260,8 +261,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"请不要在短时间内添加太多邮箱地址。优先检查你的收件箱，并依指示点击链接，验证"
-"这些先前添加的邮箱。（IP: ${ip}）"
+"请不要在短时间内添加太多邮箱地址。请检查你的收件箱，并依次点击指示点击链接，"
+"验证这些先前添加的邮箱。（IP: ${ip}）"
 
 #: warehouse/accounts/views.py:153
 #, python-brace-format
@@ -289,7 +290,7 @@ msgstr "WebAuthn 断言成功"
 
 #: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "已成功接受此恢复代码，该代码将无法再次使用。"
+msgstr "已使用此恢复码，该恢复码将无法再次使用。"
 
 #: warehouse/accounts/views.py:744
 #, python-brace-format
@@ -390,11 +391,11 @@ msgstr "令牌无效：该令牌不适用于电子邮件验证"
 
 #: warehouse/accounts/views.py:1166
 msgid "Email not found"
-msgstr "未找到该电子邮件"
+msgstr "未找到电子邮件"
 
 #: warehouse/accounts/views.py:1169
 msgid "Email already verified"
-msgstr "电子邮件已验证"
+msgstr "电子邮件验证成功"
 
 #: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
@@ -482,7 +483,7 @@ msgstr "现在你已成为“${project_name}”项目的${role}。"
 #: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
-msgstr "请查看我们更新后的 <a href=\"${tos_url}\">服务条款</a>。"
+msgstr "请查看更新后的 <a href=\"${tos_url}\">服务条款</a>。"
 
 #: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
