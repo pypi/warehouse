@@ -27,7 +27,17 @@
   align-items: flex-start;
   gap: grid.$spacing-unit;
   text-align: center;
+
+  // Rendered inside the <footer> landmark; keep the page background so the
+  // row looks the same as when it sat outside the footer.
+  background-color: colors.$background-color;
   padding: grid.$spacing-unit;
+
+  // .footer a:focus would otherwise paint the sponsor links' focus outline
+  // white on this light background; keep the dark outline from outside.
+  a {
+    @include link-utilities.link-focus-state(colors.$text-color);
+  }
 
   @media only screen and (max-width: breakpoints.$small-tablet) {
     display: block;
@@ -77,6 +87,6 @@
     display: block;
     margin-top: 2px;
     font-size: fonts.$small-font-size;
-    color: color.adjust(colors.$text-color, $alpha: -0.4);
+    color: color.adjust(colors.$text-color, $alpha: -0.25);
   }
 }
