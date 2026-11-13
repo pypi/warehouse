@@ -197,8 +197,8 @@ def two_factor_request(pyramid_config, real_session_request):
         (object(), None),
     ],
 )
-def test_parse_email_id(value, expected):
-    assert views._parse_email_id(value) == expected
+def test_parse_int(value, expected):
+    assert view_helpers.parse_int(value) == expected
 
 
 class TestManageUnverifiedAccount:

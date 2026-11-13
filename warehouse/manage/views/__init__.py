@@ -84,6 +84,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    parse_int,
     parse_uuid,
     project_owners,
     user_organizations,
@@ -125,22 +126,6 @@ from warehouse.utils.project import (
 )
 
 
-def _parse_email_id(value: str) -> int | None:
-    """
-    Return a posted email id as an int, or None when it can't be one.
-
-    ``Email.id`` is a Postgres ``integer``, so an out-of-range value fails in
-    the database instead of finding no row.
-    """
-    try:
-        email_id = int(value)
-    except ValueError, TypeError:
-        return None
-    if not -(2**31) <= email_id < 2**31:
-        return None
-    return email_id
-
-
 class ManageAccountMixin:
     def __init__(self, request):
         self.request = request
@@ -155,7 +140,7 @@ class ManageAccountMixin:
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == _parse_email_id(self.request.POST["reverify_email_id"]),
+                    Email.id == parse_int(self.request.POST["reverify_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
@@ -216,7 +201,7 @@ class ManageAccountMixin:
                 self.request.db.query(Email)
                 .filter(
                     Email.user_id == self.request.user.id,
-                    Email.id == _parse_email_id(self.request.POST["primary_email_id"]),
+                    Email.id == parse_int(self.request.POST["primary_email_id"]),
                     Email.verified.is_(True),
                 )
                 .one()
@@ -493,7 +478,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == _parse_email_id(self.request.POST["delete_email_id"]),
+                    Email.id == parse_int(self.request.POST["delete_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
