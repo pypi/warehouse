@@ -26,6 +26,7 @@ from warehouse.accounts.services import (
 )
 from warehouse.accounts.tasks import compute_user_metrics
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer._utils import ApiKeyContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
@@ -49,6 +50,16 @@ class TestUser:
         user = UserFactory.build()
         pyramid_config.set_security_policy(
             DummySecurityPolicy(identity=UserContext(user, mocker.sentinel.macaroon))
+        )
+
+        assert accounts._user(pyramid_request) is user
+
+    def test_with_api_key_context(self, pyramid_config, pyramid_request, mocker):
+        user = UserFactory.build()
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(
+                identity=ApiKeyContext(user=user, api_key=mocker.sentinel.api_key)
+            )
         )
 
         assert accounts._user(pyramid_request) is user
@@ -145,6 +156,9 @@ def test_includeme(config, mocker):
     macaroon_policy_cls = mocker.patch.object(
         accounts, "MacaroonSecurityPolicy", autospec=True
     )
+    api_key_policy_cls = mocker.patch.object(
+        accounts, "ApiKeySecurityPolicy", autospec=True
+    )
 
     accounts.includeme(config)
 
@@ -213,6 +227,7 @@ def test_includeme(config, mocker):
             session_policy_cls.return_value,
             basic_policy_cls.return_value,
             macaroon_policy_cls.return_value,
+            api_key_policy_cls.return_value,
         ]
     )
     assert (
