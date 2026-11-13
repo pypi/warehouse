@@ -61,9 +61,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং আন্ডারস্কোর "
-"সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ করতে হবে। "
-"একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
+"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
+"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
+"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
@@ -98,7 +98,8 @@ msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -134,14 +135,14 @@ msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"এই ইমেল ঠিকানাটি ইতিমধ্যে এই অ্যাকাউন্টটি দ্বারা ব্যবহৃত হচ্ছে। একটি ভিন্ন ইমেল ব্যবহার করুন।"
+"এই ইমেল ঠিকানাটি ইতিমধ্যে এই অ্যাকাউন্টটি দ্বারা ব্যবহৃত হচ্ছে। একটি ভিন্ন ইমেল "
+"ব্যবহার করুন।"
 
 #: warehouse/accounts/forms.py:436
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr ""
-"এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
+msgstr "এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
 
 #: warehouse/accounts/forms.py:468
 #, fuzzy, python-brace-format
@@ -217,8 +218,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি পরীক্ষা করুন "
-"এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
+"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
+"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
 #: warehouse/accounts/views.py:153
 #, fuzzy, python-brace-format
@@ -230,28 +231,28 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: $"
 "{ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি পরীক্ষা করুন "
-"এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
+"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
+"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "অবৈধ বা মেয়াদোত্তীর্ণ টু ফ্যাক্টর লগইন।"
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "ইতিমধ্যে প্রমাণীকৃত"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "পুনরুদ্ধার কোড গৃহীত। সরবরাহকৃত কোডটি দ্বিতীয়বার ব্যবহার করা যাবে না।"
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -259,17 +260,17 @@ msgstr "পুনরুদ্ধার কোড গৃহীত। সরবর
 msgid ""
 "New user registration temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -277,209 +278,218 @@ msgid ""
 "Too many registration attempts from your network. Please try again later."
 msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ্টা করা হয়েছে । পরে আবার চেষ্টা করুন।"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "অবৈধ্য টোকেন: সদস্য খুঁজে পাওয়া যায় নি"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: please try to login again"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "অবৈধ্য টোকেন: সদস্য খুঁজে পাওয়া যায় নি"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: not a login confirmation token"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: project does not exist"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -489,16 +499,16 @@ msgstr ""
 msgid ""
 "Trusted publishing is temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, python-brace-format
 msgid ""
@@ -506,11 +516,11 @@ msgid ""
 "publisher. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -524,7 +534,7 @@ msgid ""
 "again later."
 msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ্টা করা হয়েছে । পরে আবার চেষ্টা করুন।"
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -533,14 +543,14 @@ msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
@@ -548,17 +558,17 @@ msgid ""
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -604,9 +614,9 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং আন্ডারস্কোর "
-"সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ করতে হবে। "
-"একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
+"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
+"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
+"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/manage/forms.py:501
 #, fuzzy
@@ -617,7 +627,8 @@ msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/manage/forms.py:515
 #, fuzzy
@@ -628,7 +639,8 @@ msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/manage/forms.py:564
 msgid "Select project"
@@ -653,7 +665,8 @@ msgstr ""
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/manage/forms.py:610
 msgid "Cannot transfer to Company Organization with inactive billing"
@@ -704,7 +717,8 @@ msgid ""
 "You have already submitted the maximum number of Organization requests ($"
 "{count})."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/manage/forms.py:826
 #, fuzzy
@@ -725,7 +739,8 @@ msgstr ""
 #| "different username."
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/manage/views/__init__.py:438
 msgid "Account details updated"
@@ -771,8 +786,8 @@ msgstr ""
 #| "help#admin-intervention for details."
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/__init__.py:1392
 msgid ""
@@ -953,8 +968,8 @@ msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/oidc_publishers.py:421
 #, fuzzy, python-brace-format
@@ -965,8 +980,8 @@ msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/oidc_publishers.py:543
 #, fuzzy, python-brace-format
@@ -977,8 +992,8 @@ msgid ""
 "Google-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/oidc_publishers.py:660
 #, fuzzy, python-brace-format
@@ -989,8 +1004,8 @@ msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See $"
 "{docs_url} for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/help#admin-"
-"intervention দেখুন।"
+"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
+"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/organizations.py:704
 msgid ""
@@ -1063,7 +1078,8 @@ msgstr ""
 #| "different username."
 msgid "This project already exists."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/oidc/forms/_core.py:75
 #, fuzzy
@@ -1072,7 +1088,8 @@ msgstr ""
 #| "different username."
 msgid "This project name isn't allowed"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/oidc/forms/_core.py:79
 msgid "This project name is too similar to an existing project"
@@ -3932,7 +3949,8 @@ msgstr ""
 #| "different username."
 msgid "Release quarantined"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:57
 #, python-format
@@ -3946,7 +3964,8 @@ msgstr ""
 #| "different username."
 msgid "Project quarantined"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:66
 #, python-format
@@ -3970,7 +3989,8 @@ msgstr ""
 #| "different username."
 msgid "Project archived on %(date)s"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:95
 #: warehouse/templates/includes/packaging/project-status.html:136
@@ -4369,7 +4389,8 @@ msgstr ""
 #| "different username."
 msgid "Project quarantined:"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:38
 #, fuzzy
@@ -4378,7 +4399,8 @@ msgstr ""
 #| "different username."
 msgid "Release quarantined:"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:40
 #, fuzzy
@@ -6514,7 +6536,8 @@ msgstr "50 টিরও কম অক্ষরসহ একটি ব্যব�
 #| "different username."
 msgid "This Organization request has been declined"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/organization/application.html:20
 #: warehouse/templates/manage/organizations.html:171
@@ -6805,7 +6828,8 @@ msgstr ""
 #| "different username."
 msgid "Project Name"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/account/publishing.html:29
 #: warehouse/templates/manage/account/publishing.html:138
@@ -7598,7 +7622,8 @@ msgstr ""
 #| "different username."
 msgid "This organization request has been declined"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/organization/application.html:24
 msgid "More information needed"
@@ -8824,7 +8849,8 @@ msgstr ""
 #| "different username."
 msgid "Project archived"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/project/history.html:277
 #, fuzzy
@@ -8839,7 +8865,8 @@ msgstr "অবৈধ পুনরুদ্ধার কোড।"
 #| "different username."
 msgid "Project unarchived"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/project/history.html:282
 #, fuzzy
@@ -8889,7 +8916,8 @@ msgstr ""
 #| "different username."
 msgid "This project has been quarantined."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/project/manage_project_base.html:53
 msgid ""
@@ -8913,7 +8941,8 @@ msgstr ""
 #| "different username."
 msgid "This project has been archived."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/project/publishing.html:9
 msgid ""
@@ -9006,7 +9035,8 @@ msgstr ""
 #| "different username."
 msgid "This release has been quarantined."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
+"বাছুন।"
 
 #: warehouse/templates/manage/project/release.html:38
 msgid ""
@@ -9490,7 +9520,8 @@ msgstr ""
 #| msgid "Expired token: request a new password reset link"
 msgid "Add the project to an organization that you own."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
 #: warehouse/templates/manage/project/settings.html:145
 msgid "Grant full project permissions to owners of the organization."
@@ -9521,7 +9552,8 @@ msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
 #: warehouse/templates/manage/project/settings.html:184
 msgid "You are not an owner or manager of any other organizations."
@@ -9534,7 +9566,8 @@ msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
+"করুন"
 
 #: warehouse/templates/manage/project/settings.html:187
 msgid "You are not an owner or manager of any organizations."
