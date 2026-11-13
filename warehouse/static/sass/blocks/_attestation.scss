@@ -10,6 +10,7 @@
 .attestation {
   --attestation-accent: #{colors.$primary-color};
   --attestation-icon-bg: #{colors.$primary-color};
+
   margin: grid.$half-spacing-unit 0;
 
   & + & {
@@ -28,7 +29,8 @@
   }
 
   &__header {
-     @include design-utilities.card;
+    @include design-utilities.card;
+
     padding: grid.$three-quarter-spacing-unit;
     display: flex;
     align-items: flex-start;
@@ -100,6 +102,7 @@
 
   &__metadata {
     @include design-utilities.card;
+
     padding: grid.$three-quarter-spacing-unit;
   }
 

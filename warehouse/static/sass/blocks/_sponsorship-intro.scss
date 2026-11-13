@@ -34,6 +34,7 @@
 
     h1 {
       @include typography.h1-title;
+
       padding-bottom: 0;
     }
 

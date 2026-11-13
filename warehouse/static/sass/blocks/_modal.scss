@@ -28,6 +28,7 @@
 
 .modal {
   @include design-utilities.overlay;
+
   opacity: 0;
   visibility: hidden;
   display: flex;
@@ -86,6 +87,7 @@
 
   &__close {
     @include design-utilities.dismiss-button;
+
     color: colors.$text-color;
 
     &:hover {

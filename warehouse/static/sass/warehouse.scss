@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @charset "utf-8";
-
 @use "sass:color";
 
 // WAREHOUSE
@@ -66,9 +65,9 @@
 @use "blocks/centered-heading";
 @use "blocks/checkbox-list";
 @use "blocks/checkbox-tree";
-/*rtl:begin:ignore*/
+/* rtl:begin:ignore */
 @use "blocks/code-block";
-/*rtl:end:ignore*/
+/* rtl:end:ignore */
 @use "blocks/copy-tooltip";
 @use "blocks/dark-overlay";
 @use "blocks/dropdown";
@@ -91,19 +90,19 @@
 @use "blocks/modal";
 @use "blocks/notification-bar";
 @use "blocks/org-roles";
-/*rtl:begin:ignore*/
+/* rtl:begin:ignore */
 @use "blocks/organization-snippet";
 @use "blocks/package-snippet";
-/*rtl:end:ignore*/
+/* rtl:end:ignore */
 @use "blocks/password-strength";
-/*rtl:begin:ignore*/
+/* rtl:begin:ignore */
 @use "blocks/project-description";
 @use "blocks/project-header";
 @use "blocks/project-status";
 @use "blocks/project-tabs";
 @use "blocks/provenance-bar";
 @use "blocks/provenance-diff";
-/*rtl:end:ignore*/
+/* rtl:end:ignore */
 @use "blocks/radio-toggle-form";
 @use "blocks/release";
 @use "blocks/release-timeline";
@@ -120,9 +119,9 @@
 @use "blocks/sponsorship-intro";
 @use "blocks/statistics-bar";
 @use "blocks/table";
-/*rtl:begin:ignore*/
+/* rtl:begin:ignore */
 @use "blocks/team-snippet";
-/*rtl:end:ignore*/
+/* rtl:end:ignore */
 @use "blocks/totp-form";
 @use "blocks/twofa-login";
 @use "blocks/vertical-tabs";
@@ -167,6 +166,7 @@
 // Adjust size of h1s on standalone pages
 .page-title {
   @include typography.h1-title;
+
   overflow-wrap: break-word;
 }
 
@@ -327,7 +327,7 @@
 }
 
 // RTL SUPPORT. See https://rtlcss.com/
-/*rtl:begin:ignore*/
+/* rtl:begin:ignore */
 // fix padding on split layouts
 html[dir="rtl"] .package-snippet .split-layout > :first-child,
 html[dir="rtl"] .package-description.split-layout > :first-child {
@@ -352,7 +352,7 @@ time {
 .form-errors {
   text-align: left;
 }
-/*rtl:end:ignore*/
+/* rtl:end:ignore */
 
 // ACCESSIBILITY
 

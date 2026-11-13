@@ -79,7 +79,6 @@
     "sharp": "^0.35.5",
     "stylelint": "^17.15.0",
     "stylelint-config-standard-scss": "^17.0.0",
-    "stylelint-selector-bem-pattern": "^5.0.0",
     "svgo": "^4.1.0",
     "webpack": "^5.112.2",
     "webpack-cli": "^7.3.1",

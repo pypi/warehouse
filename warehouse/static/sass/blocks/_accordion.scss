@@ -37,6 +37,7 @@
     border: 0;
     background-color: transparent;
     color: colors.$primary-color;
+
     @include link-utilities.link-without-underline;
 
     &::before {
@@ -48,6 +49,7 @@
 
     @media only screen and (max-width: breakpoints.$desktop) {
       color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$white);
     }
   }

@@ -14,7 +14,6 @@
 .admin-include {
   padding: 0.5rem;
   background: repeating-linear-gradient(45deg, colors.$base-grey, colors.$base-grey 10px, color.adjust(colors.$danger-color, $alpha: -0.8) 10px, color.adjust(colors.$danger-color, $alpha: -0.8) 20px);
-
   justify-items: center;
 
   form {

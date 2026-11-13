@@ -63,6 +63,7 @@
 
 .attestations-viewer {
   @include design-utilities.card;
+
   display: flex;
   align-items: stretch;
   margin: grid.$spacing-unit 0;
@@ -204,6 +205,7 @@
 
   &__empty {
     @include design-utilities.card;
+
     padding: grid.$half-spacing-unit;
     color: colors.$mid-grey;
     margin-top: 0;

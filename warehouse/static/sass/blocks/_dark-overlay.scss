@@ -13,6 +13,7 @@
 @media only screen and (max-width: breakpoints.$desktop) {
   .dark-overlay {
     display: none;
+
     @include design-utilities.overlay;
   }
 }

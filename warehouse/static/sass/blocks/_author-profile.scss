@@ -61,6 +61,7 @@
 
   &__name {
     @include typography.h2;
+
     padding: 0 0 grid.$half-spacing-unit;
     overflow-wrap: break-word;
 

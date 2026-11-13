@@ -1,11 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/*------------------------------------*\
-    #BOX-SIZING
-\*------------------------------------*/
+// GENERIC - BOX-SIZING
 
 /*
-  Taken directly from inuit.css
+  Adapted from inuit.css
   https://github.com/inuitcss/generic.box-sizing
 */
 
@@ -17,17 +15,13 @@
  */
 
 html {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 * {
   &,
-  &:before,
-  &:after {
-    -webkit-box-sizing: inherit;
-    -moz-box-sizing: inherit;
+  &::before,
+  &::after {
     box-sizing: inherit;
   }
 }

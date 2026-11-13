@@ -32,6 +32,7 @@
 
 .narrow-container { // Use for single column content pages
   @include layout-utilities.centered-container(grid.$narrow-container);
+
   padding: 0 grid.$spacing-unit;
 
   @media screen and (max-width: breakpoints.$small-tablet) {
