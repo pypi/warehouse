@@ -1178,7 +1178,10 @@ class ProvisionMacaroonViews:
                         },
                     )
             self.request.session.flash(
-                self.request._(f"Deleted API token '{macaroon.description}'."),
+                self.request._(
+                    "Deleted API token '${description}'.",
+                    mapping={"description": macaroon.description},
+                ),
                 queue="success",
             )
         else:
@@ -1528,7 +1531,11 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not yank release - "
-                    f"{version!r} is not the same as {self.release.version!r}"
+                    "'${version}' is not the same as '${expected_version}'",
+                    mapping={
+                        "version": version,
+                        "expected_version": self.release.version,
+                    },
                 ),
                 queue="error",
             )
@@ -1568,7 +1575,11 @@ class ManageProjectRelease:
         self.release.yanked_date = dt.datetime.now(dt.UTC)
 
         self.request.session.flash(
-            self.request._(f"Yanked release {self.release.version!r}"), queue="success"
+            self.request._(
+                "Yanked release '${version}'",
+                mapping={"version": self.release.version},
+            ),
+            queue="success",
         )
 
         for contributor in self.release.project.users:
@@ -1616,7 +1627,11 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not un-yank release - "
-                    f"{version!r} is not the same as {self.release.version!r}"
+                    "'${version}' is not the same as '${expected_version}'",
+                    mapping={
+                        "version": version,
+                        "expected_version": self.release.version,
+                    },
                 ),
                 queue="error",
             )
@@ -1655,7 +1670,10 @@ class ManageProjectRelease:
         self.release.yanked_date = None
 
         self.request.session.flash(
-            self.request._(f"Un-yanked release {self.release.version!r}"),
+            self.request._(
+                "Un-yanked release '${version}'",
+                mapping={"version": self.release.version},
+            ),
             queue="success",
         )
 
@@ -1726,7 +1744,11 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not delete release - "
-                    f"{version!r} is not the same as {self.release.version!r}"
+                    "'${version}' is not the same as '${expected_version}'",
+                    mapping={
+                        "version": version,
+                        "expected_version": self.release.version,
+                    },
                 ),
                 queue="error",
             )
@@ -1775,7 +1797,11 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            self.request._(f"Deleted release {self.release.version!r}"), queue="success"
+            self.request._(
+                "Deleted release '${version}'",
+                mapping={"version": self.release.version},
+            ),
+            queue="success",
         )
 
         for contributor in self.release.project.users:
@@ -1849,8 +1875,12 @@ class ManageProjectRelease:
         if project_name != self.release.project.name:
             return _error(
                 self.request._(
-                    "Could not delete file - " + f"{project_name!r} is not the same as "
-                    f"{self.release.project.name!r}"
+                    "Could not delete file - "
+                    "'${project_name}' is not the same as '${expected_project_name}'",
+                    mapping={
+                        "project_name": project_name,
+                        "expected_project_name": self.release.project.name,
+                    },
                 )
             )
 
