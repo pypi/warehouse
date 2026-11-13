@@ -76,11 +76,14 @@ def _handle_local_file_header(
 
     # Search for the ZIP64 extension in extras.
     seen_extra_ids = set()
-    while extra:
-        if len(extra) < 4:
+    extra_offset = 0
+    while extra_offset < len(extra):
+        if len(extra) - extra_offset < 4:
             raise InvalidZipFileError("Malformed zip file")
-        extra_id, extra_data_size = struct.unpack("<HH", extra[:4])
-        if extra_data_size + 4 > len(extra):
+        extra_id, extra_data_size = struct.unpack_from("<HH", extra, extra_offset)
+        extra_data_offset = extra_offset + 4
+        next_extra_offset = extra_data_offset + extra_data_size
+        if next_extra_offset > len(extra):
             raise InvalidZipFileError("Malformed zip file")
         if extra_id in seen_extra_ids and extra_id in DISALLOW_DUPLICATE_EXTRA_IDS:
             raise InvalidZipFileError("Invalid duplicate extra in local file")
@@ -108,7 +111,9 @@ def _handle_local_file_header(
                 if compress_method != 0x0000:  # "STORE" method
                     raise InvalidZipFileError("Malformed zip file")
                 # Use uncompressed size, the first field in the extra data.
-                (uncompressed_size,) = struct.unpack("<Q", extra[4:12])
+                (uncompressed_size,) = struct.unpack_from(
+                    "<Q", extra, extra_data_offset
+                )
                 compressed_size = uncompressed_size
                 if file_size == 0xFFFFFFFF:
                     file_size = uncompressed_size
@@ -118,8 +123,10 @@ def _handle_local_file_header(
                 # Only override file_size header values when they use the
                 # 0xFFFFFFFF sentinel, per the ZIP spec (APPNOTE.TXT 4.5.3).
                 if file_size == 0xFFFFFFFF:
-                    (file_size,) = struct.unpack("<Q", extra[4:12])
-                (compressed_size,) = struct.unpack("<Q", extra[12:20])
+                    (file_size,) = struct.unpack_from("<Q", extra, extra_data_offset)
+                (compressed_size,) = struct.unpack_from(
+                    "<Q", extra, extra_data_offset + 8
+                )
 
         elif extra_id == 0x7075:
             # Info ZIP Unicode Path Extra layout
@@ -128,7 +135,7 @@ def _handle_local_file_header(
             # Version       1 byte
             # NameCRC32     4 bytes
             # UnicodeName   TSize - 5
-            unicode_name = extra[9 : 4 + extra_data_size]
+            unicode_name = extra[extra_data_offset + 5 : next_extra_offset]
             if _contains_unprintable_chars(unicode_name):
                 raise InvalidZipFileError("Invalid character in filename")
             try:
@@ -136,7 +143,7 @@ def _handle_local_file_header(
             except UnicodeError:
                 raise InvalidZipFileError("Filename not valid UTF-8")
 
-        extra = extra[extra_data_size + 4 :]
+        extra_offset = next_extra_offset
 
     # If the local file is using streaming mode then
     # use the compression size from central directory.
