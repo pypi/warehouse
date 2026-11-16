@@ -36,10 +36,10 @@ msgstr ""
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2026-11-10 14:21+0000\n"
-"Last-Translator: Murtaja Ziad <murtajaziad@users.noreply.hosted.weblate.org>"
-"\n"
-"Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/"
-"ar/>\n"
+"Last-Translator: Murtaja Ziad "
+"<murtajaziad@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
+">\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -146,7 +146,8 @@ msgstr "البريد الإلكتروني طويل جدًا. حاول مرة أ�
 #: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني مختلف."
+"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني "
+"مختلف."
 
 #: warehouse/accounts/forms.py:425
 msgid ""
@@ -179,7 +180,8 @@ msgstr "البريد الالكتروني غير صالح. حاول مرة أخ�
 #| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
 msgstr ""
-"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني مختلف."
+"لا يمكنك إستخدام بريد الكتروني من هذا النطاق. قم يإستخدام بريد الكتروني "
+"مختلف."
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -225,8 +227,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for Please try again later."
 msgstr ""
-"كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد المحاولة "
-"لاحقا."
+"كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد "
+"المحاولة لاحقا."
 
 #: warehouse/accounts/views.py:141
 #, python-brace-format
@@ -247,25 +249,25 @@ msgstr ""
 "تم طلب تغيير كلمة السر لهذا الحساب مراتٍ كثيرة دون اكمالها. تحقق من بريدك "
 "الوارد واتبع روابط التحقق. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "تسجيل دخول ثنائي العامل غير صالح أو منتهي الصلاحية."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "موثق بالفعل"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "تم قبول رمز الاسترداد. لا يمكن استخدام الرمز مرة أخرى."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -276,207 +278,207 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "Too many registration attempts from your network. Please try again later."
 msgstr ""
-"كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد المحاولة "
-"لاحقا."
+"كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد "
+"المحاولة لاحقا."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد للمنظمة"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "رمز غير صحيح: ليس رمزاً لدعوة مشاركة"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد للمنظمة"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "رمز غير صالح: قم بطلب دعوة جديدة"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "رمز غير صالح: ليس رمزاً لدعوة إلى مؤسسة"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "دعوة المنظمة غير صالحة."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "دعوة المنظمة لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "تم رفض دعوة '${organization_name}'."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${organization_name}."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "رمز غير صحيح: ليس رمزاً لدعوة مشاركة"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "دعوة الدور غير صالحة."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "رمز API غير موجود."
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "دعوة الدور لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "دعوة '${project_name}' تم رفضها."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -489,13 +491,13 @@ msgstr ""
 "النشر الموثوق موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -508,11 +510,11 @@ msgstr ""
 "يجب أن يكون لديك بريد إلكتروني تم التحقق منه حتى تتمكن من التسجيل كناشر "
 "موثوق قيد المراجعة. إطّلع على https://pypi.org/help#openid-connect للتفاصيل."
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "لا يمكنك تسجيل أكثر من 3 ناشرين موثوقين قيد المراجعة مرّة واحدة."
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -526,7 +528,7 @@ msgid ""
 "again later."
 msgstr "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. حاول مرة أخرى لاحقًا."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -535,7 +537,7 @@ msgstr "كانت هناك محاولات تسجيل دخول فاشلة كثير
 msgid "The trusted publisher could not be registered"
 msgstr "حساب الناشر الموثوق لا يمكن تسجيله"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -544,7 +546,7 @@ msgstr ""
 "هذا الناشر الموثوق قد تم تسجيله بالفعل. قم بمراسلة مسؤلي PyPI إن لم يكن هذا "
 "مقصودا."
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -558,19 +560,19 @@ msgstr ""
 "هذا الناشر الموثوق قد تم تسجيله بالفعل. قم بمراسلة مسؤلي PyPI إن لم يكن هذا "
 "مقصودا."
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "تم تسجيل حساب ناشر جديد للإنشاء تحت المراجعة. "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Create an account"
 msgid "Invalid publisher ID"
 msgstr "مُعَرّف ناشر غير صالح"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "تمت إزالة ناشر موثوق لمشروع. "
 
@@ -850,7 +852,8 @@ msgstr ""
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
-"دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى لاحقاً."
+"دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى "
+"لاحقاً."
 
 #: warehouse/manage/views/__init__.py:2319
 #: warehouse/manage/views/organizations.py:1131
@@ -1029,8 +1032,8 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"المستخدم '${username}' لم يقم بتأكيد الايميل الأساسي بعد ولايمكنه الإضافة ك '$"
-"{role_name} لهذه المنظمة"
+"المستخدم '${username}' لم يقم بتأكيد الايميل الأساسي بعد ولايمكنه الإضافة ك "
+"'${role_name} لهذه المنظمة"
 
 #: warehouse/manage/views/organizations.py:1067
 msgid "Cannot invite new member. Organization is not in good standing."
@@ -1504,8 +1507,8 @@ msgid ""
 msgstr ""
 "انظر في <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">المساهمة</a> أو <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">"
-"التبرع </a> لمساعدتنا على بناء منصة أكثر إتزاناً وأماناً."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" "
+"rel=\"noopener\">التبرع </a> لمساعدتنا على بناء منصة أكثر إتزاناً وأماناً."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -2570,8 +2573,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"هذه الرسالة تحتوي على رابط تغيير كلمة السر. هذا الرابط ستنتهي صلاحيته في %"
-"(n_hours)s ساعات."
+"هذه الرسالة تحتوي على رابط تغيير كلمة السر. هذا الرابط ستنتهي صلاحيته في "
+"%(n_hours)s ساعات."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2619,9 +2622,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">قم بتحديث المتصفح</a> لتتمكن من تسجيل الدخول بجهاز أمان (على سبيل "
-"المثال: مفتاح USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">قم بتحديث المتصفح</a> لتتمكن من تسجيل الدخول بجهاز أمان (على "
+"سبيل المثال: مفتاح USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2661,8 +2664,8 @@ msgid ""
 "Lost your application? Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr ""
 "<p>قم بتوليد كود باستخدام تطبيق التصديق المربوط بحساب PyPI الخاص بك. ادخل "
-"هذا الكود في الاستمارة لتأكيد هويتك.</p><p>هل فقدت تطبيقك؟ لا يعمل؟ <a href=\"%"
-"(href)s\">اعثر على مساعدة</a>.</p>"
+"هذا الكود في الاستمارة لتأكيد هويتك.</p><p>هل فقدت تطبيقك؟ لا يعمل؟ <a "
+"href=\"%(href)s\">اعثر على مساعدة</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2704,8 +2707,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
-"(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
+"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2736,8 +2739,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
-"(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
+"%(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2749,8 +2752,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
-"(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
+"%(site)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, python-format
@@ -2759,9 +2762,9 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
-"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
-"s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
+"%(organization_name)s عن طريق <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2779,8 +2782,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
-"(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
+"%(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2791,8 +2794,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
-"(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
+"%(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2805,9 +2808,9 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
-"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
-"s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
+"%(organization_name)s عن طريق <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 #, fuzzy
@@ -2845,8 +2848,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
-"(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
+"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2899,8 +2902,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">%"
-"(email_address)s</a> للتواصل مع مديري PyPI."
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a "
+"href=\"%(href)s\">%(email_address)s</a> للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, python-format
@@ -3036,8 +3039,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:%(email_address)s\">%"
-"(email_address)s للتواصل مع مديري %(site)s."
+"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s للتواصل مع مديري %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3231,8 +3234,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"أحد ما، ربما أنت، قام بتغيير كلمة المرور لحساب PyPI الخاص بك <strong>%"
-"(username)s</strong>."
+"أحد ما، ربما أنت، قام بتغيير كلمة المرور لحساب PyPI الخاص بك "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -3318,7 +3321,8 @@ msgid ""
 "have preemptively reset your password and you will no longer be able to log "
 "in or upload to PyPI with your existing password."
 msgstr ""
-"خلال محاولة مؤخرة لتسجيل الدخول أو الرفع لPyPI، لاحظنا أن كلمة السر الخاصة بك\n"
+"خلال محاولة مؤخرة لتسجيل الدخول أو الرفع لPyPI، لاحظنا أن كلمة السر الخاصة "
+"بك\n"
 "متواجدة في اختراقات بيانات علنية. لحمايتك وحماية المستخدمين الآخرين، قمنا "
 "بتغيير\n"
 "كلمة السر الخاصة بك ولن يمكنك تسجيل الدخول أو الرفع لPyPI بكلمة السر السابقة."
@@ -3347,10 +3351,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"لاستعادة الوصول الى حسابك، برجاء <a href=\"%(reset_pw_url)s\">تغيير كلمة السر "
-"الخاصة بك</a> على PyPI. نوصي أيضاً بزيارة <a href=\"%(have_i_been_pwned_url)"
-"s\">HaveIBeenPwned</a> والتأكد من كلمات السر الأخرى الخاصة بك بالإضافة الى "
-"تعريف نفسك على الممارسات الجيدة الحاصة بكلمات السر."
+"لاستعادة الوصول الى حسابك، برجاء <a href=\"%(reset_pw_url)s\">تغيير كلمة "
+"السر الخاصة بك</a> على PyPI. نوصي أيضاً بزيارة <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> والتأكد من كلمات السر "
+"الأخرى الخاصة بك بالإضافة الى تعريف نفسك على الممارسات الجيدة الحاصة بكلمات "
+"السر."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3366,11 +3371,11 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"نستخدم خدمة أمان مجانية من <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a>.  عند تسجيل، تصديق، أو تغيير كلمة السر الخاصة بك، نولد "
-"رمز هاش SHA1 منها ونستخدم أول 5 حروف من الرمز لمعرفة إذا كانت كلمة السر تم "
-"إختراقها أو لا. كلمة السر نفسها كنص لا يتم تسجيلها أبداً على PyPI أو إرسالها "
-"لHaveIBeenPwned."
+"نستخدم خدمة أمان مجانية من <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>.  عند تسجيل، تصديق، أو "
+"تغيير كلمة السر الخاصة بك، نولد رمز هاش SHA1 منها ونستخدم أول 5 حروف من "
+"الرمز لمعرفة إذا كانت كلمة السر تم إختراقها أو لا. كلمة السر نفسها كنص لا "
+"يتم تسجيلها أبداً على PyPI أو إرسالها لHaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3383,8 +3388,8 @@ msgid ""
 "a>. For help, you can email <a href=\"%(email_href)s\">%(email_address)s</a> "
 "to communicate with the PyPI administrators."
 msgstr ""
-"لمزيد من المعلومات، يرجى قراءة <a href=\"%(faq_url)s\">الأسئلة الأكثر شيوعاً</a>"
-". للمساعدة، يمكنك مراسلة <a href=\"%(email_href)s\">%(email_address)s</a> "
+"لمزيد من المعلومات، يرجى قراءة <a href=\"%(faq_url)s\">الأسئلة الأكثر شيوعاً</"
+"a>. للمساعدة، يمكنك مراسلة <a href=\"%(email_href)s\">%(email_address)s</a> "
 "للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
@@ -3393,8 +3398,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"أحد ما، ربما أنت، طلب تغيير كلمة السر الخاصة بحساب PyPI الخاص بك \"%"
-"(username)s\"."
+"أحد ما، ربما أنت، طلب تغيير كلمة السر الخاصة بحساب PyPI الخاص بك "
+"\"%(username)s\"."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3466,8 +3471,9 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"البريد الاليكتروني الر ئيسي لحساب PyPI الخاص بك <strong>%(username)s</strong> "
-"تم تغييره من <code>%(old_email)s</code> الى <code>%(new_email)s</code>"
+"البريد الاليكتروني الر ئيسي لحساب PyPI الخاص بك <strong>%(username)s</"
+"strong> تم تغييره من <code>%(old_email)s</code> الى <code>%(new_email)s</"
+"code>"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -3521,8 +3527,8 @@ msgid ""
 "used."
 msgstr ""
 "\n"
-"رمز الاسترداد الخاص بحساب المستخدم<strong>%(username)s</strong>مستعمل سابقا "
-".\n"
+"رمز الاسترداد الخاص بحساب المستخدم<strong>%(username)s</strong>مستعمل "
+"سابقا .\n"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:5
 #, fuzzy, python-format
@@ -3556,8 +3562,8 @@ msgstr "تتلقى هذا البريد الإلكتروني لأتك أحد أص
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
-"(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
+"%(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3568,8 +3574,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
-"(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
+"%(site)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3594,8 +3600,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
-"(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
+"%(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3606,8 +3612,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: %"
-"(project_name)s عن طريق %(initiator_username)s."
+"تمت إضافتك بصفتك <strong>%(role)s</strong> إلى مشروع %(site)s: "
+"%(project_name)s عن طريق %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3632,8 +3638,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على %"
-"(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
+"%(site)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, fuzzy, python-format
@@ -3720,9 +3726,9 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
-"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
-"s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
+"%(organization_name)s عن طريق <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3735,9 +3741,9 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: %"
-"(organization_name)s عن طريق <a href=\"%(submitter_profile)s\">%(submitter)"
-"s</a>."
+"تمت إضافتك بصفة <strong>%(role)s</strong> إلى منظمة %(site)s: "
+"%(organization_name)s عن طريق <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/two-factor-added/body.html:5
 #, fuzzy, python-format
@@ -3769,8 +3775,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
-"أحد ما، ربما أنت، قام بإضافة هذا البريد الاليكتروني (<code>%(email_address)s</"
-"code>) الى حساب PyPI الخاص به."
+"أحد ما، ربما أنت، قام بإضافة هذا البريد الاليكتروني "
+"(<code>%(email_address)s</code>) الى حساب PyPI الخاص به."
 
 #: warehouse/templates/email/verify-email/body.html:8
 #, fuzzy, python-format
@@ -9283,8 +9289,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:%(email_address)s\">%"
-"(email_address)s للتواصل مع مديري %(site)s."
+"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s للتواصل مع مديري %(site)s."
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy

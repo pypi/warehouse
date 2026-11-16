@@ -27,8 +27,8 @@ msgstr ""
 "PO-Revision-Date: 2026-11-10 14:23+0000\n"
 "Last-Translator: Sviatoslav Sydorenko "
 "<webknjaz@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/>"
-"\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/"
+">\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -238,25 +238,25 @@ msgstr ""
 "Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: $"
 "{ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné či expirované dvoufaktorové přihlášení."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "Již autenizován"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "Úspšená aserce WebAuthn"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód byl již přijat. Poskytnutý kód nelze použít znovu."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -267,14 +267,14 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -284,190 +284,190 @@ msgstr ""
 "Přiliš mnoho neúspěšných pokusů o přihlášení. Váš účet je uzamčen na {}. "
 "Zkuste to prosím později."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: žádný token nebyl poskytnut"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejedná se o token pro reset hesla"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: uživatel nenalezen"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: uživatel se po vygenerování tokenu již přihlásil"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Neplatný token: heslo již bylo po vygenerování tokenu změněno"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "Vaše heslo bylo změněno"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "Expirovaný token: požádejte o novou pozvánku do organizace"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "Neplatný token: uživatel nenalezen"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "Expirovaný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejedná se o token pro reset e-mailové adresy"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "E-mail nenalezen"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "E-mail již byl ověřen"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "Nyní můžete nastavit tento e-mail jako vaši primární adresu"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "Toto je vaše primární adresa"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} byla oveřena. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "Expirovaný token: požádejte o novou pozvánku do organizace"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "Neplatný token: požádejte o novou pozvánku do organizace"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "Neplatný token: nejedná se o token pozvánky do organizace"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "Pozvánka do organizace je neplatná."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "Pozvánka do organizace už neexistuje."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Pozvánka do '${organization_name}' byla odmítnuta."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Nyní jste ${role} organizace '${organization_name}'."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "Expirovaný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "Neplatný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pro roli je neplatná."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "API token neexistuje."
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pre rolu už neexistuje."
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pro '${project_name}' byla odmítnuta."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -480,13 +480,13 @@ msgstr ""
 "Vydávání v důvěryhodném režimu je dočasně zakázáno. Více informací na "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, python-brace-format
 msgid ""
@@ -494,11 +494,11 @@ msgid ""
 "publisher. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "Nelze zaregistrovat více než tři důvěryhodné vydavatele naráz."
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -515,7 +515,7 @@ msgstr ""
 "Příliš mnoho neúspěšných pokusů o registraci důvěryhodného vydavatele. "
 "Zkuste to prosím později."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -524,7 +524,7 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr "Důvěryhodný vydavatel nemohl být registrován"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -533,7 +533,7 @@ msgstr ""
 "Tento důvěryhodný vydavatel už byl registrován. Prosím kontaktuje "
 "administrátoy PyPI."
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -547,21 +547,21 @@ msgstr ""
 "Tento důvěryhodný vydavatel už byl registrován. Prosím kontaktuje "
 "administrátoy PyPI."
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Pro správu registrujte nového důvěryhodného vydavatele "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Neplatné ID vydavatele"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "Odstranění důvěryhodného vydavatele pro tento projekt "
 
@@ -1839,8 +1839,8 @@ msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>%(sha)s</code></a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Haše</a> pro %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Haše</a> pro %(filename)s"
 
 #: warehouse/templates/confirm-action.html:4
 msgid "Confirm Action"
@@ -2117,17 +2117,17 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
-"příručku Python Packaging</a>."
+"Pro více informací k nahrávání souborů do PyPI, navštivte <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Uživatelskou příručku Python Packaging</a>."
 
 #: warehouse/templates/upload.html:17
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
-"Jinak doporučujeme zavítat na <a href=\"%(href)s\">domovskou stránku PyPI</a>"
-"."
+"Jinak doporučujeme zavítat na <a href=\"%(href)s\">domovskou stránku PyPI</"
+"a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:4
 msgid "Confirm Invite"
@@ -2552,8 +2552,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"E-mail obsahuje odkaz na reset vašeho hesla. Tento odkaz expiruje po %"
-"(n_hours)s hodinách."
+"E-mail obsahuje odkaz na reset vašeho hesla. Tento odkaz expiruje po "
+"%(n_hours)s hodinách."
 
 #: warehouse/templates/accounts/reset-password.html:7
 #: warehouse/templates/accounts/reset-password.html:12
@@ -2603,9 +2603,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"Pro přihlášení pomocí bezpečnostního prvku (např. USB klíčenky), <a href=\"%"
-"(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\">"
-"aktualizujte prohlížeč</a>"
+"Pro přihlášení pomocí bezpečnostního prvku (např. USB klíčenky), <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">aktualizujte prohlížeč</a>"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2644,9 +2644,9 @@ msgid ""
 "Lost your application? Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr ""
 "<p>Vygenerujte kód použitím autentizační aplikace připojení k vašemu PyPI "
-"účtu. Tento kód vložte do formuláře pro ověření vaší identity.</p> <p>"
-"Ztratili jste aplikaci? Něco nefunguje? <a href=\"%(href)s\">Pomoc zde</a>.</"
-"p>"
+"účtu. Tento kód vložte do formuláře pro ověření vaší identity.</p> "
+"<p>Ztratili jste aplikaci? Něco nefunguje? <a href=\"%(href)s\">Pomoc zde</"
+"a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2708,8 +2708,8 @@ msgid ""
 "account <strong>@%(external_username)s</strong> from your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace %(method)"
-"s k vašemu PyPI účtu <strong>%(username)s</strong>."
+"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace "
+"%(method)s k vašemu PyPI účtu <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, python-format
@@ -2740,8 +2740,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"Dostáváte toto upozornění protože jste byl přidán uživatelem %"
-"(initiator_username)s k projektu na stránce %(site)s."
+"Dostáváte toto upozornění protože jste byl přidán uživatelem "
+"%(initiator_username)s k projektu na stránce %(site)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, fuzzy, python-format
@@ -2784,8 +2784,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Dostáváte toto upozornění protože jste byl přidán uživatelem %"
-"(initiator_username)s k projektu na stránce %(site)s."
+"Dostáváte toto upozornění protože jste byl přidán uživatelem "
+"%(initiator_username)s k projektu na stránce %(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3052,8 +3052,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/organization-member-added/body.html:17
 #: warehouse/templates/email/organization-member-invited/body.html:17
@@ -3112,8 +3112,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
 "join the \"%(organization_name)s\" organization"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/organization-member-invited/body.html:11
 #, fuzzy, python-format
@@ -3123,8 +3123,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/organization-member-invited/body.html:23
 msgid "Invited by"
@@ -3171,8 +3171,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/organization-project-added/body.html:16
 #: warehouse/templates/email/organization-project-removed/body.html:16
@@ -3249,8 +3249,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Někdo, pravděpodobně vy, změnil heslo k vašemu PyPI účtu <strong>%(username)"
-"s</strong>."
+"Někdo, pravděpodobně vy, změnil heslo k vašemu PyPI účtu "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:4
 #: warehouse/templates/email/password-compromised/body.html:4
@@ -3300,8 +3300,8 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with "
 "the PyPI administrators."
 msgstr ""
-"Pro více informací můžete kontaktovat administrátory PyPI na adrese %"
-"(email_address)s."
+"Pro více informací můžete kontaktovat administrátory PyPI na adrese "
+"%(email_address)s."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:6
 msgid ""
@@ -3323,8 +3323,8 @@ msgid ""
 "against PyPI and its users."
 msgstr ""
 "Systém PyPI samotný nezaznamenal bezpečností incident. Toto ochranné "
-"opatření zvyšuje ochranu PyPI a jeho uživatelů před útokem <a href=\"%(href)"
-"s\">„credential stuffing“</a>."
+"opatření zvyšuje ochranu PyPI a jeho uživatelů před útokem <a "
+"href=\"%(href)s\">„credential stuffing“</a>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #, python-format
@@ -3335,9 +3335,9 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "K získání přístupu k vašemu účtu si <a href=\"%(reset_pw_url)s\">zresetujte "
-"vaše heslo</a> na PyPI. Také dopočujeme návstěvu služby <a href=\"%"
-"(have_i_been_pwned_url)s\">HaveIBeenPwned</a> a zkontrolování vašich dalších "
-"hesel vůči praktikám pro tvorbu bezpečného hesla."
+"vaše heslo</a> na PyPI. Také dopočujeme návstěvu služby <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> a zkontrolování vašich "
+"dalších hesel vůči praktikám pro tvorbu bezpečného hesla."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3353,11 +3353,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Využíváme bezplatnou bezpečnostní službu <a href=\"%(have_i_been_pwned_url)"
-"s\">HaveIBeenPwned</a>. Když se registrujete, ověřujete, nebo aktualizujete "
-"své heslo, generujeme SHA1 hash Vašeho hesla a použijeme prvních 5 znaků z "
-"hash k rozhodnutí, zda je heslo kompromitováno. PyPI nikdy neukládá hesla v "
-"čitelné formě ani je neodesílá službě HaveIBeenPwned."
+"Využíváme bezplatnou bezpečnostní službu <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Když se registrujete, "
+"ověřujete, nebo aktualizujete své heslo, generujeme SHA1 hash Vašeho hesla a "
+"použijeme prvních 5 znaků z hash k rozhodnutí, zda je heslo kompromitováno. "
+"PyPI nikdy neukládá hesla v čitelné formě ani je neodesílá službě "
+"HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3370,9 +3371,9 @@ msgid ""
 "a>. For help, you can email <a href=\"%(email_href)s\">%(email_address)s</a> "
 "to communicate with the PyPI administrators."
 msgstr ""
-"Další informace naleznete v našich nejčastějších dotazech na <a href=\"%"
-"(faq_url)s\"> FAQ</a>. Dotazy můžete odeslat e-mailem <a href=\"%(email_href)"
-"s\">%(email_address)s</a> a zeptat se přímo správců PyPI."
+"Další informace naleznete v našich nejčastějších dotazech na <a "
+"href=\"%(faq_url)s\"> FAQ</a>. Dotazy můžete odeslat e-mailem <a "
+"href=\"%(email_href)s\">%(email_address)s</a> a zeptat se přímo správců PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3380,8 +3381,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"Někdo, pravděpodobně vy, požádal o reset hesla k vašemu PyPI účtu %(username)"
-"s."
+"Někdo, pravděpodobně vy, požádal o reset hesla k vašemu PyPI účtu "
+"%(username)s."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3416,8 +3417,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI account "
 "associated with this email address."
 msgstr ""
-"Někdo, pravděpodobně vy, požádal o reset hesla k vašemu PyPI účtu %(username)"
-"s."
+"Někdo, pravděpodobně vy, požádal o reset hesla k vašemu PyPI účtu %"
+"(username)s."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:8
 msgid ""
@@ -3527,8 +3528,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"Dostáváte toto upozornění protože jste byl přidán uživatelem %"
-"(initiator_username)s k projektu na stránce %(site)s."
+"Dostáváte toto upozornění protože jste byl přidán uživatelem "
+"%(initiator_username)s k projektu na stránce %(site)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3538,8 +3539,8 @@ msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/removed-as-team-member/body.html:9
 #, fuzzy
@@ -3606,8 +3607,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"Dostáváte toto upozornění protože jste byl přidán uživatelem %"
-"(initiator_username)s k projektu na stránce %(site)s."
+"Dostáváte toto upozornění protože jste byl přidán uživatelem "
+"%(initiator_username)s k projektu na stránce %(site)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
@@ -3661,8 +3662,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3683,8 +3684,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, fuzzy, python-format
@@ -3725,8 +3726,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace %(method)"
-"s k vašemu PyPI účtu <strong>%(username)s</strong>."
+"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace "
+"%(method)s k vašemu PyPI účtu <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:5
 #, python-format
@@ -4034,8 +4035,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Zatím jste nenahrál žádné projekty na PyPI. Jak začít nalezneš na stránce <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"uživatelské příručky pro PyPI</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">uživatelské příručky pro PyPI</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:11
 #, python-format
@@ -4212,9 +4213,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">package formats "
 "documentation</a>."
 msgstr ""
-"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
-"příručku Python Packaging</a>."
+"Pro více informací k nahrávání souborů do PyPI, navštivte <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Uživatelskou příručku Python Packaging</a>."
 
 #: warehouse/templates/includes/packaging/project-files.html:17
 msgid "Source distribution (sdist)"
@@ -5830,8 +5831,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a "
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
-"Jeden z vašich ověřených e-mailů lze zobrazit na <a href=\"%(href)s\">"
-"veřejném profilu</a> přihlášeným uživatelům."
+"Jeden z vašich ověřených e-mailů lze zobrazit na <a "
+"href=\"%(href)s\">veřejném profilu</a> přihlášeným uživatelům."
 
 #: warehouse/templates/manage/account.html:318
 msgid "Update account"
@@ -6575,8 +6576,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a href=\"%"
-"(delete_href)s\">smazat projekt</a>"
+"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a "
+"href=\"%(delete_href)s\">smazat projekt</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, fuzzy, python-format
@@ -6629,8 +6630,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a href=\"%"
-"(delete_href)s\">smazat projekt</a>"
+"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a "
+"href=\"%(delete_href)s\">smazat projekt</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6682,8 +6683,8 @@ msgid ""
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
 "Dvoufaktorová autentizace přidává vašemu účtu další úroveň zabezpečení. <a "
-"href=\"%(href)s\">Více o <abbr title=\"dvoufaktorová autentizace\">2FA</abbr>"
-"</a>."
+"href=\"%(href)s\">Více o <abbr title=\"dvoufaktorová autentizace\">2FA</"
+"abbr></a>."
 
 #: warehouse/templates/manage/manage_base.html:18
 #, fuzzy
@@ -6865,9 +6866,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Aktualizujte svůj prohlížeč</a> pro nastavení dvoufaktorové autentizace "
-"pomocí bezpečnostního prvku (např. USB klíč)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Aktualizujte svůj prohlížeč</a> pro nastavení dvoufaktorové "
+"autentizace pomocí bezpečnostního prvku (např. USB klíč)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -6952,8 +6953,8 @@ msgid ""
 "circumstances</a>."
 msgstr ""
 "Zatím jste nenahrál žádné projekty na PyPI. Jak začít nalezneš na stránce <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"uživatelské příručky pro PyPI</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">uživatelské příručky pro PyPI</a>"
 
 #: warehouse/templates/manage/manage_base.html:530
 #: warehouse/templates/manage/manage_base.html:564
@@ -7619,8 +7620,8 @@ msgstr "Název projektu"
 msgid ""
 "The project that will be created on %(sitename)s when this publisher is used"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/account/publishing.html:42
 #: warehouse/templates/manage/organization/publishing.html:40
@@ -8449,8 +8450,8 @@ msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/application.html:6
 #, fuzzy, python-format
@@ -8639,8 +8640,8 @@ msgstr "Spravovat %(project_name)s"
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:43
 #, fuzzy, python-format
@@ -8683,8 +8684,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:68
 #, fuzzy, python-format
@@ -8694,8 +8695,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
 "%(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:73
 #, fuzzy, python-format
@@ -8705,8 +8706,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:79
 #, fuzzy, python-format
@@ -8961,8 +8962,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Zatím jste nenahrál žádné projekty na PyPI. Jak začít nalezneš na stránce <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"uživatelské příručky pro PyPI</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">uživatelské příručky pro PyPI</a>"
 
 #: warehouse/templates/manage/organization/projects.html:88
 #, fuzzy
@@ -9039,8 +9040,8 @@ msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/organization/publishing.html:208
 #: warehouse/templates/manage/project/publishing.html:191
@@ -9143,8 +9144,8 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "'%(organization_name)s'."
 msgstr ""
-"Tato stránka slouží ke kontrole uživatelů PyPI, kteří mohou spravovat %"
-"(project_name)s"
+"Tato stránka slouží ke kontrole uživatelů PyPI, kteří mohou spravovat "
+"%(project_name)s"
 
 #: warehouse/templates/manage/organization/roles.html:36
 #, fuzzy
@@ -9570,8 +9571,8 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a href=\"%"
-"(delete_href)s\">smazat projekt</a>"
+"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a "
+"href=\"%(delete_href)s\">smazat projekt</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 #, fuzzy
@@ -9757,8 +9758,8 @@ msgstr ""
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/project/history.html:137
 #, fuzzy, python-format
@@ -9778,8 +9779,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as project "
 "%(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/project/history.html:152
 #, fuzzy, python-format
@@ -9814,8 +9815,8 @@ msgstr ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgid "%(team_name)s team changed to project %(role_name)s"
 msgstr ""
-"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na %"
-"(role_name)s"
+"Uživateli <a href=\"%(href)s\">%(username)s</a> změněna role v projektu na "
+"%(role_name)s"
 
 #: warehouse/templates/manage/project/history.html:180
 #, fuzzy, python-format
@@ -10381,8 +10382,8 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s."
 msgstr ""
-"Tato stránka slouží ke kontrole uživatelů PyPI, kteří mohou spravovat %"
-"(project_name)s"
+"Tato stránka slouží ke kontrole uživatelů PyPI, kteří mohou spravovat "
+"%(project_name)s"
 
 #: warehouse/templates/manage/project/roles.html:40
 #, fuzzy

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import logging
 import re
 import typing
 
@@ -14,8 +15,10 @@ import opensearchpy
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPError,
     HTTPException,
     HTTPForbidden,
+    HTTPInternalServerError,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPRequestEntityTooLarge,
@@ -23,6 +26,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
     exception_response,
+    status_map,
 )
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
@@ -35,6 +39,7 @@ from pyramid.view import (
     view_config,
     view_defaults,
 )
+from pyramid_openapi3.exceptions import RequestValidationError, ResponseValidationError
 from sqlalchemy import func, text
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
@@ -42,6 +47,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
+from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
@@ -67,6 +73,8 @@ from warehouse.utils.row_counter import RowCount
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+logger = logging.getLogger(__name__)
 
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
 json_path = re.compile(JSON_REGEX)
@@ -187,15 +195,71 @@ def forbidden_include(exc, request):
     return HTTPForbidden()
 
 
-@forbidden_view_config(path_info=r"^/(danger-)?api/")
-@exception_view_config(PredicateMismatch, path_info=r"^/(danger-)?api/")
-def forbidden_api(exc, request):
+# The API's paths. Errors there are RFC 9457 problem details bodies, except
+# those from tweens above the exception views (such as a malformed URL) and
+# uncaught exceptions, which keep the server's own responses.
+API_PATH = r"^/(danger-)?api/"
+# Headers a problem details body keeps from the error it replaces.
+_PROBLEM_KEEPS_HEADERS = ("Allow", "Retry-After", "WWW-Authenticate")
+
+
+@forbidden_view_config(path_info=API_PATH)
+@exception_view_config(PredicateMismatch, path_info=API_PATH)
+def forbidden_api(
+    exc: HTTPForbidden | PredicateMismatch, request: Request
+) -> HTTPForbidden:
     # If the forbidden error is for an API endpoint, return a JSON response
     # instead of redirecting
-    return HTTPForbidden(
-        json={"message": "Access was denied to this resource."},
-        content_type="application/json",
-    )
+    return problem(HTTPForbidden, "Access was denied to this resource.")
+
+
+@exception_view_config(RequestValidationError, path_info=API_PATH)
+@exception_view_config(ResponseValidationError, path_info=API_PATH)
+def api_validation_error(
+    exc: RequestValidationError | ResponseValidationError, request: Request
+) -> HTTPBadRequest | HTTPInternalServerError:
+    """
+    pyramid_openapi3's validation errors, logged as the library's own view
+    logs them. The security policy denies a request without a valid API
+    token before validation runs, so a request error is always a 400.
+    """
+    if isinstance(exc, ResponseValidationError):
+        # Our fault, not the caller's; the errors are for us.
+        logger.error(exc)
+        return problem(HTTPInternalServerError, "The response failed validation.")
+
+    logger.warning(exc)
+    extract_errors = request.registry.settings["pyramid_openapi3_extract_errors"]
+    errors = list(extract_errors(request, exc.errors))
+    return problem(HTTPBadRequest, "The request failed validation.", errors=errors)
+
+
+@notfound_view_config(path_info=API_PATH, append_slash=HTTPMovedPermanently)
+@exception_view_config(HTTPError, path_info=API_PATH)
+@exception_view_config(DatabaseNotAvailableError, path_info=API_PATH)
+def api_error(
+    exc: HTTPError | DatabaseNotAvailableError, request: Request
+) -> HTTPError:
+    """Any other API error, such as an unknown path or project, as problem details."""
+    response: HTTPError
+    if isinstance(exc, DatabaseNotAvailableError):
+        response = problem(HTTPServiceUnavailable, HTTPServiceUnavailable.explanation)
+    elif exc.content_type == PROBLEM_CONTENT_TYPE:
+        response = exc
+    else:
+        # Not exc.detail: Pyramid puts the path, or debug output, there.
+        response = problem(
+            status_map[exc.code],
+            exc.explanation,
+            headers={
+                name: exc.headers[name]
+                for name in _PROBLEM_KEEPS_HEADERS
+                if name in exc.headers
+            },
+        )
+    # As httpexception_view adds to the errors this view takes over.
+    response.headers.extend(_CORS_HEADERS)
+    return response
 
 
 @view_config(context=DatabaseNotAvailableError)

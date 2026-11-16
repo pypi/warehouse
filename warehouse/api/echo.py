@@ -8,6 +8,7 @@ import typing
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 
+from warehouse.api.problems import problem
 from warehouse.authnz import Permissions
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 
@@ -53,7 +54,9 @@ def api_v0_view_config(**kwargs):
     )
 
     def _wrapper(wrapped):
-        return view_config(**kwargs)(wrapped)
+        # _depth=1 attaches the view to the decorated function's module,
+        # not this one, so views outside this module register too.
+        return view_config(_depth=1, **kwargs)(wrapped)
 
     return _wrapper
 
@@ -80,12 +83,11 @@ def api_projects_observations(project: Project, request: Request) -> dict:
     # Here we express a dependency between fields, but the validity of the inspector_url
     # is handled by the OpenAPI schema.
     if kind == ObservationKind.IsMalware and "inspector_url" not in data:
-        raise HTTPBadRequest(
-            json={
-                "error": "missing required fields",
-                "missing": ["inspector_url"],
-                "project": project.name,
-            },
+        raise problem(
+            HTTPBadRequest,
+            "Missing required fields: inspector_url",
+            missing=["inspector_url"],
+            project=project.name,
         )
 
     # Manually add an origin field to the observation for tracking

@@ -1,10 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound, HTTPOk
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPGone,
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPOk,
+)
 from pyramid.view import forbidden_view_config, view_config
 from trove_classifiers import sorted_classifiers
 
 from warehouse.classifiers.models import Classifier
+from warehouse.manage.views.view_helpers import parse_int
 
 
 def _exc_with_message(exc, message):
@@ -55,7 +62,8 @@ def doap(request):
     return _exc_with_message(HTTPGone, "DOAP is no longer supported.")
 
 
-@forbidden_view_config(request_param=":action")
+# Not on API paths, whose forbidden view answers with problem details.
+@forbidden_view_config(request_param=":action", path_info=r"^(?!/(danger-)?api/)")
 def forbidden_legacy(exc, request):
     # We're not going to do anything amazing here, this just exists to override
     # the default forbidden handler we have which does redirects to the login
@@ -79,16 +87,10 @@ def search(request):
 
 @view_config(route_name="legacy.api.pypi.browse")
 def browse(request):
-    classifier_id = request.params.get("c")
+    classifier_id = parse_int(request.params.get("c"))
 
-    if not classifier_id:
-        raise HTTPNotFound
-
-    # Guard against the classifier_id not being a valid integer
-    try:
-        int(classifier_id)
-    except ValueError:
-        raise HTTPNotFound
+    if classifier_id is None:
+        raise HTTPBadRequest("'c' must be a classifier id.")
 
     classifier = request.db.get(Classifier, classifier_id)
 
