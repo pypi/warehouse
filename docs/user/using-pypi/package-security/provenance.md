@@ -45,7 +45,7 @@ Currently, the majority of attestations on PyPI are PyPI publish attestations. T
 
 <figure markdown="1">
   ![A PyPI publish attestation on PyPI](../../assets/pypi-attestation.png){ loading=lazy }
-  <figcaption markdown="span">A [PyPI Publish attestation](../../attestations/publish/v1.md) on PyPI</figcaption>
+  <figcaption markdown="span">An example [PyPI Publish attestation](../../attestations/publish/v1.md) on PyPI</figcaption>
 </figure>
 
 ### 2. [SLSA attestations](https://slsa.dev/provenance/v1)
@@ -54,7 +54,7 @@ An attestation and associated transparency log, signed by the build platform (e.
 
 <figure markdown="1">
   ![A SLSA attestation on PyPI](../../assets/slsa-attestation.png){ loading=lazy }
-  <figcaption markdown="span">A [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
+  <figcaption markdown="span">An example [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
 </figure>
 
 ## Verifying attestations

@@ -50,14 +50,14 @@ This means that 100% of the release files have attestations, carrying either or 
 
 <figure markdown="1">
   ![A PyPI Publish attestation on PyPI](../assets/2026-11-06-ui-updates-complete/pypi-attestation.png)
-  <figcaption markdown="span">A [PyPI Publish attestation](https://docs.pypi.org/attestations/publish/v1/) on PyPI</figcaption>
+  <figcaption markdown="span">An example [PyPI Publish attestation](https://docs.pypi.org/attestations/publish/v1/) on PyPI</figcaption>
 </figure>
 
 **[SLSA Build Provenance](https://slsa.dev/spec/v1.2/build-provenance) attestations** link the file back to its exact source commit, build platform, and instructions:
 
 <figure markdown="1">
   ![A SLSA Build Provenance attestation on PyPI](../assets/2026-11-06-ui-updates-complete/slsa-attestation.png)
-  <figcaption markdown="span">A [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
+  <figcaption markdown="span">An example [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
 </figure>
 
 You can review attestation metadata directly in the UI, or click on the transparency log link for more information.
