@@ -31,19 +31,19 @@ msgstr ""
 "X-Generator: Weblate 2026.11.2.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:150
+#: warehouse/views.py:160
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr "กรุณายืนยันอีเมลหลักของคุณก่อนที่จะสามารถดำเนินการนี้ได้"
 
-#: warehouse/views.py:166
+#: warehouse/views.py:176
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "กรุณาเปิดการยืนยันสองขั้นตอนในบัญชีของคุณเพื่อดำเนินการต่อ"
 
-#: warehouse/views.py:377
+#: warehouse/views.py:443
 msgid "Locale updated"
 msgstr "ตำเเหน่งอัปเดต"
 
@@ -222,7 +222,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
 #: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
-#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:633
 msgid "Invalid or expired two factor login."
 msgstr "ระบบยืนยันตัวตนสองขั้นตอนไม่ถูกต้องหรือหมดอายุไปแล้ว"
 
@@ -234,11 +234,11 @@ msgstr "คุณได้ทำการยืนยันตัวตนไป
 msgid "Successful WebAuthn assertion"
 msgstr "การตรวจสอบ WebAuthn เสร็จสิ้น"
 
-#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:995
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "รหัสกู้คืนถูกต้อง ไม่สามารถใช้รหัสที่ให้มาได้อีกครั้ง"
 
-#: warehouse/accounts/views.py:744
+#: warehouse/accounts/views.py:774
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -249,14 +249,14 @@ msgstr ""
 "การสมัครผู้ใช้งานใหม่ถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:803
+#: warehouse/accounts/views.py:833
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:841
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -266,190 +266,190 @@ msgid ""
 msgstr ""
 "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป คุณถูกออกจากระบบ {} กรุณาลองใหม่ในภายหลัง"
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:899
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:966
+#: warehouse/accounts/views.py:996
 msgid "Expired token: request a new password reset link"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:968
+#: warehouse/accounts/views.py:998
 msgid "Invalid token: request a new password reset link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
-#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
-#: warehouse/accounts/views.py:1437
+#: warehouse/accounts/views.py:1000 warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1183 warehouse/accounts/views.py:1289
+#: warehouse/accounts/views.py:1467
 msgid "Invalid token: no token supplied"
 msgstr "โทเคนไม่ถูกต้อง: ไม่มีโทเคน"
 
-#: warehouse/accounts/views.py:974
+#: warehouse/accounts/views.py:1004
 msgid "Invalid token: not a password reset token"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ใช่โทเคนในการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
+#: warehouse/accounts/views.py:1009 warehouse/accounts/views.py:1124
 msgid "Invalid token: user not found"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:990
+#: warehouse/accounts/views.py:1020
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "โทเคนไม่ถูกต้อง: ผู้ใช้งานได้ทำการเข้าสู่ระบบหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:1038
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "โทเคนไม่ถูกต้อง: รหัสผ่านถูกเปลี่ยนแปลงแล้วหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:1039
+#: warehouse/accounts/views.py:1069
 msgid "You have reset your password"
 msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1111
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1113
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:1089
+#: warehouse/accounts/views.py:1119
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1134
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1109
+#: warehouse/accounts/views.py:1139
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1123
+#: warehouse/accounts/views.py:1153
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1179
 msgid "Expired token: request a new email verification link"
 msgstr "โทเคนหมดอายุ: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1181
 msgid "Invalid token: request a new email verification link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณายืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1187
 msgid "Invalid token: not an email verification token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1166
+#: warehouse/accounts/views.py:1196
 msgid "Email not found"
 msgstr "ไม่พบอีเมล์"
 
-#: warehouse/accounts/views.py:1169
+#: warehouse/accounts/views.py:1199
 msgid "Email already verified"
 msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
 
-#: warehouse/accounts/views.py:1189
+#: warehouse/accounts/views.py:1219
 msgid "You can now set this email as your primary address"
 msgstr "คุณสามารถตั้งค่าให้อีเมล์นี้เป็นอีเมล์หลักได้"
 
-#: warehouse/accounts/views.py:1192
+#: warehouse/accounts/views.py:1222
 msgid "This is your primary address"
 msgstr "นี่คือที่อยู่อีเมล์หลัก"
 
-#: warehouse/accounts/views.py:1198
+#: warehouse/accounts/views.py:1228
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1255
+#: warehouse/accounts/views.py:1285
 msgid "Expired token: request a new organization invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
-#: warehouse/accounts/views.py:1257
+#: warehouse/accounts/views.py:1287
 msgid "Invalid token: request a new organization invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอคำเชิญจากองค์กรของคุณ"
 
-#: warehouse/accounts/views.py:1263
+#: warehouse/accounts/views.py:1293
 msgid "Invalid token: not an organization invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนที่องค์กรเชิญมา"
 
-#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
+#: warehouse/accounts/views.py:1297 warehouse/accounts/views.py:1308
 msgid "Organization invitation is not valid."
 msgstr "คำเชิจากองค์กรไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1276
+#: warehouse/accounts/views.py:1306
 msgid "Organization invitation no longer exists."
 msgstr "ไม่มีคำเชิญเข้าร่วมองค์กรอีกต่อไป"
 
-#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
+#: warehouse/accounts/views.py:1314 warehouse/accounts/views.py:1501
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1338
+#: warehouse/accounts/views.py:1368
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "คำเชิจาก '${organization_name}' ถูกปฏิเสธ"
 
-#: warehouse/accounts/views.py:1400
+#: warehouse/accounts/views.py:1430
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "คุณได้เป็น ${role} ของ '${organization_name}'"
 
-#: warehouse/accounts/views.py:1433
+#: warehouse/accounts/views.py:1463
 msgid "Expired token: request a new project role invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์สำหรับโปรเจค"
 
-#: warehouse/accounts/views.py:1435
+#: warehouse/accounts/views.py:1465
 msgid "Invalid token: request a new project role invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการใช้งานใหม่"
 
-#: warehouse/accounts/views.py:1441
+#: warehouse/accounts/views.py:1471
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
+#: warehouse/accounts/views.py:1475 warehouse/accounts/views.py:1495
 msgid "Role invitation is not valid."
 msgstr "ตำเเหน่งการเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1452
+#: warehouse/accounts/views.py:1482
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "ไม่มีโทเค็น API"
 
-#: warehouse/accounts/views.py:1463
+#: warehouse/accounts/views.py:1493
 msgid "Role invitation no longer exists."
 msgstr "คำเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1505
+#: warehouse/accounts/views.py:1535
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "การเชิญ  '${project_name}' ได้ถูกการปฏิเสธ"
 
-#: warehouse/accounts/views.py:1570
+#: warehouse/accounts/views.py:1600
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ตอนนี้คุณได้เป็น ${role} ของโปรเจค '${project_name}' แล้ว"
 
-#: warehouse/accounts/views.py:1691
+#: warehouse/accounts/views.py:1721
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
+#: warehouse/accounts/views.py:1948 warehouse/accounts/views.py:2242
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -462,13 +462,13 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1945
+#: warehouse/accounts/views.py:1975
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1967
+#: warehouse/accounts/views.py:1997
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -481,11 +481,11 @@ msgstr ""
 "คุณต้องมีอีเมลที่ยืนยันแล้วจึงจะสามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้ที่รอดำเนินการ ดูข้อมูลเพิ่มเติมที่ "
 "https://pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1994
+#: warehouse/accounts/views.py:2024
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "คุณไม่สามารถลงทะเบียนผู้เผยแพร่ที่รอดำเนินการมากกว่า 3 รายพร้อมกันได้"
 
-#: warehouse/accounts/views.py:2009
+#: warehouse/accounts/views.py:2039
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -499,7 +499,7 @@ msgid ""
 "again later."
 msgstr "มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
 
-#: warehouse/accounts/views.py:2019
+#: warehouse/accounts/views.py:2049
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -508,7 +508,7 @@ msgstr "มีการพยายามลงทะเบียนผู้เ
 msgid "The trusted publisher could not be registered"
 msgstr "ไม่สามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้"
 
-#: warehouse/accounts/views.py:2034
+#: warehouse/accounts/views.py:2064
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -516,7 +516,7 @@ msgid ""
 msgstr ""
 "ผู้เผยแพร่ที่เชื่อถือได้รายนี้ได้รับการลงทะเบียนแล้ว โปรดติดต่อผู้ดูแลระบบของ PyPI หากไม่ได้ตั้งใจ"
 
-#: warehouse/accounts/views.py:2059
+#: warehouse/accounts/views.py:2089
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -529,17 +529,17 @@ msgid ""
 msgstr ""
 "ผู้เผยแพร่ที่เชื่อถือได้รายนี้ได้รับการลงทะเบียนแล้ว โปรดติดต่อผู้ดูแลระบบของ PyPI หากไม่ได้ตั้งใจ"
 
-#: warehouse/accounts/views.py:2082
+#: warehouse/accounts/views.py:2112
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "ลงทะเบียนผู้เผยแพร่ใหม่ที่รอดำเนินการเพื่อสร้าง "
 
-#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
-#: warehouse/accounts/views.py:2251
+#: warehouse/accounts/views.py:2261 warehouse/accounts/views.py:2274
+#: warehouse/accounts/views.py:2281
 msgid "Invalid publisher ID"
 msgstr "ID ผู้เผยแพร่ไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:2258
+#: warehouse/accounts/views.py:2288
 msgid "Removed trusted publisher for project "
 msgstr "ลบผู้เผยแพร่ที่เชื่อถือได้สำหรับโครงการแล้ว "
 
@@ -671,44 +671,44 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ชื่อทีมนี้ได้ถูกใช้งานแล้ว กรุณาเลือกชื่อทีมใหม่"
 
-#: warehouse/manage/views/__init__.py:438
+#: warehouse/manage/views/__init__.py:423
 msgid "Account details updated"
 msgstr "รายละเอียดบัญชีถูกอัปเดตเเล้ว"
 
-#: warehouse/manage/views/__init__.py:469
+#: warehouse/manage/views/__init__.py:454
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
 
-#: warehouse/manage/views/__init__.py:717
+#: warehouse/manage/views/__init__.py:702
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:957
+#: warehouse/manage/views/__init__.py:942
 msgid "Recovery codes already generated"
 msgstr "สร้างรหัสกู้คืนแล้ว"
 
-#: warehouse/manage/views/__init__.py:959
+#: warehouse/manage/views/__init__.py:944
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "การสร้างรหัสกู้คืนใหม่จะทำให้รหัสที่มีอยู่ของคุณเป็นโมฆะ"
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1052
 msgid "Verify your email to create an API token."
 msgstr "ยืนยันอีเมลของคุณเพื่อสร้างโทเค็น API"
 
-#: warehouse/manage/views/__init__.py:1169
+#: warehouse/manage/views/__init__.py:1154
 msgid "API Token does not exist."
 msgstr "ไม่มีโทเค็น API"
 
-#: warehouse/manage/views/__init__.py:1201
+#: warehouse/manage/views/__init__.py:1186
 msgid "Invalid credentials. Try again"
 msgstr "ข้อมูลประจำตัวที่ไม่ถูกต้อง. ลองอีกครั้ง"
 
-#: warehouse/manage/views/__init__.py:1372
-#: warehouse/manage/views/__init__.py:1708
-#: warehouse/manage/views/__init__.py:1837
+#: warehouse/manage/views/__init__.py:1357
+#: warehouse/manage/views/__init__.py:1693
+#: warehouse/manage/views/__init__.py:1822
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
@@ -718,108 +718,108 @@ msgstr ""
 "การปิดโปรเจคถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/manage/views/__init__.py:1392
+#: warehouse/manage/views/__init__.py:1377
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1508
+#: warehouse/manage/views/__init__.py:1493
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1532
-#: warehouse/manage/views/__init__.py:1620
-#: warehouse/manage/views/__init__.py:1730
-#: warehouse/manage/views/__init__.py:1850
+#: warehouse/manage/views/__init__.py:1517
+#: warehouse/manage/views/__init__.py:1605
+#: warehouse/manage/views/__init__.py:1715
+#: warehouse/manage/views/__init__.py:1835
 msgid "Confirm the request"
 msgstr "ยืนยันคำขอ"
 
-#: warehouse/manage/views/__init__.py:1545
+#: warehouse/manage/views/__init__.py:1530
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1633
+#: warehouse/manage/views/__init__.py:1618
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1743
+#: warehouse/manage/views/__init__.py:1728
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1761
+#: warehouse/manage/views/__init__.py:1746
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1847
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1867
+#: warehouse/manage/views/__init__.py:1852
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1877
+#: warehouse/manage/views/__init__.py:1862
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:1992
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2036
+#: warehouse/manage/views/__init__.py:2021
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2143
+#: warehouse/manage/views/__init__.py:2128
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2195
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2226
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2254
+#: warehouse/manage/views/__init__.py:2239
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2319
+#: warehouse/manage/views/__init__.py:2304
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2351
+#: warehouse/manage/views/__init__.py:2336
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2365
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:1296
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2370
+#: warehouse/manage/views/__init__.py:2355
 #: warehouse/manage/views/organizations.py:1301
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "การเชิญ  '${project_name}' ได้ถูกการปฏิเสธ"
 
-#: warehouse/manage/views/__init__.py:2375
+#: warehouse/manage/views/__init__.py:2360
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."

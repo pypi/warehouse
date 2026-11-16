@@ -80,14 +80,14 @@
 # Eana Hufwe <blueset@users.noreply.hosted.weblate.org>, 2026.
 # GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
 # B10112 <b10112@users.noreply.hosted.weblate.org>, 2026.
+# yunchu-translate <yunchu@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-11-12 14:39+0000\n"
-"Last-Translator: Hosted Weblate user 54392 "
-"<hamburger2048@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-15 07:28+0000\n"
+"Last-Translator: Jesse205 <jesse205@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -95,29 +95,29 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.11.2.dev0\n"
+"X-Generator: Weblate 2026.12.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
-#: warehouse/views.py:150
+#: warehouse/views.py:160
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr "请先验证你的主电子邮件地址，再执行此操作。"
 
-#: warehouse/views.py:166
+#: warehouse/views.py:176
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "请先为你的账户启用双因素身份验证，再执行此操作。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:377
+#: warehouse/views.py:443
 msgid "Locale updated"
 msgstr "区域设置已更新"
 
 #: warehouse/accounts/forms.py:51 warehouse/accounts/forms.py:350
 msgid "The email address isn't valid. Try again."
-msgstr "电子邮件地址无效，请重试。"
+msgstr "电子邮箱无效，请重试。"
 
 #: warehouse/accounts/forms.py:52
 msgid "The password is invalid. Try again."
@@ -129,8 +129,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"该用户名无效。其只能包括字母、数字以及“.”、“-”和“_”，且须以字母或数字开始和结"
-"束。请尝试使用其他名称。"
+"该用户名无效。用户名只能包括字母、数字以及“.”、“-”和“_”，且须以字母或数字开始"
+"和结束。请尝试使用其他名称。"
 
 #: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
@@ -140,11 +140,11 @@ msgstr "此处不可留空。"
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
-msgstr ""
+msgstr "用户名不同于电子邮件地址。输入用户名而非电子邮件地址。"
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
-msgstr "未找到使用该用户名的用户"
+msgstr "未找到该用户名的用户"
 
 #: warehouse/accounts/forms.py:127
 #, python-brace-format
@@ -164,7 +164,7 @@ msgstr "用户名不应超过 50 个字符。"
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "此用户名已被其他用户使用，请重新输入。"
+msgstr "此用户名已被其他用户占用，请重新输入。"
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -194,7 +194,7 @@ msgstr "无法使用该域名的电子邮件地址，请换一个邮箱供应方
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "你的账户已使用了此电子邮件地址，无需再新增此地址。"
+msgstr "此账户已使用此电子邮件地址。请使用一个不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:436
 msgid ""
@@ -205,7 +205,7 @@ msgstr "此电子邮件地址已被其他账户使用，请使用其他电子邮
 #: warehouse/accounts/forms.py:468
 #, python-brace-format
 msgid "Too many email addresses checked. Try again in ${time}."
-msgstr "勾选了太多电子邮件地址。请 ${time} 后重试。"
+msgstr "勾选了太多的电子邮件地址。请 ${time} 后重试。"
 
 #: warehouse/accounts/forms.py:475
 msgid "Too many email addresses checked. Try again later."
@@ -213,11 +213,11 @@ msgstr "勾选了太多的电子邮件地址。请稍后重试。"
 
 #: warehouse/accounts/forms.py:550
 msgid "You can't use a disposable email address. Use a different email."
-msgstr "不能使用临时电子邮件地址。使用不同的电子邮件地址。"
+msgstr "不能使用临时电子邮件地址。请使用不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "用户名太长，不应超过 100 个字符。"
+msgstr "用户名过长，不应超过 100 个字符。"
 
 #: warehouse/accounts/forms.py:590
 msgid "URLs are not allowed in the name field."
@@ -225,7 +225,7 @@ msgstr "名称字段中不允许 URL。"
 
 #: warehouse/accounts/forms.py:600
 msgid "You must agree to the Terms of Service and Acceptable Use Policy."
-msgstr ""
+msgstr "您必须同意服务条款和可接受使用政策。"
 
 #: warehouse/accounts/forms.py:688
 msgid "Invalid TOTP code."
@@ -238,11 +238,11 @@ msgstr "WebAuthn 断言无效：数据错误"
 # | msgid "Invalid TOTP code."
 #: warehouse/accounts/forms.py:769
 msgid "Invalid recovery code."
-msgstr "该恢复代码无效。"
+msgstr "该恢复码无效。"
 
 #: warehouse/accounts/forms.py:778
 msgid "Recovery code has been previously used."
-msgstr "这个恢复代码已经被使用过了。"
+msgstr "这个恢复码已经被用过了。"
 
 #: warehouse/accounts/forms.py:807
 msgid "The username isn't valid. Try again."
@@ -252,7 +252,7 @@ msgstr "用户名无效，请重试。"
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for Please try again later."
-msgstr "不成功的登录尝试过多。你已被锁在账户外，请稍后重试。"
+msgstr "登录失败次数过多。账户已锁定，请稍后重试。"
 
 #: warehouse/accounts/views.py:141
 #, python-brace-format
@@ -260,8 +260,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"请不要在短时间内添加太多邮箱地址。优先检查你的收件箱，并依指示点击链接，验证"
-"这些先前添加的邮箱。（IP: ${ip}）"
+"请不要在短时间内添加太多邮箱地址。请检查你的收件箱，并依次点击指示点击链接，"
+"验证这些先前添加的邮箱。（IP: ${ip}）"
 
 #: warehouse/accounts/views.py:153
 #, python-brace-format
@@ -275,7 +275,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
 #: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
-#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:633
 msgid "Invalid or expired two factor login."
 msgstr "双因素登录无效或过期。"
 
@@ -287,204 +287,204 @@ msgstr "已通过身份验证"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 断言成功"
 
-#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:995
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "已成功接受此恢复代码，该代码将无法再次使用。"
+msgstr "已使用此恢复码，该恢复码将无法再次使用。"
 
-#: warehouse/accounts/views.py:744
+#: warehouse/accounts/views.py:774
 #, python-brace-format
 msgid ""
 "New user registration temporarily disabled. See ${docs_url} for details."
 msgstr "临时禁用了新用户注册。详见 ${docs_url}。"
 
-#: warehouse/accounts/views.py:803
+#: warehouse/accounts/views.py:833
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
-msgstr ""
+msgstr "从您的网络尝试注册的次数过多。请在 ${time} 后重试。"
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:841
 msgid ""
 "Too many registration attempts from your network. Please try again later."
 msgstr "来自您网络的注册尝试过多。请稍后再试。"
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:899
 msgid ""
 "Too many password reset requests from your network. Please try again later."
-msgstr ""
+msgstr "来自您网络的密码重置请求太多。请稍后再试。"
 
-#: warehouse/accounts/views.py:966
+#: warehouse/accounts/views.py:996
 msgid "Expired token: request a new password reset link"
 msgstr "令牌已过期：请重新请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:968
+#: warehouse/accounts/views.py:998
 msgid "Invalid token: request a new password reset link"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
-#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
-#: warehouse/accounts/views.py:1437
+#: warehouse/accounts/views.py:1000 warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1183 warehouse/accounts/views.py:1289
+#: warehouse/accounts/views.py:1467
 msgid "Invalid token: no token supplied"
 msgstr "令牌无效：未提供令牌"
 
-#: warehouse/accounts/views.py:974
+#: warehouse/accounts/views.py:1004
 msgid "Invalid token: not a password reset token"
 msgstr "令牌无效：该令牌不适用于密码重置"
 
-#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
+#: warehouse/accounts/views.py:1009 warehouse/accounts/views.py:1124
 msgid "Invalid token: user not found"
 msgstr "令牌无效：找不到用户"
 
-#: warehouse/accounts/views.py:990
+#: warehouse/accounts/views.py:1020
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "令牌无效：请求此令牌的用户已经登录"
 
-#: warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:1038
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "令牌无效：请求此令牌的用户已更改其密码"
 
-#: warehouse/accounts/views.py:1039
+#: warehouse/accounts/views.py:1069
 msgid "You have reset your password"
 msgstr "你已重置密码"
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1111
 msgid "Expired token: please try to login again"
 msgstr "令牌已过期：请尝试重新登录"
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1113
 msgid "Invalid token: please try to login again"
 msgstr "令牌无效：请尝试重新登录"
 
-#: warehouse/accounts/views.py:1089
+#: warehouse/accounts/views.py:1119
 msgid "Invalid token: not a login confirmation token"
 msgstr "令牌无效：不是登录确认令牌"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1134
 msgid "Invalid login attempt."
-msgstr ""
+msgstr "无效的登录尝试。"
 
-#: warehouse/accounts/views.py:1109
+#: warehouse/accounts/views.py:1139
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1123
+#: warehouse/accounts/views.py:1153
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1179
 msgid "Expired token: request a new email verification link"
 msgstr "令牌已过期：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1181
 msgid "Invalid token: request a new email verification link"
 msgstr "令牌无效：请再次请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1187
 msgid "Invalid token: not an email verification token"
 msgstr "令牌无效：该令牌不适用于电子邮件验证"
 
-#: warehouse/accounts/views.py:1166
+#: warehouse/accounts/views.py:1196
 msgid "Email not found"
-msgstr "未找到该电子邮件"
+msgstr "未找到电子邮件"
 
-#: warehouse/accounts/views.py:1169
+#: warehouse/accounts/views.py:1199
 msgid "Email already verified"
-msgstr "电子邮件已验证"
+msgstr "电子邮件验证成功"
 
-#: warehouse/accounts/views.py:1189
+#: warehouse/accounts/views.py:1219
 msgid "You can now set this email as your primary address"
 msgstr "此电子邮件现在可以被设为主邮件地址了"
 
-#: warehouse/accounts/views.py:1192
+#: warehouse/accounts/views.py:1222
 msgid "This is your primary address"
 msgstr "这是你的主邮件地址"
 
-#: warehouse/accounts/views.py:1198
+#: warehouse/accounts/views.py:1228
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址 ${email_address} 已验证。${confirm_message}。"
 
-#: warehouse/accounts/views.py:1255
+#: warehouse/accounts/views.py:1285
 msgid "Expired token: request a new organization invitation"
 msgstr "令牌已过期：请重新请求新的组织邀请"
 
-#: warehouse/accounts/views.py:1257
+#: warehouse/accounts/views.py:1287
 msgid "Invalid token: request a new organization invitation"
 msgstr "令牌无效：请再次请求新的组织邀请"
 
-#: warehouse/accounts/views.py:1263
+#: warehouse/accounts/views.py:1293
 msgid "Invalid token: not an organization invitation token"
 msgstr "令牌无效：该令牌不适用于组织邀请"
 
-#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
+#: warehouse/accounts/views.py:1297 warehouse/accounts/views.py:1308
 msgid "Organization invitation is not valid."
 msgstr "该组织邀请无效。"
 
-#: warehouse/accounts/views.py:1276
+#: warehouse/accounts/views.py:1306
 msgid "Organization invitation no longer exists."
 msgstr "该组织邀请已过期。"
 
-#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
+#: warehouse/accounts/views.py:1314 warehouse/accounts/views.py:1501
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1338
+#: warehouse/accounts/views.py:1368
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "已拒绝来自“${organization_name}”组织的邀请。"
 
-#: warehouse/accounts/views.py:1400
+#: warehouse/accounts/views.py:1430
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "现在你已成为“${organization_name}”组织的${role}。"
 
-#: warehouse/accounts/views.py:1433
+#: warehouse/accounts/views.py:1463
 msgid "Expired token: request a new project role invitation"
 msgstr "令牌已过期：请重新请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1435
+#: warehouse/accounts/views.py:1465
 msgid "Invalid token: request a new project role invitation"
 msgstr "令牌无效：请再次请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1441
+#: warehouse/accounts/views.py:1471
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "令牌无效：该令牌不适用于协作邀请"
 
-#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
+#: warehouse/accounts/views.py:1475 warehouse/accounts/views.py:1495
 msgid "Role invitation is not valid."
 msgstr "该角色邀请无效。"
 
-#: warehouse/accounts/views.py:1452
+#: warehouse/accounts/views.py:1482
 msgid "Invalid token: project does not exist"
 msgstr "令牌无效：项目不存在"
 
-#: warehouse/accounts/views.py:1463
+#: warehouse/accounts/views.py:1493
 msgid "Role invitation no longer exists."
 msgstr "该角色邀请已过期。"
 
-#: warehouse/accounts/views.py:1505
+#: warehouse/accounts/views.py:1535
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "已拒绝来自“${project_name}”项目的邀请。"
 
-#: warehouse/accounts/views.py:1570
+#: warehouse/accounts/views.py:1600
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "现在你已成为“${project_name}”项目的${role}。"
 
-#: warehouse/accounts/views.py:1691
+#: warehouse/accounts/views.py:1721
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
-msgstr "请查看我们更新后的 <a href=\"${tos_url}\">服务条款</a>。"
+msgstr "请查看更新后的 <a href=\"${tos_url}\">服务条款</a>。"
 
-#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
+#: warehouse/accounts/views.py:1948 warehouse/accounts/views.py:2242
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, python-brace-format
@@ -492,13 +492,13 @@ msgid ""
 "Trusted publishing is temporarily disabled. See ${docs_url} for details."
 msgstr "暂时禁用了受信任发布。详见 ${docs_url}。"
 
-#: warehouse/accounts/views.py:1945
+#: warehouse/accounts/views.py:1975
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1967
+#: warehouse/accounts/views.py:1997
 #: warehouse/manage/views/organizations.py:1950
 #, python-brace-format
 msgid ""
@@ -507,11 +507,11 @@ msgid ""
 msgstr ""
 "要注册待定的受信任发布者，你必须有一个已验证的电子邮箱。详见 ${docs_url}。"
 
-#: warehouse/accounts/views.py:1994
+#: warehouse/accounts/views.py:2024
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "请勿同时注册超过三个待定的受信任发布者。"
 
-#: warehouse/accounts/views.py:2009
+#: warehouse/accounts/views.py:2039
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -522,7 +522,7 @@ msgid ""
 "again later."
 msgstr "受信任发布者的注册尝试次数过多，请稍后重试。"
 
-#: warehouse/accounts/views.py:2019
+#: warehouse/accounts/views.py:2049
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -531,14 +531,14 @@ msgstr "受信任发布者的注册尝试次数过多，请稍后重试。"
 msgid "The trusted publisher could not be registered"
 msgstr "无法注册该受信任发布者"
 
-#: warehouse/accounts/views.py:2034
+#: warehouse/accounts/views.py:2064
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr "该受信任发布者已被注册。如果这不是有意为之，请联系 PyPI 的管理员。"
 
-#: warehouse/accounts/views.py:2059
+#: warehouse/accounts/views.py:2089
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
@@ -548,17 +548,17 @@ msgstr ""
 "已经为别的项目名注册了一个匹配这个配置的待定受信任发布者。如果这不是有意为之"
 "请联系 PyPI 的管理员。"
 
-#: warehouse/accounts/views.py:2082
+#: warehouse/accounts/views.py:2112
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "注册了新的待定发布者来创建 "
 
-#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
-#: warehouse/accounts/views.py:2251
+#: warehouse/accounts/views.py:2261 warehouse/accounts/views.py:2274
+#: warehouse/accounts/views.py:2281
 msgid "Invalid publisher ID"
 msgstr "发布者 ID 无效"
 
-#: warehouse/accounts/views.py:2258
+#: warehouse/accounts/views.py:2288
 msgid "Removed trusted publisher for project "
 msgstr "已对该项目移除了收信任发布者： "
 
@@ -688,113 +688,113 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 
-#: warehouse/manage/views/__init__.py:438
+#: warehouse/manage/views/__init__.py:423
 msgid "Account details updated"
 msgstr "已更新账户详细信息"
 
-#: warehouse/manage/views/__init__.py:469
+#: warehouse/manage/views/__init__.py:454
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加电子邮件 ${email_address} - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views/__init__.py:717
+#: warehouse/manage/views/__init__.py:702
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:957
+#: warehouse/manage/views/__init__.py:942
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views/__init__.py:959
+#: warehouse/manage/views/__init__.py:944
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1052
 msgid "Verify your email to create an API token."
 msgstr "验证你的电子邮件以创建 API 令牌。"
 
-#: warehouse/manage/views/__init__.py:1169
+#: warehouse/manage/views/__init__.py:1154
 msgid "API Token does not exist."
 msgstr "API 令牌不存在。"
 
-#: warehouse/manage/views/__init__.py:1201
+#: warehouse/manage/views/__init__.py:1186
 msgid "Invalid credentials. Try again"
 msgstr "凭据无效，请重试。"
 
-#: warehouse/manage/views/__init__.py:1372
-#: warehouse/manage/views/__init__.py:1708
-#: warehouse/manage/views/__init__.py:1837
+#: warehouse/manage/views/__init__.py:1357
+#: warehouse/manage/views/__init__.py:1693
+#: warehouse/manage/views/__init__.py:1822
 #, python-brace-format
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr "暂时禁用了项目删除。详见 ${docs_url}。"
 
-#: warehouse/manage/views/__init__.py:1392
+#: warehouse/manage/views/__init__.py:1377
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1508
+#: warehouse/manage/views/__init__.py:1493
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1532
-#: warehouse/manage/views/__init__.py:1620
-#: warehouse/manage/views/__init__.py:1730
-#: warehouse/manage/views/__init__.py:1850
+#: warehouse/manage/views/__init__.py:1517
+#: warehouse/manage/views/__init__.py:1605
+#: warehouse/manage/views/__init__.py:1715
+#: warehouse/manage/views/__init__.py:1835
 msgid "Confirm the request"
 msgstr "确认请求"
 
-#: warehouse/manage/views/__init__.py:1545
+#: warehouse/manage/views/__init__.py:1530
 msgid "Could not yank release - "
 msgstr "无法对发布进行 yank 操作 - "
 
-#: warehouse/manage/views/__init__.py:1633
+#: warehouse/manage/views/__init__.py:1618
 msgid "Could not un-yank release - "
 msgstr "无法取消对发布采取的 yank 操作- "
 
-#: warehouse/manage/views/__init__.py:1743
+#: warehouse/manage/views/__init__.py:1728
 msgid "Could not delete release - "
 msgstr "无法删除发布 - "
 
-#: warehouse/manage/views/__init__.py:1761
+#: warehouse/manage/views/__init__.py:1746
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1847
 msgid "Could not find file"
 msgstr "找不到文件"
 
-#: warehouse/manage/views/__init__.py:1867
+#: warehouse/manage/views/__init__.py:1852
 msgid "Could not delete file - "
 msgstr "无法删除文件 - "
 
-#: warehouse/manage/views/__init__.py:1877
+#: warehouse/manage/views/__init__.py:1862
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:1992
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2036
+#: warehouse/manage/views/__init__.py:2021
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "'${team_name}' 团队在项目中已经有 ${role_name} 角色"
 
-#: warehouse/manage/views/__init__.py:2143
+#: warehouse/manage/views/__init__.py:2128
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "用户“${username}”在这个项目中已有${role_name}"
 
-#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2195
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} 现为 '${project_name}' 项目的 ${role}。"
 
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2226
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -803,36 +803,36 @@ msgstr ""
 "用户 ‘${username}’ 没有经过验证的主电子邮件地址，无法被添加为项目的 $"
 "{role_name}"
 
-#: warehouse/manage/views/__init__.py:2254
+#: warehouse/manage/views/__init__.py:2239
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户 ‘${username}’ 已经有一个有效的邀请。请稍后再试。"
 
-#: warehouse/manage/views/__init__.py:2319
+#: warehouse/manage/views/__init__.py:2304
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "已向 ‘${username}’ 发送邀请"
 
-#: warehouse/manage/views/__init__.py:2351
+#: warehouse/manage/views/__init__.py:2336
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
-#: warehouse/manage/views/__init__.py:2365
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:1296
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "删除了对 '${username}' 的过期邀请。"
 
-#: warehouse/manage/views/__init__.py:2370
+#: warehouse/manage/views/__init__.py:2355
 #: warehouse/manage/views/organizations.py:1301
 #, python-brace-format
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "删除了 '${username}' 的无效邀请。"
 
-#: warehouse/manage/views/__init__.py:2375
+#: warehouse/manage/views/__init__.py:2360
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
