@@ -14,7 +14,7 @@ from tests.common.db.organizations import (
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 from tests.common.db.ses import EmailMessageFactory
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import LifecycleStatus
+from warehouse.packaging.models import LifecycleStatus, Project
 from warehouse.utils.security_policy import principals_for
 
 
@@ -349,6 +349,43 @@ def test_security_cannot_use_non_malware_observation_ids(
     assert release.lifecycle_status is None
 
 
+def test_project_observations_link_only_malware_reports(
+    webtest, login_admin, make_malware_report
+):
+    login_admin()
+    report = make_malware_report()
+    project = report.related
+    spam = project.Observation(
+        kind=ObservationKind.IsSpam.value[0],
+        observer=report.observer,
+        payload={},
+        related=project,
+        related_name=repr(project),
+        summary="Spam report",
+    )
+    db = webtest.extra_environ["warehouse.db_session"]
+    db.add(spam)
+    db.flush()
+    page = webtest.get(f"/admin/projects/{project.normalized_name}/")
+    links = page.html.select('#project_observations a[href^="/admin/malware_reports/"]')
+    assert [a["href"] for a in links] == [f"/admin/malware_reports/{report.id}/"]
+
+
+def test_security_cannot_remove_project_without_malware_reports(webtest, login_admin):
+    login_admin(is_security=True)
+    project = ProjectFactory.create()
+    owner = UserFactory.create()
+    RoleFactory.create(user=owner, project=project, role_name="Owner")
+    webtest.post(
+        f"/admin/projects/{project.normalized_name}/malware_reports/remove_malware/",
+        {"csrf_token": _csrf(webtest), "confirm_project_name": project.name},
+        status=303,
+    )
+    db = webtest.extra_environ["warehouse.db_session"]
+    assert db.get(Project, project.id) is project
+    assert not owner.is_frozen
+
+
 def test_security_release_quarantine_and_clear(
     webtest, login_admin, make_malware_report
 ):
@@ -426,7 +463,7 @@ def test_contextual_navigation_uses_global_permissions(
     project_page = webtest.get(f"/admin/projects/{project.normalized_name}/")
     organization_link = f'a[href="/admin/organizations/{organization.id}/"]'
     token_link = f'a[href="/admin/macaroons/{token.id}"]'
-    assert bool(user_page.html.select("#api-tokens")) is full_navigation
+    assert user_page.html.select("#api-tokens")
     assert bool(user_page.html.select(token_link)) is (role == "is_superuser")
     for page in [user_page, project_page]:
         assert bool(page.html.select(organization_link)) is full_navigation
