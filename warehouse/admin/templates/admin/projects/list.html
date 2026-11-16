@@ -2,8 +2,6 @@
 
 {% extends "admin/base.html" %}
 
-{% import "admin/utils/pagination.html" as pagination %}
-
 {% block title %}Projects{% endblock %}
 
 {% block breadcrumb %}
@@ -13,88 +11,15 @@
 {% block content %}
 <div class="card">
   <div class="card-body">
-    <form>
-      <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search by name or id:&lt;uuid&gt;"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn input-group-append">
-          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-{% if query %}
-{# Search results mode #}
-
-<h4>Exact match (with normalization)</h4>
-<div class="card">
-  <div class="card-body table-responsive p-0">
-    {% if exact_match %}
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th>Project name</th>
-        <th>Normalized name</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>
-          <a href="{{ request.route_path('admin.project.detail', project_name=exact_match.normalized_name) }}">{{ exact_match.name }}</a>
-        </td>
-        <td>{{ exact_match.normalized_name}}</td>
-      </tr>
-      </tbody>
-    </table>
-    {% else %}
-    <p class="text-center text-muted">
-      <em>No exact match</em>
+    <p class="text-muted">
+      The name filter matches anywhere in the name, ignoring case, separators
+      and look-alike characters. Press Enter to apply it. A name that matches
+      outright is listed first. Paste a project id to find that one project.
     </p>
-    {% endif %}
+    <div id="projects-table"
+         data-url="{{ request.route_path('admin.project.list') }}"></div>
   </div>
 </div>
-
-<h4>All matches (with ultranormalization)</h4>
-<div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-striped table-hover">
-      <thead>
-      <tr>
-        <th>Project name</th>
-        <th>Normalized name</th>
-      </tr>
-      </thead>
-      <tbody>
-      {% for project in projects %}
-      <tr>
-        <td>
-          <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a>
-        </td>
-        <td>{{ project.normalized_name}}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card-footer">
-    <div class="row">
-      <div class="col-sm-5">
-          {{ pagination.summary(projects) }}
-      </div>
-
-      <div class="col-sm-7">
-        <div class="float-right">
-            {{ pagination.paginate(projects) }}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% else %}
-{# Dashboard mode #}
 
 <div class="card">
   <div class="card-header">
@@ -152,5 +77,4 @@
     </table>
   </div>
 </div>
-{% endif %}
 {% endblock content %}

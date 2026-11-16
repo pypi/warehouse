@@ -1,31 +1,54 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import pytest
 
 from warehouse.helpdesk import includeme
 from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
+from warehouse.helpdesk.services import (
+    ConsoleAdminNotificationService,
+    ConsoleHelpDeskService,
+    HelpScoutService,
+    SlackAdminNotificationService,
+)
 
 
-def test_includeme():
-    dummy_klass = pretend.stub(create_service=pretend.stub())
-    config = pretend.stub(
-        registry=pretend.stub(
-            settings={
-                "helpdesk.backend": "test.HelpDeskService",
-                "helpdesk.notification_backend": "test.NotificationService",
-            }
+@pytest.mark.parametrize(
+    ("backend", "helpdesk_class", "notification_backend", "notification_class"),
+    [
+        (
+            "warehouse.helpdesk.services.HelpScoutService",
+            HelpScoutService,
+            "warehouse.helpdesk.services.SlackAdminNotificationService",
+            SlackAdminNotificationService,
         ),
-        maybe_dotted=pretend.call_recorder(lambda n: dummy_klass),
-        register_service_factory=pretend.call_recorder(lambda s, i, **kw: None),
+        (
+            "warehouse.helpdesk.services.ConsoleHelpDeskService",
+            ConsoleHelpDeskService,
+            "warehouse.helpdesk.services.ConsoleAdminNotificationService",
+            ConsoleAdminNotificationService,
+        ),
+    ],
+)
+def test_includeme(
+    pyramid_config,
+    mocker,
+    backend,
+    helpdesk_class,
+    notification_backend,
+    notification_class,
+):
+    pyramid_config.include("pyramid_services")
+    pyramid_config.registry.settings.update(
+        {
+            "helpdesk.backend": backend,
+            "helpdesk.notification_backend": notification_backend,
+        }
     )
+    register_service_factory = mocker.spy(pyramid_config, "register_service_factory")
 
-    includeme(config)
+    includeme(pyramid_config)
 
-    assert config.maybe_dotted.calls == [
-        pretend.call("test.HelpDeskService"),
-        pretend.call("test.NotificationService"),
-    ]
-    assert config.register_service_factory.calls == [
-        pretend.call(dummy_klass.create_service, IHelpDeskService),
-        pretend.call(dummy_klass.create_service, IAdminNotificationService),
+    assert register_service_factory.call_args_list == [
+        mocker.call(helpdesk_class.create_service, IHelpDeskService),
+        mocker.call(notification_class.create_service, IAdminNotificationService),
     ]

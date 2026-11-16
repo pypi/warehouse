@@ -106,6 +106,12 @@ readthedocs-flyout { display: none; }
   background: white;
 }
 
+/* md_in_html wraps a figure's image in a <p>, whose margins stack with the
+   figure's and figcaption's own */
+.md-typeset figure > p {
+  margin: 0;
+}
+
 .md-typeset .blogging-tag code {
   white-space: nowrap;
   display: block;

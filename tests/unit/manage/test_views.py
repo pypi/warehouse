@@ -197,8 +197,8 @@ def two_factor_request(pyramid_config, real_session_request):
         (object(), None),
     ],
 )
-def test_parse_email_id(value, expected):
-    assert views._parse_email_id(value) == expected
+def test_parse_int(value, expected):
+    assert view_helpers.parse_int(value) == expected
 
 
 class TestManageUnverifiedAccount:
@@ -3078,7 +3078,7 @@ class TestManageProjectDocumentation:
             mocker.call(remove_documentation),
             mocker.call(remove_documentation),
         ]
-        assert project_request._task_stub.delay.call_args_list == [
+        assert project_request.task.return_value.delay.call_args_list == [
             mocker.call(project.name),
             mocker.call(project.normalized_name),
         ]

@@ -343,9 +343,9 @@ iniconfig==2.3.1 \
     --hash=sha256:67f4b9c50da0dedf52af349e7749a80a9057a5031199791b906c3bb3ae878960 \
     --hash=sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7
     # via pytest
-inline-snapshot==0.36.1 \
-    --hash=sha256:9d795198efcf956670a8ed588c85708dd3575a08341c63e2b34745a2ba0c6245 \
-    --hash=sha256:ff57828c691eaafe03426de25f2c21a1e382905dcbe110934df862297e8c5f8a
+inline-snapshot==0.36.2 \
+    --hash=sha256:2c7980bee5149ecfffae3fea2e6670e56d0cd94fa975e7bd8517c4c984ce6e5c \
+    --hash=sha256:fb30d99a915a768d1c46ab5b7576b7ee2a8d60eb31063a14ada305c05bb5ffc8
     # via -r requirements/tests.in
 legacy-cgi==2.6.4 \
     --hash=sha256:7e235ce58bf1e25d1fc9b2d299015e4e2cd37305eccafec1e6bac3fc04b878cd \
@@ -381,10 +381,6 @@ pprintpp==0.4.0 \
     --hash=sha256:b6b4dcdd0c0c0d75e4d7b2f21a9e933e5b2ce62b26e1a54537f9651ae5a5c01d \
     --hash=sha256:ea826108e2c7f49dc6d66c752973c3fc9749142a798d6b254e1e301cfdbc6403
     # via pytest-icdiff
-pretend==1.0.9 \
-    --hash=sha256:c90eb810cde8ebb06dafcb8796f9a95228ce796531bc806e794c2f4649aa1b10 \
-    --hash=sha256:e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01
-    # via -r requirements/tests.in
 psutil==7.2.2 \
     --hash=sha256:0746f5f8d406af344fd547f1c8daa5f5c33dbc293bb8d6a16d80b4bb88f59372 \
     --hash=sha256:076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9 \
@@ -408,9 +404,9 @@ psutil==7.2.2 \
     --hash=sha256:eed63d3b4d62449571547b60578c5b2c4bcccc5387148db46e0c2313dad0ee00 \
     --hash=sha256:fd04ef36b4a6d599bbdb225dd1d3f51e00105f6d48a28f006da7f9822f2606d8
     # via mirakuru
-psycopg==3.3.6 \
-    --hash=sha256:a1db9f7148b06a28606767efaca51fa6f9398c5c0a3810519be69d7000bdb631 \
-    --hash=sha256:c081f2250df751a943036e42db6df4571c66cd0aabe8291a7a506512b12007d2
+psycopg==3.3.8 \
+    --hash=sha256:86c135a9a6f5e98404975c5787e620bf436a7807e088baebd1b20fa48d3b4b4f \
+    --hash=sha256:ca50af6072ba9ea6866f33021975230c2555d7bfdb9d8f94ca3af5c3d1bf2167
     # via pytest-postgresql
 pygments==2.21.0 \
     --hash=sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9 \
@@ -439,13 +435,13 @@ pytest-mock==3.17.0 \
     --hash=sha256:1b82aa4b37137248bd687055e109723debeb07b489de1565297dc9589c5f2d6b \
     --hash=sha256:e36576e0985e01027e999891e7a966c67822d40c89ef1b4c8b6e22737e3590b4
     # via -r requirements/tests.in
-pytest-postgresql==9.1.1 \
-    --hash=sha256:9a4673870bde284ed200a7efb496ad7a90024348231f0d5be0d72946423a220f \
-    --hash=sha256:fcd6e100d9d5550c3192c8386afa6632c2963ca808b0617d47ed16dd037a224c
+pytest-postgresql==10.0.0 \
+    --hash=sha256:447c81c7d389ba0f6209cecba37e5ee2ff14127058ed491a3c831f6744d7fe94 \
+    --hash=sha256:fff4ccd1edd8131ae528fc6236eb11c3502678a2870624fb0ea304e6268dee8d
     # via -r requirements/tests.in
-pytest-randomly==5.0.0 \
-    --hash=sha256:8a0d4703115c0c25b38b6e129fc16b1947b9643ff26a41bc1d185d7e5a7689c1 \
-    --hash=sha256:e9c575a5873ef168ddbe340ed9e97ce9edb4492ccc821e4b2ac6bb1f0ed515d2
+pytest-randomly==5.1.0 \
+    --hash=sha256:cdf8af20419969d273b97c8e7c8d688200807e815bdc733cf2a6af183080ad58 \
+    --hash=sha256:fb9004e6821422291087d0294fd62f45ff304094db11fbdff8f2fe1ed20764d8
     # via -r requirements/tests.in
 pytest-socket==0.8.1 \
     --hash=sha256:2f57787914ad2e1308d09ce141b95c3e55741fbb4fb7b7556593a6b063e0c9c7 \

@@ -790,6 +790,7 @@ class DatabaseUserService:
         userid,
         request: Request,
         two_factor_method: str | None = None,
+        remember_device: bool = False,
     ) -> bool:
         user = self.get_user(userid)
         token_service = request.find_service(ITokenService, name="confirm_login")
@@ -865,6 +866,7 @@ class DatabaseUserService:
                     user.last_login or dt.datetime.min.replace(tzinfo=pytz.UTC)
                 ),
                 "unique_login_id": unique_login.id,
+                "remember_device": remember_device,
             }
         )
 

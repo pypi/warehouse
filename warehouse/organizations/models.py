@@ -284,6 +284,9 @@ class OrganizationFactory:
                 self.request.matched_route.generate(
                     {
                         **self.request.matchdict,
+                        # Organization routes call this placeholder either
+                        # "organization" or "organization_name".
+                        "organization": organization.normalized_name,
                         "organization_name": organization.normalized_name,
                     }
                 )
@@ -296,12 +299,17 @@ class OrganizationApplicationFactory:
     def __init__(self, request):
         self.request = request
 
-    def __getitem__(self, organization_application_id):
+    def __getitem__(self, organization_application_id: str) -> OrganizationApplication:
+        # A segment that isn't a UUID fails in Postgres instead of finding no row.
+        try:
+            application_id = UUID(organization_application_id)
+        except ValueError:
+            raise KeyError from None
         # Try returning organization application with matching id.
         try:
             return (
                 self.request.db.query(OrganizationApplication)
-                .filter(OrganizationApplication.id == organization_application_id)
+                .filter(OrganizationApplication.id == application_id)
                 .filter(
                     OrganizationApplication.status
                     != OrganizationApplicationStatus.Withdrawn

@@ -3,7 +3,6 @@
 import json
 import re
 
-import pretend
 import pytest
 
 from pydantic import TypeAdapter
@@ -13,7 +12,6 @@ from pypi_attestations import (
     Provenance,
     VerificationError,
 )
-from sigstore.verify import Verifier
 from zope.interface.verify import verifyClass
 
 from tests.common.db.oidc import (
@@ -26,6 +24,11 @@ from tests.common.db.packaging import FileFactory
 from warehouse.attestations import IIntegrityService, services
 from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.models import Provenance as DatabaseProvenance
+
+
+def attestations_json(attestations):
+    """Serialize ``attestations`` as the upload form's ``attestations`` value."""
+    return TypeAdapter(list[Attestation]).dump_json(attestations).decode()
 
 
 class TestNullIntegrityService:
@@ -47,21 +50,28 @@ class TestNullIntegrityService:
         assert provenance.file == file
         assert file.provenance == provenance
 
-    def test_parse_attestations(self, db_request, monkeypatch):
+    def test_parse_attestations(self, db_request, mocker):
         service = services.NullIntegrityService.create_service(None, db_request)
 
-        extract_attestations_from_request = pretend.call_recorder(lambda r: None)
-        monkeypatch.setattr(
-            services,
-            "_extract_attestations_from_request",
-            extract_attestations_from_request,
+        extract_attestations_from_request = mocker.patch.object(
+            services, "_extract_attestations_from_request", autospec=True
         )
 
-        service.parse_attestations(db_request, pretend.stub())
-        assert extract_attestations_from_request.calls == [pretend.call(db_request)]
+        attestations = service.parse_attestations(
+            db_request, mocker.sentinel.distribution
+        )
+
+        assert attestations is extract_attestations_from_request.return_value
+        extract_attestations_from_request.assert_called_once_with(db_request)
 
 
 class TestIntegrityService:
+    @pytest.fixture
+    def github_request(self, db_request):
+        """A request authenticated by a GitHub Trusted Publisher."""
+        db_request.oidc_publisher = GitHubPublisherFactory.build()
+        return db_request
+
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, services.IntegrityService)
 
@@ -69,9 +79,9 @@ class TestIntegrityService:
         service = services.IntegrityService.create_service(None, db_request)
         assert isinstance(service, services.IntegrityService)
 
-    def test_parse_attestations_fails_no_publisher(self, db_request):
+    def test_parse_attestations_fails_no_publisher(self, metrics, db_request, mocker):
         integrity_service = services.IntegrityService(
-            metrics=pretend.stub(),
+            metrics=metrics,
             session=db_request.db,
         )
 
@@ -80,7 +90,11 @@ class TestIntegrityService:
             AttestationUploadError,
             match="Attestations are only supported when using Trusted Publishing",
         ):
-            integrity_service.parse_attestations(db_request, pretend.stub())
+            integrity_service.parse_attestations(
+                db_request, mocker.sentinel.distribution
+            )
+
+        metrics.increment.assert_not_called()
 
     @pytest.mark.parametrize(
         "publisher_factory",
@@ -89,10 +103,10 @@ class TestIntegrityService:
         ],
     )
     def test_parse_attestations_fails_unsupported_publisher(
-        self, db_request, publisher_factory
+        self, metrics, db_request, publisher_factory, mocker
     ):
         integrity_service = services.IntegrityService(
-            metrics=pretend.stub(), session=db_request.db
+            metrics=metrics, session=db_request.db
         )
         db_request.oidc_publisher = publisher_factory.create()
         with pytest.raises(
@@ -102,42 +116,45 @@ class TestIntegrityService:
                 f"{db_request.oidc_publisher.publisher_name} publishers"
             ),
         ):
-            integrity_service.parse_attestations(db_request, pretend.stub())
+            integrity_service.parse_attestations(
+                db_request, mocker.sentinel.distribution
+            )
 
-    def test_parse_attestations_fails_malformed_attestation(self, metrics, db_request):
+        metrics.increment.assert_not_called()
+
+    def test_parse_attestations_fails_malformed_attestation(
+        self, metrics, github_request, mocker
+    ):
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
-        db_request.POST["attestations"] = "{'malformed-attestation'}"
+        github_request.POST["attestations"] = "{'malformed-attestation'}"
         with pytest.raises(
             AttestationUploadError,
             match="Malformed attestations",
         ):
-            integrity_service.parse_attestations(db_request, pretend.stub())
+            integrity_service.parse_attestations(
+                github_request, mocker.sentinel.distribution
+            )
 
-        assert (
-            pretend.call("warehouse.upload.attestations.malformed")
-            in metrics.increment.calls
-        )
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.upload.attestations.malformed")
+        ]
 
     def test_parse_attestations_fails_multiple_attestations_exceeds_limit(
-        self, metrics, db_request, dummy_attestation
+        self, metrics, github_request, dummy_attestation, mocker
     ):
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
 
         max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
 
-        db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
-        db_request.POST["attestations"] = (
-            TypeAdapter(list[Attestation])
-            .dump_json([dummy_attestation] * (max_attestations + 1))
-            .decode()
+        github_request.POST["attestations"] = attestations_json(
+            [dummy_attestation] * (max_attestations + 1)
         )
         with pytest.raises(
             AttestationUploadError,
@@ -145,38 +162,32 @@ class TestIntegrityService:
             f"supported",
         ):
             integrity_service.parse_attestations(
-                db_request,
-                pretend.stub(),
+                github_request, mocker.sentinel.distribution
             )
 
-        assert (
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.upload.attestations.failed_limit_multiple_attestations"
             )
-            in metrics.increment.calls
-        )
+        ]
 
     def test_parse_attestations_fails_multiple_attestations_same_predicate(
-        self, metrics, monkeypatch, db_request, dummy_attestation
+        self, metrics, github_request, dummy_attestation, mocker
     ):
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
         max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
-        db_request.oidc_publisher = pretend.stub(
-            attestation_identity=pretend.stub(),
-        )
-        db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = (
-            TypeAdapter(list[Attestation])
-            .dump_json([dummy_attestation] * max_attestations)
-            .decode()
+        github_request.POST["attestations"] = attestations_json(
+            [dummy_attestation] * max_attestations
         )
 
-        monkeypatch.setattr(Verifier, "production", pretend.stub)
-        monkeypatch.setattr(
-            Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
+        verify = mocker.patch.object(
+            Attestation,
+            "verify",
+            autospec=True,
+            return_value=(AttestationType.PYPI_PUBLISH_V1, {}),
         )
 
         with pytest.raises(
@@ -187,134 +198,152 @@ class TestIntegrityService:
             ),
         ):
             integrity_service.parse_attestations(
-                db_request,
-                pretend.stub(),
+                github_request, mocker.sentinel.distribution
             )
 
         assert (
-            pretend.call(
-                "warehouse.upload.attestations.failed_duplicate_predicate_type"
-            )
-            in metrics.increment.calls
+            verify.call_args_list
+            == [
+                mocker.call(
+                    dummy_attestation,
+                    github_request.oidc_publisher.attestation_identity,
+                    mocker.sentinel.distribution,
+                )
+            ]
+            * 2
         )
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.upload.attestations.failed_duplicate_predicate_type")
+        ]
 
     @pytest.mark.parametrize(
-        ("verify_exception", "expected_message"),
+        ("verify_exception", "expected_message", "expected_metrics", "sentry_messages"),
         [
             (
                 VerificationError,
                 "Could not verify the uploaded",
+                ["warehouse.upload.attestations.failed_verify"],
+                [],
             ),
             (
                 ValueError,
                 "Unknown error while",
+                [],
+                ["Unexpected error while verifying attestation: error"],
             ),
         ],
     )
     def test_parse_attestations_fails_verification(
         self,
         metrics,
-        monkeypatch,
-        db_request,
+        github_request,
         dummy_attestation,
         verify_exception,
         expected_message,
+        expected_metrics,
+        sentry_messages,
+        mocker,
     ):
+        sentry_sdk = mocker.patch.object(services, "sentry_sdk", autospec=True)
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(
-            attestation_identity=pretend.stub(),
-        )
-        db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = (
-            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
-        )
+        github_request.POST["attestations"] = attestations_json([dummy_attestation])
 
-        def failing_verify(_self, _policy, _dist):
-            raise verify_exception("error")
-
-        monkeypatch.setattr(Attestation, "verify", failing_verify)
+        verify = mocker.patch.object(
+            Attestation,
+            "verify",
+            autospec=True,
+            side_effect=verify_exception("error"),
+        )
 
         with pytest.raises(AttestationUploadError, match=expected_message):
             integrity_service.parse_attestations(
-                db_request,
-                pretend.stub(),
+                github_request, mocker.sentinel.distribution
             )
+
+        verify.assert_called_once_with(
+            dummy_attestation,
+            github_request.oidc_publisher.attestation_identity,
+            mocker.sentinel.distribution,
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(name) for name in expected_metrics
+        ]
+        assert sentry_sdk.capture_message.call_args_list == [
+            mocker.call(message) for message in sentry_messages
+        ]
 
     def test_parse_attestations_fails_wrong_predicate(
         self,
         metrics,
-        monkeypatch,
-        db_request,
+        github_request,
         dummy_attestation,
+        mocker,
     ):
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
-        db_request.oidc_publisher = pretend.stub(
-            attestation_identity=pretend.stub(),
-        )
-        db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = (
-            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
-        )
+        github_request.POST["attestations"] = attestations_json([dummy_attestation])
 
-        monkeypatch.setattr(Verifier, "production", pretend.stub)
-        monkeypatch.setattr(
-            Attestation, "verify", lambda *args: ("wrong-predicate", {})
+        verify = mocker.patch.object(
+            Attestation, "verify", autospec=True, return_value=("wrong-predicate", {})
         )
 
         with pytest.raises(
             AttestationUploadError, match="Attestation with unsupported predicate"
         ):
             integrity_service.parse_attestations(
-                db_request,
-                pretend.stub(),
+                github_request, mocker.sentinel.distribution
             )
 
-        assert (
-            pretend.call(
+        verify.assert_called_once_with(
+            dummy_attestation,
+            github_request.oidc_publisher.attestation_identity,
+            mocker.sentinel.distribution,
+        )
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.upload.attestations.failed_unsupported_predicate_type"
             )
-            in metrics.increment.calls
-        )
+        ]
 
     def test_parse_attestations_succeeds(
-        self, metrics, monkeypatch, db_request, dummy_attestation
+        self, metrics, github_request, dummy_attestation, mocker
     ):
         integrity_service = services.IntegrityService(
             metrics=metrics,
-            session=db_request.db,
+            session=github_request.db,
         )
-        db_request.oidc_publisher = pretend.stub(
-            attestation_identity=pretend.stub(),
-        )
-        db_request.oidc_claims = {"sha": "somesha"}
-        db_request.POST["attestations"] = (
-            TypeAdapter(list[Attestation]).dump_json([dummy_attestation]).decode()
-        )
+        github_request.POST["attestations"] = attestations_json([dummy_attestation])
 
-        monkeypatch.setattr(Verifier, "production", pretend.stub)
-        monkeypatch.setattr(
-            Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
+        verify = mocker.patch.object(
+            Attestation,
+            "verify",
+            autospec=True,
+            return_value=(AttestationType.PYPI_PUBLISH_V1, {}),
         )
 
         attestations = integrity_service.parse_attestations(
-            db_request,
-            pretend.stub(),
+            github_request, mocker.sentinel.distribution
         )
         assert attestations == [dummy_attestation]
+        verify.assert_called_once_with(
+            dummy_attestation,
+            github_request.oidc_publisher.attestation_identity,
+            mocker.sentinel.distribution,
+        )
+        metrics.increment.assert_not_called()
 
     @pytest.mark.parametrize(
         "publisher_factory",
         [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
     )
     def test_build_provenance_succeeds(
-        self, metrics, db_request, publisher_factory, dummy_attestation
+        self, metrics, db_request, publisher_factory, dummy_attestation, mocker
     ):
         db_request.oidc_publisher = publisher_factory.create()
 
@@ -334,8 +363,8 @@ class TestIntegrityService:
         model = Provenance.model_validate(provenance.provenance)
         assert model.attestation_bundles[0].attestations == [dummy_attestation]
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.attestations.build_provenance.ok")
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.attestations.build_provenance.ok")
         ]
 
 

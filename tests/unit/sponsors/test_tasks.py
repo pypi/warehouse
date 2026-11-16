@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+
 from urllib.parse import urlencode
 
-import pretend
 import pytest
+import responses
 
 from requests.exceptions import HTTPError
 
@@ -12,14 +14,19 @@ from warehouse.sponsors.models import Sponsor
 
 from ...common.db.sponsors import SponsorFactory
 
+HOST = "https://pythondotorg.example.com"
+SPONSORS_URL = f"{HOST}/api/v2/sponsors/logo-placement/"
+
 
 @pytest.fixture
-def fake_task_request():
-    cfg = {
-        "pythondotorg.host": "https://API_HOST",
-        "pythondotorg.api_token": "API_TOKEN",
-    }
-    return pretend.stub(registry=pretend.stub(settings=cfg))
+def task_request(db_request):
+    db_request.registry.settings.update(
+        {
+            "pythondotorg.host": HOST,
+            "pythondotorg.api_token": "API_TOKEN",
+        }
+    )
+    return db_request
 
 
 @pytest.fixture
@@ -41,44 +48,42 @@ def sponsor_api_data():
     ]
 
 
-def test_raise_error_if_invalid_response(monkeypatch, db_request, fake_task_request):
-    response = pretend.stub(
-        status_code=418,
-        text="I'm a teapot",
-        raise_for_status=pretend.raiser(HTTPError),
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
+@pytest.fixture
+def sponsors_api(sponsor_api_data):
+    """
+    Serve ``sponsor_api_data`` from the logo-placement endpoint, read at request
+    time so tests can mutate the payload first.
+    """
+    with responses.RequestsMock() as rsps:
+        rsps.add_callback(
+            responses.GET,
+            SPONSORS_URL,
+            callback=lambda request: (200, {}, json.dumps(sponsor_api_data)),
+            content_type="application/json",
+        )
+        yield rsps
+
+
+def test_raise_error_if_invalid_response(task_request, sponsors_api):
+    sponsors_api.replace(responses.GET, SPONSORS_URL, status=418, body="I'm a teapot")
 
     with pytest.raises(HTTPError):
-        tasks.update_pypi_sponsors(fake_task_request)
+        tasks.update_pypi_sponsors(task_request)
 
     qs = urlencode({"publisher": "pypi", "flight": "sponsors"})
-    headers = {"Authorization": "Token API_TOKEN"}
-    expected_url = f"https://API_HOST/api/v2/sponsors/logo-placement/?{qs}"
-    assert requests.get.calls == [
-        pretend.call(expected_url, headers=headers, timeout=5)
-    ]
+    assert len(sponsors_api.calls) == 1
+    request = sponsors_api.calls[0].request
+    assert request.url == f"{SPONSORS_URL}?{qs}"
+    assert request.headers["Authorization"] == "Token API_TOKEN"
+    assert request.req_kwargs["timeout"] == 5
 
 
-def test_create_new_sponsor_if_no_matching(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
-):
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
-    assert len(db_request.db.query(Sponsor).all()) == 0
+def test_create_new_sponsor_if_no_matching(task_request, sponsors_api):
+    assert len(task_request.db.query(Sponsor).all()) == 0
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    db_sponsor = db_request.db.query(Sponsor).one()
+    db_sponsor = task_request.db.query(Sponsor).one()
     assert db_sponsor.slug == "sponsor-name"
     assert db_sponsor.name == "Sponsor Name"
     assert db_sponsor.service == "Sponsor description"
@@ -98,15 +103,8 @@ def test_create_new_sponsor_if_no_matching(
 
 
 def test_update_remote_sponsor_with_same_name_with_new_logo(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
+    task_request, sponsor_api_data, sponsors_api
 ):
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         name=sponsor_api_data[0]["sponsor"],
         psf_sponsor=True,
@@ -116,11 +114,10 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
         origin="manual",
     )
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    assert len(db_request.db.query(Sponsor).all()) == 1
-    db_sponsor = db_request.db.query(Sponsor).one()
+    assert len(task_request.db.query(Sponsor).all()) == 1
+    db_sponsor = task_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
     assert db_sponsor.slug == "sponsor-name"
     assert db_sponsor.service == "Sponsor description"
@@ -139,16 +136,7 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
     assert db_sponsor.level_order == 5
 
 
-def test_do_not_update_if_not_psf_sponsor(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
-):
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
+def test_do_not_update_if_not_psf_sponsor(task_request, sponsor_api_data, sponsors_api):
     infra_sponsor = SponsorFactory.create(
         name=sponsor_api_data[0]["sponsor"],
         psf_sponsor=False,
@@ -157,26 +145,18 @@ def test_do_not_update_if_not_psf_sponsor(
         origin="manual",
     )
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    assert len(db_request.db.query(Sponsor).all()) == 1
-    db_sponsor = db_request.db.query(Sponsor).one()
+    assert len(task_request.db.query(Sponsor).all()) == 1
+    db_sponsor = task_request.db.query(Sponsor).one()
     assert db_sponsor.id == infra_sponsor.id
     assert db_sponsor.origin == "manual"
     assert db_sponsor.slug != "sponsor-name"
 
 
 def test_update_remote_sponsor_with_same_slug_with_new_logo(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
+    task_request, sponsor_api_data, sponsors_api
 ):
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         slug=sponsor_api_data[0]["sponsor_slug"],
         psf_sponsor=True,
@@ -186,11 +166,10 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
         origin="manual",
     )
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    assert len(db_request.db.query(Sponsor).all()) == 1
-    db_sponsor = db_request.db.query(Sponsor).one()
+    assert len(task_request.db.query(Sponsor).all()) == 1
+    db_sponsor = task_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
     assert db_sponsor.name == "Sponsor Name"
     assert db_sponsor.service == "Sponsor description"
@@ -205,59 +184,28 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
     ],
 )
 def test_footer_set_based_on_level(
-    monkeypatch,
-    db_request,
-    fake_task_request,
-    sponsor_api_data,
-    level_name,
-    expected_footer,
+    task_request, sponsor_api_data, sponsors_api, level_name, expected_footer
 ):
     sponsor_api_data[0]["level_name"] = level_name
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    db_sponsor = db_request.db.query(Sponsor).one()
+    db_sponsor = task_request.db.query(Sponsor).one()
     assert db_sponsor.footer is expected_footer
 
 
-def test_white_logo_synced_when_provided(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
-):
+def test_white_logo_synced_when_provided(task_request, sponsor_api_data, sponsors_api):
     sponsor_api_data[0]["white_logo"] = "https://logourl.com/white.png"
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    monkeypatch.setattr(
-        tasks,
-        "requests",
-        pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response)),
-    )
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
     assert (
-        db_request.db.query(Sponsor).one().white_logo_url
+        task_request.db.query(Sponsor).one().white_logo_url
         == "https://logourl.com/white.png"
     )
 
 
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
-    monkeypatch, db_request, fake_task_request, sponsor_api_data
+    task_request, sponsors_api
 ):
-    response = pretend.stub(
-        raise_for_status=lambda: None, json=lambda: sponsor_api_data
-    )
-    requests = pretend.stub(
-        get=pretend.call_recorder(lambda url, headers, timeout: response)
-    )
-    monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         slug="other-slug",
         name="Other Sponsor",
@@ -267,12 +215,11 @@ def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
         origin="manual",
     )
 
-    fake_task_request.db = db_request.db
-    tasks.update_pypi_sponsors(fake_task_request)
+    tasks.update_pypi_sponsors(task_request)
 
-    assert len(db_request.db.query(Sponsor).all()) == 2
+    assert len(task_request.db.query(Sponsor).all()) == 2
     created_sponsor = (
-        db_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
+        task_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
     )
     # no longer PSF sponsor but stay active as sidebar/footer sponsor
     assert created_sponsor.psf_sponsor is False
