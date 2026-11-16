@@ -38,13 +38,14 @@
 # Oğuz Ersen <ersen@users.noreply.hosted.weblate.org>, 2026.
 # Çağıl <cgl@users.noreply.hosted.weblate.org>, 2026.
 # GitHub webhook <noreply-webhook-github-integration@weblate.org>, 2026.
+# Ege Akman <egeakman@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-11-10 14:17+0000\n"
-"Last-Translator: Oğuz Ersen <ersen@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-12 14:39+0000\n"
+"Last-Translator: Ege Akman <egeakman@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -59,7 +60,9 @@ msgstr ""
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr "denlizeynep1@gmail.come-posta"
+msgstr ""
+"Bu işlemi gerçekleştirmeden önce **birincil** e-posta adresinizi "
+"doğrulamanız gerekiyor."
 
 #: warehouse/views.py:166
 msgid ""
@@ -262,25 +265,25 @@ msgstr ""
 "Gelen kutunuzu kontrol edin ve doğrulama bağlantılarını kontrol edin. (IP: $"
 "{ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "Geçersiz veya süresi dolmuş 2-aşamalı giriş."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "Zaten giriş yapılmış"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -291,14 +294,14 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://"
 "pypi.org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -308,190 +311,190 @@ msgstr ""
 "Çok fazla başarısız giriş denemesi oldu. Hesabınız {} süresince kilitlendi. "
 "Daha sonra tekrar deneyin."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "Geçersiz belirteç: belirteç verilmedi"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "Geçersiz belirteç: bir parola sıfırlama belirteci değil"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Geçersiz belirteç: kullanıcı bu belirteç istendikten sonra giriş yaptı"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Geçersiz belirteç: parola bu belirteç istendikten sonra zaten değişti"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "Parolanızı sıfırladınız"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "Süresi dolmuş anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "E-posta bulunamadı"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "E-posta zaten onaylanmış"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "Artık sen bu e-postayı birincil adresin olarak ayarlayabilirsin"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "Bu senin birincil adresin"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "Geçersiz anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "Geçersiz anahtar: organizasyon davetiyesi geçersiz"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "Organizasyon davetiyesi geçerli değil."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}' davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Artık '${organization_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "Geçersiz anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "API Anahtarı mevcut değil."
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "Görev daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' proje davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -505,13 +508,13 @@ msgstr ""
 "[https://pypi.org/help#admin-intervention](https://pypi.org/help#admin-"
 "intervention) adresine bakın"
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -525,14 +528,14 @@ msgstr ""
 "adresine sahip olmanız gerekir. Ayrıntılar için [https://pypi.org/"
 "help#openid-connect](https://pypi.org/help#openid-connect) adresine bakın"
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 #, fuzzy
 #| msgid ""
 #| "You can't register more than 3 pending OpenID Connect providers at once."
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "Aynı anda 3'ten fazla bekleyen güvenilir yayıncı kaydedemezsiniz"
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -549,7 +552,7 @@ msgstr ""
 "Çok fazla sayıda yetkili yayıncı kaydı denemesi yapıldı. Daha sonra tekrar "
 "deneyin."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -558,7 +561,7 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr "Onaylı kullanıcı kaydedilemedi"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 #, fuzzy
 #| msgid ""
@@ -571,7 +574,7 @@ msgstr ""
 "Bu güvenilir yayıncı zaten kaydedilmiş. Bunun kasıtlı olmadığını "
 "düşünüyorsanız lütfen PyPI yöneticileriyle iletişime geçin"
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -585,21 +588,21 @@ msgstr ""
 "Bu güvenilir yayıncı zaten kaydedilmiş. Bunun kasıtlı olmadığını "
 "düşünüyorsanız lütfen PyPI yöneticileriyle iletişime geçin"
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Onay bekleyen bir yeni yetkili kaydı oluşturuldu. "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Geçersiz Yetkili Kimliği"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "Bu proje için onaylı kullanıcı kaldırıldı. "
 
@@ -1125,8 +1128,8 @@ msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
-"Bu proje adı kullanılamaz (Python standart kütüphane modülü adıyla çakışıyor)"
-"."
+"Bu proje adı kullanılamaz (Python standart kütüphane modülü adıyla "
+"çakışıyor)."
 
 #: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Specify a publisher ID"
@@ -1216,7 +1219,8 @@ msgstr ""
 
 #: warehouse/oidc/forms/github.py:111
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
-msgstr "GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
+msgstr ""
+"GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
 
 #: warehouse/oidc/forms/github.py:123
 msgid "Invalid GitHub user or organization name."
@@ -1590,9 +1594,10 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"\"%(wordmark)s\", \"%(name)s\" ve blok logoları <a href=\"%(trademarks_href)"
-"s\">trademarks</a> of the <a href=\"%(psf_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Software Foundation</a> olarak kaydedilir."
+"\"%(wordmark)s\", \"%(name)s\" ve blok logoları <a "
+"href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a> olarak "
+"kaydedilir."
 
 #: warehouse/templates/base.html:115
 #, fuzzy
@@ -1890,7 +1895,8 @@ msgstr ""
 
 #: warehouse/templates/index.html:22
 msgid "Find, install and publish Python packages with the Python Package Index"
-msgstr "Python Paket Diziniyle Python paketlerini bulun, yükleyin ve yayımlayın"
+msgstr ""
+"Python Paket Diziniyle Python paketlerini bulun, yükleyin ve yayımlayın"
 
 #: warehouse/templates/index.html:49
 #, python-format
@@ -2135,9 +2141,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"PyPI'ye projeleri yüklemek konusunda daha fazla bilgi için <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
-"Kullanıcı Rehberi</a>'ni ziyaret edin."
+"PyPI'ye projeleri yüklemek konusunda daha fazla bilgi için <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin."
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -2157,8 +2163,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen %"
-"(role_name)s rolü davetini kabul etmek ister misiniz?"
+"<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen "
+"%(role_name)s rolü davetini kabul etmek ister misiniz?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
@@ -2181,8 +2187,9 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join a project."
 msgstr ""
-"Bir projeye katılma davetini kabul etmeden önce hesabınızda <a href=\"%(href)"
-"s\">çift faktörlü kimlik doğrulamayı</a> etkinleştirmeniz gerekir."
+"Bir projeye katılma davetini kabul etmeden önce hesabınızda <a "
+"href=\"%(href)s\">çift faktörlü kimlik doğrulamayı</a> etkinleştirmeniz "
+"gerekir."
 
 #: warehouse/templates/accounts/login.html:17
 #, python-format
@@ -2233,8 +2240,8 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"'<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen %"
-"(role_name)s rolü davetini kabul etmek ister misiniz?"
+"'<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen "
+"%(role_name)s rolü davetini kabul etmek ister misiniz?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
 #, python-format
@@ -2529,8 +2536,9 @@ msgid ""
 "Policy</a>."
 msgstr ""
 "<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
+"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo "
+"Mobile"
 
 #: warehouse/templates/accounts/register.html:243
 msgid "Create account"
@@ -2622,9 +2630,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"Bir güvenlik cihazı (örneğin USB anahtarı) ile giriş yapmak için <a href=\"%"
-"(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\">"
-"tarayıcınızı güncelleyin</a>"
+"Bir güvenlik cihazı (örneğin USB anahtarı) ile giriş yapmak için <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">tarayıcınızı güncelleyin</a>"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2678,10 +2686,10 @@ msgid ""
 "If you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a> </p>"
 msgstr ""
-"<p><strong>Hesabınız için kurtarma kodları oluşturmadınız.</strong></p> <p>"
-"İki faktörlü kimlik doğrulama methodlarına erişiminizi kaybederseniz PyPI "
-"hesabınıza olan erişiminizi tamamen kaybedebilirsiniz. <a href=\"%(href)s\">"
-"Kurtarma kodları ile ilgili yardım alın.</a></p>"
+"<p><strong>Hesabınız için kurtarma kodları oluşturmadınız.</strong></p> "
+"<p>İki faktörlü kimlik doğrulama methodlarına erişiminizi kaybederseniz PyPI "
+"hesabınıza olan erişiminizi tamamen kaybedebilirsiniz. <a "
+"href=\"%(href)s\">Kurtarma kodları ile ilgili yardım alın.</a></p>"
 
 #: warehouse/templates/email/account-association-added/body.html:5
 #, fuzzy, python-format
@@ -3050,8 +3058,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a href=\"%"
-"(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
+"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a "
+"href=\"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3334,8 +3342,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/email/password-compromised/body.html:21
 msgid "How can I contact you?"
@@ -3403,10 +3411,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Hesabınıza yeniden erişim sağlamak için PyPI'da <a href=\"%(reset_pw_url)s\">"
-"parolanızı sıfırlayın</a>. Ayrıca <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a> adresini ziyaret edip diğer parolalarınızı da kontrol "
-"etmenizi ve güçlü bir parola oluşturmayla ilgili bilgi almanızı öneriyoruz."
+"Hesabınıza yeniden erişim sağlamak için PyPI'da <a "
+"href=\"%(reset_pw_url)s\">parolanızı sıfırlayın</a>. Ayrıca <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> adresini ziyaret edip "
+"diğer parolalarınızı da kontrol etmenizi ve güçlü bir parola oluşturmayla "
+"ilgili bilgi almanızı öneriyoruz."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3521,8 +3530,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"PyPI hesabınız <strong>%(username)s</strong> için birincil e-posta <code>%"
-"(old_email)s</code>'dan <code>%(new_email)s</code> olarak değişti"
+"PyPI hesabınız <strong>%(username)s</strong> için birincil e-posta "
+"<code>%(old_email)s</code>'dan <code>%(new_email)s</code> olarak değişti"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -3558,8 +3567,8 @@ msgid ""
 "You can generate recovery codes for your account here: <a "
 "href=\"%(href)s\">%(href)s</a>"
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/email/recovery-code-used/body.html:5
 #, fuzzy, python-format
@@ -4123,8 +4132,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "PyPI'a henüz bir proje yüklemediniz. Nasıl başlayacağınızı öğrenmek için <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:11
 #, python-format
@@ -4303,8 +4312,8 @@ msgid ""
 "documentation</a>."
 msgstr ""
 "Çalışma süresi ve performans ile alakalı en son istatistikler için, <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"durum sayfamıza</a> göz atabilirsiniz."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">durum sayfamıza</a> göz atabilirsiniz."
 
 #: warehouse/templates/includes/packaging/project-files.html:17
 msgid "Source distribution (sdist)"
@@ -6187,8 +6196,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Kimlik doğrulama uygulaması (<abbr title=\"time-based one-time password\">"
-"TOTP</abbr>)"
+"Kimlik doğrulama uygulaması (<abbr title=\"time-based one-time "
+"password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/unverified-account.html:337
@@ -6702,8 +6711,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\">"
-"kaldır</a>"
+"<a href=\"%(transfer_href)s\">devret</a> veya <a "
+"href=\"%(delete_href)s\">kaldır</a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, fuzzy, python-format
@@ -6770,8 +6779,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\">"
-"kaldır</a>"
+"<a href=\"%(transfer_href)s\">devret</a> veya <a "
+"href=\"%(delete_href)s\">kaldır</a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6823,8 +6832,8 @@ msgid ""
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
 "Çift faktörlü kimlik doğrulama hesabınıza ilave bir güvenlik duvarı "
-"eklemektedir. <a href=\"%(href)s\"><abbr title=\"two factor authentication\">"
-"2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
+"eklemektedir. <a href=\"%(href)s\"><abbr title=\"two factor "
+"authentication\">2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
 
 #: warehouse/templates/manage/manage_base.html:18
 #, fuzzy
@@ -6974,8 +6983,8 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application"
 msgstr ""
-"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama\">"
-"2FA</abbr>' yı ayarlamak için:"
+"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik "
+"doğrulama\">2FA</abbr>' yı ayarlamak için:"
 
 #: warehouse/templates/manage/manage_base.html:198
 #, fuzzy
@@ -7171,8 +7180,8 @@ msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/manage_base.html:698
 #: warehouse/templates/manage/manage_base.html:709
@@ -7729,8 +7738,8 @@ msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
@@ -7885,8 +7894,8 @@ msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:133
 #: warehouse/templates/manage/account/publishing.html:231
@@ -8009,8 +8018,8 @@ msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
 "a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:249
 #: warehouse/templates/manage/organization/publishing.html:265
@@ -8054,8 +8063,8 @@ msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\"%"
-"(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a "
+"href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:318
 #: warehouse/templates/manage/project/publishing.html:286
@@ -8388,9 +8397,9 @@ msgid ""
 "multiple projects to PyPI, you can set up your <code>%(filename)s</code> "
 "file like this:"
 msgstr ""
-"Örneğin, PyPI' a birden fazla proje yüklemek için <a href=\"%(href)s\">"
-"Twine</a> kullanıyorsanız, <code>%(filename)s</code> dosyanızı şu şekilde "
-"ayarlayabilirsiniz:"
+"Örneğin, PyPI' a birden fazla proje yüklemek için <a "
+"href=\"%(href)s\">Twine</a> kullanıyorsanız, <code>%(filename)s</code> "
+"dosyanızı şu şekilde ayarlayabilirsiniz:"
 
 #: warehouse/templates/manage/account/token.html:97
 msgid ""
@@ -8580,11 +8589,12 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
-"En popüler <em>USB anahtarları</em> şunları içerir: <a href=\"%(yubico_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
-"href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Google Titan</a> ve <a href=\"%(thetis_href)s\" title=\"%"
-"(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
+"En popüler <em>USB anahtarları</em> şunları içerir: <a "
+"href=\"%(yubico_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Google Titan</a> ve <a "
+"href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:36
 msgid "Name your device to begin"
@@ -8617,9 +8627,9 @@ msgid ""
 msgstr ""
 "<strong>Sorun mu var?</strong> Aygıtınızın <a href=\"%(fido_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO "
-"gereksinimlerini</a> uyguladığından ve <a href=\"%(mozilla_href)s\" title=\"%"
-"(title)s\" target=\"_blank\" rel=\"noopener\">uygun bir tarayıcı</a> "
-"kullandığınızdan emin olun."
+"gereksinimlerini</a> uyguladığından ve <a href=\"%(mozilla_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">uygun bir tarayıcı</"
+"a> kullandığınızdan emin olun."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:79
 msgid ""
@@ -9654,8 +9664,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a href=\"%"
-"(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
+"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a "
+"href=\"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
@@ -9816,8 +9826,8 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\">"
-"kaldır</a>"
+"<a href=\"%(transfer_href)s\">devret</a> veya <a "
+"href=\"%(delete_href)s\">kaldır</a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 #, fuzzy
@@ -10583,8 +10593,9 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 "<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
+"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo "
+"Mobile"
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10662,9 +10673,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
-"a> üzerinde öğrenin"
+"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
+"Kullanıcı Kılavuzu</a> üzerinde öğrenin"
 
 #: warehouse/templates/manage/project/roles.html:5
 #, python-format
@@ -10878,14 +10889,15 @@ msgid ""
 msgstr ""
 "%(project_name)s 'in açıklamasını, yayınlanlarını, bağlantılarını, "
 "sınıflandıracılarını ve diğer detayları sonraki sürümde belirtmek için <a "
-"href=\"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\"><code>"
-"setup.py</code> dosyasındaki <code>setup()</code> fonksiyonun argümanlarını</"
-"a> kullanın. Bu alanları güncellemek eski sürümlere ait üst-bilgiyi "
-"değiştirmeyecektir. Ayrıca bu alanlarda tam destek istiyorsanız <a href=\"%"
-"(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> ile "
-"yükleme yapmak <strong>zorundasınız</strong>. Daha fazla yardım için <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Python "
-"Paketleme Kullanıcı Kılavuzunu</a> inceleyin."
+"href=\"%(setup_args_href)s\" rel=\"noopener\" "
+"target=\"_blank\"><code>setup.py</code> dosyasındaki <code>setup()</code> "
+"fonksiyonun argümanlarını</a> kullanın. Bu alanları güncellemek eski "
+"sürümlere ait üst-bilgiyi değiştirmeyecektir. Ayrıca bu alanlarda tam destek "
+"istiyorsanız <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
+"target=\"_blank\">Twine</a> ile yükleme yapmak <strong>zorundasınız</"
+"strong>. Daha fazla yardım için <a href=\"%(distribution_href)s\" "
+"rel=\"noopener\" target=\"_blank\">Python Paketleme Kullanıcı Kılavuzunu</a> "
+"inceleyin."
 
 #: warehouse/templates/manage/project/settings.html:76
 #, fuzzy
@@ -11379,8 +11391,8 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
 "Kullanıcı Rehberi</a> adresinden öğrenebilirsiniz. Özgün sınıflandırma "
 "uzlaşımını okumak için <a href=\"%(pep301_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\"><abbr title=\"Python Geliştirme Önerisi\">"
-"PEP</abbr> 301</a>'e başvurun."
+"target=\"_blank\" rel=\"noopener\"><abbr title=\"Python Geliştirme "
+"Önerisi\">PEP</abbr> 301</a>'e başvurun."
 
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""
@@ -11752,8 +11764,9 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 "<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
+"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo "
+"Mobile"
 
 #: warehouse/templates/pages/sponsors.html:45
 msgid ""
@@ -11793,8 +11806,9 @@ msgid ""
 "in 2019 and 2020"
 msgstr ""
 "<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
+"rel=\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a> için Duo "
+"Mobile"
 
 #: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
@@ -12018,7 +12032,8 @@ msgstr "Bir arama sorgusu girin yahut düğmeye tıklayarak bir filtre ekleyin."
 
 #: warehouse/templates/search/results.html:111
 msgid "You can combine searches and classifier filters. Examples:"
-msgstr "Aramaları ve sınıflandırıcı filtrelerini birleştirebilirsiniz. Örneğin:"
+msgstr ""
+"Aramaları ve sınıflandırıcı filtrelerini birleştirebilirsiniz. Örneğin:"
 
 #: warehouse/templates/search/results.html:115
 msgid "Python 3 compatible projects"

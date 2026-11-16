@@ -339,6 +339,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             userid,
             two_factor_method,
             two_factor_label=two_factor_label,
+            remembered_two_factor_method=_two_factor_remembered,
         )
 
         # Now that we're logged in we'll want to redirect the user to
@@ -538,27 +539,33 @@ def _set_userid_insecure_cookie(resp, userid):
     )
 
 
-def _check_remember_device_token(request, user_id) -> bool:
+def _check_remember_device_token(request, user_id) -> str | None:
     """
-    Returns true if the given remember device cookie is valid for the given user.
+    Returns the two-factor method if the given remember device cookie is valid
+    for the given user, or None otherwise.
     """
     remember_device_token = request.cookies.get(REMEMBER_DEVICE_COOKIE)
     if not remember_device_token:
-        return False
+        return None
     token_service = request.find_service(ITokenService, name="remember_device")
     try:
         data = token_service.loads(remember_device_token)
         user_id_token = data.get("user_id")
-        return user_id_token == str(user_id)
+        if user_id_token == str(user_id):
+            return data.get("two_factor_method", "totp")
+        return None
     except TokenException:
-        return False
+        return None
 
 
 def _remember_device(request, response, userid, two_factor_method) -> None:
     """
     Generates and sets a cookie for remembering this device.
     """
-    remember_device_data = {"user_id": str(userid)}
+    remember_device_data = {
+        "user_id": str(userid),
+        "two_factor_method": two_factor_method,
+    }
     token_service = request.find_service(ITokenService, name="remember_device")
     token = token_service.dumps(remember_device_data)
     response.set_cookie(
@@ -1111,7 +1118,7 @@ def confirm_login(request):
     _set_userid_insecure_cookie(resp, user.id)
     # TokenService.dumps stringifies values, so the flag round-trips as "True"
     if data.get("remember_device") == "True":
-        _remember_device(request, resp, user.id, "email-confirmation")
+        _remember_device(request, resp, user.id, "totp")
     request.session.flash(
         request._("Your login has been confirmed and this device is now recognized."),
         queue="success",
@@ -1573,7 +1580,13 @@ def verify_project_role(request):
     return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
+def _login_user(
+    request,
+    userid,
+    two_factor_method=None,
+    two_factor_label=None,
+    remembered_two_factor_method=None,
+):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -1641,7 +1654,11 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if unique_login:
         unique_login.last_used = now
 
-    if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
+    phishable = (
+        two_factor_method in PHISHABLE_METHODS
+        or remembered_two_factor_method in PHISHABLE_METHODS
+    )
+    if unique_login is None and not phishable:
         # We haven't seen this login before. Create a new one and mark it as confirmed
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
@@ -1653,7 +1670,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if (
         unique_login is not None
         and unique_login.status == UniqueLoginStatus.PENDING
-        and two_factor_method not in PHISHABLE_METHODS
+        and not phishable
     ):
         # The user had a pending login, but has since logged in with a non-phishable
         # method, so mark it as confirmed.

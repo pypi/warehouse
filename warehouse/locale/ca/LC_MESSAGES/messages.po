@@ -225,27 +225,27 @@ msgstr ""
 "s'hagin completat. Reviseu la vostra bústia i seguiu els enllaços de "
 "verificació. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "L’inici de sessió de dues passes no és vàlid o ha caducat."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "Ja us heu autenticat"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "L’asserció del WebAuthn és correcta"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "S’ha acceptat el codi de recuperació. El codi proporcionat no es pot "
 "utilitzar novament."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -256,14 +256,14 @@ msgstr ""
 "El registre d’usuaris nous s’ha inhabilitat temporalment. Vegeu https://"
 "pypi.org/help#admin-intervention per a més detalls."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -273,46 +273,46 @@ msgstr ""
 "Hi ha hagut massa intents d’inici de sessió fallits. Torneu-ho a provar més "
 "tard."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "El testimoni ha caducat: sol·liciteu un enllaç de reinicialització de "
 "contrasenya nou"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "El testimoni no és vàlid: sol·liciteu un enllaç de reinicialització de "
 "contrasenya nou"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "El testimoni no és vàlid: no se n’ha proporcionat cap"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr ""
 "El testimoni no és vàlid: no és un testimoni de reinicialització de "
 "contrasenya"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "El testimoni no és vàlid: no s’ha trobat l’usuari"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "El testimoni no és vàlid: l’usuari ha iniciat una sessió des que aquest "
 "testimoni es va sol·licitar"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -320,11 +320,11 @@ msgstr ""
 "El testimoni no és vàlid: la contrasenya ja s’ha canviat des que aquest "
 "testimoni va sol·licitar-se"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "Heu reinicialitzat la vostra contrasenya"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: please try to login again"
@@ -332,70 +332,70 @@ msgstr ""
 "El testimoni ha caducat: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "El testimoni no és vàlid: no s’ha trobat l’usuari"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "El testimoni no és vàlid: no és un testimoni d’invitació a col·laborar"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "El testimoni ha caducat: sol·liciteu un enllaç de verificació d’adreça nou"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "El testimoni no és vàlid: sol·liciteu un enllaç de verificació d’adreça nou"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "El testimoni no és vàlid: no és un testimoni de verificació d’adreça"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "No s’ha trobat l’adreça electrònica"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "Ja s’ha verificat l’adreça electrònica"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "D’ara endavant podeu definir aquesta adreça com a primària"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "Aquesta és la vostra adreça primària"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
-"L’adreça electrònica ${email_address} ha estat verificada. ${confirm_message}"
-"."
+"L’adreça electrònica ${email_address} ha estat verificada. $"
+"{confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
@@ -403,7 +403,7 @@ msgstr ""
 "El testimoni ha caducat: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
@@ -411,37 +411,37 @@ msgstr ""
 "El testimoni no és vàlid: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "El testimoni no és vàlid: no és un testimoni d’invitació a col·laborar"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "La invitació de l'organització no és vàlida."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "La invitació de l'organització ja no existeix."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "S’ha rebutjat la invitació a «${organization_name}»."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Ara sou ${role} de l'organització «${organization_name}»."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
@@ -449,7 +449,7 @@ msgstr ""
 "El testimoni ha caducat: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
@@ -457,15 +457,15 @@ msgstr ""
 "El testimoni no és vàlid: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "El testimoni no és vàlid: no és un testimoni d’invitació a col·laborar"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: project does not exist"
@@ -473,26 +473,26 @@ msgstr ""
 "El testimoni no és vàlid: sol·liciteu una invitació nova per a incorporar-se "
 "al projecte"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "S’ha rebutjat la invitació a «${project_name}»."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Ara sou ${role} del projecte «${project_name}»."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -505,13 +505,13 @@ msgstr ""
 "El registre d’usuaris nous s’ha inhabilitat temporalment. Vegeu https://"
 "pypi.org/help#admin-intervention per a més detalls."
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, python-brace-format
 msgid ""
@@ -519,11 +519,11 @@ msgid ""
 "publisher. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -539,7 +539,7 @@ msgstr ""
 "Hi ha hagut massa intents d’inici de sessió fallits. Torneu-ho a provar més "
 "tard."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -548,14 +548,14 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
@@ -563,21 +563,21 @@ msgid ""
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 #, fuzzy
 #| msgid "Manage current providers"
 msgid "Registered a new pending publisher to create "
 msgstr "Gestiona els proveïdors actuals"
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Gestiona la versió"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -2231,8 +2231,8 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
 #, python-format
@@ -2663,9 +2663,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
 #, fuzzy, python-format
@@ -2709,8 +2709,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a %"
-"(site)s."
+"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a "
+"%(site)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, fuzzy, python-format
@@ -2753,8 +2753,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a %"
-"(site)s."
+"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a "
+"%(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2805,9 +2805,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:5
 #, python-format
@@ -2838,8 +2838,8 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/includes/account-help.html:3
 #, python-format
@@ -2869,9 +2869,9 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 #, fuzzy, python-format
@@ -2882,8 +2882,8 @@ msgid ""
 "Your new organization named '%(organization_name)s' has been approved and "
 "created."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-approved/body.html:9
 msgid ""
@@ -2969,8 +2969,8 @@ msgid ""
 "Your request to create a new organization named '%(organization_name)s' was "
 "not approved."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:7
 #, fuzzy, python-format
@@ -2981,8 +2981,8 @@ msgid ""
 "We need more information to process your request to create a new "
 "organization named '%(organization_name)s'."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:16
 #, python-format
@@ -2998,8 +2998,8 @@ msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
 #: warehouse/templates/manage/organization/application.html:30
@@ -3014,8 +3014,8 @@ msgstr ""
 #| "was not approved."
 msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/organization-deleted/body.html:14
 #: warehouse/templates/email/organization-member-added/body.html:28
@@ -3036,9 +3036,9 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3131,8 +3131,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/organization-member-removed/body.html:20
 #: warehouse/templates/email/organization-project-removed/body.html:9
@@ -3166,8 +3166,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/organization-project-added/body.html:16
 #: warehouse/templates/email/organization-project-removed/body.html:16
@@ -3187,8 +3187,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/organization-renamed/body.html:11
 #, python-format
@@ -3204,8 +3204,8 @@ msgstr ""
 #| "was not approved."
 msgid "The %(site)s organization \"%(organization_name)s\" has been updated."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/organization-updated/body.html:19
 msgid "Old display name:"
@@ -3355,9 +3355,9 @@ msgid ""
 "a>. For help, you can email <a href=\"%(email_href)s\">%(email_address)s</a> "
 "to communicate with the PyPI administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3365,8 +3365,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"Algú, potser vós, ha sol·licitat reinicialitzar la contrasenya del compte «%"
-"(username)s» del PyPI."
+"Algú, potser vós, ha sol·licitat reinicialitzar la contrasenya del compte "
+"«%(username)s» del PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3506,8 +3506,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a %"
-"(site)s."
+"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a "
+"%(site)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3518,8 +3518,8 @@ msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:9
 #, fuzzy
@@ -3574,8 +3574,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a %"
-"(site)s."
+"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a "
+"%(site)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
@@ -3630,8 +3630,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/team-created/body.html:9
 #: warehouse/templates/email/team-deleted/body.html:9
@@ -3653,8 +3653,8 @@ msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/team-member-added/body.html:5
 #, fuzzy, python-format
@@ -6185,8 +6185,8 @@ msgstr ""
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
-"Mètode: dispositiu de seguretat (<abbr title=\"web authentication\">"
-"WebAuthn</abbr>)"
+"Mètode: dispositiu de seguretat (<abbr title=\"web "
+"authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/account.html:806
@@ -7394,8 +7394,8 @@ msgstr "Nom del projecte"
 msgid ""
 "The project that will be created on %(sitename)s when this publisher is used"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/account/publishing.html:42
 #: warehouse/templates/manage/organization/publishing.html:40
@@ -8201,8 +8201,8 @@ msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/application.html:6
 #, fuzzy, python-format
@@ -8364,8 +8364,8 @@ msgstr "Gestiona els equips de «%(organization_name)s»"
 msgid ""
 "%(previous_organization_name)s organization renamed to %(organization_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:30
 #, fuzzy, python-format
@@ -8403,8 +8403,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:49
 #, fuzzy, python-format
@@ -8414,8 +8414,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:55
 #, fuzzy, python-format
@@ -8425,8 +8425,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:57
 #, fuzzy, python-format
@@ -8435,8 +8435,8 @@ msgstr ""
 #| "was not approved."
 msgid "A deleted user was removed as organization %(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:63
 #, fuzzy, python-format
@@ -8446,8 +8446,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:68
 #, fuzzy, python-format
@@ -8458,8 +8458,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
 "%(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:73
 #, fuzzy, python-format
@@ -8470,8 +8470,8 @@ msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:79
 #, python-format
@@ -8489,8 +8489,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "organization"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:87
 #, fuzzy, python-format
@@ -8501,8 +8501,8 @@ msgid ""
 "Invitation for <a href=\"%(href)s\">%(username)s</a> to join as organization "
 "%(role_name)s expired"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:91
 #: warehouse/templates/manage/team/history.html:17
@@ -8548,8 +8548,8 @@ msgstr ""
 #| "was not approved."
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:115
 #: warehouse/templates/manage/team/history.html:43
@@ -8559,8 +8559,8 @@ msgstr ""
 #| "was not approved."
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/history.html:121
 #, python-format
@@ -8821,8 +8821,8 @@ msgid ""
 "The project (on PyPI) that will be created and owned by the "
 "'%(organization_name)s' organization when this publisher is used"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/organization/publishing.html:208
 #: warehouse/templates/manage/project/publishing.html:191
@@ -9187,9 +9187,9 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href=\"%"
-"(href)s\">%(email_address)s</a> per a comunicar-vos amb els administradors "
-"del PyPI."
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a "
+"href=\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
@@ -9563,8 +9563,8 @@ msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "project"
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/project/history.html:164
 #, python-format
@@ -10321,8 +10321,8 @@ msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
-"No s’ha aprovat la vostra sol·licitud de creació de l’organització «%"
-"(organization_name)s»."
+"No s’ha aprovat la vostra sol·licitud de creació de l’organització "
+"«%(organization_name)s»."
 
 #: warehouse/templates/manage/project/settings.html:89
 #: warehouse/templates/manage/project/settings.html:94

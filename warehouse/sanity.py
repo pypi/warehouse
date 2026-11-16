@@ -21,19 +21,22 @@ def junk_encoding(request):
 
     # Look for invalid bytes in a path.
     try:
-        request.path_info  # noqa: B018
+        path_info = request.path_info
     except UnicodeDecodeError:
+        raise HTTPBadRequest("Invalid bytes in URL.")
+
+    # NUL decodes fine but PostgreSQL text can't hold it, so anything that
+    # queries with a path segment would 500.
+    if "\x00" in path_info:
         raise HTTPBadRequest("Invalid bytes in URL.")
 
 
 def invalid_forms(request):
-    # People send invalid forms that we can't actually decode, so we'll want to return
-    # a BadRequest here instead of a 500 error.
-    if request.method == "POST":
-        try:
-            request.POST.get("", None)
-        except ValueError:
-            raise HTTPBadRequest("Invalid Form Data.")
+    # WebOb parses form bodies on any method when building request.params.
+    try:
+        request.POST.get("", None)
+    except ValueError:
+        raise HTTPBadRequest("Invalid Form Data.")
 
 
 def unicode_redirects(response):

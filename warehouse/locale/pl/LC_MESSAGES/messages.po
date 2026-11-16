@@ -30,8 +30,8 @@ msgstr ""
 "PO-Revision-Date: 2026-11-10 14:21+0000\n"
 "Last-Translator: GitHub webhook <noreply-webhook-github-"
 "integration@weblate.org>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/"
-"pl/>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -126,8 +126,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na ${time}"
-". Spróbuj ponownie później."
+"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na $"
+"{time}. Spróbuj ponownie później."
 
 #: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
@@ -243,25 +243,25 @@ msgstr ""
 "Zażądano zbyt wiele resetów hasła bez zakończenia procesu. Sprawdź swoją "
 "skrzynkę pocztową i podążaj za linkami weryfikacyjnymi. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "Niepoprawne lub wygasłe logowanie dwuskładnikowe."
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "Już uwierzytelnione"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "Pomyślne potwierdzenie WebAuthn"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kod naprawy zaakceptowany. Podany kod nie może zostać użyty ponownie."
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -272,14 +272,14 @@ msgstr ""
 "Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://"
 "pypi.org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -290,39 +290,39 @@ msgstr ""
 "Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na {}. "
 "Spróbuj ponownie później."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "Wygasły klucz: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "Nieprawidłowy token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "Nieprawidłowy token: nie podano tokena"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Nieprawidłowy token: użytkownik zalogował się odkąd ten token został zażądany"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -330,153 +330,153 @@ msgstr ""
 "Nieprawidłowy token: hasło zostało już zmienione od momentu zażądania tego "
 "tokenu"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "Zresetowałeś swoje hasło"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "Token wygasł: poproś o nowe zaproszenie do organizacji"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do współpracy"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "Wygasł token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "Nieprawidłowy token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "Nieprawidłowy token: to nie jest token do weryfikacji e-mail"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "Email nie znaleziony"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "Email już zweryfikowany"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "Możesz teraz ustawić ten e-mail jako swój główny adres"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "To jest twój główny adres"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Adres e-mail $ {email_address} zweryfikowany. $ {confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "Token wygasł: poproś o nowe zaproszenie do organizacji"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "Nieprawidłowy token: poproś o nowe zaproszenie do organizacji"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do organizacji"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "Zaproszenie do organizacji jest nieważne."
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "Zaproszenie do organizacji już nie istnieje."
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Zaproszenie do „${organization_name}” zostało odrzucone."
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Jesteś teraz ${role} w organizacji „${organization_name}”."
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "Wygasł klucz: poproś o nowe zaproszenie do roli w projekcie"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "Nieprawidłowy token: poproś o nowe zaproszenie do roli w projekcie"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do współpracy"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "Zaproszenie do udziału dla tej roli jest nieważne."
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "Token interfejsu API nie istnieje."
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "Zaproszenie do roli już nie istnieje."
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Zaproszenie do „${project_name}” zostało odrzucone."
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Jesteś teraz ${role} w projekcie „${project_name}”."
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -489,13 +489,13 @@ msgstr ""
 "Zaufane publikowanie jest tymczasowo wyłączone. Zobacz https://pypi.org/"
 "help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -509,13 +509,13 @@ msgstr ""
 "wydawcę. Zobacz https://pypi.org/help#openid-connect, aby uzyskać "
 "szczegółowe informacje."
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Nie możesz zarejestrować więcej niż 3 oczekujących zaufanych wydawców "
 "jednocześnie."
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -528,7 +528,7 @@ msgstr ""
 "Podjęto zbyt wiele prób rejestracji zaufanych wydawców. Spróbuj ponownie "
 "później."
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -537,7 +537,7 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr "Zaufany wydawca nie mógł zostać zarejestrowany"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -546,7 +546,7 @@ msgstr ""
 "Ten zaufany wydawca został już zarejestrowany. Prosimy o kontakt z "
 "administratorami PyPI, jeśli nie było to zamierzone."
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -560,17 +560,17 @@ msgstr ""
 "Ten zaufany wydawca został już zarejestrowany. Prosimy o kontakt z "
 "administratorami PyPI, jeśli nie było to zamierzone."
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "Zarejestrowano nowego oczekującego wydawcę do stworzenia "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 msgid "Invalid publisher ID"
 msgstr "Błędne ID wydawcy"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "Usunięto zaufanego wydawcę projektu "
 
@@ -602,7 +602,8 @@ msgstr "Odpowiedz na prośbę."
 
 #: warehouse/manage/forms.py:480
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "Wybierz nazwę konta organizacji składającą się z maksymalnie 50 znaków."
+msgstr ""
+"Wybierz nazwę konta organizacji składającą się z maksymalnie 50 znaków."
 
 #: warehouse/manage/forms.py:488
 msgid ""
@@ -1561,10 +1562,10 @@ msgid ""
 "prohibited."
 msgstr ""
 "„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi znakami "
-"towarowymi <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">"
-"Python Software Foundation</a> odnoszącymi się do produktów i usług "
-"związanych z pypi.org. Wszelkie inne wykorzystanie przez jakąkolwiek inną "
-"stronę jest zabronione."
+"towarowymi <a href=\"%(psf_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Software Foundation</a> odnoszącymi się do produktów "
+"i usług związanych z pypi.org. Wszelkie inne wykorzystanie przez jakąkolwiek "
+"inną stronę jest zabronione."
 
 #: warehouse/templates/base.html:83
 #, python-format
@@ -1573,9 +1574,10 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi <a href=\"%"
-"(trademarks_href)s\">znakami towarowymi</a> firmy <a href=\"%(psf_href)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
+"„%(wordmark)s”, „%(name)s”, oraz loga blokowe są zarejestrowanymi <a "
+"href=\"%(trademarks_href)s\">znakami towarowymi</a> firmy <a "
+"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>."
 
 #: warehouse/templates/base.html:115
 #, fuzzy
@@ -2114,8 +2116,8 @@ msgid ""
 "again for the next hour."
 msgstr ""
 "\n"
-"              <b>Wskazówka:</b> zamierasz wykonać <a href=\"%(href)s\">"
-"wrażliwe działanie</a>.\n"
+"              <b>Wskazówka:</b> zamierasz wykonać <a "
+"href=\"%(href)s\">wrażliwe działanie</a>.\n"
 "              Jeśli nie używasz osobistego komputera, pamiętaj aby wylogować "
 "się po zakończeniu sesji.\n"
 "              Nie poprosimy cię o potwierdzenie swojego hasła przez następną "
@@ -2164,8 +2166,8 @@ msgid ""
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
@@ -2253,8 +2255,8 @@ msgid ""
 "an organization %(role_name)s?"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -2562,8 +2564,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
-"naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/accounts/register.html:243
 msgid "Create account"
@@ -2655,9 +2657,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą urządzenia "
-"(np. klucza USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą "
+"urządzenia (np. klucza USB)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2696,8 +2698,8 @@ msgid ""
 msgstr ""
 "<p>Wygeneruj kod korzystając z aplikacji uwierzytelniającej podłączonej do "
 "Twojego konta PyPI. Wprowadź kod w formularzu aby zweryfikować Twoją "
-"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a href=\"%(href)s\">"
-"Znajdź pomoc</a></p>"
+"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a "
+"href=\"%(href)s\">Znajdź pomoc</a></p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
 msgid "Lost your security key or application?"
@@ -2778,8 +2780,8 @@ msgid ""
 "href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:15
 #, fuzzy, python-format
@@ -2791,8 +2793,8 @@ msgid ""
 "href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
 "%(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:6
 #, fuzzy, python-format
@@ -2804,8 +2806,8 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:10
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:10
@@ -2821,8 +2823,8 @@ msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:10
 #, fuzzy, python-format
@@ -2833,8 +2835,8 @@ msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -2846,8 +2848,8 @@ msgid ""
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:9
 msgid "You are receiving this because you are a member of this team."
@@ -3326,8 +3328,8 @@ msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk for PyPI and its users."
 msgstr ""
-"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny zabieg "
-"\n"
+"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny "
+"zabieg \n"
 "mający na celu ograniczenie ryzyka dla PyPI i użytkowników."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:16
@@ -3395,8 +3397,8 @@ msgid ""
 "reduce the risk of <a href=\"%(href)s\">credential stuffing</a> attacks "
 "against PyPI and its users."
 msgstr ""
-"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny zabieg "
-"\n"
+"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny "
+"zabieg \n"
 "mający na celu ograniczenie ryzyka dla PyPI i użytkowników."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -3408,9 +3410,10 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "Aby odzyskać dostęp do Twojego konta, <a href=\"%(reset_pw_url)s\">zresetuj "
-"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a href=\"%"
-"(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty Twoich "
-"haseł oraz zaznajomienie się z dobrymi praktykami ustalania haseł dostępu."
+"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty "
+"Twoich haseł oraz zaznajomienie się z dobrymi praktykami ustalania haseł "
+"dostępu."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3426,11 +3429,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Używamy darmowej usługi bezpieczeństwa <a href=\"%(have_i_been_pwned_url)s\">"
-"HaveIBeenPwned</a> Gdy rejestrujemy, uwierzytelniamy lub aktualizujemy Twoje "
-"hasło generujemy jego hash metodą SHA1 i używamy pierwszych 5 znaków do "
-"zbadania czy hasło zostało ujawnione. Hasło w formie odkrytego tekstu nigdy "
-"nie jest przechowywane przez PyPI ani przesyłane do HaveIBeenPwned."
+"Używamy darmowej usługi bezpieczeństwa <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> Gdy rejestrujemy, "
+"uwierzytelniamy lub aktualizujemy Twoje hasło generujemy jego hash metodą "
+"SHA1 i używamy pierwszych 5 znaków do zbadania czy hasło zostało ujawnione. "
+"Hasło w formie odkrytego tekstu nigdy nie jest przechowywane przez PyPI ani "
+"przesyłane do HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:29
 #, fuzzy, python-format
@@ -3453,8 +3457,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"Ktoś, być może ty, wysłał prośbę o zresetowanie hasła do konta PyPI '%"
-"(username)s'."
+"Ktoś, być może ty, wysłał prośbę o zresetowanie hasła do konta PyPI "
+"'%(username)s'."
 
 #: warehouse/templates/email/password-reset/body.html:8
 #, python-format
@@ -3592,8 +3596,8 @@ msgstr ""
 msgid ""
 "Your team was removed from the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:8
 #, fuzzy, python-format
@@ -3604,8 +3608,8 @@ msgid ""
 "You are receiving this because your team was removed by %(submitter)s from a "
 "project on %(site)s."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 
 #: warehouse/templates/email/removed-as-team-member/body.html:5
 #, fuzzy, python-format
@@ -3634,8 +3638,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, fuzzy, python-format
@@ -3646,8 +3650,8 @@ msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:10
 msgid ""
@@ -3672,8 +3676,8 @@ msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
 msgstr ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
@@ -3764,8 +3768,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
 #, fuzzy, python-format
@@ -3777,8 +3781,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>%(role)"
-"s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/two-factor-added/body.html:5
 #, python-format
@@ -4057,7 +4061,8 @@ msgstr "Następny"
 #: warehouse/templates/includes/session-notifications.html:12
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr "Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
+msgstr ""
+"Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
 
 #: warehouse/templates/includes/session-notifications.html:14
 msgid "You do not have a primary email address."
@@ -4153,14 +4158,14 @@ msgid_plural ""
 "You are seeing this because you belong to these company organizations: "
 "%(orgs)s."
 msgstr[0] ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 msgstr[1] ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 msgstr[2] ""
-"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez %"
-"(initiator_username)s."
+"Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
+"%(initiator_username)s."
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, fuzzy, python-format
@@ -6126,8 +6131,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password\">"
-"TOTP</abbr>)"
+"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time "
+"password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/unverified-account.html:337
@@ -6446,8 +6451,8 @@ msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/account.html:896
@@ -8692,8 +8697,8 @@ msgid ""
 "organization"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/organization/history.html:87
@@ -9769,8 +9774,8 @@ msgid ""
 "project %(role_name)s"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/project/history.html:154
@@ -9786,8 +9791,8 @@ msgid ""
 "project"
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\"%"
-"(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a "
+"href=\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/manage/project/history.html:164
@@ -10260,8 +10265,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
-"naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/manage/project/releases.html:6
 #, python-format
@@ -10977,8 +10982,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
-"naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/classifiers.html:29
 msgid ""

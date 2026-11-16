@@ -21,8 +21,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2026-11-10 14:20+0000\n"
 "Last-Translator: altinat <alt@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/>"
-"\n"
+"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
+">\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -61,8 +61,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ชื่อผู้ใช้งานไม่ถูกต้อง โดยชื่อผู้ใช้งานต้องประกอบด้วยตัวอักษร, ตัวเลข, จุดทศนิยม, เครื่องหมายขีดกลา"
-"งหรือขีดล่างและต้องเริ่มและจบด้วยตัวอักษรหรือตัวเลขเท่านั้น กรุณาเลือกชื่อผู้ใช้งานใหม่"
+"ชื่อผู้ใช้งานไม่ถูกต้อง โดยชื่อผู้ใช้งานต้องประกอบด้วยตัวอักษร, ตัวเลข, จุดทศนิยม, "
+"เครื่องหมายขีดกลางหรือขีดล่างและต้องเริ่มและจบด้วยตัวอักษรหรือตัวเลขเท่านั้น "
+"กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
 #: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
@@ -96,8 +97,7 @@ msgstr "กรุณาระบุชื่อผู้ใช้งานด้
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
-"ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
+msgstr "ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
 #: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
 #: warehouse/accounts/forms.py:291
@@ -109,8 +109,7 @@ msgstr "รหัสผ่านยาวเกินไป"
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr ""
-"มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time} นาที"
+msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time} นาที"
 
 #: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
@@ -218,28 +217,28 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: $"
 "{ip})"
 msgstr ""
-"มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ต้องตรวจสอบ ตรวจสอบกล่องจดหมายของคุณและทําตามลิงก์ยืนยั"
-"น （(IP: ${ip})"
+"มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ต้องตรวจสอบ "
+"ตรวจสอบกล่องจดหมายของคุณและทําตามลิงก์ยืนยัน （(IP: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "ระบบยืนยันตัวตนสองขั้นตอนไม่ถูกต้องหรือหมดอายุไปแล้ว"
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "คุณได้ทำการยืนยันตัวตนไปแล้ว"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "การตรวจสอบ WebAuthn เสร็จสิ้น"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "รหัสกู้คืนถูกต้อง ไม่สามารถใช้รหัสที่ให้มาได้อีกครั้ง"
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -250,14 +249,14 @@ msgstr ""
 "การสมัครผู้ใช้งานใหม่ถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -267,190 +266,190 @@ msgid ""
 msgstr ""
 "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป คุณถูกออกจากระบบ {} กรุณาลองใหม่ในภายหลัง"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "โทเคนไม่ถูกต้อง: ไม่มีโทเคน"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ใช่โทเคนในการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "โทเคนไม่ถูกต้อง: ผู้ใช้งานได้ทำการเข้าสู่ระบบหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "โทเคนไม่ถูกต้อง: รหัสผ่านถูกเปลี่ยนแปลงแล้วหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "โทเคนหมดอายุ: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณายืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "ไม่พบอีเมล์"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "คุณสามารถตั้งค่าให้อีเมล์นี้เป็นอีเมล์หลักได้"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "นี่คือที่อยู่อีเมล์หลัก"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอคำเชิญจากองค์กรของคุณ"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนที่องค์กรเชิญมา"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "คำเชิจากองค์กรไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 msgid "Organization invitation no longer exists."
 msgstr "ไม่มีคำเชิญเข้าร่วมองค์กรอีกต่อไป"
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "คำเชิจาก '${organization_name}' ถูกปฏิเสธ"
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "คุณได้เป็น ${role} ของ '${organization_name}'"
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 msgid "Expired token: request a new project role invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์สำหรับโปรเจค"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 msgid "Invalid token: request a new project role invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการใช้งานใหม่"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "ตำเเหน่งการเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "ไม่มีโทเค็น API"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 msgid "Role invitation no longer exists."
 msgstr "คำเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "การเชิญ  '${project_name}' ได้ถูกการปฏิเสธ"
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ตอนนี้คุณได้เป็น ${role} ของโปรเจค '${project_name}' แล้ว"
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -463,13 +462,13 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -482,11 +481,11 @@ msgstr ""
 "คุณต้องมีอีเมลที่ยืนยันแล้วจึงจะสามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้ที่รอดำเนินการ ดูข้อมูลเพิ่มเติมที่ "
 "https://pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "คุณไม่สามารถลงทะเบียนผู้เผยแพร่ที่รอดำเนินการมากกว่า 3 รายพร้อมกันได้"
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -498,10 +497,9 @@ msgstr "คุณไม่สามารถลงทะเบียนผู้
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr ""
-"มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
+msgstr "มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -510,7 +508,7 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr "ไม่สามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -518,7 +516,7 @@ msgid ""
 msgstr ""
 "ผู้เผยแพร่ที่เชื่อถือได้รายนี้ได้รับการลงทะเบียนแล้ว โปรดติดต่อผู้ดูแลระบบของ PyPI หากไม่ได้ตั้งใจ"
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -531,17 +529,17 @@ msgid ""
 msgstr ""
 "ผู้เผยแพร่ที่เชื่อถือได้รายนี้ได้รับการลงทะเบียนแล้ว โปรดติดต่อผู้ดูแลระบบของ PyPI หากไม่ได้ตั้งใจ"
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "ลงทะเบียนผู้เผยแพร่ใหม่ที่รอดำเนินการเพื่อสร้าง "
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 msgid "Invalid publisher ID"
 msgstr "ID ผู้เผยแพร่ไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr "ลบผู้เผยแพร่ที่เชื่อถือได้สำหรับโครงการแล้ว "
 
@@ -580,8 +578,8 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ชื่อบัญชีองค์กรไม่ถูกต้อง ชื่อบัญชีองค์กรต้องประกอบด้วยตัวอักษร ตัวเลข จุด ขีดกลาง และขีดล่าง และต้อ"
-"งขึ้นต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขด้วย เลือกชื่อบัญชีองค์กรอื่น"
+"ชื่อบัญชีองค์กรไม่ถูกต้อง ชื่อบัญชีองค์กรต้องประกอบด้วยตัวอักษร ตัวเลข จุด ขีดกลาง และขีดล่าง "
+"และต้องขึ้นต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขด้วย เลือกชื่อบัญชีองค์กรอื่น"
 
 #: warehouse/manage/forms.py:501
 msgid ""
@@ -610,8 +608,7 @@ msgstr "กำหนดชื่อโปรเจค"
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
-msgstr ""
-"เริ่มต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขที่มีเฉพาะอักษร ASCII และ '.', '_' และ '-'"
+msgstr "เริ่มต้นและลงท้ายด้วยตัวอักษรหรือตัวเลขที่มีเฉพาะอักษร ASCII และ '.', '_' และ '-'"
 
 #: warehouse/manage/forms.py:580
 msgid ""
@@ -681,8 +678,7 @@ msgstr "รายละเอียดบัญชีถูกอัปเดต
 #: warehouse/manage/views/__init__.py:469
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
-"เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
+msgstr "เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
 
 #: warehouse/manage/views/__init__.py:717
 msgid ""
@@ -1386,8 +1382,8 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p> เราประสบปัญหาทางเทคนิคที่มีผลต่อความสามารถของเราในการให้บริการเว็บไซต์นี้ </p> <p> ทา"
-"งทีมงานได้รับทราบถึงปัญหาและกำลังทำงานเพื่อแก้ไขโดยเร็วที่สุดเท่าที่เป็นไปได้ </p>"
+"<p> เราประสบปัญหาทางเทคนิคที่มีผลต่อความสามารถของเราในการให้บริการเว็บไซต์นี้ </p> <p> "
+"ทางทีมงานได้รับทราบถึงปัญหาและกำลังทำงานเพื่อแก้ไขโดยเร็วที่สุดเท่าที่เป็นไปได้ </p>"
 
 #: warehouse/templates/500.html:20
 msgid "Check our status page"
@@ -1418,16 +1414,16 @@ msgid ""
 msgstr ""
 "พิจารณา <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
 "rel=\"noopener\"> ช่วยเหลือ </a> หรือ <a href = \"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13 target =\" _ blank \"rel =\" noopener \"> บ"
-"ริจาค </a> เพื่อช่วยเราสร้างแพลตฟอร์มที่มั่นคงและปลอดภัยยิ่งขึ้น"
+"contribute/transact?reset=1&id=13 target =\" _ blank \"rel =\" noopener \"> "
+"บริจาค </a> เพื่อช่วยเราสร้างแพลตฟอร์มที่มั่นคงและปลอดภัยยิ่งขึ้น"
 
 #: warehouse/templates/base.html:13
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"เลือกรหัสผ่านที่รัดกุมซึ่งประกอบด้วยตัวอักษร (ตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก) ตัวเลขและอักขระพิเศษ หลีกเ"
-"ลี่ยงคำทั่วไปหรือการทำซ้ำ"
+"เลือกรหัสผ่านที่รัดกุมซึ่งประกอบด้วยตัวอักษร (ตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก) ตัวเลขและอักขระพิเศษ "
+"หลีกเลี่ยงคำทั่วไปหรือการทำซ้ำ"
 
 #: warehouse/templates/base.html:16
 msgid "Password strength:"

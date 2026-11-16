@@ -29,8 +29,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2026-11-10 14:22+0000\n"
 "Last-Translator: ShevamV <shevamv@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
-"\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
+">\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,15 +43,13 @@ msgstr ""
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
-"यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
+msgstr "यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
 
 #: warehouse/views.py:166
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr ""
-"इस क्रिया को करने के लिए आपके खाते पर दो-कारक प्रमाणीकरण सक्षम होना चाहिए।"
+msgstr "इस क्रिया को करने के लिए आपके खाते पर दो-कारक प्रमाणीकरण सक्षम होना चाहिए।"
 
 #: warehouse/views.py:377
 msgid "Locale updated"
@@ -83,8 +81,7 @@ msgstr "शून्य बाइट्स की अनुमति नही�
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
-msgstr ""
-"यूज़रनेम और ईमेल एड्रेस एक जैसे नहीं होते। अपने ईमेल एड्रेस की जगह अपना यूज़रनेम डालें।"
+msgstr "यूज़रनेम और ईमेल एड्रेस एक जैसे नहीं होते। अपने ईमेल एड्रेस की जगह अपना यूज़रनेम डालें।"
 
 #: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
@@ -136,8 +133,7 @@ msgstr "ईमेल का पता बहुत लंबा है। पु
 
 #: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
+msgstr "आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
 
 #: warehouse/accounts/forms.py:425
 msgid ""
@@ -172,8 +168,7 @@ msgstr "ईमेल पता मान्य नहीं है। पुन�
 #| msgid ""
 #| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
-msgstr ""
-"आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
+msgstr "आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -239,25 +234,25 @@ msgstr ""
 "इस अकाउंट के लिए बहुत सारे पासवर्ड रीसेट करने के लिए रिक्वेस्ट किए गए हैं, लेकिन उन्हें पूरा "
 "नहीं किया गया है। अपना इनबॉक्स चेक करें और वेरिफिकेशन लिंक को फॉलो करें। (आईपी: ${ip})"
 
-#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:449
-#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
-#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
+#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
 msgid "Invalid or expired two factor login."
 msgstr "अमान्य या खारिज दो कारक लॉगिन।"
 
-#: warehouse/accounts/views.py:443
+#: warehouse/accounts/views.py:444
 msgid "Already authenticated"
 msgstr "पहले से ही प्रमाणित"
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:518
 msgid "Successful WebAuthn assertion"
 msgstr "सफल WebAuthn दावा"
 
-#: warehouse/accounts/views.py:630 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ति कुंजी स्वीकृत। प्रदत्त कुंजी का पुनः उपयोग वर्जित।"
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:744
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -268,14 +263,14 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:803
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:804
+#: warehouse/accounts/views.py:811
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -285,200 +280,199 @@ msgstr ""
 "बहुत अधिक असफल लॉगिन प्रयास हुए हैं। आपको {} के लिए लॉक कर दिया गया है। कृपया बाद में "
 "पुनः प्रयास करें।"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:869
 msgid ""
 "Too many password reset requests from your network. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:966
 msgid "Expired token: request a new password reset link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:961
+#: warehouse/accounts/views.py:968
 msgid "Invalid token: request a new password reset link"
 msgstr "अमान्य टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:963 warehouse/accounts/views.py:1078
-#: warehouse/accounts/views.py:1146 warehouse/accounts/views.py:1252
-#: warehouse/accounts/views.py:1430
+#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
+#: warehouse/accounts/views.py:1437
 msgid "Invalid token: no token supplied"
 msgstr "अमान्य टोकन: कोई टोकन की आपूर्ति नहीं"
 
-#: warehouse/accounts/views.py:967
+#: warehouse/accounts/views.py:974
 msgid "Invalid token: not a password reset token"
 msgstr "अमान्य टोकन: पासवर्ड रीसेट टोकन नहीं"
 
-#: warehouse/accounts/views.py:972 warehouse/accounts/views.py:1087
+#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
 msgid "Invalid token: user not found"
 msgstr "अमान्य टोकन: उपयोगकर्ता नहीं मिला"
 
-#: warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:990
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "अमान्य टोकन: क्योंकि इस टोकन के अनुरोध किए जाने के बाद उपयोगकर्ता लॉग इन कर चुके हैं"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1008
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
-"अमान्य टोकन: टोकन के अनुरोध के बाद से अब तक के दौरान पासवर्ड पहले ही बदला"
+msgstr "अमान्य टोकन: टोकन के अनुरोध के बाद से अब तक के दौरान पासवर्ड पहले ही बदला"
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1039
 msgid "You have reset your password"
 msgstr "आपने अपना पासवर्ड रीसेट कर दिया है"
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1081
 #, fuzzy
 #| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
 msgstr "टोकन समाप्त: नए ऑर्गनाइज़ेशन आमंत्रण का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1083
 #, fuzzy
 #| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
 msgstr "अमान्य टोकन: उपयोगकर्ता नहीं मिला"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
 msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
 
-#: warehouse/accounts/views.py:1097
+#: warehouse/accounts/views.py:1104
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1109
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1123
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1142
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new email verification link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new email verification link"
 msgstr "अमान्य टोकन: एक नए ईमेल सत्यापन लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not an email verification token"
 msgstr "अमान्य टोकन: ईमेल सत्यापन टोकन नहीं है"
 
-#: warehouse/accounts/views.py:1159
+#: warehouse/accounts/views.py:1166
 msgid "Email not found"
 msgstr "ईमेल नहीं मिला"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1169
 msgid "Email already verified"
 msgstr "ईमेल पहले से सत्यापित है"
 
-#: warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:1189
 msgid "You can now set this email as your primary address"
 msgstr "अब आप इस ईमेल को अपने प्राथमिक पते के रूप में सेट कर सकते हैं"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1192
 msgid "This is your primary address"
 msgstr "यह आपका प्राथमिक पता है"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1198
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/accounts/views.py:1248
+#: warehouse/accounts/views.py:1255
 msgid "Expired token: request a new organization invitation"
 msgstr "टोकन समाप्त: नए ऑर्गनाइज़ेशन आमंत्रण का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1250
+#: warehouse/accounts/views.py:1257
 msgid "Invalid token: request a new organization invitation"
 msgstr "अमान्य टोकन: नए ऑर्गनाइज़ेशन आमंत्रण का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:1263
 msgid "Invalid token: not an organization invitation token"
 msgstr "अमान्य टोकन: यह ऑर्गनाइज़ेशन आमंत्रण नहीं है"
 
-#: warehouse/accounts/views.py:1260 warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
 msgid "Organization invitation is not valid."
 msgstr "ऑर्गनाइज़ेशन आमंत्रण अमान्य है।"
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1276
 #, fuzzy
 msgid "Organization invitation no longer exists."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:1277 warehouse/accounts/views.py:1464
+#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1331
+#: warehouse/accounts/views.py:1338
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'$ {project_name} के लिए निमंत्रण अस्वीकार कर दिया गया है।"
 
-#: warehouse/accounts/views.py:1393
+#: warehouse/accounts/views.py:1400
 #, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 
-#: warehouse/accounts/views.py:1426
+#: warehouse/accounts/views.py:1433
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "खारिज टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1428
+#: warehouse/accounts/views.py:1435
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "अमान्य टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1434
+#: warehouse/accounts/views.py:1441
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
 
-#: warehouse/accounts/views.py:1438 warehouse/accounts/views.py:1458
+#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
 msgid "Role invitation is not valid."
 msgstr "कृत्य आमंत्रण अमान्य है।"
 
-#: warehouse/accounts/views.py:1445
+#: warehouse/accounts/views.py:1452
 #, fuzzy
 #| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
 msgstr "एपीआई टोकन मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:1456
+#: warehouse/accounts/views.py:1463
 #, fuzzy
 msgid "Role invitation no longer exists."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:1498
+#: warehouse/accounts/views.py:1505
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'$ {project_name} के लिए निमंत्रण अस्वीकार कर दिया गया है।"
 
-#: warehouse/accounts/views.py:1563
+#: warehouse/accounts/views.py:1570
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1691
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1901 warehouse/accounts/views.py:2195
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -491,13 +485,13 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:1928
+#: warehouse/accounts/views.py:1945
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1967
 #: warehouse/manage/views/organizations.py:1950
 #, python-brace-format
 msgid ""
@@ -505,11 +499,11 @@ msgid ""
 "publisher. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1977
+#: warehouse/accounts/views.py:1994
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1992
+#: warehouse/accounts/views.py:2009
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -523,7 +517,7 @@ msgid ""
 "again later."
 msgstr "बहुत से असफल लॉगिन प्रयास हुए हैं। बाद में पुन: प्रयास करें।"
 
-#: warehouse/accounts/views.py:2002
+#: warehouse/accounts/views.py:2019
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -532,7 +526,7 @@ msgstr "बहुत से असफल लॉगिन प्रयास ह�
 msgid "The trusted publisher could not be registered"
 msgstr "विश्वसनीय प्रकाशक पंजीकृत नहीं किया जा सका"
 
-#: warehouse/accounts/views.py:2017
+#: warehouse/accounts/views.py:2034
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -541,7 +535,7 @@ msgstr ""
 "यह विश्वसनीय प्रकाशक पहले ही पंजीकृत हो चुका है। यदि यह जानबूझकर नहीं किया गया है तो "
 "कृपया PyPI के व्यवस्थापकों से संपर्क करें।"
 
-#: warehouse/accounts/views.py:2042
+#: warehouse/accounts/views.py:2059
 #: warehouse/manage/views/organizations.py:2047
 #, fuzzy
 #| msgid ""
@@ -555,21 +549,21 @@ msgstr ""
 "यह विश्वसनीय प्रकाशक पहले ही पंजीकृत हो चुका है। यदि यह जानबूझकर नहीं किया गया है तो "
 "कृपया PyPI के व्यवस्थापकों से संपर्क करें।"
 
-#: warehouse/accounts/views.py:2065
+#: warehouse/accounts/views.py:2082
 #: warehouse/manage/views/organizations.py:2071
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "इस परियोजना का प्रबंधन करें"
 
-#: warehouse/accounts/views.py:2214 warehouse/accounts/views.py:2227
-#: warehouse/accounts/views.py:2234
+#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
+#: warehouse/accounts/views.py:2251
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "प्रबंधन संस्करण"
 
-#: warehouse/accounts/views.py:2241
+#: warehouse/accounts/views.py:2258
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -762,8 +756,7 @@ msgstr "खाता विवरण"
 #: warehouse/manage/views/__init__.py:469
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
-"ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
+msgstr "ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
 
 #: warehouse/manage/views/__init__.py:717
 msgid ""
@@ -777,8 +770,7 @@ msgstr "पुनर्प्राप्ति कोड प्रउत्प�
 
 #: warehouse/manage/views/__init__.py:959
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
-"नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
+msgstr "नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
 
 #: warehouse/manage/views/__init__.py:1067
 #, fuzzy
@@ -1512,8 +1504,8 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>कुछ तकनिकी समस्याएं हमारी वेब साइट सेवा की क्षमता को प्रभावित कर रही हैं।</p> <p>"
-"हम समस्या से अवगत हैं और इसे यथाशीघ्र हल करने के लिए कार्यरत हैं। </p>"
+"<p>कुछ तकनिकी समस्याएं हमारी वेब साइट सेवा की क्षमता को प्रभावित कर रही हैं।</p> "
+"<p>हम समस्या से अवगत हैं और इसे यथाशीघ्र हल करने के लिए कार्यरत हैं। </p>"
 
 #: warehouse/templates/500.html:20
 msgid "Check our status page"
@@ -1607,8 +1599,8 @@ msgid ""
 "and services associated with pypi.org. Any other use by any other party is "
 "prohibited."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/base.html:83
 #, fuzzy, python-format
@@ -1620,8 +1612,8 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/base.html:115
 #, fuzzy
@@ -1678,8 +1670,7 @@ msgstr "चेतावनी"
 
 #: warehouse/templates/base.html:236
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
-"आप एक असमर्थित ब्राउज़र का उपयोग कर रहे हैं, नए संस्करण में अपग्रेड करें।"
+msgstr "आप एक असमर्थित ब्राउज़र का उपयोग कर रहे हैं, नए संस्करण में अपग्रेड करें।"
 
 #: warehouse/templates/base.html:248
 msgid ""
@@ -1732,8 +1723,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a> and Python "
 "community, for the Python community."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/base.html:370
 #, fuzzy
@@ -1987,8 +1978,7 @@ msgstr "पैकेज बनाने वाले अपने सॉफ़�
 
 #: warehouse/templates/index.html:111
 msgid "Learn how to package your Python code for PyPI"
-msgstr ""
-"सीखें कि PyPI द्वारा वितरण के लिए अपने पायथन कोड कि पैकेजिंग कैसे पैकेज करें"
+msgstr "सीखें कि PyPI द्वारा वितरण के लिए अपने पायथन कोड कि पैकेजिंग कैसे पैकेज करें"
 
 #: warehouse/templates/accounts/login.html:5
 #: warehouse/templates/accounts/recovery-code.html:5
@@ -2167,8 +2157,8 @@ msgstr ""
 "करने वाले हैं।\n"
 "             यदि आप अपने व्यक्तिगत कंप्यूटर पर नहीं हैं, तो कार्य समाप्ति पर अपने सत्र से "
 "लॉग आउट करना न भूलें।\n"
-"             हम आपको अगले घंटे के लिए फिर से अपने पासवर्ड की पुष्टि करने के लिए नहीं कहेंगे"
-"।\n"
+"             हम आपको अगले घंटे के लिए फिर से अपने पासवर्ड की पुष्टि करने के लिए नहीं "
+"कहेंगे।\n"
 "              "
 
 #: warehouse/templates/upload.html:12
@@ -2182,9 +2172,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
-"परियोजनाओं को PyPI में अपलोड करने के बारे में अधिक जानकारी के लिए, <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">पाईथन पैकेजिंग यूजर "
-"गाइड</a> पर जाएं ।"
+"परियोजनाओं को PyPI में अपलोड करने के बारे में अधिक जानकारी के लिए, <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाईथन पैकेजिंग यूजर गाइड</a> पर जाएं ।"
 
 #: warehouse/templates/upload.html:17
 #, python-format
@@ -2210,8 +2200,8 @@ msgid ""
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
 "\n"
-"      क्या आप '<a href=\"%(project_link)s\">%(project_name)s</a>' परियोजना में %"
-"(role_name)s के रूप में शामिल होने का आमंत्रण स्वीकार करेंगे?\n"
+"      क्या आप '<a href=\"%(project_link)s\">%(project_name)s</a>' परियोजना में "
+"%(role_name)s के रूप में शामिल होने का आमंत्रण स्वीकार करेंगे?\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
@@ -2295,8 +2285,8 @@ msgid ""
 "an organization %(role_name)s?"
 msgstr ""
 "\n"
-"      क्या आप '<a href=\"%(project_link)s\">%(project_name)s</a>' परियोजना में %"
-"(role_name)s के रूप में शामिल होने का आमंत्रण स्वीकार करेंगे?\n"
+"      क्या आप '<a href=\"%(project_link)s\">%(project_name)s</a>' परियोजना में "
+"%(role_name)s के रूप में शामिल होने का आमंत्रण स्वीकार करेंगे?\n"
 "      "
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -2605,8 +2595,7 @@ msgstr "पासवर्ड रीसेट"
 
 #: warehouse/templates/accounts/request-password-reset.html:15
 msgid "To reset your password, enter your username or email."
-msgstr ""
-"अपना पासवर्ड रीसेट करने के लिए, अपना उपयोगकर्ता नाम (यूज़रनेम) या ईमेल दर्ज करें।"
+msgstr "अपना पासवर्ड रीसेट करने के लिए, अपना उपयोगकर्ता नाम (यूज़रनेम) या ईमेल दर्ज करें।"
 
 #: warehouse/templates/accounts/request-password-reset.html:26
 msgid "Username or email"
@@ -2665,13 +2654,11 @@ msgstr "किसी सुरक्षा उपकरण द्वारा �
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
-"अपनी सुरक्षा डिवाइस कनेक्ट करके \"डिवाइस द्वारा प्रमाणित\" बटन पर क्लिक करें।"
+msgstr "अपनी सुरक्षा डिवाइस कनेक्ट करके \"डिवाइस द्वारा प्रमाणित\" बटन पर क्लिक करें।"
 
 #: warehouse/templates/accounts/two-factor.html:24
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr ""
-"सुरक्षा उपकरण (जैसे USB कुंजी) से लॉग इन करने के लिए जावास्क्रिप्ट सक्रिय करें"
+msgstr "सुरक्षा उपकरण (जैसे USB कुंजी) से लॉग इन करने के लिए जावास्क्रिप्ट सक्रिय करें"
 
 #: warehouse/templates/accounts/two-factor.html:31
 msgid "Authenticate with device"
@@ -2684,8 +2671,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">अपना ब्राउज़र अपग्रेड करें</a> सुरक्षा उपकरण (जैसे USB कुंजी) द्वारा लॉग इन करने के लिए"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">अपना ब्राउज़र अपग्रेड करें</a> सुरक्षा उपकरण (जैसे USB कुंजी) द्वारा लॉग "
+"इन करने के लिए"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2742,8 +2730,8 @@ msgid ""
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a> </p>"
 msgstr ""
 "<p><strong>आपने खाता पुनःप्राप्ति कुंजी उत्पन्न नहीं की है।</strong></p> <p>अगर आप "
-"अपनी द्वि-कारक विधियां खो देते हैं, तो आप अपने खाते तक कि पहुंच खो सकते हैं। <a href=\"%"
-"(href)s\">पुनःप्राप्ति कुंजी उत्पन्न करने में सहायता प्राप्त करें।</a></p>"
+"अपनी द्वि-कारक विधियां खो देते हैं, तो आप अपने खाते तक कि पहुंच खो सकते हैं। <a "
+"href=\"%(href)s\">पुनःप्राप्ति कुंजी उत्पन्न करने में सहायता प्राप्त करें।</a></p>"
 
 #: warehouse/templates/email/account-association-added/body.html:5
 #, fuzzy, python-format
@@ -3109,8 +3097,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">%"
-"(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a "
+"href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
 
 #: warehouse/templates/email/organization-deleted/body.html:18
 #, fuzzy
@@ -3452,10 +3440,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"अपने खाते पर दोबारा हक़ हासिल करने के लिए, PyPI पर <a href=\"%(reset_pw_url)s\">"
-"अपना पारण शब्द (पासवर्ड) रीसेट करें</a>। हम यह भी अनुशंसा करते हैं कि आप <a href=\"%"
-"(have_i_been_pwned_url)s\">HaveIBeenPwned</a> पर जाएं और अपने अन्य पारण शब्द की "
-"जांच करें और अपने आप को अच्छे (सुरक्षाकारी) पारण शब्द प्रथाओं से परिचित कराएं।"
+"अपने खाते पर दोबारा हक़ हासिल करने के लिए, PyPI पर <a "
+"href=\"%(reset_pw_url)s\">अपना पारण शब्द (पासवर्ड) रीसेट करें</a>। हम यह भी अनुशंसा "
+"करते हैं कि आप <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> पर जाएं "
+"और अपने अन्य पारण शब्द की जांच करें और अपने आप को अच्छे (सुरक्षाकारी) पारण शब्द प्रथाओं से "
+"परिचित कराएं।"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:22
 msgid "How do you know this?"
@@ -3489,8 +3478,8 @@ msgid ""
 "to communicate with the PyPI administrators."
 msgstr ""
 "अधिक जानकारी के लिए, हमारे <a href=\"%(faq_url)s\">साधारणतः पूछे जाने वाले प्रश्न</"
-"a> देखें। सहायता के लिए, आप PyPI व्यवस्थापकों के साथ <a href=\"%(email_href)s\">%"
-"(email_address)s</a> द्वारा ईमेल संवाद कर सकते हैं।"
+"a> देखें। सहायता के लिए, आप PyPI व्यवस्थापकों के साथ <a "
+"href=\"%(email_href)s\">%(email_address)s</a> द्वारा ईमेल संवाद कर सकते हैं।"
 
 #: warehouse/templates/email/password-reset/body.html:5
 #, python-format
@@ -3568,8 +3557,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"आपके PyPI खाते <strong>%(username)s</strong> के प्राथमिक ईमेल को <code>%"
-"(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
+"आपके PyPI खाते <strong>%(username)s</strong> के प्राथमिक ईमेल को "
+"<code>%(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
@@ -4128,8 +4117,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
 msgstr ""
-"द्वी-कारक प्रमाणीकरण उपलब्ध है, <a href=\"%(href)s\">इसे अब आपके खाते के लिए सक्षम करें"
-"।</a>"
+"द्वी-कारक प्रमाणीकरण उपलब्ध है, <a href=\"%(href)s\">इसे अब आपके खाते के लिए सक्षम करें।"
+"</a>"
 
 #: warehouse/templates/includes/session-notifications.html:46
 #, fuzzy, python-format
@@ -4140,8 +4129,8 @@ msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"द्वी-कारक प्रमाणीकरण उपलब्ध है, <a href=\"%(href)s\">इसे अब आपके खाते के लिए सक्षम करें"
-"।</a>"
+"द्वी-कारक प्रमाणीकरण उपलब्ध है, <a href=\"%(href)s\">इसे अब आपके खाते के लिए सक्षम करें।"
+"</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:4
 msgid "Edit profile"
@@ -4196,8 +4185,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Service "
 "Agreement Interest</a> survey and we'll follow up."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:23
 #, fuzzy, python-format
@@ -4334,9 +4323,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">package formats "
 "documentation</a>."
 msgstr ""
-"परियोजनाओं को PyPI में अपलोड करने के बारे में अधिक जानकारी के लिए, <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">पाईथन पैकेजिंग यूजर "
-"गाइड</a> पर जाएं ।"
+"परियोजनाओं को PyPI में अपलोड करने के बारे में अधिक जानकारी के लिए, <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाईथन पैकेजिंग यूजर गाइड</a> पर जाएं ।"
 
 #: warehouse/templates/includes/packaging/project-files.html:17
 msgid "Source distribution (sdist)"
@@ -5842,8 +5831,7 @@ msgstr "API टोकन निकालें"
 #: warehouse/templates/manage/unverified-account.html:179
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
-msgstr ""
-"इस टोकन का उपयोग करने वाले एप्लिकेशन या स्क्रिप्ट अब PyPI तक पहुंच पाएंगी।"
+msgstr "इस टोकन का उपयोग करने वाले एप्लिकेशन या स्क्रिप्ट अब PyPI तक पहुंच पाएंगी।"
 
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/unverified-account.html:193
@@ -5870,9 +5858,9 @@ msgid ""
 "rel=\"noopener\">gravatar.com</a> to generate your profile picture based on "
 "your primary email address"
 msgstr ""
-"आपके प्राथमिक ईमेल पते के आधार पर आपकी प्रोफ़ाइल छवि उत्पन्न करने के लिए हम <a href=\"%"
-"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"gravatar.com</a> का उपयोग करते हैं"
+"आपके प्राथमिक ईमेल पते के आधार पर आपकी प्रोफ़ाइल छवि उत्पन्न करने के लिए हम <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">gravatar.com</a> का उपयोग करते हैं"
 
 #: warehouse/templates/manage/account.html:253
 msgid "Change image on gravatar.com"
@@ -5938,8 +5926,8 @@ msgid ""
 msgstr ""
 "आप अपने खाते के साथ कई ईमेल संबद्ध कर सकते हैं। आप किसी भी <span class=\"badge badge--"
 "success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i>सत्यापित</span> "
-"ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं केवल <span class=\"badge\">"
-"प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
+"ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं केवल <span "
+"class=\"badge\">प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
 
 #: warehouse/templates/manage/account.html:337
 #: warehouse/templates/manage/unverified-account.html:255
@@ -6369,8 +6357,7 @@ msgstr "द्वी-करक प्रमाणन जोड़ा"
 #: warehouse/templates/manage/unverified-account.html:448
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"विधि: सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+msgstr "विधि: सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/account.html:806
@@ -6626,8 +6613,7 @@ msgstr "उपकरण नाम"
 #: warehouse/templates/manage/unverified-account.html:554
 msgid ""
 "Events will appear here as security-related actions occur on your account."
-msgstr ""
-"आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने पर घटनाएँ यहां दिखाई देंगी।"
+msgstr "आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने पर घटनाएँ यहां दिखाई देंगी।"
 
 #: warehouse/templates/manage/account.html:970
 msgid "Delete account"
@@ -6701,8 +6687,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a href=\"%"
-"(delete_href)s\"> परियोजना हटाएं </a>"
+"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a "
+"href=\"%(delete_href)s\"> परियोजना हटाएं </a>"
 
 #: warehouse/templates/manage/account.html:1002
 #, fuzzy, python-format
@@ -6771,8 +6757,8 @@ msgid ""
 "<a href=\"%(roles_href)s\">add an owner</a> or <a "
 "href=\"%(delete_href)s\">delete organization</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a href=\"%"
-"(delete_href)s\"> परियोजना हटाएं </a>"
+"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a "
+"href=\"%(delete_href)s\"> परियोजना हटाएं </a>"
 
 #: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/account/token.html:187
@@ -6823,9 +6809,9 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
-"द्वी-कारक प्रमाणीकरण आपके खाते में सुरक्षा की एक अतिरिक्त परत जोड़ता है। <a href=\"%"
-"(href)s\"><abbr title=\"two factor authentication\">2FA</abbr> के बारे में और "
-"अधिक जानें</a>।"
+"द्वी-कारक प्रमाणीकरण आपके खाते में सुरक्षा की एक अतिरिक्त परत जोड़ता है। <a "
+"href=\"%(href)s\"><abbr title=\"two factor authentication\">2FA</abbr> के बारे "
+"में और अधिक जानें</a>।"
 
 #: warehouse/templates/manage/manage_base.html:18
 #, fuzzy
@@ -7007,9 +6993,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a href=\"%"
-"(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">अपने ब्राउज़र "
-"को अपग्रेड</a> करें"
+"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">अपने "
+"ब्राउज़र को अपग्रेड</a> करें"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -7073,8 +7059,8 @@ msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">not be able to re-upload any deleted versions</a>."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/manage/manage_base.html:518
 msgid ""
@@ -7641,8 +7627,7 @@ msgstr "अपना PyPI खाता हटाएं"
 msgid ""
 "You must verify an existing email address and make it your primary email "
 "address before making any other changes to your account."
-msgstr ""
-"यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
+msgstr "यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
 
 #: warehouse/templates/manage/unverified-account.html:222
 #, python-format
@@ -7659,8 +7644,7 @@ msgstr ""
 msgid ""
 "You must verify the primary email address listed below before making any "
 "other changes to your account."
-msgstr ""
-"यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
+msgstr "यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
 
 #: warehouse/templates/manage/unverified-account.html:236
 #, fuzzy
@@ -7670,8 +7654,7 @@ msgstr ""
 msgid ""
 "If you cannot verify the primary email address listed, you can correct it "
 "below."
-msgstr ""
-"यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
+msgstr "यह क्रिया करने से पहले आपको अपना **प्राथमिक** ईमेल एड्रेस सत्यापित करना होगा।"
 
 #: warehouse/templates/manage/unverified-account.html:246
 #, fuzzy
@@ -7688,8 +7671,8 @@ msgid ""
 msgstr ""
 "आप अपने खाते के साथ कई ईमेल संबद्ध कर सकते हैं। आप किसी भी <span class=\"badge badge--"
 "success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i>सत्यापित</span> "
-"ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं केवल <span class=\"badge\">"
-"प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
+"ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं केवल <span "
+"class=\"badge\">प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
 
 #: warehouse/templates/manage/unverified-account.html:268
 #, fuzzy
@@ -9553,8 +9536,8 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">%"
-"(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a "
+"href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
 
 #: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
@@ -9717,8 +9700,8 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a href=\"%"
-"(delete_href)s\"> परियोजना हटाएं </a>"
+"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a "
+"href=\"%(delete_href)s\"> परियोजना हटाएं </a>"
 
 #: warehouse/templates/manage/organization/settings.html:299
 #, fuzzy
@@ -9831,9 +9814,9 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading "
 "new documentation is no longer supported."
 msgstr ""
-"यदि आप किसी भी मौजूदा प्रलेखन (डाक्यूमेंटेशन) को नष्ट करना चाहते हैं जो <a href=\"%(url)"
-"s\">%(url)s</a> पर होस्ट है उसे आप यथावत स्थापित <strong>नहीं</strong> कर पाएंगे, "
-"क्योंकि नए प्रलेखन अपलोड करना अब समर्थित नहीं है।"
+"यदि आप किसी भी मौजूदा प्रलेखन (डाक्यूमेंटेशन) को नष्ट करना चाहते हैं जो <a "
+"href=\"%(url)s\">%(url)s</a> पर होस्ट है उसे आप यथावत स्थापित <strong>नहीं</"
+"strong> कर पाएंगे, क्योंकि नए प्रलेखन अपलोड करना अब समर्थित नहीं है।"
 
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Destroy Documentation for project"
@@ -10326,8 +10309,8 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/manage/project/release.html:156
 msgid "Release settings"
@@ -10433,8 +10416,8 @@ msgid ""
 msgstr ""
 "\n"
 "            आप इस रिलीज़ को निकाल फेंकने का एक कारण प्रदान कर सकते हैं, जिसे पिप "
-"द्वारा उन उपयोगकर्ताओं को प्रदर्शित किया जाएगा जो <code> %(project_name)s == %"
-"(version)s </code> को स्थापित करते हैं।\n"
+"द्वारा उन उपयोगकर्ताओं को प्रदर्शित किया जाएगा जो <code> %(project_name)s == "
+"%(version)s </code> को स्थापित करते हैं।\n"
 "          "
 
 #: warehouse/templates/manage/project/release.html:190
@@ -11669,8 +11652,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</"
 "a> in 2019"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/pages/sponsors.html:53
 msgid "Additional security-focused features for PyPI"
