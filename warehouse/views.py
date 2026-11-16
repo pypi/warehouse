@@ -85,9 +85,11 @@ json_path = re.compile(JSON_REGEX)
 @notfound_view_config(path_info=JSON_REGEX, append_slash=False)
 def httpexception_view(exc, request):
     # If this is a 404 for a Project, provide the project name requested
-    if isinstance(request.context, Project):
-        project_name = request.context.name
-    elif isinstance(request.context, ProjectFactory):
+    # There is no context when the exception was raised during traversal.
+    context = getattr(request, "context", None)
+    if isinstance(context, Project):
+        project_name = context.name
+    elif isinstance(context, ProjectFactory):
         project_name = request.matchdict.get("name")
     else:
         project_name = None
