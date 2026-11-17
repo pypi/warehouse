@@ -241,7 +241,8 @@ def _implementation_to_label(raw: str) -> str:
         return _pypy_format(raw)
     if raw.startswith("cp"):
         version, suffixes = _format_cpython(raw.removeprefix("cp"))
-        return f"{_impl_display['cp']} {version} {suffixes}".strip()
+        if version:
+            return f"{_impl_display['cp']} {version} {suffixes}".strip()
     if raw.startswith("py"):
         version = _format_version(raw.removeprefix("py"))
         return f"{_impl_display['py']} {version}"
@@ -258,7 +259,7 @@ def _implementation_to_label(raw: str) -> str:
 def _format_cpython(s: str) -> tuple[str, str]:
     suffixes = []
     raw = (s or "").strip()
-    while raw[-1].isalpha():
+    while raw and raw[-1].isalpha():
         last_char = raw[-1]
         name = _cpython_suffix_display.get(last_char)
         if not name:
