@@ -5,7 +5,7 @@
   // Pages that have been removed. These URLs serve the 404 page, which
   // loads this script and sends visitors on to the replacement page.
   const removedPages = {
-    "/about/pypi-roadmap/": "/",
+    "/about/pypi-roadmap/": "/about/roadmap/",
   };
 
   const page = removedPages[window.location.pathname];
