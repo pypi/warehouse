@@ -172,6 +172,9 @@ resetdb: .state/docker-build-base ## Reset and repopulate the database
 
 .state/db-migrated: .state/docker-build-base
 	docker compose up -d db
+	# The bind mount keeps the host file mode; with a restrictive umask the
+	# postgres user cannot execute wait-for-db, so make it executable first.
+	docker compose exec --user root db chmod 755 /usr/local/bin/wait-for-db
 	docker compose exec db /usr/local/bin/wait-for-db
 	$(MAKE) runmigrations
 	mkdir -p .state && touch .state/db-migrated
