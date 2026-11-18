@@ -1,7 +1,7 @@
 ---
 title: Stricter checks for uploaded distributions on PyPI
 description: >
-  PyPI has added and will continue adding more checks against
+  PyPI has added and will continue adding more checks for
   uploaded source and built distributions, as part of a larger effort to
   reduce archive differentials in the Python packaging ecosystem
   and conform with Python packaging standards.
@@ -11,7 +11,6 @@ date: 2026-11-18
 tags:
   - apis
   - security
-  - integrations
 ---
 
 Over the past few months, PyPI has added some additional checks that
@@ -25,9 +24,11 @@ less permissive and more strictly conformant to their respective specifications.
 
 For downstream users (package consumers), there are **no breaking implications**
 to these changes. Package maintainers who see failures should ensure that
-they're using non-EOL versions of Python as well as build backends
+they're using [non-EOL versions of Python] as well as build backends
 that produce distributions that properly conform to the packaging
 standards.
+
+[non-EOL versions of Python]: https://devguide.python.org/versions/#versions
 
 <!-- more -->
 
@@ -40,23 +41,24 @@ Python packaging has two primary distribution formats:
 
 Neither tar nor ZIP was designed for the role it serves in Python packaging[^packaging]: both represent
 metadata that is irrelevant to Python package distribution, and
-are surrounded by an ecosystem of parsers that are permissive in their interpretation of inputs.
+are surrounded by [an ecosystem of parsers that are permissive] in their interpretation of inputs.
+
+[an ecosystem of parsers that are permissive]: https://astral.sh/blog/tar-codec#tarchaeology
+
 This laxity is often correct in a local user setting, where users often want to recover important data from
 corrupted or otherwise slightly incorrect archives.
 
 However, it's **incorrect** in a networked setting,
 particularly a packaging one: even small differences in parsing between [separately permissive implementations]
-can result in [parser differentials] that can result in identical inputs extracting
+can result in parser differentials that can result in identical inputs extracting
 differently on different platforms and with different tools.
 
 [separately permissive implementations]: https://alexgaynor.net/2025/mar/25/postels-law-and-the-three-ring-circus/
 
-[parser differentials]: https://langsec.org/
-
 In principle, an attacker can use differentials to violate many of the properties that Python
 packaging (and end users) assume, including:
 
-- That PyPI's own parse of each uploaded distribution (including sensitive metadata like dependencies)
+- That PyPI's own parse of each uploaded distribution (including important metadata like dependencies)
   is consistent with what each installer sees;
 - That third-parties (like mirrors and security scanners) "see" the same distribution contents as PyPI
   does;
@@ -90,7 +92,7 @@ If you're a package maintainer: **nothing, probably**. The overwhelming majority
 are **not affected** by these changes, because they were already conforming with the pax requirement.
 
 If you're a maintainer and you _do_ encounter an upload rejection for archive format reasons,
-please consult PyPI's [archives documentation]. PyPI will endeavour to keep that page up-to-date as we
+please consult PyPI's [archives documentation]. PyPI will endeavor to keep that page up-to-date as we
 ratchet down on malformed or non-conforming uploads.
 
 For many maintainers, the fix will be straightforward:
@@ -125,7 +127,7 @@ in Python's own `zipfile` and `tarfile`), as well as Python packaging's standard
 constraining and improving the precision of the distribution specifications).
 
 Going forwards, PyPI will continue to identify new restrictions that it can apply to uploaded
-distributions. Our goal is to identify **safe** restrictions, i.e. ones that can be made
+distributions. Our goal is to identify **minimally disruptive** restrictions, i.e. ones that can be made
 without breaking (almost) any users. Archive differentials overwhelmingly take advantage of
 obscure or unused aspects of archive formats, so this is frequently possible.
 
