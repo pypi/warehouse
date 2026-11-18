@@ -62,7 +62,7 @@ packaging (and end users) assume, including:
   does;
 - That invocations like `pip install ...` and `uv add ...` produce the same installation state.
 
-Violations of these widely properties can result in users installing distributions that look legitimate
+Violations of these properties can result in users installing distributions that look legitimate
 but are actually malicious, even when the distribution's own integrity (e.g. via hashing) is established.
 
 ## Changes
