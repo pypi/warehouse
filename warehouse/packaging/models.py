@@ -98,8 +98,24 @@ if typing.TYPE_CHECKING:
 _MONOTONIC_SEQUENCE = 42
 PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
 
-# How far back to look for a release to compare provenance against.
+# How long a loss or change of provenance warning persists across subsequent
+# releases after the first release showing that loss or change.
 PROVENANCE_COMPARISON_WINDOW_DAYS = 14
+
+
+def _same_provenance(a: ProvenanceCounts, b: ProvenanceCounts) -> bool:
+    """
+    Return whether two provenanced releases attest to the same sources and workflows.
+
+    Unreadable payloads have unknown publishers, so they never count as matching
+    another release's provenance.
+    """
+    return (
+        not a.unreadable_files
+        and not b.unreadable_files
+        and a.source_counts.keys() == b.source_counts.keys()
+        and a.workflow_counts.keys() == b.workflow_counts.keys()
+    )
 
 
 def _provenance_query() -> Select:
@@ -157,27 +173,58 @@ def _provenance_comparison(
     counted: list[tuple[str, dt.datetime, ProvenanceCounts]],
     start: int,
     created: dt.datetime,
+    counts: ProvenanceCounts,
     cutoff: dt.datetime,
 ) -> ProvenanceComparison | None:
     """
     The release a status is measured against, from the releases before it.
 
     `counted` is ordered newest first, so the entries from `start` on are the
-    preceding releases. Indexed rather than sliced: the loop almost always
-    stops on its first or second entry, and both slicing and `islice` would
-    walk or copy the whole tail first, making the caller quadratic for no gain.
+    preceding releases. Indexed rather than sliced: the loop stops as soon as
+    it knows the baseline or proves an earlier release already warned past
+    `cutoff`, avoiding copying the tail on every release.
 
-    Walks past a nearer release carrying no provenance the same way
-    `Release.comparison_provenance_release` reaches past it by inner-joining,
-    and stops at `cutoff` rather than filtering on it.
+    A loss or change of provenance always compares against the preceding
+    provenanced release regardless of age, and continues to compare against it
+    for `PROVENANCE_COMPARISON_WINDOW_DAYS` after the first release in the new
+    state. Once an earlier release in the same state already appeared strictly
+    before `cutoff`, subsequent releases no longer warn.
     """
+    if not counts.files_with_provenance:
+        last_unattested: dt.datetime | None = None
+        for index in range(start, len(counted)):
+            version, other_created, other_counts = counted[index]
+            if other_created >= created or not other_counts.total_files:
+                continue
+            if other_counts.files_with_provenance:
+                if last_unattested is not None and other_created < last_unattested:
+                    return None
+                return ProvenanceComparison(version=version, counts=other_counts)
+            if other_created < cutoff:
+                if last_unattested is not None and other_created < last_unattested:
+                    return None
+                last_unattested = other_created
+        return None
+
+    first_provenanced: ProvenanceComparison | None = None
+    seen_created: dt.datetime | None = None
     for index in range(start, len(counted)):
-        version, other_created, counts = counted[index]
+        version, other_created, other_counts = counted[index]
+        if other_created >= created or not other_counts.files_with_provenance:
+            continue
+        if other_created == seen_created:
+            continue
+        seen_created = other_created
+        comparison = ProvenanceComparison(version=version, counts=other_counts)
+        if first_provenanced is None:
+            first_provenanced = comparison
+            if counts.unreadable_files:
+                return first_provenanced
+        if not _same_provenance(counts, other_counts):
+            return comparison
         if other_created < cutoff:
-            return None
-        if other_created < created and counts.files_with_provenance:
-            return ProvenanceComparison(version=version, counts=counts)
-    return None
+            return first_provenanced
+    return first_provenanced
 
 
 @dataclass(frozen=True)
@@ -697,7 +744,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 counts=counts,
                 comparison=(
                     _provenance_comparison(
-                        counted, index + 1, created, created - window
+                        counted, index + 1, created, counts, created - window
                     )
                     if attested
                     else None
@@ -1272,38 +1319,97 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
-    def comparison_provenance_release(self) -> Release | None:
+    def _provenance_comparison(
+        self, counts: ProvenanceCounts
+    ) -> ProvenanceComparison | None:
         """
-        Find the preceding release with provenance, within the comparison window.
+        Find the preceding release to compare this release's provenance against.
 
-        This inner-joins provenance, so it reaches past a nearer preceding
-        release that has none. Any release it returns therefore has at least
-        one file with provenance.
-
-        Releases are ordered by id as well as date, because `created` defaults
-        to a transaction-scoped `now()` and so ties across every release of a
-        batch insert. Without the tiebreak this picks arbitrarily among them,
-        and can disagree with `Project.provenance_statuses` about which
-        release a status is measured against.
+        Matches `Project.provenance_statuses` without loading the full project:
+        any loss or change compares against the preceding provenanced release
+        regardless of age, and persists across subsequent releases for
+        `PROVENANCE_COMPARISON_WINDOW_DAYS` after the first release showing that
+        loss or change. Once an earlier release in the same state already
+        appeared strictly before the window cutoff, subsequent releases stop
+        warning.
         """
         session = orm_session_from_obj(self)
-        window = dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
-        query = (
-            session.query(Release)
-            .join(Release.files)
-            .join(File.provenance)
-            .filter(
+        cutoff = self.created - dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        has_provenance = (
+            select(1)
+            .select_from(File)
+            .join(Provenance, Provenance.file_id == File.id)
+            .where(File.release_id == Release.id)
+            .exists()
+        )
+
+        if not counts.files_with_provenance:
+            prior = session.execute(
+                select(Release.id, Release.created)
+                .where(
+                    Release.project_id == self.project_id,
+                    Release.created < self.created,
+                    has_provenance,
+                )
+                .order_by(
+                    Release.created.desc(),
+                    Release._pypi_ordering.desc(),
+                    Release.id.desc(),
+                )
+                .limit(1)
+            ).first()
+            if prior is None:
+                return None
+            prior_id, prior_created = prior
+            if prior_created < cutoff:
+                has_files = select(1).where(File.release_id == Release.id).exists()
+                intermediate_expired = session.execute(
+                    select(1)
+                    .select_from(Release)
+                    .where(
+                        Release.project_id == self.project_id,
+                        Release.created > prior_created,
+                        Release.created < cutoff,
+                        has_files,
+                    )
+                    .limit(1)
+                ).first()
+                if intermediate_expired is not None:
+                    return None
+            counted = _counted_releases(
+                session.execute(_provenance_query().where(Release.id == prior_id)).all()
+            )
+            version, _, prior_counts = counted[0]
+            return ProvenanceComparison(version=version, counts=prior_counts)
+
+        in_window = select(Release.id).where(
+            Release.project_id == self.project_id,
+            Release.created < self.created,
+            Release.created >= cutoff,
+            has_provenance,
+        )
+        before_window = (
+            select(Release.id)
+            .where(
                 Release.project_id == self.project_id,
-                Release.created < self.created,
-                Release.created >= self.created - window,
+                Release.created < cutoff,
+                has_provenance,
             )
             .order_by(
                 Release.created.desc(),
                 Release._pypi_ordering.desc(),
                 Release.id.desc(),
             )
+            .limit(1)
+            .subquery()
         )
-        return query.first()
+        candidate_ids = in_window.union_all(select(before_window.c.id))
+        counted = _counted_releases(
+            session.execute(
+                _provenance_query().where(Release.id.in_(candidate_ids))
+            ).all()
+        )
+        return _provenance_comparison(counted, 0, self.created, counts, cutoff)
 
     @cached_property
     def provenance_counts(self) -> ProvenanceCounts:
@@ -1325,19 +1431,9 @@ class Release(HasObservations, db.Model):
         if not counts.total_files:
             return None
 
-        # Reading the comparison's counts through the same cached property
-        # means a page rendering consecutive releases computes each one once.
-        comparison_release = self.comparison_provenance_release()
         return ProvenanceStatus(
             counts=counts,
-            comparison=(
-                ProvenanceComparison(
-                    version=comparison_release.version,
-                    counts=comparison_release.provenance_counts,
-                )
-                if comparison_release
-                else None
-            ),
+            comparison=self._provenance_comparison(counts),
         )
 
     @cached_property

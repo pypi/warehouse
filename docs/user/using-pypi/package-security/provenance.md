@@ -101,7 +101,7 @@ Many warnings have legitimate explanations, but each one is worth checking befor
 
 !!! note
 
-    "Change of provenance" and "Loss of provenance" warnings are only raised when the provenance of the release files differs from a release made in the preceding **14 days**.
+    "Change of provenance" and "Loss of provenance" warnings are raised whenever a release's provenance differs from or is lost relative to the preceding release with provenance, regardless of how long ago that release was made. If subsequent releases continue in the new state, the warning continues to appear for **14 days** after the first release that showed the warning; releases made more than 14 days after that initial warned release no longer show the warning.
 
 ## Attestation limitations
 

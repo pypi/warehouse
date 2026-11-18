@@ -280,7 +280,7 @@ def test_provenance_status_lost_requires_the_comparison_to_have_had_provenance()
     """
     Nothing is lost if the earlier release never had provenance either.
 
-    `Release.comparison_provenance_release` only returns releases that have
+    `Release._provenance_comparison` only returns releases that have
     provenance, but the rule belongs here rather than resting on a join in
     another module.
     """

@@ -889,17 +889,328 @@ class TestProject:
         assert set(project.provenance_statuses) == {"2.0"}
 
     def test_provenance_statuses_stop_at_the_comparison_window(self, db_session):
-        """A predecessor outside the window is not compared against."""
-        old, recent = _release_pair(
-            days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS + 1,
-        )
+        """
+        Loss of provenance warns on the first unattested release regardless of
+        how old the prior provenanced release is, persists for the window, and
+        stops after the window once an earlier release has already warned.
+        """
+        project = DBProjectFactory.create()
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
+        old = DBReleaseFactory.create(project=project, version="1.0", created=day)
         _provenanced_file(old)
-        DBFileFactory.create(release=recent, packagetype="bdist_wheel")
 
-        status = old.project.provenance_statuses[recent.version]
+        first_lost = DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            created=day + dt.timedelta(days=100),
+        )
+        DBFileFactory.create(release=first_lost, packagetype="bdist_wheel")
 
-        assert status.comparison is None
-        assert status.states == {ProvenanceState.NO_PROVENANCE}
+        still_lost = DBReleaseFactory.create(
+            project=project,
+            version="2.1",
+            created=first_lost.created + dt.timedelta(days=5),
+        )
+        DBFileFactory.create(release=still_lost, packagetype="bdist_wheel")
+
+        expired = DBReleaseFactory.create(
+            project=project,
+            version="2.2",
+            created=first_lost.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS + 1),
+        )
+        DBFileFactory.create(release=expired, packagetype="bdist_wheel")
+
+        later_expired = DBReleaseFactory.create(
+            project=project,
+            version="2.3",
+            created=expired.created + dt.timedelta(days=5),
+        )
+        DBFileFactory.create(release=later_expired, packagetype="bdist_wheel")
+
+        statuses = project.provenance_statuses
+
+        assert statuses["2.0"].comparison is not None
+        assert statuses["2.0"].comparison.version == "1.0"
+        assert statuses["2.0"].states == {
+            ProvenanceState.NO_PROVENANCE,
+            ProvenanceState.LOST_PROVENANCE,
+        }
+        assert statuses["2.1"].comparison is not None
+        assert statuses["2.1"].comparison.version == "1.0"
+        assert statuses["2.1"].states == {
+            ProvenanceState.NO_PROVENANCE,
+            ProvenanceState.LOST_PROVENANCE,
+        }
+        assert statuses["2.2"].comparison is None
+        assert statuses["2.2"].states == {ProvenanceState.NO_PROVENANCE}
+        assert statuses["2.3"].comparison is None
+        assert statuses["2.3"].states == {ProvenanceState.NO_PROVENANCE}
+        assert statuses == {
+            release.version: release.provenance_status
+            for release in (old, first_lost, still_lost, expired, later_expired)
+        }
+
+    def test_provenance_statuses_changed_window_lifecycle(self, db_session):
+        """
+        A change of provenance warns on the first changed release regardless of
+        how old the prior release is, persists across subsequent releases in the
+        new state for the window, and clears once the window passes.
+        """
+        project = DBProjectFactory.create()
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
+        new_publisher = pypi_attestations.GitHubPublisher(
+            repository="other/repo", workflow="publish.yml"
+        )
+        third_publisher = pypi_attestations.GitHubPublisher(
+            repository="third/repo", workflow="publish.yml"
+        )
+
+        old = DBReleaseFactory.create(project=project, version="1.0", created=day)
+        _provenanced_file(old)
+
+        first_changed = DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            created=day + dt.timedelta(days=100),
+        )
+        _provenanced_file(first_changed, publisher=new_publisher)
+
+        within_window = DBReleaseFactory.create(
+            project=project,
+            version="2.1",
+            created=first_changed.created + dt.timedelta(days=5),
+        )
+        _provenanced_file(within_window, publisher=new_publisher)
+
+        at_edge = DBReleaseFactory.create(
+            project=project,
+            version="2.2",
+            created=first_changed.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS),
+        )
+        _provenanced_file(at_edge, publisher=new_publisher)
+
+        past_window = DBReleaseFactory.create(
+            project=project,
+            version="2.3",
+            created=first_changed.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS + 1),
+        )
+        _provenanced_file(past_window, publisher=new_publisher)
+
+        # A subsequent change starts a fresh window from the new transition.
+        second_change = DBReleaseFactory.create(
+            project=project,
+            version="3.0",
+            created=past_window.created + dt.timedelta(days=2),
+        )
+        _provenanced_file(second_change, publisher=third_publisher)
+
+        second_within = DBReleaseFactory.create(
+            project=project,
+            version="3.1",
+            created=second_change.created + dt.timedelta(days=10),
+        )
+        _provenanced_file(second_within, publisher=third_publisher)
+
+        second_past = DBReleaseFactory.create(
+            project=project,
+            version="3.2",
+            created=second_change.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS + 1),
+        )
+        _provenanced_file(second_past, publisher=third_publisher)
+
+        statuses = project.provenance_statuses
+
+        for version in ("2.0", "2.1", "2.2"):
+            assert ProvenanceState.CHANGED_PROVENANCE in statuses[version].states
+            assert statuses[version].comparison is not None
+            assert statuses[version].comparison.version == "1.0"
+
+        assert statuses["2.3"].states == {ProvenanceState.FULL_PROVENANCE}
+        assert statuses["2.3"].comparison is not None
+        assert statuses["2.3"].comparison.version == "2.2"
+
+        for version in ("3.0", "3.1"):
+            assert ProvenanceState.CHANGED_PROVENANCE in statuses[version].states
+            assert statuses[version].comparison is not None
+            assert statuses[version].comparison.version == "2.3"
+
+        assert statuses["3.2"].states == {ProvenanceState.FULL_PROVENANCE}
+        assert statuses["3.2"].comparison is not None
+        assert statuses["3.2"].comparison.version == "3.1"
+
+        all_releases = (
+            old,
+            first_changed,
+            within_window,
+            at_edge,
+            past_window,
+            second_change,
+            second_within,
+            second_past,
+        )
+        assert statuses == {
+            release.version: release.provenance_status for release in all_releases
+        }
+
+    def test_provenance_statuses_empty_and_tied_releases_before_loss(self, db_session):
+        """
+        Empty releases and unattested releases tied with the provenanced
+        baseline did not warn, so they do not suppress a later loss warning.
+        """
+        project = DBProjectFactory.create()
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
+        baseline = DBReleaseFactory.create(project=project, version="1.0", created=day)
+        _provenanced_file(baseline)
+        tied_unattested = DBReleaseFactory.create(
+            project=project, version="1.1", created=day
+        )
+        DBFileFactory.create(release=tied_unattested, packagetype="bdist_wheel")
+        empty = DBReleaseFactory.create(
+            project=project,
+            version="1.2",
+            created=day + dt.timedelta(days=10),
+        )
+        first_lost = DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            created=day + dt.timedelta(days=30),
+        )
+        DBFileFactory.create(release=first_lost, packagetype="bdist_wheel")
+
+        statuses = project.provenance_statuses
+
+        assert "1.2" not in statuses
+        assert empty.provenance_status is None
+        assert statuses["1.1"].states == {ProvenanceState.NO_PROVENANCE}
+        assert statuses["1.1"].comparison is None
+        assert statuses["2.0"].states == {
+            ProvenanceState.NO_PROVENANCE,
+            ProvenanceState.LOST_PROVENANCE,
+        }
+        assert statuses["2.0"].comparison is not None
+        assert statuses["2.0"].comparison.version == "1.0"
+        assert statuses == {
+            release.version: release.provenance_status
+            for release in (baseline, tied_unattested, first_lost)
+        }
+
+    def test_provenance_statuses_unchanged_after_long_gap(self, db_session):
+        """A release with matching provenance after a long gap does not warn."""
+        old, recent = _release_pair(days_apart=100)
+        _provenanced_file(old)
+        _provenanced_file(recent)
+
+        statuses = old.project.provenance_statuses
+
+        assert statuses[recent.version].states == {ProvenanceState.FULL_PROVENANCE}
+        assert statuses[recent.version].comparison is not None
+        assert statuses[recent.version].comparison.version == old.version
+        assert statuses == {
+            release.version: release.provenance_status for release in (old, recent)
+        }
+
+    def test_provenance_statuses_double_change_and_recovery_edge_cases(
+        self, db_session
+    ):
+        """
+        A second change within the window starts its own window, recovering to
+        a different publisher after a loss warns against the prior provenanced
+        release, and tied releases at the baseline do not cause false changes.
+        """
+        project = DBProjectFactory.create()
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
+        pub_a = pypi_attestations.GitHubPublisher(
+            repository="org/a", workflow="publish.yml"
+        )
+        pub_b = pypi_attestations.GitHubPublisher(
+            repository="org/b", workflow="publish.yml"
+        )
+        pub_c = pypi_attestations.GitHubPublisher(
+            repository="org/c", workflow="publish.yml"
+        )
+
+        # Tied baseline: 1.0 (pub_a) and 1.1 (pub_b) at day 0. 1.1 wins the tie.
+        r10 = DBReleaseFactory.create(project=project, version="1.0", created=day)
+        _provenanced_file(r10, publisher=pub_a)
+        r11 = DBReleaseFactory.create(project=project, version="1.1", created=day)
+        _provenanced_file(r11, publisher=pub_b)
+
+        # Same publisher as winning tied release 1.1 -> no false change vs 1.0.
+        r12 = DBReleaseFactory.create(
+            project=project, version="1.2", created=day + dt.timedelta(days=5)
+        )
+        _provenanced_file(r12, publisher=pub_b)
+
+        # Change to pub_c at day 100, then another change to pub_a at day 105.
+        r20 = DBReleaseFactory.create(
+            project=project, version="2.0", created=day + dt.timedelta(days=100)
+        )
+        _provenanced_file(r20, publisher=pub_c)
+        r21 = DBReleaseFactory.create(
+            project=project, version="2.1", created=day + dt.timedelta(days=105)
+        )
+        _provenanced_file(r21, publisher=pub_a)
+
+        # Day 116 is >14d after r20 (100), but only 11d after r21 (105) -> still warns!
+        r22 = DBReleaseFactory.create(
+            project=project, version="2.2", created=day + dt.timedelta(days=116)
+        )
+        _provenanced_file(r22, publisher=pub_a)
+
+        # Day 120 is 15d after r21 -> warning clears.
+        r23 = DBReleaseFactory.create(
+            project=project, version="2.3", created=day + dt.timedelta(days=120)
+        )
+        _provenanced_file(r23, publisher=pub_a)
+
+        # Loss at day 200, then recovery to pub_b at day 205 -> changed vs r23 (pub_a).
+        r30 = DBReleaseFactory.create(
+            project=project, version="3.0", created=day + dt.timedelta(days=200)
+        )
+        DBFileFactory.create(release=r30, packagetype="bdist_wheel")
+        r31 = DBReleaseFactory.create(
+            project=project, version="3.1", created=day + dt.timedelta(days=205)
+        )
+        _provenanced_file(r31, publisher=pub_b)
+
+        statuses = project.provenance_statuses
+
+        assert statuses["1.2"].states == {ProvenanceState.FULL_PROVENANCE}
+        assert statuses["1.2"].comparison is not None
+        assert statuses["1.2"].comparison.version == "1.1"
+
+        assert ProvenanceState.CHANGED_PROVENANCE in statuses["2.0"].states
+        assert statuses["2.0"].comparison is not None
+        assert statuses["2.0"].comparison.version == "1.2"
+
+        assert ProvenanceState.CHANGED_PROVENANCE in statuses["2.1"].states
+        assert statuses["2.1"].comparison is not None
+        assert statuses["2.1"].comparison.version == "2.0"
+
+        assert ProvenanceState.CHANGED_PROVENANCE in statuses["2.2"].states
+        assert statuses["2.2"].comparison is not None
+        assert statuses["2.2"].comparison.version == "2.0"
+
+        assert statuses["2.3"].states == {ProvenanceState.FULL_PROVENANCE}
+        assert statuses["2.3"].comparison is not None
+        assert statuses["2.3"].comparison.version == "2.2"
+
+        assert ProvenanceState.LOST_PROVENANCE in statuses["3.0"].states
+        assert statuses["3.0"].comparison is not None
+        assert statuses["3.0"].comparison.version == "2.3"
+
+        assert ProvenanceState.CHANGED_PROVENANCE in statuses["3.1"].states
+        assert statuses["3.1"].comparison is not None
+        assert statuses["3.1"].comparison.version == "2.3"
+
+        all_releases = (r10, r11, r12, r20, r21, r22, r23, r30, r31)
+        assert statuses == {
+            release.version: release.provenance_status for release in all_releases
+        }
 
     def test_provenance_statuses_report_a_publisher_change(self, db_session):
         """
@@ -984,21 +1295,36 @@ class TestProject:
 
     def test_provenance_statuses_compare_at_the_window_edge(self, db_session):
         """
-        A predecessor exactly at the window edge is still compared against.
+        A release exactly at the window edge after the first loss still warns.
 
-        The window is spelled twice, as a SQL `>=` on the release page and as a
+        The window is spelled twice, as a SQL `<` on the release page and as a
         Python `<` cutoff here, so the inclusive boundary is the one place the
         two can drift apart without either looking wrong on its own.
         """
-        old, recent = _release_pair(days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        project = DBProjectFactory.create()
+        day = dt.datetime(2026, 7, 1, 12, 0, 0)
+        old = DBReleaseFactory.create(project=project, version="1.0", created=day)
         _provenanced_file(old)
-        DBFileFactory.create(release=recent, packagetype="bdist_wheel")
+        first_lost = DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            created=day + dt.timedelta(days=30),
+        )
+        DBFileFactory.create(release=first_lost, packagetype="bdist_wheel")
+        at_edge = DBReleaseFactory.create(
+            project=project,
+            version="2.1",
+            created=first_lost.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS),
+        )
+        DBFileFactory.create(release=at_edge, packagetype="bdist_wheel")
 
-        status = old.project.provenance_statuses[recent.version]
+        status = project.provenance_statuses[at_edge.version]
 
         assert status.comparison is not None
         assert status.comparison.version == old.version
-        assert recent.provenance_status.comparison.version == old.version
+        assert ProvenanceState.LOST_PROVENANCE in status.states
+        assert at_edge.provenance_status == status
 
     def test_provenance_statuses_without_any_provenance(self, db_session):
         """
@@ -1842,18 +2168,33 @@ class TestRelease:
         assert status.comparison.counts.files_with_provenance == 1
         assert status.comparison.counts.total_files == 1
 
-    def test_provenance_status_lost_provenance_expired_window(self, db_session):
+    def test_provenance_status_lost_provenance_after_long_gap(self, db_session):
         rel1, rel2 = _release_pair(
-            days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS + 1,
+            days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS + 30,
         )
         _provenanced_file(rel1)
         DBFileFactory.create(release=rel2)
 
         status = rel2.provenance_status
         assert status is not None
-        assert status.states == {ProvenanceState.NO_PROVENANCE}
-        assert status.comparison is None
-        assert status.comparison is None
+        assert status.states == {
+            ProvenanceState.NO_PROVENANCE,
+            ProvenanceState.LOST_PROVENANCE,
+        }
+        assert status.comparison is not None
+        assert status.comparison.version == rel1.version
+
+        rel3 = DBReleaseFactory.create(
+            project=rel1.project,
+            created=rel2.created
+            + dt.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS + 1),
+        )
+        DBFileFactory.create(release=rel3)
+
+        expired = rel3.provenance_status
+        assert expired is not None
+        assert expired.states == {ProvenanceState.NO_PROVENANCE}
+        assert expired.comparison is None
 
     @pytest.mark.parametrize(
         ("old_publisher", "new_publisher", "expected_deltas"),
@@ -1966,7 +2307,7 @@ class TestRelease:
 
     def test_provenance_status_comparison_release_branches(self, db_session):
         with pytest.raises(NoSessionError):
-            Release().comparison_provenance_release()
+            _ = Release().provenance_status
 
         project = DBProjectFactory.create()
         rel0 = DBReleaseFactory.create(
