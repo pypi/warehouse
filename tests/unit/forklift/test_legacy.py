@@ -6441,7 +6441,6 @@ class TestFileUpload:
         version,
         expected,
         storage_service,
-        mocker,
         gate_service,
     ):
         project = ProjectFactory.create(name="some_thing")

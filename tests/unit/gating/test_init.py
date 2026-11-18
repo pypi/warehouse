@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+from unittest import mock
 
 from celery.schedules import crontab
 
@@ -17,12 +17,12 @@ class _StubPolicy:
 
 
 def _config(settings=None):
-    return pretend.stub(
-        registry=pretend.stub(settings=settings or {}),
-        add_directive=pretend.call_recorder(lambda *a, **kw: None),
-        register_service_factory=pretend.call_recorder(lambda *a, **kw: None),
-        register_gate_policy=pretend.call_recorder(lambda *a, **kw: None),
-        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+    return mock.Mock(
+        registry=mock.Mock(settings=settings or {}),
+        add_directive=mock.Mock(),
+        register_service_factory=mock.Mock(),
+        register_gate_policy=mock.Mock(),
+        add_periodic_task=mock.Mock(),
     )
 
 
@@ -32,15 +32,15 @@ class TestIncludeMe:
 
         gating.includeme(config)
 
-        assert config.add_directive.calls == [
-            pretend.call("register_gate_policy", register_gate_policy)
+        assert config.add_directive.call_args_list == [
+            mock.call("register_gate_policy", register_gate_policy)
         ]
-        assert config.register_service_factory.calls == [
-            pretend.call(gate_service_factory, IGateService)
+        assert config.register_service_factory.call_args_list == [
+            mock.call(gate_service_factory, IGateService)
         ]
-        assert config.add_periodic_task.calls == [
-            pretend.call(crontab(minute="*/1"), resolve_timed_out_gates),
-            pretend.call(crontab(minute="*/5"), compute_gating_metrics),
+        assert config.add_periodic_task.call_args_list == [
+            mock.call(crontab(minute="*/1"), resolve_timed_out_gates),
+            mock.call(crontab(minute="*/5"), compute_gating_metrics),
         ]
 
     def test_registers_no_gates_of_its_own(self):
@@ -49,7 +49,7 @@ class TestIncludeMe:
 
         gating.includeme(config)
 
-        assert config.register_gate_policy.calls == []
+        assert config.register_gate_policy.call_args_list == []
 
 
 class TestGateServiceFactory:

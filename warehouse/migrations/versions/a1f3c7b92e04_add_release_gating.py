@@ -6,7 +6,7 @@ Add release gating
 published stays published.
 
 Revision ID: a1f3c7b92e04
-Revises: e7c1c116be9a
+Revises: 5b1c8e7f2a9d
 Create Date: 2026-10-18 14:30:00.000000
 """
 
@@ -16,7 +16,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "a1f3c7b92e04"
-down_revision = "e7c1c116be9a"
+down_revision = "5b1c8e7f2a9d"
 
 
 def upgrade():

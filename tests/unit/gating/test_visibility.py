@@ -7,7 +7,8 @@ These go through the real read paths an installer uses, the Simple index and
 the JSON API, rather than asserting on the gate rows.
 """
 
-import pretend
+from unittest import mock
+
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
@@ -28,7 +29,7 @@ from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 def _register_storages(pyramid_services):
     """`reconcile_file_storages` resolves both named file storages up front."""
     for name in ("cache", "archive"):
-        pyramid_services.register_service(pretend.stub(), IFileStorage, None, name=name)
+        pyramid_services.register_service(mock.Mock(), IFileStorage, None, name=name)
 
 
 @pytest.fixture
@@ -122,13 +123,13 @@ class TestArtifactAvailability:
             release=release, cached=False, metadata_file_sha256_digest=None
         )
 
-        copy = pretend.call_recorder(lambda *a, **kw: None)
+        copy = mock.Mock()
         monkeypatch.setattr("warehouse.packaging.tasks._copy_file_to_cache", copy)
-        monkeypatch.setattr(db_request, "find_service", lambda *a, **kw: pretend.stub())
+        monkeypatch.setattr(db_request, "find_service", lambda *a, **kw: mock.Mock())
 
         sync_file_to_cache(db_request, file_.id)
 
-        assert len(copy.calls) == 1
+        assert copy.call_count == 1
         assert file_.cached is True
 
     def test_sync_copies_an_ungated_file(self, db_request, monkeypatch):
@@ -137,13 +138,13 @@ class TestArtifactAvailability:
             release=release, cached=False, metadata_file_sha256_digest=None
         )
 
-        copy = pretend.call_recorder(lambda *a, **kw: None)
+        copy = mock.Mock()
         monkeypatch.setattr("warehouse.packaging.tasks._copy_file_to_cache", copy)
-        monkeypatch.setattr(db_request, "find_service", lambda *a, **kw: pretend.stub())
+        monkeypatch.setattr(db_request, "find_service", lambda *a, **kw: mock.Mock())
 
         sync_file_to_cache(db_request, file_.id)
 
-        assert len(copy.calls) == 1
+        assert copy.call_count == 1
         assert file_.cached is True
 
     def test_reconcile_checks_gated_files(
@@ -157,14 +158,14 @@ class TestArtifactAvailability:
 
         _register_storages(pyramid_services)
         db_request.registry.settings = {"reconcile_file_storages.batch_size": 100}
-        checked = pretend.call_recorder(
-            lambda storage, f: pretend.stub(file=f.size, metadata_file=None)
+        checked = mock.Mock(
+            side_effect=lambda storage, f: mock.Mock(file=f.size, metadata_file=None)
         )
         monkeypatch.setattr("warehouse.packaging.tasks.fetch_sizes", checked)
 
         reconcile_file_storages(db_request)
 
-        assert [c.args[1] for c in checked.calls] == [file_, file_]
+        assert [c.args[1] for c in checked.call_args_list] == [file_, file_]
 
     def test_reconcile_still_checks_ungated_files(
         self, db_request, pyramid_services, monkeypatch
@@ -176,14 +177,14 @@ class TestArtifactAvailability:
 
         _register_storages(pyramid_services)
         db_request.registry.settings = {"reconcile_file_storages.batch_size": 100}
-        checked = pretend.call_recorder(
-            lambda storage, f: pretend.stub(file=f.size, metadata_file=None)
+        checked = mock.Mock(
+            side_effect=lambda storage, f: mock.Mock(file=f.size, metadata_file=None)
         )
         monkeypatch.setattr("warehouse.packaging.tasks.fetch_sizes", checked)
 
         reconcile_file_storages(db_request)
 
-        assert [c.args[1] for c in checked.calls] == [file_, file_]
+        assert [c.args[1] for c in checked.call_args_list] == [file_, file_]
 
     def test_cache_gauge_counts_gated_files(self, db_request, metrics):
         """Gated files are expected to be cached, so the gauge counts them too."""
@@ -194,10 +195,7 @@ class TestArtifactAvailability:
 
         check_file_cache_tasks_outstanding(db_request)
 
-        assert (
-            pretend.call("warehouse.packaging.files.not_cached", 2)
-            in metrics.gauge.calls
-        )
+        metrics.gauge.assert_any_call("warehouse.packaging.files.not_cached", 2)
 
 
 class TestWebUI:

@@ -2,8 +2,6 @@
 
 import datetime as dt
 
-import pretend
-
 from sqlalchemy import func, update
 
 from warehouse.gating.models import GateStatus, ReleaseGate
@@ -151,12 +149,9 @@ class TestResolveTimedOutGates:
 
         resolve_timed_out_gates(db_request)
 
-        assert (
-            pretend.call(
-                "warehouse.gating.timed_out",
-                tags=["kind:slow-gate", "status:expired"],
-            )
-            in metrics.increment.calls
+        metrics.increment.assert_any_call(
+            "warehouse.gating.timed_out",
+            tags=["kind:slow-gate", "status:expired"],
         )
 
 
@@ -172,27 +167,21 @@ class TestComputeGatingMetrics:
 
         compute_gating_metrics(db_request)
 
-        assert (
-            pretend.call(
-                "warehouse.gating.gates",
-                1,
-                tags=["kind:slow-gate", "status:pending"],
-            )
-            in metrics.gauge.calls
+        metrics.gauge.assert_any_call(
+            "warehouse.gating.gates",
+            1,
+            tags=["kind:slow-gate", "status:pending"],
         )
-        assert (
-            pretend.call(
-                "warehouse.gating.gates",
-                1,
-                tags=["kind:wait-gate", "status:passed"],
-            )
-            in metrics.gauge.calls
+        metrics.gauge.assert_any_call(
+            "warehouse.gating.gates",
+            1,
+            tags=["kind:wait-gate", "status:passed"],
         )
 
     def test_no_gates_emits_nothing(self, db_request, metrics):
         compute_gating_metrics(db_request)
 
-        assert metrics.gauge.calls == []
+        metrics.gauge.assert_not_called()
 
 
 class TestSweepBatching:
