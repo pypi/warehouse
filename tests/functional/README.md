@@ -18,7 +18,7 @@ Functional tests simulate real end-user interactions with PyPI. They test the ap
 
 ### Don't
 
-- **Mocking/patching** with `monkeypatch`, `mocker`, or `pretend` - these belong in unit tests
+- **Mocking/patching** with `monkeypatch` or `mocker` - these belong in unit tests
 - **Testing internal implementation details** - focus on user-facing behavior
 - **Direct model manipulation** without going through views/forms when testing user flows
 

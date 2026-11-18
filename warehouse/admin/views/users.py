@@ -236,7 +236,9 @@ class EmailForm(wtforms.Form):
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
-    domain_last_checked = wtforms.fields.DateTimeField(render_kw={"readonly": True})
+    domain_last_checked = wtforms.fields.DateTimeLocalField(
+        render_kw={"readonly": True}
+    )
     domain_last_status = wtforms.fields.StringField(render_kw={"readonly": True})
 
 

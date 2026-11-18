@@ -4,7 +4,6 @@ import io
 import secrets
 import uuid
 
-from cgi import FieldStorage
 from unittest import TestCase
 
 import pytest
@@ -19,24 +18,17 @@ from warehouse.admin.views import sponsors as views
 from warehouse.sponsors.models import Sponsor
 
 from ....common.db.sponsors import SponsorFactory
+from ....common.forms import as_posted, file_part
 
-COLOR_LOGO_FILE = FieldStorage()
-COLOR_LOGO_FILE.filename = "colorlogo.png"
-COLOR_LOGO_FILE.file = io.BytesIO(
+PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
     b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
     b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
 )
-COLOR_LOGO_FILE.type = "image/png"
 
-WHITE_LOGO_FILE = FieldStorage()
-WHITE_LOGO_FILE.filename = "whitelogo.png"
-WHITE_LOGO_FILE.file = io.BytesIO(
-    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-    b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
-    b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
-)
-WHITE_LOGO_FILE.type = "image/png"
+
+def logo(filename):
+    return file_part(io.BytesIO(PNG), filename=filename, type="image/png")
 
 
 class TestSponsorForm(TestCase):
@@ -119,7 +111,7 @@ class TestCreateSponsor:
         db_request.method = "POST"
         db_request.POST["name"] = "Sponsor"
         db_request.POST["link_url"] = "https://newsponsor.com"
-        db_request.POST["color_logo"] = COLOR_LOGO_FILE
+        db_request.POST["color_logo"] = logo("colorlogo.png")
         db_request.POST = MultiDict(db_request.POST)
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
@@ -164,11 +156,11 @@ class TestEditSponsor:
         form = views.SponsorForm(MultiDict({}), sponsor)
         data = form.data.copy()
         data["name"] = "New Name"
-        data["white_logo"] = WHITE_LOGO_FILE
-        data["color_logo"] = COLOR_LOGO_FILE
+        data["white_logo"] = logo("whitelogo.png")
+        data["color_logo"] = logo("colorlogo.png")
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
         mocker.patch.object(
             db_request,
             "current_route_path",
@@ -208,7 +200,7 @@ class TestEditSponsor:
         data["name"] = ""  # name is required
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
 
         result = views.edit_sponsor(db_request)
 

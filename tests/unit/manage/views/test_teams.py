@@ -21,6 +21,7 @@ from tests.common.db.organizations import (
     TeamRoleFactory,
 )
 from tests.common.db.packaging import ProjectFactory
+from tests.common.forms import UNUSABLE_IDS
 from warehouse.manage.views import teams as team_views
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -582,7 +583,7 @@ class TestManageTeamHistory:
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
@@ -611,7 +612,7 @@ class TestManageTeamHistory:
 
     def test_last_page(self, db_request, user_service):
         page_number = 2
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
@@ -640,7 +641,7 @@ class TestManageTeamHistory:
 
     def test_raises_404_with_out_of_range_page(self, db_request):
         page_number = 3
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         team = TeamFactory.create()
@@ -992,7 +993,7 @@ class TestUnusableIdNotFound:
         mocker.spy(db_request.session, "flash")
         return db_request
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_team_role(self, id_request, value):
         team = TeamFactory.create()
         id_request.POST = MultiDict({"role_id": value})
@@ -1004,7 +1005,7 @@ class TestUnusableIdNotFound:
             "Could not find member", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_change_team_project_role(self, id_request, value):
         project = ProjectFactory.create()
         id_request.POST = MultiDict(
@@ -1018,7 +1019,7 @@ class TestUnusableIdNotFound:
             "Could not find permissions", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_team_project_role(self, id_request, value):
         project = ProjectFactory.create()
         id_request.POST = MultiDict({"role_id": value})

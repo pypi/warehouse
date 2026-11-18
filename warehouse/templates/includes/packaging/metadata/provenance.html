@@ -48,7 +48,7 @@
             {% trans %}Incomplete provenance{% endtrans %}
           {% endset %}
           {% set message %}
-            {% trans without_count=provenance_status.counts.total_files - provenance_status.counts.files_with_provenance, total_count=provenance_status.counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}
+            {% trans without_count=provenance_status.counts.total_files - provenance_status.counts.files_with_provenance, total_count=provenance_status.counts.total_files %}{{ without_count }} of {{ total_count }} release files were uploaded without provenance metadata.{% endtrans %}
           {% endset %}
         {% endif %}
         <div class="callout-block callout-block--{{ callout_modifier }}">
@@ -76,9 +76,13 @@
               <strong>{% trans %}Full provenance{% endtrans %}</strong>
             </p>
             <p>
-              {% trans count=provenance_status.counts.total_files %}All {{ count }} file in this release has provenance metadata.
-            {% pluralize %}
-              All {{ count }} files in this release have provenance metadata.{% endtrans %}
+              {% if provenance_status.counts.total_files == 2 %}
+                {% trans %}Both files in this release have provenance metadata.{% endtrans %}
+              {% else %}
+                {% trans count=provenance_status.counts.total_files %}{{ count }} file in this release has provenance metadata.
+              {% pluralize %}
+                All {{ count }} files in this release have provenance metadata.{% endtrans %}
+              {% endif %}
             </p>
             <p>
               <a href="#security"

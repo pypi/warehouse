@@ -9,9 +9,11 @@ permissions: {}
 
 jobs:
   guard:
-    if: github.event.pull_request.user.login != 'pypi-warehouse-translations[bot]'
+    if: >-
+      github.event.pull_request.user.login != 'pypi-warehouse-translations[bot]' &&
+      github.event.pull_request.user.login != 'hosted-weblate[bot]'
     name: messages.pot is generated
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Reject hand edits
         run: |

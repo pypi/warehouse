@@ -7,7 +7,55 @@ info:
 # Potentially challenging for generating client code.
 
 components:
+  responses:
+    BadRequest:
+      description: |
+        The request is invalid. Validation failures are listed in `errors`;
+        other failures add their own members, such as `missing`.
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Problem'
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+    Forbidden:
+      description: Access was denied to this resource.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Error:
+      description: Any other error.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
   schemas:
+    Problem:
+      type: object
+      description: "[RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problem details"
+      properties:
+        type:
+          type: string
+          default: about:blank
+        title:
+          type: string
+          example: Forbidden
+        status:
+          type: integer
+          example: 403
+        detail:
+          type: string
+          example: Access was denied to this resource.
+      required:
+        - title
+        - status
+        - detail
     Observation:
       type: object
       description: A generic Observation object shape
@@ -37,13 +85,23 @@ components:
         - summary
       example: { "kind": "is_malware", "summary": "This project is distributing malware" }
   securitySchemes:
-    bearerAuth:
-      description: "[PyPI API Token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token)"
+    apiTokenBearer:
+      description: "[API token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token) (`pypi-...`), the credential for publishing, sent as `Authorization: Bearer pypi-...`."
       type: http
       scheme: bearer
-      bearerFormat: API Token
+      bearerFormat: API token
+    apiTokenToken:
+      description: "API token (`pypi-...`) sent as `Authorization: token pypi-...`."
+      type: http
+      scheme: token
+    apiTokenBasic:
+      description: "API token (`pypi-...`) sent as HTTP basic auth, with `__token__` as the username."
+      type: http
+      scheme: basic
 security:
-  - bearerAuth: [ ]
+  - apiTokenBearer: [ ]
+  - apiTokenToken: [ ]
+  - apiTokenBasic: [ ]
 
 tags:
   - name: danger-api
@@ -70,7 +128,11 @@ paths:
                     example: someuser
                 example: { "username": "someuser" }
         '400':
-            description: Bad request
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/Error'
   /danger-api/projects/{name}/observations:
     post:
       summary: Submit a project observation
@@ -108,4 +170,8 @@ paths:
                     type: string
                     example: "for the observation"
         '400':
-          description: Bad request
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/Error'

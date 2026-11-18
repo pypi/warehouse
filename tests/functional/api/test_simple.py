@@ -143,7 +143,7 @@ def test_pep833_simple_api_detail_html_frozen(webtest):
   </head>
   <body>
     <h1>Links for example2</h1>
-<a href="http://localhost:7000/#sha256=a1dce4642866a610552fab0817cc7926f12d9ecc11f7016eb07bd5e721cee61e" data-requires-python="&gt;=3.14" >example2-1.0.0.tar.gz</a><br />
+<a href="http://localhost:7000/ff/99/ac93708f3e9a43aba8c212c4977480e2d47d38a5f56276ad70af7f2cbfb3/example2-1.0.0.tar.gz#sha256=a1dce4642866a610552fab0817cc7926f12d9ecc11f7016eb07bd5e721cee61e" data-requires-python="&gt;=3.14" >example2-1.0.0.tar.gz</a><br />
 </body>
 </html>
 <!--SERIAL 0-->\

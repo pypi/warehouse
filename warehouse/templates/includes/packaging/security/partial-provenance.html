@@ -9,7 +9,7 @@
     {% trans %}Incomplete provenance{% endtrans %}
   </h4>
   <p>
-    {% trans without_count=without_count, total_count=counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}
+    {% trans without_count=without_count, total_count=counts.total_files %}{{ without_count }} of {{ total_count }} release files were uploaded without provenance metadata.{% endtrans %}
   </p>
   <div class="provenance-bar {{ 'provenance-bar--with-gap' if counts.total_files < 20 }}">
     <div class="provenance-bar__row">

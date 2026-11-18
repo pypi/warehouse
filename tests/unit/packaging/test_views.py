@@ -520,10 +520,7 @@ class TestProjectSubmitMalwareObservation:
     def test_get_render_form(self, pyramid_request):
         project = ProjectFactory.build()
 
-        # DummyRequest defaults these to plain dicts, aliased to each other;
-        # WTForms needs a multidict
         pyramid_request.GET = MultiDict({"summary": "Bad stuff in here"})
-        pyramid_request.POST = MultiDict()
 
         result = views.submit_malware_observation(project, pyramid_request)
 

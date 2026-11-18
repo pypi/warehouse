@@ -5,7 +5,6 @@ import os
 import os.path
 import re
 import time
-import types
 import xmlrpc.client
 
 from collections import defaultdict
@@ -16,16 +15,17 @@ from unittest import mock
 import alembic.command
 import click.testing
 import email_validator
-import pretend
 import pyramid.testing
 import pytest
 import stripe
+import structlog
 import transaction
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
 from pypi_attestations import Attestation, Envelope, Provenance, VerificationMaterial
+from pyramid.decorator import reify
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -72,41 +72,16 @@ from warehouse.search import services as search_services
 from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
+from warehouse.tasks import WarehouseTask
 
 from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+from .common.forms import FormRequest
 
 _HERE = Path(__file__).parent.resolve()
 _FIXTURES = _HERE / "_fixtures"
-
-
-class _CallRecorder:
-    """Transitional recorder for the ``metrics`` and ``pyramid_request`` fixtures.
-
-    Wraps a callable -- a real bound method (``metrics``) or a lambda stand-in
-    (``request.task`` / ``request.log``) -- so a single object
-    satisfies BOTH the legacy ``pretend``-style
-    ``obj.method.calls == [pretend.call(...)]`` assertions and the modern
-    ``unittest.mock`` API (``assert_called_once_with`` / ``assert_has_calls`` /
-    ``assert_not_called`` / ``call_args_list``). This lets the pretend removal
-    proceed file-by-file rather than as one big-bang sweep; delete it once no
-    ``.calls`` assertions against these fixtures remain.
-    """
-
-    def __init__(self, method):
-        self._mock = mock.MagicMock(wraps=method)
-
-    def __call__(self, *args, **kwargs):
-        return self._mock(*args, **kwargs)
-
-    @property
-    def calls(self):
-        return [pretend.call(*c.args, **c.kwargs) for c in self._mock.call_args_list]
-
-    def __getattr__(self, name):
-        return getattr(self._mock, name)
 
 
 @pytest.fixture(autouse=True)
@@ -131,14 +106,12 @@ def guard_mock_sentinels():
 
 
 @pytest.fixture
-def metrics():
-    """Real ``NullMetrics`` with each method wrapped to record calls.
+def metrics(mocker):
+    """Real ``NullMetrics`` with each method spied on to record calls.
 
-    Replaces the former ``pretend.stub`` metrics fake. Because it is the real
-    ``IMetricsService`` implementation, ``with metrics.timed(...)`` returns a
-    genuine context manager and method signatures are enforced. The
-    ``_CallRecorder`` wrapper keeps the legacy ``.calls`` assertion API working
-    during the migration to ``assert_called_*``.
+    Calls pass through to the real ``IMetricsService`` implementation, so
+    ``with metrics.timed(...)`` returns a genuine context manager and method
+    signatures are enforced.
     """
     service = NullMetrics()
     for name in (
@@ -153,7 +126,7 @@ def metrics():
         "event",
         "service_check",
     ):
-        setattr(service, name, _CallRecorder(getattr(service, name)))
+        mocker.spy(service, name)
     return service
 
 
@@ -284,10 +257,38 @@ def pyramid_services(
     return services
 
 
+def _request_task_spec(task_func):
+    """Stand-in carrying the signature of the real ``request.task``.
+
+    ``request.task`` is ``functools.partial(_get_task, celery_app)``, and
+    autospeccing a partial checks nothing.
+    """
+
+
+class _DummyRequest(FormRequest):
+    """``FormRequest`` whose ``task`` and ``log`` mocks are built on first use.
+
+    Autospeccing ``WarehouseTask`` or ``BoundLogger`` costs ~15ms each and most
+    tests touch neither.
+    """
+
+    @reify
+    def task(self):
+        task = mock.create_autospec(WarehouseTask, instance=True)
+        task.delay.return_value = None
+        return mock.create_autospec(_request_task_spec, return_value=task)
+
+    @reify
+    def log(self):
+        log = mock.create_autospec(structlog.stdlib.BoundLogger, instance=True)
+        log.bind.return_value = log
+        return log
+
+
 @pytest.fixture
 def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
-    dummy_request = pyramid.testing.DummyRequest()
+    dummy_request = _DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
@@ -300,18 +301,6 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.ip_address = IpAddressFactory.create()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
-
-    dummy_request._task_stub = types.SimpleNamespace(
-        delay=_CallRecorder(lambda *a, **kw: None)
-    )
-    dummy_request.task = _CallRecorder(lambda *a, **kw: dummy_request._task_stub)
-    dummy_request.log = types.SimpleNamespace(
-        bind=_CallRecorder(lambda *args, **kwargs: dummy_request.log),
-        info=_CallRecorder(lambda *args, **kwargs: None),
-        warning=_CallRecorder(lambda *args, **kwargs: None),
-        error=_CallRecorder(lambda *args, **kwargs: None),
-        exception=_CallRecorder(lambda *args, **kwargs: None),
-    )
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
@@ -424,7 +413,7 @@ def get_app_config(database, nondefaults=None):
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
         "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleAdminNotificationService",  # noqa: E501
-        "files.url": "http://localhost:7000/",
+        "files.url": "http://localhost:7000/{path}",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
@@ -505,6 +494,7 @@ def app_config_dbsession_from_env(database):
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
         "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
+        "token.remember_device.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
     }
@@ -771,7 +761,9 @@ def _enable_all_oidc_providers(webtest):
 @pytest.fixture
 def send_email(pyramid_request, pyramid_config, mocker):
     send_email_task = mocker.patch.object(warehouse.email, "send_email")
-    pyramid_request.task = mocker.Mock(return_value=send_email_task)
+    pyramid_request.task = mock.create_autospec(
+        _request_task_spec, return_value=send_email_task
+    )
     pyramid_request.registry.settings["mail.sender"] = "noreply@example.com"
     return send_email_task
 

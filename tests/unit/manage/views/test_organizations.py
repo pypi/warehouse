@@ -5,6 +5,7 @@ import re
 import uuid
 
 import pytest
+import wtforms
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -38,6 +39,7 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionFactory,
     StripeSubscriptionPriceFactory,
 )
+from tests.common.forms import UNUSABLE_IDS
 from warehouse.accounts import ITokenService
 from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -1768,10 +1770,10 @@ class TestManageOrganizationRoles:
             "is_sole_owner": False,
             "awaiting_initial_billing": False,
             "role_choices": [
-                ("", "Select role"),
-                ("Member", "Member"),
-                ("Manager", "Manager"),
-                ("Owner", "Owner"),
+                wtforms.SelectChoice("", "Select role"),
+                wtforms.SelectChoice("Member", "Member"),
+                wtforms.SelectChoice("Manager", "Manager"),
+                wtforms.SelectChoice("Owner", "Owner"),
             ],
         }
 
@@ -1920,12 +1922,11 @@ class TestManageOrganizationRoles:
         self, db_request, invite_emails, mocker
     ):
         """
-        A Company organization that once had billing and lost it is neither
-        in good standing nor awaiting initial billing.
+        A deactivated Company organization is neither in good standing nor
+        permitted to invite a Billing Manager.
         """
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
-        OrganizationEventFactory.create(
-            source=organization, tag=EventTag.Organization.SubscriptionCreate
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=False
         )
         new_user = UserFactory.create(username="new-user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
@@ -1937,7 +1938,9 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = MultiDict({"username": "new-user", "role_name": "Member"})
+        db_request.POST = MultiDict(
+            {"username": "new-user", "role_name": "Billing Manager"}
+        )
         db_request.user = owner_user
         mocker.spy(db_request.session, "flash")
 
@@ -1969,11 +1972,11 @@ class TestManageOrganizationRoles:
         result = org_views.manage_organization_roles(organization, db_request)
 
         assert result["form"].role_name.choices == [
-            ("", "Select role"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ]
         assert result["awaiting_initial_billing"] is True
-        assert [choice[0] for choice in result["role_choices"]] == [
+        assert [choice.value for choice in result["role_choices"]] == [
             "",
             "Member",
             "Manager",
@@ -2389,6 +2392,9 @@ class TestChangeOrganizationRole:
         self, db_request, orgtype, initial_role, new_role_name, mocker
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+        if orgtype == OrganizationType.Company:
+            OrganizationStripeCustomerFactory.create(organization=organization)
+            OrganizationStripeSubscriptionFactory.create(organization=organization)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
             organization=organization,
@@ -2510,6 +2516,48 @@ class TestChangeOrganizationRole:
         )
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_organization_role_not_in_good_standing(self, db_request, mocker):
+        organization = OrganizationFactory.create(
+            name="foobar", orgtype=OrganizationType.Company
+        )
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            user=user,
+            organization=organization,
+            role_name=OrganizationRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+        mocker.patch.object(
+            org_views, "send_organization_member_role_changed_email", autospec=True
+        )
+        mocker.patch.object(
+            org_views, "send_role_changed_as_organization_member_email", autospec=True
+        )
+
+        # Non-Billing Manager roles are rejected when not in good standing
+        db_request.POST = MultiDict({"role_id": str(role.id), "role_name": "Manager"})
+        result = org_views.change_organization_role(organization, db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert role.role_name == OrganizationRoleType.Member
+        db_request.session.flash.assert_not_called()
+
+        # Billing Manager role is allowed when not in good standing
+        db_request.POST = MultiDict(
+            {"role_id": str(role.id), "role_name": "Billing Manager"}
+        )
+        result = org_views.change_organization_role(organization, db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert role.role_name == OrganizationRoleType.BillingManager
+        db_request.session.flash.assert_called_once_with(
+            "Changed role", queue="success"
+        )
 
 
 class TestDeleteOrganizationRoles:
@@ -2703,7 +2751,7 @@ class TestManageOrganizationHistory:
 
     def test_first_page(self, db_request, user_service):
         page_number = 1
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         organization = OrganizationFactory.create()
@@ -2734,7 +2782,7 @@ class TestManageOrganizationHistory:
 
     def test_last_page(self, db_request, user_service):
         page_number = 2
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         organization = OrganizationFactory.create()
@@ -2765,7 +2813,7 @@ class TestManageOrganizationHistory:
 
     def test_raises_404_with_out_of_range_page(self, db_request):
         page_number = 3
-        params = MultiDict({"page": page_number})
+        params = MultiDict({"page": str(page_number)})
         db_request.params = params
 
         organization = OrganizationFactory.create()
@@ -3185,8 +3233,10 @@ class TestManageOrganizationPublishingViews:
         )
 
         assert view.pending_gitlab_publisher_form.issuer_url.choices == [
-            ("https://gitlab.com", "https://gitlab.com"),
-            ("https://gitlab.example.com", "https://gitlab.example.com"),
+            wtforms.SelectChoice("https://gitlab.com", "https://gitlab.com"),
+            wtforms.SelectChoice(
+                "https://gitlab.example.com", "https://gitlab.example.com"
+            ),
         ]
 
     def test_manage_organization_publishing_get_oidc_disabled(
@@ -3394,7 +3444,8 @@ class TestUnusableIdNotFound:
     """A posted id that can't find a row is not found instead of a 500."""
 
     @pytest.mark.parametrize(
-        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+        "value",
+        [*UNUSABLE_IDS, "00000000-0000-0000-0000-000000000000"],
     )
     def test_resend_organization_invitation(
         self, invite_request, invite_organization, value
@@ -3411,7 +3462,8 @@ class TestUnusableIdNotFound:
         )
 
     @pytest.mark.parametrize(
-        "value", ["nope", "", object(), "00000000-0000-0000-0000-000000000000"]
+        "value",
+        [*UNUSABLE_IDS, "00000000-0000-0000-0000-000000000000"],
     )
     def test_revoke_organization_invitation(
         self, invite_request, invite_organization, value
@@ -3427,7 +3479,7 @@ class TestUnusableIdNotFound:
             "Could not find organization invitation.", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_change_organization_role(self, invite_request, invite_organization, value):
         invite_request.POST = MultiDict({"role_id": value, "role_name": "Owner"})
 
@@ -3438,7 +3490,7 @@ class TestUnusableIdNotFound:
             "Could not find member", queue="error"
         )
 
-    @pytest.mark.parametrize("value", ["nope", "", object()])
+    @pytest.mark.parametrize("value", UNUSABLE_IDS)
     def test_delete_organization_role(self, invite_request, invite_organization, value):
         invite_request.POST = MultiDict({"role_id": value})
 

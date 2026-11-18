@@ -1449,7 +1449,7 @@ class TestProjectService:
 
         assert project.name == "numpi"
         db_request.task.assert_called_once_with(typo_check_project_name)
-        db_request._task_stub.delay.assert_called_once_with(project.id)
+        db_request.task.return_value.delay.assert_called_once_with(project.id)
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)

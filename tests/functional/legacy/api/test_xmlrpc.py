@@ -10,11 +10,11 @@ def test_xmlrpc_raises_fault(webtest):
         webtest.xmlrpc("/pypi", "list_packages", "one", "two")
 
 
-def test_xmlrpc_nomethod(webtest, metrics):
-    with pytest.raises(xmlrpc.client.Fault):
+def test_xmlrpc_nomethod(webtest):
+    with pytest.raises(xmlrpc.client.Fault) as excinfo:
         webtest.xmlrpc("/pypi", "multipassssss")
-    assert metrics.increment.calls == []
-    assert metrics.timed.calls == []
+    assert excinfo.value.faultCode == -32601
+    assert excinfo.value.faultString == "server error; requested method not found"
 
 
 def test_xmlrpc_succeeds(webtest):

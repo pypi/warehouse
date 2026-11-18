@@ -626,13 +626,16 @@ class TestLogin:
             ("Location", "/account/two-factor"),
         ]
 
+    @pytest.mark.parametrize("has_pending_login", [True, False])
     def test_login_with_remembered_device_confirms_unique_login(
         self,
         db_request,
+        user_service,
         remember_device_token_service,
         breach_service,
         form_class,
         valid_form,
+        has_pending_login,
         mocker,
     ):
         mocker.patch.object(
@@ -640,16 +643,27 @@ class TestLogin:
         )
 
         user = UserFactory.create(with_terms_of_service_agreement=True)
+        WebAuthnFactory.create(user=user)
         mocker.patch.object(user, "record_event", autospec=True, return_value=None)
 
-        UserUniqueLoginFactory.create(
-            user=user,
-            ip_address=db_request.ip_address,
-            status=UniqueLoginStatus.PENDING,
-        )
+        if has_pending_login:
+            UserUniqueLoginFactory.create(
+                user=user,
+                ip_address=db_request.ip_address,
+                status=UniqueLoginStatus.PENDING,
+            )
 
         db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
-            remember_device_token_service.dumps({"user_id": user.id})
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": "webauthn",
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, "webauthn"
+                    ),
+                }
+            )
         )
         db_request.method = "POST"
         db_request.session = Session()
@@ -671,6 +685,67 @@ class TestLogin:
             .one()
         )
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
+
+    @pytest.mark.parametrize("has_pending_login", [True, False])
+    def test_login_with_totp_remembered_device_does_not_confirm_unique_login(
+        self,
+        db_request,
+        user_service,
+        remember_device_token_service,
+        breach_service,
+        form_class,
+        valid_form,
+        has_pending_login,
+        mocker,
+    ):
+        mocker.patch.object(
+            views, "remember", autospec=True, return_value=[("foo", "bar")]
+        )
+
+        user = UserFactory.create(with_terms_of_service_agreement=True)
+        mocker.patch.object(user, "record_event", autospec=True, return_value=None)
+
+        if has_pending_login:
+            UserUniqueLoginFactory.create(
+                user=user,
+                ip_address=db_request.ip_address,
+                status=UniqueLoginStatus.PENDING,
+            )
+
+        db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": "totp",
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(user, "totp"),
+                }
+            )
+        )
+        db_request.method = "POST"
+        db_request.session = Session()
+        db_request.registry.settings = {
+            "sessions.secret": "dummy_secret",
+            "terms.revision": "initial",
+        }
+
+        valid_form.username.data = user.username
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the-redirect"
+        )
+
+        views.login(db_request, _form_class=form_class)
+
+        unique_login = (
+            db_request.db.query(UserUniqueLogin)
+            .filter(UserUniqueLogin.user == user)
+            .one_or_none()
+        )
+        if has_pending_login:
+            assert unique_login is not None
+            assert unique_login.status == UniqueLoginStatus.PENDING
+        else:
+            assert unique_login is None
 
     def test_login_updates_last_used(
         self, db_request, breach_service, form_class, valid_form, mocker
@@ -1063,7 +1138,7 @@ class TestTwoFactor:
         assert isinstance(result, HTTPSeeOther)
         db_request.route_path.assert_called_once_with("accounts.confirm-login")
         user_service.device_is_known.assert_called_once_with(
-            str(two_factor_user.id), db_request, "totp"
+            str(two_factor_user.id), db_request, "totp", remember_device=False
         )
 
 
@@ -1243,22 +1318,76 @@ class TestWebAuthn:
 
 
 class TestRememberDevice:
+    @pytest.mark.parametrize(
+        ("token_data", "expected"),
+        [
+            ({}, "totp"),
+            ({"two_factor_method": "totp"}, "totp"),
+            ({"two_factor_method": "webauthn"}, "webauthn"),
+        ],
+    )
     def test_check_remember_device_token_valid(
-        self, pyramid_request, remember_device_token_service
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        token_data,
+        expected,
     ):
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
         pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
-            remember_device_token_service.dumps({"user_id": 1})
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(user, expected),
+                    **token_data,
+                }
+            )
         )
-        assert views._check_remember_device_token(pyramid_request, 1)
+        assert views._check_remember_device_token(pyramid_request, user.id) == expected
+
+    @pytest.mark.parametrize("two_factor_method", ["totp", "webauthn"])
+    def test_check_remember_device_token_valid_when_other_method_changes(
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        two_factor_method,
+    ):
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": two_factor_method,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, two_factor_method
+                    ),
+                }
+            )
+        )
+        if two_factor_method == "totp":
+            WebAuthnFactory.create(user=user)
+        else:
+            user.totp_secret = b"rotated-totp-secret"
+
+        assert (
+            views._check_remember_device_token(pyramid_request, user.id)
+            == two_factor_method
+        )
 
     def test_check_remember_device_token_invalid_no_cookie(self, pyramid_request):
-        assert not views._check_remember_device_token(pyramid_request, 1)
+        assert views._check_remember_device_token(pyramid_request, 1) is None
 
     def test_check_remember_device_token_invalid_bad_token(
         self, pyramid_request, remember_device_token_service
     ):
         pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = "token"
-        assert not views._check_remember_device_token(pyramid_request, 1)
+        assert views._check_remember_device_token(pyramid_request, 1) is None
 
     def test_check_remember_device_token_invalid_wrong_user(
         self, pyramid_request, remember_device_token_service
@@ -1266,27 +1395,111 @@ class TestRememberDevice:
         pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
             remember_device_token_service.dumps({"user_id": 999})
         )
-        assert not views._check_remember_device_token(pyramid_request, 1)
+        assert views._check_remember_device_token(pyramid_request, 1) is None
+
+    @pytest.mark.parametrize("action", ["missing", "reset", "disable"])
+    def test_check_remember_device_token_invalid_password_changed(
+        self,
+        db_request,
+        user_service,
+        remember_device_token_service,
+        action,
+    ):
+        user = UserFactory.create(
+            clear_pwd="password",
+            password_date=dt.datetime(2020, 1, 1, tzinfo=dt.UTC),
+        )
+        token_data = {"user_id": user.id, "two_factor_method": "totp"}
+        if action != "missing":
+            token_data["password_timestamp"] = user_service.get_password_timestamp(
+                user.id
+            )
+        db_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(token_data)
+        )
+
+        if action == "reset":
+            user_service.update_user(user.id, password="new-password")
+            db_request.db.flush()
+            db_request.db.refresh(user)
+        elif action == "disable":
+            user_service.disable_password(user.id, db_request)
+            db_request.db.flush()
+            db_request.db.refresh(user)
+
+        assert views._check_remember_device_token(db_request, user.id) is None
+
+    @pytest.mark.parametrize(
+        ("two_factor_method", "action"),
+        [
+            ("totp", "rotate"),
+            ("totp", "delete"),
+            ("webauthn", "rotate"),
+            ("webauthn", "delete"),
+        ],
+    )
+    def test_check_remember_device_token_invalid_two_factor_changed(
+        self,
+        pyramid_request,
+        user_service,
+        remember_device_token_service,
+        two_factor_method,
+        action,
+    ):
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
+        pyramid_request.cookies[REMEMBER_DEVICE_COOKIE] = (
+            remember_device_token_service.dumps(
+                {
+                    "user_id": user.id,
+                    "two_factor_method": two_factor_method,
+                    "password_timestamp": user_service.get_password_timestamp(user.id),
+                    "two_factor_state": views._two_factor_method_state(
+                        user, two_factor_method
+                    ),
+                }
+            )
+        )
+
+        if two_factor_method == "totp" and action == "rotate":
+            user.totp_secret = b"rotated-totp-secret"
+        elif two_factor_method == "totp" and action == "delete":
+            user.totp_secret = None
+        elif two_factor_method == "webauthn" and action == "rotate":
+            WebAuthnFactory.create(user=user)
+        else:
+            user.webauthn.clear()
+
+        assert views._check_remember_device_token(pyramid_request, user.id) is None
 
     def test_remember_device(
-        self, pyramid_request, remember_device_token_service, mocker
+        self, pyramid_request, user_service, remember_device_token_service, mocker
     ):
         mocker.spy(remember_device_token_service, "dumps")
         pyramid_request.scheme = "https"
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, return_value="/accounts/login"
         )
-        pyramid_request.user = UserFactory.build()
-        mocker.patch.object(pyramid_request.user, "record_event", autospec=True)
+        # request.user stays None, as it does right after login for a frozen user
+        user = UserFactory.create()
+        WebAuthnFactory.create(user=user)
+        mocker.patch.object(user, "record_event", autospec=True)
         pyramid_request.registry.settings = {
             "remember_device.seconds": dt.timedelta(days=30).total_seconds()
         }
         response = pyramid_request.response
         mocker.spy(response, "set_cookie")
 
-        views._remember_device(pyramid_request, response, 1, "webauthn")
+        views._remember_device(pyramid_request, response, user.id, "webauthn")
 
-        remember_device_token_service.dumps.assert_called_once_with({"user_id": "1"})
+        remember_device_token_service.dumps.assert_called_once_with(
+            {
+                "user_id": str(user.id),
+                "two_factor_method": "webauthn",
+                "password_timestamp": user_service.get_password_timestamp(user.id),
+                "two_factor_state": views._two_factor_method_state(user, "webauthn"),
+            }
+        )
         response.set_cookie.assert_called_once_with(
             REMEMBER_DEVICE_COOKIE,
             remember_device_token_service.dumps.spy_return,
@@ -1297,7 +1510,7 @@ class TestRememberDevice:
             path="/accounts/login",
         )
         pyramid_request.route_path.assert_called_once_with("accounts.login")
-        pyramid_request.user.record_event.assert_called_once_with(
+        user.record_event.assert_called_once_with(
             tag=EventTag.Account.TwoFactorDeviceRemembered,
             request=pyramid_request,
             additional={"two_factor_method": "webauthn"},
@@ -1527,6 +1740,12 @@ class TestLogout:
         forget = mocker.patch.object(
             views, "forget", autospec=True, return_value=[("foo", "bar")]
         )
+        mocker.patch.object(
+            pyramid_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/login/",
+        )
 
         pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
@@ -1540,6 +1759,18 @@ class TestLogout:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert result.headers["foo"] == "bar"
+        set_cookies = result.headers.getall("Set-Cookie")
+        assert any(
+            cookie.startswith("user_id__insecure=; Max-Age=0; Path=/;")
+            for cookie in set_cookies
+        )
+        assert any(
+            cookie.startswith(
+                f"{REMEMBER_DEVICE_COOKIE}=; Max-Age=0; Path=/account/login/;"
+            )
+            for cookie in set_cookies
+        )
+        pyramid_request.route_path.assert_called_once_with("accounts.login")
         forget.assert_called_once_with(pyramid_request)
         pyramid_request.session.invalidate.assert_called_once_with()
         security_policy.reset.assert_called_once_with(pyramid_request)
@@ -1555,8 +1786,14 @@ class TestLogout:
         ],
     )
     def test_post_redirects_user(
-        self, pyramid_request, expected_next_url, observed_next_url
+        self, pyramid_request, expected_next_url, observed_next_url, mocker
     ):
+        mocker.patch.object(
+            pyramid_request,
+            "route_path",
+            autospec=True,
+            return_value="/account/login/",
+        )
         pyramid_request.user = UserFactory.build()
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
@@ -4364,7 +4601,7 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_invalid_form(
         self, publishing_request, metrics
     ):
-        publishing_request.POST = MultiDict({"publisher_id": None})
+        publishing_request.POST = MultiDict({"publisher_id": ""})
 
         view = views.ManageAccountPublishingViews(publishing_request)
 
@@ -4663,8 +4900,8 @@ class TestConfirmLogin:
 
         return _make
 
-    def test_already_logged_in(self, pyramid_request, mocker):
-        pyramid_request.user = UserFactory.build()
+    def test_already_logged_in(self, pyramid_request, pyramid_config, mocker):
+        pyramid_config.testing_securitypolicy(identity=UserFactory.build())
         mocker.patch.object(
             pyramid_request, "route_path", autospec=True, side_effect=lambda r: f"/{r}"
         )
@@ -4799,3 +5036,36 @@ class TestConfirmLogin:
             confirm_request, user.id, two_factor_method="email-confirmation"
         )
         _set_userid_insecure_cookie.assert_called_once_with(result, user.id)
+
+    @pytest.mark.parametrize("remember_device", [True, False])
+    def test_success_remember_device(
+        self, confirm_request, confirm_login_token_service, remember_device, mocker
+    ):
+        user = UserFactory.create(last_login=dt.datetime.now(dt.UTC))
+        unique_login = UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=confirm_request.ip_address,
+        )
+        confirm_request.params["token"] = confirm_login_token_service.dumps(
+            {
+                "action": "login-confirmation",
+                "user.id": user.id,
+                "unique_login_id": unique_login.id,
+                "remember_device": remember_device,
+            }
+        )
+
+        mocker.patch.object(views, "_login_user", autospec=True)
+        mocker.patch.object(views, "_set_userid_insecure_cookie", autospec=True)
+        _remember_device = mocker.patch.object(views, "_remember_device", autospec=True)
+
+        result = views.confirm_login(confirm_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert unique_login.status == UniqueLoginStatus.CONFIRMED
+        if remember_device:
+            _remember_device.assert_called_once_with(
+                confirm_request, result, user.id, "totp"
+            )
+        else:
+            _remember_device.assert_not_called()

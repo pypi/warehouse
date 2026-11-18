@@ -64,7 +64,7 @@ def test_list_classifiers(db_request):
 
 
 def test_search(pyramid_request, mocker):
-    term = mocker.sentinel.term
+    term = "requests"
     pyramid_request.params = {"term": term}
     route_path = mocker.patch.object(
         pyramid_request, "route_path", autospec=True, return_value="/the/path"
@@ -99,7 +99,7 @@ class TestBrowse:
     def test_browse_no_id(self, pyramid_request):
         pyramid_request.params = {}
 
-        with pytest.raises(HTTPNotFound):
+        with pytest.raises(HTTPBadRequest):
             pypi.browse(pyramid_request)
 
     def test_browse_bad_id(self, db_request):
@@ -111,8 +111,21 @@ class TestBrowse:
     def test_brows_invalid_id(self, pyramid_request):
         pyramid_request.params = {"c": '7"'}
 
-        with pytest.raises(HTTPNotFound):
+        with pytest.raises(HTTPBadRequest):
             pypi.browse(pyramid_request)
+
+    @pytest.mark.parametrize("classifier_id", [str(2**31), str(-(2**31) - 1)])
+    def test_browse_out_of_range_id(self, pyramid_request, classifier_id):
+        pyramid_request.params = {"c": classifier_id}
+
+        with pytest.raises(HTTPBadRequest):
+            pypi.browse(pyramid_request)
+
+    def test_browse_non_ascii_digit_id(self, db_request):
+        db_request.params = {"c": "\u0667"}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.browse(db_request)
 
 
 class TestFiles:

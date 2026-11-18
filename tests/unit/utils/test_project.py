@@ -171,7 +171,7 @@ def test_quarantine_project(db_request, flash, mocker):
     quarantine_project(project, db_request, flash=flash)
 
     db_request.task.assert_called_once_with(tag_helpscout_conversations)
-    db_request._task_stub.delay.assert_called_once_with(
+    db_request.task.return_value.delay.assert_called_once_with(
         project.id, "quarantined_via_admin"
     )
 
@@ -195,7 +195,8 @@ def test_quarantine_project_without_user(db_request):
 
     assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
     assert project.lifecycle_status_note == "Quarantined by admin."
-    db_request._task_stub.delay.assert_called_once_with(
+    db_request.task.assert_called_once_with(tag_helpscout_conversations)
+    db_request.task.return_value.delay.assert_called_once_with(
         project.id, "quarantined_via_auto"
     )
 
@@ -253,7 +254,7 @@ def test_quarantine_release(db_request, flash, mocker):
     assert refreshed.project.lifecycle_status is None
     assert flash_spy.called == flash
     db_request.task.assert_called_once_with(tag_helpscout_conversations)
-    db_request._task_stub.delay.assert_called_once_with(
+    db_request.task.return_value.delay.assert_called_once_with(
         project.id, "quarantined_release_via_admin"
     )
 
@@ -414,8 +415,6 @@ def test_destroy_docs(db_request, flash, mocker):
 
     db_request.user = user
     flash_spy = mocker.spy(db_request.session, "flash")
-    remove_documentation_recorder = mocker.Mock()
-    db_request.task = mocker.Mock(return_value=remove_documentation_recorder)
 
     destroy_docs(project, db_request, flash=flash)
 
@@ -426,7 +425,11 @@ def test_destroy_docs(db_request, flash, mocker):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.call_args_list == [
+    assert db_request.task.call_args_list == [
+        mocker.call(remove_documentation),
+        mocker.call(remove_documentation),
+    ]
+    assert db_request.task.return_value.delay.call_args_list == [
         mocker.call("Foo"),
         mocker.call("foo"),
     ]

@@ -48,6 +48,20 @@ def parse_uuid(value: str) -> uuid.UUID | None:
         return None
 
 
+def parse_int(value: str) -> int | None:
+    """
+    Return ``value`` as an int, or None when it isn't one that fits a Postgres
+    ``integer``.
+    """
+    try:
+        parsed = int(value)
+    except ValueError, TypeError:
+        return None
+    if not -(2**31) <= parsed < 2**31:
+        return None
+    return parsed
+
+
 def project_owners(request, project):
     """Return all users who are owners of the project."""
     return project.owners

@@ -6,7 +6,11 @@ import psycopg
 import pytest
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
-from tests.common.db.organizations import OrganizationOIDCIssuerFactory
+from tests.common.db.organizations import (
+    OrganizationOIDCIssuerFactory,
+    OrganizationProjectFactory,
+)
+from tests.common.db.packaging import ProjectFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 from warehouse.oidc.services import OIDCPublisherService
@@ -938,6 +942,26 @@ class TestGitLabPublisher:
 
         assert publisher.exists(db_request.db) == exists_in_db
 
+    def test_exists_scoped_by_issuer_url(self, db_request):
+        existing = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+            issuer_url="https://gitlab.com",
+        )
+        db_request.db.add(existing)
+        db_request.db.flush()
+
+        other_issuer = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+            issuer_url="https://gitlab.example.com",
+        )
+        assert other_issuer.exists(db_request.db) is False
+
     def test_get_available_issuer_urls_default(self):
         """By default, there's a single known GitLab issuer URL."""
         issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls()
@@ -1128,4 +1152,43 @@ class TestGitLabPublisherNamespaceID:
 
         with pytest.raises(errors.InvalidPublisherError):
             publisher.verify_claims(claims, service)
+        assert publisher.namespace_id is None
+
+    def test_verify_claims_custom_issuer_enabled_for_organization(
+        self, db_request, service
+    ):
+        org_issuer = OrganizationOIDCIssuerFactory.create(
+            issuer_type="gitlab",
+            issuer_url="https://gitlab.example.com",
+        )
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=org_issuer.organization,
+            project=project,
+        )
+        publisher = GitLabPublisherFactory.create(
+            environment="",
+            issuer_url="https://gitlab.example.com",
+            projects=[project],
+        )
+
+        assert publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert publisher.namespace_id == "1234"
+
+    def test_verify_claims_custom_issuer_not_enabled_for_organization(
+        self, db_request, service
+    ):
+        project = ProjectFactory.create()
+        publisher = GitLabPublisherFactory.create(
+            environment="",
+            issuer_url="https://gitlab.example.com",
+            projects=[project],
+        )
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(self._claims(publisher, "1234"), service)
+        assert (
+            str(e.value)
+            == "Issuer URL 'https://gitlab.example.com' is not enabled for this organization"  # noqa: E501
+        )
         assert publisher.namespace_id is None

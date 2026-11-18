@@ -997,8 +997,8 @@ class TestAddOrganizationProjectForm:
         )
 
         assert form.existing_project_name.choices == [
-            ("", "Select project"),
-            ("foo", "foo"),
+            wtforms.SelectChoice("", "Select project"),
+            wtforms.SelectChoice("foo", "foo"),
         ]
         assert not form.validate() if errors else form.validate(), str(form.errors)
         assert form.errors == errors
@@ -1007,7 +1007,7 @@ class TestAddOrganizationProjectForm:
 class TestTransferOrganizationProjectForm:
     def test_validate(self, pyramid_request):
         organization = OrganizationFactory()
-        pyramid_request.POST = MultiDict({"organization": organization.id})
+        pyramid_request.POST = MultiDict({"organization": str(organization.id)})
 
         form = forms.TransferOrganizationProjectForm(
             pyramid_request.POST, organization_choices=[organization]
@@ -1017,7 +1017,7 @@ class TestTransferOrganizationProjectForm:
 
     def test_rejects_inactive_company(self, pyramid_request):
         organization = OrganizationFactory(orgtype="Company")
-        pyramid_request.POST = MultiDict({"organization": organization.id})
+        pyramid_request.POST = MultiDict({"organization": str(organization.id)})
 
         form = forms.TransferOrganizationProjectForm(
             pyramid_request.POST, organization_choices=[organization]

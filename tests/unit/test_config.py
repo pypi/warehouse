@@ -47,7 +47,6 @@ class TestRequireHTTPSTween:
         ("params", "scheme"),
         [
             ({":action": "thing"}, "http"),
-            ({":action": None}, "http"),
             ({":action": ""}, "http"),
         ],
     )

@@ -1,40 +1,34 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import b2sdk.v2
-import pretend
 
 from warehouse import b2
 
 
-def test_b2_api_factory(monkeypatch):
-    mock_in_memory_account_info = pretend.call_recorder(lambda: "InMemoryAccountInfo")
-    monkeypatch.setattr(b2sdk.v2, "InMemoryAccountInfo", mock_in_memory_account_info)
-    mock_b2_api = pretend.stub(
-        authorize_account=pretend.call_recorder(lambda mode, key_id, key: None)
+def test_b2_api_factory(mocker, pyramid_request):
+    account_info_cls = mocker.patch.object(
+        b2sdk.v2, "InMemoryAccountInfo", autospec=True
     )
-    mock_b2_api_class = pretend.call_recorder(lambda account_info: mock_b2_api)
-    monkeypatch.setattr(b2sdk.v2, "B2Api", mock_b2_api_class)
-
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={"b2.application_key_id": "key_id", "b2.application_key": "key"}
-        )
+    b2_api_cls = mocker.patch.object(b2sdk.v2, "B2Api", autospec=True)
+    pyramid_request.registry.settings.update(
+        {
+            "b2.application_key_id": "key_id",
+            "b2.application_key": "key",
+        }
     )
 
-    assert b2.b2_api_factory(None, request) is mock_b2_api
-    assert mock_b2_api_class.calls == [pretend.call("InMemoryAccountInfo")]
-    assert mock_b2_api.authorize_account.calls == [
-        pretend.call("production", "key_id", "key")
-    ]
+    b2_api = b2.b2_api_factory(None, pyramid_request)
+
+    assert b2_api is b2_api_cls.return_value
+    account_info_cls.assert_called_once_with()
+    b2_api_cls.assert_called_once_with(account_info_cls.return_value)
+    b2_api.authorize_account.assert_called_once_with("production", "key_id", "key")
 
 
-def test_includeme():
-    config = pretend.stub(
-        register_service_factory=pretend.call_recorder(lambda factory, name: None)
-    )
+def test_includeme(mocker, pyramid_config):
+    pyramid_config.include("pyramid_services")
+    register_service_factory = mocker.spy(pyramid_config, "register_service_factory")
 
-    b2.includeme(config)
+    b2.includeme(pyramid_config)
 
-    assert config.register_service_factory.calls == [
-        pretend.call(b2.b2_api_factory, name="b2.api")
-    ]
+    register_service_factory.assert_called_once_with(b2.b2_api_factory, name="b2.api")

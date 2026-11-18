@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import time
+import types
 
 import markupsafe
 import msgpack
-import pretend
 import pytest
 import redis
 
 from pyramid import viewderivers
+from pyramid.interfaces import ISessionFactory
+from pyramid.response import Response
 
 import warehouse.sessions
 
+from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.sessions import (
     InvalidSession,
     Session,
@@ -179,11 +182,11 @@ class TestSession:
             ({}, "update", [{"foo": "bar"}]),
         ],
     )
-    def test_methods_call_changed(self, data, method, args):
+    def test_methods_call_changed(self, mocker, data, method, args):
         session = Session(data)
-        session.changed = pretend.call_recorder(lambda: None)
+        mocker.spy(session, "changed")
         getattr(session, method)(*args)
-        assert session.changed.calls == [pretend.call()]
+        session.changed.assert_called_once_with()
 
     @pytest.mark.parametrize(
         ("queue", "expected"),
@@ -193,9 +196,7 @@ class TestSession:
         session = Session()
         assert session._get_flash_queue_key(queue) == expected
 
-    def test_flash_messages(self, monkeypatch):
-        _markup = pretend.call_recorder(lambda x: x)
-        monkeypatch.setattr(markupsafe, "Markup", _markup)
+    def test_flash_messages(self):
         session = Session()
 
         assert session.peek_flash() == []
@@ -207,10 +208,10 @@ class TestSession:
         assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
         assert session.peek_flash(queue="foo") == []
 
-        session.flash("Another Flash Message", queue="foo", safe=True)
+        session.flash("<b>Another</b> Flash Message", queue="foo", safe=True)
         assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
         assert session.peek_flash(queue="foo") == [
-            {"msg": "Another Flash Message", "safe": True}
+            {"msg": "<b>Another</b> Flash Message", "safe": True}
         ]
 
         session.flash("A Flash Message")
@@ -219,7 +220,7 @@ class TestSession:
             {"msg": "A Flash Message", "safe": False},
         ]
         assert session.peek_flash(queue="foo") == [
-            {"msg": "Another Flash Message", "safe": True}
+            {"msg": "<b>Another</b> Flash Message", "safe": True}
         ]
 
         session.flash("A Flash Message", allow_duplicate=True)
@@ -229,7 +230,7 @@ class TestSession:
             {"msg": "A Flash Message", "safe": False},
         ]
         assert session.peek_flash(queue="foo") == [
-            {"msg": "Another Flash Message", "safe": True}
+            {"msg": "<b>Another</b> Flash Message", "safe": True}
         ]
 
         session.flash("A Flash Message", allow_duplicate=False)
@@ -239,19 +240,19 @@ class TestSession:
             {"msg": "A Flash Message", "safe": False},
         ]
         assert session.peek_flash(queue="foo") == [
-            {"msg": "Another Flash Message", "safe": True}
+            {"msg": "<b>Another</b> Flash Message", "safe": True}
         ]
 
-        assert session.pop_flash() == [
+        default_messages = session.pop_flash()
+        assert default_messages == [
             "A Flash Message",
             "A Flash Message",
             "A Flash Message",
         ]
-        assert session.pop_flash(queue="foo") == [
-            "Another Flash Message",
-        ]
-
-        assert _markup.calls == [pretend.call("Another Flash Message")]
+        assert [type(m) for m in default_messages] == [str, str, str]
+        foo_messages = session.pop_flash(queue="foo")
+        assert foo_messages == ["<b>Another</b> Flash Message"]
+        assert [type(m) for m in foo_messages] == [markupsafe.Markup]
 
         assert session.peek_flash() == []
         assert session.peek_flash(queue="foo") == []
@@ -271,12 +272,14 @@ class TestSession:
         assert session._csrf_token_key in session
         assert session.get_csrf_token() == "7890"
 
-    def test_get_csrf_token_empty(self):
+    def test_get_csrf_token_empty(self, mocker):
         session = Session()
-        session.new_csrf_token = pretend.call_recorder(lambda: "123456")
+        new_csrf_token = mocker.patch.object(
+            session, "new_csrf_token", autospec=True, return_value="123456"
+        )
 
         assert session.get_csrf_token() == "123456"
-        assert session.new_csrf_token.calls == [pretend.call()]
+        new_csrf_token.assert_called_once_with()
 
     def test_get_totp_secret(self):
         session = Session()
@@ -344,17 +347,18 @@ class TestSession:
 
         assert session.get_webauthn_challenge() == "not_a_real_challenge"
 
-    def test_get_webauthn_challenge_empty(self, monkeypatch):
-        generate_webauthn_challenge = pretend.call_recorder(
-            lambda: "not_a_real_challenge"
-        )
-        monkeypatch.setattr(
-            webauthn, "generate_webauthn_challenge", generate_webauthn_challenge
+    def test_get_webauthn_challenge_empty(self, mocker):
+        generate_webauthn_challenge = mocker.patch.object(
+            webauthn,
+            "generate_webauthn_challenge",
+            autospec=True,
+            return_value="not_a_real_challenge",
         )
 
         session = Session()
         assert session.get_webauthn_challenge() == "not_a_real_challenge"
         assert session._webauthn_challenge_key in session
+        generate_webauthn_challenge.assert_called_once_with()
 
     def test_clear_webauthn_challenge(self):
         session = Session()
@@ -387,253 +391,203 @@ class TestSession:
 
 
 class TestSessionFactory:
-    def test_initialize(self, monkeypatch):
-        timestamp_signer_obj = pretend.stub()
-        timestamp_signer_create = pretend.call_recorder(
-            lambda secret, salt: timestamp_signer_obj
-        )
-        monkeypatch.setattr(crypto, "TimestampSigner", timestamp_signer_create)
+    @pytest.fixture
+    def session_factory(self, mocker):
+        session_factory = SessionFactory("mysecret", "redis://localhost:6379/0")
+        session_factory.redis = mocker.create_autospec(redis.StrictRedis, instance=True)
+        return session_factory
 
-        strict_redis_obj = pretend.stub()
-        strict_redis_cls = pretend.stub(
-            from_url=pretend.call_recorder(lambda url: strict_redis_obj)
-        )
-        monkeypatch.setattr(redis, "StrictRedis", strict_redis_cls)
+    def test_initialize(self):
+        session_factory = SessionFactory("mysecret", "redis://myhost:1234/3")
 
-        session_factory = SessionFactory("mysecret", "my url")
+        assert isinstance(session_factory.signer, crypto.TimestampSigner)
+        assert session_factory.signer.secret_keys == [b"mysecret"]
+        assert session_factory.signer.salt == b"session"
+        assert isinstance(session_factory.redis, redis.StrictRedis)
+        connection_kwargs = session_factory.redis.connection_pool.connection_kwargs
+        assert connection_kwargs["host"] == "myhost"
+        assert connection_kwargs["port"] == 1234
+        assert connection_kwargs["db"] == 3
 
-        assert session_factory.signer is timestamp_signer_obj
-        assert session_factory.redis is strict_redis_obj
-        assert timestamp_signer_create.calls == [
-            pretend.call("mysecret", salt="session")
-        ]
-        assert strict_redis_cls.from_url.calls == [pretend.call("my url")]
-
-    def test_redis_key(self):
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
+    def test_redis_key(self, session_factory):
         assert (
             session_factory._redis_key("my_session_id")
             == "warehouse/session/data/my_session_id"
         )
 
-    def test_no_current_session(self, pyramid_request):
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory._process_response = pretend.stub()
+    def test_no_current_session(self, pyramid_request, session_factory):
         session = session_factory(pyramid_request)
 
-        assert len(pyramid_request.response_callbacks) == 1
-        assert (
-            pyramid_request.response_callbacks[0] is session_factory._process_response
-        )
+        assert list(pyramid_request.response_callbacks) == [
+            session_factory._process_response
+        ]
 
         assert isinstance(session, Session)
         assert session._sid is None
         assert session.new
+        session_factory.redis.get.assert_not_called()
 
-    def test_invalid_session_id(self, pyramid_request):
+    def test_invalid_session_id(self, mocker, pyramid_request, session_factory):
         pyramid_request.cookies["session_id"] = "invalid!"
+        mocker.spy(session_factory.signer, "unsign")
 
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory._process_response = pretend.stub()
         session = session_factory(pyramid_request)
 
-        assert len(pyramid_request.response_callbacks) == 1
-        assert (
-            pyramid_request.response_callbacks[0] is session_factory._process_response
+        assert list(pyramid_request.response_callbacks) == [
+            session_factory._process_response
+        ]
+
+        session_factory.signer.unsign.assert_called_once_with(
+            "invalid!", max_age=12 * 60 * 60
+        )
+        session_factory.redis.get.assert_not_called()
+
+        assert isinstance(session, Session)
+        assert session._sid is None
+        assert session.new
+
+    @pytest.mark.parametrize("bdata", [None, b"invalid data"])
+    def test_valid_session_id_no_valid_data(
+        self, mocker, pyramid_request, session_factory, bdata
+    ):
+        cookie = session_factory.signer.sign(b"123456").decode("utf8")
+        pyramid_request.cookies["session_id"] = cookie
+        mocker.spy(session_factory.signer, "unsign")
+        session_factory.redis.get.return_value = bdata
+
+        session = session_factory(pyramid_request)
+
+        assert list(pyramid_request.response_callbacks) == [
+            session_factory._process_response
+        ]
+
+        session_factory.signer.unsign.assert_called_once_with(
+            cookie, max_age=12 * 60 * 60
+        )
+        session_factory.redis.get.assert_called_once_with(
+            "warehouse/session/data/123456"
         )
 
         assert isinstance(session, Session)
         assert session._sid is None
         assert session.new
 
-    def test_valid_session_id_no_data(self, pyramid_request):
-        pyramid_request.cookies["session_id"] = "123456"
+    def test_valid_session_id_valid_data(
+        self, mocker, pyramid_request, session_factory
+    ):
+        cookie = session_factory.signer.sign(b"123456").decode("utf8")
+        pyramid_request.cookies["session_id"] = cookie
+        mocker.spy(session_factory.signer, "unsign")
+        bdata = msgpack.packb({"foo": ["bar"]}, use_bin_type=True)
+        session_factory.redis.get.return_value = bdata
+        unpackb = mocker.spy(msgpack, "unpackb")
 
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.signer.unsign = pretend.call_recorder(
-            lambda session_id, max_age: b"123456"
-        )
-        session_factory.redis = pretend.stub(
-            get=pretend.call_recorder(lambda key: None)
-        )
-        session_factory._process_response = pretend.stub()
         session = session_factory(pyramid_request)
 
-        assert len(pyramid_request.response_callbacks) == 1
-        assert (
-            pyramid_request.response_callbacks[0] is session_factory._process_response
+        assert list(pyramid_request.response_callbacks) == [
+            session_factory._process_response
+        ]
+
+        session_factory.signer.unsign.assert_called_once_with(
+            cookie, max_age=12 * 60 * 60
         )
-
-        assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
-        ]
-
-        assert session_factory.redis.get.calls == [
-            pretend.call("warehouse/session/data/123456")
-        ]
+        session_factory.redis.get.assert_called_once_with(
+            "warehouse/session/data/123456"
+        )
+        unpackb.assert_called_once_with(bdata, raw=False, use_list=True)
 
         assert isinstance(session, Session)
-        assert session._sid is None
-        assert session.new
-
-    def test_valid_session_id_invalid_data(self, pyramid_request):
-        pyramid_request.cookies["session_id"] = "123456"
-
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.signer.unsign = pretend.call_recorder(
-            lambda session_id, max_age: b"123456"
-        )
-        session_factory.redis = pretend.stub(
-            get=pretend.call_recorder(lambda key: b"invalid data")
-        )
-        session_factory._process_response = pretend.stub()
-        session = session_factory(pyramid_request)
-
-        assert len(pyramid_request.response_callbacks) == 1
-        assert (
-            pyramid_request.response_callbacks[0] is session_factory._process_response
-        )
-
-        assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
-        ]
-
-        assert session_factory.redis.get.calls == [
-            pretend.call("warehouse/session/data/123456")
-        ]
-
-        assert isinstance(session, Session)
-        assert session._sid is None
-        assert session.new
-
-    def test_valid_session_id_valid_data(self, monkeypatch, pyramid_request):
-        msgpack_unpackb = pretend.call_recorder(
-            lambda bdata, raw, use_list: {"foo": "bar"}
-        )
-        monkeypatch.setattr(msgpack, "unpackb", msgpack_unpackb)
-
-        pyramid_request.cookies["session_id"] = "123456"
-
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.signer.unsign = pretend.call_recorder(
-            lambda session_id, max_age: b"123456"
-        )
-        session_factory.redis = pretend.stub(
-            get=pretend.call_recorder(lambda key: b"valid data")
-        )
-        session_factory._process_response = pretend.stub()
-        session = session_factory(pyramid_request)
-
-        assert len(pyramid_request.response_callbacks) == 1
-        assert (
-            pyramid_request.response_callbacks[0] is session_factory._process_response
-        )
-
-        assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
-        ]
-
-        assert session_factory.redis.get.calls == [
-            pretend.call("warehouse/session/data/123456")
-        ]
-
-        assert msgpack_unpackb.calls == [
-            pretend.call(b"valid data", raw=False, use_list=True)
-        ]
-
-        assert isinstance(session, Session)
-        assert session == {"foo": "bar"}
+        assert session == {"foo": ["bar"]}
         assert session.sid == "123456"
         assert not session.new
 
-    def test_no_save_invalid_session(self, pyramid_request):
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.redis = pretend.stub()
+    def test_no_save_invalid_session(self, pyramid_request, session_factory):
         pyramid_request.session = InvalidSession()
-        response = pretend.stub()
+        response = Response()
+
         session_factory._process_response(pyramid_request, response)
 
-    def test_noop_unused_session(self, pyramid_request):
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.redis = pretend.stub()
-        pyramid_request.session.invalidated = set()
-        pyramid_request.session.should_save = pretend.call_recorder(lambda: False)
-        response = pretend.stub()
-        session_factory._process_response(pyramid_request, response)
-        assert pyramid_request.session.should_save.calls == [pretend.call()]
+        assert session_factory.redis.mock_calls == []
+        assert "Set-Cookie" not in response.headers
 
-    def test_invalidated_deletes_no_save(self, pyramid_request):
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.redis = pretend.stub(
-            delete=pretend.call_recorder(lambda key: None)
-        )
-        pyramid_request.session.invalidated = ["1", "2"]
-        pyramid_request.session.should_save = pretend.call_recorder(lambda: False)
-        response = pretend.stub(
-            delete_cookie=pretend.call_recorder(lambda cookie: None)
-        )
+    def test_noop_unused_session(self, mocker, pyramid_request, session_factory):
+        pyramid_request.session = Session()
+        mocker.spy(pyramid_request.session, "should_save")
+        response = Response()
+
         session_factory._process_response(pyramid_request, response)
 
-        assert session_factory.redis.delete.calls == [
-            pretend.call("warehouse/session/data/1"),
-            pretend.call("warehouse/session/data/2"),
+        pyramid_request.session.should_save.assert_called_once_with()
+        assert session_factory.redis.mock_calls == []
+        assert "Set-Cookie" not in response.headers
+
+    def test_invalidated_deletes_no_save(
+        self, mocker, pyramid_request, session_factory
+    ):
+        pyramid_request.session = Session()
+        pyramid_request.session.invalidated = {"1", "2"}
+        mocker.spy(pyramid_request.session, "should_save")
+        response = Response()
+
+        session_factory._process_response(pyramid_request, response)
+
+        assert sorted(session_factory.redis.delete.call_args_list, key=str) == [
+            mocker.call("warehouse/session/data/1"),
+            mocker.call("warehouse/session/data/2"),
         ]
-        assert pyramid_request.session.should_save.calls == [
-            pretend.call(),
-            pretend.call(),
+        session_factory.redis.setex.assert_not_called()
+        assert pyramid_request.session.should_save.call_args_list == [
+            mocker.call(),
+            mocker.call(),
         ]
-        assert response.delete_cookie.calls == [pretend.call("session_id")]
+        (cookie,) = response.headers.getall("Set-Cookie")
+        assert cookie.startswith("session_id=;")
 
-    def test_invalidated_deletes_save_non_secure(self, monkeypatch, pyramid_request):
-        msgpack_packb = pretend.call_recorder(lambda *a, **kw: b"msgpack data")
-        monkeypatch.setattr(msgpack, "packb", msgpack_packb)
-
-        session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
-        session_factory.redis = pretend.stub(
-            delete=pretend.call_recorder(lambda key: None),
-            setex=pretend.call_recorder(lambda key, age, data: None),
-        )
-        session_factory.signer.sign = pretend.call_recorder(lambda data: "cookie data")
+    @pytest.mark.parametrize(
+        ("session_data", "deleted_cookies"),
+        [
+            ({"foo": "bar"}, [USER_ID_INSECURE_COOKIE]),
+            ({"auth.userid": "some-user-id"}, []),
+        ],
+    )
+    def test_invalidated_deletes_save_non_secure(
+        self, mocker, pyramid_request, session_factory, session_data, deleted_cookies
+    ):
+        packb = mocker.spy(msgpack, "packb")
+        mocker.spy(session_factory.signer, "sign")
         pyramid_request.scheme = "http"
-        pyramid_request.session.sid = "123456"
-        pyramid_request.session.invalidated = ["1", "2"]
-        pyramid_request.session.should_save = pretend.call_recorder(lambda: True)
-        response = pretend.stub(
-            set_cookie=pretend.call_recorder(
-                lambda cookie, data, httponly=False, secure=True, samesite=b"none": None
-            ),
-            delete_cookie=pretend.call_recorder(lambda cookie: None),
-        )
+        pyramid_request.session = Session({}, "123456", False)
+        pyramid_request.session.update(session_data)
+        pyramid_request.session.invalidated = {"1", "2"}
+        mocker.spy(pyramid_request.session, "should_save")
+        response = mocker.create_autospec(Response, instance=True)
+
         session_factory._process_response(pyramid_request, response)
 
-        assert session_factory.redis.delete.calls == [
-            pretend.call("warehouse/session/data/1"),
-            pretend.call("warehouse/session/data/2"),
+        assert sorted(session_factory.redis.delete.call_args_list, key=str) == [
+            mocker.call("warehouse/session/data/1"),
+            mocker.call("warehouse/session/data/2"),
         ]
-        assert msgpack_packb.calls == [
-            pretend.call(
-                pyramid_request.session, default=object_encode, use_bin_type=True
-            )
+        packb.assert_called_once_with(
+            pyramid_request.session, default=object_encode, use_bin_type=True
+        )
+        session_factory.redis.setex.assert_called_once_with(
+            "warehouse/session/data/123456", 12 * 60 * 60, packb.spy_return
+        )
+        assert pyramid_request.session.should_save.call_args_list == [
+            mocker.call(),
+            mocker.call(),
         ]
-        assert session_factory.redis.setex.calls == [
-            pretend.call("warehouse/session/data/123456", 12 * 60 * 60, b"msgpack data")
-        ]
-        assert pyramid_request.session.should_save.calls == [
-            pretend.call(),
-            pretend.call(),
-        ]
-        assert session_factory.signer.sign.calls == [pretend.call(b"123456")]
-        assert response.set_cookie.calls == [
-            pretend.call(
+        session_factory.signer.sign.assert_called_once_with(b"123456")
+        assert response.mock_calls == [
+            mocker.call.set_cookie(
                 "session_id",
-                "cookie data",
+                session_factory.signer.sign.spy_return,
                 httponly=True,
                 secure=False,
                 samesite=b"lax",
-            )
-        ]
-        assert response.delete_cookie.calls == [
-            pretend.call("user_id__insecure"),
+            ),
+            *[mocker.call.delete_cookie(name) for name in deleted_cookies],
         ]
 
 
@@ -641,65 +595,74 @@ class TestSessionView:
     def test_has_options(self):
         assert set(session_view.options) == {"uses_session"}
 
+    @pytest.mark.parametrize("has_session", [True, False])
     @pytest.mark.parametrize("uses_session", [False, None])
-    def test_invalid_session(self, uses_session):
-        context = pretend.stub()
-        request = pretend.stub(session=pretend.stub())
-        response = pretend.stub()
+    def test_invalid_session(self, mocker, pyramid_request, uses_session, has_session):
+        context = mocker.sentinel.context
+        if not has_session:
+            del pyramid_request.session
+        original_session = pyramid_request.__dict__.get("session")
+        response = mocker.sentinel.response
 
-        @pretend.call_recorder
-        def view(context, request):
+        def _view(context, request):
             assert isinstance(request.session, InvalidSession)
             return response
 
-        info = pretend.stub(options={}, exception_only=False)
+        view = mocker.create_autospec(_view, side_effect=_view)
+
+        info = types.SimpleNamespace(options={}, exception_only=False)
         if uses_session is not None:
             info.options["uses_session"] = uses_session
         derived_view = session_view(view, info)
 
-        assert derived_view(context, request) is response
-        assert view.calls == [pretend.call(context, request)]
+        assert derived_view(context, pyramid_request) is response
+        view.assert_called_once_with(context, pyramid_request)
+        if has_session:
+            assert pyramid_request.__dict__["session"] is original_session
+        else:
+            assert "session" not in pyramid_request.__dict__
 
-    def test_valid_session(self, monkeypatch):
-        add_vary_cb = pretend.call_recorder(lambda fn: fn)
-        add_vary = pretend.call_recorder(lambda vary: add_vary_cb)
-        monkeypatch.setattr(warehouse.sessions, "add_vary", add_vary)
+    def test_valid_session(self, mocker, pyramid_request):
+        context = mocker.sentinel.context
+        pyramid_request.session = Session()
+        response = Response()
 
-        context = pretend.stub()
-        request = pretend.stub(session=Session())
-        response = pretend.stub()
-
-        @pretend.call_recorder
-        def view(context, request):
+        def _view(context, request):
             assert isinstance(request.session, Session)
             return response
 
-        info = pretend.stub(options={"uses_session": True})
+        view = mocker.create_autospec(_view, side_effect=_view)
+
+        info = types.SimpleNamespace(
+            options={"uses_session": True}, exception_only=False
+        )
         derived_view = session_view(view, info)
 
-        assert derived_view(context, request) is response
-        assert view.calls == [pretend.call(context, request)]
-        assert add_vary.calls == [pretend.call("Cookie")]
-        assert add_vary_cb.calls == [pretend.call(view)]
+        assert derived_view(context, pyramid_request) is response
+        view.assert_called_once_with(context, pyramid_request)
+        assert len(pyramid_request.response_callbacks) == 1
+        pyramid_request.response_callbacks[0](pyramid_request, response)
+        assert response.vary == ("Cookie",)
 
 
-def test_includeme(monkeypatch):
-    session_factory_obj = pretend.stub()
-    session_factory_cls = pretend.call_recorder(lambda secret, url: session_factory_obj)
-    monkeypatch.setattr(warehouse.sessions, "SessionFactory", session_factory_cls)
-
-    config = pretend.stub(
-        set_session_factory=pretend.call_recorder(lambda factory: None),
-        registry=pretend.stub(
-            settings={"sessions.secret": "my secret", "sessions.url": "my url"}
-        ),
-        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
+def test_includeme(mocker, pyramid_config):
+    session_factory_cls = mocker.patch.object(
+        warehouse.sessions,
+        "SessionFactory",
+        autospec=True,
+        return_value=mocker.sentinel.session_factory,
     )
+    pyramid_config.registry.settings["sessions.secret"] = "my secret"
+    pyramid_config.registry.settings["sessions.url"] = "my url"
+    mocker.spy(pyramid_config, "add_view_deriver")
 
-    includeme(config)
+    includeme(pyramid_config)
 
-    assert config.set_session_factory.calls == [pretend.call(session_factory_obj)]
-    assert session_factory_cls.calls == [pretend.call("my secret", "my url")]
-    assert config.add_view_deriver.calls == [
-        pretend.call(session_view, over="csrf_view", under=viewderivers.INGRESS)
-    ]
+    session_factory_cls.assert_called_once_with("my secret", "my url")
+    assert (
+        pyramid_config.registry.queryUtility(ISessionFactory)
+        is mocker.sentinel.session_factory
+    )
+    pyramid_config.add_view_deriver.assert_called_once_with(
+        session_view, over="csrf_view", under=viewderivers.INGRESS
+    )

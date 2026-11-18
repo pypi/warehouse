@@ -13,6 +13,7 @@ from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
 from ....common.db.banners import BannerFactory
+from ....common.forms import as_posted
 
 
 @pytest.fixture
@@ -99,11 +100,10 @@ class TestEditBanner:
         form = views.BannerForm(MultiDict(), banner)
         data = form.data.copy()
         data["name"] = "New Name"
-        data["end"] = str(data["end"])
         data.pop("fa_icon")  # do not send fa icon within post data
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
         mocker.patch.object(
             db_request,
             "current_route_path",
@@ -131,7 +131,7 @@ class TestEditBanner:
         data["end"] = ""  # date is required
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
 
         result = views.edit_banner(db_request)
 

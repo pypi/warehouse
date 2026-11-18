@@ -1060,7 +1060,7 @@ def _send_organization_invitation(request, organization, role_name, user):
         )
 
         if not organization.is_in_good_standing() and not (
-            is_billing_manager_invite and organization.is_awaiting_initial_billing
+            is_billing_manager_invite and organization.can_manage_members()
         ):
             request.session.flash(
                 request._(
@@ -1164,14 +1164,14 @@ def manage_organization_roles(
 ):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
-    awaiting_initial_billing = organization.is_awaiting_initial_billing
+    awaiting_initial_billing = organization.lacks_paid_seat
 
     form = _form_class(
         request.POST,
         orgtype=organization.orgtype,
         organization_service=organization_service,
         user_service=user_service,
-        allow_billing_manager_only=awaiting_initial_billing,
+        allow_billing_manager_only=not organization.is_in_good_standing(),
     )
 
     if request.method == "POST" and form.validate():
@@ -1360,7 +1360,11 @@ def revoke_organization_invitation(organization, request):
 def change_organization_role(
     organization, request, _form_class=ChangeOrganizationRoleForm
 ):
-    form = _form_class(request.POST, orgtype=organization.orgtype)
+    form = _form_class(
+        request.POST,
+        orgtype=organization.orgtype,
+        allow_billing_manager_only=not organization.is_in_good_standing(),
+    )
 
     if form.validate():
         organization_service = request.find_service(IOrganizationService, context=None)

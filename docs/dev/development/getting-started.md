@@ -741,8 +741,18 @@ T=tests/unit/i18n/test_filters.py make tests
     can pass explicit `COVERAGE`:
 
     ```shell
-    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+    T=tests/unit/i18n/test_filters.py COVERAGE=yes make tests
     ```
+
+To write an HTML coverage report to `htmlcov/` that shows which tests ran
+each line, pass `COVERAGE_HTML`:
+
+```shell
+COVERAGE_HTML=yes make tests
+```
+
+Recording per-test contexts needs coverage's slower `ctrace` core, so this
+run takes longer than the default, which measures with `sys.monitoring`.
 
 You can also add arguments to the test runner by using the `TESTARGS`
 variable:
