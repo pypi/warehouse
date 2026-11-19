@@ -287,7 +287,7 @@ msgstr "已通过身份验证"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 断言成功"
 
-#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:995
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:996
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "已使用此恢复码，该恢复码将无法再次使用。"
 
@@ -688,113 +688,113 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 
-#: warehouse/manage/views/__init__.py:423
+#: warehouse/manage/views/__init__.py:424
 msgid "Account details updated"
 msgstr "已更新账户详细信息"
 
-#: warehouse/manage/views/__init__.py:454
+#: warehouse/manage/views/__init__.py:455
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加电子邮件 ${email_address} - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views/__init__.py:702
+#: warehouse/manage/views/__init__.py:703
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:942
+#: warehouse/manage/views/__init__.py:943
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views/__init__.py:944
+#: warehouse/manage/views/__init__.py:945
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views/__init__.py:1052
+#: warehouse/manage/views/__init__.py:1053
 msgid "Verify your email to create an API token."
 msgstr "验证你的电子邮件以创建 API 令牌。"
 
-#: warehouse/manage/views/__init__.py:1154
+#: warehouse/manage/views/__init__.py:1155
 msgid "API Token does not exist."
 msgstr "API 令牌不存在。"
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1187
 msgid "Invalid credentials. Try again"
 msgstr "凭据无效，请重试。"
 
-#: warehouse/manage/views/__init__.py:1357
-#: warehouse/manage/views/__init__.py:1693
-#: warehouse/manage/views/__init__.py:1822
+#: warehouse/manage/views/__init__.py:1366
+#: warehouse/manage/views/__init__.py:1702
+#: warehouse/manage/views/__init__.py:1831
 #, python-brace-format
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr "暂时禁用了项目删除。详见 ${docs_url}。"
 
-#: warehouse/manage/views/__init__.py:1377
+#: warehouse/manage/views/__init__.py:1386
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1502
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1517
-#: warehouse/manage/views/__init__.py:1605
-#: warehouse/manage/views/__init__.py:1715
-#: warehouse/manage/views/__init__.py:1835
+#: warehouse/manage/views/__init__.py:1526
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1724
+#: warehouse/manage/views/__init__.py:1844
 msgid "Confirm the request"
 msgstr "确认请求"
 
-#: warehouse/manage/views/__init__.py:1530
+#: warehouse/manage/views/__init__.py:1539
 msgid "Could not yank release - "
 msgstr "无法对发布进行 yank 操作 - "
 
-#: warehouse/manage/views/__init__.py:1618
+#: warehouse/manage/views/__init__.py:1627
 msgid "Could not un-yank release - "
 msgstr "无法取消对发布采取的 yank 操作- "
 
-#: warehouse/manage/views/__init__.py:1728
+#: warehouse/manage/views/__init__.py:1737
 msgid "Could not delete release - "
 msgstr "无法删除发布 - "
 
-#: warehouse/manage/views/__init__.py:1746
+#: warehouse/manage/views/__init__.py:1755
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1847
+#: warehouse/manage/views/__init__.py:1856
 msgid "Could not find file"
 msgstr "找不到文件"
 
-#: warehouse/manage/views/__init__.py:1852
+#: warehouse/manage/views/__init__.py:1861
 msgid "Could not delete file - "
 msgstr "无法删除文件 - "
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1871
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1992
+#: warehouse/manage/views/__init__.py:2001
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2021
+#: warehouse/manage/views/__init__.py:2030
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "'${team_name}' 团队在项目中已经有 ${role_name} 角色"
 
-#: warehouse/manage/views/__init__.py:2128
+#: warehouse/manage/views/__init__.py:2137
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "用户“${username}”在这个项目中已有${role_name}"
 
-#: warehouse/manage/views/__init__.py:2195
+#: warehouse/manage/views/__init__.py:2204
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} 现为 '${project_name}' 项目的 ${role}。"
 
-#: warehouse/manage/views/__init__.py:2226
+#: warehouse/manage/views/__init__.py:2235
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -803,36 +803,36 @@ msgstr ""
 "用户 ‘${username}’ 没有经过验证的主电子邮件地址，无法被添加为项目的 $"
 "{role_name}"
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2248
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户 ‘${username}’ 已经有一个有效的邀请。请稍后再试。"
 
-#: warehouse/manage/views/__init__.py:2304
+#: warehouse/manage/views/__init__.py:2313
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "已向 ‘${username}’ 发送邀请"
 
-#: warehouse/manage/views/__init__.py:2336
+#: warehouse/manage/views/__init__.py:2345
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
-#: warehouse/manage/views/__init__.py:2350
+#: warehouse/manage/views/__init__.py:2359
 #: warehouse/manage/views/organizations.py:1296
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "删除了对 '${username}' 的过期邀请。"
 
-#: warehouse/manage/views/__init__.py:2355
+#: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/organizations.py:1301
 #, python-brace-format
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "删除了 '${username}' 的无效邀请。"
 
-#: warehouse/manage/views/__init__.py:2360
+#: warehouse/manage/views/__init__.py:2369
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
