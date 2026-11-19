@@ -160,6 +160,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
         "RoleInvitation",
         back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
@@ -198,6 +199,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     organization_invitations: Mapped[list[OrganizationInvitation]] = orm.relationship(
         back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     teams: Mapped[list[Team]] = orm.relationship(
