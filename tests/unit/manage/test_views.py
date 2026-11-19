@@ -2318,7 +2318,7 @@ class TestManageProjects:
         db_request.user = UserFactory()
         for _ in range(3):
             project = ProjectFactory(releases=[])
-            ReleaseFactory(project=project)
+            ReleaseFactory(project=project, summary="A summary")
             RoleFactory(user=db_request.user, project=project, role_name="Owner")
         db_request.db.flush()
         db_request.db.expire_all()
@@ -2326,10 +2326,14 @@ class TestManageProjects:
         query_recorder.clear()
         with query_recorder:
             result = views.manage_projects(db_request)
-            assert all(project.releases for project in result["projects_active"])
+            for project in result["projects_active"]:
+                release = project.releases[0]
+                assert release.created
+                assert release.summary == "A summary"
 
         release_queries = [q for q in query_recorder.queries if "FROM releases" in q]
         assert len(release_queries) == 1, release_queries
+        assert "releases.description_id" not in release_queries[0]
 
 
 @pytest.fixture
