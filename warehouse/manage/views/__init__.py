@@ -1218,10 +1218,12 @@ def manage_projects(request):
     for team in request.user.teams:
         projects |= set(team.projects)
 
-    # Load releases for every project in one query, instead of one lazy load each.
+    # Load releases and organizations for every project in one query each,
+    # instead of one lazy load per project.
     # The page reads only each release's `created` and `summary`.
     request.db.query(Project).options(
-        selectinload(Project.releases).load_only(Release.created, Release.summary)
+        selectinload(Project.releases).load_only(Release.created, Release.summary),
+        selectinload(Project.organization),
     ).filter(Project.id.in_([project.id for project in projects])).all()
 
     project_invites = (
