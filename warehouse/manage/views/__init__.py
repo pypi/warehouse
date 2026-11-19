@@ -17,6 +17,7 @@ from pyramid.httpexceptions import (
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func, update
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import selectinload
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -1216,6 +1217,11 @@ def manage_projects(request):
 
     for team in request.user.teams:
         projects |= set(team.projects)
+
+    # Load releases for every project in one query, instead of one lazy load each.
+    request.db.query(Project).options(selectinload(Project.releases)).filter(
+        Project.id.in_([project.id for project in projects])
+    ).all()
 
     project_invites = (
         request.db.query(RoleInvitation)

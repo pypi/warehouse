@@ -2306,6 +2306,31 @@ class TestManageProjects:
             "project_invites": [],
         }
 
+    def test_manage_projects_loads_releases_in_one_query(
+        self, db_request, query_recorder
+    ):
+        """
+        Releases for every listed project come back in one query.
+
+        The sort key and the template both read ``project.releases``, so each
+        project not preloaded costs a query of its own.
+        """
+        db_request.user = UserFactory()
+        for _ in range(3):
+            project = ProjectFactory(releases=[])
+            ReleaseFactory(project=project)
+            RoleFactory(user=db_request.user, project=project, role_name="Owner")
+        db_request.db.flush()
+        db_request.db.expire_all()
+
+        query_recorder.clear()
+        with query_recorder:
+            result = views.manage_projects(db_request)
+            assert all(project.releases for project in result["projects_active"])
+
+        release_queries = [q for q in query_recorder.queries if "FROM releases" in q]
+        assert len(release_queries) == 1, release_queries
+
 
 @pytest.fixture
 def project_request(db_request, mocker):
