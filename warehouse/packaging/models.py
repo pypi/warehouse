@@ -442,6 +442,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             postgresql_ops={"ultranormalized": "gin_trgm_ops"},
         ),
         Index("projects_lifecycle_status_idx", "lifecycle_status"),
+        # The journals trigger (maintain_project_last_serial) looks projects up
+        # by name on every journal write.
+        Index("projects_name_idx", "name"),
     )
 
     def __getitem__(self, version):
