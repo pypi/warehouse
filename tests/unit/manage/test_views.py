@@ -44,6 +44,7 @@ from warehouse.manage.views import (
     view_helpers,
 )
 from warehouse.organizations.models import (
+    OrganizationInvitation,
     OrganizationRoleType,
     OrganizationType,
     TeamProjectRole,
@@ -81,6 +82,7 @@ from ...common.db.accounts import (
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     TeamFactory,
@@ -992,6 +994,28 @@ class TestManageAccount:
         ]
         send_email.assert_called_once_with(verified_request, user)
         logout.assert_called_once_with(verified_request)
+
+    def test_delete_account_with_invitations(
+        self, verified_request, user_password, mocker
+    ):
+        user = verified_request.user
+        user_id = user.id
+        UserFactory.create(username="deleted-user")
+        RoleInvitationFactory.create(user=user)
+        OrganizationInvitationFactory.create(user=user)
+        verified_request.params = {"confirm_password": user_password}
+        mocker.patch.object(views, "send_account_deletion_email", autospec=True)
+        mocker.patch.object(views, "logout", autospec=True)
+
+        views.ManageVerifiedAccountViews(verified_request).delete_account()
+        verified_request.db.flush()
+
+        assert verified_request.db.get(User, user_id) is None
+        assert verified_request.db.scalars(select(RoleInvitation)).unique().all() == []
+        assert (
+            verified_request.db.scalars(select(OrganizationInvitation)).unique().all()
+            == []
+        )
 
     def test_delete_account_no_confirm(self, verified_request, default_response):
         verified_request.params = {"confirm_password": ""}
