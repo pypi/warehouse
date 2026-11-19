@@ -171,6 +171,30 @@ class TestQueries:
             },
         }
 
+    @pytest.mark.parametrize(
+        ("terms", "expected_phrases"),
+        [
+            ('"foo bar" "baz"', ["foo bar", "baz"]),
+            ('"foo bar" ', ["foo bar"]),
+            ('"foo bar" " "', ["foo bar"]),
+        ],
+    )
+    def test_quoted_query_ignores_blank_terms(self, terms, expected_phrases):
+        opensearch = Search()
+
+        query = queries.get_opensearch_query(opensearch, terms, "", [])
+
+        assert query.to_dict()["query"]["bool"]["should"][0]["bool"]["must"] == [
+            {
+                "multi_match": {
+                    "fields": EXPECTED_SEARCH_FIELDS,
+                    "query": phrase,
+                    "type": "phrase",
+                }
+            }
+            for phrase in expected_phrases
+        ]
+
     @pytest.mark.parametrize(("order", "field"), [("created", "created")])
     def test_sort_order(self, order, field):
         opensearch = Search()

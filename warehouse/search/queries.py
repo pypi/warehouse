@@ -103,8 +103,8 @@ def filter_query(s):
     and returns lists of quoted and unquoted strings
     """
     matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
-    result_quoted = [t[0].strip() for t in matches if t[0]]
-    result_unquoted = [t[1].strip() for t in matches if t[1]]
+    result_quoted = [t[0].strip() for t in matches if t[0].strip()]
+    result_unquoted = [t[1].strip() for t in matches if t[1].strip()]
     return result_quoted, result_unquoted
 
 
