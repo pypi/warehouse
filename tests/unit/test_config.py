@@ -446,7 +446,6 @@ def test_configure(monkeypatch, mocker, settings, environment):
             mocker.call(".rate_limiting"),
             mocker.call(".legacy.api.xmlrpc"),
             mocker.call(".legacy.api.xmlrpc.cache"),
-            mocker.call("pyramid_rpc.xmlrpc"),
             mocker.call(".legacy.action_routing"),
             mocker.call(".predicates"),
             mocker.call(".i18n"),

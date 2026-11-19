@@ -4,15 +4,13 @@ import datetime as dt
 import functools
 import json
 import re
-import xmlrpc.client
-import xmlrpc.server
 
 from collections.abc import Mapping
 from inspect import signature
 
 from packaging.utils import canonicalize_name
 from pydantic import StrictBool, StrictInt, StrictStr, ValidationError, validate_call
-from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPTooManyRequests
+from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
@@ -25,14 +23,13 @@ from pyramid_rpc.xmlrpc import (
 from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
+from warehouse.legacy.api.xmlrpc import XMLRPCWrappedError
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
     Role,
 )
-from warehouse.rate_limiting import IRateLimiter
-from warehouse.rate_limiting.headers import record_rate_limit
 
 # From https://stackoverflow.com/a/22273639
 _illegal_ranges = [
@@ -82,6 +79,31 @@ def _clean_for_xml(data):
     return data
 
 
+def _logged_args(args):
+    # A small XML document can expand to large or deeply nested values. Bound
+    # both the number of values visited and the work of encoding each scalar.
+    remaining = XMLRPC_LOGGED_ARGS_LENGTH
+
+    def fits(value):
+        nonlocal remaining
+        remaining -= 1
+        if remaining < 0:
+            return False
+        if isinstance(value, (list, tuple)):
+            return all(fits(item) for item in value)
+        if isinstance(value, dict):
+            return all(fits(k) and fits(v) for k, v in value.items())
+        if isinstance(value, str):
+            remaining -= len(value)
+        elif isinstance(value, int):
+            remaining -= value.bit_length() // 3
+        elif value is not None and not isinstance(value, float):
+            return False
+        return remaining >= 0
+
+    return json.dumps(args)[:XMLRPC_LOGGED_ARGS_LENGTH] if fits(args) else "[omitted]"
+
+
 def submit_xmlrpc_metrics(method=None):
     """
     Submit metrics.
@@ -92,49 +114,13 @@ def submit_xmlrpc_metrics(method=None):
             # The method and its arguments travel in the POST body, so the access
             # log can't see them. Stash them where GunicornLogger reads them.
             request.environ["warehouse.xmlrpc.method"] = method
-            request.environ["warehouse.xmlrpc.args"] = json.dumps(
-                request.rpc_args, default=str
-            )[:XMLRPC_LOGGED_ARGS_LENGTH]
+            request.environ["warehouse.xmlrpc.args"] = _logged_args(request.rpc_args)
             metrics = request.find_service(IMetricsService, context=None)
             metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
             with metrics.timed(
                 "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method}"]
             ):
                 return f(context, request)
-
-        return wrapped
-
-    return decorator
-
-
-def ratelimit():
-    def decorator(f):
-        def wrapped(context, request):
-            ratelimiter = request.find_service(
-                IRateLimiter, name="xmlrpc.client", context=None
-            )
-            metrics = request.find_service(IMetricsService, context=None)
-            ratelimiter.hit(request.remote_addr)
-            record_rate_limit(
-                request,
-                "xmlrpc.client",
-                ratelimiter,
-                identifiers=(request.remote_addr,),
-                partition_key="ip",
-            )
-            if not ratelimiter.test(request.remote_addr):
-                metrics.increment("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
-                message = (
-                    "The action could not be performed because there were too "
-                    "many requests by the client."
-                )
-                _resets_in = ratelimiter.resets_in(request.remote_addr)
-                if _resets_in is not None:
-                    _resets_in = max(1, int(_resets_in.total_seconds()))
-                    message += f" Limit may reset in {_resets_in} seconds."
-                raise XMLRPCWrappedError(HTTPTooManyRequests(message))
-            metrics.increment("warehouse.xmlrpc.ratelimiter.hit", tags=[])
-            return f(context, request)
 
         return wrapped
 
@@ -150,7 +136,7 @@ def xmlrpc_method(**kwargs):
     kwargs.update(
         require_csrf=False,
         require_methods=["POST"],
-        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]), ratelimit()),
+        decorator=submit_xmlrpc_metrics(method=kwargs["method"]),
         mapper=TypedMapplyViewMapper,
     )
 
@@ -230,19 +216,6 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
     @property
     def faultString(self):  # noqa: N802
         return f"client error; {self.exc}"
-
-
-class XMLRPCWrappedError(xmlrpc.client.Fault):
-    def __init__(self, exc):
-
-        # This is the interface for specifying fault code and string for XmlRpcError
-        self.faultCode = -32500
-        self.wrapped_exception = exc
-
-    # This is the interface for specifying fault string for XmlRpcError
-    @property
-    def faultString(self):  # noqa: N802
-        return f"{self.wrapped_exception.__class__.__name__}: {self.wrapped_exception}"
 
 
 class TypedMapplyViewMapper(MapplyViewMapper):

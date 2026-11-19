@@ -887,9 +887,7 @@ def configure(settings=None):
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
 
-    # Register support for XMLRPC and override it's renderer to allow
-    # specifying custom dumps arguments.
-    config.include("pyramid_rpc.xmlrpc")
+    # Allow XML-RPC methods to return None.
     config.add_renderer("xmlrpc", XMLRPCRenderer(allow_none=True))
 
     # Register support for our legacy action URLs

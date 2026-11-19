@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from warehouse.legacy.api.xmlrpc import XMLRPC_CONTENT_TYPE
+
 
 def includeme(config):
     # We need to get the value of the Warehouse and Forklift domains, we'll use
@@ -740,18 +742,17 @@ def includeme(config):
     config.add_pypi_action_route("legacy.api.pypi.display", "display", domain=warehouse)
 
     # Legacy XMLRPC
-    config.add_xmlrpc_endpoint(
-        "xmlrpc.pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
-    )
-    config.add_xmlrpc_endpoint(
-        "xmlrpc.pypi_slash",
-        pattern="/pypi/",
-        header="Content-Type:text/xml",
-        domain=warehouse,
-    )
-    config.add_xmlrpc_endpoint(
-        "xmlrpc.RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
-    )
+    for name, path in (
+        ("xmlrpc.pypi", "/pypi"),
+        ("xmlrpc.pypi_slash", "/pypi/"),
+        ("xmlrpc.RPC2", "/RPC2"),
+    ):
+        config.add_xmlrpc_endpoint(
+            name,
+            pattern=path,
+            header=f"Content-Type:{XMLRPC_CONTENT_TYPE}",
+            domain=warehouse,
+        )
 
     # Legacy Documentation
     config.add_route("legacy.docs", config.registry.settings["docs.url"])

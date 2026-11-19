@@ -8,6 +8,9 @@
     As a result, this API has a very restrictive rate limit and it may be
     necessary to pause between successive requests.
 
+    PyPI returns HTTP 413 for request bodies larger than 8 KiB (8,192 bytes).
+    Within that limit, malformed XML and unknown methods count toward the quota.
+
     Users of this API are **strongly** encouraged to subscribe to the
     [pypi-announce](https://mail.python.org/mailman3/lists/pypi-announce.python.org/) mailing list for notices as we begin the process of removing
     XML-RPC from PyPI.

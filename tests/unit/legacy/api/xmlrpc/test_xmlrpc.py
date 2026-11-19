@@ -2,12 +2,14 @@
 
 import datetime as dt
 
+from xmlrpc.client import Binary
+
 import pytest
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
-from warehouse.legacy.api.xmlrpc import views as xmlrpc
+from warehouse.legacy.api.xmlrpc import check_rate_limit, views as xmlrpc
 from warehouse.rate_limiting import RateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
@@ -37,26 +39,34 @@ class TestSubmitXMLRPCMetrics:
             "warehouse.xmlrpc.call", tags=["rpc_method:browse"]
         )
 
-    def test_truncates_logged_args(self, pyramid_request, metrics, mocker):
+    @pytest.mark.parametrize(
+        "args",
+        [(["x" * 500],), (dict.fromkeys(range(501)),), (1 << 1024,), (Binary(b"x"),)],
+    )
+    def test_omits_args_before_encoding(self, args, pyramid_request, metrics, mocker):
         wrapped = xmlrpc.submit_xmlrpc_metrics(method="browse")(lambda c, r: None)
-        pyramid_request.rpc_args = (["x" * 500],)
+        pyramid_request.rpc_args = args
+        dumps = mocker.patch.object(xmlrpc.json, "dumps")
 
         wrapped(mocker.sentinel.context, pyramid_request)
 
-        assert (
-            len(pyramid_request.environ["warehouse.xmlrpc.args"])
-            == xmlrpc.XMLRPC_LOGGED_ARGS_LENGTH
-        )
+        assert pyramid_request.environ["warehouse.xmlrpc.args"] == "[omitted]"
+        dumps.assert_not_called()
+
+    def test_escaped_json_fits_log_field(self):
+        assert len(xmlrpc._logged_args(({"name": "\x00" * 80},))) == 200
+
+    def test_deeply_nested_args(self):
+        value = []
+        for _ in range(1000):
+            value = [value]
+        assert xmlrpc._logged_args((value,)) == "[omitted]"
 
 
 class TestRateLimiting:
     def test_ratelimiting_pass(
         self, pyramid_services, pyramid_request, metrics, mocker
     ):
-        def view(context, request):
-            return None
-
-        ratelimited_view = xmlrpc.ratelimit()(view)
         pyramid_request.remote_addr = "127.0.0.1"
         stats = [
             WindowStats(
@@ -64,15 +74,15 @@ class TestRateLimiting:
             )
         ]
         fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
-        fake_rate_limiter.test.return_value = True
         fake_rate_limiter.hit.return_value = True
         fake_rate_limiter.resets_in.return_value = None
         fake_rate_limiter.get_window_stats.return_value = stats
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
-        ratelimited_view(mocker.sentinel.context, pyramid_request)
+        check_rate_limit(pyramid_request)
 
+        fake_rate_limiter.hit.assert_called_once_with("127.0.0.1")
         metrics.increment.assert_called_once_with(
             "warehouse.xmlrpc.ratelimiter.hit", tags=[]
         )
@@ -84,21 +94,16 @@ class TestRateLimiting:
     def test_ratelimiting_block(
         self, pyramid_services, pyramid_request, metrics, mocker
     ):
-        def view(context, request):
-            pytest.fail("view should not be called")
-
-        ratelimited_view = xmlrpc.ratelimit()(view)
         pyramid_request.remote_addr = "127.0.0.1"
         fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
-        fake_rate_limiter.test.return_value = False
-        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.hit.return_value = False
         fake_rate_limiter.resets_in.return_value = None
         fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(mocker.sentinel.context, pyramid_request)
+            check_rate_limit(pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
@@ -125,21 +130,16 @@ class TestRateLimiting:
         resets_in_delta,
         expected,
     ):
-        def view(context, request):
-            pytest.fail("view should not be called")
-
-        ratelimited_view = xmlrpc.ratelimit()(view)
         pyramid_request.remote_addr = "127.0.0.1"
         fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
-        fake_rate_limiter.test.return_value = False
-        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.hit.return_value = False
         fake_rate_limiter.resets_in.return_value = resets_in_delta
         fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(mocker.sentinel.context, pyramid_request)
+            check_rate_limit(pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
