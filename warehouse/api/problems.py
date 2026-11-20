@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-RFC 9457 problem details, the body of the danger API's error responses.
+RFC 9457 problem details for the Simple and danger APIs.
 
 See: https://www.rfc-editor.org/rfc/rfc9457
 """

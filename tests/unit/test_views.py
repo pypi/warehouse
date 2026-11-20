@@ -145,9 +145,54 @@ class TestHTTPExceptionView:
         response = httpexception_view(context, pyramid_request)
         assert response.status_code == 404
         assert response.status == "404 Not Found"
-        assert response.content_type == "text/plain"
-        assert response.text == "404 Not Found"
+        assert response.content_type == "application/problem+json"
+        assert response.json == {
+            "status": 404,
+            "title": "Not Found",
+            "detail": context.explanation,
+        }
         _assert_has_cors_headers(response.headers)
+
+    @pytest.mark.parametrize("path", ["/simple/", "/simple/example/"])
+    @pytest.mark.parametrize("status_code", [400, 401, 403, 406, 410, 429, 500, 503])
+    @pytest.mark.parametrize("detail", [None, "Please try again later."])
+    def test_simple_problem_details(self, pyramid_request, path, status_code, detail):
+        context = exception_response(
+            status_code,
+            detail=detail,
+            headers={
+                "Retry-After": "60",
+                "WWW-Authenticate": 'Basic realm="example"',
+            },
+        )
+        context.status = f"{status_code} My Cool Status"
+        pyramid_request.path = path
+
+        response = httpexception_view(context, pyramid_request)
+
+        assert response.status == context.status
+        assert response.content_type == "application/problem+json"
+        assert response.content_length == len(response.body)
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.json == {
+            "status": status_code,
+            "title": context.title,
+            "detail": detail or context.explanation,
+        }
+        assert response.headers["Retry-After"] == "60"
+        assert response.headers["WWW-Authenticate"] == 'Basic realm="example"'
+        _assert_has_cors_headers(response.headers)
+
+    @pytest.mark.parametrize("status_code", [200, 301, 304, 399, 600])
+    def test_simple_non_errors_unchanged(
+        self, pyramid_config, pyramid_request, status_code
+    ):
+        pyramid_config.testing_add_renderer("non-existent.html")
+        context = HTTPClientError()
+        context.status = f"{status_code} My Cool Status"
+        pyramid_request.path = "/simple/"
+
+        assert httpexception_view(context, pyramid_request) is context
 
     @pytest.mark.parametrize(
         "path", ["/pypi/not_found_package/json", "/pypi/not_found_package/1.0.0/json"]
