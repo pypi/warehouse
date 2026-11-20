@@ -71,10 +71,17 @@
   </nav>
   <!-- /.navbar -->
 
+  {% set can_read_dashboard = has_root_permission(request, Permissions.AdminDashboardRead) %}
+  {% set can_read_sidebar = request.has_permission(Permissions.AdminDashboardSidebarRead) %}
+  {% set can_read_applications = has_root_permission(request, Permissions.AdminOrganizationApplicationsRead) %}
+  {% set can_read_observations = has_root_permission(request, Permissions.AdminObservationsRead) %}
+  {% set can_read_projects = has_root_permission(request, Permissions.AdminProjectsRead) %}
+  {% set can_read_users = has_root_permission(request, Permissions.AdminUsersRead) %}
+
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="{{ request.route_path('admin.dashboard' if has_root_permission(request, Permissions.AdminDashboardRead) else 'admin.organization_application.list') }}" class="brand-link">
+    <a href="{{ request.route_path('admin.dashboard' if can_read_dashboard else ('admin.malware_reports.list' if can_read_observations else 'admin.organization_application.list')) }}" class="brand-link">
       <img src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}" alt="PyPI Logo" class="brand-image">
       <span class="brand-text font-weight-light"><b>Warehouse</b> Admin</span>
     </a>
@@ -87,7 +94,7 @@
           <img src="{{ gravatar(request, request.user.email, size=160) }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          {% if has_root_permission(request, Permissions.AdminUsersRead) %}
+          {% if can_read_users %}
           <a class="d-block" href="{{ request.route_path('admin.user.detail', username=request.user.username) }}">{{ request.user.name|default(request.user.username, true) }}</a>
           {% else %}
           <span class="d-block text-light">{{ request.user.name|default(request.user.username, true) }}</span>
@@ -110,8 +117,6 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar nav-child-indent flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          {% set can_read_applications = has_root_permission(request, Permissions.AdminOrganizationApplicationsRead) %}
-          {% set can_read_sidebar = request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           {% if can_read_applications or can_read_sidebar %}
           {% set in_organizations = request.matched_route and request.matched_route.name.startswith('admin.organization') %}
           <li class="nav-item {{ 'menu-open' if in_organizations else 'menu-closed' }}">
@@ -145,12 +150,14 @@
             </ul>
           </li>
           {% endif %}
-          {% if can_read_sidebar %}
+          {% if can_read_sidebar or can_read_users %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
               <i class="fa fa-user nav-icon"></i> <p>Users</p>
             </a>
           </li>
+          {% endif %}
+          {% if can_read_sidebar %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.macaroon.decode_token') }}" class="nav-link">
               <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons</p>
@@ -161,16 +168,22 @@
               <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</p>
             </a>
           </li>
+          {% endif %}
+          {% if can_read_sidebar or can_read_projects %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.project.list') }}" class="nav-link">
               <i class="fa fa-cubes nav-icon"></i> <p>Projects</p>
             </a>
           </li>
+          {% endif %}
+          {% if can_read_sidebar %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.journals.list') }}" class="nav-link">
               <i class="fa fa-book nav-icon"></i> <p>Journals</p>
             </a>
           </li>
+          {% endif %}
+          {% if can_read_sidebar or can_read_observations or can_read_projects %}
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
               <i class="nav-icon fa-solid fa-eye"></i>
@@ -180,17 +193,22 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
+              {% if can_read_sidebar or can_read_observations %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-dumpster-fire"></i>
                   <p>Malware Reports</p>
                 </a>
               </li>
+              {% endif %}
+              {% if can_read_sidebar or can_read_projects %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
                 </a>
               </li>
+              {% endif %}
+              {% if can_read_sidebar or can_read_observations %}
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.observers.reputation') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-chart-bar"></i>
@@ -209,8 +227,11 @@
                   <p>All Observations</p>
                 </a>
               </li>
+              {% endif %}
             </ul>
           </li>
+          {% endif %}
+          {% if can_read_sidebar %}
           {% if request.has_permission(Permissions.AdminVulnerabilitiesRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.vulnerabilities.list') }}" class="nav-link">
@@ -247,11 +268,15 @@
               </li>
             </ul>
           </li>
+          {% endif %}
+          {% if can_read_sidebar or has_root_permission(request, Permissions.AdminEmailsRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
               <i class="fa fa-envelope nav-icon"></i> <p>Emails</p>
             </a>
           </li>
+          {% endif %}
+          {% if can_read_sidebar %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.flags') }}" class="nav-link">
               <i class="fa fa-flag nav-icon"></i> <p>Flags</p>
@@ -290,7 +315,7 @@
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              {% if has_root_permission(request, Permissions.AdminDashboardRead) %}
+              {% if can_read_dashboard %}
               <li class="breadcrumb-item">
                 <a href="{{ request.route_path('admin.dashboard') }}"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
               </li>

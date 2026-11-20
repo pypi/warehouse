@@ -617,6 +617,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminMacaroonsInspect,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
+                Permissions.AdminMalwareReportsRemove,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationApplicationsRead,
@@ -634,6 +635,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
+                Permissions.AdminProjectsQuarantine,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminProjectsWrite,
@@ -711,6 +713,18 @@ def test_configure(monkeypatch, mocker, settings, environment):
             },
         ),
         (
+            "group:security",
+            {
+                Permissions.AdminEmailsRead,
+                Permissions.AdminMalwareReportsRemove,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminProjectsQuarantine,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminUsersRead,
+            },
+        ),
+        (
             "group:psf_staff",
             {
                 Permissions.AdminBannerRead,
@@ -738,6 +752,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "admins",
         "support",
         "moderators",
+        "security",
         "psf-staff",
         "observers",
         "org-application-reviewers",

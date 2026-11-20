@@ -34,7 +34,7 @@
         {% if release.lifecycle_status_note %}
           <p><strong>Note:</strong> {{ release.lifecycle_status_note }}</p>
         {% endif %}
-        {% if request.has_permission(Permissions.AdminProjectsWrite) %}
+        {% if request.has_permission(Permissions.AdminProjectsQuarantine) %}
           <form method="post"
                 action="{{ request.route_path('admin.project.release.remove_from_quarantine', project_name=release.project.normalized_name, version=release.version) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -503,7 +503,7 @@
       </div>
     </div>
   </div>
-  {% if request.has_permission(Permissions.AdminProjectsWrite) %}
+  {% if request.has_permission(Permissions.AdminProjectsQuarantine) %}
     <div class="card card-warning collapsed-card">
       <div class="card-header">
         <h3 class="card-title">Quarantine Release</h3>
