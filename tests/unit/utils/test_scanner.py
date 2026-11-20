@@ -504,7 +504,9 @@ _FILENAMES_TO_SCAN = [
     "publish.sh",
     "info.txt",
     ".env",
+    ".ENV",
     ".pypirc",
+    ".PyPIrc",
     "pyproject.toml",
     "upload.cfg",
     "upload.conf",
@@ -561,7 +563,7 @@ class TestPyPITokenDetection:
             "pypi-AgEIcHlwaS5vcmcCJ...",
             # patterns detecting the token format
             "pypi-AgEIcHlwaS[A-Za-z0-9_-]{50,}",
-            "pypi-AgEIcHlwaS5vcmcCJ[a-zA-Z0-9-_]{150,157}"
+            "pypi-AgEIcHlwaS5vcmcCJ[a-zA-Z0-9-_]{150,157}",
         ],
     )
     @pytest.mark.parametrize(
