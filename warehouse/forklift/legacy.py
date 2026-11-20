@@ -2,6 +2,7 @@
 import datetime as dt
 import hashlib
 import hmac
+import io
 import os.path
 import posixpath
 import re
@@ -345,7 +346,7 @@ def _is_valid_dist_file(
                 for zinfo in zfp.infolist():
                     if zinfo.filename.startswith(dist_info_prefix):
                         with zfp.open(zinfo) as member:
-                            while member.read(65536):
+                            while member.read(io.DEFAULT_BUFFER_SIZE):
                                 pass
 
         except (zipfile.BadZipFile, zlib.error) as exc:
