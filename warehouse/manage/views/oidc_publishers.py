@@ -168,9 +168,10 @@ class ManageOIDCPublisherViews:
                 anchor="temporarily-disabled-features",
             )
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    f"See {docs_url} for details."
+                    "See ${docs_url} for details.",
+                    mapping={"docs_url": docs_url},
                 ),
                 queue="error",
             )
@@ -778,9 +779,10 @@ class ManageOIDCPublisherViews:
                 anchor="temporarily-disabled-features",
             )
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    f"See {docs_url} for details."
+                    "See ${docs_url} for details.",
+                    mapping={"docs_url": docs_url},
                 ),
                 queue="error",
             )
