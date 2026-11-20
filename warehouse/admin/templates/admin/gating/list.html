@@ -1,0 +1,82 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Release gating{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Release gating</li>
+{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Withheld releases</h3>
+    </div>
+    <div class="card-body">
+      {% if gates %}
+        <p class="text-muted">
+          These releases are not in the Simple index and their files are not in
+          the CDN bucket, so they cannot be installed. A <code>pending</code>
+          gate resolves on its own; a <code>failed</code> gate needs a decision
+          here.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Release</th>
+                <th>Gate</th>
+                <th>Status</th>
+                <th class="d-none d-md-table-cell">Held since</th>
+                <th class="d-none d-lg-table-cell">Note</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for gate in gates %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.release', project_name=gate.release.project.normalized_name, version=gate.release.version) }}">
+                      <strong>{{ gate.release.project.name }}</strong>
+                      {{ gate.release.version }}
+                    </a>
+                  </td>
+                  <td><code>{{ gate.kind }}</code></td>
+                  <td>
+                    <span class="badge badge-{{ 'danger' if gate.status == 'failed' else 'warning' }}">
+                      {{ gate.status }}
+                    </span>
+                  </td>
+                  <td class="d-none d-md-table-cell">
+                    {% set held_days = (now() - gate.created).days %}
+                    {{ held_days }} day{{ '' if held_days == 1 else 's' }}
+                  </td>
+                  <td class="d-none d-lg-table-cell">
+                    {{ gate.note or '' }}
+                    {# `details` is policy-defined, so it is dumped rather than
+                       interpreted. #}
+                    {% if gate.details %}
+                      <pre class="mb-0 small">{{ gate.details | tojson(indent=2) }}</pre>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="POST"
+                          action="{{ request.route_path('admin.gating.bypass', release_id=gate.release_id, kind=gate.kind) }}">
+                      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                        Bypass and publish
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No releases are currently withheld.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
