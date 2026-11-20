@@ -198,6 +198,9 @@ class TestCheckMembers:
             def scan(self, _data):
                 raise yara_x.ScanError("boom")
 
+            def set_global(self, _name, _value):
+                pass
+
         monkeypatch.setattr("warehouse.utils.scanner.yara_x.Scanner", _BrokenScanner)
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
 
@@ -322,8 +325,12 @@ class TestScanArchive:
                 {"pkg/runtime.py": "__pyarmor_enter__()\n__pyarmor_exit__()"},
                 "pkg/runtime.py",
             ),
+            (
+                {"pkg/runtime.PY": "__pyarmor_enter__()\n__pyarmor_exit__()"},
+                "pkg/runtime.PY",
+            ),
         ],
-        ids=["executor", "hooks"],
+        ids=["executor", "hooks", "uppercase-extension"],
     )
     def test_detects_pyarmor_in_wheel(self, tmp_path, rules, files, expected_path):
         whl = _make_wheel(tmp_path, files)
@@ -366,6 +373,16 @@ class TestScanArchive:
             },
         )
         assert scanner.scan_archive(tar, rules=rules) == []
+
+    @pytest.mark.parametrize(
+        "filename", ["readme.txt", "pyproject.toml", "docs.md", "setup.sh"]
+    )
+    def test_pyarmor_is_not_detected_outside_code_files(
+        self, tmp_path, rules, filename
+    ):
+        whl = _make_wheel(tmp_path, {f"pkg/{filename}": "__pyarmor_enter__()"})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 0
 
     def test_skips_oversized_files(self, tmp_path, rules, monkeypatch):
         monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
@@ -445,18 +462,20 @@ _PYE_CONTENT = (
 
 
 class TestSourceDefenderDetection:
-    def test_detects_pye_in_wheel(self, tmp_path, rules):
-        whl = _make_wheel(tmp_path, {"pkg/secret.pye": _PYE_CONTENT})
+    @pytest.mark.parametrize("filename", ["secret.pye", "SECRET.PYE", "Secret.PyE"])
+    def test_detects_pye_in_wheel(self, tmp_path, filename, rules):
+        whl = _make_wheel(tmp_path, {f"pkg/{filename}": _PYE_CONTENT})
         matches = scanner.scan_archive(whl, rules=rules)
         assert len(matches) == 1
-        assert matches[0][0] == "pkg/secret.pye"
+        assert matches[0][0] == f"pkg/{filename}"
         assert "sourcedefender_encrypted" in matches[0][1]
 
-    def test_detects_pye_in_tarball(self, tmp_path, rules):
-        tar = _make_tarball(tmp_path, {"fake-1.0/pkg/secret.pye": _PYE_CONTENT})
+    @pytest.mark.parametrize("filename", ["secret.pye", "SECRET.PYE", "Secret.PyE"])
+    def test_detects_pye_in_tarball(self, tmp_path, filename, rules):
+        tar = _make_tarball(tmp_path, {f"fake-1.0/pkg/{filename}": _PYE_CONTENT})
         matches = scanner.scan_archive(tar, rules=rules)
         assert len(matches) == 1
-        assert matches[0][0] == "fake-1.0/pkg/secret.pye"
+        assert matches[0][0] == f"fake-1.0/pkg/{filename}"
         assert "sourcedefender_encrypted" in matches[0][1]
 
     def test_requires_both_markers(self, tmp_path, rules):
@@ -465,6 +484,14 @@ class TestSourceDefenderDetection:
             tmp_path, {"pkg/partial.pye": "---BEGIN PYE FILE---\nDEADBEEF\n"}
         )
         assert scanner.scan_archive(whl, rules=rules) == []
+
+    @pytest.mark.parametrize(
+        "filename", ["readme.txt", "pyproject.toml", "docs.md", "setup.sh", "code.py"]
+    )
+    def test_pye_is_not_detected_outside_pye_files(self, tmp_path, rules, filename):
+        whl = _make_wheel(tmp_path, {f"pkg/{filename}": _PYE_CONTENT})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 0
 
 
 class TestSpoofedFileSize:
@@ -510,6 +537,16 @@ _FILENAMES_TO_SCAN = [
     "pyproject.toml",
     "upload.cfg",
     "upload.conf",
+    "script.bash",
+    "upload.bAsH",
+    "upload.ksh",
+    "publish.zsh",
+    "upload.bat",
+    "upload.cmd",
+    "upload.ps1",
+    "upload.PS1",
+    "Makefile",
+    "common.mk",
 ]
 
 
