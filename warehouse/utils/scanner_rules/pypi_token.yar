@@ -13,13 +13,13 @@ rule secrets_pypi_token
     $pypi_token = /pypi-AgEIcHlwaS5vcmcCJ[a-zA-Z0-9-_]{150,157}/
 
     // If we come across test tokens in use we should exclude
-    // it culd be done by adding a string like this and uncommenting the condition below.
-    // $test_token = "pypi-AgEIcHlwaS5vcmcCJxxx"
+    // it could be done by adding a string like this and uncommenting the condition below.
+    // $test_token = "pypi-AgENdGVzdC5weXBpLm9yZw[...]"
 
   condition:
     $pypi_token
     // If we want to allow some test-only tokens, we can use:
     // and for all i in (1 .. #pypi_token) : (
-    // 	not $test_token at @pypi_token[i]
+    //  not $test_token at @pypi_token[i]
     // )
 }
