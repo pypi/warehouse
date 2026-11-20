@@ -284,6 +284,9 @@ class OrganizationFactory:
                 self.request.matched_route.generate(
                     {
                         **self.request.matchdict,
+                        # Organization routes call this placeholder either
+                        # "organization" or "organization_name".
+                        "organization": organization.normalized_name,
                         "organization_name": organization.normalized_name,
                     }
                 )

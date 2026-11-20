@@ -9,7 +9,7 @@ import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
-from sqlalchemy import update
+from sqlalchemy import text, update
 
 from warehouse.attestations.models import (
     ProvenanceCounts,
@@ -2472,6 +2472,25 @@ class TestEnsureMonotonicJournals:
         # the test suite registers the listeners once per app config,
         # so the hook can fire more than once.
         assert order[:2] == ["project row", "advisory lock"]
+
+
+class TestMaintainProjectLastSerial:
+    def test_journal_write_does_not_scan_projects(self, db_session):
+        """
+        The journals trigger looks the project up by name; it must use an index.
+        """
+        project = DBProjectFactory.create()
+        # Must precede the first journal write: plpgsql caches the trigger's plan.
+        db_session.execute(text("SET LOCAL enable_seqscan = off"))
+        seq_scans = text(
+            "SELECT seq_scan FROM pg_stat_xact_user_tables WHERE relname = 'projects'"
+        )
+        before = db_session.execute(seq_scans).scalar()
+
+        db_session.add(JournalEntry(name=project.name, action="create"))
+        db_session.flush()
+
+        assert db_session.execute(seq_scans).scalar() == before
 
 
 class TestProjectLimitProperties:

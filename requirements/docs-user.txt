@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/docs-user.txt requirements/docs-user.in
 #
-click==8.5.0 \
-    --hash=sha256:255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360 \
-    --hash=sha256:ba0d2089de75ea0310e2dde03160e6ca10009947fb95a182f9b54021bb272e34
+click==8.5.1 \
+    --hash=sha256:8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37 \
+    --hash=sha256:9bbfada76703fd1d784b83eea012e3e8c6a001a876543ef104fa56aaaeb072b4
     # via zensical
 jinja2==3.1.6 \
     --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
@@ -327,18 +327,18 @@ tomli==2.5.0 \
     --hash=sha256:f79203b3965b4000e91808aaa7c040206093f2b8bf86f455982f2274c9ccf442 \
     --hash=sha256:fd4dc129784e0c5335bd4e61dfcc4487499a013419e655cf2da1d091b7e0efdc
     # via zensical
-zensical==0.1.0 \
-    --hash=sha256:0715bae72a1acb0164eb06f489d6bb93bb3e0fbcf786fa8259daae5955611526 \
-    --hash=sha256:4cec7739b505a64b38167fbf92a7cccfdda9faf2deb96cb9d2d099ff50f59942 \
-    --hash=sha256:60151ebc13022bea4b68222d694d48121e2d11558e28d18dc61d4cfdd83fe51e \
-    --hash=sha256:7363783df33340cd4c9e52dc0f53dcbd217480f7ee0e2b4959a1c78def88cb9c \
-    --hash=sha256:a0614fb694fc41ddd84b6743e64c4797db4a83cc0bc84accd252036033fb1fa2 \
-    --hash=sha256:bea2aa1312b4c927798ebe32bb5c399d40c10a0341ad9f1b7cbfdc6beaaa547f \
-    --hash=sha256:d184a9e718ea7857558128a0708c950b3ab47366e96c724b33890aab70c64f5a \
-    --hash=sha256:f2892e08d7ea4baf714d0d033246044ea0f1b4acedd5a593988fcf61bdf26e30 \
-    --hash=sha256:ff89088b554f7a88358eaa470c6738b6d1511f9fec835f0bacc29f95dd6139f9
+zensical==0.1.1 \
+    --hash=sha256:0405d2891dca76a6fb42fae8141dba93a95f31905148940a9f13883bf1ccfe43 \
+    --hash=sha256:1316ba8c5e18b9e46823b0a10105585a582a6e85d2df764b3b65f3de4d1a711f \
+    --hash=sha256:267a8f038ca2c720414c0c5810e29962999fbf799369c06a9530b8c702a28f92 \
+    --hash=sha256:332e74e3fe91cd8476369217e28ab5d4692486da32d0177c8bcb93c972f0cc8b \
+    --hash=sha256:39f40e800f89ce9253839dcba1a06fdd160ff00ac600ab79ae6f18e6a42ee8f7 \
+    --hash=sha256:547d2c5c68db7db1faa4394d99ab81f5e9eed6eefe528eb139ff4ea196b2a4fb \
+    --hash=sha256:d5cff293282dd27bd511f7bd33db8088fd450de4c1611db842a411466140f637 \
+    --hash=sha256:dd4082e317ac5784c50e21cbe209fd1881a351da6ae4e81cc700d6673d5312f3 \
+    --hash=sha256:e11abaf2669c5ee780a145d114e8c3db4cd81cd3fdfc8a4513a324301fefd113
     # via -r requirements/docs-user.in
-zensical-ui==0.0.41 \
-    --hash=sha256:2268e3533a2e186eb7b67dcc8ccdbfc5994fe114cda9382a505f306256df3d88 \
-    --hash=sha256:f0cd5b4351c130257df65b2100fc7116e72c777b1fbc596fee64a9f5de4ccdad
+zensical-ui==0.0.42 \
+    --hash=sha256:db4f532b45d7f8200d08d5fb8e7945c69dd738eed49417008b847572a8e3ac8d \
+    --hash=sha256:eb824d9c971debc2031837e8d287adf81f5d9ce06304cfbd33fc88ff833abbf3
     # via zensical

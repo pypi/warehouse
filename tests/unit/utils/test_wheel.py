@@ -465,6 +465,19 @@ nbval = nbval.plugin
             "foo-0.0.0-pypy-none-any.whl",
             _build(interp_pypy="pypy", abi_none="none", plat_any="any"),
         ),
+        # A "cp" tag without a version is not a CPython tag.
+        (
+            "thundersvm-0.0.2-py3-cpu-any.whl",
+            _build(interp_py3="Python 3", abi_cpu="cpu", plat_any="any"),
+        ),
+        (
+            "pyplasm-3.0.13-cp-none-macosx_11_0_universal2.whl",
+            _build(
+                interp_cp="cp",
+                abi_none="none",
+                plat_macosx_11_0_universal2="macOS 11.0+ universal2 (ARM64, x86-64)",
+            ),
+        ),
         # Underscores are valid in tags but normalize to spaces in labels.
         (
             "foo-0.0.0-_-none-any.whl",

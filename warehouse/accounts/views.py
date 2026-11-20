@@ -539,6 +539,18 @@ def _set_userid_insecure_cookie(resp, userid):
     )
 
 
+def _two_factor_method_state(user, two_factor_method: str) -> str | None:
+    if two_factor_method == "totp" and user.totp_secret:
+        return hashlib.blake2b(user.totp_secret, person=b"warehouse.2fa").hexdigest()
+    if two_factor_method == "webauthn" and user.webauthn:
+        credentials = sorted(c.credential_id for c in user.webauthn)
+        return hashlib.blake2b(
+            ":".join(credentials).encode("ascii"),
+            person=b"warehouse.2fa",
+        ).hexdigest()
+    return None
+
+
 def _check_remember_device_token(request, user_id) -> str | None:
     """
     Returns the two-factor method if the given remember device cookie is valid
@@ -548,12 +560,23 @@ def _check_remember_device_token(request, user_id) -> str | None:
     if not remember_device_token:
         return None
     token_service = request.find_service(ITokenService, name="remember_device")
+    user_service = request.find_service(IUserService, context=None)
     try:
         data = token_service.loads(remember_device_token)
         user_id_token = data.get("user_id")
-        if user_id_token == str(user_id):
-            return data.get("two_factor_method", "totp")
-        return None
+        if user_id_token != str(user_id):
+            return None
+        if data.get("password_timestamp") != str(
+            user_service.get_password_timestamp(user_id)
+        ):
+            return None
+        two_factor_method = data.get("two_factor_method", "totp")
+        two_factor_state = _two_factor_method_state(
+            user_service.get_user(user_id), two_factor_method
+        )
+        if two_factor_state is None or data.get("two_factor_state") != two_factor_state:
+            return None
+        return two_factor_method
     except TokenException:
         return None
 
@@ -562,9 +585,14 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
     """
     Generates and sets a cookie for remembering this device.
     """
+    # Not `request.user`: right after login it is `None` for a frozen account.
+    user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(userid)
     remember_device_data = {
         "user_id": str(userid),
         "two_factor_method": two_factor_method,
+        "password_timestamp": user_service.get_password_timestamp(userid),
+        "two_factor_state": _two_factor_method_state(user, two_factor_method),
     }
     token_service = request.find_service(ITokenService, name="remember_device")
     token = token_service.dumps(remember_device_data)
@@ -577,9 +605,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
         samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
-    # Not `request.user`: right after login it is `None` for a frozen account.
-    user_service = request.find_service(IUserService, context=None)
-    user_service.get_user(userid).record_event(
+    user.record_event(
         tag=EventTag.Account.TwoFactorDeviceRemembered,
         request=request,
         additional={
@@ -703,9 +729,13 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # where they were originally, or to the default view.
         resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-        # Ensure that we delete our user_id__insecure cookie, since the user is
-        # no longer logged in.
+        # Ensure that we delete our user_id__insecure and remember_device
+        # cookies, since the user is no longer logged in.
         resp.delete_cookie(USER_ID_INSECURE_COOKIE)
+        resp.delete_cookie(
+            REMEMBER_DEVICE_COOKIE,
+            path=request.route_path("accounts.login"),
+        )
 
         return resp
 
