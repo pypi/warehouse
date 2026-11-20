@@ -10,7 +10,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[redis]>=5.6.2,<5.7
+celery[redis]>=5.7.0,<5.8
 celery-redbeat
 certifi
 click
