@@ -12,6 +12,7 @@ from webob.multidict import MultiDict
 from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import (
     ActiveStatePublisherFactory,
+    CircleCIPublisherFactory,
     GitHubPublisherFactory,
     GitLabPublisherFactory,
     GooglePublisherFactory,
@@ -31,6 +32,7 @@ PROVIDER_FLAGS = {
     "GitLab": AdminFlagValue.DISALLOW_GITLAB_OIDC,
     "Google": AdminFlagValue.DISALLOW_GOOGLE_OIDC,
     "ActiveState": AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+    "CircleCI": AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
 }
 
 ADD_VIEWS = [
@@ -38,6 +40,7 @@ ADD_VIEWS = [
     pytest.param("add_gitlab_oidc_publisher", "GitLab", id="GitLab"),
     pytest.param("add_google_oidc_publisher", "Google", id="Google"),
     pytest.param("add_activestate_oidc_publisher", "ActiveState", id="ActiveState"),
+    pytest.param("add_circleci_oidc_publisher", "CircleCI", id="CircleCI"),
 ]
 
 # Each provider's add view, a factory for the publisher it registers, its
@@ -100,6 +103,21 @@ ADD_PUBLISHERS = [
         {"organization": "some-org", "project": "some-project", "actor": "some-user"},
         id="ActiveState",
     ),
+    pytest.param(
+        "add_circleci_oidc_publisher",
+        CircleCIPublisherFactory,
+        {
+            "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+            "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+            "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+        },
+        {
+            "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+            "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+            "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+        },
+        id="CircleCI",
+    ),
 ]
 
 ALL_PUBLISHER_FACTORIES = [
@@ -107,6 +125,7 @@ ALL_PUBLISHER_FACTORIES = [
     pytest.param(GitLabPublisherFactory, id="GitLab"),
     pytest.param(GooglePublisherFactory, id="Google"),
     pytest.param(ActiveStatePublisherFactory, id="ActiveState"),
+    pytest.param(CircleCIPublisherFactory, id="CircleCI"),
 ]
 
 
@@ -162,7 +181,7 @@ class TestManageOIDCPublisherViews:
 
     @pytest.fixture
     def form_lookups(self, mocker):
-        """Stub the GitHub and ActiveState API lookups the real forms make."""
+        """Stub the GitHub, ActiveState and CircleCI API lookups the real forms make."""
         mocker.patch.object(
             oidc_views.GitHubPublisherForm,
             "_lookup_owner",
@@ -180,6 +199,12 @@ class TestManageOIDCPublisherViews:
             "_lookup_actor",
             autospec=True,
             return_value={"user_id": "some-user-id"},
+        )
+        mocker.patch.object(
+            oidc_views.CircleCIPublisherForm,
+            "_lookup_project_metadata",
+            autospec=True,
+            return_value=None,
         )
 
     @pytest.fixture
@@ -207,6 +232,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": prefilled_provider,
         }
 
@@ -289,6 +315,7 @@ class TestManageOIDCPublisherViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         publishing_request.session.flash.assert_not_called()
 
@@ -310,6 +337,7 @@ class TestManageOIDCPublisherViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         publishing_request.session.flash.assert_called_once_with(
             (
@@ -363,6 +391,19 @@ class TestManageOIDCPublisherViews:
                     "organization": "my_org",
                     "project": "my_project",
                     "actor": "my_actor",
+                },
+            ),
+            # All fields of CircleCI provider
+            (
+                "circleci_publisher_form",
+                {
+                    "provider": "circleci",
+                    "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                    "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                    "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                    "context_id": "00000000-0000-1000-8000-000000000004",
+                    "vcs_ref": "refs/heads/main",
+                    "vcs_origin": "https://github.com/my-org/my-repo",
                 },
             ),
             # All fields of GitHub provider, case-insensitive
@@ -684,6 +725,7 @@ class TestManageOIDCPublisherViews:
         [
             pytest.param(ActiveStatePublisherFactory, id="ActiveState"),
             pytest.param(GooglePublisherFactory, id="Google"),
+            pytest.param(CircleCIPublisherFactory, id="CircleCI"),
         ],
     )
     def test_constrain_unsupported_publisher(

@@ -5,17 +5,23 @@ from warehouse.oidc.forms.activestate import (
     ActiveStatePublisherForm,
     PendingActiveStatePublisherForm,
 )
+from warehouse.oidc.forms.circleci import (
+    CircleCIPublisherForm,
+    PendingCircleCIPublisherForm,
+)
 from warehouse.oidc.forms.github import GitHubPublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.forms.gitlab import GitLabPublisherForm, PendingGitLabPublisherForm
 from warehouse.oidc.forms.google import GooglePublisherForm, PendingGooglePublisherForm
 
 __all__ = [
     "ActiveStatePublisherForm",
+    "CircleCIPublisherForm",
     "DeletePublisherForm",
     "GitHubPublisherForm",
     "GitLabPublisherForm",
     "GooglePublisherForm",
     "PendingActiveStatePublisherForm",
+    "PendingCircleCIPublisherForm",
     "PendingGitHubPublisherForm",
     "PendingGitLabPublisherForm",
     "PendingGooglePublisherForm",
