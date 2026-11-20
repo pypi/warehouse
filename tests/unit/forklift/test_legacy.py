@@ -568,23 +568,39 @@ class TestFileValidation:
     @pytest.mark.parametrize(
         ("member", "mode", "message"),
         [
-            ("RECORD", "crc", "Bad CRC-32 for file 'test-1.0.dist-info/RECORD'"),
-            ("METADATA", "crc", "Bad CRC-32 for file 'test-1.0.dist-info/METADATA'"),
             (
-                "RECORD",
-                "deflate",
-                "Error -3 while decompressing data: invalid block type",
+                "test-1.0.dist-info/RECORD",
+                "crc",
+                "Archive member 'test-1.0.dist-info/RECORD' is corrupt",
             ),
+            (
+                "test-1.0.dist-info/METADATA",
+                "crc",
+                "Archive member 'test-1.0.dist-info/METADATA' is corrupt",
+            ),
+            (
+                "test-1.0.dist-info/WHEEL",
+                "crc",
+                "Archive member 'test-1.0.dist-info/WHEEL' is corrupt",
+            ),
+            (
+                "test-1.0.dist-info/RECORD",
+                "deflate",
+                "Archive member 'test-1.0.dist-info/RECORD' is corrupt",
+            ),
+            # Outside dist-info the scanner's read raises instead; no member name.
+            ("pkg/code.py", "deflate", None),
         ],
     )
-    def test_wheel_corrupt_dist_info_member(self, tmpdir, member, mode, message):
+    def test_wheel_corrupt_member(self, tmpdir, member, mode, message):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED) as zfp:
+            zfp.writestr("pkg/code.py", b"print('hi')")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
             zfp.writestr("test-1.0.dist-info/METADATA", b"Metadata-Version: 2.4")
             zfp.writestr("test-1.0.dist-info/RECORD", b"test-1.0.dist-info/WHEEL,,")
-        _corrupt_zip_member(f, f"test-1.0.dist-info/{member}", mode=mode)
+        _corrupt_zip_member(f, member, mode=mode)
 
         assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
