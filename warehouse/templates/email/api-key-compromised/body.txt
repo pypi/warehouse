@@ -1,0 +1,47 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+What happened?
+
+{% set site_name=request.registry.settings["site.name"] %}
+
+{% if admin_initiated %}
+A {{ site_name }} administrator has revoked the Maintainer API key "{{ name }}"
+on your account "{{ username }}".
+{% if reason %}
+
+Additional details from the administrator:
+
+{{ reason }}
+{% endif %}
+{% else %}
+A third party ({{ origin.name }}) has informed us that your Maintainer API key
+"{{ name }}" on your account "{{ username }}" was found at the following public
+URL. We have revoked the key.
+
+{{ public_url }}
+{% endif %}
+
+What should I do?
+
+{% if not admin_initiated %}
+Find out how the key was exposed, and secure wherever it was stored. Review your
+account's security history and your projects for actions you didn't take.
+
+{% endif %}
+If you still need a key, create a new one from your account settings and update
+the integrations that used the old one.
+{% if not admin_initiated %}
+
+How do you know this?
+
+This is an automated message. Our partner {{ origin.name }} scans public content
+for {{ site_name }} credentials and tells us when it finds one. We check every
+report and act when the key is real.
+{% endif %}
+
+For help, you can send an email to admin@pypi.org to communicate with the PyPI
+administrators.
+{% endblock %}

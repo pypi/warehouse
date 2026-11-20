@@ -272,6 +272,11 @@ def test_includeme(mocker):
             "/admin/macaroons/{macaroon_id}/delete",
             domain=warehouse,
         ),
+        mocker.call(
+            "admin.api_key.revoke",
+            "/admin/api-keys/{api_key_id}/revoke",
+            domain=warehouse,
+        ),
         mocker.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
         mocker.call(
             "admin.ip_address.detail",

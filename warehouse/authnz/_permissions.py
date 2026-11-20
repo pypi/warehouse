@@ -24,6 +24,8 @@ class Permissions(StrEnum):
     """
 
     # Admin Permissions
+    AdminApiKeysWrite = "admin:api-keys:write"
+
     AdminBannerRead = "admin:banner:read"
     AdminBannerWrite = "admin:banner:write"
 
@@ -95,10 +97,13 @@ class Permissions(StrEnum):
 
     # API Permissions
     APIEcho = "api:echo"
+    APIKeyExchange = "api:key:exchange"
+    APIKeyScopesTest = "api:key:scopes:test"
     APIObservationsAdd = "api:observations:add"
 
     # User Permissions
     Account2FA = "account:2fa"
+    AccountAPIKeys = "account:api-keys"
     AccountAPITokens = "account:api-tokens"
     AccountManage = "account:manage"
     AccountManagePublishing = "account:manage-publishing"

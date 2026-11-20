@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime as dt
 import time
 
 import pymacaroons
@@ -8,11 +9,14 @@ import requests
 import responses
 
 from tests.common.db.accounts import UserFactory
+from tests.common.db.maintainer_api import ApiKeyFactory
 from warehouse import integrations
+from warehouse.api.maintainer import generate_api_key
 from warehouse.events.tags import EventTag
 from warehouse.integrations.secrets import tasks, utils
 from warehouse.macaroons import caveats
 from warehouse.macaroons.services import deserialize_raw_macaroon
+from warehouse.utils import now
 
 
 def test_disclosure_origin_serialization(someorigin):
@@ -66,7 +70,7 @@ def test_invalid_token_leak_request():
             {"type": "not_found", "token": "a", "url": "b"},
             (
                 "Matcher with code not_found not found. "
-                "Available codes are: failure, pypi_api_token"
+                "Available codes are: failure, pypi_api_token, pypi_maintainer_api_key"
             ),
             "invalid_matcher",
         ),
@@ -639,6 +643,119 @@ def test_analyze_disclosure(db_request, mocker, macaroon_service, metrics, someo
     # The macaroon was really deleted from the database.
     with pytest.raises(utils.InvalidMacaroonError):
         macaroon_service.verify_signature_only(serialized)
+
+
+@pytest.fixture
+def api_key_disclosure(db_request, metrics, api_key_service, someorigin, mocker):
+    """Disclose a Maintainer API key and return the email mock."""
+    db_request.find_service = lambda iface, context: {
+        utils.IMetricsService: metrics,
+        utils.IApiKeyService: api_key_service,
+    }[iface]
+    send_email = mocker.patch.object(
+        utils, "send_api_key_compromised_email", autospec=True
+    )
+
+    def _disclose(raw_key):
+        utils.analyze_disclosure(
+            request=db_request,
+            disclosure_record={
+                "type": "pypi_maintainer_api_key",
+                "token": raw_key,
+                "url": "http://example.com",
+            },
+            origin=someorigin,
+        )
+        return send_email
+
+    return _disclose
+
+
+@pytest.mark.parametrize(
+    "api_key_kwargs",
+    [
+        pytest.param({}, id="active"),
+        pytest.param(
+            {
+                "created": now() - dt.timedelta(days=2),
+                "expires": now() - dt.timedelta(days=1),
+            },
+            id="expired",
+        ),
+    ],
+)
+def test_analyze_disclosure_api_key(
+    db_request, mocker, metrics, someorigin, api_key_disclosure, api_key_kwargs
+):
+    """Even an expired key's owner hears that its text is public."""
+    raw_key = generate_api_key()
+    api_key = ApiKeyFactory.create(raw_key=raw_key, name="ci", **api_key_kwargs)
+    record_event = mocker.patch.object(api_key.user, "record_event", autospec=True)
+
+    send_email = api_key_disclosure(raw_key)
+
+    assert api_key.revoked is not None
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.valid"),
+        mocker.call("warehouse.token_leak.someorigin.processed"),
+    ]
+    record_event.assert_called_once_with(
+        tag=EventTag.Account.APIKeyRevoked,
+        request=db_request,
+        additional={
+            "name": "ci",
+            "api_key_id": str(api_key.id),
+            "public_url": "http://example.com",
+            "origin": "SomeOrigin",
+        },
+    )
+    send_email.assert_called_once_with(
+        db_request,
+        api_key.user,
+        name="ci",
+        public_url="http://example.com",
+        origin=someorigin,
+    )
+
+
+def test_analyze_disclosure_api_key_lost_race(
+    db_request, mocker, metrics, api_key_service, api_key_disclosure
+):
+    """A key revoked between find and revoke is not reported twice."""
+    raw_key = generate_api_key()
+    ApiKeyFactory.create(raw_key=raw_key)
+    mocker.patch.object(api_key_service, "revoke", autospec=True, return_value=False)
+
+    send_email = api_key_disclosure(raw_key)
+
+    send_email.assert_not_called()
+    assert mocker.call("warehouse.token_leak.someorigin.processed") in (
+        metrics.increment.call_args_list
+    )
+
+
+@pytest.mark.parametrize(
+    "api_key_kwargs",
+    [
+        pytest.param(None, id="unknown"),
+        pytest.param({"revoked": now()}, id="revoked"),
+    ],
+)
+def test_analyze_disclosure_invalid_api_key(
+    mocker, metrics, api_key_disclosure, api_key_kwargs
+):
+    raw_key = generate_api_key()
+    if api_key_kwargs is not None:
+        ApiKeyFactory.create(raw_key=raw_key, **api_key_kwargs)
+
+    send_email = api_key_disclosure(raw_key)
+
+    send_email.assert_not_called()
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.error.invalid"),
+    ]
 
 
 def test_analyze_disclosure_attenuated_macaroon(

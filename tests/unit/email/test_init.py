@@ -745,6 +745,36 @@ class TestTokenLeakEmail:
         )
 
 
+class TestApiKeyCompromisedEmail:
+    @pytest.mark.parametrize("admin_initiated", [True, False])
+    def test_send_api_key_compromised_email(
+        self, db_request, admin_initiated, make_email_renderers, send_email
+    ):
+        user = EmailFactory.create(
+            email="email@example.com",
+            verified=False,
+            user__username="username",
+            user__name="",
+        ).user
+        make_email_renderers("api-key-compromised")
+
+        result = email.send_api_key_compromised_email(
+            db_request, user, name="ci", admin_initiated=admin_initiated
+        )
+
+        assert result == {
+            "username": "username",
+            "name": "ci",
+            "public_url": None,
+            "origin": None,
+            "admin_initiated": admin_initiated,
+            "reason": None,
+        }
+        db_request.task.assert_called_once_with(send_email)
+        # Unverified addresses still hear about a compromised key.
+        assert send_email.delay.call_args.args[0] == f"{user.username} <{user.email}>"
+
+
 class TestAccountRecoveryInitiatedEmail:
     @pytest.mark.parametrize("verified", [True, False])
     def test_send_account_recovery_initiated_email(

@@ -294,6 +294,9 @@ def includeme(config):
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route(
+        "manage.account.api-keys", "/manage/account/api-keys/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.associations.github.connect",
         "/manage/account/associations/github/connect",
         domain=warehouse,
@@ -646,7 +649,13 @@ def includeme(config):
     config.add_route(
         "api.echo",
         "/danger-api/echo",
-        auth_methods={"macaroon"},
+        auth_methods={"macaroon", "api-key"},
+        domain=warehouse,
+    )
+    config.add_route(
+        "api.token.exchange",
+        "/danger-api/token",
+        auth_methods={"api-key"},
         domain=warehouse,
     )
     config.add_route(

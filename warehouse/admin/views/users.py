@@ -42,6 +42,7 @@ from warehouse.admin.views.helpers import (
     parse_tabulator_params,
     tabulator_page,
 )
+from warehouse.api.maintainer import ApiKey
 from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary
 from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
@@ -374,6 +375,12 @@ def user_detail(user, request):
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
+        # Every key, revoked and expired included; the owner's page hides old ones.
+        "api_keys": request.db.scalars(
+            select(ApiKey)
+            .where(ApiKey.user_id == user.id)
+            .order_by(ApiKey.created.desc(), ApiKey.id.desc())
+        ).all(),
         "DEFAULT_PROJECT_CREATE_USER_RATELIMIT": request.registry.settings.get(
             "warehouse.packaging.project_create_user_ratelimit_string"
         ),

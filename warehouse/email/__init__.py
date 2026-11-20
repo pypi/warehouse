@@ -311,6 +311,27 @@ def send_password_reset_by_admin_email(request, user):
     return {}
 
 
+@_email("api-key-compromised", allow_unverified=True)
+def send_api_key_compromised_email(
+    request,
+    user,
+    *,
+    name,
+    public_url=None,
+    origin=None,
+    admin_initiated=False,
+    reason=None,
+):
+    return {
+        "username": user.username,
+        "name": name,
+        "public_url": public_url,
+        "origin": origin,
+        "admin_initiated": admin_initiated,
+        "reason": reason,
+    }
+
+
 @_email("token-compromised-leak", allow_unverified=True)
 def send_token_compromised_email_leak(
     request, user, *, public_url=None, origin=None, admin_initiated=False, reason=None

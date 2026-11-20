@@ -30,6 +30,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging.models import JournalEntry, Project, RoleInvitation
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.utils import now
 from warehouse.utils.gravatar import gravatar
 
 from ....common.db.accounts import (
@@ -38,6 +39,7 @@ from ....common.db.accounts import (
     User,
     UserFactory,
 )
+from ....common.db.maintainer_api import ApiKeyFactory
 from ....common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -250,9 +252,13 @@ class TestUserDetail:
             NullEmailBreachedService(), IEmailBreachedService, None
         )
 
+        old_key = ApiKeyFactory.create(user=user, created=now() - dt.timedelta(days=2))
+        new_key = ApiKeyFactory.create(user=user, revoked=now())
+
         result = views.user_detail(user, db_request)
 
         assert result["user"] == user
+        assert result["api_keys"] == [new_key, old_key]
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
         assert result["submitted_by_journals"] == journal_entries[:5]

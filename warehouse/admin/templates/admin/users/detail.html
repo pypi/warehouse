@@ -1047,6 +1047,60 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Maintainer API keys</h3>
+        </div>
+
+        <div class="card-body">
+          {% if api_keys %}
+          {% set can_revoke = has_root_permission(request, Permissions.AdminApiKeysWrite) %}
+          <table id="api-keys" class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Ends with</th>
+                <th scope="col">Scopes</th>
+                <th scope="col">Created</th>
+                <th scope="col">Expires</th>
+                <th scope="col">Last Used</th>
+                <th scope="col">Revoked</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key in api_keys %}
+              <tr>
+                <td>{{ key.name }}</td>
+                <td><code>{{ key.last_four }}</code></td>
+                <td>{{ key.scopes | join(", ") }}</td>
+                <td>{{ key.created }}</td>
+                <td>{{ key.expires }}</td>
+                <td>{{ key.last_used }}</td>
+                <td>
+                  {% if key.revoked %}
+                  {{ key.revoked }}
+                  {% elif can_revoke %}
+                  <form method="POST" action="{{ request.route_path('admin.api_key.revoke', api_key_id=key.id) }}">
+                    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                    <input name="reason" type="text" class="form-control form-control-sm mb-1" placeholder="Reason (emailed if notifying)">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="notify" id="notify-{{ key.id }}">
+                      <label class="form-check-label" for="notify-{{ key.id }}">Email the user</label>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-danger">Revoke</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No Maintainer API keys.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
         </div>
 

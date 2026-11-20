@@ -63,6 +63,7 @@ class RootFactory:
             Allow,
             "group:admins",
             (
+                Permissions.AdminApiKeysWrite,
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,
@@ -109,6 +110,11 @@ class RootFactory:
                 Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
+                # Maintainer API keys stay admin-only while only test: scopes
+                # exist.
+                Permissions.AccountAPIKeys,
+                Permissions.APIKeyExchange,
+                Permissions.APIKeyScopesTest,
             ),
         ),
         (
@@ -936,6 +942,7 @@ def configure(settings=None):
 
     # Register support for Macaroon based authentication
     config.include(".macaroons")
+    config.include(".api.maintainer")
 
     # Register support for OIDC based authentication
     config.include(".oidc")

@@ -206,6 +206,12 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
 "interfaces.py" = ["N805"]
+"_interfaces.py" = ["N805"]
+
+# TID251: a package may import its own private modules, and its unit tests may
+# test them.
+"warehouse/api/maintainer/**/*.py" = ["TID251"]
+"tests/unit/api/maintainer/**/*.py" = ["TID251"]
 
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
@@ -260,3 +266,12 @@ classmethod-decorators = [
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "urllib.parse.urlparse".msg = "Prefer `urllib3.util.parse_url` over `urllib.parse.urlparse`"
 "pretend".msg = "Use pytest-mock or real objects instead of `pretend`, see #18880"
+"warehouse.api.maintainer._authz".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._bearer".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._context".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._errors".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._interfaces".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._models".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._scopes".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._services".msg = "Private; import from `warehouse.api.maintainer`"
+"warehouse.api.maintainer._views".msg = "Private; import from `warehouse.api.maintainer`"
