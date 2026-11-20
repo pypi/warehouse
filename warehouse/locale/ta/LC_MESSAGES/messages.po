@@ -252,7 +252,7 @@ msgstr "ஏற்கனவே அங்கீகரிக்கப்பட்�
 msgid "Successful WebAuthn assertion"
 msgstr "வெற்றிகரமான இணைய அங்கீகரிப்பு(Web Authentication ) வலியுறுத்தல்"
 
-#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:995
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:996
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "மீட்பு குறியீடு ஏற்றுக்கொள்ளப்பட்டது. வழங்கப்பட்ட குறியீட்டை மீண்டும் பயன்படுத்த முடியாது."
@@ -728,47 +728,47 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "இந்த அணியின் பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/views/__init__.py:423
+#: warehouse/manage/views/__init__.py:424
 msgid "Account details updated"
 msgstr "கணக்கு விவரங்கள் புதுப்பிக்கப்பட்டன"
 
-#: warehouse/manage/views/__init__.py:454
+#: warehouse/manage/views/__init__.py:455
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "மின்னஞ்சல் $ {email_address} சேர்க்கப்பட்டது - சரிபார்ப்பு இணைப்புக்கு உங்கள் மின்னஞ்சலைச் "
 "சரிபார்க்கவும்"
 
-#: warehouse/manage/views/__init__.py:702
+#: warehouse/manage/views/__init__.py:703
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:942
+#: warehouse/manage/views/__init__.py:943
 msgid "Recovery codes already generated"
 msgstr "மீட்டெடுப்பு குறியீடுகள் ஏற்கனவே உருவாக்கப்பட்டுள்ளன"
 
-#: warehouse/manage/views/__init__.py:944
+#: warehouse/manage/views/__init__.py:945
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "புதிய மீட்டெடுப்பு குறியீடுகளை உருவாக்குவது உங்களிடம் இருக்கும் குறியீடுகளை செல்லாது."
 
-#: warehouse/manage/views/__init__.py:1052
+#: warehouse/manage/views/__init__.py:1053
 msgid "Verify your email to create an API token."
 msgstr "பநிஇ கிள்ளாக்கை உருவாக்க உங்கள் மின்னஞ்சலை சரிபார்க்கவும்."
 
-#: warehouse/manage/views/__init__.py:1154
+#: warehouse/manage/views/__init__.py:1155
 msgid "API Token does not exist."
 msgstr "பநிஇ கிள்ளாக்கு இல்லை."
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1187
 msgid "Invalid credentials. Try again"
 msgstr "தவறான சான்றுகள். மீண்டும் முயற்சி செய்"
 
-#: warehouse/manage/views/__init__.py:1357
-#: warehouse/manage/views/__init__.py:1693
-#: warehouse/manage/views/__init__.py:1822
+#: warehouse/manage/views/__init__.py:1366
+#: warehouse/manage/views/__init__.py:1702
+#: warehouse/manage/views/__init__.py:1831
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -778,73 +778,73 @@ msgstr ""
 "திட்ட நீக்குதல் தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு https://pypi.org/"
 "help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/manage/views/__init__.py:1377
+#: warehouse/manage/views/__init__.py:1386
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1502
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1517
-#: warehouse/manage/views/__init__.py:1605
-#: warehouse/manage/views/__init__.py:1715
-#: warehouse/manage/views/__init__.py:1835
+#: warehouse/manage/views/__init__.py:1526
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1724
+#: warehouse/manage/views/__init__.py:1844
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1530
+#: warehouse/manage/views/__init__.py:1539
 msgid "Could not yank release - "
 msgstr "வெளியீட்டைத் தூண்ட முடியவில்லை - "
 
-#: warehouse/manage/views/__init__.py:1618
+#: warehouse/manage/views/__init__.py:1627
 msgid "Could not un-yank release - "
 msgstr "YON -YANK வெளியீட்டை முடியவில்லை - "
 
-#: warehouse/manage/views/__init__.py:1728
+#: warehouse/manage/views/__init__.py:1737
 msgid "Could not delete release - "
 msgstr "வெளியீட்டை நீக்க முடியவில்லை - "
 
-#: warehouse/manage/views/__init__.py:1746
+#: warehouse/manage/views/__init__.py:1755
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1847
+#: warehouse/manage/views/__init__.py:1856
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "கோப்பைக் கண்டுபிடிக்க முடியவில்லை"
 
-#: warehouse/manage/views/__init__.py:1852
+#: warehouse/manage/views/__init__.py:1861
 msgid "Could not delete file - "
 msgstr "கோப்பை நீக்க முடியவில்லை - "
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1871
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1992
+#: warehouse/manage/views/__init__.py:2001
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2021
+#: warehouse/manage/views/__init__.py:2030
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "குழு '$ {team_name}' ஏற்கனவே திட்டத்திற்கான $ {role_name} பங்கு உள்ளது"
 
-#: warehouse/manage/views/__init__.py:2128
+#: warehouse/manage/views/__init__.py:2137
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "பயனர் '$ {username}' ஏற்கனவே திட்டத்திற்கான $ {role_name} பங்கு உள்ளது"
 
-#: warehouse/manage/views/__init__.py:2195
+#: warehouse/manage/views/__init__.py:2204
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} இப்போது '${role}' இன் '${project_name}' திட்டத்தின்."
 
-#: warehouse/manage/views/__init__.py:2226
+#: warehouse/manage/views/__init__.py:2235
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -853,7 +853,7 @@ msgstr ""
 "பயனர் '${username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
 "திட்டத்திற்கான ${role_name} ஆகச் சேர்க்க முடியாது"
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2248
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
@@ -862,31 +862,31 @@ msgstr ""
 "பயனர் '$ {username}' ஏற்கனவே செயலில் உள்ள அழைப்பைக் கொண்டுள்ளது. தயவுசெய்து பின்னர் "
 "மீண்டும் முயற்சிக்கவும்."
 
-#: warehouse/manage/views/__init__.py:2304
+#: warehouse/manage/views/__init__.py:2313
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "'$ {username}' க்கு அழைப்பு அனுப்பப்பட்டது"
 
-#: warehouse/manage/views/__init__.py:2336
+#: warehouse/manage/views/__init__.py:2345
 msgid "Could not find role invitation."
 msgstr "பங்கு அழைப்பைக் கண்டுபிடிக்க முடியவில்லை."
 
-#: warehouse/manage/views/__init__.py:2350
+#: warehouse/manage/views/__init__.py:2359
 #: warehouse/manage/views/organizations.py:1296
 #, fuzzy, python-brace-format
 #| msgid "Invitation sent to '${username}'"
 msgid "Expired invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
 
-#: warehouse/manage/views/__init__.py:2355
+#: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/organizations.py:1301
 #, fuzzy, python-brace-format
 #| msgid "Invitation sent to '${username}'"
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
 
-#: warehouse/manage/views/__init__.py:2360
+#: warehouse/manage/views/__init__.py:2369
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
