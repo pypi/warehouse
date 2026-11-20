@@ -9,7 +9,7 @@ import typing
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import cached_property
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import packaging.utils
 
@@ -833,6 +833,21 @@ class Dependency(db.Model):
     )
     __repr__ = make_repr("release", "kind", "specifier")
 
+    # The client-side default supplies the id in the INSERT itself, so the ORM
+    # needs no RETURNING and can insert a release's dependencies in one
+    # statement. With only the server-side gen_random_uuid() it cannot match
+    # returned ids to rows, so it falls back to one INSERT per dependency.
+    # The server default still covers inserts made outside the ORM. ORM inserts
+    # never run it, so if it changes UUID version (e.g. to uuidv7()), change the
+    # client-side default to match.
+    # This could feasibly move up to `db.Model`, but that needs further testing
+    # of its implications for every other table.
+    # See: https://docs.sqlalchemy.org/en/20/core/connections.html#insert-many-values-behavior-for-insert-statements
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True,
+        default=uuid4,
+        server_default=func.gen_random_uuid(),
+    )
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )

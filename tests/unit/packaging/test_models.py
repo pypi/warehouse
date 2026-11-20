@@ -1080,6 +1080,20 @@ class TestDependency:
         dependency = DBDependencyFactory.create()
         assert isinstance(repr(dependency), str)
 
+    def test_flush_inserts_in_one_statement(self, db_session, query_recorder):
+        release = DBReleaseFactory.create()
+        db_session.add_all(DBDependencyFactory.build_batch(5, release=release))
+
+        with query_recorder:
+            db_session.flush()
+
+        inserts = [
+            q
+            for q in query_recorder.queries
+            if q.startswith("INSERT INTO release_dependencies")
+        ]
+        assert len(inserts) == 1
+
 
 class TestReleaseURL:
     def test_repr(self, db_session):
