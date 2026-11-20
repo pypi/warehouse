@@ -310,7 +310,7 @@ def _is_valid_dist_file(
                     return False, "Unable to parse name and version from wheel filename"
                 target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
                 try:
-                    zfp.read(target_file)
+                    zfp.getinfo(target_file)
                 except KeyError:
                     return False, f"WHEEL not found at {target_file}"
 
@@ -344,13 +344,17 @@ def _is_valid_dist_file(
                 # is reported as a 400 rather than a 500.
                 dist_info_prefix = f"{name}-{version}.dist-info/"
                 for zinfo in zfp.infolist():
-                    if zinfo.filename.startswith(dist_info_prefix):
+                    if not zinfo.filename.startswith(dist_info_prefix):
+                        continue
+                    try:
                         with zfp.open(zinfo) as member:
                             while member.read(io.DEFAULT_BUFFER_SIZE):
                                 pass
+                    except zipfile.BadZipFile, zlib.error:
+                        return False, f"Archive member {zinfo.filename!r} is corrupt"
 
-        except (zipfile.BadZipFile, zlib.error) as exc:
-            return False, str(exc)
+        except zipfile.BadZipFile, zlib.error:
+            return False, None
 
     elif filename.endswith(".tar.gz"):
         if not is_tarfile:
