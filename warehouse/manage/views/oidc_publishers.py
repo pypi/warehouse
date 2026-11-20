@@ -228,7 +228,11 @@ class ManageOIDCPublisherViews:
         if constrained_publisher.exists(self.request.db):
             self.request.session.flash(
                 self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
+                    "${publisher} is already registered with ${project_name}",
+                    mapping={
+                        "publisher": publisher,
+                        "project_name": self.project.name,
+                    },
                 ),
                 queue="error",
             )
@@ -281,8 +285,12 @@ class ManageOIDCPublisherViews:
 
         self.request.session.flash(
             self.request._(
-                f"Trusted publisher for project {self.project.name!r} has been "
-                f"constrained to environment {constrained_publisher.environment!r}"
+                "Trusted publisher for project '${project_name}' has been "
+                "constrained to environment '${environment}'",
+                mapping={
+                    "project_name": self.project.name,
+                    "environment": constrained_publisher.environment,
+                },
             ),
             queue="success",
         )
@@ -369,7 +377,11 @@ class ManageOIDCPublisherViews:
         if publisher in self.project.oidc_publishers:
             self.request.session.flash(
                 self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
+                    "${publisher} is already registered with ${project_name}",
+                    mapping={
+                        "publisher": publisher,
+                        "project_name": self.project.name,
+                    },
                 ),
                 queue="error",
             )
@@ -491,7 +503,11 @@ class ManageOIDCPublisherViews:
         if publisher in self.project.oidc_publishers:
             self.request.session.flash(
                 self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
+                    "${publisher} is already registered with ${project_name}",
+                    mapping={
+                        "publisher": publisher,
+                        "project_name": self.project.name,
+                    },
                 ),
                 queue="error",
             )
@@ -606,7 +622,11 @@ class ManageOIDCPublisherViews:
         if publisher in self.project.oidc_publishers:
             self.request.session.flash(
                 self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
+                    "${publisher} is already registered with ${project_name}",
+                    mapping={
+                        "publisher": publisher,
+                        "project_name": self.project.name,
+                    },
                 ),
                 queue="error",
             )
@@ -726,7 +746,11 @@ class ManageOIDCPublisherViews:
         if publisher in self.project.oidc_publishers:
             self.request.session.flash(
                 self.request._(
-                    f"{publisher} is already registered with {self.project.name}"
+                    "${publisher} is already registered with ${project_name}",
+                    mapping={
+                        "publisher": publisher,
+                        "project_name": self.project.name,
+                    },
                 ),
                 queue="error",
             )
@@ -830,7 +854,8 @@ class ManageOIDCPublisherViews:
 
             self.request.session.flash(
                 self.request._(
-                    f"Removed trusted publisher for project {self.project.name!r}"
+                    "Removed trusted publisher for project '${project_name}'",
+                    mapping={"project_name": self.project.name},
                 ),
                 queue="success",
             )
