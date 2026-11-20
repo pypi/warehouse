@@ -131,6 +131,8 @@ def _script_src_settings(config) -> list:
         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
         # Hash for v3.2.2 of MathJax tex-svg.js
         "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+        # PSF fundraiser banner, loaded in templates/base.html
+        "https://donate.python.org",
     ]
 
     if config.registry.settings.get("warehouse.env") == Environment.development:
@@ -152,7 +154,11 @@ def includeme(config):
                 "base-uri": [SELF],
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
-                "font-src": [SELF],
+                "font-src": [
+                    SELF,
+                    # Font files for the PSF fundraiser banner
+                    "https://donate.python.org",
+                ],
                 "form-action": [
                     SELF,
                     "https://checkout.stripe.com",
