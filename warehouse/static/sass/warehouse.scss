@@ -327,18 +327,19 @@
 }
 
 // RTL SUPPORT. See https://rtlcss.com/
+// Dates are localized, so they take the page direction (rtlcss flips this
+// rule) and are isolated so they also read correctly inside the LTR blocks.
+time {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 /*rtl:begin:ignore*/
 // fix padding on split layouts
 html[dir="rtl"] .package-snippet .split-layout > :first-child,
 html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
   padding-right: grid.$spacing-unit;
-}
-
-// Force humanized time to display ltr
-// Remove when/if this is marked for translation
-time {
-  direction: ltr;
 }
 
 // force email select to display ltr
