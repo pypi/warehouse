@@ -1054,16 +1054,16 @@
           {% if roles %}
           <table class="table table-hover" id="projects"
                  data-tabulator
-                 tabulator-layout="fitDataFill"
+                 tabulator-layout="fitColumns"
                  tabulator-responsiveLayout="collapse"
                  tabulator-pagination="true"
                  tabulator-paginationSize="25"
                  tabulator-placeholder="No matching projects">
             <thead>
               <tr>
-                <th>Project Name</th>
+                <th tabulator-widthGrow="2">Project Name</th>
                 <th tabulator-responsive="2">Role</th>
-                <th>Lifecycle Status</th>
+                <th>Lifecycle</th>
                 <th tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="4">Releases</th>
                 <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="3">Total Size</th>
               </tr>
