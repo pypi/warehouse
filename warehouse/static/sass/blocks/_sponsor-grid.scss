@@ -31,6 +31,7 @@
 
   &__sponsor {
     @include design-utilities.card;
+
     padding: grid.$spacing-unit;
     text-align: center;
     margin-bottom: grid.$spacing-unit;

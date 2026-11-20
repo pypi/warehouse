@@ -214,6 +214,7 @@
 
     table {
       @include design-utilities.card;
+
       border-collapse: collapse;
       border-spacing: 0;
       text-align: left;
@@ -297,7 +298,6 @@
     }
 
     s { /* pygments Literal.String */
-
       /* Override browser default behavior */
       text-decoration: none;
     }
@@ -452,7 +452,6 @@
     color: $darkest-blue;
   }
 
-  // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
   .nd { /* Name.Decorator */ /* codespell:ignore nd */
     color: $mid-grey;
   }
