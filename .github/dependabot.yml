@@ -50,3 +50,20 @@ updates:
     interval: "daily"
   cooldown:
     default-days: 7
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+  groups:
+    js-packages:
+      patterns:
+        - "*"
+  ignore:
+    # The admin bundle depends on AdminLTE 3, jQuery 3 and DataTables.
+    # Hold majors until the admin moves off jQuery.
+    - dependency-name: admin-lte
+      update-types: ["version-update:semver-major"]
+    - dependency-name: jquery
+      update-types: ["version-update:semver-major"]
+  cooldown:
+    default-days: 7

@@ -11,11 +11,11 @@
 
 {% trans %}If you cannot use another verified email, follow account recovery steps for your PyPI account.{% endtrans %}
 
-    {{ request.route_url('help', _anchor='account-recovery') }}
+    {{ request.user_docs_url('/your-account/account-recovery/') }}
 
 {% trans %}Read more about verified emails:{% endtrans %}
 
-    {{ request.route_url('help', _anchor='verified-email') }}
+    {{ request.user_docs_url('/your-account/managing-your-account/', anchor='email-address-verification') }}
 
 {% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}
 {% endblock %}

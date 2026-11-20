@@ -154,10 +154,7 @@
             {% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}
           </p>
           <p>
-            {% trans yank_href=request.user_docs_url('/project-management/yanking'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}"
-    title="{{ title }}"
-    target="_blank"
-    rel="noopener">yanking</a> this release, making a new release or a <a href="{{ post_href }}"
+            {% trans yank_href=request.user_docs_url('/project-management/yanking'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}">yanking</a> this release, making a new release or a <a href="{{ post_href }}"
     title="{{ title }}"
     target="_blank"
     rel="noopener">post release</a> instead.{% endtrans %}

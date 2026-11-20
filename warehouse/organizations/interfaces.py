@@ -53,12 +53,16 @@ class IOrganizationService(Interface):
         Return a list of all organization objects associated with a given user id.
         """
 
-    def approve_organization_application(organization_application_id, request):
+    def approve_organization_application(
+        organization_application_id, request, claim_orphaned_name=False
+    ):
         """
         Performs operations necessary to approve an organization
         """
 
-    def decline_organization_application(organization_application_id, request):
+    def decline_organization_application(
+        organization_application_id, request, message=""
+    ):
         """
         Performs operations necessary to reject approval of an organization
         """
@@ -78,7 +82,7 @@ class IOrganizationService(Interface):
         attributes.
         """
 
-    def add_catalog_entry(organization_id):
+    def add_catalog_entry(organization_id, claim_orphaned_name=False):
         """
         Adds the organization name to the organization name catalog
         """
@@ -104,7 +108,12 @@ class IOrganizationService(Interface):
         Adds an organization role for the specified org and user
         """
 
-    def delete_organization_role(organization_role_id):
+    def update_organization_role(organization_role_id, role_name, request):
+        """
+        Update an organization role for a specified organization role id
+        """
+
+    def delete_organization_role(organization_role_id, request):
         """
         Delete an organization role for a specified organization role id
         """

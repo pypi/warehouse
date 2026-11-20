@@ -57,7 +57,7 @@ const tabsHTML = `
     </div>
 
     <!-- File details sub-panel (no nav tab, sibling of Download files) -->
-    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" tabindex="-1">
       <h2 class="page-title">File details</h2>
       <p>Details for the file sample-1.0.tar.gz.</p>
     </div>
@@ -214,6 +214,16 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("description")).toHaveStyle("display: none");
       });
 
+      it("replaces the history entry rather than adding one", () => {
+        const pushState = jest.spyOn(history, "pushState");
+        const replaceState = jest.spyOn(history, "replaceState");
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+        expect(replaceState).toHaveBeenCalledWith(null, "", "#files");
+        expect(pushState).not.toHaveBeenCalled();
+        pushState.mockRestore();
+        replaceState.mockRestore();
+      });
+
       it("ArrowLeft moves to the previous tab", () => {
         document.getElementById("history-tab").click();
         document.getElementById("history-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
@@ -327,6 +337,32 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
 
+      it("focuses the matching panel", () => {
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        window.location.hash = "#history";
+        window.dispatchEvent(new Event("hashchange"));
+        expect(focus.mock.contexts).toContain(document.getElementById("history"));
+        expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+        focus.mockRestore();
+      });
+
+      it("does not move focus for an unknown hash", () => {
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        window.location.hash = "#not-a-panel";
+        window.dispatchEvent(new Event("hashchange"));
+        expect(focus).not.toHaveBeenCalled();
+        focus.mockRestore();
+      });
+
+      it("shows the matching panel on popstate", () => {
+        window.location.hash = "#history";
+        window.dispatchEvent(new PopStateEvent("popstate"));
+
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+      });
+
       it("falls back to the first tab when the hash is cleared", () => {
         document.getElementById("history-tab").click();
         window.location.hash = "";
@@ -343,12 +379,13 @@ describe("Project tabs controller", () => {
     });
 
     describe("disconnect", () => {
-      it("removes the hashchange event listener", () => {
+      it("removes the hashchange and popstate event listeners", () => {
         const element = document.querySelector("[data-controller='project-tabs']");
         const controller = application.getControllerForElementAndIdentifier(element, "project-tabs");
         const removeEventListener = jest.spyOn(window, "removeEventListener");
         controller.disconnect();
         expect(removeEventListener).toHaveBeenCalledWith("hashchange", expect.any(Function));
+        expect(removeEventListener).toHaveBeenCalledWith("popstate", expect.any(Function));
         removeEventListener.mockRestore();
       });
     });

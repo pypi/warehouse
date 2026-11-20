@@ -30,7 +30,7 @@ discussion of the differences between URL dispatch and traversal in Pyramid.
 
 ## Usage assumptions and concepts
 
-See [PyPI help](https://pypi.org/help/#packages) and the glossary
+See [PyPI's user documentation](https://docs.pypi.org/using-pypi/pypi-basics/#projects-releases-and-files-packages-on-pypi) and the glossary
 section of [UI Principles](ui-principles.md) to understand projects, releases,
 packages, maintainers, authors, and owners.
 
@@ -39,7 +39,7 @@ Index, and thus focuses on architecture and features for PyPI and Test
 PyPI. People and groups who want to run their own package indexes
 usually use other tools, like [devpi](https://pypi.org/project/devpi-server/).
 
-Warehouse serves four main classes of users:
+Warehouse serves five main classes of users:
 
 1. *People who are not logged in.* This accounts for the majority of
    browser traffic and all API download traffic.
@@ -57,6 +57,10 @@ Warehouse serves four main classes of users:
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are fewer than ten such admins.
+5. *Organization application reviewers*. These users review requests to create
+   organizations. They can approve or decline requests and ask applicants for
+   more information. This role does not give them access to other
+   administration tools.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible.

@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% if organizations|length == 1 %}{{ organizations[0].name }} deactivated on PyPI{% else %}{{ organizations|length }} organizations deactivated on PyPI{% endif %}{% endblock %}

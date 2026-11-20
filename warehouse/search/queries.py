@@ -44,7 +44,7 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
     """
     classifier_q = Q(
         "bool",
-        # Theh results must have all selected classifiers
+        # The results must have all selected classifiers
         must=[
             Q(
                 "bool",
@@ -59,16 +59,14 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
         ],
     )
     if not terms:
-        query = opensearch.query(classifier_q) if classifiers else opensearch.query()
+        query = opensearch.query()
     else:
         quoted_string, unquoted_string = filter_query(terms)
 
         # Build the main content-matching query
-        content_queries = (
-            [form_query("phrase", i) for i in quoted_string]
-            + [form_query("best_fields", i) for i in unquoted_string]
-            + ([classifier_q] if classifiers else [])
-        )
+        content_queries = [form_query("phrase", i) for i in quoted_string] + [
+            form_query("best_fields", i) for i in unquoted_string
+        ]
 
         # Boost packages where the search terms appear as an exact phrase in
         # the name. This ensures that searching for "flask" returns the "flask"
@@ -90,6 +88,11 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
 
         query = opensearch.query(bool_query)
         query = query.suggest("name_suggestion", terms, term={"field": "name"})
+
+    # Filter on classifiers at the top level so the constraint also covers the
+    # ``normalized_name`` prefix branch above and does not affect scoring.
+    if classifiers:
+        query = query.filter(classifier_q)
 
     return query_for_order(query, order)
 

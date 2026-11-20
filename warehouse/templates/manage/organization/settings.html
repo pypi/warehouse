@@ -186,10 +186,12 @@
         <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
         <p class="form-group__text">{% trans %}Inactive{% endtrans %}</p>
       </div>
-      <div class="form-group">
-        <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
-           class="button button--primary">{% trans %}Activate billing{% endtrans %}</a>
-      </div>
+      {% if organization.is_active or organization.reactivates_on_payment %}
+        <div class="form-group">
+          <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
+             class="button button--primary">{% trans %}Activate billing{% endtrans %}</a>
+        </div>
+      {% endif %}
     {% endif %}
   </section>
 {% endif %}

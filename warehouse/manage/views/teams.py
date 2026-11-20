@@ -29,6 +29,7 @@ from warehouse.manage.views import (
     organization_managers,
     organization_members,
     organization_owners,
+    parse_uuid,
     user_projects,
 )
 from warehouse.organizations import IOrganizationService
@@ -354,8 +355,8 @@ class ManageTeamRolesViews:
     )
     def delete_team_role(self):
         # Get team role.
-        role_id = self.request.POST["role_id"]
-        role = self.organization_service.get_team_role(role_id)
+        role_id = parse_uuid(self.request.POST["role_id"])
+        role = role_id and self.organization_service.get_team_role(role_id)
 
         if not role or role.team_id != self.team.id:
             self.request.session.flash("Could not find member", queue="error")
@@ -490,7 +491,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
     form = _form_class(request.POST)
 
     if form.validate():
-        role_id = request.POST["role_id"]
+        role_id = parse_uuid(request.POST["role_id"])
         try:
             role = (
                 request.db.query(TeamProjectRole)
@@ -601,7 +602,7 @@ def delete_team_project_role(project, request):
             request.db.query(TeamProjectRole)
             .join(Team)
             .filter(TeamProjectRole.project == project)
-            .filter(TeamProjectRole.id == request.POST["role_id"])
+            .filter(TeamProjectRole.id == parse_uuid(request.POST["role_id"]))
             .one()
         )
         removing_self = (

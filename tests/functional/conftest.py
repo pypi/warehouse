@@ -46,3 +46,27 @@ def login_user(webtest):
         return user
 
     return _login
+
+
+@pytest.fixture
+def flash_messages(webtest):
+    """Fetch the session's pending flash messages as (queue, text) pairs."""
+    queues = {
+        "notification-bar--danger": "error",
+        "notification-bar--warning": "warning",
+        "notification-bar--success": "success",
+    }
+
+    def _flash_messages() -> list[tuple[str, str]]:
+        response = webtest.get(
+            "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
+        )
+        return [
+            (
+                next((queues[c] for c in bar["class"] if c in queues), ""),
+                bar.find("span", {"class": "notification-bar__message"}).text,
+            )
+            for bar in response.html.find_all("div", {"class": "notification-bar"})
+        ]
+
+    return _flash_messages

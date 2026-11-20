@@ -57,8 +57,8 @@
               {% endtrans %}
             </p>
             <p>
-              {% trans href=request.route_path('help') + "#project_in_quarantine" %}
-              Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+              {% trans href=request.user_docs_url('/project-management/troubleshooting/', anchor='my-project-or-release-says-its-in-quarantine-what-does-that-mean') %}
+              Read more in the <a href="{{ href }}">project in quarantine</a> documentation.
             {% endtrans %}
           </p>
         </div>

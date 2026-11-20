@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import datetime
+import datetime as dt
 import re
 
 import requests
@@ -38,17 +38,17 @@ class MessageVerifier:
             raise InvalidMessageError("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
 
         try:
-            timestamp = datetime.datetime.strptime(
+            timestamp = dt.datetime.strptime(
                 timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).replace(tzinfo=datetime.UTC)
+            ).replace(tzinfo=dt.UTC)
         except ValueError:
             raise InvalidMessageError("Unknown Timestamp format")
 
         age = now - timestamp
-        if age > datetime.timedelta(hours=1):
+        if age > dt.timedelta(hours=1):
             raise InvalidMessageError("Message has expired")
 
     def _validate_v2_signature(self, message):

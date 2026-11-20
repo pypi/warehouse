@@ -71,7 +71,7 @@ and confirmed it was newly added to the project
 in version 0.1.13, and persisted in 0.1.14 as well.
 
 Earlier this year, I was able to
-[develop a feature to quarantine a project](2024-08-16-safety-and-security-engineer-year-in-review.md/#project-lifecycle-status-quarantine)
+[develop a feature to quarantine a project](2024-08-16-safety-and-security-engineer-year-in-review.md#project-lifecycle-status-quarantine)
 - effectively protecting end users from installing the project while I investigate further.
 I also inspected the user's [linked source repository](https://github.com/vovchic17/aiocpa),
 and confirmed it had recent commit activity, and generally the same codebase,

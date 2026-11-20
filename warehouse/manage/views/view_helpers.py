@@ -10,6 +10,7 @@ Originally scoped to `manage/views`, some helpers here (e.g.
 from __future__ import annotations
 
 import typing
+import uuid
 
 from sqlalchemy import func
 
@@ -19,6 +20,7 @@ from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationDeactivationReason,
     OrganizationRole,
     OrganizationRoleType,
     Team,
@@ -32,6 +34,32 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+
+def parse_uuid(value: str) -> uuid.UUID | None:
+    """
+    Return a posted id as a UUID, or None when it can't be one.
+
+    A non-UUID string fails in Postgres instead of finding no row.
+    """
+    try:
+        return uuid.UUID(value)
+    except ValueError, TypeError, AttributeError:
+        return None
+
+
+def parse_int(value: str) -> int | None:
+    """
+    Return ``value`` as an int, or None when it isn't one that fits a Postgres
+    ``integer``.
+    """
+    try:
+        parsed = int(value)
+    except ValueError, TypeError:
+        return None
+    if not -(2**31) <= parsed < 2**31:
+        return None
+    return parsed
 
 
 def project_owners(request, project):
@@ -89,7 +117,16 @@ def deactivate_organization_for_owner_removal(
             "reason": reason,
         },
     )
-    organization.is_active = False
+    if organization.is_active:
+        organization.deactivate(OrganizationDeactivationReason.OwnerRemoved)
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationDeactivate,
+            request=request,
+            additional={
+                "reason": OrganizationDeactivationReason.OwnerRemoved.value,
+                "deactivated_by_user_id": str(request.user.id),
+            },
+        )
 
 
 def add_organization_project_and_notify(

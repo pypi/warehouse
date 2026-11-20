@@ -200,6 +200,7 @@
     min-width: auto;
     gap: 8px;
     margin-bottom: 5px;
+
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colors.$primary-color);
 
@@ -251,6 +252,10 @@
   &__data-block {
     p {
       padding-bottom: 0;
+    }
+
+    p + p {
+      margin-top: grid.$half-spacing-unit;
     }
 
     code {

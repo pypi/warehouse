@@ -11,7 +11,7 @@ tags:
 
 ## What's changing?
 
-Starting January 1, 2024, **all users must [enable 2FA](https://pypi.org/help/#twofa)**
+Starting January 1, 2024, **all users must [enable 2FA](https://docs.pypi.org/your-account/two-factor-authentication/#what-is-two-factor-authentication)**
 for their PyPI accounts.
 
 PyPI has been on the path of being a fully Two-factor Authenticated service a reality,
@@ -27,7 +27,7 @@ Read more about some of the steps taken in recent months:
 
 PyPI Admins will activate the requirement for PyPI.org on Jan 1, 2024[^1]
 for all users, all projects.
-Read more in [the 2FA FAQ](https://pypi.org/help/#twofa).
+Read more in [the 2FA documentation](https://docs.pypi.org/your-account/two-factor-authentication/#what-is-two-factor-authentication).
 
 ## How does this affect me?
 
@@ -48,7 +48,7 @@ But to perform any management actions, you'll need to enable 2FA.
 When uploading a file, you may receive an error message that contains a message
 that contains: `an API Token or Trusted Publisher must be used to upload`.
 You may also receive an email notice with a similar message,
-which will include a link to [API Tokens help](https://pypi.org/help/#apitoken).
+which will include a link to [API Tokens documentation](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token).
 
 If you are no longer responsible for a PyPI account that publishes packages,
 please **forward these details** along to someone who does,

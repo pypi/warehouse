@@ -103,6 +103,33 @@ class TestValidation:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, "version")
 
+    @pytest.mark.parametrize(
+        ("version", "normalized"),
+        [
+            # Exactly at the limit.
+            (".".join(["1"] * 64) + "0", ".".join(["1"] * 64) + "0"),
+            # Over the limit as written, but under it once normalized.
+            ("1." + "0" * metadata.MAX_VERSION_LENGTH, "1.0"),
+        ],
+    )
+    def test_version_length_within_limit(self, version, normalized):
+        data = MultiDict(metadata_version="2.1", name="spam", version=version)
+        meta = metadata.parse(None, form_data=data)
+        assert str(meta.version) == normalized
+
+    @pytest.mark.parametrize("backfill", [True, False])
+    def test_version_length_over_limit(self, backfill):
+        version = ".".join(["1"] * 65)
+        assert len(version) == metadata.MAX_VERSION_LENGTH + 1
+        data = MultiDict(metadata_version="2.1", name="spam", version=version)
+        if backfill:
+            meta = metadata.parse(None, form_data=data, backfill=True)
+            assert str(meta.version) == version
+        else:
+            with pytest.raises(ExceptionGroup) as excinfo:
+                metadata.parse(None, form_data=data)
+            _assert_invalid_metadata(excinfo.value, "version")
+
     @pytest.mark.parametrize(("field_name", "length"), metadata._LENGTH_LIMITS.items())
     def test_length_is_limited(self, field_name, length):
         # Correct

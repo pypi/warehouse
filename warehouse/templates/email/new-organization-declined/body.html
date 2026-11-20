@@ -1,8 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
+{% from "email/_base/paragraphs.html" import paragraphs %}
 {% block content %}
   <p>
     {% trans organization_name=organization_name %}Your request to create a new organization named '{{ organization_name }}' was not approved.{% endtrans %}
   </p>
-  <p>{{ message|default("") }}</p>
+  {{ paragraphs(message) }}
 {% endblock %}

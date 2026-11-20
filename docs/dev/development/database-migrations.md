@@ -161,3 +161,47 @@ as described in [Migration Timeouts](#migration-timeouts).
 
 Another option is to share the SQL statement to create the index concurrently
 on the Pull Request, and have a maintainer run the statement manually.
+
+## Changing enum values
+
+Enum columns use PostgreSQL enum types, managed by
+[alembic-postgresql-enum](https://github.com/Pogchamp-company/alembic-postgresql-enum).
+
+Adding values to an enum autogenerates an `op.add_enum_value()` call per value:
+
+```python
+def upgrade():
+    op.add_enum_value(
+        enum_schema="public",
+        enum_name="lifecyclestatus",
+        new_value="deprecated",
+    )
+```
+
+This runs `ALTER TYPE ... ADD VALUE`, which changes only the type and does not
+rewrite the tables that use it. Keep the generated migration as is.
+
+PostgreSQL does not allow a new enum value to be used in the transaction that
+added it. Data changes or a `server_default` that need the new value go in a
+separate, later migration.
+
+Removing, renaming or reordering values autogenerates `op.sync_enum_values()`
+instead. It recreates the type and alters every column using it, which rewrites
+those tables and holds an exclusive lock while it does. Expect large tables to
+need a longer [timeout](#migration-timeouts) or a maintainer to run the change.
+
+The cast to the recreated type fails if any row still holds a value that no
+longer exists in it. To remove a value, use two PRs:
+
+1. Stop writing the value, and move existing rows off it with a data migration.
+   Keep the value in the Python enum: SQLAlchemy raises `LookupError` when it
+   reads a stored value the enum does not define.
+2. Remove the value from the Python enum and autogenerate the
+   `sync_enum_values` migration.
+
+To rename a value, autogenerate the migration and fill in the generated
+`enum_values_to_rename=[]` by hand, e.g. `enum_values_to_rename=[("old", "new")]`,
+so existing rows are converted instead of failing the cast.
+
+The generated `downgrade()` for an added value also uses `sync_enum_values`,
+since PostgreSQL cannot drop an enum value.

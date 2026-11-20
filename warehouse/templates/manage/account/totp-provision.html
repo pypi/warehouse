@@ -18,8 +18,8 @@
     PyPI supports any application that follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.
   {% endtrans %}
   <br>
-  {% trans href=request.route_path('help', _anchor='totp') %}
-  Visit <a href="{{ href }}">PyPI's help page</a> for a list of compatible applications.
+  {% trans href=request.user_docs_url('/your-account/two-factor-authentication/', anchor='authentication-application-totp') %}
+  Visit <a href="{{ href }}">PyPI's user documentation</a> for a list of compatible applications.
 {% endtrans %}
 </p>
 <section>

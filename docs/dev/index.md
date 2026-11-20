@@ -1,7 +1,7 @@
 # Welcome to Warehouse's documentation!
 
 Warehouse is a [web application](https://github.com/pypi/warehouse) that implements the canonical
-[Python package index (repository)](https://packaging.python.org/glossary/#term-package-index); its production deployment is
+[Python Package Index](https://packaging.python.org/glossary/#term-package-index); its production deployment is
 [PyPI](https://pypi.org). It replaces an older code base that powered pypi.python.org.
 
 The goal is to improve PyPI by making it:

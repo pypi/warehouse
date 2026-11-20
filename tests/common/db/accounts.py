@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 import factory
 import faker
@@ -71,14 +71,15 @@ class UserFactory(WarehouseFactory):
     is_active = True
     is_superuser = False
     is_moderator = False
+    is_org_application_reviewer = False
     is_psf_staff = False
     date_joined = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2005, 1, 1),
-        datetime_end=datetime.datetime(2010, 1, 1),
+        datetime_start=dt.datetime(2005, 1, 1),
+        datetime_end=dt.datetime(2010, 1, 1),
     )
     last_login = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2011, 1, 1)
+        "date_time_between_dates", datetime_start=dt.datetime(2011, 1, 1)
     )
     totp_secret = factory.Faker("binary", length=20)
 
@@ -98,8 +99,8 @@ class UserTermsOfServiceEngagementFactory(WarehouseFactory):
     engagement = TermsOfServiceEngagement.Agreed
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime(2025, 1, 1),
-        datetime_end=datetime.datetime(2025, 2, 19),
+        datetime_start=dt.datetime(2025, 1, 1),
+        datetime_end=dt.datetime(2025, 2, 19),
     )
 
 

@@ -2,7 +2,7 @@
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:26.10.0-trixie AS static-deps
+FROM node:26.13.1-trixie AS static-deps
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -42,7 +42,7 @@ RUN NODE_ENV=production npm run build
 
 # Create a base image that contains some helpers and settings for our python
 # stages to inherit from.
-FROM python:3.14.8-slim-trixie AS base
+FROM python:3.14.10-slim-trixie AS base
 
 # Copy our helpers over into the base image
 COPY bin/docker/* /usr/local/bin/
@@ -73,14 +73,12 @@ FROM base AS docs
 # because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
-#  - git: mkdocs plugin uses this for created/updated
-#  - libcairo2: mkdocs uses cairosvg
+#  - git: zensical rss plugin uses this for created/updated
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
         apt-install \
             build-essential \
-            git \
-            libcairo2
+            git
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest

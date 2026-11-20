@@ -17,6 +17,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
     StripeCustomer,
     StripeSubscription,
     StripeSubscriptionItem,
@@ -67,6 +68,14 @@ class GenericBillingService:
         Need ``status="all"`` to get subs including canceled ones for reconciling.
         """
         return self.api.Subscription.list(status="all", limit=100).auto_paging_iter()
+
+    def list_customer_subscriptions(self, customer_id):
+        """
+        Iterate over the Customer's Subscription resources, except canceled ones
+        """
+        return self.api.Subscription.list(
+            customer=customer_id, limit=100
+        ).auto_paging_iter()
 
     def create_customer(self, name, description):
         """
@@ -512,6 +521,8 @@ class StripeSubscriptionService:
                     "status": status.value,
                 },
             )
+            if status.value in ACTIVE_SUBSCRIPTION_STATUSES:
+                subscription.organization.reactivate_after_payment(request=request)
         return True
 
     def delete_subscription(self, id):
@@ -695,7 +706,7 @@ class StripeSubscriptionService:
                 product_name="PyPI",
                 description="Organization account for companies",
                 product_id=None,
-                # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories # noqa: E501
+                # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
                 tax_code="txcd_10103001",  # Software as a service (SaaS) - business use
             )
             subscription_price = self.add_subscription_price(

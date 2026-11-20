@@ -12,6 +12,7 @@ def test_routes(warehouse, mocker):
     settings = {
         "docs.url": docs_route_url,
         "files.url": "https://files.example.com/packages/{path}",
+        "userdocs.domain": "https://docs.example.com",
     }
     if warehouse:
         settings["warehouse.domain"] = warehouse
@@ -670,13 +671,6 @@ def test_routes(warehouse, mocker):
             view_kw={"has_translations": True},
         ),
         mocker.call(
-            "help",
-            "/help/",
-            "pages/help.html",
-            route_kw={"domain": warehouse},
-            view_kw={"has_translations": True},
-        ),
-        mocker.call(
             "security",
             "/security/",
             "pages/security.html",
@@ -707,6 +701,7 @@ def test_routes(warehouse, mocker):
     ]
 
     assert config.add_redirect.call_args_list == [
+        mocker.call("/help/", "https://docs.example.com/", domain=warehouse),
         mocker.call("/sponsor/", "/sponsors/", domain=warehouse),
         mocker.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         mocker.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),

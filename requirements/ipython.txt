@@ -2,4 +2,4 @@
 # can't resolve a current version from a range, and a grouped update where one
 # member has no previous version gets discarded whole -- taking every other
 # Python bump in the python-packages group with it.
-ipython==9.17.1
+ipython==9.18.1

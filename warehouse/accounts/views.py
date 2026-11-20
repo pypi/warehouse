@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import functools
 import hashlib
 import json
@@ -339,6 +339,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             userid,
             two_factor_method,
             two_factor_label=two_factor_label,
+            remembered_two_factor_method=_two_factor_remembered,
         )
 
         # Now that we're logged in we'll want to redirect the user to
@@ -403,7 +404,12 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         form = two_factor_state["totp_form"]
         if form.validate():
             two_factor_method = "totp"
-            if user_service.device_is_known(userid, request, two_factor_method):
+            if user_service.device_is_known(
+                userid,
+                request,
+                two_factor_method,
+                remember_device=form.remember_device.data,
+            ):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
                 _login_user(request, userid, two_factor_method, two_factor_label="totp")
@@ -533,27 +539,61 @@ def _set_userid_insecure_cookie(resp, userid):
     )
 
 
-def _check_remember_device_token(request, user_id) -> bool:
+def _two_factor_method_state(user, two_factor_method: str) -> str | None:
+    if two_factor_method == "totp" and user.totp_secret:
+        return hashlib.blake2b(user.totp_secret, person=b"warehouse.2fa").hexdigest()
+    if two_factor_method == "webauthn" and user.webauthn:
+        credentials = sorted(c.credential_id for c in user.webauthn)
+        return hashlib.blake2b(
+            ":".join(credentials).encode("ascii"),
+            person=b"warehouse.2fa",
+        ).hexdigest()
+    return None
+
+
+def _check_remember_device_token(request, user_id) -> str | None:
     """
-    Returns true if the given remember device cookie is valid for the given user.
+    Returns the two-factor method if the given remember device cookie is valid
+    for the given user, or None otherwise.
     """
     remember_device_token = request.cookies.get(REMEMBER_DEVICE_COOKIE)
     if not remember_device_token:
-        return False
+        return None
     token_service = request.find_service(ITokenService, name="remember_device")
+    user_service = request.find_service(IUserService, context=None)
     try:
         data = token_service.loads(remember_device_token)
         user_id_token = data.get("user_id")
-        return user_id_token == str(user_id)
+        if user_id_token != str(user_id):
+            return None
+        if data.get("password_timestamp") != str(
+            user_service.get_password_timestamp(user_id)
+        ):
+            return None
+        two_factor_method = data.get("two_factor_method", "totp")
+        two_factor_state = _two_factor_method_state(
+            user_service.get_user(user_id), two_factor_method
+        )
+        if two_factor_state is None or data.get("two_factor_state") != two_factor_state:
+            return None
+        return two_factor_method
     except TokenException:
-        return False
+        return None
 
 
 def _remember_device(request, response, userid, two_factor_method) -> None:
     """
     Generates and sets a cookie for remembering this device.
     """
-    remember_device_data = {"user_id": str(userid)}
+    # Not `request.user`: right after login it is `None` for a frozen account.
+    user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(userid)
+    remember_device_data = {
+        "user_id": str(userid),
+        "two_factor_method": two_factor_method,
+        "password_timestamp": user_service.get_password_timestamp(userid),
+        "two_factor_state": _two_factor_method_state(user, two_factor_method),
+    }
     token_service = request.find_service(ITokenService, name="remember_device")
     token = token_service.dumps(remember_device_data)
     response.set_cookie(
@@ -565,7 +605,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
         samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
-    request.user.record_event(
+    user.record_event(
         tag=EventTag.Account.TwoFactorDeviceRemembered,
         request=request,
         additional={
@@ -689,9 +729,13 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # where they were originally, or to the default view.
         resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-        # Ensure that we delete our user_id__insecure cookie, since the user is
-        # no longer logged in.
+        # Ensure that we delete our user_id__insecure and remember_device
+        # cookies, since the user is no longer logged in.
         resp.delete_cookie(USER_ID_INSECURE_COOKIE)
+        resp.delete_cookie(
+            REMEMBER_DEVICE_COOKIE,
+            path=request.route_path("accounts.login"),
+        )
 
         return resp
 
@@ -728,7 +772,13 @@ def register(request, _form_class=RegistrationForm):
         request.session.flash(
             request._(
                 "New user registration temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details."
+                "See ${docs_url} for details.",
+                mapping={
+                    "docs_url": request.user_docs_url(
+                        "/your-account/managing-your-account/",
+                        anchor="account-registration-limits",
+                    )
+                },
             ),
             queue="error",
         )
@@ -959,7 +1009,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return _error(request._("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
-    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
+    last_login = dt.datetime.fromisoformat(data.get("user.last_login"))
     # Before updating itsdangerous to 2.x the last_login was naive,
     # now it's localized to UTC
     if not last_login.tzinfo:
@@ -972,7 +1022,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     # Check whether the password has been changed since the token was created
-    password_date = datetime.datetime.fromisoformat(data.get("user.password_date"))
+    password_date = dt.datetime.fromisoformat(data.get("user.password_date"))
     # Before updating itsdangerous to 2.x the password_date was naive,
     # now it's localized to UTC
     if not password_date.tzinfo:
@@ -980,7 +1030,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
     current_password_date = (
         user.password_date
         if user.password_date is not None
-        else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+        else dt.datetime.min.replace(tzinfo=pytz.UTC)
     )
     if current_password_date > password_date:
         return _error(
@@ -1034,7 +1084,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
     has_translations=True,
 )
 def confirm_login(request):
-    if request.user is not None:
+    # NOTE: `request.user` is reified; reading it here would cache `None` and
+    #  break `_remember_device` after `_login_user` below.
+    if request.identity is not None:
         return HTTPSeeOther(request.route_path("index"))
 
     if not request.params.get("token"):
@@ -1078,7 +1130,7 @@ def confirm_login(request):
         .one_or_none()
     )
 
-    if unique_login is None:
+    if unique_login is None or unique_login.status == UniqueLoginStatus.CONFIRMED:
         return _error(request._("Invalid login attempt."))
 
     if unique_login.ip_address != request.ip_address:
@@ -1094,6 +1146,9 @@ def confirm_login(request):
     _login_user(request, user.id, two_factor_method="email-confirmation")
     resp = HTTPSeeOther(request.route_path("manage.projects"))
     _set_userid_insecure_cookie(resp, user.id)
+    # TokenService.dumps stringifies values, so the flag round-trips as "True"
+    if data.get("remember_device") == "True":
+        _remember_device(request, resp, user.id, "totp")
     request.session.flash(
         request._("Your login has been confirmed and this device is now recognized."),
         queue="success",
@@ -1252,6 +1307,15 @@ def verify_organization_role(request):
     if organization_invite.token != token:
         return _error(request._("Organization invitation is not valid."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1261,7 +1325,6 @@ def verify_organization_role(request):
         }
     if request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
         message = request.params.get("message", "")
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
@@ -1315,7 +1378,6 @@ def verify_organization_role(request):
         role_name=desired_role,
     )
     organization_service.delete_organization_invite(organization_invite.id)
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         request=request,
@@ -1432,6 +1494,15 @@ def verify_project_role(request):
     if role_invite.token != token:
         return _error(request._("Role invitation is not valid."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1441,7 +1512,6 @@ def verify_project_role(request):
         }
     if request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
             request=request,
@@ -1508,7 +1578,6 @@ def verify_project_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     send_collaborator_added_email(
         request,
         owner_users,
@@ -1541,7 +1610,13 @@ def verify_project_role(request):
     return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
+def _login_user(
+    request,
+    userid,
+    two_factor_method=None,
+    two_factor_label=None,
+    remembered_two_factor_method=None,
+):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -1585,7 +1660,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     user_service.update_user(userid, last_login=now)
     user = user_service.get_user(userid)
     user.record_event(
@@ -1609,7 +1684,11 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if unique_login:
         unique_login.last_used = now
 
-    if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
+    phishable = (
+        two_factor_method in PHISHABLE_METHODS
+        or remembered_two_factor_method in PHISHABLE_METHODS
+    )
+    if unique_login is None and not phishable:
         # We haven't seen this login before. Create a new one and mark it as confirmed
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
@@ -1621,7 +1700,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     if (
         unique_login is not None
         and unique_login.status == UniqueLoginStatus.PENDING
-        and two_factor_method not in PHISHABLE_METHODS
+        and not phishable
     ):
         # The user had a pending login, but has since logged in with a non-phishable
         # method, so mark it as confirmed.
@@ -1867,7 +1946,13 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1888,8 +1973,14 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See https://pypi.org/help#admin-intervention for "
-                    "details."
+                    "disabled. See ${docs_url} for "
+                    "details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -1905,15 +1996,29 @@ class ManageAccountPublishingViews:
                 self.request._(
                     "You must have a verified email in order to register a "
                     "pending trusted publisher. "
-                    "See https://pypi.org/help#openid-connect for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/your-account/managing-your-account/",
+                            anchor="email-address-verification",
+                        )
+                    },
                 ),
                 queue="error",
             )
             return self.default_response
 
         # Separately from having permission to register pending OIDC publishers,
-        # we limit users to no more than 3 pending publishers at once.
-        if len(self.request.user.pending_oidc_publishers) >= 3:
+        # we limit users to no more than 3 personal pending publishers at once.
+        # Pending publishers a user registers for an organization fall under
+        # that organization's separate per-user limit instead.
+        pending_count = self.request.db.scalar(
+            select(func.count()).where(
+                PendingOIDCPublisher.organization_id.is_(None),
+                PendingOIDCPublisher.added_by_id == self.request.user.id,
+            )
+        )
+        if pending_count >= 3:
             self.request.session.flash(
                 self.request._(
                     "You can't register more than 3 pending trusted publishers at once."
@@ -2135,7 +2240,13 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    "See ${docs_url} for details.",
+                    mapping={
+                        "docs_url": self.request.user_docs_url(
+                            "/about/security-and-internals/",
+                            anchor="temporarily-disabled-features",
+                        )
+                    },
                 ),
                 queue="error",
             )
@@ -2185,18 +2296,25 @@ class ManageAccountPublishingViews:
             tags=[f"publisher:{pending_publisher.publisher_name}"],
         )
 
+        additional = {
+            "project": pending_publisher.project_name,
+            "publisher": pending_publisher.publisher_name,
+            "id": str(pending_publisher.id),
+            "specifier": str(pending_publisher),
+            "url": pending_publisher.publisher_url(),
+            "submitted_by": self.request.user.username,
+        }
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
             request=self.request,
-            additional={
-                "project": pending_publisher.project_name,
-                "publisher": pending_publisher.publisher_name,
-                "id": str(pending_publisher.id),
-                "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url(),
-                "submitted_by": self.request.user.username,
-            },
+            additional=additional.copy(),
         )
+        if pending_publisher.pypi_organization is not None:
+            pending_publisher.pypi_organization.record_event(
+                tag=EventTag.Organization.PendingOIDCPublisherRemoved,
+                request=self.request,
+                additional=additional.copy(),
+            )
 
         self.request.db.delete(pending_publisher)
 

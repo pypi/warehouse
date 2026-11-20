@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 
-mkdocs build -f docs/mkdocs-dev-docs.yml --strict
+zensical build -f docs/mkdocs-dev-docs.yml --strict

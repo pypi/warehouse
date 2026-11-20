@@ -397,13 +397,15 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 
 class _IdentityLimiter(NamedTuple):
-    """The non-IP limiter a single project creation is metered against."""
+    """The non-IP limiters a single project creation is metered against."""
 
     limiter: IRateLimiter
     identifier: uuid.UUID
     partition_key: PartitionKey
     """Name the bucket for the metrics and RateLimit headers.
     Matches the project.create.<key> limiter it came from."""
+    attempt_limiter: IRateLimiter
+    """The project.create.attempt.<key> limiter"""
 
 
 @implementer(IProjectService)
@@ -417,7 +419,7 @@ class ProjectService:
         self._metrics = metrics
 
     def _identity_limiter(self, creator, organization_id) -> _IdentityLimiter:
-        """Pick the non-IP limiter this creation is metered against."""
+        """Pick the non-IP limiters this creation is metered against."""
         if organization_id is not None:
             organization = self.db.get(Organization, organization_id)
             return _IdentityLimiter(
@@ -426,6 +428,9 @@ class ProjectService:
                 ),
                 organization.id,
                 "organization",
+                self.ratelimiters["project.create.attempt.organization"].override(
+                    organization.project_create_ratelimit_string
+                ),
             )
         return _IdentityLimiter(
             self.ratelimiters["project.create.user"].override(
@@ -433,6 +438,9 @@ class ProjectService:
             ),
             creator.id,
             "user",
+            self.ratelimiters["project.create.attempt.user"].override(
+                creator.project_create_ratelimit_string
+            ),
         )
 
     def _reject_create(self, partition_key, resets_in):
@@ -445,17 +453,39 @@ class ProjectService:
         )
         raise TooManyProjectsCreated(resets_in=resets_in)
 
+    @staticmethod
+    def _ip_key(request, identity: _IdentityLimiter):
+        """The address to meter against the IP limiters, if any.
+
+        Organizations are metered by their own limiters only, so creations
+        from a shared office network or CI runner aren't capped per IP.
+        """
+        if identity.partition_key == "organization":
+            return None
+        return request.remote_addr
+
     def _check_ratelimits(self, request, identity: _IdentityLimiter):
         ip_limiter = self.ratelimiters["project.create.ip"]
+        attempt_ip_limiter = self.ratelimiters["project.create.attempt.ip"]
+        attempt_limiter = identity.attempt_limiter
+        remote_addr = self._ip_key(request, identity)
+        snapshot_offset = len(getattr(request, "_rate_limit_snapshots", ()))
 
         # Record the current limiter state so the egress tween can emit
         # RateLimit / RateLimit-Policy headers, whether or not we reject below.
-        if request.remote_addr is not None:
+        if remote_addr is not None:
             record_rate_limit(
                 request,
                 "project.create.ip",
                 ip_limiter,
-                identifiers=(request.remote_addr,),
+                identifiers=(remote_addr,),
+                partition_key="ip",
+            )
+            record_rate_limit(
+                request,
+                "project.create.attempt.ip",
+                attempt_ip_limiter,
+                identifiers=(remote_addr,),
                 partition_key="ip",
             )
         record_rate_limit(
@@ -465,10 +495,29 @@ class ProjectService:
             identifiers=(identity.identifier,),
             partition_key=identity.partition_key,
         )
+        record_rate_limit(
+            request,
+            f"project.create.attempt.{identity.partition_key}",
+            attempt_limiter,
+            identifiers=(identity.identifier,),
+            partition_key=identity.partition_key,
+        )
+
+        # Attempt-weighted window usage, not unique-publisher daily totals.
+        for snapshot in getattr(request, "_rate_limit_snapshots", ())[snapshot_offset:]:
+            for stats in snapshot.stats:
+                request.metrics.distribution(
+                    "warehouse.project.create.quota.used",
+                    stats.amount - stats.remaining,
+                    tags=[
+                        f"ratelimiter:{snapshot.name.removeprefix('project.create.')}",
+                        f"window_seconds:{stats.window_seconds}",
+                    ],
+                )
 
         # First we want to check if a single IP is exceeding our rate limiter.
-        if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
-            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
+        if remote_addr is not None and not ip_limiter.test(remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(remote_addr))
 
         if not identity.limiter.test(identity.identifier):
             self._reject_create(
@@ -476,23 +525,55 @@ class ProjectService:
                 identity.limiter.resets_in(identity.identifier),
             )
 
+        # Then the attempt limiters, which also meter creations that are later
+        # rolled back (ref: `_hit_ratelimits`).
+        if remote_addr is not None and not attempt_ip_limiter.test(remote_addr):
+            self._reject_create("attempt.ip", attempt_ip_limiter.resets_in(remote_addr))
+
+        if not attempt_limiter.test(identity.identifier):
+            self._reject_create(
+                f"attempt.{identity.partition_key}",
+                attempt_limiter.resets_in(identity.identifier),
+            )
+
     def _hit_ratelimits(self, request, identity: _IdentityLimiter):
-        ip_limiter = self.ratelimiters["project.create.ip"]
+        attempt_ip_limiter = self.ratelimiters["project.create.attempt.ip"]
+        remote_addr = self._ip_key(request, identity)
 
         # `.hit()` atomically increments and returns False when the limit is
         # exceeded. Concurrent requests can each pass the optimistic `.test()`
         # in `_check_ratelimits` before any records a hit, so this atomic check
-        # is what actually enforces the limit: a request that pushes a counter
-        # past its limit is rejected here, rolling back the new project. The
-        # limiters are consulted in the same order as `_check_ratelimits`.
-        if request.remote_addr is not None and not ip_limiter.hit(request.remote_addr):
-            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
+        # is what bounds a burst: a request that pushes an attempt counter past
+        # its limit is rejected here, rolling back the new project.
+        #
+        # Only the attempt limiters are spent here. The creation limiters are
+        # spent once the transaction commits (ref: `_hit_creation_limiters`), so
+        # a request that fails after creating its project, rolling the project
+        # back, doesn't use up its creator's creation quota. The limiters are
+        # consulted in the same order as `_check_ratelimits`.
+        if remote_addr is not None and not attempt_ip_limiter.hit(remote_addr):
+            self._reject_create("attempt.ip", attempt_ip_limiter.resets_in(remote_addr))
 
-        if not identity.limiter.hit(identity.identifier):
+        if not identity.attempt_limiter.hit(identity.identifier):
             self._reject_create(
-                identity.partition_key,
-                identity.limiter.resets_in(identity.identifier),
+                f"attempt.{identity.partition_key}",
+                identity.attempt_limiter.resets_in(identity.identifier),
             )
+
+    @staticmethod
+    def _hit_creation_limiters(
+        success, ip_limiter, remote_addr, identity_limiter, identifier
+    ):
+        """
+        This is the hook that gets called after the transaction has been
+        committed. We only count the creation against the creation limiters if
+        the transaction was successful.
+        """
+        if not success:
+            return
+        if remote_addr is not None:
+            ip_limiter.hit(remote_addr)
+        identity_limiter.hit(identifier)
 
     def check_project_name(self, name: str) -> None:
         """
@@ -539,6 +620,14 @@ class ProjectService:
         ratelimited=True,
         organization_id=None,
     ):
+        partition = "organization" if organization_id is not None else "user"
+        request.metrics.increment(
+            "warehouse.project.create.attempt",
+            tags=[
+                f"partition:{partition}",
+                f"ratelimited:{str(ratelimited).lower()}",
+            ],
+        )
         identity_limiter = (
             self._identity_limiter(creator, organization_id) if ratelimited else None
         )
@@ -553,7 +642,12 @@ class ProjectService:
                 (
                     "New project registration temporarily disabled. "
                     "See {projecthelp} for more information."
-                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
+                ).format(
+                    projecthelp=request.user_docs_url(
+                        "/about/security-and-internals/",
+                        anchor="temporarily-disabled-features",
+                    )
+                ),
             ) from None
 
         # Verify that the project name is both valid and currently available.
@@ -569,7 +663,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableProhibitedError:
@@ -579,7 +676,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableSimilarError:
@@ -589,7 +689,10 @@ class ProjectService:
                     "See {projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
         except ProjectNameUnavailableStdlibError:
@@ -600,7 +703,10 @@ class ProjectService:
                     "{projecthelp} for more information."
                 ).format(
                     name=name,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    projecthelp=request.user_docs_url(
+                        "/project-management/choosing-a-name/",
+                        anchor="why-isnt-my-desired-project-name-available",
+                    ),
                 ),
             ) from None
 
@@ -685,6 +791,15 @@ class ProjectService:
 
         if identity_limiter is not None:
             self._hit_ratelimits(request, identity_limiter)
+            request.tm.get().addAfterCommitHook(
+                self._hit_creation_limiters,
+                args=(
+                    self.ratelimiters["project.create.ip"],
+                    self._ip_key(request, identity_limiter),
+                    identity_limiter.limiter,
+                    identity_limiter.identifier,
+                ),
+            )
         return project
 
 
@@ -699,6 +814,15 @@ def project_service_factory(context, request):
         ),
         "project.create.organization": request.find_service(
             IRateLimiter, name="project.create.organization", context=None
+        ),
+        "project.create.attempt.user": request.find_service(
+            IRateLimiter, name="project.create.attempt.user", context=None
+        ),
+        "project.create.attempt.ip": request.find_service(
+            IRateLimiter, name="project.create.attempt.ip", context=None
+        ),
+        "project.create.attempt.organization": request.find_service(
+            IRateLimiter, name="project.create.attempt.organization", context=None
         ),
     }
     return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)

@@ -157,7 +157,11 @@ def check_members(
     If ``metrics`` is provided, the whole scan (member read + YARA match) is
     timed under ``warehouse.upload.yara.scan``, tagged with ``archive_type``.
     This is the single umbrella metric for all YARA work per upload; emitting
-    it here ensures every caller of the scanner gets it for free.
+    it here ensures every caller of the scanner gets it for free. The bytes
+    and member count scanned, and the number of oversized members skipped,
+    go to ``warehouse.upload.yara.bytes``, ``.members`` and ``.skipped``.
+    ``.largest_member`` is the biggest member read, oversized ones included,
+    since the iterators read a member in full before its size is checked.
     """
     rules = rules or _rules
     if rules is None:
@@ -176,11 +180,14 @@ def check_members(
     materialized: list[tuple[str, int, bytes]] = []
     total_size = 0
     overflow = False
+    scanned_bytes = scanned_members = skipped_members = largest_member = 0
 
     try:
         with timer_cm:
             for name, size, data in members:
+                largest_member = max(largest_member, size)
                 if size > _SCAN_MAX_FILE_SIZE:
+                    skipped_members += 1
                     logger.info(
                         "Skipping oversized file in YARA scan",
                         member=name,
@@ -189,6 +196,9 @@ def check_members(
                         max_size=_SCAN_MAX_FILE_SIZE,
                     )
                     continue
+
+                scanned_bytes += len(data)
+                scanned_members += 1
 
                 if overflow:
                     # Over the size cap — scan each file individually.
@@ -256,6 +266,18 @@ def check_members(
     except yara_x.ScanError:
         logger.exception("YARA-X scan failed", archive=archive_name)
         return None
+    finally:
+        if metrics is not None:
+            tags = [f"archive_type:{archive_type}"]
+            metrics.histogram("warehouse.upload.yara.bytes", scanned_bytes, tags)
+            metrics.histogram("warehouse.upload.yara.members", scanned_members, tags)
+            metrics.histogram(
+                "warehouse.upload.yara.largest_member", largest_member, tags
+            )
+            if skipped_members:
+                metrics.increment(
+                    "warehouse.upload.yara.skipped", skipped_members, tags
+                )
 
     # Overflow path completed with no matches found.
     return None

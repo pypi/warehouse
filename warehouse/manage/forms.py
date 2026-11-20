@@ -14,6 +14,7 @@ from warehouse.accounts.forms import (
 )
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
+    OrganizationApplicationStatus,
     OrganizationMembershipSize,
     OrganizationRoleType,
     OrganizationType,
@@ -28,7 +29,11 @@ from warehouse.utils.project import PROJECT_NAME_RE
 class RoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Maintainer", "Maintainer"),
+            wtforms.SelectChoice("Owner", "Owner"),
+        ],
         validators=[wtforms.validators.InputRequired(message="Select role")],
     )
 
@@ -36,7 +41,11 @@ class RoleNameMixin:
 class TeamProjectRoleNameMixin:
     team_project_role_name = wtforms.SelectField(
         "Select permissions",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Maintainer", "Maintainer"),
+            wtforms.SelectChoice("Owner", "Owner"),
+        ],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
         validators=[wtforms.validators.InputRequired(message="Select role")],
     )
@@ -69,7 +78,10 @@ class CreateInternalRoleForm(
 ):
     is_team = wtforms.RadioField(
         "Team or member?",
-        choices=[("true", "Team"), ("false", "Member")],
+        choices=[
+            wtforms.SelectChoice("true", "Team"),
+            wtforms.SelectChoice("false", "Member"),
+        ],
         coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
@@ -77,22 +89,26 @@ class CreateInternalRoleForm(
 
     team_name = wtforms.SelectField(
         "Select team",
-        choices=[("", "Select team")],
+        choices=[wtforms.SelectChoice("", "Select team")],
         default="",  # Set default to avoid error when there are no team choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     username = wtforms.SelectField(
         "Select user",
-        choices=[("", "Select user")],
+        choices=[wtforms.SelectChoice("", "Select user")],
         default="",  # Set default to avoid error when there are no user choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     def __init__(self, *args, team_choices, user_choices, user_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.team_name.choices += [(name, name) for name in sorted(team_choices)]
-        self.username.choices += [(name, name) for name in sorted(user_choices)]
+        self.team_name.choices += [
+            wtforms.SelectChoice(name, name) for name in sorted(team_choices)
+        ]
+        self.username.choices += [
+            wtforms.SelectChoice(name, name) for name in sorted(user_choices)
+        ]
         self.user_service = user_service
 
         # Do not check for required fields in browser.
@@ -131,7 +147,9 @@ class SaveAccountForm(wtforms.Form):
             )
         ]
     )
-    public_email = wtforms.SelectField(choices=[("", "Not displayed")])
+    public_email = wtforms.SelectField(
+        choices=[wtforms.SelectChoice("", "Not displayed")]
+    )
 
     def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
@@ -139,7 +157,7 @@ class SaveAccountForm(wtforms.Form):
         self.user_id = user_id
         user = user_service.get_user(user_id)
         self.public_email.choices.extend(
-            [(e.email, e.email) for e in user.emails if e.verified]
+            [wtforms.SelectChoice(e.email, e.email) for e in user.emails if e.verified]
         )
 
     def validate_public_email(self, field):
@@ -192,16 +210,20 @@ class ProvisionTOTPForm(TOTPValueMixin, wtforms.Form):
     def __init__(self, *args, totp_secret, **kwargs):
         super().__init__(*args, **kwargs)
         self.totp_secret = totp_secret
+        # start track of failure reason
+        self.totp_failure = None
 
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
         try:
             otp.verify_totp(self.totp_secret, totp_value)
         except otp.OutOfSyncTOTPError:
+            self.totp_failure = "out_of_sync"
             raise wtforms.validators.ValidationError(
                 "Invalid TOTP code. Your device time may be out of sync."
             )
         except otp.InvalidTOTPError:
+            self.totp_failure = "malformed" if field.errors else "invalid"
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
 
 
@@ -296,6 +318,9 @@ class DeleteAccountAssociationForm(wtforms.Form):
         self.user_id = user_id
 
     def validate_association_id(self, field):
+        if field.errors:
+            return
+
         association_id = field.data
         association = self.user_service.get_account_association(association_id)
 
@@ -431,11 +456,11 @@ class OrganizationRoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
         choices=[
-            ("", "Select role"),
-            ("Member", "Member"),
-            ("Manager", "Manager"),
-            ("Owner", "Owner"),
-            ("Billing Manager", "Billing Manager"),
+            wtforms.SelectChoice("", "Select role"),
+            wtforms.SelectChoice("Member", "Member"),
+            wtforms.SelectChoice("Manager", "Manager"),
+            wtforms.SelectChoice("Owner", "Owner"),
+            wtforms.SelectChoice("Billing Manager", "Billing Manager"),
         ],
         coerce=lambda string: OrganizationRoleType(string) if string else None,
         validators=[wtforms.validators.InputRequired(message="Select role")],
@@ -472,6 +497,10 @@ class OrganizationNameMixin:
     )
 
     organization_id = None
+    outstanding_application_message = _(
+        "You have already submitted an application for that name. "
+        "Choose a different organization account name."
+    )
 
     def validate_name(self, field):
         # Find organization by name.
@@ -497,10 +526,7 @@ class OrganizationNameMixin:
         # Name is valid if the user has no outstanding applications for the same name
         if len(outstanding_applications) > 0:
             raise wtforms.validators.ValidationError(
-                _(
-                    "You have already submitted an application for that name. "
-                    "Choose a different organization account name."
-                )
+                self.outstanding_application_message
             )
 
 
@@ -509,7 +535,10 @@ class AddOrganizationProjectForm(wtforms.Form):
 
     add_existing_project = wtforms.RadioField(
         "Add existing or new project?",
-        choices=[("true", "Existing project"), ("false", "New project")],
+        choices=[
+            wtforms.SelectChoice("true", "Existing project"),
+            wtforms.SelectChoice("false", "New project"),
+        ],
         coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
@@ -517,7 +546,7 @@ class AddOrganizationProjectForm(wtforms.Form):
 
     existing_project_name = wtforms.SelectField(
         "Select project",
-        choices=[("", "Select project")],
+        choices=[wtforms.SelectChoice("", "Select project")],
         default="",  # Set default to avoid error when there are no project choices.
     )
 
@@ -526,7 +555,7 @@ class AddOrganizationProjectForm(wtforms.Form):
     def __init__(self, *args, project_choices, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
         self.existing_project_name.choices += [
-            (name, name) for name in sorted(project_choices)
+            wtforms.SelectChoice(name, name) for name in sorted(project_choices)
         ]
         self.project_factory = project_factory
 
@@ -559,7 +588,7 @@ class TransferOrganizationProjectForm(wtforms.Form):
 
     organization = wtforms.SelectField(
         "Select organization",
-        choices=[("", "Select organization")],
+        choices=[wtforms.SelectChoice("", "Select organization")],
         validators=[
             wtforms.validators.InputRequired(message="Select organization"),
         ],
@@ -568,10 +597,7 @@ class TransferOrganizationProjectForm(wtforms.Form):
     def __init__(self, *args, organization_choices, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization.choices += [
-            (
-                str(org.id),
-                org.get_billing_status_display(),
-            )
+            wtforms.SelectChoice(str(org.id), org.get_billing_status_display())
             for org in sorted(organization_choices, key=lambda x: x.name)
         ]
         self.disabled_organizations = [
@@ -602,8 +628,7 @@ class CreateOrganizationRoleForm(
             self.role_name.choices = [
                 choice
                 for choice in self.role_name.choices
-                if choice[0] == OrganizationRoleType.BillingManager.value
-                or choice[0] == ""
+                if choice.value in (OrganizationRoleType.BillingManager.value, "")
             ]
         elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
@@ -617,9 +642,15 @@ class CreateOrganizationRoleForm(
 
 
 class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, wtforms.Form):
-    def __init__(self, *args, orgtype, **kwargs):
+    def __init__(self, *args, orgtype, allow_billing_manager_only=False, **kwargs):
         super().__init__(*args, **kwargs)
-        if orgtype != OrganizationType.Company:
+        if allow_billing_manager_only:
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if choice.value in (OrganizationRoleType.BillingManager.value, "")
+            ]
+        elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
             self.role_name.choices = [
                 choice
@@ -687,7 +718,10 @@ class SaveOrganizationForm(wtforms.Form):
         ]
     )
     orgtype = wtforms.SelectField(
-        choices=[("Company", "Company"), ("Community", "Community")],
+        choices=[
+            wtforms.SelectChoice("Company", "Company"),
+            wtforms.SelectChoice("Community", "Community"),
+        ],
         default=None,
         coerce=OrganizationType,
         validators=[
@@ -699,10 +733,11 @@ class SaveOrganizationForm(wtforms.Form):
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     __params__ = ["name", *SaveOrganizationForm.__params__]
 
-    _max_apps = wtforms.IntegerField()
-
     membership_size = wtforms.SelectField(
-        choices=[(size.value, size.value) for size in OrganizationMembershipSize],
+        choices=[
+            wtforms.SelectChoice(size.value, size.value)
+            for size in OrganizationMembershipSize
+        ],
         default=None,
         coerce=OrganizationMembershipSize,
         validators=[
@@ -738,33 +773,46 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         self.user = user
         self.max_applications = max_applications
 
-    def validate__max_apps(self, field):
-        if (
-            self.max_applications is not None
-            and len(self.user.organization_applications) >= self.max_applications
-        ):
-            self.form_errors.append(
-                _(
-                    "You have already submitted the maximum number of "
-                    "Organization requests (%s)."
+    def validate(self, *args, **kwargs):
+        success = super().validate(*args, **kwargs)
+
+        if self.max_applications is not None:
+            undecided = [
+                app
+                for app in self.user.organization_applications
+                if app.status
+                not in (
+                    OrganizationApplicationStatus.Approved,
+                    OrganizationApplicationStatus.Declined,
+                    OrganizationApplicationStatus.Withdrawn,
                 )
-                % self.max_applications
-            )
-            return False
-        return True
+            ]
+            if len(undecided) >= self.max_applications:
+                self.form_errors.append(
+                    _(
+                        "You have already submitted the maximum number of "
+                        "Organization requests (${count}).",
+                        mapping={"count": self.max_applications},
+                    )
+                )
+                return False
+
+        return success
 
 
 class CreateTeamRoleForm(wtforms.Form):
     username = wtforms.SelectField(
         "Select user",
-        choices=[("", "Select user")],
+        choices=[wtforms.SelectChoice("", "Select user")],
         default="",  # Set default to avoid error when there are no user choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
     def __init__(self, *args, user_choices, **kwargs):
         super().__init__(*args, **kwargs)
-        self.username.choices += [(name, name) for name in sorted(user_choices)]
+        self.username.choices += [
+            wtforms.SelectChoice(name, name) for name in sorted(user_choices)
+        ]
 
 
 class SaveTeamForm(wtforms.Form):

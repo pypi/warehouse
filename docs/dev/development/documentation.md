@@ -2,9 +2,8 @@
 
 ## Developer documentation
 
-The developer documentation is hosted at [warehouse.pypa.io](https://warehouse.pypa.io). It's written in
-[reStructuredText](https://docutils.sourceforge.io/rst.html) or [Markdown](https://www.markdownguide.org/) (via [MyST](https://myst-parser.readthedocs.io/en/latest/)) and built using
-[Sphinx](https://www.sphinx-doc.org/).
+The developer documentation is hosted at [dev.pypi.org](https://dev.pypi.org). It's written in
+[Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 
@@ -19,7 +18,7 @@ Makefile target:
 make dev-docs
 ```
 
-That will produce a local build under `docs/dev/_build/`.
+That will produce a local build under `docs/dev-site/`.
 
 To run a local development server, you can use `docker compose`:
 
@@ -32,7 +31,7 @@ Once running, you can visit a local build of the pages at [localhost:10002](http
 ## User documentation
 
 The user documentation is hosted at [docs.pypi.org](https://docs.pypi.org). It's written in
-[Markdown](https://www.markdownguide.org/) and built using [MkDocs](https://www.mkdocs.org/).
+[Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 
@@ -60,7 +59,7 @@ Once running, you can visit a local build of the user documentation at [localhos
 ## PyPI blog
 
 The PyPI blog is hosted at [blog.pypi.org](https://blog.pypi.org). Like the user documentation,
-it's written in [Markdown](https://www.markdownguide.org/) and built using [MkDocs](https://www.mkdocs.org/).
+it's written in [Markdown](https://www.markdownguide.org/) and built using [Zensical](https://zensical.org/).
 
 ### Layout
 

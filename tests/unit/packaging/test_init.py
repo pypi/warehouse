@@ -45,6 +45,15 @@ def test_includeme(mocker):
         "warehouse.packaging.project_create_organization_ratelimit_string": (
             "10 per day"
         ),
+        "warehouse.packaging.project_create_attempt_user_ratelimit_string": (
+            "100 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_ip_ratelimit_string": (
+            "200 per hour"
+        ),
+        "warehouse.packaging.project_create_attempt_organization_ratelimit_string": (
+            "50 per day"
+        ),
     }
 
     config = mocker.Mock(
@@ -73,6 +82,9 @@ def test_includeme(mocker):
         mocker.call("20 per hour", "project.create.user"),
         mocker.call("40 per hour", "project.create.ip"),
         mocker.call("10 per day", "project.create.organization"),
+        mocker.call("100 per hour", "project.create.attempt.user"),
+        mocker.call("200 per hour", "project.create.attempt.ip"),
+        mocker.call("50 per day", "project.create.attempt.organization"),
     ]
     assert config.register_origin_cache_keys.call_args_list == [
         mocker.call(

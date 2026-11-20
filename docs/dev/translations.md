@@ -7,6 +7,31 @@ to contribute.
 If you are experiencing issues as a translator, please let us know by opening a
 [translation issue on the Warehouse issue tracker](https://github.com/pypi/warehouse/issues/new?template=translation-issue.md).
 
+## How new strings reach translators
+
+`warehouse/locale/messages.pot` lists every translatable string. Nobody edits
+it by hand.
+
+1. A pull request that adds or changes strings marked with `_()` or
+   `{% trans %}` merges to `main`.
+2. CI extracts the strings on `main`. If `messages.pot` changed, a bot opens
+   or updates a pull request from the `bot/update-messages-pot` branch that
+   changes only that file.
+3. A maintainer merges the bot pull request, ideally just before an open
+   [Weblate pull request](https://github.com/pypi/warehouse/pulls/weblate).
+4. Weblate pulls `main`, merges the new strings into each language's `.po`
+   file, and translators see them.
+
+Until a string is translated, PyPI shows the English text.
+
+If `messages.pot` appears in your pull request's diff, revert it to the
+version your branch started from, where `upstream` is the remote for
+`pypi/warehouse`:
+
+```console
+git checkout $(git merge-base HEAD upstream/main) -- warehouse/locale/messages.pot
+```
+
 ## Adding a newly completed translation
 
 Weblate will automatically add commits to a pull request as translations are
@@ -126,4 +151,5 @@ the view's configuration:
 class SampleViews:
 ```
 
-You may have to [rebuild the translation files](development/getting-started.md#building-translations).
+You don't need to regenerate `messages.pot`; see
+[how new strings reach translators](#how-new-strings-reach-translators).

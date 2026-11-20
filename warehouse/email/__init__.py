@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import functools
 import typing
 
@@ -24,6 +24,8 @@ from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
 
 if typing.TYPE_CHECKING:
+    from uuid import UUID
+
     from pyramid.request import Request
 
     from warehouse.accounts.models import User
@@ -109,7 +111,7 @@ def _send_email_to_user(
     if repeat_window is not None:
         sender = request.find_service(IEmailSender)
         last_sent = sender.last_sent(to=email.email, subject=msg.subject)
-        if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
+        if last_sent and (dt.datetime.now() - last_sent) <= repeat_window:
             return "repeat-window"
 
     request.task(send_email).delay(
@@ -143,7 +145,7 @@ def _email(
     name: str,
     *,
     allow_unverified: bool = False,
-    repeat_window: datetime.timedelta | None = None,
+    repeat_window: dt.timedelta | None = None,
     override_from: str | None = None,
 ) -> typing.Callable:
     """
@@ -240,10 +242,10 @@ def send_password_reset_email(request, user_and_email):
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(
-                user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                user.last_login or dt.datetime.min.replace(tzinfo=pytz.UTC)
             ),
             "user.password_date": str(
-                user.password_date or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                user.password_date or dt.datetime.min.replace(tzinfo=pytz.UTC)
             ),
         }
     )
@@ -362,16 +364,18 @@ def send_new_organization_requested_email(request, user, *, organization_name):
 @_email("new-organization-approved")
 def send_new_organization_approved_email(
     request: Request,
-    user: User,
+    user_and_email: tuple[User, Email | None],
     *,
     organization_name: str,
     organization_type: str,
     message: str = "",
 ):
+    _, email = user_and_email
     return {
         "message": message,
         "organization_name": organization_name,
         "organization_type": organization_type,
+        "primary_email_unverified": email is not None and not email.primary,
     }
 
 
@@ -387,12 +391,19 @@ def send_new_organization_declined_email(
 
 @_email("new-organization-moreinformationneeded")
 def send_new_organization_moreinformationneeded_email(
-    request, user, *, organization_name, organization_application_id, message=""
+    request: Request,
+    user_and_email: tuple[User, Email | None],
+    *,
+    organization_name: str,
+    organization_application_id: UUID,
+    message: str = "",
 ):
+    _, email = user_and_email
     return {
         "message": message,
         "organization_name": organization_name,
         "organization_application_id": organization_application_id,
+        "primary_email_unverified": email is not None and not email.primary,
     }
 
 
@@ -663,19 +674,31 @@ def send_organization_deleted_email(request, user, *, organization_name):
     }
 
 
-@_email(
-    "organization-subscription-required",
-    repeat_window=datetime.timedelta(days=30),
-)
+@_email("organization-subscription-required")
 def send_organization_subscription_required_email(
-    request,
-    user,
+    request: Request,
+    user_and_email: tuple[User, Email],
     *,
-    organization_name,
-):
+    organizations: list[dict[str, str | dt.date | int]],
+) -> dict[str, str | list[dict[str, str | dt.date | int]]]:
+    user, _ = user_and_email
     return {
         "username": user.username,
-        "organization_name": organization_name,
+        "organizations": organizations,
+    }
+
+
+@_email("organization-deactivated")
+def send_organization_deactivated_email(
+    request: Request,
+    user_and_email: tuple[User, Email],
+    *,
+    organizations: list[dict[str, str | dt.date]],
+) -> dict[str, str | list[dict[str, str | dt.date]]]:
+    user, _ = user_and_email
+    return {
+        "username": user.username,
+        "organizations": organizations,
     }
 
 
@@ -1051,7 +1074,7 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-UNRECOGNIZED_LOGIN_REPEAT_WINDOW = datetime.timedelta(minutes=15)
+UNRECOGNIZED_LOGIN_REPEAT_WINDOW = dt.timedelta(minutes=15)
 
 
 @_email(

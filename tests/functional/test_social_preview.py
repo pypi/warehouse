@@ -12,7 +12,7 @@ To regenerate the card images themselves, see
 ``docs/dev/development/frontend.md``.
 """
 
-import datetime
+import datetime as dt
 import struct
 
 from http import HTTPStatus
@@ -54,7 +54,7 @@ def _project_page(webtest, **release_kwargs):
     return project, resp
 
 
-ESTABLISHED = datetime.datetime.now() - datetime.timedelta(days=60)
+ESTABLISHED = dt.datetime.now() - dt.timedelta(days=60)
 
 
 @pytest.mark.parametrize("name", ["og-card.png", "og-card-test.png"])
@@ -221,7 +221,7 @@ def test_recently_joined_user_profile_does_not_lend_the_official_card(webtest):
     User profiles carry the same ``is_recent`` noindex window as projects, so
     they withhold the card on the same terms.
     """
-    user = UserFactory.create(date_joined=datetime.datetime.now())
+    user = UserFactory.create(date_joined=dt.datetime.now())
 
     resp = webtest.get(f"/user/{user.username}/", status=HTTPStatus.OK)
 

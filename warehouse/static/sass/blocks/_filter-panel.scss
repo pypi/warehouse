@@ -43,8 +43,11 @@
 
     &__close {
       display: inline-block;
+
       @include design-utilities.dismiss-button;
+
       color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$white);
     }
 
@@ -56,6 +59,7 @@
 
     a {
       color: colors.$white;
+
       @include link-utilities.white-underlined-link;
     }
   }

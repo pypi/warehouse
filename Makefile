@@ -7,26 +7,23 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
-# Optimization: if the user explicitly passes tests via `T`,
-# disable xdist (since the overhead of spawning workers is typically
-# higher than running a small handful of specific tests).
-# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# Optimization: if the user explicitly passes tests via `T`, disable coverage
+# unless COVERAGE is set, and disable xdist (since the overhead of spawning
+# workers is typically higher than running a small handful of specific tests).
+# Only disable xdist when the user doesn't set any explicit `TESTARGS` to avoid
 # confusion.
-COVERAGE := yes
 ifneq ($(T),)
-		COVERAGE = no
+		COVERAGE ?= no
 		ifeq ($(TESTARGS),)
 				TESTARGS = -n 0
 		endif
 endif
+COVERAGE ?= yes
 
-# PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
-# the execution. While this introduces significant speed-up during test
-# execution, coverage does not yet support dynamic contexts when enabled.
-# This variable can be set to other tracers (ctrace, pytrace, sysmon).
-# https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
-# TODO: Flip to `sysmon` when we're on Python 3.14
-COVERAGE_CORE ?= ctrace
+# Set COVERAGE_HTML=yes to write an HTML report to htmlcov/ with per-test
+# contexts. Recording contexts forces the slower ctrace core instead of
+# sys.monitoring.
+COVERAGE_HTML ?= no
 
 .DEFAULT_GOAL := help
 
@@ -92,7 +89,7 @@ totp: .state/docker-build-base ## Generate a dev TOTP code
 ##@ Testing & Quality
 
 tests: .state/docker-build-base ## Run Python tests; use T=path/to/test.py
-	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_HTML=$(COVERAGE_HTML) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_lint: .state/docker-build-static ## Run static asset linters
 	docker compose run --rm static bin/static_lint
@@ -125,7 +122,7 @@ user-docs-serve: .state/docker-build-docs ## Serve user documentation
 	docker compose up user-docs
 
 blog: .state/docker-build-docs ## Build the blog
-	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
+	docker compose run --rm blog zensical build -f docs/mkdocs-blog.yml
 
 blog-serve: .state/docker-build-docs ## Serve the blog
 	docker compose up blog
@@ -144,7 +141,7 @@ deps_upgrade_all: .state/docker-build-base ## Upgrade all dependencies
 deps_upgrade_project: .state/docker-build-base ## Upgrade dependencies for one project; use P=name
 	docker compose run --rm base bin/deps-upgrade -p $(P)
 
-translations: .state/docker-build-base ## Update translation catalogs
+translations: .state/docker-build-base ## Extract translatable strings to .state/messages.pot
 	docker compose run --rm base bin/translations
 
 patch: .state/docker-build-base ## Apply local patches
@@ -203,11 +200,11 @@ dbshell: .state/docker-build-base ## Open a PostgreSQL shell
 
 clean: ## Remove generated project files
 	rm -rf dev/*.sql
-	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/
+	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/ docs/.cache/
 	rm -rf warehouse/static/dist/ warehouse/admin/static/dist/
 
 purge: stop clean ## Remove generated files, containers, and volumes
-	rm -rf .state .coverage* .cache .state/db-populated .state/db-migrated
+	rm -rf .state .coverage* .cache
 	docker compose down -v --remove-orphans
 	docker compose rm --force
 

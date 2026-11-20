@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import uuid
 
 from types import SimpleNamespace
 
+import bcrypt
 import freezegun
 import passlib.exc
 import pytest
@@ -346,6 +347,24 @@ class TestDatabaseUserService:
         assert user_service.check_password(user.id, "password")
         assert user.password.startswith("$argon2id$v=19$m=1024,t=6,p=6$")
         assert user_service.check_password(user.id, "password")
+
+    @pytest.mark.parametrize("prefix", ["", "bcrypt$"], ids=["bcrypt", "django_bcrypt"])
+    def test_check_password_legacy_bcrypt_over_72_bytes(self, user_service, prefix):
+        """
+        bcrypt < 5 silently truncated secrets to 72 bytes, so a stored bcrypt
+        hash of a longer password is a hash of its first 72 bytes.
+        """
+        password = "p" * 72 + "assword"
+        stored = bcrypt.hashpw(password.encode()[:72], bcrypt.gensalt(4)).decode()
+        user = UserFactory.create(password=prefix + stored)
+
+        assert not user_service.check_password(user.id, "q" * 72 + "assword")
+        assert user.password == prefix + stored
+
+        assert user_service.check_password(user.id, password)
+        assert user.password.startswith("$argon2id$")
+        assert user_service.check_password(user.id, password)
+        assert not user_service.check_password(user.id, password[:72])
 
     def test_hash_is_upgraded(self, user_service, mocker):
         user = UserFactory.create()
@@ -1387,7 +1406,7 @@ class TestDatabaseUserService:
         assert [c.id for c in initial_codes] != [c.id for c in new_codes]
 
     def test_get_password_timestamp(self, user_service):
-        create_time = datetime.datetime.now(datetime.UTC)
+        create_time = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(create_time):
             user = UserFactory.create()
             user.password_date = create_time
@@ -1440,7 +1459,7 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         UserTermsOfServiceEngagementFactory.create(
             user=user,
-            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)),
+            created=(dt.datetime.now(dt.UTC) - dt.timedelta(days=31)),
             engagement=TermsOfServiceEngagement.Notified,
         )
         assert user_service.needs_tos_flash(user.id, "initial") is False
@@ -1644,7 +1663,7 @@ class TestTokenService:
         assert token_service.loads(token) == {"foo": "bar"}
 
     def test_loads_return_timestamp(self, token_service):
-        sign_time = datetime.datetime.now(datetime.UTC)
+        sign_time = dt.datetime.now(dt.UTC)
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
@@ -1659,14 +1678,12 @@ class TestTokenService:
             token_service.loads(token)
 
     def test_loads_token_is_expired(self, token_service):
-        now = datetime.datetime.now(datetime.UTC)
+        now = dt.datetime.now(dt.UTC)
 
         with freezegun.freeze_time(now) as frozen_time:
             token = token_service.dumps({"foo": "bar"})
 
-            frozen_time.tick(
-                delta=datetime.timedelta(seconds=token_service.max_age + 1)
-            )
+            frozen_time.tick(delta=dt.timedelta(seconds=token_service.max_age + 1))
 
             with pytest.raises(TokenExpired):
                 token_service.loads(token)
@@ -1676,7 +1693,7 @@ class TestTokenService:
             token_service.loads("invalid")
 
     def test_unsafe_load_payload(self, token_service):
-        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+        sign_time = dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
@@ -1686,7 +1703,7 @@ class TestTokenService:
         assert token_service.unsafe_load_payload(token) == {"foo": "bar"}
 
     def test_unsafe_load_payload_signature_invalid(self, token_service):
-        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=10)
+        sign_time = dt.datetime.now(dt.UTC) - dt.timedelta(minutes=10)
         with freezegun.freeze_time(sign_time):
             token = services.TokenService("wrongsecret", "pepper", max_age=3600).dumps(
                 {"foo": "bar"}
@@ -1871,8 +1888,8 @@ class TestHaveIBeenPwnedPasswordBreachedService:
 
     def test_factory(self, pyramid_request, metrics, mocker):
         pyramid_request.http = mocker.sentinel.http
-        pyramid_request.help_url = mocker.Mock(
-            side_effect=lambda _anchor=None: f"http://localhost/help/#{_anchor}"
+        pyramid_request.user_docs_url = mocker.Mock(
+            side_effect=lambda path, anchor=None: f"http://docs{path}#{anchor}"
         )
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
             mocker.sentinel.context, pyramid_request
@@ -1880,10 +1897,12 @@ class TestHaveIBeenPwnedPasswordBreachedService:
 
         assert svc._http is pyramid_request.http
         assert svc._metrics is metrics
-        assert svc._help_url == "http://localhost/help/#compromised-password"
+        assert svc._docs_url == (
+            "http://docs/your-account/security-alerts/#compromised-passwords"
+        )
 
     @pytest.mark.parametrize(
-        ("help_url", "expected"),
+        ("docs_url", "expected"),
         [
             (
                 None,
@@ -1893,19 +1912,20 @@ class TestHaveIBeenPwnedPasswordBreachedService:
                 ),
             ),
             (
-                "http://localhost/help/#compromised-password",
+                "http://docs/your-account/security-alerts/#compromised-passwords",
                 (
                     "This password appears in a security breach or has been "
                     "compromised and cannot be used. See "
-                    '<a href="http://localhost/help/#compromised-password">'
-                    "this FAQ entry</a> for more information."
+                    '<a href="http://docs/your-account/security-alerts/'
+                    '#compromised-passwords">'
+                    "the user documentation</a> for more information."
                 ),
             ),
         ],
     )
-    def test_failure_message(self, pyramid_request, mocker, help_url, expected):
+    def test_failure_message(self, pyramid_request, mocker, docs_url, expected):
         pyramid_request.http = mocker.sentinel.http
-        pyramid_request.help_url = mocker.Mock(return_value=help_url)
+        pyramid_request.user_docs_url = mocker.Mock(return_value=docs_url)
         svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
             mocker.sentinel.context, pyramid_request
         )
@@ -2574,7 +2594,7 @@ class TestUserCheckEmailReputationService:
         gates their own submissions. No remote call is made: hit() is an
         atomic test-and-set, and a denied hit consumes nothing further.
         """
-        resets_in = datetime.timedelta(minutes=10)
+        resets_in = dt.timedelta(minutes=10)
         mocker.patch.object(ratelimit_service, "hit", return_value=False)
         mocker.patch.object(ratelimit_service, "resets_in", return_value=resets_in)
         svc, session = self._service(
@@ -2730,7 +2750,7 @@ class TestDeviceIsKnown:
             ip_address=device_request.ip_address,
             status="pending",
             # A future expiry, as device_is_known always sets on pending logins
-            expires=datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1),
+            expires=dt.datetime.now(dt.UTC) + dt.timedelta(hours=1),
         )
         original_expires = unique_login.expires
         send_email = mocker.patch.object(services, "send_unrecognized_login_email")
@@ -2757,8 +2777,8 @@ class TestDeviceIsKnown:
             user=user,
             status="pending",
             ip_address=device_request.ip_address,
-            created=datetime.datetime(1970, 1, 1),
-            expires=datetime.datetime(1970, 1, 1),
+            created=dt.datetime(1970, 1, 1),
+            expires=dt.datetime(1970, 1, 1),
         )
         send_email = mocker.patch.object(services, "send_unrecognized_login_email")
 

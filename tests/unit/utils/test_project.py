@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import uuid
+
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
 from warehouse.events.tags import EventTag
+from warehouse.helpdesk.interfaces import IHelpDeskService
 from warehouse.packaging.models import (
     Dependency,
     File,
@@ -27,6 +30,7 @@ from warehouse.utils.project import (
     remove_documentation,
     remove_project,
     remove_release,
+    tag_helpscout_conversations,
 )
 
 from ...common.db.accounts import UserFactory
@@ -34,6 +38,7 @@ from ...common.db.packaging import (
     DependencyFactory,
     FileFactory,
     ProjectFactory,
+    ProjectObservationFactory,
     ReleaseFactory,
     RoleFactory,
 )
@@ -165,6 +170,11 @@ def test_quarantine_project(db_request, flash, mocker):
 
     quarantine_project(project, db_request, flash=flash)
 
+    db_request.task.assert_called_once_with(tag_helpscout_conversations)
+    db_request.task.return_value.delay.assert_called_once_with(
+        project.id, "quarantined_via_admin"
+    )
+
     assert (
         db_request.db.query(Project).filter(Project.name == project.name).count() == 1
     )
@@ -175,6 +185,20 @@ def test_quarantine_project(db_request, flash, mocker):
         .first()
     )
     assert flash_spy.called == flash
+
+
+def test_quarantine_project_without_user(db_request):
+    UserFactory.create(username="admin")
+    project = ProjectFactory.create()
+
+    quarantine_project(project, db_request, flash=False)
+
+    assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
+    assert project.lifecycle_status_note == "Quarantined by admin."
+    db_request.task.assert_called_once_with(tag_helpscout_conversations)
+    db_request.task.return_value.delay.assert_called_once_with(
+        project.id, "quarantined_via_auto"
+    )
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -229,6 +253,10 @@ def test_quarantine_release(db_request, flash, mocker):
     # The project itself is not affected.
     assert refreshed.project.lifecycle_status is None
     assert flash_spy.called == flash
+    db_request.task.assert_called_once_with(tag_helpscout_conversations)
+    db_request.task.return_value.delay.assert_called_once_with(
+        project.id, "quarantined_release_via_admin"
+    )
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -257,6 +285,32 @@ def test_clear_release_quarantine(db_request, flash, mocker):
         == 1
     )
     assert flash_spy.called == flash
+
+
+class TestTagHelpscoutConversations:
+    def test_tags_linked_conversations(self, db_request, mocker):
+        project = ProjectFactory.create()
+        ProjectObservationFactory.create(
+            related=project,
+            additional={"helpscout_conversation_url": "https://example.com/c/1"},
+        )
+        ProjectObservationFactory.create(related=project)
+        helpdesk = db_request.find_service(IHelpDeskService)
+        add_tag = mocker.patch.object(helpdesk, "add_tag", autospec=True)
+
+        tag_helpscout_conversations(None, db_request, project.id, "some_tag")
+
+        add_tag.assert_called_once_with(
+            conversation_url="https://example.com/c/1", tag="some_tag"
+        )
+
+    def test_missing_project(self, db_request, mocker):
+        helpdesk = db_request.find_service(IHelpDeskService)
+        add_tag = mocker.patch.object(helpdesk, "add_tag", autospec=True)
+
+        tag_helpscout_conversations(None, db_request, uuid.uuid4(), "some_tag")
+
+        add_tag.assert_not_called()
 
 
 def test_remove_release(db_request, mocker):
@@ -361,8 +415,6 @@ def test_destroy_docs(db_request, flash, mocker):
 
     db_request.user = user
     flash_spy = mocker.spy(db_request.session, "flash")
-    remove_documentation_recorder = mocker.Mock()
-    db_request.task = mocker.Mock(return_value=remove_documentation_recorder)
 
     destroy_docs(project, db_request, flash=flash)
 
@@ -373,7 +425,11 @@ def test_destroy_docs(db_request, flash, mocker):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.call_args_list == [
+    assert db_request.task.call_args_list == [
+        mocker.call(remove_documentation),
+        mocker.call(remove_documentation),
+    ]
+    assert db_request.task.return_value.delay.call_args_list == [
         mocker.call("Foo"),
         mocker.call("foo"),
     ]

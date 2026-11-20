@@ -10,7 +10,7 @@ team in an organization account.
 
     All actions assume an authorized user has logged into their account.
 
-#### Create a team
+## Create a team
 
 *Actor: Owner, Manager*
 
@@ -24,7 +24,7 @@ The new team will appear under Teams
 
 ---
 
-#### Add member to a team
+## Add member to a team
 
 *Actor: Owner, Manager*
 
@@ -41,7 +41,7 @@ Only members of an organization can be added to a team.
 
 ---
 
-#### Remove member from a team
+## Remove member from a team
 
 *Actor: Owner, Manager*
 
@@ -58,7 +58,7 @@ other team of which they are a member.
 
 ---
 
-#### Rename a team
+## Rename a team
 
 *Actor: Owner, Manager*
 
@@ -71,7 +71,7 @@ other team of which they are a member.
 
 ---
 
-#### Delete a team
+## Delete a team
 
 *Actor: Owner, Manager*
 

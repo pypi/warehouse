@@ -18,6 +18,11 @@
     - data-clipboard-target: the content that will be copied to the clipboard
     - data-clipboard-tooltip-value: the label of the tooltip (before the button is clicked)
 
+  Accessibility:
+    The tooltip text is hidden from screen readers, so the button needs its own
+    accessible name (visible text or an `sr-only` span), e.g. "Copy SHA-256 checksum".
+    The clipboard controller announces "Copied" in a shared live region.
+
   Modifiers:
     - copy-tooltip-s: Tooltip appears below the button (south)
     - copy-tooltip-n: Tooltip appears above the button (north)
@@ -40,6 +45,10 @@ $tooltip-duration: 0.1s !default;
 // This is the tooltip bubble
 .copy-tooltip::after {
   content: attr(data-clipboard-tooltip-value);
+
+  // Hide the visual tooltip from assistive tech: the button has its own name,
+  // and the clipboard controller announces "Copied" in a live region.
+  content: attr(data-clipboard-tooltip-value) / "";
   position: absolute;
   z-index: 1000000;
   display: none;

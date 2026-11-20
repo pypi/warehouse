@@ -46,7 +46,7 @@
     li {
       float: left;
 
-      @media screen and (max-width: breakpoints.$small-tablet) {
+      @media screen and (max-width: breakpoints.$tablet) {
         float: none;
         width: 100%;
       }
@@ -57,7 +57,9 @@
     float: left;
     padding: grid.$half-spacing-unit;
     cursor: pointer;
+
     @include link-utilities.link-without-underline;
+
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
 
@@ -90,7 +92,7 @@
       margin-right: 2px;
     }
 
-    @media screen and (max-width: breakpoints.$small-tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       display: block;
       float: none;
       width: 100%;

@@ -13,7 +13,9 @@ has been changed from this address:
 
 to this address:
 
-  {{ new_email }}{% endtrans %}
+  {{ new_email }}{% endtrans +%}
+
+{% include "email/includes/account-help.txt" +%}
 
 {% trans email_address='admin@pypi.org' %}If you did not make this change, you can email {{ email_address }} to
 communicate with the PyPI administrators.{% endtrans %}

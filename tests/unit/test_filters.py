@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import types
 
 from functools import partial
@@ -16,18 +16,18 @@ from warehouse.utils import now
 
 
 def test_now():
-    assert isinstance(now(), datetime.datetime)
+    assert isinstance(now(), dt.datetime)
     assert now().tzinfo is None
     with pytest.raises(TypeError) as excinfo:
-        _ = now() < datetime.datetime.now(datetime.UTC)
+        _ = now() < dt.datetime.now(dt.UTC)
     assert "can't compare offset-naive and offset-aware datetimes" in str(excinfo.value)
-    assert now() <= datetime.datetime.now()
+    assert now() <= dt.datetime.now()
 
 
 def test_now_with_timezone():
-    assert isinstance(now(tz=True), datetime.datetime)
+    assert isinstance(now(tz=True), dt.datetime)
     assert now(tz=True).tzinfo is not None
-    assert now(tz=True) <= datetime.datetime.now(datetime.UTC)
+    assert now(tz=True) <= dt.datetime.now(dt.UTC)
 
 
 def test_camo_url(pyramid_request):
@@ -225,7 +225,7 @@ def test_parse_version(inp, expected):
     ("inp", "expected"),
     [
         (
-            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+            dt.datetime(2018, 12, 26, 13, 36, 5, 789013),
             "2018-12-26 13:36:05.789013 UTC",
         )
     ],
@@ -239,8 +239,8 @@ def test_localize_datetime(inp, expected):
     ("inp", "expected"),
     [
         (
-            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013).isoformat(),
-            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+            dt.datetime(2018, 12, 26, 13, 36, 5, 789013).isoformat(),
+            dt.datetime(2018, 12, 26, 13, 36, 5, 789013),
         )
     ],
 )
@@ -253,7 +253,7 @@ def test_parse_isoformat(inp, expected):
     [
         (
             1667404296,
-            datetime.datetime(2022, 11, 2, 15, 51, 36),
+            dt.datetime(2022, 11, 2, 15, 51, 36),
         )
     ],
 )
@@ -264,15 +264,15 @@ def test_ctime(inp, expected):
 @pytest.mark.parametrize(
     ("delta", "expected"),
     [
-        (datetime.timedelta(days=31), False),
-        (datetime.timedelta(days=30), False),
-        (datetime.timedelta(days=29), True),
-        (datetime.timedelta(), True),
-        (datetime.timedelta(days=-1), True),
+        (dt.timedelta(days=31), False),
+        (dt.timedelta(days=30), False),
+        (dt.timedelta(days=29), True),
+        (dt.timedelta(), True),
+        (dt.timedelta(days=-1), True),
     ],
 )
 def test_is_recent(delta, expected):
-    timestamp = datetime.datetime.now() - delta
+    timestamp = dt.datetime.now() - delta
     assert filters.is_recent(timestamp) == expected
 
 

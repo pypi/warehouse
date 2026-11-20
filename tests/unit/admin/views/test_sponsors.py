@@ -4,7 +4,6 @@ import io
 import secrets
 import uuid
 
-from cgi import FieldStorage
 from unittest import TestCase
 
 import pytest
@@ -19,24 +18,17 @@ from warehouse.admin.views import sponsors as views
 from warehouse.sponsors.models import Sponsor
 
 from ....common.db.sponsors import SponsorFactory
+from ....common.forms import as_posted, file_part
 
-COLOR_LOGO_FILE = FieldStorage()
-COLOR_LOGO_FILE.filename = "colorlogo.png"
-COLOR_LOGO_FILE.file = io.BytesIO(
+PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
     b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
     b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
 )
-COLOR_LOGO_FILE.type = "image/png"
 
-WHITE_LOGO_FILE = FieldStorage()
-WHITE_LOGO_FILE.filename = "whitelogo.png"
-WHITE_LOGO_FILE.file = io.BytesIO(
-    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-    b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
-    b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
-)
-WHITE_LOGO_FILE.type = "image/png"
+
+def logo(filename):
+    return file_part(io.BytesIO(PNG), filename=filename, type="image/png")
 
 
 class TestSponsorForm(TestCase):
@@ -88,12 +80,41 @@ class TestSponsorForm(TestCase):
 
 class TestSponsorList:
     def test_list_all_sponsors(self, db_request):
-        SponsorFactory.create_batch(5)
-        sponsors = db_request.db.query(Sponsor).order_by(Sponsor.name).all()
+        """
+        Compared as a set: ordering is the next test's business, and the
+        factory draws `name` from a word list, so two of these five can tie
+        on the sort key the view orders by.
+        """
+        sponsors = SponsorFactory.create_batch(5)
 
         result = views.sponsor_list(db_request)
 
-        assert result == {"sponsors": sponsors}
+        assert set(result["sponsors"]) == set(sponsors)
+
+    def test_orders_active_first_then_by_level_then_name(self, db_request):
+        """
+        The template renders this order as-is: active sponsors first, then by
+        level, with sponsors that have no level at the bottom of their half.
+
+        `level_order` is nullable but defaults to 0, so both spellings of "no
+        level" have to sort together, after every real level. The NULL is
+        written after the insert, because the factory's None is dropped at
+        INSERT time in favor of the column default.
+        """
+        third = SponsorFactory.create(name="aardvark", level_order=0)
+        fourth = SponsorFactory.create(name="beetle")
+        fourth.level_order = None
+        first = SponsorFactory.create(name="zebra", level_order=1)
+        second = SponsorFactory.create(name="quokka", level_order=2)
+        # A level ahead of every active sponsor's, to show inactive loses.
+        fifth = SponsorFactory.create(name="dodo", level_order=1, is_active=False)
+        db_request.db.flush()
+        db_request.db.refresh(fourth)
+        assert fourth.level_order is None
+
+        result = views.sponsor_list(db_request)
+
+        assert result["sponsors"] == [first, second, third, fourth, fifth]
 
 
 class TestCreateSponsor:
@@ -119,7 +140,7 @@ class TestCreateSponsor:
         db_request.method = "POST"
         db_request.POST["name"] = "Sponsor"
         db_request.POST["link_url"] = "https://newsponsor.com"
-        db_request.POST["color_logo"] = COLOR_LOGO_FILE
+        db_request.POST["color_logo"] = logo("colorlogo.png")
         db_request.POST = MultiDict(db_request.POST)
         mocker.spy(db_request.session, "flash")
         mocker.patch.object(
@@ -164,11 +185,11 @@ class TestEditSponsor:
         form = views.SponsorForm(MultiDict({}), sponsor)
         data = form.data.copy()
         data["name"] = "New Name"
-        data["white_logo"] = WHITE_LOGO_FILE
-        data["color_logo"] = COLOR_LOGO_FILE
+        data["white_logo"] = logo("whitelogo.png")
+        data["color_logo"] = logo("colorlogo.png")
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
         mocker.patch.object(
             db_request,
             "current_route_path",
@@ -208,7 +229,7 @@ class TestEditSponsor:
         data["name"] = ""  # name is required
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
-        db_request.POST = MultiDict(data)
+        db_request.POST = as_posted(data)
 
         result = views.edit_sponsor(db_request)
 

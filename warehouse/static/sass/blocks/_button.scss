@@ -41,6 +41,7 @@
   border-radius: 3px;
   display: inline-block;
   text-align: center;
+
   @include link-utilities.link-without-underline;
 
   i.fa {
@@ -55,6 +56,10 @@
     color: color.adjust(colors.$primary-color, $lightness: -10%);
     z-index: list.index(z-index.$z-index-scale, "active-button"); // Needed for button groups
     outline: none;
+  }
+
+  &:focus-visible {
+    @include link-utilities.focus-ring;
   }
 
   &--small {
@@ -84,7 +89,12 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$primary-color);
+    }
+
+    &:focus-visible {
+      @include link-utilities.focus-ring(colors.$primary-color);
     }
   }
 
@@ -110,7 +120,12 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$danger-color);
+    }
+
+    &:focus-visible {
+      @include link-utilities.focus-ring(colors.$danger-color);
     }
   }
 
@@ -131,7 +146,12 @@
     &:active,
     &:focus {
       border-color: colors.$white;
+
       @include link-utilities.link-focus-state(colors.$warning-color);
+    }
+
+    &:focus-visible {
+      @include link-utilities.focus-ring(colors.$warning-color);
     }
   }
 
@@ -139,6 +159,7 @@
     padding: 0;
     background-color: transparent;
     border: 0;
+    border-radius: 0;
     color: colors.$primary-color;
     display: inline-block;
     text-decoration: underline;
@@ -167,6 +188,10 @@
       color: color.adjust(colors.$background-color, $lightness: -12%);
       outline: none;
     }
+
+    &:focus-visible {
+      @include link-utilities.focus-ring;
+    }
   }
 
   &--switch-to-desktop {
@@ -178,6 +203,10 @@
     &:active {
       border-color: colors.$white;
       color: colors.$white;
+    }
+
+    &:focus-visible {
+      @include link-utilities.focus-ring(colors.$white);
     }
   }
 

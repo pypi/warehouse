@@ -11,7 +11,7 @@ tags:
 
 ## Two-factor Authentication is required for all users
 
-It's January 1st, 2024, and PyPI now requires [Two-factor authentication (2FA)](https://pypi.org/help/#twofa) for **all users**.
+It's January 1st, 2024, and PyPI now requires [Two-factor authentication (2FA)](https://docs.pypi.org/your-account/two-factor-authentication/#what-is-two-factor-authentication) for **all users**.
 
 This post is a recognition of the hard work that went into making this a reality,
 and a thank you to all the users who have enabled 2FA on their accounts.
@@ -21,8 +21,8 @@ that you will need to do so before you can perform any management actions,
 or upload files to PyPI.
 
 Once 2FA is enabled, you may perform management actions,
-including generating [API Tokens](https://pypi.org/help/#apitoken)
-or setting up [Trusted Publishers](https://pypi.org/help/#trusted-publishers) (preferred)
+including generating [API Tokens](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token)
+or setting up [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) (preferred)
 to upload files.
 
 <!-- more -->

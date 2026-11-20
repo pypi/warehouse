@@ -99,7 +99,7 @@ class TestEnsureUploadsAllowed:
         assert wrapped(mocker.sentinel.context, db_request) is resp
 
     @pytest.mark.parametrize(
-        ("flag", "error", "help_url"),
+        ("flag", "error", "docs_url"),
         [
             (
                 AdminFlagValue.READ_ONLY,
@@ -110,17 +110,17 @@ class TestEnsureUploadsAllowed:
                 AdminFlagValue.DISALLOW_NEW_UPLOAD,
                 (
                     "New uploads are temporarily disabled. "
-                    "See /help/url/ for more information."
+                    "See /docs/url/ for more information."
                 ),
-                "/help/url/",
+                "/docs/url/",
             ),
         ],
     )
     def test_disallowed_with_admin_flags(
-        self, db_request, mocker, flag, error, help_url
+        self, db_request, mocker, flag, error, docs_url
     ):
         db_request.db.get(AdminFlag, flag.value).enabled = True
-        db_request.help_url = lambda *a, **k: help_url
+        db_request.user_docs_url = lambda *a, **k: docs_url
 
         @decorators.ensure_uploads_allowed
         def wrapped(context, request):
@@ -135,7 +135,7 @@ class TestEnsureUploadsAllowed:
         assert resp.status == f"403 {error}"
 
     def test_fails_without_identity(self, pyramid_config, db_request, mocker):
-        db_request.help_url = lambda *a, **k: "/path/to/help/"
+        db_request.user_docs_url = lambda *a, **k: "/path/to/docs/"
         pyramid_config.set_security_policy(DummySecurityPolicy(identity=None))
 
         @decorators.ensure_uploads_allowed
@@ -150,5 +150,5 @@ class TestEnsureUploadsAllowed:
         assert resp.status_code == 403
         assert resp.status == (
             "403 Invalid or non-existent authentication information. "
-            "See /path/to/help/ for more information."
+            "See /path/to/docs/ for more information."
         )

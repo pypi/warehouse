@@ -7,10 +7,12 @@ import re
 from typing import TYPE_CHECKING
 
 from pyramid.httpexceptions import HTTPSeeOther
+from requests.exceptions import RequestException
 from sqlalchemy.sql import func
 
 from warehouse.accounts.services import IUserService
 from warehouse.events.tags import EventTag
+from warehouse.helpdesk.interfaces import IHelpDeskService
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import (
     JournalEntry,
@@ -22,6 +24,8 @@ from warehouse.packaging.models import (
 from warehouse.tasks import task
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from pyramid.request import Request
 
 
@@ -33,6 +37,29 @@ def remove_documentation(task, request, project_name):
         storage.remove_by_prefix(f"{project_name}/")
     except Exception as exc:  # noqa: BLE001
         task.retry(exc=exc)
+
+
+@task(
+    bind=True,
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(RequestException,),
+    retry_backoff=True,
+)
+def tag_helpscout_conversations(
+    task, request: Request, project_id: UUID, tag: str
+) -> None:
+    """
+    Add a tag to every Help Scout conversation linked to a Project's Observations.
+    """
+    project = request.db.get(Project, project_id)
+    if project is None:
+        return
+
+    helpdesk_service = request.find_service(IHelpDeskService)
+    for observation in project.observations:
+        if url := observation.additional.get("helpscout_conversation_url"):
+            helpdesk_service.add_tag(conversation_url=url, tag=tag)
 
 
 PROJECT_NAME_RE = re.compile(
@@ -191,6 +218,11 @@ def quarantine_project(project: Project, request, flash=True) -> None:
     for user in project.users:
         user.is_frozen = True
 
+    request.task(tag_helpscout_conversations).delay(
+        project.id,
+        "quarantined_via_admin" if request.user else "quarantined_via_auto",
+    )
+
     if flash:
         request.session.flash(
             f"Project {project.name} quarantined.\n"
@@ -258,6 +290,10 @@ def quarantine_release(release: Release, request, flash: bool = True) -> None:
             action="release quarantined",
             submitted_by=actor,
         )
+    )
+
+    request.task(tag_helpscout_conversations).delay(
+        release.project.id, "quarantined_release_via_admin"
     )
 
     if flash:

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import urllib.parse
+
 import pyramid_retry
 import pytest
 import requests
@@ -8,32 +9,33 @@ import responses
 
 from warehouse.captcha import hcaptcha, interfaces
 
-_REQUEST = pretend.stub(
-    # returning a real requests.Session object because responses is responsible
-    # for mocking that out
-    http=requests.Session(),
-    registry=pretend.stub(
-        settings={
+
+@pytest.fixture
+def captcha_request(pyramid_request):
+    """A request with a real requests.Session, which responses intercepts."""
+    pyramid_request.http = requests.Session()
+    pyramid_request.registry.settings.update(
+        {
             "hcaptcha.site_key": "site_key_value",
             "hcaptcha.secret_key": "secret_key_value",
-        },
-    ),
-)
+        }
+    )
+    return pyramid_request
 
 
-def test_create_captcha_service():
+def test_create_captcha_service(captcha_request):
     service = hcaptcha.Service.create_service(
         context=None,
-        request=_REQUEST,
+        request=captcha_request,
     )
     assert isinstance(service, hcaptcha.Service)
 
 
-def test_csp_policy():
+def test_csp_policy(captcha_request):
     csp_hostnames = ["https://hcaptcha.com", "https://*.hcaptcha.com"]
     service = hcaptcha.Service.create_service(
         context=None,
-        request=_REQUEST,
+        request=captcha_request,
     )
     assert service.csp_policy == {
         "script-src": csp_hostnames,
@@ -43,17 +45,17 @@ def test_csp_policy():
     }
 
 
-def test_enabled():
+def test_enabled(captcha_request):
     service = hcaptcha.Service.create_service(
         context=None,
-        request=_REQUEST,
+        request=captcha_request,
     )
     assert service.enabled
 
 
 class TestVerifyResponse:
     @responses.activate
-    def test_verify_service_disabled(self):
+    def test_verify_service_disabled(self, pyramid_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
@@ -62,16 +64,13 @@ class TestVerifyResponse:
 
         service = hcaptcha.Service.create_service(
             context=None,
-            request=pretend.stub(
-                registry=pretend.stub(
-                    settings={},
-                ),
-            ),
+            request=pyramid_request,
         )
         assert service.verify_response("") is None
+        assert not responses.calls
 
     @responses.activate
-    def test_verify_response_success(self):
+    def test_verify_response_success(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
@@ -84,7 +83,7 @@ class TestVerifyResponse:
 
         service = hcaptcha.Service.create_service(
             context=None,
-            request=_REQUEST,
+            request=captcha_request,
         )
         assert service.verify_response("meaningless") == interfaces.ChallengeResponse(
             challenge_ts=0,
@@ -92,7 +91,7 @@ class TestVerifyResponse:
         )
 
     @responses.activate
-    def test_remote_ip_added(self):
+    def test_remote_ip_added(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
@@ -101,7 +100,7 @@ class TestVerifyResponse:
 
         service = hcaptcha.Service.create_service(
             context=None,
-            request=_REQUEST,
+            request=captcha_request,
         )
         assert service.verify_response(
             "meaningless", remote_ip="someip"
@@ -109,26 +108,31 @@ class TestVerifyResponse:
             challenge_ts=None,
             hostname=None,
         )
+        payload = dict(urllib.parse.parse_qsl(responses.calls[0].request.body))
+        assert payload["remoteip"] == "someip"
 
-    def test_retries_on_timeout(self, monkeypatch):
+    def test_retries_on_timeout(self, mocker, captcha_request):
         service = hcaptcha.Service.create_service(
             context=None,
-            request=_REQUEST,
+            request=captcha_request,
         )
-        monkeypatch.setattr(
-            service.request.http, "post", pretend.raiser(requests.Timeout)
+        mocker.patch.object(
+            service.request.http, "post", autospec=True, side_effect=requests.Timeout
         )
 
         with pytest.raises(pyramid_retry.RetryableException):
             service.verify_response("meaningless")
 
-    def test_unexpected_error(self, monkeypatch):
+    def test_unexpected_error(self, mocker, captcha_request):
         service = hcaptcha.Service.create_service(
             context=None,
-            request=_REQUEST,
+            request=captcha_request,
         )
-        monkeypatch.setattr(
-            service.request.http, "post", pretend.raiser(Exception("unexpected error"))
+        mocker.patch.object(
+            service.request.http,
+            "post",
+            autospec=True,
+            side_effect=Exception("unexpected error"),
         )
 
         with pytest.raises(hcaptcha.UnexpectedError) as err:
@@ -137,13 +141,13 @@ class TestVerifyResponse:
         assert err.value.args == ("unexpected error",)
 
     @responses.activate
-    def test_unexpected_data_error(self):
+    def test_unexpected_data_error(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
             body="something awful",
         )
-        serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
+        serv = hcaptcha.Service.create_service(context=None, request=captcha_request)
 
         with pytest.raises(hcaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -152,13 +156,13 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_missing_success_key(self):
+    def test_missing_success_key(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
             json={},
         )
-        serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
+        serv = hcaptcha.Service.create_service(context=None, request=captcha_request)
 
         with pytest.raises(hcaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -167,13 +171,13 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_missing_error_codes_key(self):
+    def test_missing_error_codes_key(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
             json={"success": False},
         )
-        serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
+        serv = hcaptcha.Service.create_service(context=None, request=captcha_request)
 
         with pytest.raises(hcaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -182,13 +186,13 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_invalid_error_code(self):
+    def test_invalid_error_code(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
             json={"success": False, "error-codes": ["foo"]},
         )
-        serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
+        serv = hcaptcha.Service.create_service(context=None, request=captcha_request)
 
         with pytest.raises(hcaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -197,7 +201,7 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_valid_error_code(self):
+    def test_valid_error_code(self, captcha_request):
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
@@ -206,7 +210,7 @@ class TestVerifyResponse:
                 "error-codes": ["invalid-or-already-seen-response"],
             },
         )
-        serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
+        serv = hcaptcha.Service.create_service(context=None, request=captcha_request)
 
         with pytest.raises(hcaptcha.InvalidOrAlreadySeenResponseError):
             serv.verify_response("meaningless")

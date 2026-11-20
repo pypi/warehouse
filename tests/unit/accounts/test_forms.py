@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 import json
 
 import pytest
@@ -352,7 +352,7 @@ class TestLoginForm:
             user_service,
             "check_password",
             autospec=True,
-            side_effect=TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600)),
+            side_effect=TooManyFailedLogins(resets_in=dt.timedelta(seconds=600)),
         )
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username", "password": "pw"}),
@@ -1035,7 +1035,7 @@ class TestRegistrationForm:
         [
             (None, "Too many email addresses checked. Try again later."),
             (
-                datetime.timedelta(minutes=10),
+                dt.timedelta(minutes=10),
                 "Too many email addresses checked. Try again in 10 minutes.",
             ),
         ],
@@ -1783,7 +1783,7 @@ class TestReAuthenticateForm:
             user_service,
             "check_password",
             autospec=True,
-            side_effect=TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600)),
+            side_effect=TooManyFailedLogins(resets_in=dt.timedelta(seconds=600)),
         )
         form = forms.ReAuthenticateForm(
             formdata=MultiDict({"password": "pw"}),

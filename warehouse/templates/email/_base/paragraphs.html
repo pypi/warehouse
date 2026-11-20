@@ -1,0 +1,8 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{#- A reviewer's free-text message, one <p> per blank-line-separated paragraph.
+    Browsers submit textareas with CRLF line endings, hence the normalization. -#}
+{% macro paragraphs(message) -%}
+  {% for paragraph in (message or "").replace("\r\n", "\n").split("\n\n") if paragraph.strip() %}
+    <p>{{ paragraph.strip() }}</p>
+  {% endfor %}
+{%- endmacro %}

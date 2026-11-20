@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
+import datetime as dt
 
 
-def now(tz=False) -> datetime.datetime:
+def now(tz=False) -> dt.datetime:
     """Return the current datetime in UTC with or without a timezone."""
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     return now if tz else now.replace(tzinfo=None)
 
 

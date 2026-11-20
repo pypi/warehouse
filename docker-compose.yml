@@ -59,7 +59,7 @@ services:
     ports:
       - "12111:12111"
 
-  redis:
+  cache:
     image: redis:7.0
     volumes:
       - cachedata:/data
@@ -69,7 +69,7 @@ services:
       context: ./dev/compose/opensearch
     init: true
     healthcheck:
-        test: ["CMD-SHELL", "curl -u admin:gqYeDIzbEwTTYmB7 --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+        test: ["CMD-SHELL", "curl -u admin:$$OPENSEARCH_INITIAL_ADMIN_PASSWORD --silent --fail http://localhost:9200/_cluster/health || exit 1"]
         interval: 1s
         start_period: 10s
     environment:
@@ -136,7 +136,7 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_started
-      redis:
+      cache:
         condition: service_started
       stripe:
         condition: service_started
@@ -150,7 +150,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_started
       stripe:
         condition: service_started
@@ -192,7 +192,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_started
 
   rstuf-api:
@@ -201,12 +201,12 @@ services:
       - 8001:80
     stop_signal: SIGKILL
     environment:
-      - RSTUF_BROKER_SERVER=redis://redis/1
-      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_BROKER_SERVER=redis://cache/1
+      - RSTUF_REDIS_SERVER=redis://cache
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
     depends_on:
-      redis:
+      cache:
         condition: service_started
 
   rstuf-worker:
@@ -219,15 +219,15 @@ services:
       - RSTUF_STORAGE_BACKEND=LocalStorage
       - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
-      - RSTUF_BROKER_SERVER=redis://redis/1
-      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_BROKER_SERVER=redis://cache/1
+      - RSTUF_REDIS_SERVER=redis://cache
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
       - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_started
 
   static:
@@ -280,7 +280,7 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: mkdocs serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
+    command: zensical serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
@@ -292,7 +292,7 @@ services:
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
+    command: zensical serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
@@ -304,8 +304,11 @@ services:
   blog:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:10001 -f docs/mkdocs-blog.yml
+    command: zensical serve -a 0.0.0.0:10001 -f docs/mkdocs-blog.yml
     stop_signal: SIGINT
+    environment:
+      # rss reads post dates with git from inside the docs mount
+      GIT_DISCOVERY_ACROSS_FILESYSTEM: "1"
     volumes:
       # we mount git because rss, thanks feed nerds
       - ./.git:/opt/warehouse/src/.git:ro

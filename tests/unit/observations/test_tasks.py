@@ -2,8 +2,9 @@
 
 from datetime import UTC, datetime, timedelta
 
-import pretend
 import pytest
+
+from structlog.stdlib import BoundLogger
 
 from warehouse.observations.models import ObservationKind
 from warehouse.observations.tasks import (
@@ -12,46 +13,54 @@ from warehouse.observations.tasks import (
     report_observation_to_helpscout,
 )
 from warehouse.packaging.models import LifecycleStatus
+from warehouse.tasks import WarehouseTask
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 
 
-def test_execute_observation_report(app_config):
-    _delay = pretend.call_recorder(lambda x: None)
-    app_config.task = lambda x: pretend.stub(delay=_delay)
-    observation = pretend.stub(id=pretend.stub())
-    session = pretend.stub(info={"warehouse.observations.new": {observation}})
+def test_execute_observation_report(app_config, db_request, mocker):
+    tasks = {
+        report_observation_to_helpscout: mocker.create_autospec(
+            WarehouseTask, instance=True
+        ),
+        evaluate_project_for_quarantine: mocker.create_autospec(
+            WarehouseTask, instance=True
+        ),
+    }
+    task = mocker.patch.object(
+        app_config, "task", autospec=True, side_effect=tasks.__getitem__
+    )
+    user = UserFactory.create()
+    db_request.user = user
+    project = ProjectFactory.create()
+    observation = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.IsMalware,
+        summary="Project Observation",
+        payload={},
+        actor=user,
+    )
+    db_request.db.flush()
 
-    react_to_observation_created(app_config, session)
+    react_to_observation_created(app_config, db_request.db)
 
-    assert _delay.calls == [pretend.call(observation.id), pretend.call(observation.id)]
+    assert task.call_args_list == [
+        mocker.call(report_observation_to_helpscout),
+        mocker.call(evaluate_project_for_quarantine),
+    ]
+    tasks[report_observation_to_helpscout].delay.assert_called_once_with(observation.id)
+    tasks[evaluate_project_for_quarantine].delay.assert_called_once_with(observation.id)
+    assert "warehouse.observations.new" not in db_request.db.info
 
 
-@pytest.mark.parametrize(
-    ("kind", "reports"),
-    [
-        (ObservationKind.IsMalware, True),
-        (ObservationKind.IsDependencyConfusion, True),
-        (ObservationKind.IsSpam, False),
-        (ObservationKind.SomethingElse, False),
-        (ObservationKind.AccountRecovery, False),
-    ],
-)
-@pytest.mark.parametrize("payload", [{}, {"foo": "bar"}])
-def test_report_observation_to_helpscout(
-    kind, reports, payload, db_request, helpdesk_service, monkeypatch
-):
-    db_request.registry.settings = {"helpscout.app_secret": "fake-sekret"}
-    db_request.route_url = lambda *a, **kw: "/admin/malware_reports/"
-
-    # Create an Observation
+def _record_reportable_observation(db_request, kind, payload):
+    """Record an Observation by a fresh user on a project with one Owner."""
     user = UserFactory.create()
     db_request.user = user
     project = ProjectFactory.create()
     project_owner = UserFactory.create()
     RoleFactory.create(project=project, user=project_owner, role_name="Owner")
-
     observation = project.record_observation(
         request=db_request,
         kind=kind,
@@ -61,19 +70,212 @@ def test_report_observation_to_helpscout(
     )
     # Need to flush the session to ensure the Observation has an ID
     db_request.db.flush()
+    return project, project_owner, observation
 
-    hs_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
-    monkeypatch.setattr(helpdesk_service, "create_conversation", hs_svc_spy)
+
+@pytest.fixture
+def warehouse_domain(db_request):
+    """Configure the host that route_url links must point at."""
+    domain = "pypi.example"
+    db_request.registry.settings.update({"warehouse.domain": domain})
+    return domain
+
+
+@pytest.mark.parametrize(
+    ("kind", "extra_routes"),
+    [
+        (ObservationKind.IsMalware, ["admin.malware_reports.project.list"]),
+        (ObservationKind.IsDependencyConfusion, []),
+    ],
+)
+@pytest.mark.parametrize(
+    ("payload", "expected_attachments"),
+    [
+        ({}, lambda project, observation: {}),
+        (
+            {"foo": "bar"},
+            lambda project, observation: {
+                "attachments": [
+                    {
+                        "fileName": (
+                            f"observation-{project.name}-{observation.created}.json"
+                        ),
+                        "mimeType": "application/json",
+                        "data": "eyJmb28iOiAiYmFyIn0=",
+                    }
+                ]
+            },
+        ),
+    ],
+    ids=["no_payload", "payload"],
+)
+def test_report_observation_to_helpscout(
+    kind,
+    extra_routes,
+    payload,
+    expected_attachments,
+    db_request,
+    warehouse_domain,
+    helpdesk_service,
+    mocker,
+):
+    route_url = mocker.patch.object(
+        db_request,
+        "route_url",
+        autospec=True,
+        side_effect=lambda route, **kw: f"https://{kw['_host']}/{route}/",
+    )
+    project, project_owner, observation = _record_reportable_observation(
+        db_request, kind, payload
+    )
+    observer_email = db_request.user.email
+    create_conversation = mocker.spy(helpdesk_service, "create_conversation")
 
     report_observation_to_helpscout(None, db_request, observation.id)
 
-    # If it's not supposed to report, then we shouldn't have called the service
-    assert bool(hs_svc_spy.calls) == reports
+    create_conversation.assert_called_once_with(request_json=mocker.ANY)
+    request_json = create_conversation.call_args.kwargs["request_json"]
+    assert request_json["subject"] == f"Observation Report for {project.name}"
+    assert request_json["mailboxId"] == helpdesk_service.mailbox_id
+    assert request_json["customer"] == {"email": observer_email}
+    assert request_json["tags"] == ["observation"]
+    assert request_json["threads"] == [
+        {
+            "type": "customer",
+            "customer": {"email": observer_email},
+            "text": mocker.ANY,
+            **expected_attachments(project, observation),
+        }
+    ]
+    text = request_json["threads"][0]["text"]
+    assert f"Owner: {project_owner.username}\n" in text
+    for route in ["packaging.project", "admin.user.detail", *extra_routes]:
+        assert f"https://{warehouse_domain}/{route}/" in text
+    assert route_url.call_args_list == [
+        mocker.call("packaging.project", name=project.name, _host=warehouse_domain),
+        mocker.call(
+            "admin.user.detail",
+            username=project_owner.username,
+            _host=warehouse_domain,
+        ),
+        *[
+            mocker.call(route, project_name=project.name, _host=warehouse_domain)
+            for route in extra_routes
+        ],
+    ]
+    assert observation.additional["helpscout_conversation_url"] == "localhost"
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        ObservationKind.IsSpam,
+        ObservationKind.SomethingElse,
+        ObservationKind.AccountRecovery,
+    ],
+)
+def test_report_observation_to_helpscout_skips_unreported_kinds(
+    kind, db_request, helpdesk_service, mocker
+):
+    route_url = mocker.patch.object(db_request, "route_url", autospec=True)
+    _, _, observation = _record_reportable_observation(db_request, kind, {})
+    create_conversation = mocker.spy(helpdesk_service, "create_conversation")
+
+    report_observation_to_helpscout(None, db_request, observation.id)
+
+    create_conversation.assert_not_called()
+    route_url.assert_not_called()
+    assert "helpscout_conversation_url" not in observation.additional
+
+
+def test_report_observation_to_quarantined_project_tags_conversation(
+    db_request, warehouse_domain, helpdesk_service, mocker
+):
+    route_url = mocker.patch.object(
+        db_request, "route_url", autospec=True, return_value="/admin/malware_reports/"
+    )
+    user = UserFactory.create()
+    project = ProjectFactory.create(lifecycle_status=LifecycleStatus.QuarantineEnter)
+    observation = project.record_observation(
+        request=db_request,
+        kind=ObservationKind.IsMalware,
+        summary="Project Observation",
+        payload={},
+        actor=user,
+    )
+    db_request.db.flush()
+    create_conversation = mocker.patch.object(
+        helpdesk_service,
+        "create_conversation",
+        autospec=True,
+        return_value="https://example.com/c/1",
+    )
+
+    report_observation_to_helpscout(None, db_request, observation.id)
+
+    request_json = create_conversation.call_args.kwargs["request_json"]
+    assert request_json["tags"] == ["observation", "quarantined_via_auto"]
+    assert route_url.call_args_list == [
+        mocker.call("packaging.project", name=project.name, _host=warehouse_domain),
+        mocker.call(
+            "admin.malware_reports.project.list",
+            project_name=project.name,
+            _host=warehouse_domain,
+        ),
+    ]
+
+
+def assert_quarantine_notification(
+    mocker, send_notification, route_url, project, warehouse_domain
+):
+    """Assert the admin notification links to the quarantined project."""
+    send_notification.assert_called_once_with(payload=mocker.ANY)
+    payload = send_notification.call_args.kwargs["payload"]
+    assert payload["blocks"][0]["text"]["text"] == (
+        f"*Auto-Quarantine: <{route_url.return_value}|{project.name}>*"
+    )
+    assert route_url.call_args_list == [
+        mocker.call(
+            "packaging.project", name=project.normalized_name, _host=warehouse_domain
+        ),
+        mocker.call(
+            "admin.malware_reports.project.list",
+            project_name=project.normalized_name,
+            _host=warehouse_domain,
+        ),
+    ]
+
+
+def assert_logger_bound(
+    db_request, task, observer, project, kind=ObservationKind.IsMalware
+):
+    """Assert the task bound its logger to the observation's context."""
+    db_request.log.bind.assert_called_once_with(
+        kind=kind.value[0],
+        observer=observer.username,
+        project=project.name,
+        task=task.name,
+    )
 
 
 class TestAutoQuarantineProject:
-    def test_non_malware_observation_does_not_quarantine(self, db_request):
-        dummy_task = pretend.stub(name="dummy_task")
+    @pytest.fixture
+    def dummy_task(self, mocker):
+        task = mocker.create_autospec(WarehouseTask, instance=True)
+        task.name = "evaluate_project_for_quarantine"
+        return task
+
+    @pytest.fixture
+    def logger(self, db_request, mocker):
+        """Override the shared ``log.bind.return_value`` to tell bound calls apart."""
+        db_request.log.bind.return_value = mocker.create_autospec(
+            BoundLogger, instance=True
+        )
+        return db_request.log.bind.return_value
+
+    def test_non_malware_observation_does_not_quarantine(
+        self, dummy_task, logger, db_request, mocker
+    ):
         user = UserFactory.create()
         db_request.user = user
         project = ProjectFactory.create()
@@ -91,12 +293,20 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("ObservationKind is not IsMalware. Not quarantining.")
+        assert_logger_bound(
+            db_request,
+            dummy_task,
+            user,
+            project,
+            kind=ObservationKind.IsDependencyConfusion,
+        )
+        assert logger.info.call_args_list == [
+            mocker.call("ObservationKind is not IsMalware. Not quarantining.")
         ]
 
-    def test_already_quarantined_project_does_not_do_anything(self, db_request):
-        dummy_task = pretend.stub(name="dummy_task")
+    def test_already_quarantined_project_does_not_do_anything(
+        self, dummy_task, logger, db_request, mocker
+    ):
         user = UserFactory.create()
         db_request.user = user
         project = ProjectFactory.create(
@@ -116,12 +326,14 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("Project is already quarantined. No change needed.")
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call("Project is already quarantined. No change needed.")
         ]
 
-    def test_not_enough_observers_does_not_quarantine(self, db_request):
-        dummy_task = pretend.stub(name="dummy_task")
+    def test_not_enough_observers_does_not_quarantine(
+        self, dummy_task, logger, db_request, mocker
+    ):
         user = UserFactory.create()
         db_request.user = user
         project = ProjectFactory.create()
@@ -139,13 +351,15 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("Project has fewer than 2 observers. Not quarantining.")
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call("Project has fewer than 2 observers. Not quarantining.")
         ]
 
-    def test_non_malware_observations_do_not_corroborate(self, db_request):
+    def test_non_malware_observations_do_not_corroborate(
+        self, dummy_task, logger, db_request, mocker
+    ):
         """Only malware reports count toward the corroboration threshold."""
-        dummy_task = pretend.stub(name="dummy_task")
         observer_user = UserFactory.create(is_observer=True)
         another_user = UserFactory.create()
         db_request.user = observer_user
@@ -171,12 +385,14 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("Project has fewer than 2 observers. Not quarantining.")
+        assert_logger_bound(db_request, dummy_task, observer_user, project)
+        assert logger.info.call_args_list == [
+            mocker.call("Project has fewer than 2 observers. Not quarantining.")
         ]
 
-    def test_no_observer_observers_does_not_quarantine(self, db_request):
-        dummy_task = pretend.stub(name="dummy_task")
+    def test_no_observer_observers_does_not_quarantine(
+        self, dummy_task, logger, db_request, mocker
+    ):
         user = UserFactory.create()
         db_request.user = user
         project = ProjectFactory.create()
@@ -204,20 +420,28 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call(
+        assert_logger_bound(db_request, dummy_task, another_user, project)
+        assert logger.info.call_args_list == [
+            mocker.call(
                 "Project has no `User.is_observer` Observers. Not quarantining."
             )
         ]
 
-    def test_quarantines_project(self, db_request, notification_service, monkeypatch):
+    def test_quarantines_project(
+        self,
+        dummy_task,
+        logger,
+        db_request,
+        notification_service,
+        warehouse_domain,
+        mocker,
+    ):
         """
         Satisfies criteria for auto-quarantine:
         - 2 observations
         - from different observers
         - one of which is an Observer
         """
-        dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         project = ProjectFactory.create()
         # Needs a release to be able to quarantine
@@ -225,8 +449,8 @@ class TestAutoQuarantineProject:
 
         another_user = UserFactory.create()
 
-        db_request.route_url = pretend.call_recorder(
-            lambda *args, **kw: "/project/spam/"
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/project/spam/"
         )
         db_request.user = user
 
@@ -248,33 +472,40 @@ class TestAutoQuarantineProject:
         # Need to flush the session to ensure the Observation has an ID
         db_request.db.flush()
 
-        ns_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
-        monkeypatch.setattr(notification_service, "send_notification", ns_svc_spy)
+        send_notification = mocker.spy(notification_service, "send_notification")
 
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
-        assert len(ns_svc_spy.calls) == 1
+        assert_quarantine_notification(
+            mocker, send_notification, route_url, project, warehouse_domain
+        )
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call(
+        assert_logger_bound(db_request, dummy_task, another_user, project)
+        assert logger.info.call_args_list == [
+            mocker.call(
                 "Auto-quarantining project due to multiple malware observations."
             ),
         ]
 
     def test_trusted_observer_quarantines_young_project(
-        self, db_request, notification_service, monkeypatch
+        self,
+        dummy_task,
+        logger,
+        db_request,
+        notification_service,
+        warehouse_domain,
+        mocker,
     ):
         """
         A single trusted observer can quarantine a project that is < 24 hours old.
         """
-        dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         # Create project that was created 1 hour ago
         project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
         ReleaseFactory.create(project=project)
 
-        db_request.route_url = pretend.call_recorder(
-            lambda *args, **kw: "/project/spam/"
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/project/spam/"
         )
         db_request.user = user
 
@@ -287,33 +518,40 @@ class TestAutoQuarantineProject:
         )
         db_request.db.flush()
 
-        ns_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
-        monkeypatch.setattr(notification_service, "send_notification", ns_svc_spy)
+        send_notification = mocker.spy(notification_service, "send_notification")
 
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
-        assert len(ns_svc_spy.calls) == 1
+        assert_quarantine_notification(
+            mocker, send_notification, route_url, project, warehouse_domain
+        )
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call(
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call(
                 "Auto-quarantining young project (<24h) reported by trusted observer."
             ),
         ]
 
     def test_trusted_observer_quarantines_young_project_with_yanked_releases(
-        self, db_request, notification_service, monkeypatch
+        self,
+        dummy_task,
+        logger,
+        db_request,
+        notification_service,
+        warehouse_domain,
+        mocker,
     ):
         """
         A young project where all releases are yanked should still be quarantined.
         latest_version is None when all releases are yanked.
         """
-        dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
         ReleaseFactory.create(project=project, yanked=True)
 
-        db_request.route_url = pretend.call_recorder(
-            lambda *args, **kw: "/project/spam/"
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/project/spam/"
         )
         db_request.user = user
 
@@ -326,24 +564,27 @@ class TestAutoQuarantineProject:
         )
         db_request.db.flush()
 
-        ns_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
-        monkeypatch.setattr(notification_service, "send_notification", ns_svc_spy)
+        send_notification = mocker.spy(notification_service, "send_notification")
 
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
-        assert len(ns_svc_spy.calls) == 1
+        assert_quarantine_notification(
+            mocker, send_notification, route_url, project, warehouse_domain
+        )
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call(
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call(
                 "Auto-quarantining young project (<24h) reported by trusted observer."
             ),
         ]
 
-    def test_trusted_observer_old_project_needs_corroboration(self, db_request):
+    def test_trusted_observer_old_project_needs_corroboration(
+        self, dummy_task, logger, db_request, mocker
+    ):
         """
         A trusted observer reporting a project > 24 hours old still needs corroboration.
         """
-        dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         # Create project that was created 25 hours ago
         project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=25))
@@ -361,15 +602,17 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("Project has fewer than 2 observers. Not quarantining.")
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call("Project has fewer than 2 observers. Not quarantining.")
         ]
 
-    def test_non_trusted_observer_young_project_needs_corroboration(self, db_request):
+    def test_non_trusted_observer_young_project_needs_corroboration(
+        self, dummy_task, logger, db_request, mocker
+    ):
         """
         A non-trusted observer reporting a young project still needs corroboration.
         """
-        dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=False)
         # Create project that was created 1 hour ago
         project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
@@ -387,6 +630,7 @@ class TestAutoQuarantineProject:
         evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
-        assert db_request.log.info.calls == [
-            pretend.call("Project has fewer than 2 observers. Not quarantining.")
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call("Project has fewer than 2 observers. Not quarantining.")
         ]
