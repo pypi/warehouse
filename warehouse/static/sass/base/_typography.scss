@@ -128,7 +128,7 @@ a {
       font-weight: 400;
       content: "\f0e0";
       color: inherit;
-      /*rtl:ignore*/
+      /* rtl:ignore */
       margin: 0 0 0 4px;
       position: relative;
       top: 0.5px;
@@ -150,6 +150,7 @@ a {
 button {
   @include link-utilities.link-without-underline;
   @include link-utilities.link-focus-state(colors.$primary-color);
+
   line-height: fonts.$base-line-height;
 }
 

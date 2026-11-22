@@ -274,7 +274,7 @@ msgstr "既に認証済みです"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:995
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:996
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
@@ -750,50 +750,50 @@ msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "このチーム名はすでに使用されています。異なるチーム名を選択してください。"
 
-#: warehouse/manage/views/__init__.py:423
+#: warehouse/manage/views/__init__.py:424
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "アカウント詳細"
 
-#: warehouse/manage/views/__init__.py:454
+#: warehouse/manage/views/__init__.py:455
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "メールアドレス ${email_address} が追加されました - メールにある確認用のリンク"
 "をチェックしてください"
 
-#: warehouse/manage/views/__init__.py:702
+#: warehouse/manage/views/__init__.py:703
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:942
+#: warehouse/manage/views/__init__.py:943
 msgid "Recovery codes already generated"
 msgstr "リカバリーコードは既に生成済みです"
 
-#: warehouse/manage/views/__init__.py:944
+#: warehouse/manage/views/__init__.py:945
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "新しいリカバリーコードを生成すると、既存のコードが無効となります。"
 
-#: warehouse/manage/views/__init__.py:1052
+#: warehouse/manage/views/__init__.py:1053
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "メールアドレスを確認するか、新しいアドレスを追加してください。"
 
-#: warehouse/manage/views/__init__.py:1154
+#: warehouse/manage/views/__init__.py:1155
 msgid "API Token does not exist."
 msgstr "APIトークンが存在しません。"
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1187
 msgid "Invalid credentials. Try again"
 msgstr "資格情報が無効です。再度試してみてください"
 
-#: warehouse/manage/views/__init__.py:1357
-#: warehouse/manage/views/__init__.py:1693
-#: warehouse/manage/views/__init__.py:1822
+#: warehouse/manage/views/__init__.py:1366
+#: warehouse/manage/views/__init__.py:1702
+#: warehouse/manage/views/__init__.py:1831
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
@@ -803,86 +803,86 @@ msgstr ""
 "プロジェクトの削除が一時的に無効になっています。詳細については https://"
 "pypi.org/help#admin-intervention を参照してください。"
 
-#: warehouse/manage/views/__init__.py:1377
+#: warehouse/manage/views/__init__.py:1386
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1502
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1517
-#: warehouse/manage/views/__init__.py:1605
-#: warehouse/manage/views/__init__.py:1715
-#: warehouse/manage/views/__init__.py:1835
+#: warehouse/manage/views/__init__.py:1526
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1724
+#: warehouse/manage/views/__init__.py:1844
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "招待の確認"
 
-#: warehouse/manage/views/__init__.py:1530
+#: warehouse/manage/views/__init__.py:1539
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "プレリリース"
 
-#: warehouse/manage/views/__init__.py:1618
+#: warehouse/manage/views/__init__.py:1627
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "プレリリース"
 
-#: warehouse/manage/views/__init__.py:1728
+#: warehouse/manage/views/__init__.py:1737
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "リリース削除"
 
-#: warehouse/manage/views/__init__.py:1746
+#: warehouse/manage/views/__init__.py:1755
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1847
+#: warehouse/manage/views/__init__.py:1856
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views/__init__.py:1852
+#: warehouse/manage/views/__init__.py:1861
 msgid "Could not delete file - "
 msgstr "ファイルを削除できませんでした - "
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1871
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1992
+#: warehouse/manage/views/__init__.py:2001
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2021
+#: warehouse/manage/views/__init__.py:2030
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "チーム '${team_name}' には、既にプロジェクトの ${role_name} の役割が与えられ"
 "ています"
 
-#: warehouse/manage/views/__init__.py:2128
+#: warehouse/manage/views/__init__.py:2137
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views/__init__.py:2195
+#: warehouse/manage/views/__init__.py:2204
 #, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
-#: warehouse/manage/views/__init__.py:2226
+#: warehouse/manage/views/__init__.py:2235
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -891,7 +891,7 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2248
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
@@ -900,31 +900,31 @@ msgstr ""
 "ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
 "ださい。"
 
-#: warehouse/manage/views/__init__.py:2304
+#: warehouse/manage/views/__init__.py:2313
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' に招待を送信しました"
 
-#: warehouse/manage/views/__init__.py:2336
+#: warehouse/manage/views/__init__.py:2345
 msgid "Could not find role invitation."
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views/__init__.py:2350
+#: warehouse/manage/views/__init__.py:2359
 #: warehouse/manage/views/organizations.py:1296
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "'${project_name}' への招待を辞退しました。"
 
-#: warehouse/manage/views/__init__.py:2355
+#: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/organizations.py:1301
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "'${project_name}' への招待を辞退しました。"
 
-#: warehouse/manage/views/__init__.py:2360
+#: warehouse/manage/views/__init__.py:2369
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."

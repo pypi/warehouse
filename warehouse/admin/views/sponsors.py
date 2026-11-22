@@ -9,6 +9,7 @@ import wtforms
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from slugify import slugify
+from sqlalchemy import func, nulls_last
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
@@ -79,8 +80,19 @@ class SponsorForm(wtforms.Form):
     uses_session=True,
 )
 def sponsor_list(request):
+    """
+    Active sponsors first, then by level. `level_order` is nullable and
+    defaults to 0, and both mean "no level", so they sort last together.
+    """
     sponsors = (
-        request.db.query(Sponsor).order_by(Sponsor.is_active.desc(), Sponsor.name).all()
+        request.db.query(Sponsor)
+        .order_by(
+            Sponsor.is_active.desc(),
+            nulls_last(func.nullif(Sponsor.level_order, 0)),
+            Sponsor.name,
+            Sponsor.id,
+        )
+        .all()
     )
     for sponsor in sponsors:
         visibility = [
