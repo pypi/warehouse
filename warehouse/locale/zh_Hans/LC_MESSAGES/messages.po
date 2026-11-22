@@ -86,8 +86,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-11-15 07:28+0000\n"
-"Last-Translator: Jesse205 <jesse205@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-22 00:18+0000\n"
+"Last-Translator: yunchu-translate <yunchu@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -113,7 +113,7 @@ msgstr "请先为你的账户启用双因素身份验证，再执行此操作。
 # | msgid "Stay updated:"
 #: warehouse/views.py:443
 msgid "Locale updated"
-msgstr "区域设置已更新"
+msgstr "语言设置成功"
 
 #: warehouse/accounts/forms.py:51 warehouse/accounts/forms.py:350
 msgid "The email address isn't valid. Try again."
