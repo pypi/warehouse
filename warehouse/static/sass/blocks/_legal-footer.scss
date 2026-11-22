@@ -21,11 +21,8 @@
   border-top: 1px solid color.adjust(colors.$border-color, $lightness: 10%);
   background-color: color.adjust(colors.$border-color, $lightness: 15%);
 
-  // Rendered inside .footer, which sets white text; keep the body text color.
   color: colors.$text-color;
 
-  // .footer a would otherwise turn these links white on this block's light
-  // background; keep the standard link colors they had outside the footer.
   a {
     @include link-utilities.primary-underlined-link;
   }

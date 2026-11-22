@@ -42,8 +42,6 @@ $footer-narrow-width: 1100px;
   background-color: color.adjust(colors.$primary-color, $lightness: 1%);
   color: colors.$white;
 
-  // No bottom padding: the sponsors row and legal footer render inside the
-  // footer (for landmark navigation) and provide the closing spacing.
   padding: 40px 0 0;
   width: 100%;
   font-size: 0.9rem;
@@ -150,9 +148,6 @@ $footer-narrow-width: 1100px;
     .button {
       border-color: color.adjust(colors.$white, $alpha: -0.15);
 
-      // The generic .button hover/focus colors are dark blue, which is
-      // nearly unreadable on the footer background. Keep the label white
-      // and use a thicker, high-contrast outline for keyboard focus.
       &:hover,
       &:focus,
       &:active {

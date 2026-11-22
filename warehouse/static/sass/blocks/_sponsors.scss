@@ -28,13 +28,9 @@
   gap: grid.$spacing-unit;
   text-align: center;
 
-  // Rendered inside the <footer> landmark; keep the page background so the
-  // row looks the same as when it sat outside the footer.
   background-color: colors.$background-color;
   padding: grid.$spacing-unit;
 
-  // .footer a:focus would otherwise paint the sponsor links' focus outline
-  // white on this light background; keep the dark outline from outside.
   a {
     @include link-utilities.link-focus-state(colors.$text-color);
   }
