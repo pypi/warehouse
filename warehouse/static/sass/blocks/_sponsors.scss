@@ -29,7 +29,12 @@
   text-align: center;
 
   background-color: colors.$background-color;
+  margin-top: 40px;
   padding: grid.$spacing-unit;
+
+  @media only screen and (max-width: breakpoints.$mobile) {
+    margin-top: 20px;
+  }
 
   a {
     @include link-utilities.link-focus-state(colors.$text-color);
