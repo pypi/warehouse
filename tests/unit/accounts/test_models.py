@@ -193,6 +193,7 @@ class TestUser:
                 "Allow",
                 "group:support",
                 (
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
