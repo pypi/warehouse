@@ -17,17 +17,6 @@ if TYPE_CHECKING:
 PROBLEM_CONTENT_TYPE: Final = "application/problem+json"
 
 
-def problem_details(
-    exc_class: type[HTTPError], detail: str, /, **extensions: object
-) -> dict[str, object]:
-    return {
-        **extensions,
-        "title": exc_class.title,
-        "status": exc_class.code,
-        "detail": detail,
-    }
-
-
 def problem[E: HTTPError](
     exc_class: type[E],
     detail: str,
@@ -46,7 +35,12 @@ def problem[E: HTTPError](
     See: https://www.rfc-editor.org/rfc/rfc9457#section-4.2.1
     """
     return exc_class(
-        json=problem_details(exc_class, detail, **extensions),
+        json={
+            **extensions,
+            "title": exc_class.title,
+            "status": exc_class.code,
+            "detail": detail,
+        },
         content_type=PROBLEM_CONTENT_TYPE,
         headers={**(headers or {}), "Cache-Control": "no-store"},
     )

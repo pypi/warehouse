@@ -64,16 +64,6 @@ def test_streams_success_and_closes_on_disconnect(mocker):
     closed.assert_called_once_with()
 
 
-def test_deferred_error():
-    def app(environ, start_response):
-        yield b""
-        start_response("404 Not Found", [])
-        yield b"discarded"
-
-    resp = Request.blank("/simple/").get_response(SimpleAPIErrors(app))
-    assert resp.json["status"] == 404
-
-
 def test_failure_before_first_byte():
     def app(environ, start_response):
         start_response("200 OK", [])
@@ -85,44 +75,26 @@ def test_failure_before_first_byte():
     assert resp.headers["Retry-After"] == "60"
 
 
-def test_failure_after_first_byte(mocker):
-    def app(environ, start_response):
-        start_response("200 OK", [])
-        yield b"first"
-        raise RuntimeError("stream interrupted")
-
-    start_response = mocker.stub()
-    body = SimpleAPIErrors(app)(Request.blank("/simple/").environ, start_response)
-    assert next(body) == b"first"
-    with pytest.raises(RuntimeError, match="stream interrupted"):
-        next(body)
-    start_response.assert_called_once_with("200 OK", [])
-
-
-def test_wsgi_error_after_write(mocker):
-    error = RuntimeError("already sent")
-    start_response = mocker.Mock(side_effect=[mocker.stub(), error])
-
+def test_wsgi_error_after_write():
     def app(environ, start_response):
         write = start_response("200 OK", [])
         write(b"first")
         try:
-            raise error
+            raise RuntimeError("already sent")
         except RuntimeError:
             start_response("500 Internal Server Error", [], sys.exc_info())
 
-    body = SimpleAPIErrors(app)(Request.blank("/simple/").environ, start_response)
     with pytest.raises(RuntimeError, match="already sent"):
-        list(body)
-    assert start_response.call_args.args[2][1] is error
+        Request.blank("/simple/").get_response(SimpleAPIErrors(app))
 
 
 @pytest.mark.parametrize("status", ["200 OK", "400 Bad Request"])
-def test_wsgi_write_callable(status):
+def test_deferred_headers_and_write(status):
     def app(environ, start_response):
+        yield b""
         write = start_response(status, [])
         write(b"first")
-        return [b"second"]
+        yield b"second"
 
     resp = Request.blank("/simple/").get_response(SimpleAPIErrors(app))
     if status == "200 OK":

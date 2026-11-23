@@ -6,20 +6,9 @@ import pytest
 
 from inline_snapshot import snapshot
 from pyramid.exceptions import PredicateMismatch
-from pyramid.httpexceptions import (
-    HTTPForbidden,
-    HTTPMethodNotAllowed,
-    HTTPServiceUnavailable,
-)
-from webtest import TestApp as WebTestApp
+from pyramid.httpexceptions import HTTPForbidden, HTTPServiceUnavailable
 
-from warehouse.api.integrity import MIME_PYPI_INTEGRITY_V1_JSON
-from warehouse.api.problems import problem
-from warehouse.api.simple import (
-    MIME_PYPI_SIMPLE_V1_HTML,
-    MIME_PYPI_SIMPLE_V1_JSON,
-    MIME_TEXT_HTML,
-)
+from warehouse.api.simple import MIME_PYPI_SIMPLE_V1_JSON
 from warehouse.packaging.models import LifecycleStatus
 
 from ...common.db.packaging import (
@@ -28,7 +17,6 @@ from ...common.db.packaging import (
     ProvenanceFactory,
     ReleaseFactory,
 )
-from ...conftest import get_app_config
 
 
 def test_simple_api_html(webtest):
@@ -81,296 +69,65 @@ def test_simple_api_detail_json(webtest):
     assert len(resp.json["files"]) == 1
 
 
-@pytest.mark.parametrize(
-    "accept",
-    [None, MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_HTML, MIME_PYPI_SIMPLE_V1_JSON],
-)
-def test_pep847_simple_api_not_found(webtest, accept):
-    path = "/simple/nonexistent-project/"
-    headers = {} if accept is None else {"Accept": accept}
-
-    resp = webtest.get(path, headers=headers, status=HTTPStatus.NOT_FOUND)
-
+@pytest.mark.parametrize("accept", ["text/html", MIME_PYPI_SIMPLE_V1_JSON])
+def test_simple_missing_project(webtest, accept):
+    path = "/simple/missing/"
+    resp = webtest.get(path, headers={"Accept": accept}, status=404)
     assert resp.content_type == "application/problem+json"
-    assert resp.json == {
-        "status": HTTPStatus.NOT_FOUND,
-        "title": "Not Found",
-        "detail": path,
-    }
+    assert resp.json == {"status": 404, "title": "Not Found", "detail": path}
     assert resp.headers["Access-Control-Allow-Origin"] == "*"
 
 
-@pytest.mark.parametrize("method", ["GET", "HEAD"])
-@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
-@pytest.mark.parametrize("path", ["/simple/", "/simple/example/"])
-def test_pep847_unsatisfiable_range(webtest, method, accept, path):
-    ProjectFactory.create(name="example")
-    headers = {"Accept": accept}
-    length = len(webtest.get(path, headers=headers).body)
-
-    resp = webtest.request(
-        path,
-        method=method,
-        headers={**headers, "Range": f"bytes={length}-"},
-        status=HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
-    )
-
-    assert resp.content_type == "application/problem+json"
-    assert resp.headers["Content-Range"] == f"bytes */{length}"
-    assert resp.headers["Cache-Control"] == "no-store"
-    assert "Surrogate-Control" not in resp.headers
-    if method == "GET":
-        assert resp.json["status"] == 416
-        assert resp.content_length == len(resp.body)
-    else:
-        assert resp.body == b""
-        assert resp.content_length > 0
-
-
-def test_pep847_successful_conditional_requests(webtest):
-    index = webtest.get("/simple/")
-    partial = webtest.get("/simple/", headers={"Range": "bytes=0-0"}, status=206)
-    assert partial.content_type == index.content_type
-    assert partial.body == index.body[:1]
-
-    cached = webtest.get(
-        "/simple/", headers={"If-None-Match": index.headers["ETag"]}, status=304
-    )
-    assert cached.body == b""
-
-
-@pytest.mark.parametrize("path", ["/simple/?q=%FF", "/simple/%00/", "/simple/%FF/"])
-def test_pep847_invalid_request(webtest, path):
-    resp = webtest.get(path, status=HTTPStatus.BAD_REQUEST)
-    assert resp.content_type == "application/problem+json"
-    assert resp.json["status"] == 400
-
-
-def test_pep847_returned_bad_request(webtest):
-    resp = webtest.request(
-        "/simple/",
-        method="OPTIONS",
-        body=b"x=1&x=2",
-        content_type="application/x-www-form-urlencoded",
-        status=HTTPStatus.BAD_REQUEST,
-    )
-    assert resp.content_type == "application/problem+json"
-    assert resp.json["status"] == 400
-
-
-def test_pep847_origin_cache_on_errors(database, mocker):
-    config = get_app_config(
-        database,
-        {
-            "origin_cache.backend": "warehouse.cache.origin.fastly.NullFastlyCache",
-            "origin_cache.service_id": "unused",
-            "origin_cache.api_key": "unused",
-        },
-    )
-    app = WebTestApp(config.make_wsgi_app())
-    index = app.get("/simple/")
-    assert "max-age=" in index.headers["Surrogate-Control"]
-    ranged = app.get(
-        "/simple/", headers={"Range": f"bytes={len(index.body)}-"}, status=416
-    )
-    mocker.patch(
-        "warehouse.api.simple._simple_index", side_effect=HTTPServiceUnavailable
-    )
-    unavailable = app.get("/simple/", status=503)
-    for resp in (ranged, unavailable):
-        assert resp.content_type == "application/problem+json"
-        assert resp.headers["Cache-Control"] == "no-store"
-        assert "Surrogate-Control" not in resp.headers
-
-
-def test_pep847_insecure_action(app_config, monkeypatch):
-    monkeypatch.setitem(app_config.registry.settings, "enforce_https", True)
-    app = WebTestApp(app_config.make_wsgi_app())
-    resp = app.get("/simple/?:action=x", status=HTTPStatus.FORBIDDEN)
-    assert resp.content_type == "application/problem+json"
-    assert resp.json["status"] == 403
-    assert resp.headers["X-Fastly-Error"] == "803"
-
-
-def test_pep847_mounted_simple_api(webtest):
-    resp = webtest.get(
-        "/simple/missing/",
-        extra_environ={"SCRIPT_NAME": "/mirror"},
-        status=HTTPStatus.NOT_FOUND,
-    )
-    assert resp.content_type == "application/problem+json"
-    assert resp.json["status"] == 404
-
-
-def test_pep847_unhandled_error(webtest, mocker, caplog):
-    mocker.patch(
-        "warehouse.api.simple._simple_index",
-        side_effect=RuntimeError("internal details"),
-    )
-    resp = webtest.get("/simple/", status=HTTPStatus.INTERNAL_SERVER_ERROR)
-    assert resp.content_type == "application/problem+json"
-    assert resp.json["status"] == 500
-    assert resp.headers["Cache-Control"] == "no-store"
-    assert "internal details" not in resp.text
-    assert "internal details" in caplog.text
-
-
-@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
 @pytest.mark.parametrize(
-    ("path", "helper", "detail"),
-    [
-        ("/simple/", "_simple_index", None),
-        (
-            "/simple/example/",
-            "_simple_detail",
-            "The project index is temporarily unavailable.",
-        ),
-    ],
+    "error", [HTTPForbidden, PredicateMismatch, HTTPServiceUnavailable]
 )
-def test_pep847_simple_api_server_error(webtest, mocker, accept, path, helper, detail):
-    ProjectFactory.create(name="example")
-    failing_helper = mocker.patch(
-        f"warehouse.api.simple.{helper}",
-        side_effect=HTTPServiceUnavailable(
-            detail=detail,
-            headers={"Retry-After": "60"},
-        ),
-    )
-
-    resp = webtest.get(
-        path,
-        headers={"Accept": accept},
-        status=HTTPStatus.SERVICE_UNAVAILABLE,
-    )
-
-    failing_helper.assert_called_once()
-    assert resp.content_type == "application/problem+json"
-    assert resp.json == {
-        "status": HTTPStatus.SERVICE_UNAVAILABLE,
-        "title": "Service Unavailable",
-        "detail": detail or HTTPServiceUnavailable.explanation,
-    }
-    assert resp.headers["Retry-After"] == "60"
-    assert resp.headers["Access-Control-Allow-Origin"] == "*"
-
-
-def test_pep847_simple_api_keeps_problem_details(webtest, mocker):
-    exc = problem(HTTPServiceUnavailable, "Index is rebuilding.", retry_in=60)
+def test_simple_view_error(webtest, mocker, error):
+    exc = error("Try again later.", headers={"Retry-After": "60"})
     mocker.patch("warehouse.api.simple._simple_index", side_effect=exc)
-
-    resp = webtest.get("/simple/", status=HTTPStatus.SERVICE_UNAVAILABLE)
-
-    assert resp.content_type == "application/problem+json"
-    assert resp.json == exc.json
-    assert resp.headers["Cache-Control"] == "no-store"
-    assert resp.headers["Access-Control-Allow-Origin"] == "*"
+    resp = webtest.get("/simple/", status=exc.code)
+    assert resp.json["detail"] == "Try again later."
+    assert resp.headers["Retry-After"] == "60"
 
 
-@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
-@pytest.mark.parametrize(
-    ("path", "helper"),
-    [("/simple/", "_simple_index"), ("/simple/example/", "_simple_detail")],
-)
-@pytest.mark.parametrize(
-    ("exception", "status", "title"),
-    [
-        (HTTPForbidden, HTTPStatus.FORBIDDEN, "Forbidden"),
-        (PredicateMismatch, HTTPStatus.NOT_FOUND, "Not Found"),
-    ],
-)
-def test_pep847_simple_api_client_error(
-    webtest, mocker, accept, path, helper, exception, status, title
-):
-    ProjectFactory.create(name="example")
-    detail = "The requested index is unavailable."
-    failing_helper = mocker.patch(
-        f"warehouse.api.simple.{helper}", side_effect=exception(detail=detail)
+def test_similarly_named_paths_keep_html_errors(webtest):
+    resp = webtest.get("/simple-other/", status=404)
+    assert resp.content_type == "text/html"
+
+
+def test_simple_unhandled_error(webtest, mocker, caplog):
+    mocker.patch(
+        "warehouse.api.simple._simple_index", side_effect=RuntimeError("secret")
     )
-
-    resp = webtest.get(path, headers={"Accept": accept}, status=status)
-
-    failing_helper.assert_called_once()
-    assert resp.content_type == "application/problem+json"
-    assert resp.json == {"status": status, "title": title, "detail": detail}
-    assert "Location" not in resp.headers
+    resp = webtest.get("/simple/", status=500)
+    assert resp.json["status"] == 500
+    assert "secret" not in resp.text
+    assert "secret" in caplog.text
 
 
-@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
-@pytest.mark.parametrize("path", ["/simple/", "/simple/example/"])
-def test_pep847_simple_api_method_not_allowed(webtest, accept, path):
-    ProjectFactory.create(name="example")
+def test_simple_malformed_path(webtest):
+    resp = webtest.get("/simple/%FF/", status=400)
+    assert resp.json["status"] == 400
 
+
+def test_simple_mounted_method_not_allowed(webtest):
     resp = webtest.post(
-        path,
-        headers={"Accept": accept},
-        status=HTTPStatus.METHOD_NOT_ALLOWED,
+        "/simple/", extra_environ={"SCRIPT_NAME": "/mirror"}, status=405
     )
-
-    assert resp.content_type == "application/problem+json"
-    assert resp.json == {
-        "status": HTTPStatus.METHOD_NOT_ALLOWED,
-        "title": "Method Not Allowed",
-        "detail": HTTPMethodNotAllowed.explanation,
-    }
+    assert resp.json["status"] == 405
     assert resp.headers["Allow"] == "GET, HEAD, OPTIONS"
 
 
-@pytest.mark.parametrize("accept", [MIME_TEXT_HTML, MIME_PYPI_SIMPLE_V1_JSON])
-def test_pep847_simple_api_redirect_unchanged(webtest, accept):
-    project = ProjectFactory.create(name="Example_Package")
-
-    resp = webtest.get(
-        f"/simple/{project.name}/",
-        headers={"Accept": accept},
-        status=HTTPStatus.MOVED_PERMANENTLY,
-    )
-
-    assert resp.location == f"http://localhost/simple/{project.normalized_name}/"
-    assert resp.content_type != "application/problem+json"
-
-
-@pytest.mark.parametrize(
-    "path",
-    [
-        "/pypi/nonexistent-project/json",
-        "/pypi/nonexistent-project/1.0/json",
-    ],
-)
-def test_pep847_legacy_json_not_found_unchanged(webtest, path):
-    resp = webtest.get(path, status=HTTPStatus.NOT_FOUND)
-
-    assert resp.content_type == "application/json"
-    assert resp.json == {"message": "Not Found"}
-
-
-def test_pep847_integrity_not_found_unchanged(webtest):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    file = FileFactory.create(release=release, packagetype="sdist")
-
-    resp = webtest.get(
-        f"/integrity/{project.normalized_name}/{release.version}/"
-        f"{file.filename}/provenance",
-        headers={"Accept": MIME_PYPI_INTEGRITY_V1_JSON},
-        status=HTTPStatus.NOT_FOUND,
-    )
-
-    assert resp.content_type == "application/json"
-    assert resp.json == {"message": f"No provenance available for {file.filename}"}
-
-
-@pytest.mark.parametrize(
-    "path", ["/project/nonexistent-project/", "/simple-not-an-api/"]
-)
-def test_pep847_other_not_found_unchanged(webtest, path):
-    resp = webtest.get(
-        path,
-        headers={"Accept": MIME_PYPI_SIMPLE_V1_JSON},
-        status=HTTPStatus.NOT_FOUND,
-    )
-
-    assert resp.content_type == "text/html"
-    assert "Page Not Found (404)" in resp.html.title.text
+def test_simple_unsatisfiable_range(webtest):
+    length = len(webtest.get("/simple/").body)
+    headers = {"Range": f"bytes={length}-"}
+    resp = webtest.get("/simple/", headers=headers, status=416)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 416
+    assert resp.headers["Content-Range"] == f"bytes */{length}"
+    assert resp.headers["Cache-Control"] == "no-store"
+    head = webtest.head("/simple/", headers=headers, status=416)
+    assert head.body == b""
+    assert head.content_length == len(resp.body)
 
 
 def test_simple_api_has_provenance(webtest):

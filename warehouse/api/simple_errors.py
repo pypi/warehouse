@@ -1,55 +1,59 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import re
 
 from pyramid.httpexceptions import HTTPError, HTTPInternalServerError, status_map
 from pyramid.response import Response
 
-from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem_details
+from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem
 from warehouse.utils.cors import _CORS_HEADERS
 
 logger = logging.getLogger(__name__)
 
+SIMPLE_PATH = re.compile(r"^/simple(?:/|\Z)")
 
-def is_simple_path(path):
-    return path == "/simple" or path.startswith("/simple/")
+# Discard metadata for the original body, but keep protocol headers such as
+# Allow, WWW-Authenticate and the Content-Range on a 416.
+_BODY_HEADERS = {
+    "content-type",
+    "content-length",
+    "content-encoding",
+    "content-language",
+    "content-location",
+    "content-disposition",
+    "content-md5",
+    "content-digest",
+    "repr-digest",
+    "digest",
+    "etag",
+    "last-modified",
+    "accept-ranges",
+}
 
 
-def prepare_simple_error(response, detail=None):
-    """Apply the error headers and return the replacement body, if one is needed."""
-    headers = response.headers
-    headers["Cache-Control"] = "no-store"
-    headers.update(_CORS_HEADERS)
+def simple_error(response: Response) -> Response:
+    """Return the original response if it already has a problem body."""
     for name in ("Surrogate-Control", "Expires"):
-        if name in headers:
-            del headers[name]
+        if name in response.headers:
+            del response.headers[name]
 
-    if (response.content_type or "").lower() == PROBLEM_CONTENT_TYPE:
-        return None
+    if (response.content_type or "").lower() != PROBLEM_CONTENT_TYPE:
+        if exc := status_map.get(response.status_code):
+            error = problem(exc, getattr(response, "detail", None) or exc.explanation)
+        else:
+            error = Response(
+                json={"status": response.status_code}, content_type=PROBLEM_CONTENT_TYPE
+            )
+        error.status = response.status
+        error.headerlist.extend(
+            (k, v) for k, v in response.headerlist if k.lower() not in _BODY_HEADERS
+        )
+        response = error
 
-    # These describe the discarded body. Keep protocol headers such as Allow,
-    # WWW-Authenticate and the Content-Range on a 416.
-    for name in (
-        "Content-Encoding",
-        "Content-Language",
-        "Content-Location",
-        "Content-Disposition",
-        "Content-MD5",
-        "Content-Digest",
-        "Repr-Digest",
-        "Digest",
-        "ETag",
-        "Last-Modified",
-        "Accept-Ranges",
-    ):
-        if name in headers:
-            del headers[name]
-    if exc := status_map.get(response.status_code):
-        response.json = problem_details(exc, detail or exc.explanation)
-    else:
-        response.json = {"status": response.status_code}
-    response.content_type = PROBLEM_CONTENT_TYPE
-    return response.body
+    response.headers.update(_CORS_HEADERS)
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 class SimpleAPIErrors:
@@ -60,7 +64,7 @@ class SimpleAPIErrors:
 
     def __call__(self, environ, start_response):
         # PATH_INFO excludes the mount point and may contain undecodable bytes.
-        if is_simple_path(environ.get("PATH_INFO", "")):
+        if SIMPLE_PATH.match(environ.get("PATH_INFO", "")):
             return self._respond(environ, start_response)
         return self.app(environ, start_response)
 
@@ -71,14 +75,11 @@ class SimpleAPIErrors:
         write = None
         replacement = None
 
-        def send_headers():
+        def send(data=None):
             nonlocal write
-            if write is None:
+            if write is None and pending_headers is not None:
                 write = start_response(*pending_headers)
-
-        def write_body(data):
-            if replacement is None:
-                send_headers()
+            if data is not None:
                 write(data)
 
         def capture(status, headers, exc_info=None):
@@ -88,10 +89,13 @@ class SimpleAPIErrors:
             replacement = None
             if status.startswith(("4", "5")):
                 response = Response(status=status, headerlist=headers, app_iter=())
-                replacement = prepare_simple_error(response)
+                error = simple_error(response)
+                if error is not response:
+                    replacement = error
+                    return lambda data: None
                 headers = response.headerlist
             pending_headers = (status, headers)
-            return write_body
+            return send
 
         try:
             app_iter = self.app(environ, capture)
@@ -101,8 +105,7 @@ class SimpleAPIErrors:
                         # An iterable can call start_response on its first iteration.
                         if replacement is not None:
                             break
-                        if pending_headers is not None:
-                            send_headers()
+                        send()
                         yield chunk
             finally:
                 if hasattr(app_iter, "close"):
@@ -110,15 +113,12 @@ class SimpleAPIErrors:
         except Exception as exc:
             if write is not None:
                 raise
-            if isinstance(exc, HTTPError):
-                response = exc
-            else:
+            if not isinstance(exc, HTTPError):
                 logger.exception("Unhandled Simple API error")
-                response = HTTPInternalServerError()
-            prepare_simple_error(response, response.detail)
-            yield from response(environ, start_response)
-            return
+                exc = HTTPInternalServerError()
+            replacement = simple_error(exc)
 
-        send_headers()
-        if replacement is not None and environ["REQUEST_METHOD"] != "HEAD":
-            yield replacement
+        if replacement is None:
+            send()
+        else:
+            yield from replacement(environ, start_response)
