@@ -500,13 +500,12 @@ def user_add_email(user, request):
     form = EmailForm(request.POST)
 
     if form.validate():
-        existing = request.db.scalar(
-            select(Email).where(Email.email == form.email.data)
-        )
-        if existing:
+        user_service = request.find_service(IUserService, context=None)
+        existing_user = user_service.get_user_by_email(form.email.data)
+        if existing_user:
             request.session.flash(
-                f"Email address {existing.email!r} is already associated with "
-                f"user {existing.user.username!r}",
+                f"Email address {form.email.data!r} is already associated with "
+                f"user {existing_user.username!r}",
                 queue="error",
             )
             return HTTPSeeOther(
