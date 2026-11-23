@@ -465,6 +465,8 @@ def test_contextual_navigation_uses_global_permissions(
     token_link = f'a[href="/admin/macaroons/{token.id}"]'
     assert user_page.html.select("#api-tokens")
     assert bool(user_page.html.select(token_link)) is (role == "is_superuser")
+    journals_link = f'a[href="/admin/projects/{project.normalized_name}/journals/"]'
+    assert bool(project_page.html.select(journals_link)) is full_navigation
     for page in [user_page, project_page]:
         assert bool(page.html.select(organization_link)) is full_navigation
         assert page.html.select_one(".brand-link")["href"] == (
