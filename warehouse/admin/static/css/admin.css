@@ -15,11 +15,12 @@
 }
 
 /* Tabulator replaces the <table> with divs, so the rule above cannot reach its
-   cells, and its own stylesheet clips each one to a single line. Wrap instead:
-   the columns capped at `maxInitialWidth` are the payload and caveat blobs
-   admins are on the page to read. `anywhere` breaks an unspaced token — a
-   base64 caveat, a long URL — rather than letting it set the column width. */
-.tabulator-cell {
+   cells, and its own stylesheet clips each one to a single line under this
+   same selector, which a bare `.tabulator-cell` loses to. Wrap instead: the
+   columns capped at `maxInitialWidth` are the payload and caveat blobs admins
+   are on the page to read. `anywhere` breaks an unspaced token — a base64
+   caveat, a long URL — rather than letting it set the column width. */
+.tabulator-row .tabulator-cell {
   white-space: normal;
   overflow-wrap: anywhere;
   text-overflow: clip;
