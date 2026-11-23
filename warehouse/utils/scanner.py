@@ -156,11 +156,9 @@ def _timed_scan(yx_scanner, data, *, metrics, check_type, filename: str | None =
         else contextlib.nullcontext()
     )
     with timer:
-        try:
+        # No rule uses the variable
+        with contextlib.suppress(ValueError):
             yx_scanner.set_global("filename", filename or "")
-        except ValueError:
-            # No rule uses the variable
-            pass
         return yx_scanner.scan(data)
 
 
@@ -367,11 +365,9 @@ def scan_archive(
         # Either the bulk scan matched, or we're over the size cap —
         # scan individual files.
         for name, _size, data in scannable:
-            try:
+            # No rule uses the variable
+            with contextlib.suppress(ValueError):
                 yx_scanner.set_global("filename", name)
-            except ValueError:
-                # No rule uses the variable
-                pass
             results = yx_scanner.scan(data)
             if results.matching_rules:
                 matches.append((name, [r.identifier for r in results.matching_rules]))
