@@ -2,6 +2,7 @@
 import datetime as dt
 import hashlib
 import hmac
+import io
 import os.path
 import posixpath
 import re
@@ -309,7 +310,7 @@ def _is_valid_dist_file(
                     return False, "Unable to parse name and version from wheel filename"
                 target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
                 try:
-                    zfp.read(target_file)
+                    zfp.getinfo(target_file)
                 except KeyError:
                     return False, f"WHEEL not found at {target_file}"
 
@@ -337,7 +338,26 @@ def _is_valid_dist_file(
                         f"See https://docs.pypi.org/archives for more information"
                     )
 
-        except zipfile.BadZipFile:  # pragma: no cover
+                # The upload reads several dist-info members later (METADATA,
+                # RECORD, entry_points.txt, licenses); check that every dist-info
+                # member decompresses and passes its CRC-32 here, so corruption
+                # is reported as a 400 rather than a 500.
+                dist_info_prefix = f"{name}-{version}.dist-info/"
+                for zinfo in zfp.infolist():
+                    if not zinfo.filename.startswith(dist_info_prefix):
+                        continue
+                    try:
+                        with zfp.open(zinfo) as member:
+                            while member.read(io.DEFAULT_BUFFER_SIZE):
+                                pass
+                    except zipfile.BadZipFile, zlib.error:
+                        metrics.increment(
+                            "warehouse.upload.zipfile.policy_error",
+                            tags=["reason:corrupt-member"],
+                        )
+                        return False, f"Archive member {zinfo.filename!r} is corrupt"
+
+        except zipfile.BadZipFile, zlib.error:
             return False, None
 
     elif filename.endswith(".tar.gz"):

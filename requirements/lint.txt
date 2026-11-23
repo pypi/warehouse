@@ -4,15 +4,15 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-ast-grep-cli==0.51.2 \
-    --hash=sha256:4301bfa472b7fa77dadb639173e3908bd0b97ffe3e164ab62e03c14e94669616 \
-    --hash=sha256:461f5ea36dbc0d8e3b965128deb0ac81b17f41b74b28da909cf836ce95953027 \
-    --hash=sha256:571f8c7cb2c7de16c52cf7862f2a528c67eb87d084e335a3f7366c7fa745158c \
-    --hash=sha256:6a2f528fc10d668b220b512e7e34466a13b4ba7b5ee95d1596a2b1e194a0a6cf \
-    --hash=sha256:7e787c6fe171026e16fb9761a6d3b50cbc6f519b893e7cff2e66dfde95145c81 \
-    --hash=sha256:a20d49bf6f3305c026f93e964c602819712af9caec8df44d278c7940707685f9 \
-    --hash=sha256:b8aad3396a78e1129c2e00f664f8c6965d9c1c1329140722d607517f69ad279a \
-    --hash=sha256:ba0f2d5d672bdd2d6926ce7fc7c062b15d468af73c2d35a1244fc853f4cf93f4
+ast-grep-cli==0.51.3 \
+    --hash=sha256:073f51f01daebaa74c28b62ef822d94c9a6285274a4084cc36c81656baee6c0a \
+    --hash=sha256:681c955b4b62d2486d803f59c609b74263445b8d8d723df9a8b1dcf3a3c79744 \
+    --hash=sha256:6f9f59a07be81c2f4a4a15666d6731cd493dd9403553bf490ce09d8cf9d1eba7 \
+    --hash=sha256:7c65ed276be0f90084637c1ec42e79b25b3ca0e44e895678990652b0da40c277 \
+    --hash=sha256:927f9f3e80935dad08081560dde6e5e33e0c3a3075273dcee3a3abb4232eebcf \
+    --hash=sha256:b39b1bd33010e6f840848827f0cd5a036e1f8a333cf4f807aafaf3d0fbf09bbc \
+    --hash=sha256:c66a670ec71850bbdd01d5c519f4dad4a1c42194226225a2ee600a9ea6a6bdc7 \
+    --hash=sha256:cd68636516f9d131b908016ab6514057fba31401f81022c8df7385fdd308ff89
     # via -r requirements/lint.in
 ast-serialize==0.13.1 \
     --hash=sha256:02686b281ec9b8e9614f6f0db27e12e4cac515f336c5d05b678bc9eb73ff2af5 \
