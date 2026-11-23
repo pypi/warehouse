@@ -518,6 +518,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",

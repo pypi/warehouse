@@ -136,6 +136,7 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProjectsQuarantine,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
