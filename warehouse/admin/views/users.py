@@ -1091,12 +1091,15 @@ def user_quarantine_projects(user, request):
         for project in user.projects
         if project.lifecycle_status != "quarantine-enter"
     ]
-    if not can_freeze_users(
-        request, {u for project in to_quarantine for u in project.users}
-    ):
+    blocked = sorted(
+        project.name
+        for project in to_quarantine
+        if not can_freeze_users(request, project.users)
+    )
+    if blocked:
         request.session.flash(
-            "A project to quarantine has a superuser collaborator. "
-            "Only an administrator can quarantine it.",
+            f"Projects with a superuser collaborator: {', '.join(blocked)}. "
+            "Only an administrator can quarantine them.",
             queue="error",
         )
         return HTTPSeeOther(
