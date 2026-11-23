@@ -386,10 +386,9 @@ def test_security_cannot_remove_project_without_malware_reports(webtest, login_a
     assert not owner.is_frozen
 
 
-def test_security_release_quarantine_and_clear(
-    webtest, login_admin, make_malware_report
-):
-    login_admin(is_security=True)
+@pytest.mark.parametrize("role", ["is_security", "is_support"])
+def test_release_quarantine_and_clear(webtest, login_admin, make_malware_report, role):
+    login_admin(**{role: True})
     report = make_malware_report()
     project = report.related
     release = ReleaseFactory.create(project=project, version="1.0")
@@ -491,6 +490,7 @@ _PROJECT_REMOVE = "/admin/projects/{project}/malware_reports/remove_malware/"
         ("is_security", _PROJECT_REMOVE, False),
         ("is_support", _REPORT_QUARANTINE, False),
         ("is_support", _PROJECT_QUARANTINE, False),
+        ("is_support", _USER_QUARANTINE, False),
         ("is_superuser", _REPORT_QUARANTINE, True),
         ("is_superuser", _PROJECT_QUARANTINE, True),
         ("is_superuser", _USER_QUARANTINE, True),
