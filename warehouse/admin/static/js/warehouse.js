@@ -3,16 +3,6 @@
 import "admin-lte/plugins/jquery/jquery";
 import "admin-lte/plugins/bootstrap/js/bootstrap.bundle";
 
-// Import DataTables JS
-import "admin-lte/plugins/datatables/jquery.dataTables";
-import "admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4";
-import "admin-lte/plugins/datatables-responsive/js/dataTables.responsive";
-import "admin-lte/plugins/datatables-responsive/js/responsive.bootstrap4";
-import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
-import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
-import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
-import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
-
 // Import Chart JS
 import "admin-lte/plugins/chart.js/Chart";
 
@@ -36,13 +26,6 @@ import filesize from "./utils/filesize";
 // Human-readable timestamps
 $(document).ready(function() {
   timeAgo();
-});
-
-// Recalculate DataTables columns after sidebar toggle animation completes
-$(document).on("collapsed-done.lte.pushmenu shown.lte.pushmenu", function() {
-  setTimeout(function() {
-    $($.fn.dataTable.tables({ visible: true })).DataTable().columns.adjust();
-  }, 350);
 });
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
@@ -131,51 +114,6 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
     copy(element.dataset.copyText, element);
   });
 });
-
-// Activate Datatables https://datatables.net/
-// Guard each one to not break execution if the table isn't present
-
-// User Account Activity
-let accountActivityTable = $("#account-activity");
-if (accountActivityTable.length) {
-  let table = accountActivityTable.DataTable({
-    responsive: true,
-    lengthChange: false,
-  });
-  // sort by time
-  table.column(".time").order("desc").draw();
-  // Hide some columns we don't need to see all the time
-  table.columns([".ip_address", ".hashed_ip"]).visible(false);
-  // add column visibility button
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
-
-// User API Tokens
-let tokenTable = $("#api-tokens");
-if (tokenTable.length) {
-  let table = tokenTable.DataTable({
-    responsive: true,
-    lengthChange: false,
-  });
-  table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
-  table.columns([".permissions_caveat"]).visible(false);
-  new $.fn.dataTable.Buttons(table, {buttons: ["colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
-
-// Sponsors
-let sponsorsTable = $("#sponsors");
-if (sponsorsTable.length) {
-  let table = sponsorsTable.DataTable({
-    displayLength: 50,
-    responsive: true,
-    lengthChange: false,
-    order: [[3, "asc"], [1, "asc"]],  // level order, alpha name
-  });
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
 
 let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
 if (organizationApplicationTurboModeSwitch !== null) {

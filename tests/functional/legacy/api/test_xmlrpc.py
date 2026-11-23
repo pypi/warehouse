@@ -45,6 +45,22 @@ def test_arguments_with_wrong_type(webtest):
         webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
 
 
+def test_serial_out_of_range(webtest):
+    # xmlrpc.client refuses to marshal ints outside MININT/MAXINT, so post raw XML
+    body = (
+        "<?xml version='1.0'?><methodCall>"
+        "<methodName>changelog_since_serial</methodName>"
+        "<params><param><value><int>9000000000000</int></value></param></params>"
+        "</methodCall>"
+    )
+    resp = webtest.post("/pypi", body, headers={"Content-Type": "text/xml"})
+    with pytest.raises(
+        xmlrpc.client.Fault,
+        match=r"client error; serial: Input should be less than or equal to 2147483647",
+    ):
+        xmlrpc.client.loads(resp.body)
+
+
 def test_multiple_garbage_types(webtest):
     with pytest.raises(
         xmlrpc.client.Fault,

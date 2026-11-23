@@ -341,12 +341,8 @@
         gap: 4px;
       }
 
-      .file-info__metadata i {
+      .file-info__metadata .fa-calendar {
         display: none;
-      }
-
-      .file-info__meta--warning i {
-        display: inline-block;
       }
 
       .file-info__meta {
@@ -375,6 +371,7 @@
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
+
       margin-bottom: grid.$half-spacing-unit;
     }
   }
@@ -396,6 +393,7 @@
     .table__user-details {
       display: flex;
       align-items: center;
+
       @include link-utilities.link-without-underline;
     }
 
@@ -415,6 +413,7 @@
         background-position: 0 1.15em;
         background-repeat: repeat-x;
         background-size: 100% 1.5px;
+
         @include link-utilities.primary-underlined-link;
       }
     }

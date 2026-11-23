@@ -120,8 +120,8 @@
         <tr>
           <th>Attribute</th>
           <th>Value</th>
-          <th>{% if can_set_limits %}Set a new value{% endif %}<th>
-          <th><th>
+          <th>{% if can_set_limits %}Set a new value{% endif %}</th>
+          <th></th>
         </tr>
         </thead>
         <tbody>
@@ -609,7 +609,7 @@
 
   <div class="card-body">
     {% if observations %}
-    {# TODO: Make this dataTables-enabled for sorting, filtering, etc. See Account Activity for an example. #}
+    {# TODO: Make this a Tabulator table for sorting and filtering: add `data-tabulator` and `tabulator-*` attributes. See Account Activity for an example. #}
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
         <thead>

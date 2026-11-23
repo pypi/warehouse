@@ -80,12 +80,41 @@ class TestSponsorForm(TestCase):
 
 class TestSponsorList:
     def test_list_all_sponsors(self, db_request):
-        SponsorFactory.create_batch(5)
-        sponsors = db_request.db.query(Sponsor).order_by(Sponsor.name).all()
+        """
+        Compared as a set: ordering is the next test's business, and the
+        factory draws `name` from a word list, so two of these five can tie
+        on the sort key the view orders by.
+        """
+        sponsors = SponsorFactory.create_batch(5)
 
         result = views.sponsor_list(db_request)
 
-        assert result == {"sponsors": sponsors}
+        assert set(result["sponsors"]) == set(sponsors)
+
+    def test_orders_active_first_then_by_level_then_name(self, db_request):
+        """
+        The template renders this order as-is: active sponsors first, then by
+        level, with sponsors that have no level at the bottom of their half.
+
+        `level_order` is nullable but defaults to 0, so both spellings of "no
+        level" have to sort together, after every real level. The NULL is
+        written after the insert, because the factory's None is dropped at
+        INSERT time in favor of the column default.
+        """
+        third = SponsorFactory.create(name="aardvark", level_order=0)
+        fourth = SponsorFactory.create(name="beetle")
+        fourth.level_order = None
+        first = SponsorFactory.create(name="zebra", level_order=1)
+        second = SponsorFactory.create(name="quokka", level_order=2)
+        # A level ahead of every active sponsor's, to show inactive loses.
+        fifth = SponsorFactory.create(name="dodo", level_order=1, is_active=False)
+        db_request.db.flush()
+        db_request.db.refresh(fourth)
+        assert fourth.level_order is None
+
+        result = views.sponsor_list(db_request)
+
+        assert result["sponsors"] == [first, second, third, fourth, fifth]
 
 
 class TestCreateSponsor:

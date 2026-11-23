@@ -97,7 +97,9 @@ $footer-narrow-width: 1100px;
     align-items: center;
     gap: 10px;
     color: colors.$white;
+
     @include typography.h2;
+
     text-decoration: none;
 
     &:hover {
@@ -178,6 +180,7 @@ $footer-narrow-width: 1100px;
 
     h2 {
       @include typography.h4;
+
       margin-bottom: 10px;
       color: colors.$white;
       text-align: left;
@@ -203,6 +206,7 @@ $footer-narrow-width: 1100px;
 
       a {
         text-decoration: none;
+
         @include link-utilities.white-underlined-link;
       }
     }

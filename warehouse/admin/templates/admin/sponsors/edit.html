@@ -112,7 +112,7 @@
 
               {% if sponsor %}
               <div class="float-right">
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteSponsor" {{ "disabled" if not request.has_permission(Permissions.AdminSponsorsWrite) }} value=>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteSponsor" {{ "disabled" if not request.has_permission(Permissions.AdminSponsorsWrite) }}>
                   <i class="icon fa fa-trash"></i> Delete sponsor
                 </button>
               </div>

@@ -368,8 +368,8 @@ def project_observations_list(project, request):
         .order_by(project.Observation.created.desc())
     )
 
-    # TODO: When implementing DataTables, consider removing server-side pagination.
-    #  DataTables can handle up to about 50,000 rows.
+    # TODO: Consider dropping server-side pagination in favor of a Tabulator
+    #  table fed by a JSON endpoint, as admin.views.journals does.
     observations = SQLAlchemyORMPage(
         observations_query,
         page=page_num,

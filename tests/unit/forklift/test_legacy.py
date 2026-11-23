@@ -8,6 +8,7 @@ import hashlib
 import io
 import json
 import re
+import struct
 import tarfile
 import tempfile
 import zipfile
@@ -16,6 +17,7 @@ import zlib
 from collections.abc import Callable
 from contextlib import ExitStack
 from textwrap import dedent
+from typing import Literal
 from unittest import mock
 
 import psycopg
@@ -120,6 +122,34 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
 
 def _storage_hash(data):
     return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
+
+
+def _corrupt_zip_member(
+    path: str, member: str, *, mode: Literal["crc", "deflate"]
+) -> None:
+    """
+    Damage one member of a ZIP archive on disk, leaving the framing intact:
+    either its stored CRC-32 or its compressed bytes.
+    """
+    with open(path, "rb") as fp:
+        data = bytearray(fp.read())
+    with zipfile.ZipFile(path) as zfp:
+        info = zfp.getinfo(member)
+        central_directory = zfp.start_dir
+
+    if mode == "crc":
+        # The 46-byte central directory header precedes the filename.
+        entry = data.index(member.encode(), central_directory) - 46
+        data[entry + 16 : entry + 20] = struct.pack("<I", info.CRC ^ 0xFFFFFFFF)
+    else:
+        # The 30-byte local file header, filename and extra field precede the data.
+        header = info.header_offset
+        name_len, extra_len = struct.unpack("<HH", data[header + 26 : header + 30])
+        start = header + 30 + name_len + extra_len
+        data[start : start + info.compress_size] = b"\xff" * info.compress_size
+
+    with open(path, "wb") as fp:
+        fp.write(data)
 
 
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
@@ -534,6 +564,55 @@ class TestFileValidation:
             False,
             "WHEEL not found at test-1.0.dist-info/WHEEL",
         )
+
+    @pytest.mark.parametrize(
+        ("member", "mode", "message"),
+        [
+            (
+                "test-1.0.dist-info/RECORD",
+                "crc",
+                "Archive member 'test-1.0.dist-info/RECORD' is corrupt",
+            ),
+            (
+                "test-1.0.dist-info/METADATA",
+                "crc",
+                "Archive member 'test-1.0.dist-info/METADATA' is corrupt",
+            ),
+            (
+                "test-1.0.dist-info/WHEEL",
+                "crc",
+                "Archive member 'test-1.0.dist-info/WHEEL' is corrupt",
+            ),
+            (
+                "test-1.0.dist-info/RECORD",
+                "deflate",
+                "Archive member 'test-1.0.dist-info/RECORD' is corrupt",
+            ),
+            # Outside dist-info the scanner's read raises instead; no member name.
+            ("pkg/code.py", "deflate", None),
+        ],
+    )
+    def test_wheel_corrupt_member(self, tmpdir, metrics, member, mode, message):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+
+        with zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED) as zfp:
+            zfp.writestr("pkg/code.py", b"print('hi')")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("test-1.0.dist-info/METADATA", b"Metadata-Version: 2.4")
+            zfp.writestr("test-1.0.dist-info/RECORD", b"test-1.0.dist-info/WHEEL,,")
+        _corrupt_zip_member(f, member, mode=mode)
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", metrics) == (
+            False,
+            message,
+        )
+        if message is not None:
+            metrics.increment.assert_called_once_with(
+                "warehouse.upload.zipfile.policy_error",
+                tags=["reason:corrupt-member"],
+            )
+        else:
+            metrics.increment.assert_not_called()
 
     @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
     def test_wheel_archive_comment(self, tmpdir, metrics, comment):

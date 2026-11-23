@@ -16,19 +16,19 @@ msgstr ""
 "X-Generator: Weblate 2026.11.2.dev0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: warehouse/views.py:150
+#: warehouse/views.py:160
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr "ທ່ານຕ້ອງຢືນຢັນທີ່ຢູ່ອີເມວ **ຫຼັກ** ຂອງທ່ານກ່ອນ ຈຶ່ງຈະສາມາດດຳເນີນການນີ້ໄດ້."
 
-#: warehouse/views.py:166
+#: warehouse/views.py:176
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "ຕ້ອງເປີດໃຊ້ງານການຢືນຢັນຕົວຕົນແບບສອງຂັ້ນຕອນໃນບັນຊີຂອງທ່ານ ເພື່ອດຳເນີນການນີ້."
 
-#: warehouse/views.py:377
+#: warehouse/views.py:443
 msgid "Locale updated"
 msgstr "ອັບເດດພາສາທ້ອງຖິ່ນແລ້ວ"
 
@@ -201,7 +201,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
 #: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
-#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:633
 msgid "Invalid or expired two factor login."
 msgstr "ການເຂົ້າສູ່ລະບົບແບບສອງຂັ້ນຕອນບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸແລ້ວ."
 
@@ -213,11 +213,11 @@ msgstr "ຢືນຢັນຕົວຕົນແລ້ວ"
 msgid "Successful WebAuthn assertion"
 msgstr "ການຢືນຢັນ WebAuthn ສຳເລັດແລ້ວ"
 
-#: warehouse/accounts/views.py:637 warehouse/manage/views/__init__.py:1010
+#: warehouse/accounts/views.py:663 warehouse/manage/views/__init__.py:996
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ຍອມຮັບລະຫັດກູ້ຄືນແລ້ວ. ລະຫັດທີ່ໃຫ້ມານີ້ຈະບໍ່ສາມາດນຳມາໃຊ້ໄດ້ອີກ."
 
-#: warehouse/accounts/views.py:744
+#: warehouse/accounts/views.py:774
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -228,14 +228,14 @@ msgstr ""
 "ປິດການລົງທະບຽນຜູ້ໃຊ້ໃໝ່ຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:803
+#: warehouse/accounts/views.py:833
 #, python-brace-format
 msgid ""
 "Too many registration attempts from your network. Please try again in $"
 "{time}."
 msgstr ""
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:841
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -246,7 +246,7 @@ msgstr ""
 "ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
 "ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:899
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. You have been "
@@ -257,178 +257,178 @@ msgstr ""
 "ມີການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດຫຼາຍເກີນໄປ. ທ່ານຖືກລະງັບການເຂົ້າໃຊ້ງານ, "
 "ກະລຸນາລອງໃໝ່ອີກຄັ້ງໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:966
+#: warehouse/accounts/views.py:996
 msgid "Expired token: request a new password reset link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:968
+#: warehouse/accounts/views.py:998
 msgid "Invalid token: request a new password reset link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:970 warehouse/accounts/views.py:1085
-#: warehouse/accounts/views.py:1153 warehouse/accounts/views.py:1259
-#: warehouse/accounts/views.py:1437
+#: warehouse/accounts/views.py:1000 warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1183 warehouse/accounts/views.py:1289
+#: warehouse/accounts/views.py:1467
 msgid "Invalid token: no token supplied"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີການສົ່ງໂທເຄັນມາ"
 
-#: warehouse/accounts/views.py:974
+#: warehouse/accounts/views.py:1004
 msgid "Invalid token: not a password reset token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຕັ້ງລະຫັດຜ່ານໃໝ່"
 
-#: warehouse/accounts/views.py:979 warehouse/accounts/views.py:1094
+#: warehouse/accounts/views.py:1009 warehouse/accounts/views.py:1124
 msgid "Invalid token: user not found"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ພົບຜູ້ໃຊ້"
 
-#: warehouse/accounts/views.py:990
+#: warehouse/accounts/views.py:1020
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ຜູ້ໃຊ້ໄດ້ເຂົ້າສູ່ລະບົບແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:1038
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ລະຫັດຜ່ານຖືກປ່ຽນແລ້ວນັບຕັ້ງແຕ່ໂທເຄັນນີ້ຖືກຮ້ອງຂໍ"
 
-#: warehouse/accounts/views.py:1039
+#: warehouse/accounts/views.py:1069
 msgid "You have reset your password"
 msgstr "ທ່ານໄດ້ຕັ້ງລະຫັດຜ່ານໃໝ່ແລ້ວ"
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1111
 msgid "Expired token: please try to login again"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1113
 msgid "Invalid token: please try to login again"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາລອງເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/accounts/views.py:1089
+#: warehouse/accounts/views.py:1119
 msgid "Invalid token: not a login confirmation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນການເຂົ້າສູ່ລະບົບ"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1134
 msgid "Invalid login attempt."
 msgstr "ການພະຍາຍາມເຂົ້າສູ່ລະບົບບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1109
+#: warehouse/accounts/views.py:1139
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
 msgstr "ລາຍລະອຽດອຸປະກອນບໍ່ກົງກັນ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງຈາກອຸປະກອນທີ່ທ່ານເຄີຍໃຊ້ເຂົ້າສູ່ລະບົບກ່ອນໜ້ານີ້."
 
-#: warehouse/accounts/views.py:1123
+#: warehouse/accounts/views.py:1153
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr "ຢືນຢັນການເຂົ້າສູ່ລະບົບຂອງທ່ານແລ້ວ ແລະ ລະບົບຈື່ຈຳອຸປະກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1179
 msgid "Expired token: request a new email verification link"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1181
 msgid "Invalid token: request a new email verification link"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍລິ້ງຢືນຢັນອີເມວໃໝ່"
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1187
 msgid "Invalid token: not an email verification token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຢືນຢັນອີເມວ"
 
-#: warehouse/accounts/views.py:1166
+#: warehouse/accounts/views.py:1196
 msgid "Email not found"
 msgstr "ບໍ່ພົບອີເມວ"
 
-#: warehouse/accounts/views.py:1169
+#: warehouse/accounts/views.py:1199
 msgid "Email already verified"
 msgstr "ອີເມວຖືກຢືນຢັນແລ້ວ"
 
-#: warehouse/accounts/views.py:1189
+#: warehouse/accounts/views.py:1219
 msgid "You can now set this email as your primary address"
 msgstr "ຕອນນີ້ທ່ານສາມາດຕັ້ງອີເມວນີ້ນີ້ເປັນທີ່ຢູ່ຫຼັກຂອງທ່ານໄດ້ແລ້ວ"
 
-#: warehouse/accounts/views.py:1192
+#: warehouse/accounts/views.py:1222
 msgid "This is your primary address"
 msgstr "ນີ້ແມ່ນທີ່ຢູ່ຫຼັກຂອງທ່ານ"
 
-#: warehouse/accounts/views.py:1198
+#: warehouse/accounts/views.py:1228
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ຢືນຢັນທີ່ຢູ່ອີເມວ ${email_address} ແລ້ວ. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1255
+#: warehouse/accounts/views.py:1285
 msgid "Expired token: request a new organization invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1257
+#: warehouse/accounts/views.py:1287
 msgid "Invalid token: request a new organization invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນເຂົ້າຮ່ວມອົງກອນໃໝ່"
 
-#: warehouse/accounts/views.py:1263
+#: warehouse/accounts/views.py:1293
 msgid "Invalid token: not an organization invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນເຂົ້າຮ່ວມອົງກອນ"
 
-#: warehouse/accounts/views.py:1267 warehouse/accounts/views.py:1278
+#: warehouse/accounts/views.py:1297 warehouse/accounts/views.py:1308
 msgid "Organization invitation is not valid."
 msgstr "ຄຳເຊີນເຂົ້າຮ່ວມອົງກອນບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1276
+#: warehouse/accounts/views.py:1306
 msgid "Organization invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນເຂົ້າຮ່ວມອົງກອນນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1284 warehouse/accounts/views.py:1471
+#: warehouse/accounts/views.py:1314 warehouse/accounts/views.py:1501
 msgid ""
 "Invalid invitation: the inviting user no longer exists. Please ask a "
 "remaining owner to reissue your invitation."
 msgstr ""
 
-#: warehouse/accounts/views.py:1338
+#: warehouse/accounts/views.py:1368
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1400
+#: warehouse/accounts/views.py:1430
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງອົງກອນ '${organization_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1433
+#: warehouse/accounts/views.py:1463
 msgid "Expired token: request a new project role invitation"
 msgstr "ໂທເຄັນໝົດອາຍຸ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1435
+#: warehouse/accounts/views.py:1465
 msgid "Invalid token: request a new project role invitation"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ກະລຸນາຮ້ອງຂໍຄຳເຊີນຮັບບົດບາດໃນໂຄງການໃໝ່"
 
-#: warehouse/accounts/views.py:1441
+#: warehouse/accounts/views.py:1471
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ແມ່ນໂທເຄັນສຳລັບຄຳເຊີນຮ່ວມມື"
 
-#: warehouse/accounts/views.py:1445 warehouse/accounts/views.py:1465
+#: warehouse/accounts/views.py:1475 warehouse/accounts/views.py:1495
 msgid "Role invitation is not valid."
 msgstr "ຄຳເຊີນຮັບບົດບາດບໍ່ຖືກຕ້ອງ."
 
-#: warehouse/accounts/views.py:1452
+#: warehouse/accounts/views.py:1482
 msgid "Invalid token: project does not exist"
 msgstr "ໂທເຄັນບໍ່ຖືກຕ້ອງ: ບໍ່ມີໂຄງການນີ້"
 
-#: warehouse/accounts/views.py:1463
+#: warehouse/accounts/views.py:1493
 msgid "Role invitation no longer exists."
 msgstr "ບໍ່ມີຄຳເຊີນຮັບບົດບາດນີ້ແລ້ວ."
 
-#: warehouse/accounts/views.py:1505
+#: warehouse/accounts/views.py:1535
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "ປະຕິເສດຄຳເຊີນສຳລັບໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1570
+#: warehouse/accounts/views.py:1600
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ທ່ານເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/accounts/views.py:1691
+#: warehouse/accounts/views.py:1721
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 "ກະລຸນາກວດເບິ່ງ <a href=\"${tos_url}\">ຂໍ້ກຳນົດການບໍລິການ</a> ທີ່ໄດ້ຮັບການປັບປຸງໃໝ່ຂອງພວກເຮົາ."
 
-#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:2212
+#: warehouse/accounts/views.py:1948 warehouse/accounts/views.py:2242
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
 #, fuzzy, python-brace-format
@@ -441,13 +441,13 @@ msgstr ""
 "ການເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1945
+#: warehouse/accounts/views.py:1975
 #: warehouse/manage/views/organizations.py:1928
 #, python-brace-format
 msgid "disabled. See ${docs_url} for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1967
+#: warehouse/accounts/views.py:1997
 #: warehouse/manage/views/organizations.py:1950
 #, fuzzy, python-brace-format
 #| msgid ""
@@ -460,11 +460,11 @@ msgstr ""
 "ທ່ານຕ້ອງມີອີເມວທີ່ຢືນຢັນແລ້ວ ເພື່ອລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://"
 "pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1994
+#: warehouse/accounts/views.py:2024
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "ທ່ານບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເກີນ 3 ລາຍການໃນເວລາດຽວກັນ."
 
-#: warehouse/accounts/views.py:2009
+#: warehouse/accounts/views.py:2039
 #: warehouse/manage/views/oidc_publishers.py:325
 #: warehouse/manage/views/oidc_publishers.py:446
 #: warehouse/manage/views/oidc_publishers.py:568
@@ -475,7 +475,7 @@ msgid ""
 "again later."
 msgstr "ມີການພະຍາຍາມລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ຫຼາຍເກີນໄປ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/accounts/views.py:2019
+#: warehouse/accounts/views.py:2049
 #: warehouse/manage/views/oidc_publishers.py:338
 #: warehouse/manage/views/oidc_publishers.py:459
 #: warehouse/manage/views/oidc_publishers.py:581
@@ -484,7 +484,7 @@ msgstr "ມີການພະຍາຍາມລົງທະບຽນຜູ້ເ
 msgid "The trusted publisher could not be registered"
 msgstr "ບໍ່ສາມາດລົງທະບຽນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້"
 
-#: warehouse/accounts/views.py:2034
+#: warehouse/accounts/views.py:2064
 #: warehouse/manage/views/organizations.py:2023
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -492,7 +492,7 @@ msgid ""
 msgstr ""
 "ຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ນີ້ຖືກລົງທະບຽນແລ້ວ. ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:2059
+#: warehouse/accounts/views.py:2089
 #: warehouse/manage/views/organizations.py:2047
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
@@ -502,17 +502,17 @@ msgstr ""
 "ມີຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ທີ່ຍັງຄ້າງຢູ່ເຊິ່ງມີການຕັ້ງຄ່ານີ້ ຖືກລົງທະບຽນສຳລັບຊື່ໂຄງການອື່ນແລ້ວ. "
 "ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບຂອງ PyPI ຖ້າທ່ານບໍ່ໄດ້ຕັ້ງໃຈໃຫ້ເປັນແບບນີ້."
 
-#: warehouse/accounts/views.py:2082
+#: warehouse/accounts/views.py:2112
 #: warehouse/manage/views/organizations.py:2071
 msgid "Registered a new pending publisher to create "
 msgstr "ລົງທະບຽນຜູ້ເຜີຍແຜ່ໃໝ່ທີ່ຍັງຄ້າງຢູ່ເພື່ອສ້າງ "
 
-#: warehouse/accounts/views.py:2231 warehouse/accounts/views.py:2244
-#: warehouse/accounts/views.py:2251
+#: warehouse/accounts/views.py:2261 warehouse/accounts/views.py:2274
+#: warehouse/accounts/views.py:2281
 msgid "Invalid publisher ID"
 msgstr "ID ຜູ້ເຜີຍແຜ່ບໍ່ຖືກຕ້ອງ"
 
-#: warehouse/accounts/views.py:2258
+#: warehouse/accounts/views.py:2288
 msgid "Removed trusted publisher for project "
 msgstr "ຖອນຜູ້ເຜີຍແຜ່ທີ່ເຊື່ອຖືໄດ້ສຳລັບໂຄງການອອກແລ້ວ "
 
@@ -648,44 +648,44 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ຊື່ທີມນີ້ຖືກໃຊ້ໄປແລ້ວ. ກະລຸນາເລືອກຊື່ທີມອື່ນ."
 
-#: warehouse/manage/views/__init__.py:438
+#: warehouse/manage/views/__init__.py:424
 msgid "Account details updated"
 msgstr "ອັບເດດລາຍລະອຽດບັນຊີແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:469
+#: warehouse/manage/views/__init__.py:455
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ເພີ່ມອີເມວ ${email_address} ແລ້ວ - ກະລຸນາກວດເບິ່ງອີເມວຂອງທ່ານເພື່ອຫາລິ້ງຢືນຢັນ"
 
-#: warehouse/manage/views/__init__.py:717
+#: warehouse/manage/views/__init__.py:703
 msgid ""
 "Your setup code is no longer valid. Scan the new QR code and enter the code "
 "it generates."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:957
+#: warehouse/manage/views/__init__.py:943
 msgid "Recovery codes already generated"
 msgstr "ສ້າງລະຫັດກູ້ຄືນແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:959
+#: warehouse/manage/views/__init__.py:945
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "ການສ້າງລະຫັດກູ້ຄືນໃໝ່ຈະເຮັດໃຫ້ລະຫັດເດີມທີ່ມີຢູ່ໃຊ້ການບໍ່ໄດ້."
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1053
 msgid "Verify your email to create an API token."
 msgstr "ກະລຸນາຢືນຢັນອີເມວຂອງທ່ານເພື່ອສ້າງໂທເຄັນ API."
 
-#: warehouse/manage/views/__init__.py:1169
+#: warehouse/manage/views/__init__.py:1155
 msgid "API Token does not exist."
 msgstr "ບໍ່ມີໂທເຄັນ API ນີ້."
 
-#: warehouse/manage/views/__init__.py:1201
+#: warehouse/manage/views/__init__.py:1187
 msgid "Invalid credentials. Try again"
 msgstr "ຂໍ້ມູນປະຈຳຕົວບໍ່ຖືກຕ້ອງ. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ"
 
-#: warehouse/manage/views/__init__.py:1372
-#: warehouse/manage/views/__init__.py:1708
-#: warehouse/manage/views/__init__.py:1837
+#: warehouse/manage/views/__init__.py:1366
+#: warehouse/manage/views/__init__.py:1702
+#: warehouse/manage/views/__init__.py:1831
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
@@ -695,73 +695,73 @@ msgstr ""
 "ການລຶບໂຄງການຖືກປິດໃຊ້ງານຊົ່ວຄາວ. ເບິ່ງລາຍລະອຽດໄດ້ທີ່ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/manage/views/__init__.py:1392
+#: warehouse/manage/views/__init__.py:1386
 msgid ""
 "Could not delete project - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1508
+#: warehouse/manage/views/__init__.py:1502
 msgid "This release is in quarantine and cannot be modified."
 msgstr "ລຸ້ນນີ້ຖືກກັກບໍລິເວນ (quarantine) ແລະ ບໍ່ສາມາດແກ້ໄຂໄດ້."
 
-#: warehouse/manage/views/__init__.py:1532
-#: warehouse/manage/views/__init__.py:1620
-#: warehouse/manage/views/__init__.py:1730
-#: warehouse/manage/views/__init__.py:1850
+#: warehouse/manage/views/__init__.py:1526
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1724
+#: warehouse/manage/views/__init__.py:1844
 msgid "Confirm the request"
 msgstr "ຢືນຢັນຄຳຮ້ອງຂໍ"
 
-#: warehouse/manage/views/__init__.py:1545
+#: warehouse/manage/views/__init__.py:1539
 msgid "Could not yank release - "
 msgstr "ບໍ່ສາມາດຖອນການເຜີຍແຜ່ (yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1633
+#: warehouse/manage/views/__init__.py:1627
 msgid "Could not un-yank release - "
 msgstr "ບໍ່ສາມາດຍົກເລີກການຖອນ (un-yank) ລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1743
+#: warehouse/manage/views/__init__.py:1737
 msgid "Could not delete release - "
 msgstr "ບໍ່ສາມາດລຶບລຸ້ນນີ້ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1761
+#: warehouse/manage/views/__init__.py:1755
 msgid ""
 "Could not delete release - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1862
+#: warehouse/manage/views/__init__.py:1856
 msgid "Could not find file"
 msgstr "ບໍ່ພົບໄຟລ໌"
 
-#: warehouse/manage/views/__init__.py:1867
+#: warehouse/manage/views/__init__.py:1861
 msgid "Could not delete file - "
 msgstr "ບໍ່ສາມາດລຶບໄຟລ໌ໄດ້ - "
 
-#: warehouse/manage/views/__init__.py:1877
+#: warehouse/manage/views/__init__.py:1871
 msgid "Could not delete file - acknowledge all of the consequences to continue"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2001
 #, fuzzy
 #| msgid "Cannot invite new member. Organization is not in good standing."
 msgid "Cannot add collaborator. Organization is not in good standing."
 msgstr "ບໍ່ສາມາດເຊີນສະມາຊິກໃໝ່ໄດ້. ອົງກອນມີສະຖານະບໍ່ປົກກະຕິ."
 
-#: warehouse/manage/views/__init__.py:2036
+#: warehouse/manage/views/__init__.py:2030
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "ທີມ '${team_name}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2143
+#: warehouse/manage/views/__init__.py:2137
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "ຜູ້ໃຊ້ '${username}' ມີບົດບາດ ${role_name} ສຳລັບໂຄງການນີ້ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2204
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ຕອນນີ້ ${username} ເປັນ ${role} ຂອງໂຄງການ '${project_name}' ແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2235
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -770,37 +770,37 @@ msgstr ""
 "ຜູ້ໃຊ້ '${username}' ຍັງບໍ່ມີທີ່ຢູ່ອີເມວຫຼັກທີ່ຢືນຢັນແລ້ວ ຈຶ່ງບໍ່ສາມາດເພີ່ມເປັນ ${role_name} "
 "ສຳລັບໂຄງການໄດ້"
 
-#: warehouse/manage/views/__init__.py:2254
+#: warehouse/manage/views/__init__.py:2248
 #: warehouse/manage/views/organizations.py:1051
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "ຜູ້ໃຊ້ '${username}' ມີຄຳເຊີນທີ່ຍັງບໍ່ທັນໝົດອາຍຸຢູ່ແລ້ວ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."
 
-#: warehouse/manage/views/__init__.py:2319
+#: warehouse/manage/views/__init__.py:2313
 #: warehouse/manage/views/organizations.py:1131
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "ສົ່ງຄຳເຊີນໄປໃຫ້ '${username}' ແລ້ວ"
 
-#: warehouse/manage/views/__init__.py:2351
+#: warehouse/manage/views/__init__.py:2345
 msgid "Could not find role invitation."
 msgstr "ບໍ່ພົບຄຳເຊີນຮັບບົດບາດ."
 
-#: warehouse/manage/views/__init__.py:2365
+#: warehouse/manage/views/__init__.py:2359
 #: warehouse/manage/views/organizations.py:1296
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "ລຶບຄຳເຊີນທີ່ໝົດອາຍຸຂອງ '${username}' ອອກແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2370
+#: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/organizations.py:1301
 #, fuzzy, python-brace-format
 #| msgid "Expired invitation for '${username}' deleted."
 msgid "Invalid invitation for '${username}' deleted."
 msgstr "ລຶບຄຳເຊີນທີ່ໝົດອາຍຸຂອງ '${username}' ອອກແລ້ວ."
 
-#: warehouse/manage/views/__init__.py:2375
+#: warehouse/manage/views/__init__.py:2369
 #: warehouse/manage/views/organizations.py:1306
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."

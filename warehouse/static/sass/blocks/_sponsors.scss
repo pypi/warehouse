@@ -38,6 +38,7 @@
     margin-top: grid.$quarter-spacing-unit;
     width: 80px;
     text-align: center;
+
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colors.$text-color);
 

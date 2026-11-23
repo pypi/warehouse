@@ -44,6 +44,7 @@ from warehouse.manage.views import (
     view_helpers,
 )
 from warehouse.organizations.models import (
+    OrganizationInvitation,
     OrganizationRoleType,
     OrganizationType,
     TeamProjectRole,
@@ -81,6 +82,7 @@ from ...common.db.accounts import (
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     TeamFactory,
@@ -992,6 +994,28 @@ class TestManageAccount:
         ]
         send_email.assert_called_once_with(verified_request, user)
         logout.assert_called_once_with(verified_request)
+
+    def test_delete_account_with_invitations(
+        self, verified_request, user_password, mocker
+    ):
+        user = verified_request.user
+        user_id = user.id
+        UserFactory.create(username="deleted-user")
+        RoleInvitationFactory.create(user=user)
+        OrganizationInvitationFactory.create(user=user)
+        verified_request.params = {"confirm_password": user_password}
+        mocker.patch.object(views, "send_account_deletion_email", autospec=True)
+        mocker.patch.object(views, "logout", autospec=True)
+
+        views.ManageVerifiedAccountViews(verified_request).delete_account()
+        verified_request.db.flush()
+
+        assert verified_request.db.get(User, user_id) is None
+        assert verified_request.db.scalars(select(RoleInvitation)).unique().all() == []
+        assert (
+            verified_request.db.scalars(select(OrganizationInvitation)).unique().all()
+            == []
+        )
 
     def test_delete_account_no_confirm(self, verified_request, default_response):
         verified_request.params = {"confirm_password": ""}
@@ -2281,6 +2305,72 @@ class TestManageProjects:
             },
             "project_invites": [],
         }
+
+    def test_manage_projects_loads_releases_in_one_query(
+        self, db_request, query_recorder
+    ):
+        """
+        Releases for every listed project come back in one query.
+
+        The sort key and the template both read ``project.releases``, so each
+        project not preloaded costs a query of its own.
+        """
+        db_request.user = UserFactory()
+        for _ in range(3):
+            project = ProjectFactory(releases=[])
+            ReleaseFactory(project=project, summary="A summary")
+            RoleFactory(user=db_request.user, project=project, role_name="Owner")
+        db_request.db.flush()
+        db_request.db.expire_all()
+
+        query_recorder.clear()
+        with query_recorder:
+            result = views.manage_projects(db_request)
+            for project in result["projects_active"]:
+                release = project.releases[0]
+                assert release.created
+                assert release.summary == "A summary"
+
+        release_queries = [q for q in query_recorder.queries if "FROM releases" in q]
+        assert len(release_queries) == 1, release_queries
+        assert "releases.description_id" not in release_queries[0]
+
+    def test_manage_projects_loads_organizations_in_one_query(
+        self, db_request, query_recorder
+    ):
+        """
+        Organizations for every listed project come back in one query.
+
+        The template reads ``project.organization`` for each project, and a
+        relationship through a secondary table always lazy loads with a query.
+        """
+        db_request.user = UserFactory()
+        organization = OrganizationFactory.create()
+        projects = ProjectFactory.create_batch(3)
+        for project in projects:
+            RoleFactory(user=db_request.user, project=project, role_name="Owner")
+        for project in projects[:2]:
+            OrganizationProjectFactory(organization=organization, project=project)
+        db_request.db.flush()
+        db_request.db.expire_all()
+
+        query_recorder.clear()
+        with query_recorder:
+            result = views.manage_projects(db_request)
+            organizations = {
+                project.name: project.organization
+                for project in result["projects_active"]
+            }
+
+        assert organizations == {
+            projects[0].name: organization,
+            projects[1].name: organization,
+            projects[2].name: None,
+        }
+        organization_queries = [
+            q for q in query_recorder.queries if "organizations.display_name" in q
+        ]
+        assert len(organization_queries) == 1, organization_queries
 
 
 @pytest.fixture

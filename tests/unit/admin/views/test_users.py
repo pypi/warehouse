@@ -25,9 +25,10 @@ from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OrganizationDeactivationReason,
+    OrganizationInvitation,
     OrganizationRoleType,
 )
-from warehouse.packaging.models import JournalEntry, Project
+from warehouse.packaging.models import JournalEntry, Project, RoleInvitation
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 from warehouse.utils.gravatar import gravatar
 
@@ -39,6 +40,7 @@ from ....common.db.accounts import (
 )
 from ....common.db.organizations import (
     OrganizationFactory,
+    OrganizationInvitationFactory,
     OrganizationRoleFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -49,6 +51,7 @@ from ....common.db.packaging import (
     ReleaseFactory,
     ReleaseURLFactory,
     RoleFactory,
+    RoleInvitationFactory,
 )
 from ....common.db.subscriptions import StripeSubscriptionFactory
 
@@ -669,6 +672,29 @@ class TestUserDelete:
             .one()
         )
         assert remove_journal.name == project.name
+
+    def test_deletes_user_with_invitations(self, db_request, mocker):
+        user = UserFactory.create()
+        user_id = user.id
+        UserFactory.create(username="deleted-user")
+        RoleInvitationFactory.create(user=user)
+        OrganizationInvitationFactory.create(user=user)
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+        db_request.db.flush()
+
+        assert db_request.db.get(User, user_id) is None
+        assert db_request.db.scalars(select(RoleInvitation)).unique().all() == []
+        assert (
+            db_request.db.scalars(select(OrganizationInvitation)).unique().all() == []
+        )
 
     @pytest.mark.parametrize("already_deactivated", [False, True])
     @freezegun.freeze_time("2026-10-19 01:00:00")
