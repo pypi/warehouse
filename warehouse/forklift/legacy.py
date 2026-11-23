@@ -351,6 +351,10 @@ def _is_valid_dist_file(
                             while member.read(io.DEFAULT_BUFFER_SIZE):
                                 pass
                     except zipfile.BadZipFile, zlib.error:
+                        metrics.increment(
+                            "warehouse.upload.zipfile.policy_error",
+                            tags=["reason:corrupt-member"],
+                        )
                         return False, f"Archive member {zinfo.filename!r} is corrupt"
 
         except zipfile.BadZipFile, zlib.error:

@@ -592,7 +592,7 @@ class TestFileValidation:
             ("pkg/code.py", "deflate", None),
         ],
     )
-    def test_wheel_corrupt_member(self, tmpdir, member, mode, message):
+    def test_wheel_corrupt_member(self, tmpdir, metrics, member, mode, message):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED) as zfp:
@@ -602,10 +602,17 @@ class TestFileValidation:
             zfp.writestr("test-1.0.dist-info/RECORD", b"test-1.0.dist-info/WHEEL,,")
         _corrupt_zip_member(f, member, mode=mode)
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", metrics) == (
             False,
             message,
         )
+        if message is not None:
+            metrics.increment.assert_called_once_with(
+                "warehouse.upload.zipfile.policy_error",
+                tags=["reason:corrupt-member"],
+            )
+        else:
+            metrics.increment.assert_not_called()
 
     @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
     def test_wheel_archive_comment(self, tmpdir, metrics, comment):
