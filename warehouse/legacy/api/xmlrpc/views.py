@@ -9,9 +9,17 @@ import xmlrpc.server
 
 from collections.abc import Mapping
 from inspect import signature
+from typing import Annotated
 
 from packaging.utils import canonicalize_name
-from pydantic import StrictBool, StrictInt, StrictStr, ValidationError, validate_call
+from pydantic import (
+    Field,
+    StrictBool,
+    StrictInt,
+    StrictStr,
+    ValidationError,
+    validate_call,
+)
 from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
@@ -283,7 +291,12 @@ def changelog_last_serial(request):
 
 
 @xmlrpc_method(method="changelog_since_serial")
-def changelog_since_serial(request, serial: StrictInt):
+def changelog_since_serial(
+    request,
+    serial: Annotated[
+        StrictInt, Field(ge=xmlrpc.client.MININT, le=xmlrpc.client.MAXINT)
+    ],
+):
     entries = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.id > serial)
