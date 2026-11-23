@@ -2365,6 +2365,39 @@ class TestUserQuarantineProjects:
             f"No projects needed quarantining for user {user.username!r}", queue="info"
         )
 
+    def test_quarantine_user_projects_names_superuser_blocked_projects(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+        superuser = UserFactory.create(is_superuser=True)
+        blocked_b = ProjectFactory.create(name="blocked-b")
+        blocked_a = ProjectFactory.create(name="blocked-a")
+        allowed = ProjectFactory.create()
+        for project in (blocked_b, blocked_a, allowed):
+            RoleFactory(project=project, user=user, role_name="Owner")
+        for project in (blocked_b, blocked_a):
+            RoleFactory(project=project, user=superuser, role_name="Maintainer")
+
+        db_request.params = {"username": user.username}
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=False
+        )
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
+        mocker.spy(db_request.session, "flash")
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        db_request.session.flash.assert_called_once_with(
+            "Projects with a superuser collaborator: blocked-a, blocked-b. "
+            "Only an administrator can quarantine them.",
+            queue="error",
+        )
+        assert allowed.lifecycle_status is None
+        assert not superuser.is_frozen
+
     def test_quarantine_user_projects_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()
         project = ProjectFactory.create()
