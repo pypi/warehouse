@@ -282,6 +282,7 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",
@@ -421,6 +422,7 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",
@@ -518,6 +520,7 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",
@@ -604,6 +607,7 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",
@@ -1533,6 +1537,7 @@ class TestRelease:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:support", (Permissions.AdminProjectsQuarantine,)),
             (
                 Allow,
                 "group:security",
