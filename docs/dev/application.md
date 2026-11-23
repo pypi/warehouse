@@ -63,12 +63,17 @@ Warehouse serves six main classes of users:
    administration tools.
 6. *PyPI security reviewers*. These users review malware reports, record
    observations, quarantine projects and releases, and remove confirmed malware.
+   A single reviewer can file a malware report and act on it, up to removing
+   the project. No second reviewer is required.
    Quarantining or removing a whole project also freezes the accounts of
    users with a direct role on it (owners and maintainers), but not of
-   members of the project's organization or teams. Projects with a
-   superuser collaborator need an administrator to quarantine or remove.
-   They can inspect project and user details and view email delivery logs, but
-   have no other administration access.
+   members of the project's organization or teams. It does not prohibit
+   their usernames or email domains. Projects with a superuser collaborator
+   need an administrator to quarantine or remove. Clearing a quarantine
+   leaves those accounts frozen, and only an administrator can unfreeze
+   them.
+   Security reviewers can inspect project and user details and view email
+   delivery logs, but have no other administration access.
    Project upload and size limits are read-only.
 
 Since reads are *much* more common than writes (much more goes out than
