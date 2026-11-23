@@ -500,6 +500,19 @@ def user_add_email(user, request):
     form = EmailForm(request.POST)
 
     if form.validate():
+        existing = request.db.scalar(
+            select(Email).where(Email.email == form.email.data)
+        )
+        if existing:
+            request.session.flash(
+                f"Email address {existing.email!r} is already associated with "
+                f"user {existing.user.username!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                request.route_path("admin.user.detail", username=user.username)
+            )
+
         if form.primary.data:
             for other in user.emails:
                 other.primary = False
