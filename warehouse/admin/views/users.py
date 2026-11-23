@@ -500,6 +500,18 @@ def user_add_email(user, request):
     form = EmailForm(request.POST)
 
     if form.validate():
+        user_service = request.find_service(IUserService, context=None)
+        existing_user = user_service.get_user_by_email(form.email.data)
+        if existing_user:
+            request.session.flash(
+                f"Email address {form.email.data!r} is already associated with "
+                f"user {existing_user.username!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                request.route_path("admin.user.detail", username=user.username)
+            )
+
         if form.primary.data:
             for other in user.emails:
                 other.primary = False

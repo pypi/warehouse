@@ -612,6 +612,34 @@ class TestUserAddEmail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.emails == []
 
+    def test_add_email_already_exists(self, db_request, mocker):
+        old_email = EmailFactory.create(email="old@bar.com", primary=True)
+        user = UserFactory.create(emails=[old_email])
+        EmailFactory.create(email="foo@bar.com", user__username="other-user")
+        db_request.matchdict["username"] = str(user.username)
+        db_request.method = "POST"
+        db_request.POST["email"] = "foo@bar.com"
+        db_request.POST["primary"] = "y"
+        db_request.POST = MultiDict(db_request.POST)
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
+        )
+        mocker.spy(db_request.session, "flash")
+
+        resp = views.user_add_email(user, db_request)
+
+        assert resp.status_code == 303
+        assert resp.location == f"/admin/users/{user.username}/"
+        db_request.session.flash.assert_called_once_with(
+            "Email address 'foo@bar.com' is already associated with user 'other-user'",
+            queue="error",
+        )
+        assert user.emails == [old_email]
+        assert old_email.primary
+
     def test_user_add_email_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
