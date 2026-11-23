@@ -1,6 +1,6 @@
 asyncudp>=0.7
 hupper>=1.9
-pip-tools>=7.6.2
+pip-tools>=7.7.0
 pyramid_debugtoolbar>=2.5
 pip-api
 watchdog
