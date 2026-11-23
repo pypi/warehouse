@@ -76,7 +76,7 @@
               {% if banner %}
               <a class="btn btn-info" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" rel="nofollow noopener noreferrer" target="_blank"><i class="icon fa fa-eye"></i> Preview Saved</a>
 
-              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }} value=>
+              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }}>
                 <i class="icon fa fa-trash"></i> Delete banner
               </button>
               {% endif %}
