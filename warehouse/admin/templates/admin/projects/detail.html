@@ -734,9 +734,11 @@
       </table>
     </div>
   </div>
+  {% if has_root_permission(request, Permissions.AdminJournalRead) %}
   <div class="card-footer">
     <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
   </div>
+  {% endif %}
 </div> <!-- .card #journals -->
 
 <div class="card card-secondary card-outline collapsed-card" id="projectActivity">
