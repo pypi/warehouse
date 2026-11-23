@@ -675,6 +675,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProjectsQuarantine,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
