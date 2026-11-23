@@ -579,6 +579,52 @@ class TestAutoQuarantineProject:
             ),
         ]
 
+    def test_trusted_observer_quarantines_young_project_with_no_releases(
+        self,
+        dummy_task,
+        logger,
+        db_request,
+        notification_service,
+        warehouse_domain,
+        mocker,
+    ):
+        """
+        A young project that has no releases at all should still be quarantined.
+        `latest_version` is None here just as it is when every release is yanked,
+        but `all_versions` is empty too, so there is no release to fall back on.
+        """
+        user = UserFactory.create(is_observer=True)
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
+
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/project/spam/"
+        )
+        db_request.user = user
+
+        observation = project.record_observation(
+            request=db_request,
+            kind=ObservationKind.IsMalware,
+            summary="Project Observation",
+            payload={},
+            actor=user,
+        )
+        db_request.db.flush()
+
+        send_notification = mocker.spy(notification_service, "send_notification")
+
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
+
+        assert_quarantine_notification(
+            mocker, send_notification, route_url, project, warehouse_domain
+        )
+        assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert_logger_bound(db_request, dummy_task, user, project)
+        assert logger.info.call_args_list == [
+            mocker.call(
+                "Auto-quarantining young project (<24h) reported by trusted observer."
+            ),
+        ]
+
     def test_trusted_observer_old_project_needs_corroboration(
         self, dummy_task, logger, db_request, mocker
     ):
