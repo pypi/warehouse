@@ -210,6 +210,66 @@ class TestCheckMembers:
         ]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
 
+    def test_overflow_records_scan_size_metrics(self, mocker, monkeypatch, metrics):
+        """Size metrics are recorded when the per-file fallback finds nothing."""
+        monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
+        rules = yara_x.compile('rule bad { strings: $a = "evil" condition: $a }')
+        members = [
+            ("pkg/a.py", 6, b"hello!"),
+            ("pkg/b.py", 6, b"world!"),
+            ("pkg/c.py", 5, b"clean"),
+        ]
+        assert (
+            scanner.check_members(members, rules, archive_type="zip", metrics=metrics)
+            is None
+        )
+        tags = ["archive_type:zip"]
+        assert metrics.histogram.call_args_list == [
+            mocker.call("warehouse.upload.yara.bytes", 17, tags),
+            mocker.call("warehouse.upload.yara.members", 3, tags),
+            mocker.call("warehouse.upload.yara.largest_member", 6, tags),
+        ]
+        metrics.increment.assert_not_called()
+
+    def test_records_scan_size_metrics(self, mocker, monkeypatch, metrics):
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
+        rules = yara_x.compile('rule bad { strings: $a = "evil" condition: $a }')
+        members = [
+            ("pkg/a.py", 5, b"hello"),
+            ("pkg/b.py", 3, b"abc"),
+            ("pkg/big.py", 11, b"x" * 11),
+        ]
+        assert (
+            scanner.check_members(members, rules, archive_type="zip", metrics=metrics)
+            is None
+        )
+        tags = ["archive_type:zip"]
+        assert metrics.histogram.call_args_list == [
+            mocker.call("warehouse.upload.yara.bytes", 8, tags),
+            mocker.call("warehouse.upload.yara.members", 2, tags),
+            mocker.call("warehouse.upload.yara.largest_member", 11, tags),
+        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.upload.yara.skipped", 1, tags
+        )
+
+    def test_records_metrics_on_match_without_skipped(self, mocker, metrics):
+        rules = yara_x.compile(
+            'rule bad { meta: message = "x" strings: $a = "evil" condition: $a }'
+        )
+        members = [("pkg/evil.py", 4, b"evil")]
+        result = scanner.check_members(
+            members, rules, archive_type="tar", metrics=metrics
+        )
+        assert result is not None
+        tags = ["archive_type:tar"]
+        assert metrics.histogram.call_args_list == [
+            mocker.call("warehouse.upload.yara.bytes", 4, tags),
+            mocker.call("warehouse.upload.yara.members", 1, tags),
+            mocker.call("warehouse.upload.yara.largest_member", 4, tags),
+        ]
+        metrics.increment.assert_not_called()
+
 
 class TestScanArchive:
     @pytest.mark.parametrize(

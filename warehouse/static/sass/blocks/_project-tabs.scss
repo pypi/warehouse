@@ -57,7 +57,9 @@
     float: left;
     padding: grid.$half-spacing-unit;
     cursor: pointer;
+
     @include link-utilities.link-without-underline;
+
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
 

@@ -1142,9 +1142,9 @@ hiredis==3.5.0 \
     --hash=sha256:fca8f8974588f3563decb8812df201f08cd2ac1d4bb84fca295ff820cfbf0524 \
     --hash=sha256:fcc7542689996df026486d75a29080e102c6b7131c064e22b762949f44d5e4c2
     # via -r requirements/main.in
-humanize==4.16.0 \
-    --hash=sha256:353eb2f34c09d098b2880eee8bef21832eae6d174f48c5762fff7e5fcb74d01d \
-    --hash=sha256:7dc2244a2f84a4bfb1d36c37bac80cd78e35cdc5c119206d87b018e1445f3a3f
+humanize==4.17.0 \
+    --hash=sha256:02d0899527760efe18011944f882df4970943b4cdff7b5a0ba7fed43a576ef98 \
+    --hash=sha256:1d6a36c453dbfbb3f0b34601d2e0b4ce5d48d780305cd45714843f0068fde6ac
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
@@ -2683,9 +2683,9 @@ securesystemslib==1.6.0 \
     --hash=sha256:1c1aa00f058f4851f038d409c8ca4a727db854a91f07ec3a0fa047bb93e43e0e \
     --hash=sha256:b16e07c32bb41174c2ee2fb18f478ebe0d52e0e7c1fb085ce89c990452a35977
     # via tuf
-sentry-sdk==2.74.0 \
-    --hash=sha256:40b205af015649df3ec9986e057ce24ce85956bee3fb75efa72c93aa7036bdff \
-    --hash=sha256:dd91d75aacaef636006b579ac3ddb2fdbc9dce35f00f4b353b6b1b110c6b256a
+sentry-sdk==2.75.0 \
+    --hash=sha256:9a10e97de2cbd42ad7e4a6e02a0d5af19de9811eb02445077d41ba14c08e170c \
+    --hash=sha256:c38ac2d4b2435c11da821e173bb9d9088c98f41ae92f559ce0e424170a8e1a29
     # via -r requirements/main.in
 sigstore==4.5.1 \
     --hash=sha256:02e000197b34980f1d382741d6f83c2fecbcef7debf7304f36a5253f3c892cd9 \
