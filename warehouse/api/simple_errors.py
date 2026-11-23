@@ -19,16 +19,8 @@ _BODY_HEADERS = {
     "content-type",
     "content-length",
     "content-encoding",
-    "content-language",
-    "content-location",
-    "content-disposition",
-    "content-md5",
-    "content-digest",
-    "repr-digest",
-    "digest",
     "etag",
     "last-modified",
-    "accept-ranges",
 }
 
 
