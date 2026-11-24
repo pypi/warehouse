@@ -17,5 +17,8 @@ rule pyarmor_encrypted {
     $pyarmor_bcc    = "__pyarmor_bcc__"
 
   condition:
+    // We want to detect PyArmor only in the source code.
+    // Empty filenames means initial batch scan.
+    (filename == "" or filename matches /\.py$/i) and
     any of them
 }

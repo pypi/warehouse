@@ -314,21 +314,6 @@ def _is_valid_dist_file(
                 except KeyError:
                     return False, f"WHEEL not found at {target_file}"
 
-                # Scan archive members for YARA rule matches while open
-                if scan:
-                    yara_match = scanner.check_members(
-                        scanner.iter_zip_members(zfp),
-                        archive_name=os.path.basename(filename),
-                        archive_type="zip",
-                        metrics=metrics,
-                    )
-                    if yara_match is not None:
-                        sentry_sdk.capture_message(
-                            f"YARA rule {yara_match.rule!r} matched "
-                            f"{yara_match.member!r} in {os.path.basename(filename)}"
-                        )
-                        return False, yara_match.message
-
                 # Check the ZIP file record framing
                 # to avoid parser differentials.
                 zip_ok, zip_error = zipfiles.validate_zipfile(zfp, metrics=metrics)
@@ -356,6 +341,24 @@ def _is_valid_dist_file(
                             tags=["reason:corrupt-member"],
                         )
                         return False, f"Archive member {zinfo.filename!r} is corrupt"
+
+                # Scan archive members for YARA rule matches while open.
+                # This has to run after verifying the ZIP archive, otherwise
+                # the scanner can throw an exception and hide the contextual
+                # information about the corrupted file.
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_zip_members(zfp),
+                        archive_name=os.path.basename(filename),
+                        archive_type="zip",
+                        metrics=metrics,
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
 
         except zipfile.BadZipFile, zlib.error:
             return False, None
