@@ -19,4 +19,11 @@ _depsdev_origin = utils.DisclosureOrigin(
     ),
 )
 
-origins = [_github_origin, _depsdev_origin]
+_trufflesecurity_origin = utils.DisclosureOrigin(
+    name="TruffleSecurity",
+    key_id_header="Truffle-Public-Key-Identifier",
+    signature_header="Truffle-Public-Key-Signature",
+    verification_url="https://labs.trufflehog.com/partner-revocation/public_key",
+)
+
+origins = [_github_origin, _depsdev_origin, _trufflesecurity_origin]
