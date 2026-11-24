@@ -9,9 +9,9 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-12-29 13:51+0200\n"
-"PO-Revision-Date: 2026-11-16 11:21+0000\n"
-"Last-Translator: phlostically "
-"<phlostically@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-11-22 00:18+0000\n"
+"Last-Translator: phlostically <phlostically@users.noreply.hosted.weblate.org>"
+"\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/pypa/warehouse/"
 "eo/>\n"
 "Language: eo\n"
@@ -103,7 +103,7 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Okazis troo da nesukcesaj salutaj provoj. Vi ne povos saluti dum ${time}. "
+"Okazis troo da nesukcesaj ensalutaj provoj. Vi ne povos saluti dum ${time}. "
 "Bonvolu reprovi poste."
 
 #: warehouse/accounts/forms.py:294
@@ -137,25 +137,18 @@ msgstr ""
 "adreson."
 
 #: warehouse/accounts/forms.py:468
-#, fuzzy, python-brace-format
-#| msgid "The email address isn't valid. Try again."
+#, python-brace-format
 msgid "Too many email addresses checked. Try again in ${time}."
-msgstr "La retpoŝta adreso ne estas valida. Reprovu."
+msgstr "Troo da kontroloj de retpoŝtaj adresoj. Reprovu post ${time}."
 
 #: warehouse/accounts/forms.py:475
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "Too many email addresses checked. Try again later."
-msgstr "La retpoŝta adreso ne estas valida. Reprovu."
+msgstr "Troo da kontroloj de retpoŝtaj adresoj. Reprovu poste."
 
 #: warehouse/accounts/forms.py:550
-#, fuzzy
-#| msgid ""
-#| "You can't use an email address from this domain. Use a different email."
 msgid "You can't use a disposable email address. Use a different email."
 msgstr ""
-"Vi ne rajtas uzi retpoŝtan adreson ĉe tiu retejo. Uzu alian retpoŝtan "
-"adreson."
+"Vi ne rajtas uzi forĵeteblan retpoŝtan adreson. Uzu alian retpoŝtan adreson."
 
 #: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:145
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -225,7 +218,7 @@ msgstr ""
 #: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
 #: warehouse/accounts/views.py:483 warehouse/accounts/views.py:633
 msgid "Invalid or expired two factor login."
-msgstr "Nevalida aŭ eksvalidiĝinta dupaŝa saluto."
+msgstr "Nevalida aŭ eksvalidiĝinta dupaŝa ensaluto."
 
 #: warehouse/accounts/views.py:444
 msgid "Already authenticated"
@@ -240,15 +233,12 @@ msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Realira kodo akceptiĝis. La submetita kodo ne estas reuzebla."
 
 #: warehouse/accounts/views.py:774
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "New user registration temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://"
-"pypi.org/help#admin-intervention por detaloj."
+"Portempe malebliĝis registrado de novaj uzantoj. Vidu ${docs_url} por "
+"detaloj."
 
 #: warehouse/accounts/views.py:833
 #, python-brace-format
@@ -296,7 +286,7 @@ msgstr "Ne valida ĵetono: uzanto ne trovita"
 
 #: warehouse/accounts/views.py:1020
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr "Nevalida ĵetono: la uzanto jam salutis post peto por ĉi tiu ĵetono"
+msgstr "Nevalida ĵetono: la uzanto jam ensalutis post peto por ĉi tiu ĵetono"
 
 #: warehouse/accounts/views.py:1038
 msgid ""
@@ -309,26 +299,20 @@ msgid "You have reset your password"
 msgstr "Vi restarigis vian pasvorton"
 
 #: warehouse/accounts/views.py:1111
-#, fuzzy
-#| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
-msgstr "Eksvalidigita ĵetono: peti novan inviton al organizaĵo"
+msgstr "Eksvalidigita ĵetono: bonvolu reprovi ensaluti"
 
 #: warehouse/accounts/views.py:1113
-#, fuzzy
-#| msgid "Invalid token: user not found"
 msgid "Invalid token: please try to login again"
-msgstr "Ne valida ĵetono: uzanto ne trovita"
+msgstr "Nevalida ĵetono: bonvolu reprovi ensaluti"
 
 #: warehouse/accounts/views.py:1119
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
-msgstr "Nevalida ĵetono: ne estas ĵetono por invito al kunlaborado"
+msgstr "Nevalida ĵetono: ne estas ĵetono por konfirmi ensaluton"
 
 #: warehouse/accounts/views.py:1134
 msgid "Invalid login attempt."
-msgstr ""
+msgstr "Nevalida provo ensaluti."
 
 #: warehouse/accounts/views.py:1139
 msgid ""
@@ -445,26 +429,19 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
 #: warehouse/accounts/views.py:1721
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of "
-#| "Service</a>."
+#, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
-"Registrante vin, vi konsentas la <a href=\"%(tos)s\">Uzkondiĉojn de PyPI</a>."
+"Bonvolu tralegi niajn ĝisdatigitajn <a href=\"${tos_url}\">Uzkondiĉojn</a>."
 
 #: warehouse/accounts/views.py:1948 warehouse/accounts/views.py:2242
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1899
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Trusted publishing is temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "Trusted publishing is temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Fidata eldonado estas provizore malebligita. Vidu la paĝon https://pypi.org/"
-"help#admin-intervention por detaloj."
+"Fidata eldonado estas provizore malebligita. Vidu ${docs_url} por detaloj."
 
 #: warehouse/accounts/views.py:1975
 #: warehouse/manage/views/organizations.py:1928
@@ -474,16 +451,13 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1997
 #: warehouse/manage/views/organizations.py:1950
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "You must have a verified email in order to register a pending trusted "
-#| "publisher. See https://pypi.org/help#openid-connect for details."
+#, python-brace-format
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See ${docs_url} for details."
 msgstr ""
 "Vi devas konfirmi vian retpoŝtan adreson por starigi estontan fidatan "
-"eldonanton. Legu https://pypi.org/help#openid-connect por detaloj."
+"eldonanton. Vidu ${docs_url} por detaloj."
 
 #: warehouse/accounts/views.py:2024
 msgid "You can't register more than 3 pending trusted publishers at once."
@@ -723,19 +697,16 @@ msgstr "API-ĵetono ne ekzistas."
 
 #: warehouse/manage/views/__init__.py:1187
 msgid "Invalid credentials. Try again"
-msgstr "Ne validaj salutiloj. Reprovu"
+msgstr "Ne validaj ensalutiloj. Reprovu"
 
 #: warehouse/manage/views/__init__.py:1366
 #: warehouse/manage/views/__init__.py:1702
 #: warehouse/manage/views/__init__.py:1831
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
-#| "intervention for details."
+#, python-brace-format
 msgid "Project deletion temporarily disabled. See ${docs_url} for details."
 msgstr ""
-"Forviŝado de projekto estas provizore malebligita. Vidu la paĝon https://"
-"pypi.org/help#admin-intervention por detaloj."
+"Forviŝado de projekto estas provizore malebligita. Vidu ${docs_url} por "
+"detaloj."
 
 #: warehouse/manage/views/__init__.py:1386
 msgid ""
@@ -838,10 +809,9 @@ msgstr "Eksvalidiĝinta invito por «${username}» estas forviŝita."
 
 #: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/organizations.py:1301
-#, fuzzy, python-brace-format
-#| msgid "Expired invitation for '${username}' deleted."
+#, python-brace-format
 msgid "Invalid invitation for '${username}' deleted."
-msgstr "Eksvalidiĝinta invito por «${username}» estas forviŝita."
+msgstr "Nevalida invito por «${username}» estas forviŝita."
 
 #: warehouse/manage/views/__init__.py:2369
 #: warehouse/manage/views/organizations.py:1306
@@ -852,12 +822,12 @@ msgstr "Invito de '${username}' eksvalidiĝis."
 #: warehouse/manage/views/account_associations.py:66
 #: warehouse/manage/views/account_associations.py:211
 msgid "Invalid OAuth state - possible CSRF attack"
-msgstr ""
+msgstr "Nevalida stato de OAuth – ebla atako de transreteja petofalsado (CSRF)"
 
 #: warehouse/manage/views/account_associations.py:76
 #, python-brace-format
 msgid "GitHub OAuth failed: ${error}"
-msgstr ""
+msgstr "Malsukcesis OAuth ĉe GitHub: ${error}"
 
 #: warehouse/manage/views/account_associations.py:86
 msgid "No authorization code received from GitHub"
@@ -866,12 +836,12 @@ msgstr ""
 #: warehouse/manage/views/account_associations.py:135
 #, python-brace-format
 msgid "Successfully connected GitHub account @${username}"
-msgstr ""
+msgstr "Sukcese konektis konton @${username} ĉe GitHub"
 
 #: warehouse/manage/views/account_associations.py:144
 #, python-brace-format
 msgid "Failed to connect GitHub account: ${error}"
-msgstr ""
+msgstr "Malsukcesis konekti konton ĉe GitHub: ${error}"
 
 #: warehouse/manage/views/account_associations.py:154
 msgid "An unexpected error occurred while connecting your GitHub account"
@@ -880,7 +850,7 @@ msgstr ""
 #: warehouse/manage/views/account_associations.py:221
 #, python-brace-format
 msgid "GitLab OAuth failed: ${error}"
-msgstr ""
+msgstr "Malsukcesis OAuth ĉe GitLab: ${error}"
 
 #: warehouse/manage/views/account_associations.py:231
 msgid "No authorization code received from GitLab"
@@ -889,27 +859,25 @@ msgstr ""
 #: warehouse/manage/views/account_associations.py:281
 #, python-brace-format
 msgid "Successfully connected GitLab account @${username}"
-msgstr ""
+msgstr "Sukcese konektis la konton @${username} ĉe GitLab"
 
 #: warehouse/manage/views/account_associations.py:290
 #, python-brace-format
 msgid "Failed to connect GitLab account: ${error}"
-msgstr ""
+msgstr "Malsukcesis konekti al konto ĉe GitLab: ${error}"
 
 #: warehouse/manage/views/account_associations.py:300
 msgid "An unexpected error occurred while connecting your GitLab account"
-msgstr ""
+msgstr "Okazis neatendita eraro dum konektado al via konto ĉe GitLab"
 
 #: warehouse/manage/views/account_associations.py:365
 #, python-brace-format
 msgid "Removed ${service} account @${username}"
-msgstr ""
+msgstr "Forigis konton @${username} ĉe ${service}"
 
 #: warehouse/manage/views/account_associations.py:372
-#, fuzzy
-#| msgid "Account associations"
 msgid "Failed to remove account association"
-msgstr "Kontaj asocioj"
+msgstr "Malsukcesis forigi kontan asocion"
 
 #: warehouse/manage/views/oidc_publishers.py:185
 #, fuzzy
@@ -918,52 +886,40 @@ msgid "The trusted publisher could not be constrained"
 msgstr "Ne eblis registri la fidatan eldonanton"
 
 #: warehouse/manage/views/oidc_publishers.py:300
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "GitLab-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Fidata eldonado per GitLab estas provizore malebligita. Vidu la paĝon "
-"https://pypi.org/help#admin-intervention por detaloj."
+"Fidata eldonado per GitHub estas provizore malebligita. Vidu ${docs_url} por "
+"detaloj."
 
 #: warehouse/manage/views/oidc_publishers.py:421
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "GitLab-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Fidata eldonado per GitLab estas provizore malebligita. Vidu la paĝon "
-"https://pypi.org/help#admin-intervention por detaloj."
+"Fidata eldonado per GitLab estas provizore malebligita. Vidu ${docs_url} por "
+"detaloj."
 
 #: warehouse/manage/views/oidc_publishers.py:543
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "Google-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See ${docs_url} for "
 "details."
 msgstr ""
-"Fidata eldonado per Google estas provizore malebligita. Vidu la paĝon "
-"https://pypi.org/help#admin-intervention por detaloj."
+"Fidata eldonado per Google estas provizore malebligita. Vidu ${docs_url} por "
+"detaloj."
 
 #: warehouse/manage/views/oidc_publishers.py:660
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "ActiveState-based trusted publishing is temporarily disabled. See https://"
-#| "pypi.org/help#admin-intervention for details."
+#, python-brace-format
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See $"
 "{docs_url} for details."
 msgstr ""
-"Fidata eldonado per ActiveState estas provizore malebligita. Vidu la paĝon "
-"https://pypi.org/help#admin-intervention por detaloj."
+"Fidata eldonado per ActiveState estas provizore malebligita. Vidu $"
+"{docs_url} por detaloj."
 
 #: warehouse/manage/views/organizations.py:704
 msgid ""
@@ -1229,18 +1185,16 @@ msgstr "Kopii rektan hiperligon al la aktualaj filtriloj"
 #: warehouse/static/js/warehouse/controllers/filter_list_controller.js:554
 msgid "Showing %1 of %2 file."
 msgid_plural "Showing %1 of %2 files."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Montrante %1 el %2 dosiero."
+msgstr[1] "Montrante %1 el %2 dosieroj."
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:36
 msgid "Error while validating hashed password, disregard on development"
 msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:20
-#, fuzzy
-#| msgid "Password"
 msgid "Passwords match"
-msgstr "Pasvorto"
+msgstr "Pasvortoj kongruas"
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:24
 msgid "Passwords do not match"
@@ -1264,14 +1218,14 @@ msgstr[1] "Antaŭ %1 tagoj proksimume"
 #: warehouse/static/js/warehouse/utils/timeago.js:26
 msgid "About an hour ago"
 msgid_plural "About %1 hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Antaŭ unu horo proksimume"
+msgstr[1] "Antaŭ %1 horoj proksimume"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:28
 msgid "About a minute ago"
 msgid_plural "About %1 minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Antaŭ unu minuto"
+msgstr[1] "Antaŭ %1 minutoj"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:30
 msgid "Just now"
@@ -1458,7 +1412,7 @@ msgstr "Dokumentaro"
 #: warehouse/templates/accounts/login.html:90 warehouse/templates/base.html:39
 #: warehouse/templates/base.html:66
 msgid "Log in"
-msgstr "Saluti"
+msgstr "Ensaluti"
 
 #: warehouse/templates/base.html:43 warehouse/templates/base.html:70
 #: warehouse/templates/pages/sitemap.html:25
@@ -1501,16 +1455,12 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:115
-#, fuzzy
-#| msgid "The Python Package Index"
 msgid "TestPyPI, the Python Package Index test instance"
-msgstr "La Python Package Index"
+msgstr "TestPyPI, la testa servilo por la Pitono-Pakindekso"
 
 #: warehouse/templates/base.html:115
-#, fuzzy
-#| msgid "The Python Package Index"
 msgid "PyPI, the Python Package Index"
-msgstr "La Python Package Index"
+msgstr "PyPI, la Pitono-Pakindekso"
 
 #: warehouse/templates/base.html:131 warehouse/templates/index.html:97
 msgid ""
@@ -1557,7 +1507,7 @@ msgstr "Averto"
 
 #: warehouse/templates/base.html:236
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr "Vi uzas ne subtenatan TTT-legilon. Ĝisdatigu al pli nova versio."
+msgstr "Vi uzas ne subtenatan retumilon. Ĝisdatigu al pli nova versio."
 
 #: warehouse/templates/base.html:248
 msgid ""
@@ -1634,10 +1584,8 @@ msgid "Help navigation"
 msgstr "Navigilo por «Helpo»"
 
 #: warehouse/templates/base.html:383
-#, fuzzy
-#| msgid "Python documentation"
 msgid "PyPI documentation"
-msgstr "Dokumentaro pri Python"
+msgstr "Dokumentaro pri PyPI"
 
 #: warehouse/templates/base.html:386
 #, fuzzy
@@ -1668,10 +1616,8 @@ msgid "About PyPI navigation"
 msgstr "Navigilo por «Pri PyPI»"
 
 #: warehouse/templates/base.html:414
-#, fuzzy
-#| msgid "PyPI Blog"
 msgid "PyPI blog"
-msgstr "Novaĵoj de PyPI"
+msgstr "Blogo de PyPI"
 
 #: warehouse/templates/base.html:420
 msgid "Infrastructure dashboard"
@@ -2024,8 +1970,8 @@ msgid ""
 "again for the next hour."
 msgstr ""
 "<b>Konsilo:</b> vi estas faronta <a href=\"%(href)s\">ion konfidencan</a>. "
-"Se vi ne uzas personan komputilon, nepre adiaŭu post via seanco. Ni ne petos "
-"vin konfirmi vian pasvorton denove dum la sekva horo."
+"Se vi ne uzas personan komputilon, nepre elsalutu post via seanco. Ni ne "
+"petos vin konfirmi vian pasvorton denove dum la sekva horo."
 
 #: warehouse/templates/upload.html:12
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -2089,7 +2035,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:17
 #, python-format
 msgid "Log in to %(title)s"
-msgstr "Saluti al %(title)s"
+msgstr "Ensaluti al %(title)s"
 
 #: warehouse/templates/accounts/login.html:32
 #: warehouse/templates/accounts/profile.html:32
@@ -2118,12 +2064,12 @@ msgstr "Via salutnomo"
 #: warehouse/templates/accounts/logout.html:13
 #: warehouse/templates/includes/current-user-indicator.html:76
 msgid "Log out"
-msgstr "Adiaŭi"
+msgstr "Elsaluti"
 
 #: warehouse/templates/accounts/logout.html:7
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr "Adiaŭi el %(account_name)s"
+msgstr "Elsaluti el %(account_name)s"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:4
 msgid "Confirm Organization Invite"
@@ -2204,16 +2150,11 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ankoraŭ alŝutis neniun projekton al PyPI"
 
 #: warehouse/templates/accounts/profile.html:92
-#, fuzzy, python-format
-#| msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
-#| msgid_plural ""
-#| "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
+#, python-format
 msgid "%(count)s <a href=\"%(href)s\">archived</a> project"
 msgid_plural "%(count)s <a href=\"%(href)s\">archived</a> projects"
-msgstr[0] ""
-"%(count)s <a href=\"%(href)s#archived-project\">enarĥivigita</a> projekto"
-msgstr[1] ""
-"%(count)s <a href=\"%(href)s#archived-project\">enarĥivigitaj</a> projektoj"
+msgstr[0] "%(count)s <a href=\"%(href)s\">enarĥivigita</a> projekto"
+msgstr[1] "%(count)s <a href=\"%(href)s\">enarĥivigitaj</a> projektoj"
 
 #: warehouse/templates/accounts/profile.html:104
 #: warehouse/templates/includes/packaging/project-release-history.html:91
@@ -2229,7 +2170,7 @@ msgstr "Realiraj kodoj"
 #: warehouse/templates/accounts/recovery-code.html:12
 #: warehouse/templates/accounts/two-factor.html:132
 msgid "Login using recovery codes"
-msgstr "Saluti per realiraj kodoj"
+msgstr "Ensaluti per realiraj kodoj"
 
 #: warehouse/templates/accounts/recovery-code.html:26
 #: warehouse/templates/manage/account/recovery_codes-burn.html:46
@@ -2513,7 +2454,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:24
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr "Ŝaltu JavaScript por saluti per sekuriga aparato (ekz. USB-ŝlosilo)"
+msgstr "Ŝaltu Javaskripton por ensaluti per sekuriga aparato (ekz. USB-ŝlosilo)"
 
 #: warehouse/templates/accounts/two-factor.html:31
 msgid "Authenticate with device"
@@ -2526,9 +2467,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
 "(e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Ĝisdatigu vian TTT-legilon</a> por saluti per sekuriga "
-"aparato (ekz. USB-ŝlosilo)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Ĝisdatigu vian retumilon</a> por ensaluti per sekuriga aparato (ekz. USB-"
+"ŝlosilo)"
 
 #: warehouse/templates/accounts/two-factor.html:49
 #: warehouse/templates/accounts/two-factor.html:108
@@ -2817,10 +2758,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:16
-#, fuzzy
-#| msgid "Manage this organization"
 msgid "Manage organization"
-msgstr "Administri ĉi tiun organizaĵon"
+msgstr "Administri organizaĵon"
 
 #: warehouse/templates/email/new-organization-approved/body.html:20
 #, fuzzy
@@ -2871,7 +2810,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:33
 msgid "– The PyPI Team"
-msgstr ""
+msgstr "– La Teamo PyPI"
 
 #: warehouse/templates/email/new-organization-declined/body.html:6
 #, python-format
@@ -3144,7 +3083,7 @@ msgid ""
 msgstr ""
 "Administrantoj de PyPI determinis, ke via pasvorto estas kompromitita. Por "
 "protekti vin kaj aliajn uzantojn, ni restarigis vian pasvorton kaj vi ne plu "
-"povos saluti aŭ alŝuti al PyPI per via ekzistanta pasvorto."
+"povos ensaluti aŭ alŝuti al PyPI per via ekzistanta pasvorto."
 
 #: warehouse/templates/email/password-compromised/body.html:12
 msgid ""
@@ -3189,9 +3128,9 @@ msgid ""
 "in or upload to PyPI with your existing password."
 msgstr ""
 "Dum via lastatempa provo saluti aŭ alŝuti al PyPI, ni rimarkis, ke via "
-"pasvorto difektiĝis pro publikaj datenbreĉoj. Por protekti vin kaj aliajn "
-"uzantojn, ni restarigis vian pasvorton, kaj vi ne plu povos saluti aŭ alŝuti "
-"al PyPI per via ekzistanta pasvorto."
+"pasvorto difektiĝis pro publikaj datumbreĉoj. Por protekti vin kaj aliajn "
+"uzantojn, ni restarigis vian pasvorton, kaj vi ne plu povos ensaluti aŭ "
+"alŝuti al PyPI per via ekzistanta pasvorto."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:12
 #, python-format
@@ -3201,7 +3140,7 @@ msgid ""
 "against PyPI and its users."
 msgstr ""
 "PyPI mem ne suferis breĉon. Jen protekta rimedo por malpliigi la riskon de "
-"<a href=\"%(href)s\">salutilo-farĉanta atako</a> kontraŭ PyPI kaj ĝiaj "
+"<a href=\"%(href)s\">ensalutilo-farĉanta atako</a> kontraŭ PyPI kaj ĝiaj "
 "uzantoj."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -3339,9 +3278,9 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated "
 "recovery codes for this account."
 msgstr ""
-"Ni rimarkis, ke vi ĵus salutis en vian konton <strong>%(username)s</strong> "
-"ĉe PyPI, por kiu dupaŝa aŭtentikigo estis starigita, sed vi ankoraŭ ne "
-"generis realirajn kodojn por tiu konto."
+"Ni rimarkis, ke vi ĵus ensalutis en vian konton <strong>%(username)s</"
+"strong> ĉe PyPI, por kiu dupaŝa aŭtentikigo estis starigita, sed vi ankoraŭ "
+"ne generis realirajn kodojn por tiu konto."
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
 msgid ""
@@ -3686,10 +3625,8 @@ msgid "Release files"
 msgstr "Eldonoj"
 
 #: warehouse/templates/includes/file-details.html:16
-#, fuzzy
-#| msgid "Download"
 msgid "Download URL"
-msgstr "Elŝuti"
+msgstr "Elŝuta retadreso"
 
 #: warehouse/templates/includes/file-details.html:25
 #: warehouse/templates/includes/packaging/project-files.html:28
@@ -3704,12 +3641,12 @@ msgstr "Etikedoj"
 #: warehouse/templates/includes/file-details.html:42
 #: warehouse/templates/includes/packaging/security/attestation.html:219
 msgid "SHA-256 checksum"
-msgstr ""
+msgstr "Kontrolsumo de SHA-256"
 
 #: warehouse/templates/includes/file-details.html:47
 #: warehouse/templates/includes/file-details.html:70
 msgid "How to use checksums"
-msgstr ""
+msgstr "Kiel uzi kontrolsumon"
 
 #: warehouse/templates/includes/file-details.html:56
 #: warehouse/templates/includes/file-details.html:79
@@ -3726,15 +3663,15 @@ msgstr "Kopii en tondujon"
 #: warehouse/templates/includes/file-details.html:58
 #: warehouse/templates/includes/packaging/security/attestation.html:230
 msgid "Copy SHA-256 checksum"
-msgstr ""
+msgstr "Kopii kontrolsumon de SHA-256"
 
 #: warehouse/templates/includes/file-details.html:65
 msgid "BLAKE2b-256 checksum"
-msgstr ""
+msgstr "Kontrolsumo per BLAKE2b-256"
 
 #: warehouse/templates/includes/file-details.html:81
 msgid "Copy BLAKE2b-256 checksum"
-msgstr ""
+msgstr "Kopii kontrolsumon de BLAKE2b-256"
 
 #: warehouse/templates/includes/file-details.html:87
 #: warehouse/templates/manage/project/release.html:60
@@ -3748,16 +3685,12 @@ msgid "%(upload_time)s"
 msgstr "%(upload_time)s"
 
 #: warehouse/templates/includes/file-details.html:92
-#, fuzzy
-#| msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgid "Uploaded using Trusted Publishing?"
-msgstr "Ĉu alŝutita per Fidata Eldonado? %(is_tp)s"
+msgstr "Ĉu alŝutita per Fidata Eldonado?"
 
 #: warehouse/templates/includes/file-details.html:94
-#, fuzzy
-#| msgid "Remove trusted publisher"
 msgid "What is trusted publishing?"
-msgstr "Forigi fidatan eldonanton"
+msgstr "Kio estas fidata eldonado?"
 
 #: warehouse/templates/includes/file-details.html:98
 msgid "Yes"
@@ -3777,7 +3710,7 @@ msgstr "Alŝutita per"
 #: warehouse/templates/includes/packaging/project-security.html:34
 #: warehouse/templates/includes/packaging/project-security.html:96
 msgid "Provenance"
-msgstr ""
+msgstr "Originpruvo"
 
 #: warehouse/templates/includes/file-details.html:119
 #: warehouse/templates/includes/packaging/project-security.html:36
@@ -3788,6 +3721,10 @@ msgid ""
 "verifiable record of the build or publishing details. <a "
 "href=\"%(href)s\">View details, limitations and caveats.</a>"
 msgstr ""
+"<strong>Originpruvo</strong> estas priskribo de la deveno de iu dosiero. Ĉe "
+"PyPI, originpruvo estas diskonigita per <strong>atestoj</strong> provizantaj "
+"konfirmeblan registron de la konstruo aŭ detaloj pri eldonado. <a href=\"%"
+"(href)s\">Jen detaloj, limigoj kaj avertoj.</a>"
 
 #: warehouse/templates/includes/flash-messages.html:10
 msgid "Error"
@@ -4008,14 +3945,14 @@ msgstr "Anoj"
 #: warehouse/templates/includes/packaging/project-security.html:219
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:31
 msgid "With provenance"
-msgstr ""
+msgstr "Kun originpruvo"
 
 #: warehouse/templates/includes/packaging/file-provenance-status.html:5
 #: warehouse/templates/includes/packaging/project-security.html:119
 #: warehouse/templates/includes/packaging/project-security.html:223
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:49
 msgid "Without provenance"
-msgstr ""
+msgstr "Sen originpruvo"
 
 #: warehouse/templates/includes/packaging/project-description.html:14
 msgid "The author of this package has not provided a project description"
@@ -4024,7 +3961,7 @@ msgstr "La aŭtoro de ĉi tiu pako ankoraŭ ne priskribis la projekton"
 #: warehouse/templates/includes/packaging/project-details.html:10
 #: warehouse/templates/includes/packaging/project-navigation.html:37
 msgid "Metadata"
-msgstr "Metadateno"
+msgstr "Metadatumoj"
 
 #: warehouse/templates/includes/packaging/project-files.html:9
 #, fuzzy, python-format
@@ -4049,13 +3986,10 @@ msgstr ""
 "rel=\"noopener\">nian paĝon pri la stato</a>."
 
 #: warehouse/templates/includes/packaging/project-files.html:17
-#, fuzzy
-#| msgid "Source Distribution"
-#| msgid_plural "Source Distributions"
 msgid "Source distribution (sdist)"
 msgid_plural "Source distributions (sdists)"
-msgstr[0] "Fonta distribuo"
-msgstr[1] "Fontaj distribuoj"
+msgstr[0] "Fonta distribuo (sdist)"
+msgstr[1] "Fontaj distribuoj (sdist)"
 
 #: warehouse/templates/includes/packaging/project-files.html:24
 #, python-format
@@ -4092,23 +4026,18 @@ msgid "Details <span class=\"sr-only\">for %(filename)s</span>"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:74
-#, fuzzy
-#| msgid "Built Distribution"
-#| msgid_plural "Built Distributions"
 msgid "Built distribution (wheel)"
 msgid_plural "Built distributions (wheels)"
-msgstr[0] "Duuma distribuo"
-msgstr[1] "Duumaj distribuoj"
+msgstr[0] "Duuma distribuo (wheel)"
+msgstr[1] "Duumaj distribuoj (wheel)"
 
 #: warehouse/templates/includes/packaging/project-files.html:83
 msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr "JavaScript necesas por filtri la liston de wheel-dosieroj."
 
 #: warehouse/templates/includes/packaging/project-files.html:88
-#, fuzzy
-#| msgid "Search results"
 msgid "Search wheels"
-msgstr "Serĉrezultoj"
+msgstr "Serĉi wheel-ojn"
 
 #: warehouse/templates/includes/packaging/project-files.html:93
 msgid "Search wheels by file name"
@@ -4142,7 +4071,7 @@ msgstr "Platformo"
 #: warehouse/templates/includes/packaging/project-files.html:184
 #: warehouse/templates/includes/packaging/project-security.html:73
 msgid "Reset"
-msgstr ""
+msgstr "Restarigi"
 
 #: warehouse/templates/includes/packaging/project-files.html:217
 msgid "Legacy Egg format"
@@ -4170,22 +4099,17 @@ msgid "Description"
 msgstr "Priskribo"
 
 #: warehouse/templates/includes/packaging/project-navigation.html:34
-#, fuzzy
-#| msgid "Project details. Focus will be moved to the project details."
 msgid "Metadata. Focus will be moved to the metadata panel."
-msgstr "La detaloj pri la projekto. Fokuso moviĝos al la projektaj detaloj."
+msgstr "Metadatumoj. Fokuso moviĝos al la metadatuma panelo."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:52
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the history panel."
 msgid "Release files. Focus will be moved to the release files panel."
-msgstr "La historio de eldonoj. Fokuso moviĝos al la historipanelo."
+msgstr ""
+"La dosieroj de eldono. Fokuso moviĝos al la panelo pri dosieroj de eldono."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:69
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the history panel."
 msgid "Release security. Focus will be moved to the security panel."
-msgstr "La historio de eldonoj. Fokuso moviĝos al la historipanelo."
+msgstr "La sekureco de eldono. Fokuso moviĝos al la panelo pri sekureco."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:72
 #: warehouse/templates/pages/security.html:4
@@ -4193,10 +4117,9 @@ msgid "Security"
 msgstr "Sekureco"
 
 #: warehouse/templates/includes/packaging/project-navigation.html:87
-#, fuzzy
-#| msgid "Release history. Focus will be moved to the history panel."
 msgid "Release history. Focus will be moved to the release history panel."
-msgstr "La historio de eldonoj. Fokuso moviĝos al la historipanelo."
+msgstr ""
+"La historio de eldonoj. Fokuso moviĝos al la panelo pri historio de eldonoj."
 
 #: warehouse/templates/includes/packaging/project-navigation.html:90
 #: warehouse/templates/includes/packaging/project-release-history.html:8
@@ -4213,45 +4136,36 @@ msgstr "RSS-abonfluo"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:35
 #: warehouse/templates/includes/packaging/project-release-history.html:102
-#, fuzzy
-#| msgid "view release"
 msgid "This release"
-msgstr "vidi eldonon"
+msgstr "Ĉi tiu eldono"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:53
-#, fuzzy
-#| msgid "Release date"
 msgid "Release quarantined"
-msgstr "Dato de eldono"
+msgstr "Eldono kvarantenigita"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:57
 #, python-format
 msgid "Release quarantined on %(date)s"
-msgstr ""
+msgstr "Eldono kvarantenigita je %(date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:62
-#, fuzzy
-#| msgid "Project created"
 msgid "Project quarantined"
-msgstr "Projekto kreita"
+msgstr "Projekto kvarantenigita"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:66
 #, python-format
 msgid "Project quarantined on %(date)s"
-msgstr ""
+msgstr "Projekto kvarantenigita je %(date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:77
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#, python-format
 msgid "Release yanked on %(date)s"
-msgstr "Eldonita je: %(release_date)s"
+msgstr "Eldono fortirita je %(date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:81
 #: warehouse/templates/includes/packaging/project-status.html:104
-#, fuzzy
-#| msgid "yanked"
 msgid "Yanked"
-msgstr "fortirita"
+msgstr "Fortirita"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:87
 #, python-format
@@ -4264,13 +4178,11 @@ msgid "Pre-release"
 msgstr "Pra-eldono"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:110
-#, fuzzy, python-format
-#| msgid "%(count)s file"
-#| msgid_plural "%(count)s files"
+#, python-format
 msgid "%(count)s release file"
 msgid_plural "%(count)s release files"
-msgstr[0] "%(count)s dosiero"
-msgstr[1] "%(count)s dosieroj"
+msgstr[0] "%(count)s eldona dosiero"
+msgstr[1] "%(count)s eldonaj dosieroj"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:24
 #: warehouse/templates/includes/packaging/project-release-history.html:117
@@ -4280,7 +4192,7 @@ msgstr[1] "%(count)s dosieroj"
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:14
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:31
 msgid "Loss of provenance"
-msgstr ""
+msgstr "Perdo de originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:32
 #: warehouse/templates/includes/packaging/project-release-history.html:119
@@ -4290,7 +4202,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:52
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:66
 msgid "Change of provenance"
-msgstr ""
+msgstr "Ŝanĝo de originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:40
 #: warehouse/templates/includes/packaging/project-release-history.html:121
@@ -4299,7 +4211,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:47
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:88
 msgid "Inconsistent provenance"
-msgstr ""
+msgstr "Malkohera originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:48
 #: warehouse/templates/includes/packaging/project-release-history.html:123
@@ -4307,30 +4219,22 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:9
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:66
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:118
-#, fuzzy
-#| msgid "Incomplete Expired"
 msgid "Incomplete provenance"
-msgstr "Nekompleta eksvalidiĝinta"
+msgstr "Nekompleta originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:76
 #: warehouse/templates/includes/packaging/project-release-history.html:125
 #: warehouse/templates/includes/packaging/security/full-provenance.html:5
-#, fuzzy
-#| msgid "Full name"
 msgid "Full provenance"
-msgstr "Plena nomo"
+msgstr "Plena originpruvo"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:127
-#, fuzzy
-#| msgid "No projects"
 msgid "No provenance"
-msgstr "Neniu projekto"
+msgstr "Neniu originpruvo"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:135
-#, fuzzy
-#| msgid "Yanked reason"
 msgid "Yanked reason:"
-msgstr "Kialo de fortiro"
+msgstr "Kialo de fortiro:"
 
 #: warehouse/templates/includes/packaging/project-security.html:8
 #, python-format
@@ -4431,7 +4335,7 @@ msgstr[1] ""
 
 #: warehouse/templates/includes/packaging/project-security.html:277
 msgid "This file was uploaded without provenance metadata."
-msgstr ""
+msgstr "Jen dosiero alŝutita sen originpruvaj metadatumoj."
 
 #: warehouse/templates/includes/packaging/project-security.html:285
 msgid "A note on package security"
@@ -4497,7 +4401,7 @@ msgstr[1] ""
 #: warehouse/templates/includes/packaging/project-status.html:88
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
-msgstr ""
+msgstr "Kvarantenigita"
 
 #: warehouse/templates/includes/packaging/project-status.html:79
 #, python-format
@@ -4575,10 +4479,8 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/credits.html:16
 #: warehouse/templates/includes/packaging/metadata/credits.html:40
 #: warehouse/templates/includes/packaging/metadata/credits.html:51
-#, fuzzy
-#| msgid "Maintainer:"
 msgid "Author/Maintainer:"
-msgstr "Prizorganto:"
+msgstr "Aŭtoro/Prizorganto:"
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:18
 #: warehouse/templates/includes/packaging/metadata/credits.html:42
@@ -4648,21 +4550,19 @@ msgstr "Malfermitaj kunigpetoj:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:3
 msgid "Key dates"
-msgstr ""
+msgstr "Ĉefdatoj"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:7
 #: warehouse/templates/includes/packaging/metadata/maintainers.html:27
 #: warehouse/templates/includes/packaging/metadata/organization.html:7
-#, fuzzy
-#| msgid "️PyPI Staff"
 msgid "PyPI data"
-msgstr "Stabo de PyPI"
+msgstr "Datumoj de PyPI"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:8
 #: warehouse/templates/includes/packaging/metadata/maintainers.html:28
 #: warehouse/templates/includes/packaging/metadata/organization.html:8
 msgid "Data sourced directly from PyPI's database."
-msgstr ""
+msgstr "Datumoj rekte el la datumbazo de PyPI."
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:30
 msgid "Released:"
@@ -4670,51 +4570,41 @@ msgstr "Eldonita:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:32
 msgid "Last file added:"
-msgstr ""
+msgstr "Laste aldonita dosiero:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:34
-#, fuzzy
-#| msgid "Yanked by:"
 msgid "Yanked:"
-msgstr "Fortirita de:"
+msgstr "Fortirita:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:36
-#, fuzzy
-#| msgid "Project created"
 msgid "Project quarantined:"
-msgstr "Projekto kreita"
+msgstr "Projekto kvarantenigita:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:38
-#, fuzzy
-#| msgid "Release date"
 msgid "Release quarantined:"
-msgstr "Dato de eldono"
+msgstr "Eldono kvarantenigita:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:40
 msgid "Archived:"
 msgstr "Enarĥivigita:"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:49
-#, fuzzy, python-format
-#| msgid "Stable version available (%(version)s)"
+#, python-format
 msgid "Stable release available (%(version)s)"
-msgstr "Stabila versio havebla (%(version)s)"
+msgstr "Stabila eldono havebla (%(version)s)"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:54
-#, fuzzy, python-format
-#| msgid "Newer version available (%(version)s)"
+#, python-format
 msgid "Newer release available (%(version)s)"
-msgstr "Pli nova versio havebla (%(version)s)"
+msgstr "Pli nova eldono havebla (%(version)s)"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:57
 msgid "Latest release"
 msgstr "Plej nova versio"
 
 #: warehouse/templates/includes/packaging/metadata/license.html:5
-#, fuzzy
-#| msgid "License Expression"
 msgid "License expression"
-msgstr "Licenco-Esprimo"
+msgstr "Licenca esprimo"
 
 #: warehouse/templates/includes/packaging/metadata/license.html:8
 #, fuzzy
@@ -4777,7 +4667,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:16
 msgid "About provenance"
-msgstr ""
+msgstr "Pri originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:27
 msgid "A previous release had provenance metadata, but this release does not."
@@ -4805,10 +4695,8 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:63
 #: warehouse/templates/includes/packaging/metadata/provenance.html:90
-#, fuzzy
-#| msgid "Project details"
 msgid "View provenance details"
-msgstr "Detaloj pri la projekto"
+msgstr "Vidi detalojn pri originpruvo"
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:71
 msgid ""
@@ -4881,7 +4769,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/attestation.html:81
 msgid "Transparency log"
-msgstr ""
+msgstr "Protokolo por travidebleco"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:91
 msgid "Identity"
@@ -4889,7 +4777,7 @@ msgstr "Identeco"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:96
 msgid "Build platform"
-msgstr ""
+msgstr "Platformo de konstruo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:98
 #, fuzzy
@@ -4898,16 +4786,12 @@ msgid "Publishing platform"
 msgstr "Eldonado"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:107
-#, fuzzy
-#| msgid "repository"
 msgid "Build repository"
-msgstr "deponejo"
+msgstr "Deponejo de konstruo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:109
-#, fuzzy
-#| msgid "Publishing"
 msgid "Publishing repository"
-msgstr "Eldonado"
+msgstr "Eldona deponejo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:119
 msgid "Build commit"
@@ -4920,16 +4804,12 @@ msgid "Publishing commit"
 msgstr "Eldonado"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:133
-#, fuzzy
-#| msgid "Your account"
 msgid "Build account"
-msgstr "Via konto"
+msgstr "Konto de konstruo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:135
-#, fuzzy
-#| msgid "Username"
 msgid "Publisher account"
-msgstr "Salutnomo"
+msgstr "Konto de eldonanto"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:144
 #, fuzzy
@@ -4958,13 +4838,11 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/attestation.html:182
 msgid "Build logs"
-msgstr ""
+msgstr "Protokoloj pri konstruado"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:184
-#, fuzzy
-#| msgid "Publishing"
 msgid "Publishing logs"
-msgstr "Eldonado"
+msgstr "Protokoloj pri eldonado"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:194
 #, fuzzy
@@ -4978,7 +4856,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/attestation.html:209
 msgid "Artifact"
-msgstr ""
+msgstr "Artefakto"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:213
 #: warehouse/templates/manage/account/publishing.html:257
@@ -5154,14 +5032,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:14
-#, fuzzy
-#| msgid "Release history"
 msgid "Release comparison"
-msgstr "Historio de eldonoj"
+msgstr "Komparo de eldonoj"
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:33
 msgid "Partial provenance"
-msgstr ""
+msgstr "Parta originpruvo"
 
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:57
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:46
@@ -5172,10 +5048,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/no-provenance.html:5
-#, fuzzy
-#| msgid "No releases found"
 msgid "No provenance found"
-msgstr "Neniu eldono trovita"
+msgstr "Neniu originpruvo trovita"
 
 #: warehouse/templates/includes/packaging/security/no-provenance.html:7
 msgid ""
@@ -5184,21 +5058,21 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:18
 msgid "Files with provenance"
-msgstr ""
+msgstr "Dosieroj kun originpruvo"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:21
 #, python-format
 msgid "%(with_count)s of %(total_count)s files with provenance"
-msgstr ""
+msgstr "%(with_count)s el %(total_count)s dosieroj kun originpruvo"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:32
 msgid "Files without provenance"
-msgstr ""
+msgstr "Dosieroj sen originpruvo"
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:35
 #, python-format
 msgid "%(without_count)s of %(total_count)s files without provenance"
-msgstr ""
+msgstr "%(without_count)s el %(total_count)s dosieroj sen originpruvo"
 
 #: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:11
 #: warehouse/templates/includes/packaging/security/warning-for-file-list.html:12
@@ -5626,7 +5500,7 @@ msgid ""
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
 "Unu el viaj kontrolitaj retpoŝtaj adresoj povas esti montrata sur via <a "
-"href=\"%(href)s\">publika profilo</a> al salutintoj."
+"href=\"%(href)s\">publika profilo</a> al ensalutintoj."
 
 #: warehouse/templates/manage/account.html:318
 msgid "Update account"
@@ -5866,7 +5740,7 @@ msgstr "Konto kreiĝis"
 #: warehouse/templates/manage/account.html:677
 #: warehouse/templates/manage/unverified-account.html:325
 msgid "Logged in"
-msgstr "Salutinta"
+msgstr "Ensalutinta"
 
 #: warehouse/templates/manage/account.html:680
 #: warehouse/templates/manage/unverified-account.html:328
@@ -5906,7 +5780,7 @@ msgstr "Memorata aparato"
 #: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/unverified-account.html:341
 msgid "Login failed"
-msgstr "Salutado malsukcesis"
+msgstr "Ensalutado malsukcesis"
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/unverified-account.html:344
@@ -6096,7 +5970,7 @@ msgstr "Realiraj kodoj regeneriĝis"
 #: warehouse/templates/manage/account.html:820
 #: warehouse/templates/manage/unverified-account.html:462
 msgid "Recovery code used for login"
-msgstr "Realira kodo uzita por saluto"
+msgstr "Realira kodo uzita por ensaluto"
 
 #: warehouse/templates/manage/account.html:823
 msgid "Account association added"
@@ -6595,9 +6469,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Ĝisdatigu vian TTT-legilon</a> por ebligi dupaŝan "
-"aŭtentikigon per sekuriga aparato (ekz. USB-ŝlosilo)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Ĝisdatigu vian retumilon</a> por ebligi dupaŝan aŭtentikigon per sekuriga "
+"aparato (ekz. USB-ŝlosilo)"
 
 #: warehouse/templates/manage/manage_base.html:220
 #: warehouse/templates/manage/organization/manage_organization_base.html:15
@@ -6810,10 +6684,8 @@ msgstr ""
 "alŝutadon de pakoj de ĉi tiu fonto. Vi povos realdoni ĝin, se tio necesos."
 
 #: warehouse/templates/manage/manage_base.html:750
-#, fuzzy
-#| msgid "Remove trusted publisher"
 msgid "Remove publisher"
-msgstr "Forigi fidatan eldonanton"
+msgstr "Forigi eldonanton"
 
 #: warehouse/templates/manage/manage_base.html:754
 #: warehouse/templates/manage/organization/history.html:124
@@ -7775,8 +7647,8 @@ msgid ""
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
 "Se vi perdos vian aŭtentikigan programon aŭ sekuriga(j)n ŝlosilo(j)n, vi "
-"devos uzi unu el ĉi tiuj realiraj kodoj por saluti en vian PyPI-konton. Ĉiu "
-"kodo estas uzebla nur <strong>unu fojon</strong>."
+"devos uzi unu el ĉi tiuj realiraj kodoj por ensaluti en vian PyPI-konton. "
+"Ĉiu kodo estas uzebla nur <strong>unu fojon</strong>."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:31
 msgid ""
@@ -7784,7 +7656,7 @@ msgid ""
 "for typical logins."
 msgstr ""
 "Tiuj kodoj <strong>nur</strong> uziĝu por realiro al la konto, ne por "
-"ordinaraj salutoj."
+"ordinaraj ensalutoj."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:34
 msgid ""
@@ -7920,7 +7792,7 @@ msgid ""
 "default"
 msgstr ""
 "aŭ uzanto-ampleksa ĵetono aŭ projekto-ampleksa ĵetono, kiun vi volas uzi "
-"kiel la impliciton"
+"kiel la defaŭlton"
 
 #: warehouse/templates/manage/account/token.html:102
 msgid "a project token"
@@ -8125,9 +7997,8 @@ msgid ""
 msgstr ""
 "<strong>Ĉu ne funkciante?</strong> Kontrolu, ĉu vi uzas aparaton, kiu sekvas "
 "la <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">normon FIDO</a> kaj <a href=\"%(mozilla_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kongruan TTT-legilon</"
-"a>."
+"rel=\"noopener\">normon FIDO</a> kaj <a href=\"%(mozilla_href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">kongruan retumilon</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:79
 msgid ""
@@ -10097,10 +9968,10 @@ msgid ""
 "more help."
 msgstr ""
 "Por agordi la priskribon, aŭtoron, ligilojn, klasigilojn kaj aliajn detalojn "
-"pri la projekto «%(project_name)s» por via sekva eldono, uzu la medatatenan "
+"pri la projekto «%(project_name)s» por via sekva eldono, uzu la metadatuman "
 "kampon <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
 "target=\"_blank\"><code>project</code> en via dosiero <code>pyproject.toml</"
-"code></a>. Ĝisdatigo de tiuj kampoj ne ŝanĝos la metadatenojn de malnovaj "
+"code></a>. Ĝisdatigo de tiuj kampoj ne ŝanĝos la metadatumojn de malnovaj "
 "eldonoj. Vidu <a href=\"%(distribution_href)s\" rel=\"noopener\" "
 "target=\"_blank\">la Manlibron por Python-Uzantoj pri Pakado</a> por plia "
 "helpo."
@@ -10490,7 +10361,7 @@ msgid ""
 msgstr ""
 "Jen formularo por raportoj pri fiprojektoj reviziotaj de la administrantoj "
 "de PyPI. Ekzemploj de fieco en projektoj: tajperara piratado de nomo, "
-"konfuzado pri dependeco, ŝtelado de datenoj, obskurigo, komando/regado, kaj "
+"konfuzado pri dependeco, ŝtelado de datumoj, obskurigo, komando/regado, kaj "
 "similaj kondutoj."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:21
@@ -10593,10 +10464,8 @@ msgid "Organizations"
 msgstr "Organizaĵoj"
 
 #: warehouse/templates/pages/organizations.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "PyPI Organizations"
-msgstr "Organizaĵo"
+msgstr "Organizaĵoj de PyPI"
 
 #: warehouse/templates/pages/organizations.html:11
 msgid "Collaborate on your projects, as a team"
@@ -10790,19 +10659,15 @@ msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr "Se vi trovis sekurecan problemon pri projekto ĉe PyPI"
 
 #: warehouse/templates/pages/security.html:30
-#, fuzzy
-#| msgid ""
-#| "Login to your PyPI account, then visit the project's page on PyPI. At the "
-#| "bottom of the sidebar, click <strong>Report project as malware</strong>. "
-#| "Supply the following details in the form:"
 msgid ""
 "Login to your PyPI account, then visit the project's page on PyPI. At the "
 "top of the <strong>Security</strong> tab, click <strong>Report project as "
 "malware</strong>. Supply the following details in the form:"
 msgstr ""
-"Salutu en vian konton ĉe PyPI, kaj vizitu la projektan paĝon ĉe PyPI. Ĉe la "
-"malsupro de la flanka panelo, alklaku la butonon <strong>Akuzi projekton "
-"kiel fiprogramon</strong>. Provizu la jenajn detalojn en la formularo:"
+"Ensalutu en vian konton ĉe PyPI, kaj vizitu la projektan paĝon ĉe PyPI. Ĉe "
+"la supro de la panelo <strong>Sekureco</strong>, alklaku la butonon <strong>"
+"Akuzi projekton kiel fiprogramon</strong>. Provizu la jenajn detalojn en la "
+"formularo:"
 
 #: warehouse/templates/pages/security.html:37
 msgid "A URL to the project in question"
@@ -10827,7 +10692,7 @@ msgid ""
 "confusion, data exfiltration, obfuscation, command/control, etc."
 msgstr ""
 "Taŭgaj raportoj pri sekureco inkluzivas, interalie, ekzemplojn de tajperara "
-"piratado de nomo, konfuzado pri dependeco, ŝtelado de datenoj, obskurigo, "
+"piratado de nomo, konfuzado pri dependeco, ŝtelado de datumoj, obskurigo, "
 "komando/regado."
 
 #: warehouse/templates/pages/security.html:46
@@ -10888,7 +10753,7 @@ msgstr "Aŭtentikigo"
 
 #: warehouse/templates/pages/sitemap.html:22
 msgid "Login"
-msgstr "Saluti"
+msgstr "Ensaluti"
 
 #: warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/sponsors.html:17
@@ -11059,7 +10924,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsors.html:116
 msgid "* Data as of March 2020"
-msgstr "* Datenoj aktualaj dum la Marto de 2020"
+msgstr "* Datumoj aktualaj dum la Marto de 2020"
 
 #: warehouse/templates/pages/sponsors.html:120
 msgid "Strengthen the Python ecosystem"
@@ -11106,7 +10971,7 @@ msgid ""
 "PyPI provides public datasets, including download statistics and metadata "
 "via BigQuery"
 msgstr ""
-"PyPI provizas publikajn datenojn, inkluzive de elŝutaj statistikoj kaj "
+"PyPI provizas publikajn datumojn, inkluzive de elŝutaj statistikoj kaj "
 "metadatenoj per BigQuery"
 
 #: warehouse/templates/pages/stats.html:29

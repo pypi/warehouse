@@ -746,9 +746,9 @@ deprecated==3.0.1 \
     --hash=sha256:2f5a9fecc9961e26462846cf1e57f73a612b1d0b79c27dceeed8de647beadcee \
     --hash=sha256:eda314c115e8bc0fe52b90a6869e19240ac3cedb7449adfdba5981cf9ef693e1
     # via limits
-disposable-email-domains==0.0.294 \
-    --hash=sha256:ac97f8d69e94da1cfadf0a38d6691b214b3f66637fe8ab141b2761caffaa774d \
-    --hash=sha256:b021c10ee9e270650e2bf395123f4d8c09c325dfa5bff66b2a64c38e44ca4424
+disposable-email-domains==0.0.295 \
+    --hash=sha256:5d168bda5f94424063a1e578ab211dc5413271e26113ddabdab3e10f3cb5060e \
+    --hash=sha256:5ef7100cc36dfc10dddf2dea9c7c0cedc1d72b9ed4a0875d8a1be6ffd6f90365
     # via -r requirements/main.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -2382,9 +2382,9 @@ python-dotenv==1.2.4 \
     --hash=sha256:42269a8a5b3fd54ffa6f3d84b18abed50064717576b4ecf03dc4a55d8aa04fdc \
     --hash=sha256:f0d53e69935a851c0dcc78f3ab7aaccd8cabef0b92382b576b824212902873c0
     # via pydantic-settings
-python-slugify==9.1.3 \
-    --hash=sha256:90e997f2e0987239ce95e12f700086eb18e1d1d3ee22624fbbdbd095afca42b6 \
-    --hash=sha256:9aced0670e54c5603e2335c0fa9a4011ad4bc41ecb3c46e8097294c46fd60ed4
+python-slugify==9.2.0 \
+    --hash=sha256:7298dcfc65e9ccdf834b3c398f163af0d09a9a8fc1ee6a7b2dffd8d38bfb756e \
+    --hash=sha256:cee32948083476013804de1667724fb1362dacb71e47b1d5d92adf8db6ee3298
     # via -r requirements/main.in
 pytz==2026.6 \
     --hash=sha256:3b0fc2727707663d6e517936f444fd8a8b240f1fc32f4bf7ee03274245945284 \

@@ -48,6 +48,16 @@ class TestDiscloseToken:
                 "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",
                 None,
             ),
+            (
+                config._trufflesecurity_origin,
+                {
+                    "Truffle-Public-Key-Identifier": "foo",
+                    "Truffle-Public-Key-Signature": "bar",
+                },
+                {},
+                "https://labs.trufflehog.com/partner-revocation/public_key",
+                None,
+            ),
         ],
     )
     def test_disclose_token(
