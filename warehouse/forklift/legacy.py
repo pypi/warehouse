@@ -354,6 +354,10 @@ def _is_valid_dist_file(
                         metrics=metrics,
                     )
                     if yara_match is not None:
+                        metrics.increment(
+                            "warehouse.upload.yara.match",
+                            tags=[f"rule:{yara_match.rule}", "archive_type:zip"],
+                        )
                         sentry_sdk.capture_message(
                             f"YARA rule {yara_match.rule!r} matched "
                             f"{yara_match.member!r} in {os.path.basename(filename)}"
@@ -409,6 +413,10 @@ def _is_valid_dist_file(
                         metrics=metrics,
                     )
                     if yara_match is not None:
+                        metrics.increment(
+                            "warehouse.upload.yara.match",
+                            tags=[f"rule:{yara_match.rule}", "archive_type:tar"],
+                        )
                         sentry_sdk.capture_message(
                             f"YARA rule {yara_match.rule!r} matched "
                             f"{yara_match.member!r} in {os.path.basename(filename)}"

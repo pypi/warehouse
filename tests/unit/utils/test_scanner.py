@@ -187,7 +187,8 @@ class TestCheckMembers:
         )
         assert result is None
 
-    def test_returns_none_on_scan_error(self, monkeypatch):
+    @pytest.mark.parametrize("with_metrics", [True, False])
+    def test_returns_none_on_scan_error(self, monkeypatch, metrics, with_metrics):
         rules = yara_x.compile('rule bad { strings: $a = "evil" condition: $a }')
         members = [("pkg/evil.py", 12, b"this is evil")]
 
@@ -202,7 +203,18 @@ class TestCheckMembers:
                 pass
 
         monkeypatch.setattr("warehouse.utils.scanner.yara_x.Scanner", _BrokenScanner)
-        assert scanner.check_members(members, rules, archive_name="test.whl") is None
+        result = scanner.check_members(
+            members,
+            rules,
+            archive_name="test.whl",
+            archive_type="zip",
+            metrics=metrics if with_metrics else None,
+        )
+        assert result is None
+        if with_metrics:
+            metrics.increment.assert_called_once_with(
+                "warehouse.upload.yara.error", tags=["archive_type:zip"]
+            )
 
     def test_returns_none_on_cross_boundary_bulk_match(self):
         """Bulk scan matches across file boundaries but no individual file does."""
