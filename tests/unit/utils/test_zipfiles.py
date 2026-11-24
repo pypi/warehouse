@@ -140,7 +140,7 @@ def test_mismatched_compression_method(local_method, cd_method):
     with zipfile.ZipFile(fp) as archive:
         assert zipfiles.validate_zipfile(archive) == (
             False,
-            "Mismatched compression method",
+            "Mis-matched compression method",
         )
 
 

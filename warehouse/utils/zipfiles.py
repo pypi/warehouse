@@ -158,7 +158,7 @@ def _handle_local_file_header(
     # opening each member, even if we don't actually need its contents
     # for Warehouse's own purposes.
     if entry.compress_type != compress_method:
-        raise InvalidZipFileError("Mismatched compression method")
+        raise InvalidZipFileError("Mis-matched compression method")
     if entry.compress_size != compressed_size:
         raise InvalidZipFileError("Mis-matched data size")
     if entry.file_size != file_size:
