@@ -4,8 +4,10 @@ import time
 
 from http import HTTPStatus
 
-from tests.common.db.accounts import UserFactory
-from warehouse.accounts import services
+from tests.common.constants import REMOTE_ADDR
+from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
+from tests.common.db.ip_addresses import IpAddressFactory
+from warehouse.accounts import services, views
 from warehouse.accounts.models import UniqueLoginStatus, UserUniqueLogin
 from warehouse.utils.otp import _get_totp
 
@@ -210,3 +212,71 @@ def test_frozen_user_remember_device_via_email_link(webtest, mocker):
     resp = webtest.get("/manage/projects/")
     assert resp.status_code == HTTPStatus.SEE_OTHER
     assert "/account/login/" in resp.headers["Location"]
+
+
+def test_frozen_user_without_recovery_codes(webtest):
+    """
+    Tests that a frozen user with no recovery codes, logging in with TOTP from
+    a known device, is redirected rather than hitting a server error, and is
+    still not logged in afterwards.
+    """
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+        is_frozen=True,
+    )
+    UserUniqueLoginFactory.create(
+        user=user,
+        ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        status=UniqueLoginStatus.CONFIRMED,
+    )
+
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+
+    two_factor_form = two_factor_page.forms["totp-auth-form"]
+    two_factor_form["totp_value"] = (
+        _get_totp(user.totp_secret).generate(time.time()).decode()
+    )
+    resp = two_factor_form.submit()
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+
+    # The frozen account is not logged in
+    resp = webtest.get("/manage/projects/")
+    assert resp.status_code == HTTPStatus.SEE_OTHER
+    assert "/account/login/" in resp.headers["Location"]
+
+
+def test_frozen_user_without_recovery_codes_gets_no_reminder(webtest, mocker):
+    """
+    Tests that a frozen user with no recovery codes is not sent a recovery code
+    reminder email when their login is rejected.
+    """
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+        is_frozen=True,
+    )
+    UserUniqueLoginFactory.create(
+        user=user,
+        ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        status=UniqueLoginStatus.CONFIRMED,
+    )
+    send_reminder = mocker.spy(views, "send_recovery_code_reminder_email")
+
+    login_page = webtest.get("/account/login/")
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+    two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+
+    two_factor_form = two_factor_page.forms["totp-auth-form"]
+    two_factor_form["totp_value"] = (
+        _get_totp(user.totp_secret).generate(time.time()).decode()
+    )
+    two_factor_form.submit(status=HTTPStatus.SEE_OTHER)
+
+    send_reminder.assert_not_called()

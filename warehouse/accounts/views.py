@@ -418,8 +418,11 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 resp = HTTPSeeOther(redirect_to)
                 _set_userid_insecure_cookie(resp, userid)
 
-                if not two_factor_state.get("has_recovery_codes", False):
-                    send_recovery_code_reminder_email(request, request.user)
+                user = user_service.get_user(userid)
+                if not user.is_frozen and not two_factor_state.get(
+                    "has_recovery_codes", False
+                ):
+                    send_recovery_code_reminder_email(request, user)
 
                 if form.remember_device.data:
                     _remember_device(request, resp, userid, two_factor_method)
@@ -508,8 +511,9 @@ def webauthn_authentication_validate(request):
         _login_user(request, userid, two_factor_method, two_factor_label=webauthn.label)
         _set_userid_insecure_cookie(request.response, userid)
 
-        if not request.user.has_recovery_codes:
-            send_recovery_code_reminder_email(request, request.user)
+        user = user_service.get_user(userid)
+        if not user.is_frozen and not user.has_recovery_codes:
+            send_recovery_code_reminder_email(request, user)
 
         if form.remember_device.data:
             _remember_device(request, request.response, userid, two_factor_method)
