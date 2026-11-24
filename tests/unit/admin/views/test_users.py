@@ -612,6 +612,34 @@ class TestUserAddEmail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.emails == []
 
+    def test_add_email_already_exists(self, db_request, mocker):
+        old_email = EmailFactory.create(email="old@bar.com", primary=True)
+        user = UserFactory.create(emails=[old_email])
+        EmailFactory.create(email="foo@bar.com", user__username="other-user")
+        db_request.matchdict["username"] = str(user.username)
+        db_request.method = "POST"
+        db_request.POST["email"] = "foo@bar.com"
+        db_request.POST["primary"] = "y"
+        db_request.POST = MultiDict(db_request.POST)
+        mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/admin/users/{user.username}/",
+        )
+        mocker.spy(db_request.session, "flash")
+
+        resp = views.user_add_email(user, db_request)
+
+        assert resp.status_code == 303
+        assert resp.location == f"/admin/users/{user.username}/"
+        db_request.session.flash.assert_called_once_with(
+            "Email address 'foo@bar.com' is already associated with user 'other-user'",
+            queue="error",
+        )
+        assert user.emails == [old_email]
+        assert old_email.primary
+
     def test_user_add_email_redirects_actual_name(self, db_request, mocker):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
@@ -2390,6 +2418,39 @@ class TestUserQuarantineProjects:
         db_request.session.flash.assert_called_once_with(
             f"No projects needed quarantining for user {user.username!r}", queue="info"
         )
+
+    def test_quarantine_user_projects_names_superuser_blocked_projects(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+        superuser = UserFactory.create(is_superuser=True)
+        blocked_b = ProjectFactory.create(name="blocked-b")
+        blocked_a = ProjectFactory.create(name="blocked-a")
+        allowed = ProjectFactory.create()
+        for project in (blocked_b, blocked_a, allowed):
+            RoleFactory(project=project, user=user, role_name="Owner")
+        for project in (blocked_b, blocked_a):
+            RoleFactory(project=project, user=superuser, role_name="Maintainer")
+
+        db_request.params = {"username": user.username}
+        mocker.patch.object(
+            db_request, "has_permission", autospec=True, return_value=False
+        )
+        mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/foobar"
+        )
+        mocker.spy(db_request.session, "flash")
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        db_request.session.flash.assert_called_once_with(
+            "Projects with a superuser collaborator: blocked-a, blocked-b. "
+            "Only an administrator can quarantine them.",
+            queue="error",
+        )
+        assert allowed.lifecycle_status is None
+        assert not superuser.is_frozen
 
     def test_quarantine_user_projects_bad_confirm(self, db_request, mocker):
         user = UserFactory.create()

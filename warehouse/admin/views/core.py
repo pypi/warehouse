@@ -4,7 +4,7 @@ from pyramid.view import view_config
 from sqlalchemy import distinct, func
 
 from warehouse.authnz import Permissions
-from warehouse.observations.models import Observation, ObservationKind
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -12,6 +12,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationType,
 )
+from warehouse.packaging.models import Project
 from warehouse.subscriptions.models import (
     ACTIVE_SUBSCRIPTION_STATUSES,
     StripeSubscription,
@@ -28,10 +29,10 @@ def dashboard(request):
     if request.has_permission(Permissions.AdminObservationsRead):
         # Count how many Malware Project Observations are in the database
         malware_reports_count = (
-            request.db.query(func.count(Observation.id)).filter(
-                Observation.kind == ObservationKind.IsMalware.value[0],
-                Observation.related_id.is_not(None),  # Project is not removed
-                Observation.actions == {},  # No actions have been taken
+            request.db.query(func.count(Project.Observation.id)).filter(
+                Project.Observation.kind == ObservationKind.IsMalware.value[0],
+                Project.Observation.related_id.is_not(None),  # Project not removed
+                Project.Observation.actions == {},  # No actions have been taken
             )
         ).scalar()
     else:

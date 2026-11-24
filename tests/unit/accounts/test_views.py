@@ -12,7 +12,6 @@ import pytest
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
-    HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
     HTTPUnauthorized,
@@ -329,8 +328,8 @@ class TestAccountsSearch:
         assert result == {"users": bas}
 
         db_request.params = MultiDict({"username": "zzz"})
-        with pytest.raises(HTTPNotFound):
-            views.accounts_search(db_request)
+        result = views.accounts_search(db_request)
+        assert result == {"users": []}
 
     def test_when_rate_limited(
         self, db_request, pyramid_services, user_service, mocker
@@ -1001,7 +1000,6 @@ class TestTwoFactor:
         form_obj.validate.return_value = True
         form_obj.totp_value.data = "test-otp-secret"
         form_obj.remember_device.data = remember_device
-        db_request.user = user
 
         result = views.two_factor_and_totp_validate(db_request, _form_class=form_class)
 
@@ -1265,7 +1263,6 @@ class TestWebAuthn:
         mocker.spy(views, "_get_two_factor_data")
         mocker.spy(db_request.session, "get_webauthn_challenge")
         mocker.spy(db_request.session, "clear_webauthn_challenge")
-        db_request.user = user
 
         form_class = mocker.patch.object(
             views, "WebAuthnAuthenticationForm", autospec=True

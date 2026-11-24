@@ -16,9 +16,36 @@ logger = structlog.get_logger(__name__)
 # YARA rules directory
 _RULES_DIR = Path(__file__).parent / "scanner_rules"
 
-# Extensions to scan inside archives. Python source (.py) for source-level
-# rules (e.g. pyarmor), and .pye for SourceDefender-encrypted files.
-_SCAN_EXTENSIONS = {".py", ".pye"}
+# Extensions and filenames to scan inside archives.
+_SCAN_TARGETS = {
+    # Python source for source-level rules (e.g. pyarmor)
+    ".py",
+    # .pye for SourceDefender-encrypted files
+    ".pye",
+    # Different textual files for common places where PyPI tokens are accidentally left.
+    ".md",
+    ".rst",
+    ".env",
+    ".txt",
+    ".pypirc",
+    ".toml",
+    ".cfg",
+    ".conf",
+    # Popular script extensions
+    ".sh",
+    ".bash",
+    ".ksh",
+    ".zsh",
+    ".bat",
+    ".cmd",
+    ".ps1",
+    ".mk",  # Makefile extensions
+    # All names are lowercased for case-insensitive matching
+    # which can only improve the detection
+    "makefile",
+    "metadata",
+    "pkg-info",
+}
 
 # Max size of individual file to scan inside archive (5 MiB)
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -61,6 +88,7 @@ def compile_rules(rules_dir: Path = _RULES_DIR) -> yara_x.Rules | None:
             logger.warning("No YARA rule files found", rules_dir=str(rules_dir))
             return None
         compiler = yara_x.Compiler()
+        compiler.define_global("filename", "")
         for rule_file in rule_files:
             compiler.add_source(rule_file.read_text())
         return compiler.build()
@@ -73,13 +101,23 @@ def compile_rules(rules_dir: Path = _RULES_DIR) -> yara_x.Rules | None:
 _rules = compile_rules()
 
 
+def _should_scan_member(path: Path) -> bool:
+    """Check if a member path is scannable based on its extension or name."""
+    ext = path.suffix.lower()
+    return (
+        ext in _SCAN_TARGETS
+        # Names like "METADATA", ".env" have empty suffix
+        or path.name.lower() in _SCAN_TARGETS
+    )
+
+
 def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, bytes]]:
     """Yield (name, size, data) for scannable files in a ZipFile."""
     for entry in zfp.infolist():
         if entry.is_dir():
             continue
-        ext = Path(entry.filename).suffix.lower()
-        if ext not in _SCAN_EXTENSIONS:
+        path = Path(entry.filename)
+        if not _should_scan_member(path):
             continue
         data = zfp.read(entry.filename)
         yield entry.filename, len(data), data
@@ -90,8 +128,8 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
     for member in tar.getmembers():
         if not member.isfile():
             continue
-        ext = Path(member.name).suffix.lower()
-        if ext not in _SCAN_EXTENSIONS:
+        path = Path(member.name)
+        if not _should_scan_member(path):
             continue
         f = tar.extractfile(member)
         if f is None:  # pragma: no cover
@@ -100,7 +138,7 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
         yield member.name, len(data), data
 
 
-def _timed_scan(yx_scanner, data, *, metrics, check_type):
+def _timed_scan(yx_scanner, data, *, metrics, check_type, filename: str | None = None):
     """Run a single YARA scan and time it under ``warehouse.upload.yara.check``.
 
     ``check_type`` identifies which path the scan is on so we can tell which
@@ -118,6 +156,9 @@ def _timed_scan(yx_scanner, data, *, metrics, check_type):
         else contextlib.nullcontext()
     )
     with timer:
+        # No rule uses the variable
+        with contextlib.suppress(ValueError):
+            yx_scanner.set_global("filename", filename or "")
         return yx_scanner.scan(data)
 
 
@@ -187,6 +228,7 @@ def check_members(
                         data,
                         metrics=metrics,
                         check_type="per_file_overflow",
+                        filename=name,
                     )
                     for matched_rule in results.matching_rules:
                         return YaraMatch(
@@ -208,6 +250,7 @@ def check_members(
                             m_data,
                             metrics=metrics,
                             check_type="per_file_overflow",
+                            filename=m_name,
                         )
                         for matched_rule in results.matching_rules:
                             return YaraMatch(
@@ -232,6 +275,7 @@ def check_members(
                         data,
                         metrics=metrics,
                         check_type="per_file_attribution",
+                        filename=name,
                     )
                     for matched_rule in results.matching_rules:
                         return YaraMatch(
@@ -321,6 +365,9 @@ def scan_archive(
         # Either the bulk scan matched, or we're over the size cap —
         # scan individual files.
         for name, _size, data in scannable:
+            # No rule uses the variable
+            with contextlib.suppress(ValueError):
+                yx_scanner.set_global("filename", name)
             results = yx_scanner.scan(data)
             if results.matching_rules:
                 matches.append((name, [r.identifier for r in results.matching_rules]))

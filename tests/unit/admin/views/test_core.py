@@ -9,7 +9,10 @@ from ....common.db.organizations import (
     OrganizationRoleFactory,
     OrganizationStripeSubscriptionFactory,
 )
-from ....common.db.packaging import ProjectObservationFactory
+from ....common.db.packaging import (
+    ProjectObservationFactory,
+    ReleaseObservationFactory,
+)
 
 
 class TestDashboard:
@@ -66,6 +69,9 @@ class TestDashboard:
         ProjectObservationFactory.create(kind="is_malware", actions={"foo": "bar"})
         ProjectObservationFactory.create(kind="is_malware", related=None)
         ProjectObservationFactory.create(kind="something_else")
+        # Release observations aren't malware reports: none of the report
+        # views can act on them, so they must not keep the count up.
+        ReleaseObservationFactory.create(kind="is_malware")
         has_permission = mocker.patch.object(
             db_request, "has_permission", autospec=True, return_value=True
         )

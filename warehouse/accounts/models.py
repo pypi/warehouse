@@ -102,6 +102,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     is_frozen: Mapped[bool_false]
     is_superuser: Mapped[bool_false]
     is_support: Mapped[bool_false]
+    is_security: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_org_application_reviewer: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
@@ -302,6 +303,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             [
                 self.is_superuser,
                 self.is_support,
+                self.is_security,
                 self.is_moderator,
                 self.is_psf_staff,
                 self.is_org_application_reviewer,
@@ -338,6 +340,8 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             principals.append("group:admins")
         if self.is_support:
             principals.append("group:support")
+        if self.is_security:
+            principals.append("group:security")
         if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
         if self.is_org_application_reviewer:
@@ -359,6 +363,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:admins",
                 (
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
@@ -374,6 +379,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:support",
                 (
+                    Permissions.AdminProjectsQuarantine,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
@@ -385,6 +391,11 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:moderators",
                 (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
+            (
+                Allow,
+                "group:security",
+                (Permissions.AdminProjectsQuarantine, Permissions.AdminUsersRead),
             ),
         ]
 

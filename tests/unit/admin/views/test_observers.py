@@ -10,7 +10,10 @@ from warehouse.admin.views import observers as views
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
-from ....common.db.packaging import ProjectObservationFactory
+from ....common.db.packaging import (
+    ProjectObservationFactory,
+    ReleaseObservationFactory,
+)
 
 
 class TestParseDaysParam:
@@ -459,6 +462,20 @@ class TestGetObserverDetailStats:
 
         # Should return the observation even with days=0
         assert len(result["pending"]) == 1
+
+    def test_detail_stats_excludes_release_observations(self, db_request):
+        """Each row links to a malware report, which only a project can have."""
+        observer = ObserverFactory.create()
+        report = ProjectObservationFactory.create(kind="is_malware", observer=observer)
+        ReleaseObservationFactory.create(kind="is_malware", observer=observer)
+
+        result = views._get_observer_detail_stats(db_request, observer, days=0)
+
+        assert result == {
+            "true_positives": [],
+            "false_positives": [],
+            "pending": [report],
+        }
 
     def test_detail_stats_categorization(self, db_request):
         """Test that detail stats correctly categorize observations."""
