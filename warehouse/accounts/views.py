@@ -14,7 +14,6 @@ from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
-    HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
     HTTPUnauthorized,
@@ -268,9 +267,6 @@ def accounts_search(request) -> dict[str, list[User]]:
     assert form.username.data is not None
     users = user_service.get_users_by_prefix(form.username.data.strip())
     search_limiter.hit(request.ip_address)
-
-    if not users:
-        raise HTTPNotFound
 
     return {"users": users}
 

@@ -12,7 +12,6 @@ import pytest
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
-    HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
     HTTPUnauthorized,
@@ -329,8 +328,8 @@ class TestAccountsSearch:
         assert result == {"users": bas}
 
         db_request.params = MultiDict({"username": "zzz"})
-        with pytest.raises(HTTPNotFound):
-            views.accounts_search(db_request)
+        result = views.accounts_search(db_request)
+        assert result == {"users": []}
 
     def test_when_rate_limited(
         self, db_request, pyramid_services, user_service, mocker
