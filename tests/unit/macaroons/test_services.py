@@ -159,7 +159,7 @@ class TestDatabaseMacaroonService:
             [caveats.ProjectName(normalized_names=["foo"])],
             user_id=user.id,
         )
-        assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
+        assert macaroon_service.find_userid(f"{raw_macaroon}\n") == user.id
 
     def test_find_userid_oidc_macaroon(self, macaroon_service):
         publisher = GitHubPublisherFactory.create()

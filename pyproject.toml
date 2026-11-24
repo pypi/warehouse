@@ -77,7 +77,7 @@ ignore = "H006,T002,T003,T028"
 format-command = "ruff format --stdin-filename {filename}"
 
 [tool.mypy]  # tombi: lint.rules.schema-resolution.disabled = true
-python_version = "3.14"
+python_version = "3.15"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -163,7 +163,7 @@ testpaths = ["pyramid_components/tests/", "tests/"]
 
 [tool.ruff]  # tombi: lint.rules.schema-resolution.disabled = true
 cache-dir = ".cache/ruff"
-target-version = "py314"
+target-version = "py315"
 
 [tool.ruff.lint]
 # enable ALL lints by default, then opt out of ones we don't want to use so that we
