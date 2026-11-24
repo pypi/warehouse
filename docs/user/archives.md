@@ -32,6 +32,12 @@ contents are not removed from the archive file itself. This can also
 occur if the central directory references a file whose data is not
 within the archive.
 
+### Mismatched compression method
+
+Each file's local header and central directory entry must specify the same
+compression method. Otherwise, ZIP readers can interpret the same file data
+differently depending on which header they use.
+
 ### Duplicate file entries
 
 There is more than one entry that shares the same name as another entry

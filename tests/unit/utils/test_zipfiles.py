@@ -122,11 +122,40 @@ def test_archive_comment_with_nested_eocd(tmp_path, metrics):
     metrics.increment.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    ("local_method", "cd_method"),
+    [
+        (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED),
+        (zipfile.ZIP_DEFLATED, zipfile.ZIP_STORED),
+    ],
+)
+def test_mismatched_compression_method(local_method, cd_method):
+    fp = io.BytesIO()
+    with zipfile.ZipFile(fp, "w", compression=cd_method) as archive:
+        archive.writestr("a", b"hello")
+
+    # The compression method is eight bytes into the local file header.
+    fp.seek(8)
+    fp.write(struct.pack("<H", local_method))
+    with zipfile.ZipFile(fp) as archive:
+        assert zipfiles.validate_zipfile(archive) == (
+            False,
+            "Mismatched compression method",
+        )
+
+
+def _cd_entries(compress_size=0, file_size=0):
+    entry = zipfile.ZipInfo("a")
+    entry.compress_size = compress_size
+    entry.file_size = file_size
+    return {entry.orig_filename: entry}
+
+
 def test_local_file_header():
     # Positive case!
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, 0)
     fp = io.BytesIO(header + b"a")
-    filename = zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+    filename = zipfiles._handle_local_file_header(fp, _cd_entries())
     assert filename == b"a"
 
 
@@ -135,7 +164,7 @@ def test_local_file_header_long_filename():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 100, 0)
     fp = io.BytesIO(header + b"a")
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_header_compressed_length_mismatch_with_cd():
@@ -143,7 +172,7 @@ def test_local_file_header_compressed_length_mismatch_with_cd():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, 0)
     fp = io.BytesIO(header + b"a")
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (1, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries(1, 0))
 
 
 def test_local_file_header_short_extra():
@@ -151,7 +180,7 @@ def test_local_file_header_short_extra():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, 3)
     fp = io.BytesIO(header + b"aeee")
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_header_invalid_extra_length():
@@ -160,7 +189,7 @@ def test_local_file_header_invalid_extra_length():
     extra = struct.pack("<HH", 0x0001, 100)
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_header_invalid_zip64_extra_data_length():
@@ -169,7 +198,7 @@ def test_local_file_header_invalid_zip64_extra_data_length():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0xFFFFFFFF, 1, len(extra))
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_header_zip64_extra_no_compressed_size():
@@ -178,7 +207,7 @@ def test_local_file_header_zip64_extra_no_compressed_size():
     extra = struct.pack("<HH", 0x0001, 0)
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_header_zip64_extra_empty_file_size_sentinel():
@@ -187,7 +216,7 @@ def test_local_file_header_zip64_extra_empty_file_size_sentinel():
     extra = struct.pack("<HH", 0x0001, 0)
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
     assert str(e.value) == "Malformed zip file"
 
 
@@ -196,7 +225,7 @@ def test_local_file_header_zip64_store_file_size_not_sentinel():
     extra = struct.pack("<HHQ", 0x0001, 8, 1)
     header = struct.pack("<xxHHxxxxxxxxLLHH", 0, 0, 0xFFFFFFFF, 42, 1, len(extra))
     fp = io.BytesIO(header + b"a" + extra + b"a")
-    filename = zipfiles._handle_local_file_header(fp, {"a": (1, 42)})
+    filename = zipfiles._handle_local_file_header(fp, _cd_entries(1, 42))
     assert filename == b"a"
 
 
@@ -208,7 +237,7 @@ def test_local_file_header_zip64_extra_no_compressed_size_ok_using_store():
         "<xxHHxxxxxxxxLLHH", 0, 0, 0xFFFFFFFF, 0xFFFFFFFF, 1, len(extra)
     )
     fp = io.BytesIO(header + b"a" + extra + b"a")
-    filename = zipfiles._handle_local_file_header(fp, {"a": (1, 1)})
+    filename = zipfiles._handle_local_file_header(fp, _cd_entries(1, 1))
     assert filename == b"a"
 
 
@@ -219,14 +248,14 @@ def test_local_file_header_zip64_extra_no_compressed_size_nok_using_deflate():
     extra = struct.pack("<HHQ", 0x0001, 0, 1)
     fp = io.BytesIO(header + b"a" + extra + b"a")
     with pytest.raises(zipfiles.InvalidZipFileError):
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
 
 
 def test_local_file_invalid_filename():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHxx", 0, 0, 0xFFFFFFFF, 1)
     fp = io.BytesIO(header + b"\x7f")
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
     assert str(e.value) == "Invalid character in filename"
 
 
@@ -235,7 +264,7 @@ def test_local_file_invalid_filename_in_unicode_extra():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extra))
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
     assert str(e.value) == "Invalid character in filename"
 
 
@@ -244,7 +273,7 @@ def test_local_file_invalid_filename_utf8():
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extra))
     fp = io.BytesIO(header + b"a" + extra)
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
-        zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+        zipfiles._handle_local_file_header(fp, _cd_entries())
     assert str(e.value) == "Filename not valid UTF-8"
 
 
@@ -252,7 +281,7 @@ def test_local_file_multiple_extras():
     extras = struct.pack("<HH", 0x7075, 1) + b"a" + struct.pack("<HHxxxx", 0x0002, 4)
     header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extras))
     fp = io.BytesIO(header + b"a" + extras)
-    filename = zipfiles._handle_local_file_header(fp, {"a": (0, 0)})
+    filename = zipfiles._handle_local_file_header(fp, _cd_entries())
     assert filename == b"a"
 
 
@@ -349,7 +378,7 @@ def test_local_file_header_file_size_mismatch_with_cd():
     fp = io.BytesIO(header + b"a")
     # CD says compress_size=0, file_size=6000000 (spoofed)
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
-        zipfiles._handle_local_file_header(fp, {"a": (0, 6_000_000)})
+        zipfiles._handle_local_file_header(fp, _cd_entries(0, 6_000_000))
     assert str(e.value) == "Mis-matched file size"
 
 
@@ -357,7 +386,7 @@ def test_local_file_header_file_size_matches_cd():
     """Accept zips where local file_size matches central directory file_size."""
     header = struct.pack("<xxHHxxxxxxxxLLHH", 0, 0, 0, 42, 1, 0)
     fp = io.BytesIO(header + b"a")
-    filename = zipfiles._handle_local_file_header(fp, {"a": (0, 42)})
+    filename = zipfiles._handle_local_file_header(fp, _cd_entries(0, 42))
     assert filename == b"a"
 
 

@@ -51,7 +51,7 @@ def _contains_unprintable_chars(value: bytes) -> bool:
 
 
 def _handle_local_file_header(
-    fp: typing.IO[bytes], zipfile_files_and_sizes: dict[str, tuple[int, int]]
+    fp: typing.IO[bytes], cd_entries: dict[str, zipfile.ZipInfo]
 ) -> bytes:
     """
     Parses the body of a Local File header. Returns
@@ -144,18 +144,25 @@ def _handle_local_file_header(
     if has_data_descriptor:
         raise InvalidZipFileError("ZIP contains a data descriptor")
     try:
-        filename_as_str = filename.decode("utf-8")
-        expected_compress_size, expected_file_size = zipfile_files_and_sizes[
-            filename_as_str
-        ]
-        if expected_compress_size != compressed_size:
-            raise InvalidZipFileError("Mis-matched data size")
-        if expected_file_size != file_size:
-            raise InvalidZipFileError("Mis-matched file size")
+        entry = cd_entries[filename.decode("utf-8")]
     except UnicodeError:
         raise InvalidZipFileError("Filename not unicode")
     except KeyError:
         raise InvalidZipFileError("Filename not in central directory")
+
+    # Note: https://github.com/python/cpython/pull/161948 provides a similar
+    # check in CPython itself, but isn't in a release yet. It's also lazy
+    # unlike our eager check here, meaning that it would only cover
+    # members that Warehouse explicitly calls `ZipFile.open()` on.
+    # We could choose to move to that upstream mitigation by explicitly
+    # opening each member, even if we don't actually need its contents
+    # for Warehouse's own purposes.
+    if entry.compress_type != compress_method:
+        raise InvalidZipFileError("Mismatched compression method")
+    if entry.compress_size != compressed_size:
+        raise InvalidZipFileError("Mis-matched data size")
+    if entry.file_size != file_size:
+        raise InvalidZipFileError("Mis-matched file size")
 
     _seek_check(fp, compressed_size)
 
@@ -251,14 +258,9 @@ def _validate_zipfile(archive: zipfile.ZipFile, *, metrics) -> tuple[bool, str |
     before returning.
     """
 
-    # Process the zipfile through Python's
-    # zipfile processor, the same used by
-    # pip and other Python installers.
-    # Store compression sizes from the CD for use later.
-    zipfile_files = {
-        zfi.orig_filename: (zfi.compress_size, zfi.file_size)
-        for zfi in archive.filelist
-    }
+    # Use the original filenames to match local headers to the entries
+    # Python's zipfile read from the central directory.
+    cd_entries = {zfi.orig_filename: zfi for zfi in archive.infolist()}
 
     assert archive.fp is not None
     fp = archive.fp
@@ -323,7 +325,7 @@ def _validate_zipfile(archive: zipfile.ZipFile, *, metrics) -> tuple[bool, str |
 
                 # Local File Header
                 elif signature == RECORD_SIG_LOCAL_FILE:
-                    filename = _handle_local_file_header(fp, zipfile_files)
+                    filename = _handle_local_file_header(fp, cd_entries)
                     if filename in local_filenames:
                         raise InvalidZipFileError("Duplicate filename in local headers")
                     local_filenames.add(filename)
