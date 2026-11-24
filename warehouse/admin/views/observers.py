@@ -14,8 +14,9 @@ from sqlalchemy import select
 
 from warehouse.admin.views.helpers import parse_days_param
 from warehouse.authnz import Permissions
-from warehouse.observations.models import Observation, Observer
+from warehouse.observations.models import Observer
 from warehouse.observations.utils import calc_accuracy, classify_observation
+from warehouse.packaging.models import Project
 
 if TYPE_CHECKING:
     from pyramid.request import Request
@@ -32,13 +33,13 @@ def _get_malware_observations(request: Request, days: int):
     cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
 
     stmt = select(
-        Observation.observer_id,
-        Observation.actions,
-        Observation.related_id,
-        Observation.created,
+        Project.Observation.observer_id,
+        Project.Observation.actions,
+        Project.Observation.related_id,
+        Project.Observation.created,
     ).where(
-        Observation.kind == "is_malware",
-        Observation.created >= cutoff_date,
+        Project.Observation.kind == "is_malware",
+        Project.Observation.created >= cutoff_date,
     )
     return request.db.execute(stmt).all()
 
@@ -165,16 +166,16 @@ def _get_observer_detail_stats(request: Request, observer: Observer, days: int) 
 
     If days=0, returns all observations (lifetime).
     """
-    stmt = select(Observation).where(
-        Observation.observer_id == observer.id,
-        Observation.kind == "is_malware",
+    stmt = select(Project.Observation).where(
+        Project.Observation.observer_id == observer.id,
+        Project.Observation.kind == "is_malware",
     )
 
     if days > 0:
         cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
-        stmt = stmt.where(Observation.created >= cutoff_date)
+        stmt = stmt.where(Project.Observation.created >= cutoff_date)
 
-    stmt = stmt.order_by(Observation.created.desc())
+    stmt = stmt.order_by(Project.Observation.created.desc())
     observations = request.db.scalars(stmt).all()
 
     categorized: dict[str, list] = {
@@ -202,19 +203,19 @@ def _get_observer_time_series(request: Request, observer: Observer, days: int) -
     If days=0, returns all observations (lifetime).
     """
     stmt = select(
-        Observation.created,
-        Observation.actions,
-        Observation.related_id,
+        Project.Observation.created,
+        Project.Observation.actions,
+        Project.Observation.related_id,
     ).where(
-        Observation.observer_id == observer.id,
-        Observation.kind == "is_malware",
+        Project.Observation.observer_id == observer.id,
+        Project.Observation.kind == "is_malware",
     )
 
     if days > 0:
         cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
-        stmt = stmt.where(Observation.created >= cutoff_date)
+        stmt = stmt.where(Project.Observation.created >= cutoff_date)
 
-    stmt = stmt.order_by(Observation.created.asc())
+    stmt = stmt.order_by(Project.Observation.created.asc())
     observations = request.db.execute(stmt).all()
 
     return _aggregate_weekly_time_series(observations)
