@@ -15,7 +15,6 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
 )
-from warehouse.utils.project import PROJECT_NAME_RE
 
 if typing.TYPE_CHECKING:
     from warehouse.accounts.models import User
@@ -30,9 +29,6 @@ class PendingPublisherMixin:
     project_name = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
-            wtforms.validators.Regexp(
-                PROJECT_NAME_RE, message=_("Invalid project name")
-            ),
         ]
     )
 
@@ -42,7 +38,12 @@ class PendingPublisherMixin:
         try:
             self._check_project_name(project_name)
         except ProjectNameUnavailableInvalidError:
-            raise wtforms.validators.ValidationError(_("Invalid project name"))
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'."
+                )
+            )
         except ProjectNameUnavailableExistingError as e:
             # If the user owns the existing project, the error message includes a
             # link to the project settings that the user can modify.
