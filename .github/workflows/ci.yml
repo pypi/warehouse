@@ -44,7 +44,8 @@ jobs:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host postgres
+            # icdiff's \x00/\x01 diff markers garble annotations and the JUnit summary
+            command: bin/tests --postgresql-host postgres --junitxml=test-results.xml -p no:icdiff
             runs_on: depot-ubuntu-24.04-arm-4
           - name: Lint
             command: bin/lint
@@ -115,6 +116,12 @@ jobs:
         run: tombi lint pyproject.toml
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
+      - name: Summarize test failures
+        if: ${{ failure() && matrix.name == 'Tests' && hashFiles('test-results.xml') != '' }}
+        uses: pmeier/pytest-results-action@fdc7f18d9934e38aca411ca9557e6577bd25ca9c # v0.9.0
+        with:
+          path: test-results.xml
+          fail-on-empty: false
 
   check_db:
     name: Check Database Consistency
