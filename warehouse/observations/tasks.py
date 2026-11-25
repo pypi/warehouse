@@ -233,9 +233,15 @@ def evaluate_project_for_quarantine(
         name=project.normalized_name,
         _host=warehouse_domain,
     )
-    last_release = project.latest_version or project.all_versions[0]  # only yanked
-    last_published_date = naturaldate(last_release.created)
-    last_published_time = naturaltime(last_release.created)
+    # `latest_version` is None when every release is yanked or quarantined, and
+    # `all_versions` is empty when the project has no releases at all, which is
+    # the state a project is left in once its releases have been deleted.
+    last_release = project.latest_version or next(iter(project.all_versions), None)
+    if last_release is None:
+        last_published_date = last_published_time = "never"
+    else:
+        last_published_date = naturaldate(last_release.created)
+        last_published_time = naturaltime(last_release.created)
     first_published_date = naturaldate(project.created)
     first_published_time = naturaltime(project.created)
     malware_reports_url = request.route_url(
