@@ -231,6 +231,7 @@ def test_includeme(mocker):
                 "default-src": ["'none'"],
                 "font-src": [
                     "'self'",
+                    "https://donate.python.org",
                 ],
                 "form-action": [
                     "'self'",
@@ -252,6 +253,7 @@ def test_includeme(mocker):
                     "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                     "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                     "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+                    "https://donate.python.org",
                 ],
                 "style-src": [
                     "'self'",
