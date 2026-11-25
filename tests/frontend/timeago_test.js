@@ -20,7 +20,7 @@ describe("time ago util", () => {
     await delay(25);
 
     const element = document.getElementById("element");
-    expect(element.innerText).toEqual("Just now");
+    expect(element.textContent).toEqual("Just now");
 
   });
 
@@ -37,7 +37,7 @@ describe("time ago util", () => {
     await delay(25);
 
     const element = document.getElementById("element");
-    expect(element.innerText).toEqual("About 5 hours ago");
+    expect(element.textContent).toEqual("About 5 hours ago");
   });
 
   it("shows 'About 36 minutes ago' for such a time'", async () => {
@@ -53,7 +53,7 @@ describe("time ago util", () => {
     await delay(25);
 
     const element = document.getElementById("element");
-    expect(element.innerText).toEqual("About 36 minutes ago");
+    expect(element.textContent).toEqual("About 36 minutes ago");
   });
 
   it("shows provided text for Yesterday'", async () => {
@@ -69,7 +69,7 @@ describe("time ago util", () => {
     await delay(25);
 
     const element = document.getElementById("element");
-    expect(element.innerText).toEqual("Yesterday");
+    expect(element.textContent).toEqual("Yesterday");
   });
 
   it("makes no call when not isBeforeCutoff", async () => {
