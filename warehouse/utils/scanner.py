@@ -183,6 +183,7 @@ def check_members(
     go to ``warehouse.upload.yara.bytes``, ``.members`` and ``.skipped``.
     ``.largest_member`` is the biggest member read, oversized ones included,
     since the iterators read a member in full before its size is checked.
+    A ``yara_x.ScanError`` increments ``warehouse.upload.yara.error``.
     """
     rules = rules or _rules
     if rules is None:
@@ -289,6 +290,10 @@ def check_members(
 
     except yara_x.ScanError:
         logger.exception("YARA-X scan failed", archive=archive_name)
+        if metrics is not None:
+            metrics.increment(
+                "warehouse.upload.yara.error", tags=[f"archive_type:{archive_type}"]
+            )
         return None
     finally:
         if metrics is not None:

@@ -661,7 +661,7 @@ class TestFileValidation:
             "Incorrect number of top-level directories in sdist",
         )
 
-    def test_yara_match_in_wheel(self, tmpdir, monkeypatch):
+    def test_yara_match_in_wheel(self, tmpdir, monkeypatch, metrics):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
@@ -676,12 +676,16 @@ class TestFileValidation:
             "warehouse.utils.scanner.check_members", lambda *a, **kw: match
         )
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", metrics) == (
             False,
             "Content not allowed.",
         )
+        metrics.increment.assert_called_once_with(
+            "warehouse.upload.yara.match",
+            tags=["rule:test_rule", "archive_type:zip"],
+        )
 
-    def test_yara_match_in_tarball(self, tmpdir, monkeypatch):
+    def test_yara_match_in_tarball(self, tmpdir, monkeypatch, metrics):
         tar_fn = str(tmpdir.join("test.tar.gz"))
         data_file = str(tmpdir.join("dummy_data"))
         with open(data_file, "wb") as fp:
@@ -699,9 +703,13 @@ class TestFileValidation:
             "warehouse.utils.scanner.check_members", lambda *a, **kw: match
         )
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", metrics) == (
             False,
             "Content not allowed.",
+        )
+        metrics.increment.assert_called_once_with(
+            "warehouse.upload.yara.match",
+            tags=["rule:test_rule", "archive_type:tar"],
         )
 
     @pytest.mark.parametrize(
