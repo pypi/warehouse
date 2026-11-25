@@ -144,20 +144,20 @@ msgstr ""
 msgid "The username isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/views.py:121
+#: warehouse/accounts/views.py:120
 msgid ""
 "There have been too many unsuccessful login attempts. You have been "
 "locked out for Please try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:141
+#: warehouse/accounts/views.py:140
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:153
+#: warehouse/accounts/views.py:152
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
@@ -165,13 +165,13 @@ msgid ""
 " ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:450
-#: warehouse/accounts/views.py:452 warehouse/accounts/views.py:481
-#: warehouse/accounts/views.py:483 warehouse/accounts/views.py:633
+#: warehouse/accounts/views.py:373 warehouse/accounts/views.py:449
+#: warehouse/accounts/views.py:451 warehouse/accounts/views.py:480
+#: warehouse/accounts/views.py:482 warehouse/accounts/views.py:633
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:444
+#: warehouse/accounts/views.py:443
 msgid "Already authenticated"
 msgstr ""
 
