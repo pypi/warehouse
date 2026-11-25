@@ -58,6 +58,38 @@ class TestPendingGitHubPublisherForm:
         assert form._user == user
         assert form.validate()
 
+    @pytest.mark.parametrize(
+        "project_name", [" some-project", "some-project ", "-some-project"]
+    )
+    def test_validate_invalid_project_name_single_error(
+        self, mocker, project_service, project_name
+    ):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+                "project_name": project_name,
+            }
+        )
+        form = github.PendingGitHubPublisherForm(
+            data,
+            api_token=mocker.sentinel.api_token,
+            route_url=mocker.sentinel.route_url,
+            check_project_name=project_service.check_project_name,
+            user=mocker.sentinel.user,
+        )
+        owner_info = {"login": "fake-username", "id": "1234"}
+        mocker.patch.object(form, "_lookup_owner", return_value=owner_info)
+
+        assert not form.validate()
+        assert form.project_name.errors == [
+            (
+                "Start and end with a letter or numeral containing "
+                "only ASCII numeric and '.', '_' and '-'."
+            )
+        ]
+
     def test_validate_project_name_already_in_use_owner(
         self, mocker, pyramid_config, project_service
     ):
