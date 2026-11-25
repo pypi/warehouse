@@ -26,7 +26,10 @@ from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.email import send_pending_trusted_publisher_invalidated_email
+from warehouse.email import (
+    send_pending_trusted_publisher_invalidated_email,
+    send_pending_trusted_publisher_reified_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
@@ -619,6 +622,7 @@ class ProjectService:
         creator_is_owner=True,
         ratelimited=True,
         organization_id=None,
+        reify_pending_publishers=False,
     ):
         partition = "organization" if organization_id is not None else "user"
         request.metrics.increment(
@@ -788,6 +792,46 @@ class ProjectService:
                 project_name=stale_publisher.project_name,
             )
             request.db.delete(stale_publisher)
+
+        # An ordinary upload can create a project after its owner registered a
+        # pending publisher. Promote personal publishers for this exact name;
+        # similarly named projects and organization publishers are separate.
+        # OIDC project creation reifies its active publisher itself, so callers
+        # must opt in rather than reifying that publisher a second time here.
+        if reify_pending_publishers and creator_is_owner and organization_id is None:
+            pending_publishers = (
+                request.db.query(PendingOIDCPublisher)
+                .filter(
+                    func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                    == project.normalized_name,
+                    PendingOIDCPublisher.added_by == creator,
+                    PendingOIDCPublisher.organization_id.is_(None),
+                )
+                .all()
+            )
+            for pending_publisher in pending_publishers:
+                publisher = pending_publisher.reify(request.db)
+                project.oidc_publishers.append(publisher)
+                request.db.flush()  # ast-grep-ignore: db-flush -- publisher.id
+                project.record_event(
+                    tag=EventTag.Project.OIDCPublisherAdded,
+                    request=request,
+                    additional={
+                        "publisher": publisher.publisher_name,
+                        "id": str(publisher.id),
+                        "specifier": str(publisher),
+                        "url": publisher.publisher_url(),
+                        "submitted_by": creator.username,
+                        "reified_from_pending_publisher": True,
+                        "constrained_from_existing_publisher": False,
+                    },
+                )
+                send_pending_trusted_publisher_reified_email(
+                    request,
+                    creator,
+                    project_name=project.name,
+                    publisher_specifier=str(publisher),
+                )
 
         if identity_limiter is not None:
             self._hit_ratelimits(request, identity_limiter)

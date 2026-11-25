@@ -85,6 +85,7 @@ class IProjectService(Interface):
         *,
         creator_is_owner=True,
         organization_id: UUID | None = None,
+        reify_pending_publishers=False,
     ):
         """
         Creates a new project, recording a user as its creator.
@@ -96,6 +97,11 @@ class IProjectService(Interface):
         If `ratelimited` and `organization_id` is given, the organization's
         rate limit applies (shared across all its members) in place of the
         creator's individual per-user rate limit.
+
+        If `reify_pending_publishers` is true for a personal project owned by
+        its creator, promote that user's personal pending publishers for the
+        same normalized project name. OIDC token exchange leaves this false
+        because it reifies its selected pending publisher separately.
         """
 
 
