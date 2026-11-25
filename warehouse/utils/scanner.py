@@ -47,7 +47,9 @@ _SCAN_TARGETS = {
     "pkg-info",
 }
 
-# Max size of individual file to scan inside archive (5 MiB)
+# Max size of individual file to scan inside archive (5 MiB). The iterators
+# below stop reading an oversized member at the limit and yield it without
+# data; see ``_read_scannable`` for how the limit bounds the read itself.
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
 
 # Max total scannable content for bulk pre-scan optimization (50 MiB).
@@ -111,20 +113,84 @@ def _should_scan_member(path: Path) -> bool:
     )
 
 
-def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, bytes]]:
-    """Yield (name, size, data) for scannable files in a ZipFile."""
+def _read_scannable(
+    fp: typing.IO[bytes], *, member: str, declared_size: int, archive: str
+) -> bytes | None:
+    """Read a member's contents, or return ``None`` if it is over the size cap.
+
+    Reads one byte past the cap rather than up to it: an oversized member then
+    measures strictly larger than the cap, instead of looking like it exactly
+    fits and getting scanned truncated.
+
+    We decide on the number of bytes actually returned, never on
+    ``declared_size``, since a crafted header can claim any size. That cuts
+    both ways: a header that *under* declares its size still truncates what we
+    see, because both ``zipfile`` and ``tarfile`` stop reading there. Because
+    they stop there, the declared size can safely shrink the read request,
+    which keeps ``tarfile`` from allocating the whole cap for a small member.
+    It is also logged to keep a magnitude for triage.
+
+    ``zipfile`` compares a member's CRC-32 only at end of member, which this
+    read never reaches for an oversized one; ``iter_zip_members`` drains the
+    rest so a corrupt payload is still rejected.
+    """
+    data = fp.read(min(declared_size, _SCAN_MAX_FILE_SIZE) + 1)
+    if len(data) > _SCAN_MAX_FILE_SIZE:
+        logger.info(
+            "Skipping oversized file in YARA scan",
+            member=member,
+            declared_member_size=declared_size,
+            archive=archive,
+            max_size=_SCAN_MAX_FILE_SIZE,
+        )
+        return None
+    return data
+
+
+def iter_zip_members(
+    zfp: zipfile.ZipFile, *, archive_name: str = ""
+) -> typing.Iterator[tuple[str, int, bytes | None]]:
+    """Yield (name, size, data) for scannable files in a ZipFile.
+
+    An oversized member is yielded with ``data`` of ``None`` and a ``size`` of
+    the cap plus one, so callers can count it without scanning it.
+
+    Opens each entry rather than reading by name: an archive can carry several
+    entries under one name, and ``ZipFile.read(name)`` resolves all of them to
+    the last one in the central directory, leaving the earlier payloads
+    unscanned. Uploads reject duplicate names before the scan, but
+    ``scan_archive`` does not.
+    """
     for entry in zfp.infolist():
         if entry.is_dir():
             continue
         path = Path(entry.filename)
         if not _should_scan_member(path):
             continue
-        data = zfp.read(entry.filename)
+        with zfp.open(entry) as fp:
+            data = _read_scannable(
+                fp,
+                member=entry.filename,
+                declared_size=entry.file_size,
+                archive=archive_name,
+            )
+            if data is None:
+                # Drain in capped chunks so zipfile still verifies the CRC-32.
+                while fp.read(_SCAN_MAX_FILE_SIZE):
+                    pass
+        if data is None:
+            yield entry.filename, _SCAN_MAX_FILE_SIZE + 1, None
+            continue
         yield entry.filename, len(data), data
 
 
-def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, bytes]]:
-    """Yield (name, size, data) for scannable files in a TarFile."""
+def iter_tar_members(
+    tar: tarfile.TarFile, *, archive_name: str = ""
+) -> typing.Iterator[tuple[str, int, bytes | None]]:
+    """Yield (name, size, data) for scannable files in a TarFile.
+
+    An oversized member is yielded as in ``iter_zip_members``.
+    """
     for member in tar.getmembers():
         if not member.isfile():
             continue
@@ -134,7 +200,16 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
         f = tar.extractfile(member)
         if f is None:  # pragma: no cover
             continue
-        data = f.read()
+        with f:
+            data = _read_scannable(
+                f,
+                member=member.name,
+                declared_size=member.size,
+                archive=archive_name,
+            )
+        if data is None:
+            yield member.name, _SCAN_MAX_FILE_SIZE + 1, None
+            continue
         yield member.name, len(data), data
 
 
@@ -163,7 +238,7 @@ def _timed_scan(yx_scanner, data, *, metrics, check_type, filename: str | None =
 
 
 def check_members(
-    members: typing.Iterable[tuple[str, int, bytes]],
+    members: typing.Iterable[tuple[str, int, bytes | None]],
     rules: yara_x.Rules | None = None,
     *,
     archive_name: str = "",
@@ -181,8 +256,8 @@ def check_members(
     it here ensures every caller of the scanner gets it for free. The bytes
     and member count scanned, and the number of oversized members skipped,
     go to ``warehouse.upload.yara.bytes``, ``.members`` and ``.skipped``.
-    ``.largest_member`` is the biggest member read, oversized ones included,
-    since the iterators read a member in full before its size is checked.
+    ``.largest_member`` is the biggest member seen; the iterators stop reading
+    at the cap, so an oversized member counts as the cap plus one.
     A ``yara_x.ScanError`` increments ``warehouse.upload.yara.error``.
     """
     rules = rules or _rules
@@ -208,15 +283,8 @@ def check_members(
         with timer_cm:
             for name, size, data in members:
                 largest_member = max(largest_member, size)
-                if size > _SCAN_MAX_FILE_SIZE:
+                if data is None:
                     skipped_members += 1
-                    logger.info(
-                        "Skipping oversized file in YARA scan",
-                        member=name,
-                        member_size=size,
-                        archive=archive_name,
-                        max_size=_SCAN_MAX_FILE_SIZE,
-                    )
                     continue
 
                 scanned_bytes += len(data)
@@ -337,39 +405,26 @@ def scan_archive(
     try:
         if filename.endswith((".zip", ".whl")):
             with zipfile.ZipFile(filename) as zfp:
-                members = list(iter_zip_members(zfp))
+                members = list(iter_zip_members(zfp, archive_name=archive_name))
         elif filename.endswith(".tar.gz"):
             with tarfile.open(filename, "r:gz") as tar:
-                members = list(iter_tar_members(tar))
+                members = list(iter_tar_members(tar, archive_name=archive_name))
         else:
             return []
-
-        # Filter out oversized files first.
-        scannable: list[tuple[str, int, bytes]] = []
-        for name, size, data in members:
-            if size > _SCAN_MAX_FILE_SIZE:
-                logger.info(
-                    "Skipping oversized file in YARA scan",
-                    member=name,
-                    member_size=size,
-                    archive=archive_name,
-                    max_size=_SCAN_MAX_FILE_SIZE,
-                )
-                continue
-            scannable.append((name, size, data))
+        scannable = [(name, data) for name, _, data in members if data is not None]
 
         # Fast path: if total scannable content is under the size cap,
         # scan all contents at once. If nothing matches, skip per-file
         # scanning entirely (the common case).
-        total_size = sum(len(data) for _, _, data in scannable)
+        total_size = sum(len(data) for _, data in scannable)
         if total_size <= _BULK_SCAN_MAX_TOTAL:
-            bulk = b"".join(data for _, _, data in scannable)
+            bulk = b"".join(data for _, data in scannable)
             if not yx_scanner.scan(bulk).matching_rules:
                 return []
 
         # Either the bulk scan matched, or we're over the size cap —
         # scan individual files.
-        for name, _size, data in scannable:
+        for name, data in scannable:
             # No rule uses the variable
             with contextlib.suppress(ValueError):
                 yx_scanner.set_global("filename", name)
