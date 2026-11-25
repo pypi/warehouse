@@ -43,6 +43,16 @@
     background-color: transparent;
     color: color.mix(colors.$text-color, colors.$border-color, 50%);
     font-size: 18px;
+
+    &:focus,
+    &:active {
+      // Draw the focus outline inside the button, over the white input it
+      // overlaps. The global button outline is drawn outside the button,
+      // against the blue header/banner, where the primary colour is
+      // effectively invisible (~1.1:1 contrast).
+      outline: 2px solid colors.$primary-color;
+      outline-offset: -2px;
+    }
   }
 
   &--primary {
