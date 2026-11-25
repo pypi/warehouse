@@ -8,6 +8,7 @@ from sqlalchemy import select
 from webtest import TestResponse
 from webtest.forms import Form
 
+from warehouse.macaroons import caveats
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
@@ -16,6 +17,7 @@ from warehouse.organizations.models import (
 )
 
 from ...common.db.accounts import UserFactory
+from ...common.db.macaroons import MacaroonFactory
 
 
 def _find_form(page: TestResponse, *fields: str) -> Form:
@@ -94,6 +96,31 @@ class TestManageAccount:
         change_password_form.submit().follow(status=HTTPStatus.OK)
 
         assert flash_messages() == [("success", "Password updated")]
+
+    def test_confirm_password_inputs(self, webtest, login_user):
+        """Each confirm password modal has its own labelled current-password input."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        MacaroonFactory.create_batch(
+            2, user_id=user.id, caveats=[caveats.RequestUser(user_id=str(user.id))]
+        )
+        login_user(user)
+
+        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+
+        password_inputs = account_page.html.find_all(
+            "input", {"name": "confirm_password"}
+        )
+        # At least the two "Remove API token" modals and "Delete your PyPI account"
+        assert len(password_inputs) >= 3
+        assert len({field["id"] for field in password_inputs}) == len(password_inputs)
+        for field in password_inputs:
+            assert field["autocomplete"] == "current-password"
+            label = account_page.html.find("label", {"for": field["id"]})
+            assert label.get_text(strip=True) == "Password"
 
 
 class TestManageOrganizations:

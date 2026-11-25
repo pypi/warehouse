@@ -445,7 +445,7 @@
           <p>{% trans %}Enter your password to continue.{% endtrans %}</p>
           <div class="form-group">
             <div class="split-layout">
-              <label for="confirm_password">{% trans %}Password{% endtrans %}</label>
+              <label for="{{ slug }}-confirm_password">{% trans %}Password{% endtrans %}</label>
               <label for="show-confirm-password-{{ slug }}" class="show-password">
                 <input data-action="change->confirm-password#setPasswordVisibility"
                        data-confirm-password-target="showPassword"
@@ -454,12 +454,13 @@
                 {% trans %}Show password{% endtrans %}
               </label>
             </div>
-            <input name="confirm_password"
+            <input id="{{ slug }}-confirm_password"
+                   name="confirm_password"
                    data-action="input->confirm-password#check"
                    data-confirm-password-target="password"
                    data-modal-close-target="input"
                    type="password"
-                   autocomplete="off"
+                   autocomplete="current-password"
                    autocorrect="off"
                    autocapitalize="off">
           </div>
