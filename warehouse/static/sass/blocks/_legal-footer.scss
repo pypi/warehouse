@@ -20,6 +20,13 @@
   width: 100%;
   border-top: 1px solid color.adjust(colors.$border-color, $lightness: 10%);
   background-color: color.adjust(colors.$border-color, $lightness: 15%);
+
+  color: colors.$text-color;
+
+  a {
+    @include link-utilities.primary-underlined-link;
+  }
+
   font-size: fonts.$small-font-size;
   text-align: center;
   padding: grid.$half-spacing-unit grid.$spacing-unit;

@@ -27,7 +27,18 @@
   align-items: flex-start;
   gap: grid.$spacing-unit;
   text-align: center;
+
+  background-color: colors.$background-color;
+  margin-top: 40px;
   padding: grid.$spacing-unit;
+
+  @media only screen and (max-width: breakpoints.$mobile) {
+    margin-top: 20px;
+  }
+
+  a {
+    @include link-utilities.link-focus-state(colors.$text-color);
+  }
 
   @media only screen and (max-width: breakpoints.$small-tablet) {
     display: block;
@@ -78,6 +89,6 @@
     display: block;
     margin-top: 2px;
     font-size: fonts.$small-font-size;
-    color: color.adjust(colors.$text-color, $alpha: -0.4);
+    color: color.adjust(colors.$text-color, $alpha: -0.25);
   }
 }
