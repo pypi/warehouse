@@ -141,12 +141,16 @@ class TestHTTPExceptionView:
     )
     def test_simple_404(self, pyramid_request, csp, path):
         context = HTTPNotFound()
-        pyramid_request.path = path
+        pyramid_request.path_info = path
         response = httpexception_view(context, pyramid_request)
         assert response.status_code == 404
         assert response.status == "404 Not Found"
-        assert response.content_type == "text/plain"
-        assert response.text == "404 Not Found"
+        assert response.content_type == "application/problem+json"
+        assert response.json == {
+            "status": 404,
+            "title": "Not Found",
+            "detail": context.explanation,
+        }
         _assert_has_cors_headers(response.headers)
 
     @pytest.mark.parametrize(

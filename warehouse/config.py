@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
+from warehouse.api.simple_errors import SimpleAPIErrors
 from warehouse.authnz import Permissions
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.utils.static import ManifestCacheBuster
@@ -1050,6 +1051,7 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
+    config.add_wsgi_middleware(SimpleAPIErrors)
 
     # Add our extensions to Request
     config.include(".utils.wsgi")

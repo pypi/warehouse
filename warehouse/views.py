@@ -48,6 +48,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem
+from warehouse.api.simple_errors import SIMPLE_PATH, simple_error
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
@@ -83,7 +84,12 @@ json_path = re.compile(JSON_REGEX)
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 @notfound_view_config(path_info=JSON_REGEX, append_slash=False)
+@forbidden_view_config(path_info=SIMPLE_PATH.pattern)
+@exception_view_config(PredicateMismatch, path_info=SIMPLE_PATH.pattern)
 def httpexception_view(exc, request):
+    if 400 <= exc.status_code < 600 and SIMPLE_PATH.match(request.path_info):
+        return simple_error(exc)
+
     # If this is a 404 for a Project, provide the project name requested
     # There is no context when the exception was raised during traversal.
     context = getattr(request, "context", None)
@@ -105,13 +111,7 @@ def httpexception_view(exc, request):
             }
         )
     try:
-        # Lightweight version of 404 page for `/simple/`
-        if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(
-                body="404 Not Found",
-                content_type="text/plain",
-            )
-        elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
+        if isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",

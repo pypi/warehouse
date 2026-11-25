@@ -2,7 +2,11 @@
 
 from http import HTTPStatus
 
+import pytest
+
 from inline_snapshot import snapshot
+from pyramid.exceptions import PredicateMismatch
+from pyramid.httpexceptions import HTTPForbidden, HTTPServiceUnavailable
 
 from warehouse.api.simple import MIME_PYPI_SIMPLE_V1_JSON
 from warehouse.packaging.models import LifecycleStatus
@@ -63,6 +67,67 @@ def test_simple_api_detail_json(webtest):
     assert resp.body.endswith(b"\n")
     assert resp.json["name"] == project.normalized_name
     assert len(resp.json["files"]) == 1
+
+
+@pytest.mark.parametrize("accept", ["text/html", MIME_PYPI_SIMPLE_V1_JSON])
+def test_simple_missing_project(webtest, accept):
+    path = "/simple/missing/"
+    resp = webtest.get(path, headers={"Accept": accept}, status=404)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json == {"status": 404, "title": "Not Found", "detail": path}
+    assert resp.headers["Access-Control-Allow-Origin"] == "*"
+
+
+@pytest.mark.parametrize(
+    "error", [HTTPForbidden, PredicateMismatch, HTTPServiceUnavailable]
+)
+def test_simple_view_error(webtest, mocker, error):
+    exc = error("Try again later.", headers={"Retry-After": "60"})
+    mocker.patch("warehouse.api.simple._simple_index", side_effect=exc)
+    resp = webtest.get("/simple/", status=exc.code)
+    assert resp.json["detail"] == "Try again later."
+    assert resp.headers["Retry-After"] == "60"
+
+
+def test_similarly_named_paths_keep_html_errors(webtest):
+    resp = webtest.get("/simple-other/", status=404)
+    assert resp.content_type == "text/html"
+
+
+def test_simple_unhandled_error(webtest, mocker, caplog):
+    mocker.patch(
+        "warehouse.api.simple._simple_index", side_effect=RuntimeError("secret")
+    )
+    resp = webtest.get("/simple/", status=500)
+    assert resp.json["status"] == 500
+    assert "secret" not in resp.text
+    assert "secret" in caplog.text
+
+
+def test_simple_malformed_path(webtest):
+    resp = webtest.get("/simple/%FF/", status=400)
+    assert resp.json["status"] == 400
+
+
+def test_simple_mounted_method_not_allowed(webtest):
+    resp = webtest.post(
+        "/simple/", extra_environ={"SCRIPT_NAME": "/mirror"}, status=405
+    )
+    assert resp.json["status"] == 405
+    assert resp.headers["Allow"] == "GET, HEAD, OPTIONS"
+
+
+def test_simple_unsatisfiable_range(webtest):
+    length = len(webtest.get("/simple/").body)
+    headers = {"Range": f"bytes={length}-"}
+    resp = webtest.get("/simple/", headers=headers, status=416)
+    assert resp.content_type == "application/problem+json"
+    assert resp.json["status"] == 416
+    assert resp.headers["Content-Range"] == f"bytes */{length}"
+    assert resp.headers["Cache-Control"] == "no-store"
+    head = webtest.head("/simple/", headers=headers, status=416)
+    assert head.body == b""
+    assert head.content_length == len(resp.body)
 
 
 def test_simple_api_has_provenance(webtest):
