@@ -46,7 +46,11 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
 from warehouse.manage.views import organizations as org_views, view_helpers
-from warehouse.oidc.models import PendingGitHubPublisher, PendingGitLabPublisher
+from warehouse.oidc.models import (
+    PendingCircleCIPublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+)
 from warehouse.organizations.models import (
     OIDCIssuerType,
     Organization,
@@ -2861,6 +2865,7 @@ class TestManageOrganizationPublishingViews:
             AdminFlagValue.DISALLOW_GITLAB_OIDC,
             AdminFlagValue.DISALLOW_GOOGLE_OIDC,
             AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
         ):
             db_request.db.get(AdminFlag, flag.value).enabled = False
         mocker.spy(db_request.session, "flash")
@@ -2910,12 +2915,14 @@ class TestManageOrganizationPublishingViews:
             "pending_activestate_publisher_form": (
                 view.pending_activestate_publisher_form
             ),
+            "pending_circleci_publisher_form": view.pending_circleci_publisher_form,
             "pending_oidc_publishers": organization.pending_oidc_publishers,
             "disabled": {
                 "GitHub": False,
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
         }
         publishing_request.session.flash.assert_not_called()
@@ -3218,6 +3225,40 @@ class TestManageOrganizationPublishingViews:
             tags=["publisher:GitLab", "organization:true"],
         )
 
+    def test_add_pending_circleci_oidc_publisher_success(
+        self, publishing_request, organization, metrics, mocker
+    ):
+        """Test successfully adding a pending CircleCI OIDC publisher"""
+        mocker.patch.object(
+            org_views.PendingCircleCIPublisherForm,
+            "_lookup_project_metadata",
+            autospec=True,
+            return_value=None,
+        )
+        publishing_request.POST = MultiDict(
+            {
+                "project_name": "test-project",
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(
+            organization, publishing_request
+        )
+        result = view.add_pending_circleci_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        publisher = publishing_request.db.scalars(
+            select(PendingCircleCIPublisher).filter_by(organization_id=organization.id)
+        ).one()
+        assert publisher.circleci_project_id == "00000000-0000-1000-8000-000000000002"
+        assert metrics.increment.call_args_list[-1] == mocker.call(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=["publisher:CircleCI", "organization:true"],
+        )
+
     def test_gitlab_form_includes_issuer_url_choices(
         self, publishing_request, organization
     ):
@@ -3258,6 +3299,7 @@ class TestManageOrganizationPublishingViews:
             "GitLab": True,
             "Google": True,
             "ActiveState": True,
+            "CircleCI": True,
         }
         publishing_request.session.flash.assert_called_once_with(
             "Trusted publishing is temporarily disabled. "

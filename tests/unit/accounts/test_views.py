@@ -62,6 +62,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingCircleCIPublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -3572,6 +3573,7 @@ class TestManageAccountPublishingViews:
         "GitLab": AdminFlagValue.DISALLOW_GITLAB_OIDC,
         "Google": AdminFlagValue.DISALLOW_GOOGLE_OIDC,
         "ActiveState": AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        "CircleCI": AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
     }
 
     @pytest.fixture
@@ -3654,6 +3656,7 @@ class TestManageAccountPublishingViews:
             "pending_activestate_publisher_form": (
                 form_classes["ActiveState"].return_value
             ),
+            "pending_circleci_publisher_form": form_classes["CircleCI"].return_value,
         }
 
     def _assert_forms_constructed(self, form_classes, request, project_service):
@@ -3664,7 +3667,7 @@ class TestManageAccountPublishingViews:
             check_project_name=project_service.check_project_name,
             user=request.user,
         )
-        for name in ("GitLab", "Google", "ActiveState"):
+        for name in ("GitLab", "Google", "ActiveState", "CircleCI"):
             form_classes[name].assert_called_once_with(
                 request.POST,
                 route_url=request.route_url,
@@ -3751,6 +3754,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         publishing_request.session.flash.assert_not_called()
         self._assert_forms_constructed(
@@ -3774,6 +3778,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         publishing_request.session.flash.assert_called_once_with(
             (
@@ -3810,6 +3815,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
             ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_admin_disabled(
@@ -3836,6 +3846,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             mocker.call(flag),
         ]
         publishing_request.session.flash.assert_called_once_with(
@@ -3874,6 +3885,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
             ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_user_cannot_register(
@@ -3898,6 +3914,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             mocker.call(flag),
         ]
         metrics.increment.assert_called_once_with(
@@ -4011,6 +4028,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             mocker.call(flag),
         ]
         metrics.increment.assert_called_once_with(
@@ -4073,6 +4091,10 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
             ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_ratelimited(
@@ -4128,6 +4150,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
             ),
         ],
     )
@@ -4564,6 +4590,42 @@ class TestManageAccountPublishingViews:
             },
         )
 
+    def test_add_pending_circleci_oidc_publisher_persists_names(
+        self, publishing_request, mocker
+    ):
+        mocker.patch.object(
+            publishing_request.user, "record_event", autospec=True, return_value=None
+        )
+        publishing_request.POST = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "project_name": "some-project-name",
+            }
+        )
+
+        def _lookup_project_metadata(form, project_id):
+            form.circleci_org_name = "some-org"
+            form.circleci_project_name = "some-project"
+
+        mocker.patch.object(
+            views.PendingCircleCIPublisherForm,
+            "_lookup_project_metadata",
+            _lookup_project_metadata,
+        )
+
+        view = views.ManageAccountPublishingViews(publishing_request)
+
+        assert isinstance(view.add_pending_circleci_oidc_publisher(), HTTPSeeOther)
+
+        pending_publisher = publishing_request.db.query(PendingCircleCIPublisher).one()
+        assert pending_publisher.circleci_org_name == "some-org"
+        assert pending_publisher.circleci_project_name == "some-project"
+        assert str(pending_publisher) == (
+            "CircleCI project some-project in organization some-org"
+        )
+
     def test_delete_pending_oidc_publisher_admin_disabled(
         self, publishing_request, form_classes, project_service, metrics, mocker
     ):
@@ -4581,6 +4643,7 @@ class TestManageAccountPublishingViews:
             mocker.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             mocker.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            mocker.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         publishing_request.session.flash.assert_called_once_with(
             (
