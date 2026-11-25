@@ -93,6 +93,18 @@ const sharedResolve = {
   },
 };
 
+const sharedSassLoader = {
+  loader: "sass-loader",
+  options: {
+    sassOptions: {
+      loadPaths: [path.resolve(__dirname, "node_modules")],
+      // sass-loader defaults to `compressed` in production, which strips the
+      // `/*rtl:...*/` directives before rtlcss can read them.
+      // CssMinimizerPlugin minifies the CSS and drops the comments afterwards.
+      style: "expanded",
+    },
+  },
+};
 
 module.exports = [
   {
@@ -215,14 +227,7 @@ module.exports = [
                     },
                   },
                 },
-                {
-                  loader: "sass-loader",
-                  options: {
-                    sassOptions: {
-                      loadPaths: [path.resolve(__dirname, "node_modules")],
-                    },
-                  },
-                },
+                sharedSassLoader,
               ],
             },
             {
@@ -233,14 +238,7 @@ module.exports = [
                 // Translates CSS into CommonJS
                 "css-loader",
                 // Translate SCSS to CSS
-                {
-                  loader: "sass-loader",
-                  options: {
-                    sassOptions: {
-                      loadPaths: [path.resolve(__dirname, "node_modules")],
-                    },
-                  },
-                },
+                sharedSassLoader,
               ],
             },
           ],
