@@ -463,6 +463,19 @@ into a shell, you can use `make debug` instead of `make serve`.
   containers have shut down, run `make serve` in one terminal window while
   running `make initdb` in a separate terminal window.
 
+* If your `umask` is more restrictive than the usual `022` (for example,
+  `027`), the files and directories in your clone are not readable by other
+  users. Some services do not run as your user inside their containers. For
+  example, the `db` service's entrypoint runs as the `postgres` user, so it
+  cannot read the files that Docker Compose mounts from your clone (such as
+  `dev/db/docker-entrypoint-initdb.d/` and `dev/example.sql.xz`). The `db`
+  container then exits with `Permission denied` and `make serve` fails. Make
+  the files in your clone readable by everyone, then run `make serve` again:
+
+    ```shell
+    chmod -R go+rX .
+    ```
+
 ### Errors when executing `make purge`
 
 * If `make purge` fails with a permission error, check ownership
