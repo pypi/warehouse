@@ -612,6 +612,17 @@
 {% endif %}
 </section>
 <hr>
+{% if user.has_primary_verified_email and has_root_permission(request, Permissions.AccountAPIKeys) %}
+  <section id="maintainer-api-keys">
+    <h2>{% trans %}Maintainer API keys{% endtrans %}</h2>
+    <p>
+      {% trans %}Maintainer API keys start with <code>pypi_mapi_v1_</code> and work with the preview API endpoints that accept them.{% endtrans %}
+    </p>
+    <a href="{{ request.route_path('manage.account.api-keys') }}"
+       class="button button--primary">{% trans %}Manage Maintainer API keys{% endtrans %}</a>
+  </section>
+  <hr>
+{% endif %}
 <section id="api-tokens">
   <h2>{% trans %}API tokens{% endtrans %}</h2>
   <p>
@@ -839,6 +850,27 @@
             {% trans username=event.additional.external_username %}GitHub: {{ username }}{% endtrans %}
           {% else %}
             {% trans service=event.additional.service, username=event.additional.external_username %}{{ service }}: {{ username }}{% endtrans %}
+          {% endif %}
+        </small>
+      {% elif event.tag == EventTag.Account.APIKeyAdded %}
+        <strong>{% trans %}Maintainer API key added{% endtrans %}</strong>
+        <br>
+        <small>
+          {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
+          <br>
+          {% trans %}Scopes:{% endtrans %} {{ event.additional.scopes | join(", ") }}
+        </small>
+      {% elif event.tag == EventTag.Account.APIKeyRevoked %}
+        <strong>{% trans %}Maintainer API key revoked{% endtrans %}</strong>
+        <br>
+        <small>
+          {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
+          {% if event.additional.public_url %}
+            <br>
+            {% trans origin=event.additional.origin %}Found publicly and reported by {{ origin }} at:{% endtrans %} {{ event.additional.public_url }}
+          {% elif event.additional.revoked_by %}
+            <br>
+            {% trans %}Revoked by a PyPI administrator{% endtrans %}
           {% endif %}
         </small>
       {% elif event.tag == EventTag.Account.APITokenAdded %}

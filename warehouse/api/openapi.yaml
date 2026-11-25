@@ -35,6 +35,38 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
+    ApiKeyUnauthorized:
+      description: |
+        A Maintainer API key that is malformed, unknown, revoked or expired
+        (`invalid_token`). On routes only Maintainer API keys can open, also a
+        request with no credentials, or with another kind (a bare challenge,
+        no error code). `WWW-Authenticate` carries an RFC 6750 Bearer
+        challenge.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: 'Bearer error="invalid_token", error_description="Maintainer API key expired at 2026-01-01T00:00:00Z"'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ApiKeyForbidden:
+      description: |
+        Access was denied. With a Maintainer API key, `detail` says why: the
+        key lacks the scope (RFC 6750 `insufficient_scope`, with the scope in
+        `WWW-Authenticate`), the owner no longer holds the scope's permission,
+        the account is missing 2FA or a verified email, or the resource denies
+        access. The other denials carry a bare Bearer challenge.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: 'Bearer error="insufficient_scope", error_description="Maintainer API key lacks the required scope: test:token:exchange", scope="test:token:exchange"'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
   schemas:
     Problem:
       type: object
@@ -85,6 +117,11 @@ components:
         - summary
       example: { "kind": "is_malware", "summary": "This project is distributing malware" }
   securitySchemes:
+    maintainerApiKey:
+      description: "Maintainer API key (`pypi_mapi_v1_...`). Preview, PyPI admins only."
+      type: http
+      scheme: bearer
+      bearerFormat: Maintainer API key
     apiTokenBearer:
       description: "[API token](https://docs.pypi.org/publishing/publishing-to-pypi/#using-an-api-token) (`pypi-...`), the credential for publishing, sent as `Authorization: Bearer pypi-...`."
       type: http
@@ -115,6 +152,11 @@ paths:
       operationId: echoUsername
       tags:
         - danger-api
+      security:
+        - maintainerApiKey: [ ]
+        - apiTokenBearer: [ ]
+        - apiTokenToken: [ ]
+        - apiTokenBasic: [ ]
       responses:
         '200':
           description: Echo username of authenticated user
@@ -129,8 +171,55 @@ paths:
                 example: { "username": "someuser" }
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/ApiKeyUnauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/ApiKeyForbidden'
+        default:
+          $ref: '#/components/responses/Error'
+  /danger-api/token:
+    post:
+      summary: Exchange a Maintainer API key for an access token
+      description: |
+        Trade a Maintainer API key for a short-lived access token.
+        Non-functional scaffolding: a separate set of services will issue
+        access tokens later. Until then the token is a structurally valid JWT
+        that is unsigned, carries a claim set that is not final, and is
+        accepted nowhere. Requires a key with the `test:token:exchange` scope.
+      operationId: exchangeToken
+      tags:
+        - danger-api
+      security:
+        - maintainerApiKey: [ ]
+      responses:
+        '200':
+          description: A short-lived access token
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: |
+                      A scaffold JWT: unsigned (`alg: none`), with a claim set
+                      that is not final. Nothing accepts it.
+                  token_type:
+                    type: string
+                    enum:
+                      - Bearer
+                  expires_in:
+                    type: integer
+                    description: Seconds until the token expires, never past the key's own expiry
+                    example: 900
+                required:
+                  - access_token
+                  - token_type
+                  - expires_in
+        '401':
+          $ref: '#/components/responses/ApiKeyUnauthorized'
+        '403':
+          $ref: '#/components/responses/ApiKeyForbidden'
         default:
           $ref: '#/components/responses/Error'
   /danger-api/projects/{name}/observations:

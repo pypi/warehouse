@@ -256,6 +256,9 @@ def test_routes(warehouse, mocker):
         ),
         mocker.call("manage.account.token", "/manage/account/token/", domain=warehouse),
         mocker.call(
+            "manage.account.api-keys", "/manage/account/api-keys/", domain=warehouse
+        ),
+        mocker.call(
             "manage.account.associations.github.connect",
             "/manage/account/associations/github/connect",
             domain=warehouse,
@@ -594,7 +597,13 @@ def test_routes(warehouse, mocker):
         mocker.call(
             "api.echo",
             "/danger-api/echo",
-            auth_methods={"macaroon"},
+            auth_methods={"macaroon", "api-key"},
+            domain=warehouse,
+        ),
+        mocker.call(
+            "api.token.exchange",
+            "/danger-api/token",
+            auth_methods={"api-key"},
             domain=warehouse,
         ),
         mocker.call(

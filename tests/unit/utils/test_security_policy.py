@@ -10,6 +10,7 @@ from zope.interface.verify import verifyClass
 
 from tests.common.db.accounts import UserFactory
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer import ApiKeyContext
 from warehouse.authnz import Permissions
 from warehouse.utils import security_policy
 from warehouse.utils.security_policy import (
@@ -147,6 +148,15 @@ class TestMultiSecurityPolicy:
         user_ctx = UserContext(user, None)
 
         subpolicies = [DummySecurityPolicy(identity=user_ctx)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+
+        assert policy.authenticated_userid(db_request) == str(user.id)
+
+    def test_authenticated_userid_api_key_context(self, db_request, mocker):
+        user = UserFactory.create()
+        api_key_ctx = ApiKeyContext(user, mocker.sentinel.api_key)
+
+        subpolicies = [DummySecurityPolicy(identity=api_key_ctx)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert policy.authenticated_userid(db_request) == str(user.id)

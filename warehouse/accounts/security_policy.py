@@ -13,6 +13,7 @@ from zope.interface import implementer
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer import API_KEY_PREFIX
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.predicates import auth_methods_for_route
@@ -138,11 +139,19 @@ class BasicAuthSecurityPolicy:
         if credentials is None:
             return
 
-        username, _password = credentials
+        username, password = credentials
 
         # The API Token username is allowed to pass through to the
-        # MacaroonSecurityPolicy.
+        # MacaroonSecurityPolicy, except for a Maintainer API key, which can't
+        # upload and would otherwise get only a generic authentication error.
         if username == "__token__":
+            if password.strip().startswith(API_KEY_PREFIX):
+                raise _format_exc_status(
+                    HTTPForbidden(),
+                    "Maintainer API keys (pypi_mapi_v1_...) can't be used to "
+                    "upload. Use an API token (pypi-...) or Trusted Publishing "
+                    "instead.",
+                )
             return
 
         raise _format_exc_status(

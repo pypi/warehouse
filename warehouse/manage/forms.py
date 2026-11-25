@@ -12,6 +12,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.api.maintainer import ApiKeyScope
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationApplicationStatus,
@@ -335,6 +336,40 @@ class DeleteAccountAssociationForm(wtforms.Form):
             )
 
         self.association = association
+
+
+class CreateApiKeyForm(wtforms.Form):
+    name = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
+        validators=[
+            wtforms.validators.DataRequired(message=_("Specify a key name")),
+            wtforms.validators.Length(
+                max=100, message=_("Key name must be 100 characters or less")
+            ),
+        ],
+    )
+    # Choices are the scopes the user may hold, set per request.
+    scopes = wtforms.SelectMultipleField(
+        coerce=ApiKeyScope,
+        validators=[
+            wtforms.validators.InputRequired(message=_("Select at least one scope"))
+        ],
+    )
+    expires_in_days = wtforms.IntegerField(
+        default=30,
+        validators=[
+            wtforms.validators.InputRequired(message=_("Specify an expiry")),
+            wtforms.validators.NumberRange(
+                min=1, max=365, message=_("Expiry must be between 1 and 365 days")
+            ),
+        ],
+    )
+
+    def __init__(self, *args, scopes: list[ApiKeyScope], **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scopes.choices = [
+            wtforms.SelectChoice(scope.value, scope.value) for scope in scopes
+        ]
 
 
 class CreateMacaroonForm(wtforms.Form):

@@ -464,6 +464,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
             mocker.call(".email"),
             mocker.call(".accounts"),
             mocker.call(".macaroons"),
+            mocker.call(".api.maintainer"),
             mocker.call(".oidc"),
             mocker.call(".attestations"),
             mocker.call(".manage"),
@@ -603,6 +604,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         (
             "group:admins",
             {
+                Permissions.AdminApiKeysWrite,
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
                 Permissions.AdminDashboardRead,
@@ -651,6 +653,9 @@ def test_configure(monkeypatch, mocker, settings, environment):
                 Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
+                Permissions.AccountAPIKeys,
+                Permissions.APIKeyExchange,
+                Permissions.APIKeyScopesTest,
             },
         ),
         (

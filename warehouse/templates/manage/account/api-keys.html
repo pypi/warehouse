@@ -1,0 +1,164 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "manage/manage_base.html" %}
+{% set user = request.user %}
+{% set title = gettext("Maintainer API keys") %}
+{% set active_tab = "account" %}
+{% block title %}
+  {% if create_api_key_form.errors %}
+    {% trans %}Error processing form{% endtrans %} –
+  {% endif %}
+  {{ title }}
+{% endblock %}
+{% block main %}
+  <h1 class="page-title">{{ title }}</h1>
+  <div class="callout-block callout-block--warning">
+    <p>{% trans %}Maintainer API keys are a preview available to PyPI admins only.{% endtrans %}</p>
+  </div>
+  <p>
+    {% trans href=request.route_path('manage.account.token') %}Maintainer API keys start with <code>pypi_mapi_v1_</code> and work with the preview API endpoints that accept them. To publish packages, use an <a href="{{ href }}">API token</a> (<code>pypi-</code>) or Trusted Publishing.{% endtrans %}
+  </p>
+  {% if raw_api_key %}
+    <section id="provisioned-key" data-controller="clipboard">
+      <h2>{% trans name=api_key.name %}Key for "{{ name }}"{% endtrans %}</h2>
+      <p>
+        <strong>{% trans %}Scopes:{% endtrans %}</strong> {{ api_key.scopes | join(", ") }}
+      </p>
+      <code class="code-block" data-clipboard-target="source">{{ raw_api_key }}</code>
+      <div class="callout-block callout-block--danger no-top-margin">
+        <p>
+          {% trans %}For security reasons this key will only appear once. <strong>Copy it now.</strong>{% endtrans %}
+        </p>
+      </div>
+      <button type="button"
+              class="button button--primary copy-tooltip copy-tooltip-e"
+              aria-label="{% trans %}Copy key to clipboard{% endtrans %}"
+              data-action="clipboard#copy"
+              data-clipboard-target="tooltip"
+              data-clipboard-tooltip-value="{% trans %}Copy key to clipboard{% endtrans %}">
+        {% trans %}Copy key{% endtrans %}
+      </button>
+    </section>
+    <hr>
+  {% endif %}
+  <section id="api-keys">
+    <h2>{% trans %}Your keys{% endtrans %}</h2>
+    {% if api_keys %}
+      <table class="table table--api-tokens">
+        <caption class="sr-only">{% trans %}Maintainer API keys{% endtrans %}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{% trans %}Name{% endtrans %}</th>
+            <th scope="col">{% trans %}Scopes{% endtrans %}</th>
+            <th scope="col">{% trans %}Ends with{% endtrans %}</th>
+            <th scope="col">{% trans %}Expires{% endtrans %}</th>
+            <th scope="col">{% trans %}Last used{% endtrans %}</th>
+            <th scope="col">{% trans %}Status{% endtrans %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key in api_keys %}
+            <tr>
+              <th scope="row">{{ key.name }}</th>
+              <td>{{ key.scopes | join(", ") }}</td>
+              <td>
+                <code>{{ key.last_four }}</code>
+              </td>
+              <td>{{ humanize(key.expires) }}</td>
+              <td>
+                {% if key.last_used %}
+                  {{ humanize(key.last_used) }}
+                {% else %}
+                  {% trans %}Never{% endtrans %}
+                {% endif %}
+              </td>
+              <td>
+                {% if key.revoked %}
+                  {% trans %}Revoked{% endtrans %}
+                {% elif key.expires <= now() %}
+                  {% trans %}Expired{% endtrans %}
+                {% else %}
+                  <form method="post">
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ request.session.get_csrf_token() }}">
+                    <input type="hidden" name="revoke_api_key_id" value="{{ key.id }}">
+                    <input type="submit"
+                           class="button button--small button--danger"
+                           value="{% trans %}Revoke{% endtrans %}">
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>{% trans %}You have no Maintainer API keys.{% endtrans %}</p>
+    {% endif %}
+    <p>
+      {% trans %}Keys disappear from this list 90 days after they are revoked or expire. Your security history keeps a record of them.{% endtrans %}
+    </p>
+  </section>
+  <hr>
+  {{ form_error_anchor(create_api_key_form) }}
+  <section id="create-api-key">
+    <h2>{% trans %}Create a key{% endtrans %}</h2>
+    <form method="post" id="create-api-key-form">
+      <input type="hidden"
+             name="csrf_token"
+             value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(create_api_key_form) }}
+      <div class="form-group">
+        <label for="name" class="form-group__label">
+          {% trans %}Key name{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        <input type="text"
+               name="name"
+               id="name"
+               autocomplete="off"
+               class="form-group__field"
+               aria-describedby="name-errors"
+               value="{{ create_api_key_form.name.data or "" }}">
+        <div id="name-errors">{{ field_errors(create_api_key_form.name) }}</div>
+      </div>
+      <fieldset class="form-group">
+        <legend class="form-group__label">
+          {% trans %}Scopes{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </legend>
+        {% for choice in create_api_key_form.scopes.choices %}
+          <label>
+            <input type="checkbox"
+                   name="scopes"
+                   value="{{ choice.value }}"
+                   {{ "checked" if choice.value in (create_api_key_form.scopes.data or []) else "" }}>
+            <code>{{ choice.label }}</code>
+          </label>
+          <br>
+        {% endfor %}
+        <div id="scopes-errors">{{ field_errors(create_api_key_form.scopes) }}</div>
+      </fieldset>
+      <div class="form-group">
+        <label for="expires_in_days" class="form-group__label">
+          {% trans %}Expires in (days){% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        <input type="number"
+               name="expires_in_days"
+               id="expires_in_days"
+               min="1"
+               max="365"
+               class="form-group__field"
+               aria-describedby="expires-errors"
+               value="{{ create_api_key_form.expires_in_days.data or "" }}">
+        <div id="expires-errors">{{ field_errors(create_api_key_form.expires_in_days) }}</div>
+      </div>
+      <div>
+        <input value="{% trans %}Create key{% endtrans %}"
+               class="button button--primary"
+               type="submit">
+      </div>
+    </form>
+  </section>
+{% endblock %}

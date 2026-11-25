@@ -461,6 +461,27 @@
       {% elif event.tag == EventTag.Account.RecoveryCodesUsed %}
         <strong>{% trans %}Recovery code used for login{% endtrans %}</strong>
         <br>
+      {% elif event.tag == EventTag.Account.APIKeyAdded %}
+        <strong>{% trans %}Maintainer API key added{% endtrans %}</strong>
+        <br>
+        <small>
+          {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
+          <br>
+          {% trans %}Scopes:{% endtrans %} {{ event.additional.scopes | join(", ") }}
+        </small>
+      {% elif event.tag == EventTag.Account.APIKeyRevoked %}
+        <strong>{% trans %}Maintainer API key revoked{% endtrans %}</strong>
+        <br>
+        <small>
+          {% trans %}Key name:{% endtrans %} {{ event.additional.name }}
+          {% if event.additional.public_url %}
+            <br>
+            {% trans origin=event.additional.origin %}Found publicly and reported by {{ origin }} at:{% endtrans %} {{ event.additional.public_url }}
+          {% elif event.additional.revoked_by %}
+            <br>
+            {% trans %}Revoked by a PyPI administrator{% endtrans %}
+          {% endif %}
+        </small>
       {% elif event.tag == EventTag.Account.APITokenAdded %}
         <strong>{% trans %}API token added{% endtrans %}</strong>
         <br>

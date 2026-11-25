@@ -24,6 +24,7 @@ from ...common.db.accounts import (
 )
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.macaroons import MacaroonFactory
+from ...common.db.maintainer_api import ApiKeyFactory
 from ...common.db.observations import ObserverFactory
 from ...common.db.oidc import PendingGitHubPublisherFactory
 from ...common.db.organizations import (
@@ -48,8 +49,8 @@ from ...common.db.ses import EmailMessageFactory, EventFactory as SESEventFactor
 # section. Pinned so an unbounded or duplicated section query is visible.
 # The truncated count is the ceiling: every capped section fills its page and
 # pays for the COUNT that gives its true total.
-EXPECTED_QUERY_COUNT = 32
-EXPECTED_TRUNCATED_QUERY_COUNT = 41
+EXPECTED_QUERY_COUNT = 33
+EXPECTED_TRUNCATED_QUERY_COUNT = 42
 
 
 class TestHelpers:
@@ -129,6 +130,7 @@ class TestUserSection:
         assert result["two_factor"]["webauthn"] == []
         assert result["two_factor"]["recovery_codes"] == []
         assert result["macaroons"] == []
+        assert result["api_keys"] == []
         assert result["unique_logins"] == []
         assert result["account_associations"] == []
         assert result["terms_of_service_engagements"] == []
@@ -146,6 +148,7 @@ class TestUserSection:
         webauthn = WebAuthnFactory.create(user=user)
         recovery_code = RecoveryCodeFactory.create(user=user)
         macaroon = MacaroonFactory.create(user_id=user.id)
+        api_key = ApiKeyFactory.create(user=user)
         UserUniqueLoginFactory.create(user=user)
         UserTermsOfServiceEngagementFactory.create(user=user)
 
@@ -164,6 +167,9 @@ class TestUserSection:
         assert result["emails"][0]["email"] == email.email
         assert result["macaroons"][0]["id"] == str(macaroon.id)
         assert "key" not in result["macaroons"][0]
+        assert result["api_keys"][0]["id"] == str(api_key.id)
+        assert result["api_keys"][0]["scopes"] == ["test:echo"]
+        assert api_key.hashed_key not in json.dumps(result)
         assert len(result["unique_logins"]) == 1
         assert len(result["terms_of_service_engagements"]) == 1
         assert json.dumps(result)
@@ -1142,6 +1148,7 @@ class TestExportUser:
             JournalEntryFactory.create(submitted_by=admin, name=journal.name)
             EmailMessageFactory.create(to=email.email)
         MacaroonFactory.create(user_id=user.id)
+        ApiKeyFactory.create(user=user)
         UserUniqueLoginFactory.create(user=user)
         PendingGitHubPublisherFactory.create(added_by=user)
         db_request.user = admin
@@ -1175,6 +1182,7 @@ class TestExportUser:
             JournalEntryFactory.create(submitted_by=admin, name=journal.name)
             EmailMessageFactory.create(to=email.email)
         MacaroonFactory.create(user_id=user.id)
+        ApiKeyFactory.create(user=user)
         UserUniqueLoginFactory.create(user=user)
         PendingGitHubPublisherFactory.create(added_by=user)
         db_request.db.flush()

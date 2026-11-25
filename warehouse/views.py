@@ -25,6 +25,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
     exception_response,
     status_map,
 )
@@ -47,6 +48,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
+from warehouse.api.maintainer.security_policy import bearer_challenge
 from warehouse.api.problems import PROBLEM_CONTENT_TYPE, problem
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
@@ -209,7 +211,11 @@ _PROBLEM_KEEPS_HEADERS = ("Allow", "Retry-After", "WWW-Authenticate")
 @exception_view_config(PredicateMismatch, path_info=API_PATH)
 def forbidden_api(
     exc: HTTPForbidden | PredicateMismatch, request: Request
-) -> HTTPForbidden:
+) -> HTTPForbidden | HTTPUnauthorized:
+    # Requests to routes that accept Maintainer API keys get RFC 6750 errors.
+    if (challenge := bearer_challenge(exc, request)) is not None:
+        return challenge
+
     # If the forbidden error is for an API endpoint, return a JSON response
     # instead of redirecting
     return problem(HTTPForbidden, "Access was denied to this resource.")

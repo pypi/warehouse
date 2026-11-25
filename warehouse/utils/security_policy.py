@@ -8,6 +8,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.utils import UserContext
+from warehouse.api.maintainer import ApiKeyContext
 from warehouse.authnz import Permissions
 
 
@@ -23,8 +24,7 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
-    # Placeholder for the Maintainer API, the key-authenticated surface kept
-    # distinct from Upload API Tokens (macaroons). No policy implements it yet.
+    # Maintainer API keys, kept distinct from API tokens (macaroons).
     API_KEY = "api-key"
 
 
@@ -40,8 +40,11 @@ PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
         {AuthenticationMethod.MACAROON, AuthenticationMethod.BASIC_AUTH}
     ),
     # Transitional: move to the Maintainer API, then delete.
-    Permissions.APIEcho: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.APIEcho: frozenset(
+        {AuthenticationMethod.MACAROON, AuthenticationMethod.API_KEY}
+    ),
     Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.APIKeyExchange: frozenset({AuthenticationMethod.API_KEY}),
 }
 
 
@@ -97,7 +100,8 @@ class MultiSecurityPolicy:
         return identity
 
     def authenticated_userid(self, request):
-        if (ident := self.identity(request)) and isinstance(ident, UserContext):
+        ident = self.identity(request)
+        if isinstance(ident, (UserContext, ApiKeyContext)):
             # TODO: Note, this logic breaks the contract of a SecurityPolicy, the
             #       authenticated_userid is intended to be used to fetch the unique
             #       identifier that represents the current identity. We're leaving
