@@ -1,17 +1,4 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-{%- macro pip_command(release, request_route, test_environment) -%}
-  {%- if test_environment -%}
-    {% set index_url = " -i https://test.pypi.org/simple/" %}
-  {%- endif -%}
-  {%- if request_route == "packaging.release" -%}
-    {% set project_version = "==" + release.version %}
-  {%- endif -%}
-  {%- if release.version.epoch -%}
-    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
-  {%- else -%}
-    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
-  {%- endif -%}
-{%- endmacro -%}
 {% if project.lifecycle_status == "quarantine-enter" %}
   {% set banner_modifier = "banner--quarantined" %}
 {% elif release.lifecycle_status == "quarantine-enter" %}
@@ -32,19 +19,54 @@
       <p class="project-header__summary">{{ release.summary }}</p>
     {% endif %}
     {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
-      <div data-controller="clipboard"
-           data-clipboard-plausible-event-value="Copy Project Install Command">
+      {% set installer_spec = ("==" ~ release.version) if request.matched_route.name == "packaging.release" else "" %}
+      {% set installer_index = "https://test.pypi.org/simple/" if testPyPI else "" %}
+      {% set installer_pip_flag = (" -i " ~ installer_index) if installer_index else "" %}
+      {# Quote epoch versions to avoid history expansion in interactive shells. #}
+      {% set installer_quote = "!" in installer_spec %}
+      {% set installer_target = ("'" ~ release.project.name ~ installer_spec ~ "'") if installer_quote else (release.project.name ~ installer_spec) %}
+      <div data-controller="clipboard installer-command"
+           data-clipboard-plausible-event-value="Copy Project Install Command"
+           data-installer-command-name-value="{{ release.project.name }}"
+           data-installer-command-spec-value="{{ installer_spec }}"
+           data-installer-command-index-value="{{ installer_index }}"
+           data-installer-command-quote-value="{{ 'true' if installer_quote else 'false' }}">
         <p class="project-header__pip-instructions">
-          <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <label for="installer-select" class="sr-only">{% trans %}Select installer or project name{% endtrans %}</label>
+          <span class="project-header__installer">
+            <select id="installer-select"
+                    disabled
+                    data-installer-command-target="select"
+                    data-action="change->installer-command#change">
+              <option value="pip">pip</option>
+              <option value="uv">uv</option>
+              <option value="poetry">poetry</option>
+              <option value="pdm">pdm</option>
+              <option value="pipenv">pipenv</option>
+              <option value="name">{% trans %}Project name{% endtrans %}</option>
+            </select>
+          </span>
+          <span id="pip-command" data-installer-command-target="command">install{{ installer_pip_flag }} {{ installer_target }}</span>
           <button type="button"
                   class="copy-tooltip copy-tooltip-n"
                   data-action="clipboard#copy"
                   data-clipboard-target="tooltip"
                   data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
             <i class="fa fa-copy" aria-hidden="true"></i>
-            <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+            <span class="sr-only">{% trans %}Copy to clipboard{% endtrans %}</span>
           </button>
         </p>
+        <span hidden
+              data-clipboard-target="source"
+              data-installer-command-target="full">pip install{{ installer_pip_flag }} {{ installer_target }}</span>
+        {% if testPyPI %}
+          <p class="project-header__installer-note"
+             hidden
+             data-installer-command-target="poetryNote">
+            {% trans %}First-time setup:{% endtrans %}
+            <code>poetry source add --priority=supplemental testpypi {{ installer_index }}</code>
+          </p>
+        {% endif %}
       </div>
     {% endif %}
   </div>
