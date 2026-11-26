@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-12-29 13:51+0200\n"
-"PO-Revision-Date: 2026-11-22 00:18+0000\n"
+"PO-Revision-Date: 2026-11-26 16:36+0000\n"
 "Last-Translator: phlostically <phlostically@users.noreply.hosted.weblate.org>"
 "\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -1152,16 +1152,13 @@ msgid "Choose GitLab issuer URL"
 msgstr "Elekti retadreson de ĵetongenerilo ĉe GitHub"
 
 #: warehouse/oidc/forms/gitlab.py:113
-#, fuzzy
-#| msgid "Workflow name must end with .yml or .yaml"
 msgid "Top-level pipeline file path must end with .yml or .yaml"
-msgstr "Nomo de laborfluo devas finiĝi per .yml aŭ .yaml"
+msgstr ""
+"Dosierloko de supranivela ĉenstabla dosiero devas finiĝi per .yml aŭ .yaml"
 
 #: warehouse/oidc/forms/gitlab.py:117
-#, fuzzy
-#| msgid "Top-level pipeline file path"
 msgid "Top-level pipeline file path cannot start or end with /"
-msgstr "Supranivela ĉenstabla dosierloko"
+msgstr "Supranivela ĉenstabla dosierloko ne povas komenciĝi aŭ finiĝi per /"
 
 #: warehouse/packaging/forms.py:17
 msgid "Provide an Inspector link to specific lines of code."
@@ -1588,10 +1585,8 @@ msgid "PyPI documentation"
 msgstr "Dokumentaro pri PyPI"
 
 #: warehouse/templates/base.html:386
-#, fuzzy
-#| msgid "Settings"
 msgid "Getting help"
-msgstr "Agordoj"
+msgstr "Helpiĝi"
 
 #: warehouse/templates/base.html:392
 msgid "Installing packages"
@@ -1602,10 +1597,8 @@ msgid "Uploading packages"
 msgstr "Alŝuto de pakoj"
 
 #: warehouse/templates/base.html:404
-#, fuzzy
-#| msgid "Python Packaging User Guide"
 msgid "Packaging user guide"
-msgstr "Manlibro por Python-Uzantoj pri Pakado"
+msgstr "Manlibro por uzantoj pri pakado"
 
 #: warehouse/templates/base.html:410 warehouse/templates/pages/sitemap.html:31
 msgid "About PyPI"
@@ -2762,10 +2755,8 @@ msgid "Manage organization"
 msgstr "Administri organizaĵon"
 
 #: warehouse/templates/email/new-organization-approved/body.html:20
-#, fuzzy
-#| msgid "Requires:"
 msgid "Action Required:"
-msgstr "Postulas:"
+msgstr "Ago postulata:"
 
 #: warehouse/templates/email/new-organization-approved/body.html:20
 msgid ""
@@ -3742,7 +3733,7 @@ msgstr "Organizaĵo"
 
 #: warehouse/templates/includes/language-dropdown.html:8
 msgid "Change language"
-msgstr ""
+msgstr "Ŝanĝi lingvon"
 
 #: warehouse/templates/includes/language-dropdown.html:14
 msgid "Languages"
@@ -4282,13 +4273,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-security.html:63
-#, fuzzy, python-format
-#| msgid "%(count)s file"
-#| msgid_plural "%(count)s files"
+#, python-format
 msgid "Select from %(count)s file"
 msgid_plural "Select from %(count)s files"
-msgstr[0] "%(count)s dosiero"
-msgstr[1] "%(count)s dosieroj"
+msgstr[0] "Elekti el %(count)s dosiero"
+msgstr[1] "Elekti el %(count)s dosieroj"
 
 #: warehouse/templates/includes/packaging/project-security.html:82
 msgid "Filter files"
@@ -4299,11 +4288,8 @@ msgid "File type"
 msgstr "Tipo de dosiero"
 
 #: warehouse/templates/includes/packaging/project-security.html:135
-#, fuzzy
-#| msgid "Source Distribution"
-#| msgid_plural "Source Distributions"
 msgid "Source Distribution (sdist)"
-msgstr "Fonta distribuo"
+msgstr "Fonta distribuo (sdist)"
 
 #: warehouse/templates/includes/packaging/project-security.html:147
 msgid "Wheel"
@@ -4339,7 +4325,7 @@ msgstr "Jen dosiero alŝutita sen originpruvaj metadatumoj."
 
 #: warehouse/templates/includes/packaging/project-security.html:285
 msgid "A note on package security"
-msgstr ""
+msgstr "Noto pri sekureco de pakoj"
 
 #: warehouse/templates/includes/packaging/project-security.html:287
 msgid ""
@@ -4419,10 +4405,10 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-status.html:94
 #: warehouse/templates/includes/packaging/project-status.html:110
-#, fuzzy, python-format
-#| msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
+#, python-format
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
-msgstr "<a href=\"%(href)s\">Versio %(version)s</a> fortirita"
+msgstr ""
+"Konsideru uzi <a href=\"%(href)s\">la eldonon %(version)s</a> anstataŭe."
 
 #: warehouse/templates/includes/packaging/project-status.html:107
 #, python-format
@@ -4433,7 +4419,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-status.html:114
 msgid "Reason given by maintainers:"
-msgstr ""
+msgstr "Kialo donita de prizorgantoj:"
 
 #: warehouse/templates/includes/packaging/project-status.html:127
 #, python-format
@@ -4464,10 +4450,9 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
 #: warehouse/templates/includes/packaging/metadata/provenance.html:70
-#, fuzzy, python-format
-#| msgid "Verified by PyPI on %(release_date)s"
+#, python-format
 msgid "Data verified by PyPI on&nbsp;%(date)s"
-msgstr "Konfirmita de PyPI je %(release_date)s"
+msgstr "Datumoj konfirmitaj de PyPI je&nbsp;%(date)s"
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:9
 msgid ""
@@ -4543,10 +4528,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:57
-#, fuzzy
-#| msgid "Open merge requests:"
 msgid "Open merge requests"
-msgstr "Malfermitaj kunigpetoj:"
+msgstr "Malfermitaj kunigpetoj"
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:3
 msgid "Key dates"
@@ -4607,10 +4590,8 @@ msgid "License expression"
 msgstr "Licenca esprimo"
 
 #: warehouse/templates/includes/packaging/metadata/license.html:8
-#, fuzzy
-#| msgid "License Expression"
 msgid "About license expressions"
-msgstr "Licenco-Esprimo"
+msgstr "Pri licenco-esprimoj"
 
 #: warehouse/templates/includes/packaging/metadata/license.html:16
 msgid "View SPDX License List"
@@ -4626,13 +4607,11 @@ msgid "Avatar for {username} from gravatar.com"
 msgstr "Avataro de {username} ĉe gravatar.com"
 
 #: warehouse/templates/includes/packaging/metadata/maintainers.html:20
-#, fuzzy, python-format
-#| msgid "%(count)s organization owner"
-#| msgid_plural "%(count)s organization owners"
+#, python-format
 msgid "%(count)s maintainer"
 msgid_plural "%(count)s maintainers"
-msgstr[0] "%(count)s posedanto de organizaĵo"
-msgstr[1] "%(count)s posedantoj de organizaĵo"
+msgstr[0] "%(count)s prizorganto"
+msgstr[1] "%(count)s prizorgantoj"
 
 #: warehouse/templates/includes/packaging/metadata/organization.html:3
 #: warehouse/templates/manage/account/publishing.html:37
@@ -4780,10 +4759,8 @@ msgid "Build platform"
 msgstr "Platformo de konstruo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:98
-#, fuzzy
-#| msgid "Publishing"
 msgid "Publishing platform"
-msgstr "Eldonado"
+msgstr "Eldona platformo"
 
 #: warehouse/templates/includes/packaging/security/attestation.html:107
 msgid "Build repository"
@@ -4915,10 +4892,8 @@ msgstr "Konto"
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:44
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:91
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:20
-#, fuzzy
-#| msgid "Remove"
 msgid "Removed"
-msgstr "Forigi"
+msgstr "Forigita"
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:63
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:108
@@ -6212,13 +6187,7 @@ msgstr ""
 "href=\"%(delete_href)s\">forigi projekton</a>"
 
 #: warehouse/templates/manage/account.html:1002
-#, fuzzy, python-format
-#| msgid ""
-#| "Your account is currently the <strong>sole owner</strong> of %(count)s "
-#| "project."
-#| msgid_plural ""
-#| "Your account is currently the <strong>sole owner</strong> of %(count)s "
-#| "projects."
+#, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
 "organization."
@@ -6227,10 +6196,10 @@ msgid_plural ""
 "organizations."
 msgstr[0] ""
 "Via konto estas aktuale la <strong>sola posedanto</strong> de %(count)s "
-"projekto."
+"organizaĵo."
 msgstr[1] ""
 "Via konto estas aktuale la <strong>sola posedanto</strong> de %(count)s "
-"projektoj."
+"organizaĵoj."
 
 #: warehouse/templates/manage/account.html:1007
 #, fuzzy
@@ -7051,10 +7020,8 @@ msgid "Active Projects"
 msgstr "Enarĥivigi projekton"
 
 #: warehouse/templates/manage/projects.html:120
-#, fuzzy
-#| msgid "No projects"
 msgid "No active projects."
-msgstr "Neniu projekto"
+msgstr "Neniu aktiva projekto."
 
 #: warehouse/templates/manage/projects.html:124
 #, python-format
@@ -7158,8 +7125,6 @@ msgstr ""
 #: warehouse/templates/manage/project/settings.html:97
 #: warehouse/templates/manage/project/settings.html:170
 #: warehouse/templates/manage/project/settings.html:259
-#, fuzzy
-#| msgid "Project name"
 msgid "Project Name"
 msgstr "Nomo de projekto"
 
@@ -8150,10 +8115,9 @@ msgid "%(organization_name)s organization deleted"
 msgstr "La organizaĵo «%(organization_name)s» estis forviŝita"
 
 #: warehouse/templates/manage/organization/history.html:24
-#, fuzzy, python-format
-#| msgid "%(organization_name)s organization declined"
+#, python-format
 msgid "%(organization_name)s organization deactivated"
-msgstr "La organizaĵo «%(organization_name)s» estis malaprobita"
+msgstr "La organizaĵo «%(organization_name)s» estis malaktivigita"
 
 #: warehouse/templates/manage/organization/history.html:26
 #, fuzzy, python-format
@@ -8262,16 +8226,13 @@ msgstr ""
 "organizaĵa %(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:81
-#, fuzzy, python-format
-#| msgid ""
-#| "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
-#| "organization %(role_name)s"
+#, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "organization"
 msgstr ""
-"Nuligis inviton por <a href=\"%(href)s\">%(username)s</a> aliĝi kiel "
-"organizaĵa %(role_name)s"
+"Nuligis inviton por <a href=\"%(href)s\">%(username)s</a> aliĝi al la "
+"organizaĵo"
 
 #: warehouse/templates/manage/organization/history.html:87
 #, python-format
@@ -8370,7 +8331,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:143
 msgid "Subscription canceled"
-msgstr ""
+msgstr "Abono nuligita"
 
 #: warehouse/templates/manage/organization/history.html:146
 #, python-format
@@ -9237,16 +9198,13 @@ msgstr ""
 "projekta %(role_name)s"
 
 #: warehouse/templates/manage/project/history.html:154
-#, fuzzy, python-format
-#| msgid ""
-#| "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
-#| "project %(role_name)s"
+#, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join the "
 "project"
 msgstr ""
-"Nuligis inviton por <a href=\"%(href)s\">%(username)s</a> aliĝi kiel "
-"projekta %(role_name)s"
+"Nuligis inviton por <a href=\"%(href)s\">%(username)s</a> aliĝi al la "
+"projekto"
 
 #: warehouse/templates/manage/project/history.html:164
 #, python-format
@@ -10006,7 +9964,7 @@ msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr ""
-"Individuaj posedantoj kaj mastrumantoj de la projekto retenos siajn "
+"Individuaj posedantoj kaj prizorgantoj de la projekto retenos siajn "
 "projektajn permesojn."
 
 #: warehouse/templates/manage/project/settings.html:93
@@ -10073,7 +10031,7 @@ msgid ""
 "All other individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
-"Ĉiuj aliaj individuaj posedantoj kaj mastrumantoj de la projekto retenos "
+"Ĉiuj aliaj individuaj posedantoj kaj prizorgantoj de la projekto retenos "
 "siajn projektajn permesojn."
 
 #: warehouse/templates/manage/project/settings.html:170
@@ -10577,7 +10535,7 @@ msgstr ""
 
 #: warehouse/templates/pages/organizations.html:63
 msgid "$5 per member, per month"
-msgstr ""
+msgstr "po kvin usonaj dolaro por ĉiu ano ĉiumonate"
 
 #: warehouse/templates/pages/organizations.html:67
 #, fuzzy
