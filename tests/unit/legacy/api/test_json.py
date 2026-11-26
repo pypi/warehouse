@@ -3,6 +3,7 @@
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid_retry import RetryableException
 
 from warehouse.legacy.api import json
 from warehouse.packaging.models import LifecycleStatus, ReleaseURL
@@ -826,6 +827,30 @@ class TestJSONRelease:
             ],
             "organization": org_project.organization.name,
         }
+
+    def test_release_deleted_after_lookup_retries(self, db_request, db_session):
+        release = ReleaseFactory.create()
+        db_request.matchdict = {"name": release.project.normalized_name}
+
+        db_session.delete(release)
+        db_session.flush()
+
+        with pytest.raises(
+            RetryableException, match="release description no longer exists"
+        ):
+            json.json_release(release, db_request)
+
+    def test_release_quarantined_after_lookup_retries(self, db_request, db_session):
+        release = ReleaseFactory.create()
+        db_request.matchdict = {"name": release.project.normalized_name}
+
+        release.lifecycle_status = LifecycleStatus.QuarantineEnter
+        db_session.flush()
+
+        with pytest.raises(
+            RetryableException, match="release no longer exists or is quarantined"
+        ):
+            json.json_release(release, db_request)
 
 
 class TestJSONReleaseSlash:

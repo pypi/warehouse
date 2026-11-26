@@ -3,6 +3,7 @@
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
+from pyramid_retry import RetryableException
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm import Load, contains_eager, selectinload
 
@@ -69,8 +70,11 @@ def _json_data(request, project, release, *, all_releases):
         request.db.query(Description)
         .options(Load(Description).load_only(Description.content_type, Description.raw))
         .filter(Description.release == release)
-        .one()
+        .one_or_none()
     )
+    # Deleted or quarantined since the route factory ran, retry the request.
+    if release_description is None:
+        raise RetryableException("release description no longer exists")
 
     # Finally set an ordering, and execute the query.
     release_files = release_files.order_by(
@@ -127,6 +131,8 @@ def _json_data(request, project, release, *, all_releases):
         ]
         for r, fs in releases_and_files.items()
     }
+    if release.version not in releases:
+        raise RetryableException("release no longer exists or is quarantined")
 
     # Serialize a list of vulnerabilities for this release
     vulnerabilities = [
