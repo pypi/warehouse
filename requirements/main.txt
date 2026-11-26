@@ -746,9 +746,9 @@ deprecated==3.0.1 \
     --hash=sha256:2f5a9fecc9961e26462846cf1e57f73a612b1d0b79c27dceeed8de647beadcee \
     --hash=sha256:eda314c115e8bc0fe52b90a6869e19240ac3cedb7449adfdba5981cf9ef693e1
     # via limits
-disposable-email-domains==0.0.295 \
-    --hash=sha256:5d168bda5f94424063a1e578ab211dc5413271e26113ddabdab3e10f3cb5060e \
-    --hash=sha256:5ef7100cc36dfc10dddf2dea9c7c0cedc1d72b9ed4a0875d8a1be6ffd6f90365
+disposable-email-domains==0.0.296 \
+    --hash=sha256:02dd96ef4217e733a1799325bf8d85980b66d2cca38e0c10717541fa7c88bfa4 \
+    --hash=sha256:588655847b4e7b35fce830f2db8f39fbcaebae8cf630b8c25bec8e4893015414
     # via -r requirements/main.in
 dnspython==2.9.2 \
     --hash=sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9 \
@@ -1835,7 +1835,6 @@ packaging==26.3 \
     #   linehaul
     #   packaging-legacy
     #   pypi-attestations
-    #   zope-sqlalchemy
 packaging-legacy==23.0.post0 \
     --hash=sha256:6cd21cd283c09409349bccc10bb55bfd837b4aab86a7b0f87bfcb8dd9831a8a3 \
     --hash=sha256:c974a42291a77112313f0198b87ad96e07a3c357295d572560a4b9c368f7d9db
@@ -3015,9 +3014,9 @@ zope-interface==8.7 \
     #   transaction
     #   wired
     #   zope-sqlalchemy
-zope-sqlalchemy==4.1 \
-    --hash=sha256:1912525fa0b2b6ff0c3cab46aab59fed45302d4de4e4b03e0d11386e770f4531 \
-    --hash=sha256:24c18895af4b962c0b214d84fbdf548df4ac504c9eb437b30d9bff25af0ae072
+zope-sqlalchemy==4.2 \
+    --hash=sha256:2c3f2f00bf55c48816bca17582acb7b7371e6385b79666ad95e0714710421a8e \
+    --hash=sha256:fcf33370f33df8b03a03b3abe99803e9ef6c17664fb721b8d11d1c0f50851ef6
     # via -r requirements/main.in
 zxcvbn==4.5.0 \
     --hash=sha256:2b6eed621612ce6d65e6e4c7455b966acee87d0280e257956b1f06ccc66bd5ff \
