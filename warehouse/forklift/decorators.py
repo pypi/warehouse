@@ -26,8 +26,9 @@ def sanitize(wrapped):
                 # distutils "helpfully" substitutes unknown, but "required" values
                 # with the string "UNKNOWN". This is basically never what anyone
                 # actually wants so we'll just go ahead and delete anything whose
-                # value is UNKNOWN.
-                if value.strip() == "UNKNOWN":
+                # value is UNKNOWN. The organization field isn't metadata, though,
+                # and UNKNOWN is a valid organization name.
+                if value.strip() == "UNKNOWN" and key != "organization":
                     del request.POST[key]
 
                 # Escape NUL characters, which psycopg doesn't like
