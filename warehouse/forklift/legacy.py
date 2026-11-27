@@ -920,8 +920,12 @@ def file_upload(request):
     if meta.description:
         description_content_type = meta.description_content_type or "text/x-rst"
 
+        render_warnings = io.StringIO()
         rendered = readme.render(
-            meta.description, description_content_type, use_fallback=False
+            meta.description,
+            description_content_type,
+            use_fallback=False,
+            stream=render_warnings,
         )
 
         # Uploading should prevent broken rendered descriptions.
@@ -936,6 +940,14 @@ def file_upload(request):
                     "The description failed to render "
                     "in the default format of reStructuredText."
                 )
+            # Upload clients read the HTTP reason phrase. Keep it short and printable.
+            render_warnings.seek(0)
+            diagnostic = re.sub(
+                r"[\x00-\x1f\x7f-\x9f]", " ", render_warnings.readline(512)
+            ).strip()
+            if diagnostic:
+                message = f"{message} {diagnostic}"
+
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:invalid-description"]
             )
