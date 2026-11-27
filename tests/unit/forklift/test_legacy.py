@@ -1432,15 +1432,13 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        ("description_content_type", "description", "message"),
+        ("description_content_type", "description", "message", "diagnostic"),
         [
             (
                 "text/x-rst",
                 ".. invalid-directive::",
-                (
-                    "400 The description failed to render for 'text/x-rst'. "
-                    "See /the/docs/url/ for more information."
-                ),
+                "400 The description failed to render for 'text/x-rst'. ",
+                'Unknown directive type "invalid-directive".',
             ),
             (
                 None,
@@ -1448,8 +1446,14 @@ class TestFileUpload:
                 (
                     "400 The description failed to render in the default format "
                     "of reStructuredText. "
-                    "See /the/docs/url/ for more information."
                 ),
+                'Unknown directive type "invalid-directive".',
+            ),
+            (
+                "text/markdown",
+                " \n",
+                "400 The description failed to render for 'text/markdown'. ",
+                None,
             ),
         ],
     )
@@ -1460,6 +1464,7 @@ class TestFileUpload:
         description_content_type,
         description,
         message,
+        diagnostic,
         mocker,
     ):
         user = UserFactory.create()
@@ -1494,7 +1499,14 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == message
+        assert resp.status.startswith(message)
+        assert resp.status.endswith("See /the/docs/url/ for more information.")
+        if diagnostic is None:
+            assert resp.status == message + "See /the/docs/url/ for more information."
+        else:
+            assert diagnostic in resp.status
+            assert diagnostic in resp.detail
+            assert "\n" not in resp.status
 
         db_request.user_docs_url.assert_called_once_with(
             "/project-management/project-descriptions/",

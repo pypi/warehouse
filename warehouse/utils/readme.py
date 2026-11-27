@@ -18,7 +18,7 @@ _RENDERERS = {
 }
 
 
-def render(value, content_type=None, use_fallback=True):
+def render(value, content_type=None, use_fallback=True, *, stream=None):
     if value is None:
         return value
 
@@ -34,7 +34,7 @@ def render(value, content_type=None, use_fallback=True):
 
     # Actually render the given value, this will not only render the value, but
     # also ensure that it's had any disallowed markup removed.
-    rendered = renderer.render(value)
+    rendered = renderer.render(value, stream=stream)
 
     # Wrap plaintext as preformatted to preserve whitespace.
     if content_type == "text/plain":
