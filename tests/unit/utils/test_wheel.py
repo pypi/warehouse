@@ -94,6 +94,8 @@ def test_wheel_filename_requires_named_archive():
         ("..\\..\\foo", False),
         ("/foo", False),
         ("../../../../foo", False),
+        (".", False),
+        ("..", False),
     ],
 )
 def test_validate_entrypoints_names(section_name, entrypoint_name, valid, tmp_path):
