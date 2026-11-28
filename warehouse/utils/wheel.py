@@ -560,7 +560,9 @@ def _validate_section(section: configparser.SectionProxy):
     Validate the entry point names in a single section.
     """
     for ep_name in section:
-        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None:
+        # `.` and `..` match the data model's name pattern, but as script
+        # names they are path components that installers reject.
+        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None or ep_name in {".", ".."}:
             raise InvalidWheelEntryPointsError(
                 f"Invalid entry point name {ep_name!r} in {section.name!r}"
             )
